@@ -1460,6 +1460,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     kmp_type_e next_type = KMP_TYPE_NONE;
     sec_prot_keys_t *sec_keys = &supp_entry->sec_keys;
 
+    if (sec_keys->node_role == WS_NR_ROLE_UNKNOWN &&
+        !(pae_auth->interface_ptr->ws_info.fan_features & WS_FAN_FEATURE_FFN_1_0)) {
+        TRACE(TR_DROP, "drop %-9s: FAN 1.0 authentication disabled", "eap");
+        return KMP_TYPE_NONE;
+    }
     // Supplicant has indicated that PMK is not valid
     if (sec_keys->pmk_mismatch) {
         sec_keys->ptk_mismatch = true;
@@ -1479,7 +1484,15 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     }
 
     int8_t gtk_index = -1;
-    if (sec_keys->node_role == WS_NR_ROLE_LFN && ws_version_1_1(pae_auth->interface_ptr)) {
+    // FIXME: When an LFN connects to a border router that does not support it,
+    // the behavior is always as if the border router was FAN 1.0. However it
+    // may be better to differentiate 2 cases:
+    // - 1.0: the border router does not know about the node role KDE, it sends
+    //   GTKs as if the supplicant were a FAN 1.0 FFN
+    // - 1.1-compat: the border router is aware that it does not support LFNs,
+    //   so it should drop the key request frame and log using TR_DROP
+    if (sec_keys->node_role == WS_NR_ROLE_LFN &&
+        pae_auth->interface_ptr->ws_info.fan_features & WS_FAN_FEATURE_LFN) {
         gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
 
         // For 4WH insert always a key, in case no other then active
@@ -1527,7 +1540,8 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
                 tr_info("PAE: start GKH for GTK index %i, eui-64: %s", gtk_index, tr_eui64(supp_entry->addr.eui_64));
             }
         }
-        if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER && ws_version_1_1(pae_auth->interface_ptr)) {
+        if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER &&
+            pae_auth->interface_ptr->ws_info.fan_features & WS_FAN_FEATURE_LFN) {
             gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
             if (gtk_index >= 0) {
                 // Update just LGTK (do not when target is a FAN1.0 router)

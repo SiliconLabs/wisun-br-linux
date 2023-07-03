@@ -1765,7 +1765,7 @@ static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)
 {
     // Firmware API < 0.15 crashes if slots > 3 are accessed
-    if (ws_version_1_0(cur) && slot > 3)
+    if (!(cur->ws_info.fan_features & WS_FAN_FEATURE_LFN) && slot > 3)
         return;
     mac_helper_security_key_to_descriptor_set(cur, key, index + 1, slot);
 }
@@ -1773,7 +1773,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t in
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot)
 {
     // Firmware API < 0.15 crashes if slots > 3 are accessed
-    if (ws_version_1_0(cur) && slot > 3)
+    if (!(cur->ws_info.fan_features & WS_FAN_FEATURE_LFN) && slot > 3)
         return;
     mac_helper_security_key_descriptor_clear(cur, slot);
 }
@@ -1970,13 +1970,13 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .frame_type = WS_FT_PC,
         .wh_ies.utt      = true,
         .wh_ies.bt       = true,
-        .wh_ies.lbc      = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wh_ies.lbc      = cur->ws_info.pan_information.lpan_version_set,
         .wp_ies.us       = true,
         .wp_ies.bs       = true,
         .wp_ies.panver   = true,
         .wp_ies.gtkhash  = true,
-        .wp_ies.lgtkhash = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
-        .wp_ies.lfnver   = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wp_ies.lgtkhash = cur->ws_info.pan_information.lpan_version_set,
+        .wp_ies.lfnver   = cur->ws_info.pan_information.lpan_version_set,
         .security.SecurityLevel = cur->mac_parameters.mac_security_level,
         .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
     };
