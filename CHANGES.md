@@ -1,3 +1,9 @@
+v1.6.3
+------
+
+- Fix `wsbrd-fwup` `sx` verification.
+- Documentation complements on LFN D-Bus limitation and IPv6 fragmentation.
+
 v1.6.2
 ------
 
