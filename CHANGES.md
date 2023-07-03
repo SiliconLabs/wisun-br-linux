@@ -9,14 +9,14 @@ v1.6.4
 v1.6.3
 ------
 
-- Fix `wsbrd-fwup` `sx` verification.
-- Documentation complements on LFN D-Bus limitation and IPv6 fragmentation.
+  - Fix `wsbrd-fwup` `sx` verification.
+  - Documentation complements on LFN D-Bus limitation and IPv6 fragmentation.
 
 v1.6.2
 ------
 
- - Revert DBus parameter name declaration to allow for systemd versions older
-   than v246.
+  - Revert DBus parameter name declaration to allow for systemd versions older
+    than v246.
 
 v1.6.1
 ------
@@ -58,39 +58,39 @@ v1.6
     * the node roles (node_role)
     * LGTKs and LGAKs
     * FAN version
-   - DBus API RevokeNode has been renamed in RevokePairwiseKeys.
-   - DBus API RevokeApply has been renamed in RevokeGroupKeys.
-   - wsbrd_cli now reports LGTKs, LGAKs, phy_mode_id, channel_plan_id and FAN
-     version.
-   - wsbrd_cli now compiles with Rust 2015 (2018 was required before this
-     change).
-   - New tool "hwping" allows testing a link with the RCP.
-   - New tool "fwup" allows upgrading the RCP.
-   - Introduce "traces = drop" to traces the reasons the packets are dropped by
-     wsbrd. This option may be used to check if remote nodes send malformed
-     data. The frames dropped by the RCP are not reported by this interface.
-   - All the OFDM MCS (0 to 7) are now accepted in the configuration file.
-   - The default tx_power value was too high for most of the devices. The
-     default value (14 dBm) is saner.
-   - Allow removing the cached data on start with --delete-storage. The previous
-     method was to assign "-" to "storage_prefix". It is not longer supported.
-   - JM-IE is now reported.
-   - Properly report a fatal error if the network name (or any other string
-     parameter) is too long.
-   - Fix case where the node requests a new GTK. A full 4-way-handshake was
-     triggered while 2-way-handshake was sufficient.
-   - Fix IPv6 encapsulation when destination is ff03::fc (= all MPL forwarders)
-   - Fix display of HIF traces for packet < 9 bytes.
-   - Chan plan 1 was automatically used when the user specified a channel
-     mask.
-   - Warn the user if the chosen PHY is not specified in the chosen regulation
-     domain.
-   - Since the frame with FSK+FEC modulation can be longer than the constraints
-     defined by ARIB, FEC modulations are no longer accepted when ARIB is
-     enabled.
-   - Clean up output of cmake.
-   - Relocate side tools to a subdirectory to make them less visible
-   - Mention the tools in README
+  - DBus API RevokeNode has been renamed in RevokePairwiseKeys.
+  - DBus API RevokeApply has been renamed in RevokeGroupKeys.
+  - wsbrd_cli now reports LGTKs, LGAKs, phy_mode_id, channel_plan_id and FAN
+    version.
+  - wsbrd_cli now compiles with Rust 2015 (2018 was required before this
+    change).
+  - New tool "hwping" allows testing a link with the RCP.
+  - New tool "fwup" allows upgrading the RCP.
+  - Introduce "traces = drop" to traces the reasons the packets are dropped by
+    wsbrd. This option may be used to check if remote nodes send malformed
+    data. The frames dropped by the RCP are not reported by this interface.
+  - All the OFDM MCS (0 to 7) are now accepted in the configuration file.
+  - The default tx_power value was too high for most of the devices. The
+    default value (14 dBm) is saner.
+  - Allow removing the cached data on start with --delete-storage. The previous
+    method was to assign "-" to "storage_prefix". It is not longer supported.
+  - JM-IE is now reported.
+  - Properly report a fatal error if the network name (or any other string
+    parameter) is too long.
+  - Fix case where the node requests a new GTK. A full 4-way-handshake was
+    triggered while 2-way-handshake was sufficient.
+  - Fix IPv6 encapsulation when destination is ff03::fc (= all MPL forwarders)
+  - Fix display of HIF traces for packet < 9 bytes.
+  - Chan plan 1 was automatically used when the user specified a channel
+    mask.
+  - Warn the user if the chosen PHY is not specified in the chosen regulation
+    domain.
+  - Since the frame with FSK+FEC modulation can be longer than the constraints
+    defined by ARIB, FEC modulations are no longer accepted when ARIB is
+    enabled.
+  - Clean up output of cmake.
+  - Relocate side tools to a subdirectory to make them less visible
+  - Mention the tools in README
 
 
 v1.5.5
