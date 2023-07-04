@@ -10,6 +10,9 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _GNU_SOURCE
+#include <stdlib.h>
+
 #include "stack/mac/mlme.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/fhss_ws_extension.h"
