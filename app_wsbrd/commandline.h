@@ -69,7 +69,6 @@ struct wsbrd_conf {
     char radius_secret[256];
 
     int  tx_power;
-    int  ws_fan_version;
     int  ws_pan_id;
     int  ws_pmk_lifetime;
     int  ws_ptk_lifetime;
@@ -88,6 +87,7 @@ struct wsbrd_conf {
     int  lfn_bc_interval;
     int  lfn_bc_sync_period;
     unsigned int ws_join_metrics;
+    unsigned int ws_fan_features;
 
     uint8_t ws_allowed_mac_addresses[10][8];
     uint8_t ws_allowed_mac_address_count;

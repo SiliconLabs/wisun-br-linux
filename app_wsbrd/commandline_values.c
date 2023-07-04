@@ -63,9 +63,11 @@ const struct name_value valid_ws_size[] = {
 };
 
 const struct name_value valid_fan_versions[] = {
-    { "auto",      0 },
-    { "1.0",       WS_FAN_VERSION_1_0 },
-    { "1.1",       WS_FAN_VERSION_1_1 },
+    { "auto",       0 },
+    { "1.0",        WS_FAN_FEATURE_FFN_1_0 },
+    { "1.1",        WS_FAN_FEATURE_FFN_1_0 | WS_FAN_FEATURE_FFN_1_1 | WS_FAN_FEATURE_LFN },
+    { "1.1-lfn",    WS_FAN_FEATURE_FFN_1_1 | WS_FAN_FEATURE_LFN },
+    { "1.1-compat", WS_FAN_FEATURE_FFN_1_0 | WS_FAN_FEATURE_FFN_1_1 },
     { NULL },
 };
 
