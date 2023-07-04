@@ -1,0 +1,4 @@
+flask          >= 2.3.2
+netifaces      >= 0.11.0
+sdbus          >= 0.11.0
+systemd-python >= 235

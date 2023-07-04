@@ -129,12 +129,15 @@ more detail, refer to the `README.md` present in the relevant source folder
 Some of these are not compiled by default and require setting
 `COMPILE_DEVTOOLS=ON` when configuring the project with CMake.
 
-| Application  | Description                                           |
-|--------------|-------------------------------------------------------|
-| `wsbrd_cli`  | A simple application for querying the D-Bus interface |
-| `wsbrd-fwup` | A tool for updating the RCP firware                   |
-| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`              |
-| `wshwping`   | A tool for testing the serial link                    |
+| Application  | Description                                                 |
+|--------------|-------------------------------------------------------------|
+| `wsbrd_cli`  | A simple application for querying the D-Bus interface       |
+| `wsbrd-fwup` | A tool for updating the RCP firware                         |
+| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`                    |
+| `wshwping`   | A tool for testing the serial link                          |
+| `wstbu`      | An implementation of the [Wi-SUN Test Bed Unit REST API][5] |
+
+[5]: https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
