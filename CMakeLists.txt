@@ -171,7 +171,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_pae_key_storage.c
     stack/source/6lowpan/ws/ws_pae_lib.c
     stack/source/6lowpan/ws/ws_pae_timers.c
-    stack/source/6lowpan/ws/ws_regulation.c
     stack/source/6lowpan/ws/ws_stats.c
     stack/source/6lowpan/ws/ws_test_api.c
     stack/source/common_protocols/icmpv6.c

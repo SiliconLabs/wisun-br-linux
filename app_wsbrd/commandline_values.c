@@ -14,7 +14,6 @@
 #include "common/ws_regdb.h"
 
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
-#include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_management_api.h"
 
