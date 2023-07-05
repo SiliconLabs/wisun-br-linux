@@ -132,7 +132,7 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++)
         rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
     for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++)
-        rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], false);
+        rcp_add_mac_filter_entry(ctxt->config.ws_denied_mac_addresses[i], false);
 }
 
 static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
