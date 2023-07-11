@@ -182,6 +182,7 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
     spinel_pop_u8(&rx_buf);
     cmd = spinel_pop_uint(&rx_buf);
     if (cmd == SPINEL_CMD_NOOP) {
+        rx_buf.cnt = 0;
         rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
         spinel_pop_u8(&rx_buf);
         cmd = spinel_pop_uint(&rx_buf);
