@@ -7,7 +7,7 @@ additional options:
 - `--capture` records all packets arriving at the UART and TUN interfaces, as
   well as keep track of time elapsed between packets. This data is saved to a
   file in a raw format, and is intended for use with `--replay`. Using
-  `storage_prefix = -` is recommended to avoid using cache files.
+  `--delete-storage` is recommended to avoid using cache files.
 - `--replay` replaces the regular UART input device with a file containing raw
   data (`-u` is ignored). To replay time delays, and TUN packets, some
   additional SPINEL commands have been added, which are only implemented in
@@ -17,8 +17,8 @@ additional options:
 - `--fuzz` ignores CRC checks for UART packets, stubs the RNG for large polls
   (which are generally seeds or keys for cryptographic purposes), and removes
   some SPINEL size checks to help the fuzzer. The NVM is also disabled as when
-  using `storage_prefix = -`.
-- `--capture-init` records the RCP initialization phase in a seperate file
+  using `--delete-storage`.
+- `--capture-init` records the RCP initialization phase in a separate file
   during capture. This helps the fuzzer explore the main loop rather than this
   restrictive phase.
 
@@ -42,8 +42,8 @@ The steps to install AFL++ are described in the official [GitHub
 repository][1]. Here are the dependencies to install, using APT on
 Debian based distributions:
 
-    sudo apt-get install -y build-essential python3-dev automake cmake git
-    flex bison libglib2.0-dev libpixman-1-dev python3-setuptools
+    sudo apt-get install -y build-essential python3-dev automake cmake git \
+        flex bison libglib2.0-dev libpixman-1-dev python3-setuptools
 
 [1]: https://github.com/AFLplusplus/AFLplusplus
 
