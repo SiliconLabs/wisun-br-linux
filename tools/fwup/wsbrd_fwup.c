@@ -154,11 +154,10 @@ static void handle_btl_update(struct os_ctxt *ctxt)
 
 static void handle_btl_run(struct os_ctxt *ctxt)
 {
-    char btl_rx_buf[4096] = { };
     char btl_run = '2';
 
     // wait for the Gecko Bootloader banner
-    read(ctxt->data_fd, btl_rx_buf, sizeof(btl_rx_buf));
+    usleep(500000);
     // option '2' to run
     write(ctxt->data_fd, &btl_run, sizeof(uint8_t));
 }
