@@ -110,6 +110,9 @@ typedef struct ws_hopping_schedule {
     uint8_t operating_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
     uint8_t phy_mode_id;                /**< PHY mode ID, default to 255 */
     uint8_t phy_op_modes[16];           /**< 15 possible phy_mode_id + 1 sentinel value */
+    uint8_t ms_mode;
+    uint8_t phy_mode_id_ms_tx;
+    uint8_t phy_mode_id_ms_base;
     int rcp_rail_config_index;          /**< Index number in rcp.rail_config_list. Needed to configure the RCP */
     uint8_t channel_plan_id;            /**< Channel plan ID, default to 255 */
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */

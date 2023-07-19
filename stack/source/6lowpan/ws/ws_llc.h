@@ -184,17 +184,6 @@ ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, 
 
 void ws_llc_free_multicast_temp_entry(struct net_if *interface, ws_neighbor_temp_class_t *neighbor);
 
-void ws_llc_set_base_phy_mode_id(struct net_if *interface, uint8_t phy_mode_id);
-
-/**
- * @brief Configure WS POM information (Data of WS_WPIE_POM IE element)
- * @param interface Interface pointer
- * @param phy_op_mode_number length of phy_operating_modes
- * @param phy_operating_modes pointer to phy_operating_modes array. This pointer must be kept alive when it is configured to LLC
- *
- */
-void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes);
-
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 
 const char *tr_ws_frame(uint8_t frame_type);

@@ -1284,7 +1284,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
         rf_config.number_of_channels = chan_params->chan_count;
     }
 
-    ws_llc_set_base_phy_mode_id(cur, phy_params ? phy_params->phy_mode_id : 0);
+    hopping_schedule->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
     ws_bootstrap_set_rf_config(cur, rf_config);
     return 0;
 }
@@ -1731,7 +1731,6 @@ void ws_bootstrap_network_start(struct net_if *cur)
 {
     //Set Network names, Pan information configure, hopping schedule & GTKHash
     ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
-    ws_llc_set_phy_operating_mode(cur, cur->ws_info.hopping_schedule.phy_op_modes);
 }
 
 void ws_bootstrap_advertise_start(struct net_if *cur)
@@ -1934,14 +1933,15 @@ void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 
 static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
+    const struct ws_hopping_schedule *schedule = &cur->ws_info.hopping_schedule;
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PA,
         .wh_ies.utt     = true,
         .wp_ies.us      = true,
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
-        .wp_ies.pom     = ws_version_1_1(cur),
-        .wp_ies.jm      = ws_version_1_1(cur) && cur->ws_info.pan_information.jm.mask,
+        .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
+        .wp_ies.jm      = cur->ws_info.pan_information.jm.mask,
     };
     uint8_t plf;
 

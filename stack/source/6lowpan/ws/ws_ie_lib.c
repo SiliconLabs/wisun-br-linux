@@ -446,21 +446,23 @@ void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
 }
 
 void ws_wp_nested_pom_write(struct iobuf_write *buf,
-                            uint8_t phy_op_mode_number,
-                            uint8_t *phy_operating_modes,
-                            uint8_t mdr_command_capable)
+                            const uint8_t phy_op_modes[16],
+                            bool mdr_cmd_capable)
 {
-    uint8_t tmp8;
+    int offset_bitfield;
+    uint8_t bitfield;
     int offset;
+    int i;
 
-    if (!phy_op_mode_number)
-        return;
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_POM, false);
-    tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_WPIE_POM_PHY_OP_MODE_NUMBER_MASK, phy_op_mode_number);
-    tmp8 |= FIELD_PREP(WS_WPIE_POM_MDR_CAPABLE_MASK,        mdr_command_capable);
-    iobuf_push_u8(buf, tmp8);
-    iobuf_push_data(buf, phy_operating_modes, phy_op_mode_number);
+    offset_bitfield = buf->len;
+    iobuf_push_u8(buf, 0); // Filled after
+    for (i = 0; phy_op_modes[i]; i++)
+        iobuf_push_u8(buf, phy_op_modes[i]);
+    bitfield = 0;
+    bitfield |= FIELD_PREP(WS_WPIE_POM_PHY_OP_MODE_NUMBER_MASK, i);
+    bitfield |= FIELD_PREP(WS_WPIE_POM_MDR_CAPABLE_MASK,        mdr_cmd_capable);
+    buf->data[offset_bitfield] = bitfield;
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 

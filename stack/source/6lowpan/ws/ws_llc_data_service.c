@@ -82,9 +82,7 @@ typedef struct llc_ie_params {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
     uint16_t                network_name_length;    /**< Network name length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
-    uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     uint8_t                 *network_name;          /**< Network name */
-    uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
     ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
     ws_flus_ie_t            *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
@@ -154,9 +152,6 @@ typedef struct llc_data_base {
     struct iobuf_write              ws_enhanced_response_elements;
     struct iovec                    ws_header_vector;
     bool                            high_priority_mode;
-    uint8_t                         ms_mode;
-    uint8_t                         ms_tx_phy_mode_id;
-    uint8_t                         base_phy_mode_id;
     struct net_if *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
@@ -1115,27 +1110,29 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
 
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
-
-    if (!ws_version_1_1(base->interface_ptr) || !data->TxAckReq || data->msduLength < 500)
-        return 0;
-
+    struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
     llc_neighbour_req_t neighbor_info;
-    uint8_t neighbor_ms_phy_mode_id = 0;
+    uint8_t ms_phy_mode_id = 0;
 
-    if (data->TxAckReq &&
-        base->ie_params.phy_operating_modes &&
-        ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr, &neighbor_info)) {
-        if (neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
-            neighbor_ms_phy_mode_id = neighbor_info.neighbor->ms_phy_mode_id;
-        else if ((neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_DEFAULT) && (base->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED))
-            neighbor_ms_phy_mode_id = base->ms_tx_phy_mode_id;
-        return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, neighbor_ms_phy_mode_id);
+    if (!data->TxAckReq || data->msduLength < 500)
+        return 0;
+    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr, &neighbor_info))
+        return 0;
+    switch (neighbor_info.neighbor->ms_mode) {
+    case SL_WISUN_MODE_SWITCH_ENABLED:
+        ms_phy_mode_id = neighbor_info.neighbor->ms_phy_mode_id;
+        break;
+    case SL_WISUN_MODE_SWITCH_DEFAULT:
+        if (schedule->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
+            ms_phy_mode_id = schedule->phy_mode_id_ms_tx;
+        break;
     }
-    return 0;
+    return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, ms_phy_mode_id);
 }
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
+    struct ws_info *ws_info = &base->interface_ptr->ws_info;
     int ie_offset;
 
     //Allocate Message
@@ -1204,11 +1201,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (!data->TxAckReq)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (ws_version_1_1(base->interface_ptr) &&
-        base->ie_params.phy_operating_modes &&
-        base->ie_params.phy_op_mode_number > 1)
-        ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number,
-                               base->ie_params.phy_operating_modes, 0);
+    if (ws_info->hopping_schedule.phy_op_modes[0] && ws_info->hopping_schedule.phy_op_modes[1])
+        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->hopping_schedule.phy_op_modes, false);
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
@@ -1513,15 +1507,16 @@ static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t
 // Mode Switch rate management function
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_conf_t *data, struct mac_neighbor_table_entry *neighbor)
 {
+    struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
     uint8_t i;
 
-    if (data->success_phy_mode_id == base->base_phy_mode_id)
+    if (data->success_phy_mode_id == schedule->phy_mode_id_ms_base)
         neighbor->ms_tx_count++;
 
     if (data->tx_retries) {
         // Look for mode switch retries
         for (i = 0; i < MAX_PHY_MODE_ID_PER_FRAME; i++) {
-            if (data->retry_per_rate[i].phy_mode_id == base->base_phy_mode_id) {
+            if (data->retry_per_rate[i].phy_mode_id == schedule->phy_mode_id_ms_base) {
                 neighbor->ms_retries_count += data->retry_per_rate[i].retries;
             }
         }
@@ -1531,7 +1526,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_co
     if (neighbor->ms_tx_count + neighbor->ms_retries_count > MS_FALLBACK_MIN_SAMPLE) {
         if (neighbor->ms_retries_count > 4 * neighbor->ms_tx_count) {
             // Fallback: disable mode switch
-            base->ms_mode = SL_WISUN_MODE_SWITCH_DISABLED;
+            schedule->ms_mode = SL_WISUN_MODE_SWITCH_DISABLED;
 
             WARN("mode switch disabled for %s with phy_mode_id %d", tr_eui64(neighbor->mac64), neighbor->ms_phy_mode_id);
 
@@ -1742,9 +1737,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies.gtkhash)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
         if (ws_version_1_1(base->interface_ptr)) {
-            // We put only POM-IE if more than 1 phy (base phy + something else)
-            if (wp_ies.pom && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
-                ws_wp_nested_pom_write(&msg->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+            if (wp_ies.pom)
+                ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, false);
             if (wp_ies.lcp)
                 // Only unicast schedule using tag 0 is supported
                 ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
@@ -1885,6 +1879,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
+    struct ws_hopping_schedule *schedule = &llc->interface_ptr->ws_info.hopping_schedule;
     llc_neighbour_req_t neighbor_info;
     uint8_t peer_phy_mode_id;
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -1904,12 +1899,9 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         bool found = false;
         uint8_t i;
 
-        if (!llc->ie_params.phy_operating_modes)
-            return -2;
-
         // Check Mode Switch PhyModeId is valid in our own phy list
-        for (i = 0; i < llc->ie_params.phy_op_mode_number; i++) {
-            if (phy_mode_id == llc->ie_params.phy_operating_modes[i]) {
+        for (i = 0; schedule->phy_op_modes[i]; i++) {
+            if (phy_mode_id == schedule->phy_op_modes[i]) {
                 found = true;
                 break;
             }
@@ -1924,8 +1916,8 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
             return -6;
 
         // Configure default mode switch rate
-        llc->ms_tx_phy_mode_id = phy_mode_id;
-        llc->ms_mode = mode;
+        schedule->phy_mode_id_ms_tx = phy_mode_id;
+        schedule->ms_mode = mode;
     } else {
         // Specific neighbor address
         if (!ws_bootstrap_neighbor_get(llc->interface_ptr, neighbor_mac_address, &neighbor_info)) {
@@ -1963,21 +1955,6 @@ void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t na
 
     base->ie_params.network_name = name;
     base->ie_params.network_name_length = name_length;
-}
-
-void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    int i;
-
-    if (!base)
-        return;
-    base->ie_params.phy_op_mode_number = 0;
-    base->ie_params.phy_operating_modes = NULL;
-    for (i = 0; phy_operating_modes && phy_operating_modes[i]; i++)
-        base->ie_params.phy_op_mode_number++;
-    if (base->ie_params.phy_op_mode_number)
-        base->ie_params.phy_operating_modes = phy_operating_modes;
 }
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks)
@@ -2058,13 +2035,3 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
     return true;
 
 }
-
-void ws_llc_set_base_phy_mode_id(struct net_if *interface, uint8_t phy_mode_id)
-{
-    llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
-
-    if (llc)
-        llc->base_phy_mode_id = phy_mode_id;
-}
-
-
