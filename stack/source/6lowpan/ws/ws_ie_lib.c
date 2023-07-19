@@ -415,13 +415,12 @@ void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size,
 
 
 void ws_wp_nested_netname_write(struct iobuf_write *buf,
-                                uint8_t *network_name,
-                                uint8_t network_name_length)
+                                const char *netname)
 {
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_NETNAME, false);
-    iobuf_push_data(buf, network_name, network_name_length);
+    iobuf_push_data(buf, (const uint8_t *)netname, strlen(netname));
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 

@@ -80,9 +80,7 @@ typedef struct mpx_class {
 
 typedef struct llc_ie_params {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
-    uint16_t                network_name_length;    /**< Network name length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
-    uint8_t                 *network_name;          /**< Network name */
     /* FAN 1.1 elements */
     ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
     ws_flus_ie_t            *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
@@ -1731,7 +1729,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_pan_write(&msg->ie_buf_payload, info->pan_information.pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
         if (wp_ies.netname)
-            ws_wp_nested_netname_write(&msg->ie_buf_payload, base->ie_params.network_name, base->ie_params.network_name_length);
+            ws_wp_nested_netname_write(&msg->ie_buf_payload, info->cfg->gen.network_name);
         if (wp_ies.panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies.gtkhash)
@@ -1944,17 +1942,6 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
     }
 
     return 0;
-}
-
-void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-
-    base->ie_params.network_name = name;
-    base->ie_params.network_name_length = name_length;
 }
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks)

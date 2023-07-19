@@ -132,6 +132,4 @@ void ws_bootstrap_packet_congestion_init(struct net_if *cur);
 void ws_bootstrap_asynch_trickle_stop(struct net_if *cur);
 void ws_bootstrap_advertise_start(struct net_if *cur);
 
-void ws_bootstrap_network_start(struct net_if *cur);
-
 #endif

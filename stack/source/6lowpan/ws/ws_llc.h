@@ -161,15 +161,6 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
 int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
                             const uint8_t dst[8], mac_data_priority_e priority);
 
-/**
- * @brief ws_llc_set_network_name Configure WS Network name (Data of WS_WPIE_NETNAME IE element)
- * @param interface Interface pointer
- * @param name_length configured network name length
- * @param name pointer to network name this pointer must keep alive when it is configured to LLC
- *
- */
-void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length);
-
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);

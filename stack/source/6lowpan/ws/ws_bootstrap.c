@@ -1727,12 +1727,6 @@ void ws_bootstrap_rpl_activate(struct net_if *cur)
     cur->ws_info.rpl_state = 0xff; // Set invalid state and learn from event
 }
 
-void ws_bootstrap_network_start(struct net_if *cur)
-{
-    //Set Network names, Pan information configure, hopping schedule & GTKHash
-    ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
-}
-
 void ws_bootstrap_advertise_start(struct net_if *cur)
 {
     cur->ws_info.mngt.trickle_pa_running = true;
