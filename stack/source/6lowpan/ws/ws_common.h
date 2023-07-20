@@ -136,6 +136,4 @@ bool ws_common_is_valid_nr(uint8_t node_role);
 
 uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size);
 
-#define ws_version_1_0(cur) ((cur)->ws_info.pan_information.version == 1)
-#define ws_version_1_1(cur) ((cur)->ws_info.pan_information.version > 1)
 #endif //WS_COMMON_H_

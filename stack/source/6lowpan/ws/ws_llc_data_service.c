@@ -666,7 +666,7 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
         if (neighbor.neighbor) {
             if (data->Key.SecurityLevel)
                 mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
-            if (ws_version_1_1(base->interface_ptr) && has_pom)
+            if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
                 mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
                                         ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
         }
@@ -1734,22 +1734,20 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies.gtkhash)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
-        if (ws_version_1_1(base->interface_ptr)) {
-            if (wp_ies.pom)
-                ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, false);
-            if (wp_ies.lcp)
-                // Only unicast schedule using tag 0 is supported
-                ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
-            if (wp_ies.lfnver)
-                ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lpan_version);
-            if (wp_ies.lgtkhash)
-                ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
-                                            ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
-            if (wp_ies.lbats)
-                ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
-            if (wp_ies.jm)
-                ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
-        }
+        if (wp_ies.pom)
+            ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, false);
+        if (wp_ies.lcp)
+            // Only unicast schedule using tag 0 is supported
+            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
+        if (wp_ies.lfnver)
+            ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lpan_version);
+        if (wp_ies.lgtkhash)
+            ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
+                                        ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
+        if (wp_ies.lbats)
+            ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
+        if (wp_ies.jm)
+            ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
             if (ie_custom->frame_type_mask & (1 << msg->message_type) &&
                 ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
