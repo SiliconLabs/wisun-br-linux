@@ -374,7 +374,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             cur->ws_info.pan_information.rpl_routing_method = true;
             cur->ws_info.pan_information.use_parent_bs = true;
             // initialize for FAN 1.1 defaults
-            if (cur->ws_info.fan_features & WS_FAN_FEATURE_LFN &&
+            if (cur->ws_info.enable_lfn &&
                 !cur->ws_info.pan_information.lpan_version_set) {
                 cur->ws_info.pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
                 cur->ws_info.pan_information.lpan_version_set = true;

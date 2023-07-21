@@ -1014,7 +1014,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
-    if (has_lutt && !(net_if->ws_info.fan_features & WS_FAN_FEATURE_LFN)) {
+    if (has_lutt && !net_if->ws_info.enable_lfn) {
         TRACE(TR_DROP, "drop %-9s: LFN support disabled", tr_ws_frame(frame_type));
         return;
     }
