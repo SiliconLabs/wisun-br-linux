@@ -308,6 +308,49 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     }
 }
 
+static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
+{
+    uint8_t chan_plan_id;
+    char ffn10[7], lfn[7];
+    int i;
+
+    INFO("Nodes join ability:");
+    INFO("  rank    FFN1.0    FFN1.1    LFN");
+
+    chan_plan_id = cur->ws_info.hopping_schedule.channel_plan_id;
+    if (chan_plan_id && chan_plan_id != 255) {
+        sprintf(ffn10, "no");
+        sprintf(lfn, cur->ws_info.enable_lfn ? "yes" : "no");
+    } else {
+        sprintf(ffn10, cur->ws_info.enable_ffn10 ? "yes" : "no");
+        sprintf(lfn, "no");
+    }
+    INFO("    1     %-6s    %-6s    %-6s", ffn10, "yes", lfn);
+
+    i = 1;
+    if (cur->ws_info.enable_ffn10)
+        sprintf(ffn10, "can[%i]", i++);
+    else
+        sprintf(ffn10, "no");
+    if (cur->ws_info.enable_lfn)
+        sprintf(lfn, "can[%i]", i++);
+    else
+        sprintf(lfn, "no");
+    INFO("   >1     %-6s    %-6s    %-6s", ffn10, "yes", lfn);
+
+    i = 1;
+    if (cur->ws_info.enable_ffn10) {
+        INFO("  [%i]: neighboring routers must use a channel plan 0 (reg. domain & op. class)", i++);
+        INFO("       or 1 (custom)");
+    }
+    if (cur->ws_info.enable_lfn) {
+        INFO("  [%i]: neighboring routers must use a channel plan 2 (reg. domain & ChanPlanId)", i);
+        if (cur->ws_info.enable_ffn10) {
+            INFO("       FFN1.0 prevent propagation of LFN IEs, and compromise network security");
+        }
+    }
+}
+
 void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *event)
 {
     ws_bootstrap_event_type_e event_type;
@@ -391,6 +434,9 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             rcp_set_fhss_hop_count(0);
 
             ws_bootstrap_6lbr_print_config(cur);
+            INFO("");
+            ws_bootstrap_6lbr_print_interop(cur);
+            INFO("");
 
             uint8_t ll_addr[16];
             addr_interface_get_ll_address(cur, ll_addr, 1);
