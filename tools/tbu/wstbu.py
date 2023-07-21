@@ -582,6 +582,9 @@ def get_config_security_keys():
     for i, gtk in enumerate(wsbrd.dbus().gtks):
         if gtk != bytes(16):
             gtks[f'gtk{i}'] = utils.format_key(gtk)
+    for i, gtk in enumerate(wsbrd.dbus().lgtks):
+        if gtk != bytes(16):
+            gtks[f'lgtk{i}'] = utils.format_key(gtk)
     return gtks
 
 

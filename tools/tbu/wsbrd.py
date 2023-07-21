@@ -57,6 +57,10 @@ class WsbrdDbusInterface(
     def gtks(self) -> list[bytes]:
         raise NotImplementedError
 
+    @sdbus.dbus_property('aay')
+    def lgtks(self) -> list[bytes]:
+        raise NotImplementedError
+
     @sdbus.dbus_property('a(aya{sv})')
     def nodes(self) -> list[tuple[bytes, dict[str, tuple[str, typing.Any]]]]:
         raise NotImplementedError
