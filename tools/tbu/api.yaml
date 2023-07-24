@@ -1,0 +1,787 @@
+# Downloaded from https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
+---
+swagger: "2.0"
+info:
+  description: Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Copyright © Wi-SUN Alliance 2019
+  version: 1.0.18
+  title: TBU API
+basePath: /Wi-SUN/TBU/1.0.0
+schemes:
+- https
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /runMode/{mode}:
+    put:
+      description: Set the run mode of the TBU's FAN stack
+      parameters:
+      - name: mode
+        in: path
+        description: "0 = Stop, 1 = Start.  NOTE successful execution of Stop means that any TBU API  configuration previously issued is cleared AND any transient run-time state (neighbor tables, etc.) is cleared. One must explicitly configure any TBU API parameters required prior to a subsequent Start."
+        required: true
+        type: integer
+        format: int32
+        enum:
+        - 0
+        - 1
+      responses:
+        "200":
+          description: runMode change was executed successfully
+        "400":
+          description: Illegal runMode was specified
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/phy:
+    put:
+      description: Configure the PHY layer of the FAN stack
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/PhyConfig'
+      responses:
+        "200":
+          description: PHY successfully configured.
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/chanPlan/regOp:
+    put:
+      description: Configure both the unicast and bcast channel plan using Regulatory Domain and Operating Class.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/chanPlanRegOp'
+      responses:
+        "200":
+          description: Channel plan successfully configured.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/chanPlan/explicit:
+    put:
+      description: "Configure both the unicast and bcast channel plan using ch0, channel spacing, and number of channels."
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/chanPlanExplicit'
+      responses:
+        "200":
+          description: Channel plan successfully configured.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/chanPlan/fixed:
+    put:
+      description: Configure both the unicast and bcast channel plan to a single fixed channel.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/chanPlanFixed'
+      responses:
+        "200":
+          description: Channel plan successfully configured.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/chanPlan/unicast:
+    put:
+      description: Configure the unicast channel plan.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/unicastChanPlan'
+      responses:
+        "200":
+          description: Channel plan successfully configured.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/chanPlan/bcast:
+    put:
+      description: Configure the broadcast channel plan. This method may only be issued to a Border Router.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/bcastChanPlan'
+      responses:
+        "200":
+          description: Channel plan successfully configured.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter:
+    put:
+      description: Configure Border Router specific settings.  This method may only be issued to a Border Router.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/BorderRouterConfig'
+      responses:
+        "200":
+          description: Border Router successfully configured.
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "501":
+          description: Optional feature is not supported.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter/gtks:
+    put:
+      description: Configure Border Router GTKs. This method may only be issued to a Border Router.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GroupTransientKeys'
+      responses:
+        "200":
+          description: Border Router successfully configured.
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter/keyLifetimes:
+    put:
+      description: "Configure Border Router key lifetimes. This method may only be issued to a Border Router.  If non-default key lifetimes are needed, this call MUST be issued before setting the GTKs with /config/borderRouter/gtks."
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/KeyLifetimes'
+      responses:
+        "200":
+          description: Border Router successfully configured.
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter/revokeKeys:
+    put:
+      description: "This method may only be issued to a Border Router (supporting operation described in Step 3 of TPS section 6.5.2.5 Revocation of Node Access).  The Border Router destroys all GTKs except the currently active GTK, modifies the lifetime of the currently active GTK to be (lifetime / REVOCATION_LIFETIME_REDUCTION), and installs the new GTK provided by this API method."
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GroupTransientKey'
+      responses:
+        "200":
+          description: Border Router successfully configured.
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/router:
+    put:
+      description: Configure Router specific settings.  This method may be issued to any Router node (including Border Routers).
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/RouterConfig'
+      responses:
+        "200":
+          description: Router successfully configured.
+        "400":
+          description: Node is not a Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/whitelist:
+    put:
+      description: "Configure a node's whitelist. When a node is configured with a non-empty whitelist, only frames received from EUI64 addresses within the whitelist are passed up to the MAC layer for processing. If an empty whitelist is configured, the node's whitelist is disabled."
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/MacAddresses'
+      responses:
+        "200":
+          description: Router successfully configured.
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /subscription/frames:
+    put:
+      description: Forward MAC frames to a specified destination (subscribe to a frame stream).
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/FrameSubscription'
+      responses:
+        "200":
+          description: Listener successfully subscribed.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /subscription/frames/hash:
+    get:
+      description: Get current value of the subscription session hash.  Support for this method is OPTIONAL.
+      parameters: []
+      responses:
+        "200":
+          description: The current value of the subscription session SHA256 hash (encoded as hex ASCII ... 64 digits).
+          schema:
+            type: string
+            example: 2C43C95D0F764AAEA9A7CE3CAA48803725A887F48CB3472B7087B0BA8ED98805
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /transmitter/udp:
+    put:
+      description: Transmit a UDP datagram.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UDPDatagram'
+      responses:
+        "200":
+          description: UDP datagram successfully transmitted.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /transmitter/icmpv6Echo:
+    put:
+      description: Transmit an ICMPv6 Echo message.
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ICMPv6Echo'
+      responses:
+        "200":
+          description: ICMPv6 Echo message successfully transmitted.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/ipAddresses:
+    get:
+      description: "Returns all unicast IPv6 addresses configured on the node's FAN interface (LL, ULA, GUA)."
+      parameters: []
+      responses:
+        "200":
+          description: Unicast IPv6 addresses configured. IPv6 address strings are formatted per RFC 5952.
+          schema:
+            type: array
+            items:
+              type: string
+              example: FF02::1
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/securityKeys:
+    get:
+      description: Return the security keys populated on the node.
+      parameters: []
+      responses:
+        "200":
+          description: The security keys populated on the node.
+          schema:
+            $ref: '#/definitions/GroupTransientKeys'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/dodagRoutes:
+    get:
+      description: Return the DODAG downward routes populated on a Border Router.  This method may only be issued to a Border Router.  NOTE WELL - this method is not yet fully defined.  The DodagRouteEntry structure is incomplete.
+      parameters: []
+      responses:
+        "200":
+          description: The downward routes populated on a Border Router.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DodagRouteEntry'
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/preferredParent:
+    get:
+      description: Return the preferred parent of a specific FAN node. This method may only be issued to a Border Router.
+      parameters:
+      - name: ipAddress
+        in: query
+        description: "The IPv6 address of the node to be queried for its preferred parent, formatted per RFC 5952."
+        required: true
+        type: string
+      responses:
+        "200":
+          description: "The IPv6 address of the preferred parent, formatted per RFC 5952."
+          schema:
+            type: string
+            example: FF02::1
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/neighborTable:
+    get:
+      description: Return the Neighbor Table populated on a Router.
+      parameters: []
+      responses:
+        "200":
+          description: The Neighbor Table populated on the Router.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NeighborTableEntry'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+  ErrorResponse:
+    type: object
+    required:
+    - code
+    - message
+    properties:
+      code:
+        type: integer
+        format: int32
+        description: "Error code. 0 = unknown error, 1 = both a channel exclusion mask and range were specified, 2 = illegal run mode, 3 = node is not a border router, 4 = node is not a router, 5 = optional feature is not supported."
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      message:
+        type: string
+        example: Something bad happened
+        description: Failure code description.
+    description: API error return code and return code description.
+  PhyConfig:
+    type: object
+    required:
+    - modulation
+    - modulationIndex
+    - symbolRate
+    properties:
+      modulation:
+        type: integer
+        description: 0 = 2FSK
+      symbolRate:
+        type: integer
+        format: integer32
+        description: Symbols per second (ex 50000 for 50K)
+      modulationIndex:
+        type: integer
+        description: "0 = 0.5, 1 = 1.0"
+    description: The PHY configuration of a FAN node.
+  chanPlanRegOp:
+    type: object
+    required:
+    - opClass
+    - regDomain
+    properties:
+      regDomain:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+      opClass:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+    description: Channel plan specified with Regulatory Domain and Operating Class
+  chanPlanExplicit:
+    type: object
+    required:
+    - ch0
+    - chanSpacing
+    - numChans
+    properties:
+      ch0:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+      chanSpacing:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+      numChans:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+    description: "Channel plan specified with CH0, channel spacing, number of channels"
+  chanPlanFixed:
+    type: object
+    required:
+    - chanNumber
+    properties:
+      chanNumber:
+        type: integer
+        description: The single fixed channel of operation.
+    description: Set a fixed channel plan.
+  unicastChanPlan:
+    type: object
+    required:
+    - channelFunction
+    - dwellInterval
+    - excludedChannelMask
+    - excludedChannelRange
+    properties:
+      dwellInterval:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+      channelFunction:
+        type: integer
+        description: Set as specified in TPS US-IE description.
+      excludedChannelRange:
+        type: array
+        description: "An array of beginning-of-range/end-of-range channel pairs. Example [1, 10, 20, 25] indicates channels 1 through 10 are excluded and channels 20 through 25 are excluded. NOTE only one of excludedChannelRange OR excludedChannelMask may be specified, with Excluded Channel Control set accordingly, and the non specified exclusion MUST be indicated as an empty array."
+        items:
+          type: integer
+      excludedChannelMask:
+        type: array
+        description: "Each octet of the bit mask described in the FAN TPS is placed at the corresponding index of the integer array.  Octet 0 is placed at array[0], etc.  NOTE only one of excludedChannelRange OR excludedChannelMask may be specified, with Excluded Channel Control set accordingly, and the non specified exclusion MUST be indicated as an empty array."
+        items:
+          type: integer
+    description: Unicast channel plan specification.
+  bcastChanPlan:
+    type: object
+    required:
+    - bcastInterval
+    - bcastScheduleId
+    - channelFunction
+    - dwellInterval
+    - excludedChannelMask
+    - excludedChannelRange
+    properties:
+      bcastInterval:
+        type: integer
+        description: Set as specified in TPS BS-IE description.
+      bcastScheduleId:
+        type: integer
+        description: Set as specified in TPS BS-IE description.
+      dwellInterval:
+        type: integer
+        description: Set as specified in TPS BS-IE description.
+      channelFunction:
+        type: integer
+        description: Set as specified in TPS BS-IE description.
+      excludedChannelRange:
+        type: array
+        description: "An array of beginning-of-range/end-of-range channel pairs. Example [1, 10, 20, 25] indicates channels 1 through 10 are excluded and channels 20 through 25 are excluded. NOTE only one of excludedChannelRange OR excludedChannelMask may be specified, with Excluded Channel Control set accordingly, and the non specified exclusion MUST be indicated as an empty array."
+        items:
+          type: integer
+      excludedChannelMask:
+        type: array
+        description: "Each octet of the bit mask described in the FAN TPS is placed at the corresponding index of the integer array.  Octet 0 is placed at array[0], etc.  NOTE only one of excludedChannelRange OR excludedChannelMask may be specified, with Excluded Channel Control set accordingly, and the non specified exclusion MUST be indicated as an empty array."
+        items:
+          type: integer
+    description: Broadcast channel plan specification.
+  GroupTransientKeys:
+    type: object
+    properties:
+      gtk0:
+        type: string
+        description: Group Transient Key 0 (PAN wide)
+      gtk1:
+        type: string
+        description: Group Transient Key 1 (PAN wide)
+      gtk2:
+        type: string
+        description: Group Transient Key 2 (PAN wide)
+      gtk3:
+        type: string
+        description: Group Transient Key 3 (PAN wide)
+    description: Add or update one or more Group Transient Keys to the Border Router.  GTKs omitted from this object are not removed.
+  GroupTransientKey:
+    type: object
+    required:
+    - gtk
+    properties:
+      gtk:
+        type: string
+        description: Group Transient Key
+    description: A single Group Transient Key populated on the BR.
+  KeyLifetimes:
+    type: object
+    properties:
+      pmkLifetime:
+        type: string
+        description: PMK lifetime (minutes).
+      ptkLifetime:
+        type: string
+        description: PTK lifetime (minutes).
+      gtkLifetime:
+        type: string
+        description: GTK lifetime (minutes) for all GTKs.
+      gtkNewActivationTime:
+        type: integer
+        description: The time at which the Border Router activates the next GTK prior to expiration of the currently activated GTK.  Calculated as (1/gtkNewActivationTime) * GTK_EXPIRE_OFFSET.
+      revocationLifetimeReduction:
+        type: integer
+        description: Factor by which the active GTK lifetime is reduced during node revocation procedures.  Reduced lifetime is calculated as (1/revocationLifetimeReduction) * original lifetime.
+    description: Lifetime of the various keys used at the Border Router.
+  BorderRouterConfig:
+    type: object
+    required:
+    - networkName
+    - panId
+    - panSize
+    - routingMethod
+    - useParentBcastSched
+    properties:
+      panId:
+        type: integer
+        description: Set as specified in TPS PAN Advertisement frame description.
+      panSize:
+        type: integer
+        description: Set as specified in TPS PAN-IE description.
+      useParentBcastSched:
+        type: boolean
+        description: Set as specified in TPS PAN-IE description.
+      routingMethod:
+        type: integer
+        description: Set as specified in TPS PAN-IE description.
+      networkName:
+        type: string
+        description: Set as specified in TPS NETNAME-IE description.
+      sixLowpanMtu:
+        type: integer
+        description: The 6LoWPAN MTU to be used by this router.
+    description: Several Border Router "administrative" settings.
+  RouterConfig:
+    type: object
+    required:
+    - networkName
+    - panSizeOffset
+    - routingCostOffset
+    - routingMethod
+    properties:
+      routingMethod:
+        type: integer
+        description: Set as specified in the TPS PAN-IE description.
+      networkName:
+        type: string
+        description: Set as specified in the TPS NETNAME-IE description.
+      panSizeOffset:
+        type: integer
+        description: An offset to be added to the Pan Size advertised by this node.
+      routingCostOffset:
+        type: integer
+        description: An offset to be added to the Routing Cost advertised by this node.
+      sixLowpanMtu:
+        type: integer
+        description: The 6LoWPAN MTU to be used by this router.
+    description: Several TPS "administrative" (fixed pre-deployment) router setting.
+  MacAddresses:
+    type: object
+    required:
+    - macAddressList
+    properties:
+      macAddressList:
+        type: array
+        description: An array of EUI64 addresses.
+        items:
+          type: string
+    description: An array of EUI64 addresses.
+  DodagRouteEntry:
+    type: object
+    properties:
+      route:
+        type: string
+        description: The ULA/GUA of the downward route to the node.
+    description: A DODAG downward route.  NOTE WELL - this object is not yet fully defined.
+  NeighborTableEntry:
+    type: object
+    required:
+    - etx
+    - eui64
+    - ipAddresses
+    - isParentStatus
+    - panSize
+    - routingCost
+    - rsl
+    - rssi
+    - timeSinceLastRx
+    properties:
+      eui64:
+        type: string
+        description: The EUI64 of the neighbor node.
+      etx:
+        type: integer
+        description: ETX EWMA of the neighbor node.
+      rsl:
+        type: integer
+        description: RSL EWMA of the neighbor node.
+      rssi:
+        type: integer
+        description: Raw RSSI for the neighbor node.
+      panSize:
+        type: integer
+        description: The node's reported PAN size.
+      routingCost:
+        type: integer
+        description: The node's reported routing cost.
+      ipAddresses:
+        type: array
+        description: The IP addresses of the neighbor node. IPv6 address strings are formatted per RFC 5952.
+        items:
+          type: string
+          example: FF02::1
+      timeSinceLastRx:
+        type: integer
+        format: integer32
+        description: msec since last Rx from the neighbor node.
+      isParentStatus:
+        type: integer
+        description: "The RPL parent status of the neighbor. 0 means the neighbor is not a RPL parent, 1 means the neighbor is a RPL parent, 2 means the neighbor is the preferred RPL parent."
+    description: A Neighbor Table Entry.  There will be an entry per neighbor.
+  FrameSubscription:
+    type: object
+    required:
+    - fwdAddress
+    - fwdPort
+    - subscriptionMode
+    properties:
+      subscriptionMode:
+        type: string
+        description: "The listener starts or stops a frame subscription/forwarding. Start means start forwarding frames and Stop means cease forwarding frames.  If the node implements  /subscription/frames/hash, the node MUST maintain a SHA256 hash of all PCAPNG data forwarded between the acceptance of Start and Stop (inclusive), with this hash initialized to 0 upon reception of Start."
+        enum:
+        - Start
+        - Stop
+      fwdAddress:
+        type: string
+        description: The IPv6 address of the listener. IPv6 address strings are formatted per RFC 5952.
+      fwdPort:
+        type: integer
+        description: The port number of the listener.
+    description: "A subscription to configure a FAN node to echo received MAC frames to a designated UDP listener's IP address / port number. The PCAP Next Generation (pcapng) Capture File Format (draft-tuexen-opsawg-pcapng) MUST be used to encapsulate forwarded frames, with the blocks sent as the data portion of a UDP datagram. When the subscription starts, the TBU MUST send a Section Header Block followed by an Interface Description Block indicating a LinkType of LINKTYPE_IEEE802_15_4_NOFCS (230).  Forwarded frames MUST be provided in Enhanced Packet Blocks. Only frames that are received by the node, have a valid FCS, have passed security, and are passed to upper layer are forwarded.  Further, forwarded frames MUST be unencrypted, and MUST have the Auxiliary Security Header / Security Level field set to None (0)."
+  UDPDatagram:
+    type: object
+    required:
+    - data
+    - destAddress
+    - destPort
+    - frameExchangePattern
+    - srcAddress
+    - srcPort
+    properties:
+      srcAddress:
+        type: string
+        description: "The source address to be used by the sender.  Must be one of the LL, ULA, GUA, or mcast addresses configured on the node.  IPv6 address strings are formatted per RFC 5952."
+      srcPort:
+        type: integer
+        description: The port from which the datagram will be sent.
+      destAddress:
+        type: string
+        description: The destination address to which the datagram will be sent.  IPv6 address strings are formatted per RFC 5952.
+      destPort:
+        type: integer
+        description: The port to which the datagram will be sent.
+      data:
+        type: string
+        description: The body of the UDP datagram encoded as a string of ASCII characters.
+      frameExchangePattern:
+        type: integer
+        description: "Set to 0 if DFE is to be used, set to 1 if EDFE is to be used."
+    description: A UDP datagram to be sent from/to a specified source/destination address and port.
+  ICMPv6Echo:
+    type: object
+    required:
+    - destAddress
+    - echoBody
+    - frameExchangePattern
+    - hopLimit
+    - identifier
+    - sequenceNumber
+    - srcAddress
+    properties:
+      srcAddress:
+        type: string
+        description: "The source address to be used by the sender.  Must be one of the LL, ULA, GUA, or mcast addresses configured on the node. IPv6 address strings are formatted per RFC 5952."
+      destAddress:
+        type: string
+        description: The destination address to which the ICMPv6Echo message will be sent. IPv6 address strings are formatted per RFC 5952.
+      hopLimit:
+        type: integer
+        description: The hop limit value to be set in the IPv6 header.
+      echoBody:
+        type: string
+        description: The body of the ICMPv6Echo message encoded as a string of ASCII characters.
+      frameExchangePattern:
+        type: integer
+        description: "Set to 0 if DFE is to be used, set to 1 if EDFE is to be used."
+      identifier:
+        type: integer
+        description: Value to be placed in the ICMPv6 Echo Identifier field.
+        minimum: 0
+        maximum: 65535
+      sequenceNumber:
+        type: integer
+        description: Value to be placed in the ICMPv6 Echo Sequence Number field.
+        minimum: 0
+        maximum: 65535
+    description: An ICMPv6Echo message to be sent from/to a specified source/destination address. NOTE The response to this command should not wait for the Echo response.

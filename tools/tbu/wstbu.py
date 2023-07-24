@@ -10,14 +10,19 @@ import time
 import threading
 
 import flask
+import jsonschema
 import sdbus
 import systemd.journal
+import yaml
 
 import configutils
 import utils
 import wsbrd
 
 
+with open('api.yaml') as f:
+    g_api = yaml.safe_load(f)
+    g_api = utils.resolve_refs(g_api)
 config = None
 
 
@@ -66,6 +71,26 @@ def dbus_errcheck(func):
     return wrapper
 
 
+def json_errcheck(path):
+    schema = None
+    for endpoint in g_api['paths'][path].values():
+        if not schema:
+            schema = endpoint['parameters'][0]['schema']
+        else:
+            # Ensure all methods use the same schema
+            assert schema == endpoint['parameters'][0]['schema']
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                jsonschema.validate(flask.request.get_json(silent=True), schema)
+            except jsonschema.ValidationError as e:
+                return error(400, WSTBU_ERR_UNKNOWN, f'JSON error: {e.message}')
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 @dbus_errcheck
 def put_run_mode(mode: int):
     if mode == 0:
@@ -87,6 +112,7 @@ def put_run_mode(mode: int):
 
 
 @dbus_errcheck
+@json_errcheck('/config/phy')
 def put_config_phy():
     # Wi-SUN TBU 1.0.18 PhyConfig.modulation
     WSTBU_MOD_2FSK = 0
@@ -106,13 +132,11 @@ def put_config_phy():
     }
 
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
-    if json.get('modulation') != WSTBU_MOD_2FSK:
+    if json['modulation'] != WSTBU_MOD_2FSK:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported modulation')
-    key = (json.get('symbolRate'), json.get('modulationIndex'))
+    key = (json['symbolRate'], json['modulationIndex'])
     if key not in WS_PHY_OP_MODE_TABLE:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported PHY config')
     wsbrd.config['mode'] = WS_PHY_OP_MODE_TABLE[key]
@@ -120,6 +144,7 @@ def put_config_phy():
 
 
 @dbus_errcheck
+@json_errcheck('/config/chanPlan/regOp')
 def put_config_chan_plan_reg_op():
     # Wi-SUN PHY 1v09 Table 3: Supported Frequency Bands and Channel Parameters
     WS_REG_DOMAIN_TABLE = {
@@ -142,46 +167,33 @@ def put_config_chan_plan_reg_op():
     }
 
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
-    if 'regDomain' in json:
-        if json['regDomain'] not in WS_REG_DOMAIN_TABLE:
-            return error(400, WSTBU_ERR_UNKNOWN, 'invalid domain')
-        wsbrd.config['domain'] = WS_REG_DOMAIN_TABLE[json['regDomain']]
-    if 'opClass' in json:
-        wsbrd.config['class'] = json['opClass']
+    if json['regDomain'] not in WS_REG_DOMAIN_TABLE:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid domain')
+    wsbrd.config['domain'] = WS_REG_DOMAIN_TABLE[json['regDomain']]
+    wsbrd.config['class'] = json['opClass']
     return success()
 
 
 @dbus_errcheck
+@json_errcheck('/config/chanPlan/explicit')
 def put_config_chan_plan_explicit():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
-    chan0_freq   = json.get('ch0')
-    chan_spacing = json.get('chanSpacing')
-    chan_count   = json.get('numChans')
-    if not chan0_freq or not chan_spacing or not chan_count:
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported channel config')
-    wsbrd.config['chan0_freq']   = chan0_freq
-    wsbrd.config['chan_spacing'] = chan_spacing
-    wsbrd.config['chan_count']   = chan_count
+    wsbrd.config['chan0_freq']   = json['ch0']
+    wsbrd.config['chan_spacing'] = json['chanSpacing']
+    wsbrd.config['chan_count']   = json['numChans']
     return success()
 
 
 @dbus_errcheck
+@json_errcheck('/config/chanPlan/fixed')
 def put_config_chan_plan_fixed():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
-    if 'chanNumber' not in json:
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported channel config')
     wsbrd.config['allowed_channels'] = json['chanNumber']
     return success()
 
@@ -194,10 +206,10 @@ def config_chan_plan_common(json: dict):
     WS_CHAN_FUNC_VENDOR = 3
 
     # Use /config/chanPlan/fixed for fixed channel
-    if 'channelFunction' in json and json['channelFunction'] != WS_CHAN_FUNC_DH1:
+    if json['channelFunction'] != WS_CHAN_FUNC_DH1:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported channel function')
-    chan_excl_ranges = json.get('excludedChannelRange', [])
-    chan_excl_mask   = json.get('excludedChannelMask', [])
+    chan_excl_ranges = json['excludedChannelRange']
+    chan_excl_mask   = json['excludedChannelMask']
     if chan_excl_ranges and chan_excl_mask:
         return error(400, WSTBU_ERR_CHAN_EXCL, 'both range and mask specified')
     if not chan_excl_mask and not chan_excl_ranges:
@@ -237,63 +249,58 @@ def config_chan_plan_common(json: dict):
     return None
 
 
+@dbus_errcheck
+@json_errcheck('/config/chanPlan/unicast')
 def put_config_chan_plan_unicast():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     if err := config_chan_plan_common(json):
         return err
-    if 'dwellInterval' in json:
-        wsbrd.config['unicast_dwell_interval'] = json['dwellInterval']
-    return success()
-
-
-def put_config_chan_plan_bcast():
-    json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
-    if err := config_chan_plan_common(json):
-        return err
-    if 'bcastInterval' in json:
-        wsbrd.config['broadcast_interval'] = json['bcastInterval']
-    if 'bcastScheduleId' in json:
-        pass
-    if 'dwellInterval' in json:
-        wsbrd.config['broadcast_dwell_interval'] = json['dwellInterval']
+    wsbrd.config['unicast_dwell_interval'] = json['dwellInterval']
     return success()
 
 
 @dbus_errcheck
+@json_errcheck('/config/chanPlan/bcast')
+def put_config_chan_plan_bcast():
+    json = flask.request.get_json(force=True, silent=True)
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    if err := config_chan_plan_common(json):
+        return err
+    wsbrd.config['broadcast_interval']       = json['bcastInterval']
+    wsbrd.config['broadcast_dwell_interval'] = json['dwellInterval']
+    # TODO: handle BSI
+    return success()
+
+
+@dbus_errcheck
+@json_errcheck('/config/borderRouter')
 def put_config_border_router():
     # Wi-SUN FAN 1.1v06 6.3.2.3.2.3 PAN Information Element (PAN-IE)
     WS_ROUTING_METHOD_MHDS = 0
     WS_ROUTING_METHOD_RPL  = 1
 
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
-    if 'useParentBcastSched' in json and json['useParentBcastSched'] is not True:
+    if not json['useParentBcastSched']:
         return error(500, WSTBU_ERR_UNSUPPORTED, 'unsupported use parent BS-IE disabled')
-    if 'routingMethod' in json and json['routingMethod'] != WS_ROUTING_METHOD_RPL:
+    if json['routingMethod'] != WS_ROUTING_METHOD_RPL:
         return error(500, WSTBU_ERR_UNSUPPORTED, 'unsupported routing method')
-    if 'panId' in json:
-        wsbrd.config['pan_id'] = json['panId']
-    if 'panSize' in json:
-        wsbrd.config['pan_size'] = json['panSize']
-    if 'networkName' in json:
-        wsbrd.config['network_name'] = utils.escape_str(json['networkName'])
+    wsbrd.config['pan_id']       = json['panId']
+    wsbrd.config['pan_size']     = json['panSize']
+    wsbrd.config['network_name'] = utils.escape_str(json['networkName'])
     if 'sixLowpanMtu' in json:
         wsbrd.config['lowpan_mtu'] = json['sixLowpanMtu']
     return success()
 
 
 @dbus_errcheck
+@json_errcheck('/config/borderRouter/gtks')
 def put_config_border_router_gtks():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     gtks = 4 * [None]
     for i in range(4):
         if f'gtk{i}' in json:
@@ -323,10 +330,9 @@ def put_config_border_router_gtks():
 
 
 @dbus_errcheck
+@json_errcheck('/config/borderRouter/keyLifetimes')
 def put_config_border_router_key_lifetimes():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     if 'pmkLifetime' in json:
@@ -343,30 +349,24 @@ def put_config_border_router_key_lifetimes():
 
 
 @dbus_errcheck
+@json_errcheck('/config/borderRouter/revokeKeys')
 def put_config_border_router_revoke_keys():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
-    gtk = json.get('gtk', bytes(0))
-    if gtk:
-        gtk = utils.parse_key(gtk)
-        if not gtk:
-            return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
+    gtk = utils.parse_key(json['gtk'])
+    if not gtk:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
     wsbrd.dbus().revoke_group_keys(gtk, bytes(0))
     return success()
 
 
 @dbus_errcheck
+@json_errcheck('/config/whitelist')
 def put_config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     if 'macAddressList' not in json:
         return
-    if not isinstance(json['macAddressList'], list):
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
     wsbrd.config['allowed_mac64'] = json['macAddressList']
     return success()
 
@@ -396,19 +396,15 @@ def subscription_frame_forward(family, sockaddr):
                 return
 
 
+@json_errcheck('/subscription/frames')
 def put_subscription_frame():
     global sub_thread
     global sub_fifo
 
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
-    mode = json.get('subscriptionMode')
-    if mode == 'Start':
-        if 'fwdAddress' not in json:
-            return error(400, WSTBU_ERR_UNKNOWN, f'missing address')
+    if json['subscriptionMode'] == 'Start':
         addr = json['fwdAddress']
-        port = json.get('fwdPort')
+        port = json['fwdPort']
         try:
             addrinfo = socket.getaddrinfo(addr, port, proto=socket.IPPROTO_UDP)
         except socket.gaierror as e:
@@ -426,7 +422,7 @@ def put_subscription_frame():
                 daemon=True
             )
             sub_thread.start()
-    elif mode == 'Stop':
+    elif json['subscriptionMode'] == 'Stop':
         if sub_thread:
             os.close(sub_fifo)
             sub_fifo = None
@@ -471,21 +467,18 @@ def transmitter_sendmsg(
     return None
 
 
+@json_errcheck('/transmitter/udp')
 def put_transmitter_udp():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
-    if 'frameExchangePattern' in json and json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
+    if json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported frame exchange pattern')
-    src_addr = utils.parse_ipv6(json.get('srcAddress'))
-    dst_addr = utils.parse_ipv6(json.get('destAddress'))
+    src_addr = utils.parse_ipv6(json['srcAddress'])
+    dst_addr = utils.parse_ipv6(json['destAddress'])
     if not src_addr or not dst_addr:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
-    src_port = json.get('srcPort')
-    dst_port = json.get('destPort')
-    if not src_port or not dst_port:
-        return error(400, WSTBU_ERR_UNKNOWN, 'missing port')
-    data = bytes(json.get('data', ''), 'utf-8')
+    src_port = json['srcPort']
+    dst_port = json['destPort']
+    data = bytes(json['data'], 'utf-8')
 
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sck:
         if err := transmitter_sendmsg(sck, src_addr, dst_addr, data, src_port, dst_port):
@@ -493,14 +486,13 @@ def put_transmitter_udp():
     return success()
 
 
+@json_errcheck('/transmitter/icmpv6Echo')
 def put_transmitter_icmpv6():
     json = flask.request.get_json(force=True, silent=True)
-    if json is None:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
-    if 'frameExchangePattern' in json and json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
+    if json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported frame exchange pattern')
-    src_addr = utils.parse_ipv6(json.get('srcAddress'))
-    dst_addr = utils.parse_ipv6(json.get('destAddress'))
+    src_addr = utils.parse_ipv6(json['srcAddress'])
+    dst_addr = utils.parse_ipv6(json['destAddress'])
     if not src_addr or not dst_addr:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
 
@@ -513,9 +505,7 @@ def put_transmitter_icmpv6():
         json.get('sequenceNumber') # Sequence Number
     )
     data += bytes(json.get('data', ''), 'utf-8')
-    cmsg = []
-    if 'hopLimit' in json:
-        cmsg.append((socket.IPPROTO_IPV6, socket.IPV6_HOPLIMIT, struct.pack('i', json['hopLimit'])))
+    cmsg = [(socket.IPPROTO_IPV6, socket.IPV6_HOPLIMIT, struct.pack('i', json['hopLimit']))]
 
     with socket.socket(socket.AF_INET6, socket.SOCK_RAW, socket.IPPROTO_ICMPV6) as sck:
         if err := transmitter_sendmsg(sck, src_addr, dst_addr, data, cmsg=cmsg):

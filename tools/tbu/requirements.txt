@@ -1,4 +1,6 @@
 flask          >= 2.3.2
+jsonschema     >= 4.18.4
 netifaces      >= 0.11.0
 sdbus          >= 0.11.0
 systemd-python >= 235
+PyYAML         >= 6.0.1

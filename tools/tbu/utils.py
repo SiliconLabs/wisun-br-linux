@@ -56,3 +56,27 @@ def parse_int(val):
         return int(val)
     except ValueError:
         return None
+
+
+def resolve_refs(obj):
+    '''
+    Resolve '$ref' in JSON objects (only 1 depth level).
+    See https://swagger.io/docs/specification/using-ref/
+    '''
+    def _resolve_refs(subobj):
+        if isinstance(subobj, list):
+            for e in subobj:
+                _resolve_refs(e)
+        elif isinstance(subobj, dict):
+            for v in subobj.values():
+                _resolve_refs(v)
+            if '$ref' in subobj:
+                refkey = subobj.pop('$ref')
+                assert refkey.startswith('#/')
+                ref = obj
+                for subkey in refkey.split('/')[1:]:
+                    ref = ref[subkey]
+                subobj |= ref # ref must be a dict
+    obj = obj.copy()
+    _resolve_refs(obj)
+    return obj
