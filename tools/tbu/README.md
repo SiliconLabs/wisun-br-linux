@@ -58,3 +58,6 @@ Finally, the server can be run using:
 - Parameters `lfnPtkLifetime` and `lfnPmkLifetime` are ignored in
   `/config/borderRouter/keyLifetimes`, pairwise key lifetimes are the same
   between FFN and LFN.
+- Endpoint `/config/borderRouter/revokeKeys` will always revoke both GTKs and
+  LGTKs, inserting a custom (L)GTK based on the `isLgtk` parameter, and a
+  random key for the other key type.

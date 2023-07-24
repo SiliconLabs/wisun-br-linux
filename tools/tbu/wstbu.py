@@ -398,7 +398,11 @@ def put_config_border_router_revoke_keys():
     gtk = utils.parse_key(json['gtk'])
     if not gtk:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
-    wsbrd.dbus().revoke_group_keys(gtk, bytes(0))
+    # FIXME: only revoke GTKs or LGTKs, not both
+    if json.get('isLgtk', False):
+        wsbrd.dbus().revoke_group_keys(bytes(0), gtk)
+    else:
+        wsbrd.dbus().revoke_group_keys(gtk, bytes(0))
     return success()
 
 
