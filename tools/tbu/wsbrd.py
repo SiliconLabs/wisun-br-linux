@@ -81,6 +81,10 @@ class WsbrdDbusInterface(
     def install_gtk(self, gtk: bytes) -> None:
         raise NotImplementedError
 
+    @sdbus.dbus_method('yyayay')
+    def ie_custom_insert(self, ie_type, id, content, frame_types) -> None:
+        raise NotImplementedError
+
 
 # For some reason, storing an instance of WsbrdDbusInterface in a global
 # variable (as for SystemdUnitDbusInterface) results in the error 'Transport

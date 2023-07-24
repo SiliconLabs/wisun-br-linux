@@ -32,16 +32,25 @@ def format_key(key: bytes) -> str:
     return ':'.join(f'{b:02x}' for b in key)
 
 
-def parse_key(key: str) -> bytes:
-    if not isinstance(key, str):
-        return None
-    key = key.replace(':', '')
-    if len(key) != 32:
+def parse_hexstr(string: str, separators=[], len_check=0) -> bytes:
+    if not isinstance(string, str):
         return None
     try:
-        return bytes(int(key[i:i+2], 16) for i in range(0, 32, 2))
-    except ValueError:
-        return None
+        res = bytes(int(string[i:(i + 2)], 16) for i in range(0, len(string), 2))
+        return res if len(res) == len_check or not len_check else None
+    except:
+        pass
+    for separator in separators:
+        try:
+            res = bytes(int(s, 16) for s in string.split(separator))
+            return res if len(res) == len_check or not len_check else None
+        except:
+            pass
+    return None
+
+
+def parse_key(key: str) -> bytes:
+    return parse_hexstr(key, [':', '-'], 16)
 
 
 def parse_ipv6(addr: str) -> ipaddress.IPv6Address:

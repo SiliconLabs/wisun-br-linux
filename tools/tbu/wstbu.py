@@ -44,6 +44,21 @@ WSTBU_ERR_NOT_ROUTER  = 4
 WSTBU_ERR_UNSUPPORTED = 5
 
 
+# Wi-SUN Assigned Value Registry 0v24 - 10 Wi-SUN Frame Types
+WS_FRAME_TYPE_PA    =  0
+WS_FRAME_TYPE_PAS   =  1
+WS_FRAME_TYPE_PC    =  2
+WS_FRAME_TYPE_PCS   =  3
+WS_FRAME_TYPE_DATA  =  4
+WS_FRAME_TYPE_ACK   =  5
+WS_FRAME_TYPE_EAPOL =  6
+WS_FRAME_TYPE_LPA   =  9
+WS_FRAME_TYPE_LPAS  = 10
+WS_FRAME_TYPE_LPC   = 11
+WS_FRAME_TYPE_LPCS  = 12
+WS_FRAME_TYPE_EXT   = 15
+
+
 def error(http_code: int, error_code: int, msg: str):
     return ({ 'code': error_code, 'message': msg }, http_code)
 
@@ -407,6 +422,23 @@ def put_config_border_router_revoke_keys():
 
 
 @dbus_errcheck
+@json_errcheck('/config/borderRouter/informationElements')
+def config_border_router_information_elements():
+    json = flask.request.get_json(force=True, silent=True)
+    for json_ie in json:
+        format = json_ie['format']
+        sub_id = json_ie['subID']
+        if flask.request.method == 'PUT':
+            content = utils.parse_hexstr(json_ie.get('content', ''))
+            if content is None:
+                return error(400, WSTBU_ERR_UNKNOWN, 'invalid content')
+            wsbrd.dbus().ie_custom_insert(format, sub_id, content, bytes([WS_FRAME_TYPE_PC]))
+        elif flask.request.method == 'DELETE':
+            wsbrd.dbus().ie_custom_insert(format, sub_id, bytes(), bytes())
+    return success()
+
+
+@dbus_errcheck
 @json_errcheck('/config/whitelist')
 def put_config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
@@ -638,30 +670,31 @@ def get_config_neighbor_table():
 
 def app_build():
     app = flask.Flask(__name__)
-    app.add_url_rule('/runMode/<int:mode>',               view_func=put_run_mode,                           methods=['PUT'])
-    app.add_url_rule('/config/phy',                       view_func=put_config_phy,                         methods=['PUT'])
-    app.add_url_rule('/config/phy/modeID',                view_func=put_config_phy_mode_id,                 methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/regId',            view_func=put_config_chan_plan_reg_id,            methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/regOp',            view_func=put_config_chan_plan_reg_op,            methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/explicit',         view_func=put_config_chan_plan_explicit,          methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/fixed',            view_func=put_config_chan_plan_fixed,             methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/unicast',          view_func=put_config_chan_plan_unicast,           methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/bcast',            view_func=put_config_chan_plan_bcast,             methods=['PUT'])
-    app.add_url_rule('/config/borderRouter',              view_func=put_config_border_router,               methods=['PUT'])
-    app.add_url_rule('/config/borderRouter/gtks',         view_func=put_config_border_router_gtks,          methods=['PUT'])
-    app.add_url_rule('/config/borderRouter/keyLifetimes', view_func=put_config_border_router_key_lifetimes, methods=['PUT'])
-    app.add_url_rule('/config/borderRouter/revokeKeys',   view_func=put_config_border_router_revoke_keys,   methods=['PUT'])
-    app.add_url_rule('/config/router',                    view_func=put_config_router,                      methods=['PUT'])
-    app.add_url_rule('/config/whitelist',                 view_func=put_config_whitelist,                   methods=['PUT'])
-    app.add_url_rule('/subscription/frames',              view_func=put_subscription_frame,                 methods=['PUT'])
-    app.add_url_rule('/subscription/frames/hash',         view_func=get_subscription_frame_hash,            methods=['GET'])
-    app.add_url_rule('/transmitter/udp',                  view_func=put_transmitter_udp,                    methods=['PUT'])
-    app.add_url_rule('/transmitter/icmpv6Echo',           view_func=put_transmitter_icmpv6,                 methods=['PUT'])
-    app.add_url_rule('/config/ipAddresses',               view_func=get_config_ip_addresses,                methods=['GET'])
-    app.add_url_rule('/config/securityKeys',              view_func=get_config_security_keys,               methods=['GET'])
-    app.add_url_rule('/config/dodagRoutes',               view_func=get_config_dodag_routes,                methods=['GET'])
-    app.add_url_rule('/config/preferredParent',           view_func=get_config_preferred_parent,            methods=['GET'])
-    app.add_url_rule('/config/neighborTable',             view_func=get_config_neighbor_table,              methods=['GET'])
+    app.add_url_rule('/runMode/<int:mode>',                      view_func=put_run_mode,                              methods=['PUT'])
+    app.add_url_rule('/config/phy',                              view_func=put_config_phy,                            methods=['PUT'])
+    app.add_url_rule('/config/phy/modeID',                       view_func=put_config_phy_mode_id,                    methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/regId',                   view_func=put_config_chan_plan_reg_id,               methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/regOp',                   view_func=put_config_chan_plan_reg_op,               methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/explicit',                view_func=put_config_chan_plan_explicit,             methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/fixed',                   view_func=put_config_chan_plan_fixed,                methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/unicast',                 view_func=put_config_chan_plan_unicast,              methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/bcast',                   view_func=put_config_chan_plan_bcast,                methods=['PUT'])
+    app.add_url_rule('/config/borderRouter',                     view_func=put_config_border_router,                  methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/gtks',                view_func=put_config_border_router_gtks,             methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/keyLifetimes',        view_func=put_config_border_router_key_lifetimes,    methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/revokeKeys',          view_func=put_config_border_router_revoke_keys,      methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/informationElements', view_func=config_border_router_information_elements, methods=['PUT', 'DELETE'])
+    app.add_url_rule('/config/router',                           view_func=put_config_router,                         methods=['PUT'])
+    app.add_url_rule('/config/whitelist',                        view_func=put_config_whitelist,                      methods=['PUT'])
+    app.add_url_rule('/subscription/frames',                     view_func=put_subscription_frame,                    methods=['PUT'])
+    app.add_url_rule('/subscription/frames/hash',                view_func=get_subscription_frame_hash,               methods=['GET'])
+    app.add_url_rule('/transmitter/udp',                         view_func=put_transmitter_udp,                       methods=['PUT'])
+    app.add_url_rule('/transmitter/icmpv6Echo',                  view_func=put_transmitter_icmpv6,                    methods=['PUT'])
+    app.add_url_rule('/config/ipAddresses',                      view_func=get_config_ip_addresses,                   methods=['GET'])
+    app.add_url_rule('/config/securityKeys',                     view_func=get_config_security_keys,                  methods=['GET'])
+    app.add_url_rule('/config/dodagRoutes',                      view_func=get_config_dodag_routes,                   methods=['GET'])
+    app.add_url_rule('/config/preferredParent',                  view_func=get_config_preferred_parent,               methods=['GET'])
+    app.add_url_rule('/config/neighborTable',                    view_func=get_config_neighbor_table,                 methods=['GET'])
     return app
 
 
