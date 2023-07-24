@@ -211,8 +211,8 @@ def config_chan_plan_common(json: dict):
     # Use /config/chanPlan/fixed for fixed channel
     if json['channelFunction'] != WS_CHAN_FUNC_DH1:
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported channel function')
-    chan_excl_ranges = json['excludedChannelRange']
-    chan_excl_mask   = json['excludedChannelMask']
+    chan_excl_ranges = json.get('excludedChannelRange', [])
+    chan_excl_mask   = json.get('excludedChannelMask', [])
     if chan_excl_ranges and chan_excl_mask:
         return error(400, WSTBU_ERR_CHAN_EXCL, 'both range and mask specified')
     if not chan_excl_mask and not chan_excl_ranges:
