@@ -381,6 +381,13 @@ def put_config_border_router_key_lifetimes():
         wsbrd.config['gtk_new_activation_time'] = json['gtkNewActivationTime']
     if 'revocationLifetimeReduction' in json:
         wsbrd.config['ffn_revocation_lifetime_reduction'] = json['revocationLifetimeReduction']
+    # TODO: support lfnPmkLifetime and lfnPtkLifetime
+    if 'lgtkLifetime' in json:
+        wsbrd.config['lgtk_expire_offset'] = json['lgtkLifetime']
+    if 'lgtkNewActivationTime' in json:
+        wsbrd.config['lgtk_new_activation_time'] = json['lgtkNewActivationTime']
+    if 'lgtkRevocationLifetimeReduction' in json:
+        wsbrd.config['lfn_revocation_lifetime_reduction'] = json['lgtkRevocationLifetimeReduction']
     return success()
 
 

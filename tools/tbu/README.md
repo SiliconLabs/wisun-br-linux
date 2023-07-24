@@ -55,3 +55,6 @@ Finally, the server can be run using:
   a random BSI is generated instead.
 - Endpoints `/config/neighborTable` and `subscription/frames/hash` are not
   implemented.
+- Parameters `lfnPtkLifetime` and `lfnPmkLifetime` are ignored in
+  `/config/borderRouter/keyLifetimes`, pairwise key lifetimes are the same
+  between FFN and LFN.
