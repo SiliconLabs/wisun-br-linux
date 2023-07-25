@@ -13,6 +13,7 @@ class WstbuConfig:
     radius_server: ipaddress.IPv6Address
     radius_secret: str
     dhcpv6_server: ipaddress.IPv6Address
+    fan_version:   str
 
     @property
     def tun_device(self):
@@ -36,6 +37,7 @@ def read_wstbu(filename: str) -> dict:
         'radius_server',
         'radius_secret',
         'dhcpv6_server',
+        'fan_version',
     ]
 
     try:

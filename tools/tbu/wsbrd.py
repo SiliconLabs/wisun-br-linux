@@ -15,7 +15,7 @@ def config_default(wstbu_config):
         radius_secret  = wstbu_config.radius_secret,
         internal_dhcp  = 'n',
         storage_prefix = wstbu_config.nvm_dir,
-        fan_version    = '1.0',
+        fan_version    = wstbu_config.fan_version,
         gtk_new_install_required  = 0,
         lgtk_new_install_required = 0,
         pcap_file      = wstbu_config.fifo_path,
