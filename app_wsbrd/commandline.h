@@ -70,6 +70,7 @@ struct wsbrd_conf {
 
     int  tx_power;
     int  ws_pan_id;
+    int  ws_fan_version;
     int  ws_pmk_lifetime;
     int  ws_ptk_lifetime;
     int  ws_gtk_expire_offset;
@@ -86,8 +87,9 @@ struct wsbrd_conf {
     int  bc_interval;
     int  lfn_bc_interval;
     int  lfn_bc_sync_period;
+    int  enable_lfn;
+    int  enable_ffn10;
     unsigned int ws_join_metrics;
-    unsigned int ws_fan_features;
 
     uint8_t ws_allowed_mac_addresses[10][8];
     uint8_t ws_allowed_mac_address_count;

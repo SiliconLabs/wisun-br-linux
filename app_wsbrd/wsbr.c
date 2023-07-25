@@ -221,13 +221,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
 
     // FIXME: no ws_management_xxx() setter
-    cur->ws_info.fan_features = ctxt->config.ws_fan_features;
-    if (ctxt->config.ws_fan_features & WS_FAN_FEATURE_FFN_1_1)
-        cur->ws_info.pan_information.version = WS_FAN_VERSION_1_1;
-    else if (ctxt->config.ws_fan_features & WS_FAN_FEATURE_FFN_1_0)
-        cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
-    else
-        BUG();
+    cur->ws_info.pan_information.version = ctxt->config.ws_fan_version;
+    cur->ws_info.fan_features = WS_FAN_FEATURE_FFN_1_1;
+    if (ctxt->config.enable_ffn10)
+        cur->ws_info.fan_features |= WS_FAN_FEATURE_FFN_1_0;
+    if (ctxt->config.enable_lfn)
+        cur->ws_info.fan_features |= WS_FAN_FEATURE_LFN;
 
     rcp_set_tx_power(ctxt->config.tx_power);
 
@@ -447,8 +446,8 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         rcp_rx(ctxt);
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
-    if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.ws_fan_features & WS_FAN_FEATURE_LFN)
-        FATAL(1, "fan_version = 1.1-lfn requires RCP API >= 0.15.0");
+    if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.enable_lfn)
+        FATAL(1, "enable_lfn requires RCP API >= 0.15.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP API >= 0.16.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)

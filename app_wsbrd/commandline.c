@@ -533,7 +533,9 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
-        { "fan_version",                   &config->ws_fan_features,                  conf_set_enum,        &valid_fan_versions },
+        { "enable_lfn",                    &config->enable_lfn,                       conf_set_bool,        NULL },
+        { "enable_ffn10",                  &config->enable_ffn10,                     conf_set_bool,        NULL },
+        { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
         { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
         { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
@@ -651,6 +653,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_async_frag_duration = 500;
     config->pan_size = -1;
     config->ws_join_metrics = (unsigned int)-1;
+    config->ws_fan_version = WS_FAN_VERSION_1_1;
+    config->enable_lfn = true;
+    config->enable_ffn10 = false;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
@@ -792,14 +797,12 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("mix FAN 1.1 PHY mode with FAN1.0 class");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 mode with FAN1.1 channel plan");
-    if (config->ws_class && !config->ws_fan_features)
-        config->ws_fan_features = str_to_val("1.0", valid_fan_versions);
-    if (config->ws_chan_plan_id && !config->ws_fan_features)
-        config->ws_fan_features = str_to_val("1.1", valid_fan_versions);
-    if (!config->ws_fan_features)
-        config->ws_fan_features = str_to_val("1.1", valid_fan_versions);
-    if (config->ws_fan_features & WS_FAN_FEATURE_FFN_1_0 && config->ws_fan_features & WS_FAN_FEATURE_LFN)
-        WARN("fan_version = 1.1 is unreliable, prefer 1.1-compat or 1.1-lfn");
+    if (config->enable_ffn10 && config->enable_lfn)
+        WARN("mixing enable_lfn and enable_ffn10 is unreliable and insecure");
+    if (!config->ws_chan_plan_id && config->enable_lfn)
+        WARN("enable_lfn without chan_plan_id");
+    if (config->ws_chan_plan_id && config->enable_ffn10)
+        WARN("enable_ffn10 with chan_plan_id");
     if (!config->ws_phy_mode_id && config->ws_phy_op_modes[0])
         FATAL(1, "\"phy_operating_modes\" depends on \"phy_mode_id\"");
     if (config->bc_interval < config->bc_dwell_interval)
@@ -819,10 +822,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         if (config->tls_own.cert_len != 0 || config->tls_own.key_len != 0 || config->tls_ca.cert_len != 0)
             WARN("ignore certificates and key since an external radius server is in use");
     }
-    if (!(config->ws_fan_features & WS_FAN_FEATURE_LFN)) {
+    if (!config->enable_lfn)
         if (config->ws_lgtk_force[0] || config->ws_lgtk_force[1] || config->ws_lgtk_force[2])
-            FATAL(1, "\"lgtk[i]\" is incompatible with \"fan_version = 1.0 or 1.1-compat\"");
-    }
+            FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (config->ws_gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
     if (config->ws_lgtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
