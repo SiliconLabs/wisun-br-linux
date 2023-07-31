@@ -60,9 +60,9 @@
 #define WS_WPIE_LGTKHASH_INCLUDE_LGTK2_MASK 0b00000100
 #define WS_WPIE_LGTKHASH_ACTIVE_INDEX_MASK  0b00011000
 
-// Wi-SUN FAN 1.1v06-d0 Figure 68c JM-IE Metric
-#define WS_WPIE_JM_METRIC_ID_MASK  0b11111100
-#define WS_WPIE_JM_METRIC_LEN_MASK 0b00000011
+// Wi-SUN FAN 1.1v06 Figure 68c JM-IE Metric
+#define WS_WPIE_JM_METRIC_ID_MASK  0b00111111
+#define WS_WPIE_JM_METRIC_LEN_MASK 0b11000000
 
 static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
 {
