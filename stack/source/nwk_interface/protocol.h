@@ -184,7 +184,6 @@ struct net_if {
     icmp_state_e nwk_bootstrap_state;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
-    bool mpl_proactive_forwarding;
     multicast_mpl_seed_id_mode_e mpl_seed_id_mode;
     trickle_params_t mpl_data_trickle_params;
     uint16_t mpl_seed_set_entry_lifetime;

@@ -51,7 +51,7 @@ void mpl_clear_realm_scope_seeds(struct net_if *cur);
 /* Time units for trickle parameters is 50 ms (1/20 s) ticks */
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_type,
-                                int_fast8_t proactive_forwarding, uint16_t seed_set_entry_lifetime,
+                                uint16_t seed_set_entry_lifetime,
                                 const struct trickle_params *data_trickle_params);
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
 bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);

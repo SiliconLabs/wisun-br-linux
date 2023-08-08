@@ -1164,14 +1164,11 @@ int ws_bootstrap_init(int8_t interface_id)
     addr_notification_register(ws_bootstrap_address_notification_cb);
     rcp_set_accept_unknown_secured_frames(true);
 
-    // Set the default parameters for MPL
-    cur->mpl_proactive_forwarding = true;
-
     // Specification is ruling out the compression mode, but we are now doing it.
     cur->mpl_seed = true;
     cur->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
 
-    cur->mpl_domain = mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL);
+    cur->mpl_domain = mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, 0, NULL);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_NODES);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_ROUTERS);
 

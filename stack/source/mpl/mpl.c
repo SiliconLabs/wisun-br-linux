@@ -91,7 +91,6 @@ struct mpl_domain {
     uint8_t address[16];
     uint8_t sequence;
     bool colour;
-    bool proactive_forwarding;
     uint16_t seed_set_entry_lifetime;
     NS_LIST_HEAD(mpl_seed_t, link) seeds;
     trickle_params_t data_trickle_params;
@@ -176,7 +175,6 @@ static int mpl_domain_count_on_interface(struct net_if *cur)
 
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_mode,
-                                int_fast8_t proactive_forwarding,
                                 uint16_t seed_set_entry_lifetime,
                                 const trickle_params_t *data_trickle_params)
 {
@@ -216,8 +214,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     domain->sequence = rand_get_8bit();
     domain->colour = false;
     ns_list_init(&domain->seeds);
-    domain->proactive_forwarding = proactive_forwarding >= 0 ? proactive_forwarding
-                                   : cur->mpl_proactive_forwarding;
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime ? seed_set_entry_lifetime
                                       : cur->mpl_seed_set_entry_lifetime;
     domain->data_trickle_params = data_trickle_params ? *data_trickle_params
@@ -232,7 +228,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     /* If we just created the first domain on an interface, auto-create the all-forwarders domain (this does nothing if we're already a member) */
     if (mpl_domain_count_on_interface(cur) == 1) {
         /* Use default interface parameters */
-        mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL);
+        mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, 0, NULL);
         cur->mpl_seed = true;
     }
 
@@ -402,9 +398,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->timestamp = g_monotonic_time_100ms;
     /* Make sure trickle structure is initialised */
     trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
-    if (domain->proactive_forwarding) {
-        mpl_schedule_timer();
-    }
+    mpl_schedule_timer();
 
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
