@@ -481,16 +481,6 @@ static uint8_t mpl_seed_bm_len(const mpl_seed_t *seed)
     }
 }
 
-/* Attempt to optimise by saying ID is source IPv6 */
-static uint16_t mpl_seed_info_size(const mpl_seed_t *seed, const uint8_t *src)
-{
-    uint8_t id_len = seed->id_len;
-    if (id_len == 16 && src && addr_ipv6_equal(src, seed->id)) {
-        id_len = 0;
-    }
-    return 2 + id_len + mpl_seed_bm_len(seed);
-}
-
 /* Does MPL spec really intend this distinction between start and reset? */
 /* (Reset sets interval to Imin, Start puts it somewhere random between Imin and Imax) */
 static void mpl_control_reset_or_start(mpl_domain_t *domain)
