@@ -491,43 +491,6 @@ static uint16_t mpl_seed_info_size(const mpl_seed_t *seed, const uint8_t *src)
     return 2 + id_len + mpl_seed_bm_len(seed);
 }
 
-static uint8_t *mpl_write_seed_info(uint8_t *ptr, const mpl_seed_t *seed, const uint8_t *src)
-{
-    uint8_t bm_len = mpl_seed_bm_len(seed);
-    ptr[0] = seed->min_sequence;
-    ptr[1] = bm_len << 2;
-    uint8_t id_len = seed->id_len;
-    if (id_len == 16 && src && addr_ipv6_equal(src, seed->id)) {
-        id_len = 0;
-    }
-    switch (id_len) {
-        case  0:
-            ptr[1] |= MPL_SEED_IPV6_SRC;
-            break;
-        case  2:
-            ptr[1] |= MPL_SEED_16_BIT;
-            break;
-        case  8:
-            ptr[1] |= MPL_SEED_64_BIT;
-            break;
-        case 16:
-            ptr[1] |= MPL_SEED_128_BIT;
-            break;
-        default:
-            return ptr;
-    }
-    ptr += 2;
-    memcpy(ptr, seed->id, id_len);
-    ptr += id_len;
-    memset(ptr, 0, bm_len);
-    ns_list_foreach(mpl_buffered_message_t, buffer, &seed->messages) {
-        uint8_t i = mpl_buffer_sequence(buffer) - seed->min_sequence;
-        bitrset(ptr, i);
-    }
-    ptr += bm_len;
-    return ptr;
-}
-
 /* Does MPL spec really intend this distinction between start and reset? */
 /* (Reset sets interval to Imin, Start puts it somewhere random between Imin and Imax) */
 static void mpl_control_reset_or_start(mpl_domain_t *domain)
