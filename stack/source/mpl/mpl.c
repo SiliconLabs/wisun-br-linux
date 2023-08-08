@@ -471,16 +471,6 @@ static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_mes
     mpl_schedule_timer();
 }
 
-static uint8_t mpl_seed_bm_len(const mpl_seed_t *seed)
-{
-    mpl_buffered_message_t *last = ns_list_get_last(&seed->messages);
-    if (last) {
-        return ((uint8_t)(mpl_buffer_sequence(last) - seed->min_sequence)) / 8 + 1;
-    } else {
-        return 0;
-    }
-}
-
 /* Does MPL spec really intend this distinction between start and reset? */
 /* (Reset sets interval to Imin, Start puts it somewhere random between Imin and Imax) */
 static void mpl_control_reset_or_start(mpl_domain_t *domain)
