@@ -561,53 +561,6 @@ static uint8_t mpl_seed_id_type(uint8_t seed_id_len)
 }
 
 /*
- *   0                   1                   2                   3
- *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |   min-seqno   |  bm-len   | S |   seed-id (0/2/8/16 octets)   |
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |                                                               |
- *  .            buffered-mpl-messages (variable length)            .
- *  .                                                               .
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
-static void mpl_send_control(mpl_domain_t *domain)
-{
-    uint16_t size = 0;
-    const uint8_t *src = NULL;
-
-    ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
-        /* If not chosen yet, pick source to match a seed id, to save 16 bytes */
-        if (!src && seed->id_len == 16 && addr_is_assigned_to_interface(domain->interface, seed->id)) {
-            src = seed->id;
-        }
-        size += mpl_seed_info_size(seed, src);
-    }
-    buffer_t *buf = buffer_get(size);
-    if (!buf) {
-        return;
-    }
-    uint8_t *ptr = buffer_data_pointer(buf);
-    ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
-        ptr = mpl_write_seed_info(ptr, seed, src);
-    }
-    buffer_data_end_set(buf, ptr);
-    buf->options.type = ICMPV6_TYPE_INFO_MPL_CONTROL;
-    buf->options.code = 0;
-    buf->options.hop_limit = 255;
-    memcpy(buf->dst_sa.address, domain->address, 16);
-    buf->dst_sa.address[1] = (buf->dst_sa.address[1] & 0xf0) | IPV6_SCOPE_LINK_LOCAL;
-    buf->dst_sa.addr_type = ADDR_IPV6;
-    if (src) {
-        buf->src_sa.addr_type = ADDR_IPV6;
-        memcpy(buf->src_sa.address, src, 16);
-    }
-    buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-    buf->interface = domain->interface;
-    protocol_push(buf);
-}
-
-/*
  * There is an edge case in control handling when the hop limit runs out. This
  * is handled as follows:
  *
