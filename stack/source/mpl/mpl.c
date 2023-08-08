@@ -62,13 +62,6 @@ const trickle_params_t rfc7731_default_data_message_trickle_params = {
     .TimerExpirations = 3           /* RFC 7731 says 3; ZigBee IP says 2 for routers, 0 for hosts */
 };
 
-const trickle_params_t rfc7731_default_control_message_trickle_params = {
-    .Imin = MPL_MS_TO_TICKS(512),   /* RFC 7731 says 10 * worst-case link latency */
-    .Imax = MPL_MS_TO_TICKS(300000),/* 5 minutes, as per RFC 7731 */
-    .k = 1,
-    .TimerExpirations = 10
-};
-
 /* Note that we don't use a buffer_t, to save a little RAM. We don't need
  * any of the metadata it stores...
  */
@@ -101,9 +94,7 @@ struct mpl_domain {
     bool proactive_forwarding;
     uint16_t seed_set_entry_lifetime;
     NS_LIST_HEAD(mpl_seed_t, link) seeds;
-    trickle_t trickle;                      // Control timer
     trickle_params_t data_trickle_params;
-    trickle_params_t control_trickle_params;
     ns_list_link_t link;
     multicast_mpl_seed_id_mode_e seed_id_mode;
     uint8_t seed_id[];
@@ -187,8 +178,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_mode,
                                 int_fast8_t proactive_forwarding,
                                 uint16_t seed_set_entry_lifetime,
-                                const trickle_params_t *data_trickle_params,
-                                const trickle_params_t *control_trickle_params)
+                                const trickle_params_t *data_trickle_params)
 {
     if (!addr_is_ipv6_multicast(address) || addr_ipv6_multicast_scope(address) < IPV6_SCOPE_REALM_LOCAL) {
         return NULL;
@@ -232,27 +222,17 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                       : cur->mpl_seed_set_entry_lifetime;
     domain->data_trickle_params = data_trickle_params ? *data_trickle_params
                                   : cur->mpl_data_trickle_params;
-    domain->control_trickle_params = control_trickle_params ? *control_trickle_params
-                                     : cur->mpl_control_trickle_params;
-    trickle_start(&domain->trickle, "MPL DOM", &domain->control_trickle_params);
-    trickle_stop(&domain->trickle);
     domain->seed_id_mode = seed_id_mode;
     memcpy(domain->seed_id, seed_id, seed_id_len);
     ns_list_add_to_end(&mpl_domains, domain);
 
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
     addr_add_group(cur, address);
-    if (domain->control_trickle_params.TimerExpirations != 0) {
-        uint8_t ll_scope[16];
-        memcpy(ll_scope, address, 16);
-        ll_scope[1] = (ll_scope[1] & 0xf0) | IPV6_SCOPE_LINK_LOCAL;
-        addr_add_group(cur, ll_scope);
-    }
 
     /* If we just created the first domain on an interface, auto-create the all-forwarders domain (this does nothing if we're already a member) */
     if (mpl_domain_count_on_interface(cur) == 1) {
         /* Use default interface parameters */
-        mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL, NULL);
+        mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL);
         cur->mpl_seed = true;
     }
 
@@ -281,12 +261,6 @@ bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
 
     //ipv6_route_delete(address, 128, cur->id, NULL, ROUTE_MPL);
     addr_delete_group(cur, address);
-    if (domain->control_trickle_params.TimerExpirations != 0) {
-        uint8_t ll_scope[16];
-        memcpy(ll_scope, domain->address, 16);
-        ll_scope[1] = (ll_scope[1] & 0xf0) | IPV6_SCOPE_LINK_LOCAL;
-        addr_delete_group(cur, ll_scope);
-    }
     ns_list_remove(&mpl_domains, domain);
     free(domain);
     return true;
@@ -300,7 +274,6 @@ void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params 
 
 static void mpl_domain_inconsistent(mpl_domain_t *domain)
 {
-    trickle_inconsistent_heard(&domain->trickle, &domain->control_trickle_params);
     mpl_schedule_timer();
 }
 
@@ -431,9 +404,6 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
     if (domain->proactive_forwarding) {
         mpl_schedule_timer();
-    } else {
-        /* Then stop it if not proactive */
-        trickle_stop(&message->trickle);
     }
 
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
@@ -562,11 +532,6 @@ static uint8_t *mpl_write_seed_info(uint8_t *ptr, const mpl_seed_t *seed, const 
 /* (Reset sets interval to Imin, Start puts it somewhere random between Imin and Imax) */
 static void mpl_control_reset_or_start(mpl_domain_t *domain)
 {
-    if (trickle_running(&domain->trickle, &domain->control_trickle_params)) {
-        trickle_inconsistent_heard(&domain->trickle, &domain->control_trickle_params);
-    } else {
-        trickle_start(&domain->trickle, "MPL DOM", &domain->control_trickle_params);
-    }
     mpl_schedule_timer();
 }
 
@@ -768,8 +733,6 @@ buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur)
             tr_info("We have new MPL data for %s", tr_ipv6(buf->src_sa.address));
         }
         mpl_domain_inconsistent(domain);
-    } else {
-        trickle_consistent_heard(&domain->trickle);
     }
 
 
@@ -941,9 +904,6 @@ void mpl_fast_timer(int ticks)
     mpl_timer_running = false;
 
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
-        if (trickle_timer(&domain->trickle, &domain->control_trickle_params, ticks)) {
-            mpl_send_control(domain);
-        }
         ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
             ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
                 if (trickle_timer(&message->trickle, &domain->data_trickle_params, ticks)) {
@@ -952,7 +912,6 @@ void mpl_fast_timer(int ticks)
                 need_timer = need_timer || trickle_running(&message->trickle, &domain->data_trickle_params);
             }
         }
-        need_timer = need_timer || trickle_running(&domain->trickle, &domain->control_trickle_params);
     }
 
     if (need_timer) {

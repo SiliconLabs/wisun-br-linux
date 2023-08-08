@@ -252,7 +252,6 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     entry->recv_ra_prefixes = true;
     entry->send_mld = true;
     entry->mpl_seed = false;
-    entry->mpl_control_trickle_params = rfc7731_default_control_message_trickle_params;
     entry->mpl_data_trickle_params = rfc7731_default_data_message_trickle_params;
     entry->mpl_seed_set_entry_lifetime = RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME;
     entry->mpl_proactive_forwarding = true;

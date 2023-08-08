@@ -1171,9 +1171,7 @@ int ws_bootstrap_init(int8_t interface_id)
     cur->mpl_seed = true;
     cur->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
 
-    cur->mpl_control_trickle_params.TimerExpirations = 0;
-
-    cur->mpl_domain = mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL, NULL);
+    cur->mpl_domain = mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_NODES);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_ROUTERS);
 

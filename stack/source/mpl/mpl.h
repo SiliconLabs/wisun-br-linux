@@ -34,7 +34,6 @@ typedef enum multicast_mpl_seed_id_mode multicast_mpl_seed_id_mode_e;
 #define MPL_MS_TO_TICKS(t) (((t) + MPL_TICK_MS - 1) / MPL_TICK_MS)
 
 extern const struct trickle_params rfc7731_default_data_message_trickle_params;
-extern const struct trickle_params rfc7731_default_control_message_trickle_params;
 #define RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME (30 * 60) // seconds
 
 typedef struct mpl_domain mpl_domain_t;
@@ -53,8 +52,7 @@ void mpl_clear_realm_scope_seeds(struct net_if *cur);
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_type,
                                 int_fast8_t proactive_forwarding, uint16_t seed_set_entry_lifetime,
-                                const struct trickle_params *data_trickle_params,
-                                const struct trickle_params *control_trickle_params);
+                                const struct trickle_params *data_trickle_params);
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
 bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);
 
