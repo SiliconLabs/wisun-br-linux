@@ -102,7 +102,6 @@ struct mpl_domain {
 static NS_LIST_DEFINE(mpl_domains, mpl_domain_t, link);
 
 static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message);
-static void mpl_control_reset_or_start(mpl_domain_t *domain);
 static void mpl_schedule_timer(void);
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed);
@@ -414,9 +413,6 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     }
     mpl_total_buffered += ip_len;
 
-    /* Does MPL spec intend this distinction between start and reset? */
-    mpl_control_reset_or_start(domain);
-
     return message;
 }
 
@@ -462,13 +458,6 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
 static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_message_t *message)
 {
     trickle_inconsistent_heard(&message->trickle, &domain->data_trickle_params);
-    mpl_schedule_timer();
-}
-
-/* Does MPL spec really intend this distinction between start and reset? */
-/* (Reset sets interval to Imin, Start puts it somewhere random between Imin and Imax) */
-static void mpl_control_reset_or_start(mpl_domain_t *domain)
-{
     mpl_schedule_timer();
 }
 
