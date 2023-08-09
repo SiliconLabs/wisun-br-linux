@@ -40,8 +40,6 @@ typedef struct mpl_domain mpl_domain_t;
 bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len);
 bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data);
 
-buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur);
-
 bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool decrement_hop_limit);
 
 void mpl_slow_timer(int seconds);

@@ -854,10 +854,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
             buf = rpl_control_handler(buf);
             break;
 
-        case ICMPV6_TYPE_INFO_MPL_CONTROL:
-            buf = mpl_control_handler(buf, cur);
-            break;
-
         case ICMPV6_TYPE_INFO_DAR:
             // FIXME: forward to Linux?
             goto drop;
