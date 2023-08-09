@@ -267,11 +267,6 @@ void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params 
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime;
 }
 
-static void mpl_domain_inconsistent(mpl_domain_t *domain)
-{
-    mpl_schedule_timer();
-}
-
 static mpl_seed_t *mpl_seed_lookup(const mpl_domain_t *domain, uint8_t id_len, const uint8_t *seed_id)
 {
     ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
