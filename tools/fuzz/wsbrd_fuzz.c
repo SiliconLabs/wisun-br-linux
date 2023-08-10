@@ -129,7 +129,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
         }
     } else if (fd == g_ctxt.tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
-        fuzz_capture_interface(ctxt, IF_TUN, ADDR_UNSPECIFIED, 0, buf, count);
+        fuzz_capture_interface(ctxt, IF_TUN, ADDR_UNSPECIFIED, 0, buf, size);
     } else if (fd == g_ctxt.os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
         g_ctxt.os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
