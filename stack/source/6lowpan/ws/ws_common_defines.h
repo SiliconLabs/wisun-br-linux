@@ -332,19 +332,6 @@ typedef struct ws_excluded_channel_mask {
     uint8_t mask_len_inline;
 } ws_excluded_channel_mask_t;
 
-
-typedef struct ws_excluded_channel_range_out {
-    unsigned excluded_range_length: 3;
-    ws_excluded_channel_range_data_t *excluded_range;
-} ws_excluded_channel_range_out_t;
-
-
-typedef struct ws_excluded_channel_mask_out {
-    uint16_t excluded_channel_count;
-    uint8_t channel_mask_bytes_inline;
-    uint8_t *channel_mask;
-} ws_excluded_channel_mask_out_t;
-
 /**
  * @brief ws_generic_channel_info_t Generic Channel Info
  */
@@ -362,8 +349,6 @@ typedef struct ws_generic_channel_info {
         ws_channel_function_three_t three;
     } function;
     union ws_excluded_channel {
-        ws_excluded_channel_range_out_t range_out;
-        ws_excluded_channel_mask_out_t mask_out;
         ws_excluded_channel_range_t range;
         ws_excluded_channel_mask_t mask;
     } excluded_channels;
