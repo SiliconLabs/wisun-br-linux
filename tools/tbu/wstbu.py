@@ -147,6 +147,17 @@ def put_config_phy():
 
 
 @dbus_errcheck
+@json_errcheck('/config/phy/modeID')
+def put_config_phy_mode_id():
+    json = flask.request.get_json(force=True, silent=True)
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    wsbrd.config['phy_mode_id'] = json['basePhyModeID']
+    wsbrd.config['phy_operating_modes'] = 'auto' # Enable mode switch
+    return success()
+
+
+@dbus_errcheck
 @json_errcheck('/config/chanPlan/regOp')
 def put_config_chan_plan_reg_op():
     # Wi-SUN PHY 1v09 Table 3: Supported Frequency Bands and Channel Parameters
@@ -593,6 +604,7 @@ def app_build():
     app = flask.Flask(__name__)
     app.add_url_rule('/runMode/<int:mode>',               view_func=put_run_mode,                           methods=['PUT'])
     app.add_url_rule('/config/phy',                       view_func=put_config_phy,                         methods=['PUT'])
+    app.add_url_rule('/config/phy/modeID',                view_func=put_config_phy_mode_id,                 methods=['PUT'])
     app.add_url_rule('/config/chanPlan/regOp',            view_func=put_config_chan_plan_reg_op,            methods=['PUT'])
     app.add_url_rule('/config/chanPlan/explicit',         view_func=put_config_chan_plan_explicit,          methods=['PUT'])
     app.add_url_rule('/config/chanPlan/fixed',            view_func=put_config_chan_plan_fixed,             methods=['PUT'])
