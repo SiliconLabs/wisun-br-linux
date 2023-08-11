@@ -11,6 +11,8 @@ def config_default(wstbu_config):
         tun_device     = wstbu_config.tun_device,
         ipv6_prefix    = wstbu_config.ipv6_prefix,
         size           = 'CERT',
+        enable_lfn     = False,
+        enable_ffn10   = True,
         radius_server  = wstbu_config.radius_server,
         radius_secret  = wstbu_config.radius_secret,
         internal_dhcp  = 'n',

@@ -328,6 +328,8 @@ def put_config_border_router():
     wsbrd.config['network_name'] = utils.escape_str(json['networkName'])
     if 'sixLowpanMtu' in json:
         wsbrd.config['lowpan_mtu'] = json['sixLowpanMtu']
+    wsbrd.config['enable_lfn'] = json.get('lfnJoinEnabled', False)
+    wsbrd.config['enable_ffn10'] = not wsbrd.config['enable_lfn']
     return success()
 
 
