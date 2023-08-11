@@ -223,7 +223,7 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 
     for (int i = 0; i < nchan; i++) {
-        if (bittest(channel_info->channel_mask, i) && bitrtest(mask_info->channel_mask, i)) {
+        if (bittest(channel_info->channel_mask, i) && bittest(mask_info->channel_mask, i)) {
             bitclr(channel_info->channel_mask, i);
             channel_info->channel_count--;
         }
