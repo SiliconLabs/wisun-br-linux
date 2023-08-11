@@ -157,9 +157,7 @@ def put_config_phy_mode_id():
     return success()
 
 
-@dbus_errcheck
-@json_errcheck('/config/chanPlan/regOp')
-def put_config_chan_plan_reg_op():
+def config_chan_plan_reg_domain(json: dict):
     # Wi-SUN PHY 1v09 Table 3: Supported Frequency Bands and Channel Parameters
     WS_REG_DOMAIN_TABLE = {
         0x00: 'WW',
@@ -180,12 +178,34 @@ def put_config_chan_plan_reg_op():
         0x0f: 'VN',
     }
 
-    json = flask.request.get_json(force=True, silent=True)
-    if wsbrd.service.active_state == 'active':
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     if json['regDomain'] not in WS_REG_DOMAIN_TABLE:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid domain')
     wsbrd.config['domain'] = WS_REG_DOMAIN_TABLE[json['regDomain']]
+    return None
+
+
+@dbus_errcheck
+@json_errcheck('/config/chanPlan/regId')
+def put_config_chan_plan_reg_id():
+    json = flask.request.get_json(force=True, silent=True)
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    if err := config_chan_plan_reg_domain(json):
+        return err
+    wsbrd.config['chan_plan_id'] = json['chanPlanID']
+    return success()
+
+
+@dbus_errcheck
+@json_errcheck('/config/chanPlan/regOp')
+def put_config_chan_plan_reg_op():
+    json = flask.request.get_json(force=True, silent=True)
+    if json is None:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid JSON')
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    if err := config_chan_plan_reg_domain(json):
+        return err
     wsbrd.config['class'] = json['opClass']
     return success()
 
@@ -605,6 +625,7 @@ def app_build():
     app.add_url_rule('/runMode/<int:mode>',               view_func=put_run_mode,                           methods=['PUT'])
     app.add_url_rule('/config/phy',                       view_func=put_config_phy,                         methods=['PUT'])
     app.add_url_rule('/config/phy/modeID',                view_func=put_config_phy_mode_id,                 methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/regId',            view_func=put_config_chan_plan_reg_id,            methods=['PUT'])
     app.add_url_rule('/config/chanPlan/regOp',            view_func=put_config_chan_plan_reg_op,            methods=['PUT'])
     app.add_url_rule('/config/chanPlan/explicit',         view_func=put_config_chan_plan_explicit,          methods=['PUT'])
     app.add_url_rule('/config/chanPlan/fixed',            view_func=put_config_chan_plan_fixed,             methods=['PUT'])
