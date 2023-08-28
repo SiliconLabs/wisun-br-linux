@@ -737,89 +737,62 @@ void trace_icmp(buffer_t *buf, bool is_rx)
 
 buffer_t *icmpv6_up(buffer_t *buf)
 {
-    struct net_if *cur = NULL;
-    uint8_t *dptr = buffer_data_pointer(buf);
-    uint16_t data_len = buffer_data_length(buf);
+    struct iobuf_read iobuf = {
+        .data      = buffer_data_pointer(buf),
+        .data_size = buffer_data_length(buf),
+    };
+    struct net_if *cur = buf->interface;
 
-    cur = buf->interface;
-
-
-
-    if (data_len < 4) {
-        //tr_debug("Ic1");
-        goto drop;
-
+    buf->options.type = iobuf_pop_u8(&iobuf);
+    buf->options.code = iobuf_pop_u8(&iobuf);
+    iobuf_pop_be16(&iobuf); // Checksum
+    if (iobuf.err) {
+        TRACE(TR_DROP, "drop %-9s: malformed header", "icmpv6");
+        return buffer_free(buf);
     }
 
-    buf->options.type = *dptr++;
-    buf->options.code = *dptr++;
-
-    if (buf->options.ll_security_bypass_rx) {
-        if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL &&
-            (buf->options.code != ICMPV6_CODE_RPL_DIO &&
-             buf->options.code != ICMPV6_CODE_RPL_DIS)) {
-            tr_warn("Drop: ICMP EP unsecured packet");
-            goto drop;
-        }
+    // FIXME: what is this?
+    if (buf->options.ll_security_bypass_rx &&
+        buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL &&
+        buf->options.code != ICMPV6_CODE_RPL_DIO &&
+        buf->options.code != ICMPV6_CODE_RPL_DIS) {
+        TRACE(TR_DROP, "drop %-9s: unsecured packet", "icmpv6");
+        return buffer_free(buf);
     }
 
-    /* Check FCS first */
     if (buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6)) {
-        tr_warn("ICMP cksum error!");
+        TRACE(TR_DROP, "drop %-9s: invalid checksum", "icmpv6");
         protocol_stats_update(STATS_IP_CKSUM_ERROR, 1);
-        goto drop;
+        return buffer_free(buf);
     }
 
-    //Skip ICMP Header Static 4 bytes length
     buffer_data_strip_header(buf, 4);
 
     trace_icmp(buf, true);
 
     switch (buf->options.type) {
-        case ICMPV6_TYPE_INFO_NS:
-            buf = icmpv6_ns_handler(buf);
-            break;
+    case ICMPV6_TYPE_INFO_NS:
+        return icmpv6_ns_handler(buf);
 
-        case ICMPV6_TYPE_INFO_NA:
-            buf = icmpv6_na_handler(buf);
-            break;
+    case ICMPV6_TYPE_INFO_NA:
+        return icmpv6_na_handler(buf);
 
-        case ICMPV6_TYPE_INFO_REDIRECT:
-            buf = icmpv6_redirect_handler(buf, cur);
-            break;
+    case ICMPV6_TYPE_INFO_REDIRECT:
+        return icmpv6_redirect_handler(buf, cur);
 
-        case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
-            if (buf->options.type == ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR) {
-                buf = rpl_control_source_route_error_handler(buf, cur);
-            }
-        /* fall through */
+    case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
+        if (buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR)
+            return rpl_control_source_route_error_handler(buf, cur);
+        return buffer_free(buf);
 
-        default:
-            if (buf) {
-                buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_APP | B_DIR_UP);
-                buf->options.code = IPV6_NH_ICMPV6;
-                buf->dst_sa.port = 0xffff;
-                /* Put back ICMP header */
-                buffer_data_reserve_header(buf, 4);
-            }
-            break;
-        case ICMPV6_TYPE_INFO_RPL_CONTROL:
-            buf = rpl_control_handler(buf);
-            break;
+    case ICMPV6_TYPE_INFO_RPL_CONTROL:
+        return rpl_control_handler(buf);
 
-        case ICMPV6_TYPE_INFO_DAR:
-            // FIXME: forward to Linux?
-            goto drop;
-        case ICMPV6_TYPE_INFO_DAC:
-            // FIXME: forward to Linux?
-            goto drop;
-
+    default:
+        // FIXME: forward DAR/DAC to Linux?
+        TRACE(TR_DROP, "drop %-9s: unsupported type %u", "icmpv6", buf->options.type);
+        return buffer_free(buf);
     }
-
-    return buf;
-
-drop:
-    return buffer_free(buf);
 }
 
 buffer_t *icmpv6_down(buffer_t *buf)
