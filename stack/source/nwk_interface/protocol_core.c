@@ -227,7 +227,6 @@ static void protocol_core_base_init(struct net_if *entry)
     entry->if_common_forwarding_out_cb = NULL;
     entry->if_special_forwarding = NULL;
     entry->if_snoop = NULL;
-    entry->if_icmp_handler = NULL;
     entry->if_map_ip_to_link_addr = NULL;
     entry->if_map_link_addr_to_ip = NULL;
     entry->if_6lowpan_dad_process.active = false;

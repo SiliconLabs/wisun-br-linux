@@ -246,7 +246,6 @@ struct net_if {
     bool (*if_map_link_addr_to_ip)(struct net_if *cur, enum addrtype ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);
     buffer_t *(*if_special_forwarding)(struct net_if *cur, buffer_t *buf, const sockaddr_t *ll_src, bool *bounce);
     buffer_t *(*if_snoop)(struct net_if *cur, buffer_t *buf, const sockaddr_t *ll_dst, const sockaddr_t *ll_src, bool *bounce);
-    buffer_t *(*if_icmp_handler)(struct net_if *cur, buffer_t *buf, bool *bounce);
     uint8_t (*if_llao_parse)(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
     uint8_t (*if_llao_write)(struct net_if *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
     void (*mac_security_key_usage_update_cb)(struct net_if *cur, const struct mlme_security *security_params);

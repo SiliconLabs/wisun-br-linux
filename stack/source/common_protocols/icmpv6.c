@@ -775,14 +775,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
     trace_icmp(buf, true);
 
-    if (cur->if_icmp_handler) {
-        bool bounce = false;
-        buf = cur->if_icmp_handler(cur, buf, &bounce);
-        if (!buf || bounce) {
-            return buf;
-        }
-    }
-
     switch (buf->options.type) {
         case ICMPV6_TYPE_INFO_NS:
             buf = icmpv6_ns_handler(buf);
