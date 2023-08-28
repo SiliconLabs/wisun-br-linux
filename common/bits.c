@@ -124,27 +124,12 @@ bool bittest(const uint8_t *bits, int i)
     return bits[i / 8] & (1 << (i % 8));
 }
 
-bool bitrtest(const uint_rev8_t *bits, int i)
-{
-    return bits[i / 8] & (1 << (7 - i % 8));
-}
-
 void bitset(uint8_t *bits, int i)
 {
     bits[i / 8] |= 1 << i % 8;
 }
 
-void bitrset(uint_rev8_t *bits, int i)
-{
-    bits[i / 8] |= 1 << (7 - i % 8);
-}
-
 void bitclr(uint8_t *bits, int i)
 {
     bits[i / 8] &= ~(1 << i % 8);
-}
-
-void bitrclr(uint_rev8_t *bits, int i)
-{
-    bits[i / 8] &= ~(1 << (7 - i % 8));
 }

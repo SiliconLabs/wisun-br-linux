@@ -65,15 +65,4 @@ bool bittest(const uint8_t *bits, int i);
 void bitset(uint8_t *bits, int i);
 void bitclr(uint8_t *bits, int i);
 
-/*
- * Functions bitr*() act as their bit*() counterparts, but reversing the bit
- * order. So MSB is bit number 0 in these functions. They are used to work with
- * channel mask in the WI-SUN IEs. We introduce the type uint_rev8_t to easily
- * identify these uncommon arrays of bits.
- */
-typedef uint8_t uint_rev8_t;
-bool bitrtest(const uint_rev8_t *bits, int i);
-void bitrset(uint_rev8_t *bits, int i);
-void bitrclr(uint_rev8_t *bits, int i);
-
 #endif
