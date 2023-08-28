@@ -47,8 +47,6 @@
 
 #define TRACE_GROUP "icmp"
 
-static buffer_t *icmpv6_echo_request_handler(struct buffer *buf);
-
 /* Check to see if a message is recognisable ICMPv6, and if so, fill in code/type */
 /* This used ONLY for the e.1 + e.2 tests in RFC 4443, to try to avoid ICMPv6 error loops */
 /* Packet may be ill-formed, because we are considering an ICMPv6 error response. */
@@ -246,35 +244,6 @@ static bool icmpv6_nd_option_get(const uint8_t *data, size_t len, uint16_t optio
     }
     return false;
 }
-
-static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
-{
-    struct net_if *cur = buf->interface;
-    if (!cur) {
-        return buffer_free(buf);
-    }
-
-    buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-    buf->options.type = ICMPV6_TYPE_INFO_ECHO_REPLY;
-    buf->options.code = 0x00;
-    buf->options.hop_limit = cur->cur_hop_limit;
-
-    if (addr_is_ipv6_multicast(buf->dst_sa.address)) {
-        const uint8_t *ipv6_ptr;
-        memcpy(buf->dst_sa.address, buf->src_sa.address, 16);
-        ipv6_ptr = addr_select_source(cur, buf->dst_sa.address, 0);
-        if (!ipv6_ptr) {
-            tr_debug("No address");
-            return buffer_free(buf);
-        }
-        memcpy(buf->src_sa.address, ipv6_ptr, 16);
-    } else {
-        memswap(buf->dst_sa.address, buf->src_sa.address, 16);
-    }
-
-    return buffer_turnaround(buf);
-}
-
 
 static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
 {
@@ -826,14 +795,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
         case ICMPV6_TYPE_INFO_REDIRECT:
             buf = icmpv6_redirect_handler(buf, cur);
             break;
-
-        case ICMPV6_TYPE_INFO_ECHO_REQUEST:
-            buf = icmpv6_echo_request_handler(buf);
-            break;
-
-        case ICMPV6_TYPE_INFO_ECHO_REPLY:
-            ipv6_neighbour_reachability_confirmation(buf->src_sa.address, buf->interface->id);
-        /* fall through */
 
         case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
             if (buf->options.type == ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR) {
