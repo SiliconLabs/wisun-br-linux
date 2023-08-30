@@ -952,18 +952,6 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
     return 0;
 }
 
-int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id)
-{
-    (void) interface_id;
-    if (!pan_id) {
-        return -1;
-    }
-
-    *pan_id = ws_bbr_pan_id;
-
-    return 0;
-}
-
 int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
 {
     (void) interface_id;
