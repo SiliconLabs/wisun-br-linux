@@ -1287,28 +1287,6 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct so
     return 0;
 }
 
-int8_t ws_pae_controller_radius_address_get(int8_t interface_id, struct sockaddr_storage *address)
-{
-    (void) interface_id;
-
-    if (address == NULL) {
-        return -1;
-    }
-
-    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
-    if (radius_cfg == NULL) {
-        return -1;
-    }
-
-    if (!radius_cfg->radius_addr_set) {
-        return -1;
-    }
-
-    memcpy(address, &radius_cfg->radius_addr, sizeof(struct sockaddr_storage));
-
-    return 0;
-}
-
 int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
 {
     sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();

@@ -209,18 +209,6 @@ int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revoc
 int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address);
 
 /**
- * ws_pae_controller_radius_address_set get radius address
- *
- * \param interface_id interface identifier
- * \param address address buffer where to write address, must have space at least for 39 characters and NUL terminator
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_radius_address_get(int8_t interface_id, struct sockaddr_storage *address);
-
-/**
  * ws_pae_controller_radius_shared_secret_set set radius shared secret
  *
  * \param interface_id interface identifier
