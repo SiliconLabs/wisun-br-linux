@@ -534,17 +534,3 @@ int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session
 
     return 0;
 }
-
-int8_t reassembly_interface_reset(int8_t interface_id)
-{
-    //Discover
-    reassembly_interface_t *interface_ptr = reassembly_interface_discover(interface_id);
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    //Free Reaasembled queue
-    reassembly_list_free(interface_ptr);
-    return 0;
-}
-
