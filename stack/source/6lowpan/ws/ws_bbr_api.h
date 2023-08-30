@@ -80,18 +80,6 @@ typedef struct bbr_route_info {
 int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 
 /**
- * Border router configuration options
- */
-#define BBR_ULA_C                 0x0001 /**< Static ULA prefix created automatically */
-#define BBR_GUA_ROUTE             0x0002 /**< More specific route is added for GUA prefix */
-#define BBR_BB_WAIT               0x0004 /**< Wait backbone availability before starting Wi-SUN network */
-#define BBR_DEFAULT_ROUTE         0x0008 /**< Add default route parameter to DIO */
-#define BBR_REQUIRE_DAO_REFRESH   0x0000 /**< Deprecated DAO Refresh is now the default functionality*/
-#define BBR_PERIODIC_VERSION_INC  0x0010 /**< Increment PAN version number Periodically*/
-#define BBR_GUA_SLAAC             0x0020 /**< in Global prefix use SLAAC address generation to reduce traffic during bootstrap */
-#define BBR_DHCP_ANONYMOUS        0x0040 /**< Generate anonymous addresses from DHCP server */
-
-/**
  * Get border router information
  *
  * \param interface_id interface ID of the Wi-SUN network
