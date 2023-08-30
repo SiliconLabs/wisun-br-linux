@@ -120,26 +120,6 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
     return 0;
 }
 
-int8_t ws_eapol_relay_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
-    if (!eapol_relay) {
-        return -1;
-    }
-
-    close(eapol_relay->socket_id);
-    ws_eapol_pdu_cb_unregister(interface_ptr, &eapol_pdu_recv_cb_data);
-
-    g_eapol_relay = NULL;
-    free(eapol_relay);
-
-    return 0;
-}
-
 static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr)
 {
     return g_eapol_relay;
