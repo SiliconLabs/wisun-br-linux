@@ -242,20 +242,6 @@ void ws_bbr_eapol_auth_relay_socket_cb(int fd);
 int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address);
 
 /**
- * Get RADIUS server IPv6 address
- *
- * Function gets external RADIUS server IPv6 address to Border Router.
- *
- * \param interface_id Network interface ID.
- * \param address buffer where to write address, must have space at least for 39 characters and NUL terminator
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_radius_address_get(int8_t interface_id, struct sockaddr_storage *address);
-
-/**
  * Set RADIUS shared secret
  *
  * Function sets RADIUS shared secret to Border Router. Shared secret may be an
