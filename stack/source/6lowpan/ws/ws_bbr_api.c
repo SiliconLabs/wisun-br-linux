@@ -923,24 +923,6 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
     return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
 }
 
-int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    //Check if new value is different than current active
-    if (cur && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        if (cur->ws_info.hopping_schedule.fhss_bsi == new_bsi) {
-            return 0;
-        }
-        tr_debug("New BSI %u to delayed activate", new_bsi);
-        ws_bootstrap_restart_delayed(cur->id);
-    }
-
-    ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
-    ws_bbr_fhss_bsi = new_bsi;
-    return 0;
-}
-
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {
     if (ws_bbr_pan_id != pan_id) {
