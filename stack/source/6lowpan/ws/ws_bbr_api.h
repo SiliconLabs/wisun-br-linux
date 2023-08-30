@@ -206,21 +206,6 @@ int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t n
 int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation);
 
 /**
- * Validate RPL parameters
- *
- * Validates RPL DIO trickle parameters.
- *
- * \param interface_id Network interface ID.
- * \param dio_interval_min DIO trickle timer Imin parameter.
- * \param dio_interval_doublings DIO trickle timer Imax parameter as doublings of Imin
- * \param dio_redundancy_constant DIO trickle timer redundancy constant.
- *
- * \return 0, RPL parameters validated.
- * \return <0 Node RPL parameters validation failed.
- */
-int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant);
-
-/**
  * Sets PAN configuration
  *
  * Sets PAN configuration parameters.
