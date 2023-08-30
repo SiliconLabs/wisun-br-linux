@@ -37,7 +37,6 @@ struct net_if;
 struct nvm_tlv_entry;
 struct ws_sec_timer_cfg;
 struct ws_sec_prot_cfg;
-struct bbr_radius_timing;
 struct ws_timing_cfg;
 
 /**

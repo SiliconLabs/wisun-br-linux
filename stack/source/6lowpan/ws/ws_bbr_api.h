@@ -65,18 +65,6 @@ typedef struct bbr_route_info {
 } bbr_route_info_t;
 
 /**
- * \brief Struct bbr_radius_timing_t is RADIUS timing configuration structure.
- */
-typedef struct bbr_radius_timing {
-    /** RADIUS retry timer Imin; in 100ms units; range 1-1200; default 20 (2 seconds) */
-    uint16_t radius_retry_imin;
-    /** RADIUS retry timer Imax; in 100ms units; range 1-1200; default 30 (3 seconds) */
-    uint16_t radius_retry_imax;
-    /** RADIUS retry count; default 3 */
-    uint8_t radius_retry_count;
-} bbr_radius_timing_t;
-
-/**
  * Start backbone border router service.
  *
  * if backbone interface is enabled and allows routing.
