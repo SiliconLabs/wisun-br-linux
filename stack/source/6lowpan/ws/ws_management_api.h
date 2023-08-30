@@ -450,7 +450,6 @@ int ws_management_regulatory_domain_validate(
  *
  * When network size is changed, it will override following configuration values:
  * - Timing settings set by ws_management_timing_parameters_set()
- * - RPL settings set by ws_bbr_rpl_parameters_set()
  *
  * If values should be other than defaults set by stack, they need to set using
  * above function calls after network size change.

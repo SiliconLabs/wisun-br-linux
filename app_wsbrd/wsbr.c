@@ -216,7 +216,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ws_bbr_pan_configuration_set(ctxt->rcp_if_id, ctxt->config.ws_pan_id);
 
     // Note that calls to ws_management_timing_parameters_set() and
-    // ws_bbr_rpl_parameters_set() are done by the function below.
+    // is done by the function below.
     ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->config.ws_size);
     WARN_ON(ret);
 

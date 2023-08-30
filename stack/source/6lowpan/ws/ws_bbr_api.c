@@ -923,32 +923,6 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
     return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
 }
 
-int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    ws_bbr_cfg_t cfg;
-
-    if (ws_cfg_bbr_get(&cfg) < 0) {
-        return -1;
-    }
-
-    if (dio_interval_min > 0) {
-        cfg.dio_interval_min = dio_interval_min;
-    }
-    if (dio_interval_doublings > 0) {
-        cfg.dio_interval_doublings = dio_interval_doublings;
-    }
-    if (dio_redundancy_constant != 0xff) {
-        cfg.dio_redundancy_constant = dio_redundancy_constant;
-    }
-
-    if (ws_cfg_bbr_set(cur, &cfg, 0) < 0) {
-        return -2;
-    }
-
-    return 0;
-}
-
 int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, uint8_t *dio_interval_doublings, uint8_t *dio_redundancy_constant)
 {
     ws_bbr_cfg_t cfg;
