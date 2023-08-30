@@ -628,14 +628,6 @@ void rpl_control_delete_dodag_root(rpl_domain_t *domain, rpl_dodag_t *dodag)
     rpl_delete_dodag_root(dodag);
 }
 
-void rpl_control_update_dodag_route(rpl_dodag_t *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, bool age)
-{
-    /* Not clear if non-root nodes should be able to publish routes */
-    if (rpl_dodag_am_root(dodag)) {
-        rpl_dodag_update_dio_route(dodag, prefix, prefix_len, flags, lifetime, age);
-    }
-}
-
 void rpl_control_update_dodag_prefix(rpl_dodag_t *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, uint32_t preftime, bool age)
 {
     /* Don't let them set weird flags. We do allow them to add prefixes if not

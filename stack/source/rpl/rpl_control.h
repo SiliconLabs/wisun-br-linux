@@ -191,7 +191,6 @@ void rpl_control_transmit_dis(struct rpl_domain *domain, struct net_if *cur, uin
 /* APIs used to manipulate configuration at the root */
 struct rpl_dodag *rpl_control_create_dodag_root(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const rpl_dodag_conf_t *conf, uint16_t rank, uint8_t g_mop_prf);
 void rpl_control_delete_dodag_root(rpl_domain_t *domain, struct rpl_dodag *dodag);
-void rpl_control_update_dodag_route(struct rpl_dodag *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, bool age);
 void rpl_control_update_dodag_prefix(struct rpl_dodag *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, uint32_t preftime, bool age);
 uint8_t rpl_control_increment_dodag_version(struct rpl_dodag *dodag);
 void rpl_control_update_dodag_config(struct rpl_dodag *dodag, const rpl_dodag_conf_t *conf);
