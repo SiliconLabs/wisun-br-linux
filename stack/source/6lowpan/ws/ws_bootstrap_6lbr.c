@@ -375,11 +375,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             //Init Packet congestion
             ws_bootstrap_packet_congestion_init(cur);
 
-            if (!ws_bbr_ready_to_start(cur)) {
-                // Wi-SUN not started yet we wait for Border router permission
-                ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
-                return;
-            }
             // Clear Old information from stack
             cur->ws_info.network_pan_id = 0xffff;
             cur->ws_info.pan_information.pan_version_set = false;

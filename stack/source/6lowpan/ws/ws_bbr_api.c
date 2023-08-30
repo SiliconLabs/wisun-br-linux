@@ -686,19 +686,6 @@ uint16_t ws_bbr_pan_size(struct net_if *cur)
     return result;
 }
 
-bool ws_bbr_ready_to_start(struct net_if *cur)
-{
-
-    (void)cur;
-
-    if (backbone_interface_id < 0) {
-        // No need to wait for backbone
-        return true;
-    }
-
-    return true;
-}
-
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 {
     uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
