@@ -1305,33 +1305,6 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     return 0;
 }
 
-int8_t ws_pae_controller_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing)
-{
-    (void) interface_id;
-
-    if (timing == NULL) {
-        return -1;
-    }
-
-    if (pae_controller_config.radius_cfg == NULL) {
-        timing->radius_retry_imin = RADIUS_CLIENT_RETRY_IMIN;
-        timing->radius_retry_imax = RADIUS_CLIENT_RETRY_IMAX;
-        timing->radius_retry_count = RADIUS_CLIENT_TIMER_EXPIRATIONS;
-        return 0;
-    }
-
-    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
-    if (radius_cfg == NULL) {
-        return -1;
-    }
-
-    timing->radius_retry_imin = radius_cfg->radius_retry_trickle_params.Imin;
-    timing->radius_retry_imax = radius_cfg->radius_retry_trickle_params.Imax;
-    timing->radius_retry_count = radius_cfg->radius_retry_trickle_params.TimerExpirations;
-
-    return 0;
-}
-
 int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
 {
     (void) interface_id;
