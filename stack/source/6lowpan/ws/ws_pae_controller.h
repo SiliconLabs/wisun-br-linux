@@ -222,18 +222,6 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct so
 int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
 
 /**
- * ws_pae_controller_radius_timing_set set radius timing information
- *
- * \param interface_id interface identifier
- * \param timing timing information
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_radius_timing_set(int8_t interface_id, struct bbr_radius_timing *timing);
-
-/**
  * ws_pae_controller_radius_timing_get get radius timing information
  *
  * \param interface_id interface identifier
