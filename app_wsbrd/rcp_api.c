@@ -200,16 +200,6 @@ void rcp_register_fhss()
     iobuf_free(&buf);
 }
 
-void rcp_release_fhss()
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_DELETE);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void rcp_get_rx_sensitivity(void)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
