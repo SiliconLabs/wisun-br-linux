@@ -1305,22 +1305,6 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     return 0;
 }
 
-int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
-{
-    (void) interface_id;
-
-    if (timing == NULL) {
-        return -1;
-    }
-
-    if (timing->radius_retry_imin == 0 || timing->radius_retry_imax == 0 ||
-            timing->radius_retry_imin > timing->radius_retry_imax) {
-        return -1;
-    }
-
-    return 0;
-}
-
 int8_t ws_pae_controller_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     if (!eui_64) {
