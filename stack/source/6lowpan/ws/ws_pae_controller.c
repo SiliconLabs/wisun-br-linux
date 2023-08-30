@@ -122,7 +122,6 @@ typedef struct pae_controller {
 typedef struct pae_controller_config {
     sec_radius_cfg_t *radius_cfg;                                    /**< Radius configuration settings */
     uint16_t node_limit;                                             /**< Max number of stored supplicants */
-    bool node_limit_set : 1;                                         /**< Node limit set */
     bool ext_cert_valid_enabled : 1;                                 /**< Extended certificate validation enabled */
 } pae_controller_config_t;
 
@@ -163,7 +162,6 @@ static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 pae_controller_config_t pae_controller_config = {
     .radius_cfg = NULL,
     .node_limit = 0,
-    .node_limit_set = false,
     .ext_cert_valid_enabled = false
 };
 
@@ -198,10 +196,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
                 return -1;
             }
         }
-    }
-
-    if (pae_controller_config.node_limit_set) {
-        ws_pae_auth_node_limit_set(controller->interface_ptr, pae_controller_config.node_limit);
     }
 
     ws_pae_auth_cb_register(interface_ptr,
