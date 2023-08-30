@@ -261,21 +261,6 @@ int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage
 int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
 
 /**
- * Get RADIUS shared secret
- *
- * Function gets RADIUS shared secret from Border Router.
- *
- * \param interface_id Network interface ID.
- * \param shared_secret_len On function call, is the size of the shared secret write buffer in bytes, on return is the shared secret length in bytes.
- * \param shared_secret Pointer to buffer where to write shared secret or NULL. At maximum, bytes set by the length parameter are written. If NULL only buffer length is returned.
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret);
-
-/**
  * Set RADIUS timing information
  *
  * Function sets RADIUS timing information to Border Router.

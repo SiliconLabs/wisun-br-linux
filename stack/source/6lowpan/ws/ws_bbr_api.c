@@ -965,11 +965,6 @@ int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_s
     return ws_pae_controller_radius_shared_secret_set(interface_id, shared_secret_len, shared_secret);
 }
 
-int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret)
-{
-    return ws_pae_controller_radius_shared_secret_get(interface_id, shared_secret_len, shared_secret);
-}
-
 int ws_bbr_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing)
 {
     return ws_pae_controller_radius_timing_set(interface_id, timing);
