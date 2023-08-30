@@ -105,25 +105,6 @@ int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_po
     return 0;
 }
 
-int8_t ws_eapol_auth_relay_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    eapol_auth_relay_t *eapol_auth_relay = ws_eapol_auth_relay_get(interface_ptr);
-    if (!eapol_auth_relay) {
-        return -1;
-    }
-
-    close(eapol_auth_relay->socket_id);
-
-    g_eapol_auth_relay = NULL;
-    free(eapol_auth_relay);
-
-    return 0;
-}
-
 static eapol_auth_relay_t *ws_eapol_auth_relay_get(struct net_if *interface_ptr)
 {
     return g_eapol_auth_relay;

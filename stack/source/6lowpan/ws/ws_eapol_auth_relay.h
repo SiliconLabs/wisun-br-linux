@@ -47,15 +47,4 @@ void ws_eapol_auth_relay_socket_cb(int fd);
  */
 int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
-/**
- *  ws_eapol_auth_relay_delete delete authenticator relay
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_eapol_auth_relay_delete(struct net_if *interface_ptr);
-
 #endif
