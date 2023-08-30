@@ -219,14 +219,6 @@ static void reassembly_entry_free(reassembly_interface_t *interface_ptr, reassem
     }
 }
 
-static void reassembly_list_free(reassembly_interface_t *interface_ptr)
-{
-    ns_list_foreach_safe(reassembly_entry_t, reassembly_entry, &interface_ptr->rx_list) {
-        reassembly_entry_free(interface_ptr, reassembly_entry);
-    }
-}
-
-
 static reassembly_entry_t *reassembly_already_action(reassembly_list_t *reassembly_list, buffer_t *buf, uint16_t tag, uint16_t size)
 {
     ns_list_foreach(reassembly_entry_t, reassembly_entry, reassembly_list) {
