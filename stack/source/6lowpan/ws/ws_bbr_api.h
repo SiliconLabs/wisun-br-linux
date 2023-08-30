@@ -261,20 +261,6 @@ int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage
 int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
 
 /**
- * Get RADIUS timing information
- *
- * Function sets RADIUS timing information from Border Router.
- *
- * \param interface_id Network interface ID.
- * \param timing Timing information
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing);
-
-/**
  * Validate RADIUS timing information
  *
  * Function validates RADIUS timing information.
