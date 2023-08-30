@@ -1305,34 +1305,6 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     return 0;
 }
 
-int8_t ws_pae_controller_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret)
-{
-    (void) interface_id;
-
-    if (shared_secret_len == NULL) {
-        return -1;
-    }
-
-    sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
-    if (radius_cfg == NULL) {
-        return -1;
-    }
-
-    uint16_t length = radius_cfg->radius_shared_secret_len;
-    if (shared_secret != NULL) {
-        if (length > *shared_secret_len) {
-            length = *shared_secret_len;
-        }
-        if (length > 0 && radius_cfg->radius_shared_secret != NULL) {
-            memcpy(shared_secret, radius_cfg->radius_shared_secret, length);
-        }
-    }
-
-    *shared_secret_len = length;
-
-    return 0;
-}
-
 int8_t ws_pae_controller_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing)
 {
     (void) interface_id;
