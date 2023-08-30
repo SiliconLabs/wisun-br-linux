@@ -104,17 +104,6 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_DHCP_ANONYMOUS        0x0040 /**< Generate anonymous addresses from DHCP server */
 
 /**
- * Stop backbone Border router.
- *
- * \param interface_id interface ID of the Wi-SUN network
- *
- * \return 0 on success
- * \return <0 in case of errors
- *
- */
-void ws_bbr_stop(int8_t interface_id);
-
-/**
  * Get border router information
  *
  * \param interface_id interface ID of the Wi-SUN network

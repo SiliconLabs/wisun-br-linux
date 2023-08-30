@@ -834,15 +834,6 @@ int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
     return 0;
 }
 
-void ws_bbr_stop(int8_t interface_id)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    ws_bbr_routing_stop(cur);
-    backbone_interface_id = -1;
-    current_instance_id++;
-}
-
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
