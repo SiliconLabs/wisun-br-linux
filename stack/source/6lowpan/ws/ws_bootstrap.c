@@ -659,30 +659,6 @@ cleanup:
     return ret_val;
 }
 
-static int8_t ws_bootstrap_down(struct net_if *cur)
-{
-    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return -1;
-    }
-
-    tr_info("Wi-SUN ifdown");
-    // Reset MAC for safe upper layer memory free
-    rcp_reset_stack();
-    rcp_unregister_fhss();
-    rcp_release_fhss();
-    // Reset WS information
-    ws_bootstrap_asynch_trickle_stop(cur);
-    ws_llc_reset(cur);
-    ws_nud_table_reset(cur);
-    ws_eapol_relay_delete(cur);
-    ws_eapol_auth_relay_delete(cur);
-    ws_pae_controller_stop(cur);
-    blacklist_clear();
-    cur->if_common_forwarding_out_cb = NULL;
-
-    return nwk_6lowpan_down(cur);
-}
-
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
     // Configure IP stack to operate as Wi-SUN node
