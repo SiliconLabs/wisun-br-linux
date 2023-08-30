@@ -914,11 +914,6 @@ int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t n
     return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk, new_gtk);
 }
 
-int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit)
-{
-    return ws_pae_controller_node_limit_set(interface_id, limit);
-}
-
 int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation)
 {
     bool enabled = false;
