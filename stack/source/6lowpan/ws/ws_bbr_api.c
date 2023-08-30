@@ -843,24 +843,6 @@ void ws_bbr_stop(int8_t interface_id)
     current_instance_id++;
 }
 
-int ws_bbr_configure(int8_t interface_id, uint16_t options)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (options == configuration) {
-        return 0;
-    }
-    //Configuration changed
-    configuration = options;
-    if (protocol_6lowpan_rpl_root_dodag) {
-        // Already active needs to restart
-        ws_bbr_routing_stop(cur);
-        ws_bbr_pan_version_increase(cur);
-        ws_bbr_lpan_version_increase(cur);
-    }
-    return 0;
-}
-
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);

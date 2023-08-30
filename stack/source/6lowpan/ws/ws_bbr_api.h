@@ -104,27 +104,6 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_DHCP_ANONYMOUS        0x0040 /**< Generate anonymous addresses from DHCP server */
 
 /**
- * Configure border router features.
- *
- * \param interface_id interface ID of the Wi-SUN network
- * \param options Options configured to Border router
- *          BBR_ULA_C     Configure Mesh local ULA prefix with SLAAC address
- *          BBR_GUA_ROUTE Add more specific route for GUA
- *          BBR_BB_WAIT   Start Wi-SUN network only when backbone is ready
- *          BBR_DHCP_ANONYMOUS if true give anonymous address (16 bit suffix) to
- *                             optimize data in RF interface (saves 12 bytes per hop)
- *                             or false to reduce RAM usage in Border router as assigned address list is not needed (40 bytes per device).
- *
- * By default Wi-SUN network is started and is treated as separate interface even if backbone is not available.
- *
- * Default route RPL options when backbone is set up. RPL root is always Grounded
- *
- * \return 0 on success
- * \return <0 in case of errors
- *
- */
-int ws_bbr_configure(int8_t interface_id, uint16_t options);
-/**
  * Stop backbone Border router.
  *
  * \param interface_id interface ID of the Wi-SUN network
