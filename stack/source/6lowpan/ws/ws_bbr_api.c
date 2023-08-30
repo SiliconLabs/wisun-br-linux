@@ -965,11 +965,6 @@ int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_s
     return ws_pae_controller_radius_shared_secret_set(interface_id, shared_secret_len, shared_secret);
 }
 
-int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
-{
-    return ws_pae_controller_radius_timing_validate(interface_id, timing);
-}
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
