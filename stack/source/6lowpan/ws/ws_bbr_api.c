@@ -952,13 +952,6 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
     return 0;
 }
 
-int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
-{
-    (void) interface_id;
-    (void) pan_id;
-    return 0;
-}
-
 int ws_bbr_eapol_relay_get_socket_fd()
 {
     return ws_bootstrap_6lbr_eapol_relay_get_socket_fd();

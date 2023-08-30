@@ -219,19 +219,6 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
 
 /**
- * Validates PAN configuration
- *
- * Validates PAN configuration parameters.
- *
- * \param interface_id Network interface ID.
- * \param pan_id PAN ID.
- *
- * \return 0, PAN configuration validated.
- * \return <0 PAN configuration validation failed.
- */
-int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
-
-/**
  * Sets Wi-SUN BSI
  *
  * Sets Wi-SUN PAN BSI.
