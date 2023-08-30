@@ -23,10 +23,5 @@
  * 6LoWPAN interface activate
  */
 int8_t nwk_6lowpan_up(struct net_if *cur);
-/**
- * 6LoWPAN interface deactivate
- */
-int8_t nwk_6lowpan_down(struct net_if *cur);
-
 
 #endif /* PROTOCOL_6LOWPAN_INTERFACE_H_ */

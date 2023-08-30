@@ -101,11 +101,3 @@ int8_t nwk_6lowpan_up(struct net_if *cur)
 
     return ret_val;
 }
-
-int8_t nwk_6lowpan_down(struct net_if *cur)
-{
-    int8_t ret_val;
-    ret_val = set_6lowpan_nwk_down(cur);
-    protocol_core_interface_info_reset(cur);
-    return ret_val;
-}
