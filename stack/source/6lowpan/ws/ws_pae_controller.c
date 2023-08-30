@@ -1638,21 +1638,6 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_l
     return ws_pae_auth_node_access_revoke_start(controller->interface_ptr, is_lgtk, new_gtk);
 }
 
-int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
-{
-    pae_controller_config.node_limit = limit;
-    pae_controller_config.node_limit_set = true;
-
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    ws_pae_auth_node_limit_set(controller->interface_ptr, limit);
-
-    return 0;
-}
-
 int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled)
 {
     pae_controller_config.ext_cert_valid_enabled = enabled;

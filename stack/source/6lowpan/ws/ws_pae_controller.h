@@ -399,18 +399,6 @@ int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64);
 int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[GTK_LEN]);
 
 /**
- * ws_pae_controller_node_limit_set set node limit
- *
- * \param interface_id interface identifier
- * \param limit limit for nodes
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit);
-
-/**
  * ws_pae_controller_ext_certificate_validation_set enable or disable extended certificate validation
  *
  * \param interface_ptr interface
