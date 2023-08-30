@@ -122,18 +122,6 @@ typedef struct eapol_pdu_recv_cb_data {
  */
 int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
 
-/**
- *  ws_eapol_pdu_cb_unregister unregister an incoming EAPOL PDU callback
- *
- * \param interface_ptr interface
- * \param cb_data callback data
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_eapol_pdu_cb_unregister(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
-
 typedef enum {
     EAPOL_PDU_TX_OK = 0,                 // Successful
     EAPOL_PDU_TX_ERR_TX_NO_ACK  = -1,    // No acknowledge was received

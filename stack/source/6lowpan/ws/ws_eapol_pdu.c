@@ -158,29 +158,6 @@ int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_re
     return 0;
 }
 
-int8_t ws_eapol_pdu_cb_unregister(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
-{
-    if (!interface_ptr || !cb_data) {
-        return -1;
-    }
-
-    eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
-
-    if (!eapol_pdu_data) {
-        return -1;
-    }
-
-    ns_list_foreach_safe(eapol_pdu_recv_cb_t, entry, &eapol_pdu_data->recv_cb_list) {
-        if (entry->receive == cb_data->receive) {
-            ns_list_remove(&eapol_pdu_data->recv_cb_list, entry);
-            free(entry);
-            return 0;
-        }
-    }
-
-    return -1;
-}
-
 int8_t ws_eapol_pdu_send_to_mpx(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status *tx_status, uint8_t tx_identifier)
 {
     eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
