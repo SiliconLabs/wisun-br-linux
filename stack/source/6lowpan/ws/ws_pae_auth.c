@@ -582,22 +582,6 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     return 0;
 }
 
-int8_t ws_pae_auth_node_limit_set(struct net_if *interface_ptr, uint16_t limit)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
-    if (!pae_auth) {
-        return -1;
-    }
-
-    pae_auth->supp_max_number = limit;
-
-    return 0;
-}
-
 int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
     (void) updated;
