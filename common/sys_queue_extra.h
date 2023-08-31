@@ -14,6 +14,7 @@
 #define SYS_QUEUE_EXTRA_H
 
 #include <sys/queue.h>
+#include <stddef.h>
 
 /*
  * Provide some non-standard extensions to sys/queue.h.
@@ -27,6 +28,15 @@
     if (_e)                                           \
         SLIST_REMOVE_HEAD((head), field);             \
     _e;                                               \
+})
+
+#define SLIST_SIZE(head, field) ({                    \
+    typeof(SLIST_FIRST(head)) _e;                     \
+    size_t _c = 0;                                    \
+                                                      \
+    SLIST_FOREACH(_e, (head), field)                  \
+        _c++;                                         \
+    _c;                                               \
 })
 
 #endif
