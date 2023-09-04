@@ -501,6 +501,51 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         rpl_send_dao_ack(root, src, dao_seq);
 }
 
+void rpl_recv_srh_err(struct rpl_root *root,
+                      const uint8_t *pkt, size_t size,
+                      const uint8_t src[16])
+{
+    struct iobuf_read iobuf = {
+        .data_size = size,
+        .data = pkt,
+    };
+    struct rpl_target *target;
+    const uint8_t *dst;
+
+    //   RFC 6550 - 11.2.2.3. DAO Inconsistency Detection and Recovery
+    // The portion of the invoking packet that is sent back in the ICMP message
+    // should record at least up to the routing header, and the routing header
+    // should be consumed by this node so that the destination in the IPv6
+    // header is the next hop that this node could not reach.
+
+    // FIXME: Only minimum parsing is done, and the source address of the
+    // ICMPv6 packet is assumed to be same one used in the SRH.
+    iobuf_pop_be32(&iobuf); // Version | Traffic Class | Flow Label
+    iobuf_pop_be16(&iobuf); // Payload Length
+    iobuf_pop_u8(&iobuf);   // Next Header
+    iobuf_pop_u8(&iobuf);   // Hop Limit
+    iobuf_pop_data_ptr(&iobuf, 16); // Source Address
+    dst = iobuf_pop_data_ptr(&iobuf, 16);
+
+    if (iobuf.err) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "rpl-srh-err");
+        return;
+    }
+
+    target = rpl_target_get(root, dst);
+    if (!target) {
+        TRACE(TR_DROP, "drop %-9s: unknown target=%s", "rpl-srh-err", tr_ipv6(dst));
+        return;
+    }
+    for (uint8_t i = 0; i < root->pcs + 1; i++) {
+        if (!memcmp(target->transits[i].parent, src, 16)) {
+            memset(target->transits + i, 0, sizeof(struct rpl_transit));
+            TRACE(TR_RPL, "rpl: transit remove target=%s parent=%s path-ctl-bit=%u",
+                  tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
+        }
+    }
+}
+
 static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t size,
                               const uint8_t src[16], const uint8_t dst[16])
 {
@@ -508,23 +553,36 @@ static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t 
         .data_size = size,
         .data      = pkt,
     };
-    uint8_t code;
+    uint8_t type, code;
 
-    BUG_ON(iobuf_pop_u8(&buf) != ICMPV6_TYPE_RPL);
+    type = iobuf_pop_u8(&buf);
     code = iobuf_pop_u8(&buf);
     iobuf_pop_be16(&buf); // Checksum verified by kernel
     BUG_ON(buf.err);
-    TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s", tr_icmp_rpl(code), tr_ipv6(src));
-    switch (code) {
-    case RPL_CODE_DIS:
-        rpl_recv_dis(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
+    switch (type) {
+    case ICMPV6_TYPE_RPL:
+        TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s", tr_icmp_rpl(code), tr_ipv6(src));
+        switch (code) {
+        case RPL_CODE_DIS:
+            rpl_recv_dis(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
+            break;
+        case RPL_CODE_DAO:
+            rpl_recv_dao(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
+            break;
+        default:
+            TRACE(TR_DROP, "drop %-9s: unsupported code %u", "rpl", code);
+            break;
+        }
         break;
-    case RPL_CODE_DAO:
-        rpl_recv_dao(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
+    case ICMP6_DST_UNREACH:
+        if (code != ICMPV6_CODE_DST_UNREACH_SRH)
+            return;
+        TRACE(TR_ICMP, "rx-icmp rpl-srh-err src=%s", tr_ipv6(src));
+        iobuf_pop_be32(&buf); // Unused
+        rpl_recv_srh_err(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
         break;
     default:
-        TRACE(TR_DROP, "drop %-9s: unsupported code %u", "rpl", code);
-        break;
+        BUG();
     }
 }
 
@@ -590,6 +648,7 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     FATAL_ON(err < 0, 2, "%s: setsockopt SO_BINDTODEVICE %s: %m", __func__, ifname);
     ICMP6_FILTER_SETBLOCKALL(&filter);
     ICMP6_FILTER_SETPASS(ICMPV6_TYPE_RPL, &filter);
+    ICMP6_FILTER_SETPASS(ICMP6_DST_UNREACH, &filter);
     err = setsockopt(root->sockfd, IPPROTO_ICMPV6, ICMP6_FILTER, &filter, sizeof(filter));
     FATAL_ON(err < 0, 2, "%s: setsockopt ICMP6_FILTER: %m", __func__);
 

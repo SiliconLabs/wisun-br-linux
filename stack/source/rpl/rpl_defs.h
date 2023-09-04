@@ -11,6 +11,9 @@
 // RFC 6550 - 6. ICMPv6 RPL Control Message
 #define ICMPV6_TYPE_RPL 155
 
+// RFC 6550 - 20.18. ICMPv6: Error in Source Routing Header
+#define ICMPV6_CODE_DST_UNREACH_SRH 7
+
 // RFC 6554 - 3. Format of the RPL Routing Header
 #define IPV6_EXTHDR_ROUTE_TYPE_RPL_SRH 3
 

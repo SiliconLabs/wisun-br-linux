@@ -757,11 +757,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
     case ICMPV6_TYPE_INFO_REDIRECT:
         return icmpv6_redirect_handler(buf, cur);
 
-    case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
-        if (buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR)
-            ; // TODO
-        return buffer_free(buf);
-
     default:
         // FIXME: forward DAR/DAC to Linux?
         TRACE(TR_DROP, "drop %-9s: unsupported type %u", "icmpv6", buf->options.type);

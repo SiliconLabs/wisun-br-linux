@@ -28,8 +28,6 @@
  * Known limitations:
  * - The RPL Packet Information (RPI) option is never inserted in IPv6 packets.
  * - Packets with a RPI error are always dropped instead of allowing one fault.
- * - The ICMPv6 Destination Unreachable message with code 7 (error in SRH) is
- *   not handled.
  * - Target prefixes can only be full addresses.
  * - Target groups are not supported (multiple targets followed by multiple
  *   transits in a DAO).

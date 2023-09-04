@@ -29,6 +29,7 @@
 #include "nwk_interface/protocol.h"
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "rpl/rpl_defs.h"
 
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
@@ -75,7 +76,7 @@ void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighb
         uint8_t code;
         if (buf->options.ip_extflags & IPEXT_SRH_RPL) {
             /* Note that as the border router we loopback SRH errors to ourselves if the first hop doesn't resolve */
-            code = ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR;
+            code = ICMPV6_CODE_DST_UNREACH_SRH;
         } else {
             code = ICMPV6_CODE_DST_UNREACH_ADDR_UNREACH;
         }
