@@ -18,7 +18,8 @@ services currently provided by the stack with native Linux services.
 This project provides the `wsbrd` daemon, which is responsible for running the
 Wi-SUN protocol high-level layers. It is paired with an RF device RCP (Radio
 Co-Processor) handling the low-level layers and RF activities. The RCP devices
-currently supported are the EFR32FG12 and EFR32MG12.
+currently supported are EFR32FG12, EFR32MG12, EFR32FG25, EFR32FG28, and
+EFR32ZG28.
 
 The RCP needs to be flashed with a specific firmware to communicate with the
 daemon. This firmware is provided in binary format. To help users deploy and
