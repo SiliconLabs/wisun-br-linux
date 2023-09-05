@@ -310,8 +310,8 @@ void rail_print_config_list(struct wsbr_ctxt *ctxt)
     }
     for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++)
-            if (chan_params->chan0_freq == rail_params->chan0_freq ||
-                chan_params->chan_spacing == rail_params->chan_spacing ||
+            if (chan_params->chan0_freq == rail_params->chan0_freq &&
+                chan_params->chan_spacing == rail_params->chan_spacing &&
                 chan_params->chan_count == rail_params->chan_count)
                 break;
         if (chan_params->chan0_freq)
