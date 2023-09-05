@@ -492,7 +492,7 @@ typedef struct ws_bs_ie {
 
 // Configuring data request restart allows MAC to push failed packet back to MAC TX queue up to WS_CCA_REQUEST_RESTART_MAX times for CCA failure and WS_TX_REQUEST_RESTART_MAX for TX failure.
 // Packet cannot be taken back to transmission before it has finished the blacklist period.
-#define WS_CCA_REQUEST_RESTART_MAX          9
+#define WS_CCA_REQUEST_RESTART_MAX          4
 #define WS_TX_REQUEST_RESTART_MAX           4
 #define WS_TX_REQUEST_RESTART_MAX_BOOTSTRAP 19
 #define WS_REQUEST_RESTART_BLACKLIST_MIN    20
@@ -503,7 +503,7 @@ typedef struct ws_bs_ie {
 #endif
 
 // Total CCA attempts: 1 + WS_MAX_CSMA_BACKOFFS
-#define WS_MAX_CSMA_BACKOFFS    0
+#define WS_MAX_CSMA_BACKOFFS    3
 
 // Default 802.15.4 values
 #define WS_MAC_MIN_BE   3
