@@ -33,6 +33,7 @@
 #include "common/log.h"
 #include "common/endian.h"
 #include "common/iobuf.h"
+#include "common/netinet_in_extra.h"
 #include "common_protocols/icmpv6.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 
@@ -60,7 +61,8 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-static int tun_addr_get(const char *if_name, uint8_t ip[static 16], bool gua)
+static int tun_addr_get(const char *if_name, uint8_t ip[16],
+                        bool accept_gua, bool accept_linklocal)
 {
     struct sockaddr_in6 *ipv6;
     struct ifaddrs *ifaddr, *ifa;
@@ -83,7 +85,8 @@ static int tun_addr_get(const char *if_name, uint8_t ip[static 16], bool gua)
 
         ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 
-        if (gua == IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
+        if ((!accept_linklocal && IN6_IS_ADDR_LINKLOCAL(ipv6->sin6_addr.s6_addr)) ||
+            (!accept_gua       && IN6_IS_ADDR_UC_GLOBAL(ipv6->sin6_addr.s6_addr)))
             continue;
 
         memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
@@ -97,12 +100,12 @@ static int tun_addr_get(const char *if_name, uint8_t ip[static 16], bool gua)
 
 int tun_addr_get_link_local(const char *if_name, uint8_t ip[static 16])
 {
-    return tun_addr_get(if_name, ip, false);
+    return tun_addr_get(if_name, ip, false, true);
 }
 
 int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16])
 {
-    return tun_addr_get(if_name, ip, true);
+    return tun_addr_get(if_name, ip, true, false);
 }
 
 void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t address[16])
