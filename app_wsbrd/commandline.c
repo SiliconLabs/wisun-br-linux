@@ -34,6 +34,7 @@
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"
+#include "common/netinet_in_extra.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_management_api.h"
@@ -317,9 +318,11 @@ static void conf_set_netmask(struct wsbrd_conf *config, const struct storage_par
     if (sscanf(info->value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
         FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
     if (len != 64)
-        FATAL(1, "%s:%d: invalid mask length: %d", info->filename, info->linenr, len);
+        FATAL(1, "%s:%d: invalid prefix length: %d", info->filename, info->linenr, len);
     if (inet_pton(AF_INET6, mask, raw_dest) != 1)
-        FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->linenr, mask);
+        FATAL(1, "%s:%d: invalid prefix: %s", info->filename, info->linenr, mask);
+    if (!IN6_IS_ADDR_UC_GLOBAL(raw_dest))
+        FATAL(1, "%s:%d: invalid prefix not global unicast: %s", info->filename, info->linenr, mask);
 }
 
 static void conf_set_netaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
