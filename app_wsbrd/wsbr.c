@@ -276,11 +276,11 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
     struct net_if *interface;
     uint8_t addr_ws0[16];
     uint8_t addr_tun[16];
+    int ret;
     bool cmp;
 
-    tun_addr_get_link_local(ctxt->config.tun_dev, addr_tun);
-    if (!memcmp(addr_tun, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "no link-local address found on %s", ctxt->config.tun_dev);
+    ret = tun_addr_get_link_local(ctxt->config.tun_dev, addr_tun);
+    FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->config.tun_dev);
 
     interface = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     addr_interface_get_ll_address(interface, addr_ws0, 0);
@@ -326,9 +326,8 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     BUG_ON(ret);
 
     wsbr_configure_ws(ctxt);
-    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
-    if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
+    ret = tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
+    FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->config.tun_dev);
 
     ret = cur->if_up(cur, ipv6);
     BUG_ON(ret);
