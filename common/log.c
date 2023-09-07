@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <arpa/inet.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
@@ -123,41 +124,7 @@ char *str_ipv4(uint8_t in[static 4], char out[static STR_MAX_LEN_IPV4])
 
 char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6])
 {
-    int zero_start = -1;
-    int zero_len = 0;
-    int last_zero_start = -1;
-    int last_zero_len = 0;
-    int i, j;
-
-    // Find largest 0 sequence
-    for (i = 0; i <= 8; i++) {
-        if (i == 8 || in[i * 2] || in[i * 2 + 1]) {
-            if (last_zero_len > zero_len) {
-                zero_len = last_zero_len;
-                zero_start = last_zero_start;
-            }
-            last_zero_start = -1;
-            last_zero_len = 0;;
-        } else {
-            if (last_zero_start < 0)
-                last_zero_start = i;
-            last_zero_len++;
-        }
-    }
-
-    i = j = 0;
-    while (i < 8) {
-        if (i == zero_start) {
-            out[j++] = ':';
-            i += zero_len;
-        } else {
-            if (i)
-                out[j++] = ':';
-            j += sprintf(out + j, "%x", in[i * 2] * 256 + in[i * 2 + 1]);
-            i++;
-        }
-    }
-    out[j] = '\0';
+    inet_ntop(AF_INET6, in, out, STR_MAX_LEN_IPV6);
     return out;
 }
 
