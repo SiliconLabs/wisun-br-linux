@@ -1538,7 +1538,6 @@ static bool ws_rpl_candidate_soft_filtering(struct net_if *cur, struct rpl_insta
 
 static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank)
 {
-    bool create_ok;
     struct net_if *cur = handle;
     if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
         return false;
@@ -1560,8 +1559,6 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
 
 
     ws_bootstrap_neighbor_get(cur, mac64, &neigh_buffer);
-    //Discover Multicast temporary entry for create neighbour table entry for new candidate
-    ws_neighbor_temp_class_t *entry = ws_llc_get_multicast_temp_entry(cur, mac64);
 
     if (!ws_rpl_candidate_soft_filtering(cur, instance)) {
 
@@ -1610,34 +1607,7 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
         return true;
     }
 
-    if (!entry) {
-        //No Multicast Entry Available
-        return false;
-    }
-
-    //Create entry
-    create_ok = ws_bootstrap_neighbor_get(cur, entry->mac64, &neigh_buffer);
-    if (!create_ok)
-        ws_bootstrap_neighbor_add(cur, entry->mac64, &neigh_buffer, WS_NR_ROLE_ROUTER);
-    if (create_ok) {
-        ws_neighbor_class_entry_t *ws_neigh = neigh_buffer.ws_neighbor;
-        ws_bootstrap_neighbor_set_stable(cur, entry->mac64);
-        //Copy fhss temporary data
-        *ws_neigh = entry->neigh_info_list;
-        mac_neighbor_table_trusted_neighbor(cur->mac_parameters.mac_neighbor_table, neigh_buffer.neighbor, true);
-    }
-    ws_llc_free_multicast_temp_entry(cur, entry);
-
-#if 0
-neigh_create_ok:
-
-    if (create_ok && replace_ok) {
-        //Try remove here when accepted new better one possible
-        tr_debug("Remove %s by %s", tr_ipv6(replacing), tr_ipv6(ll_parent_address));
-        rpl_control_neighbor_delete_from_instance(cur, instance, replacing);
-    }
-#endif
-    return create_ok;
+    return false;
 }
 static struct rpl_instance *ws_bootstrap_get_rpl_instance(struct net_if *cur)
 {

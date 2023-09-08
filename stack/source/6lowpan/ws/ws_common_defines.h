@@ -539,7 +539,6 @@ typedef struct ws_bs_ie {
 /*
  * EAPOL and multicast neighbor tables size
  */
-#define MAX_NEIGH_TEMPORARY_MULTICAST_SIZE 5
-#define MAX_NEIGH_TEMPORARY_EAPOL_SIZE (5 + MAX_NEIGH_TEMPORARY_MULTICAST_SIZE)
+#define MAX_NEIGH_TEMPORARY_EAPOL_SIZE 5
 
 #endif

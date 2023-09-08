@@ -528,8 +528,6 @@ static bool dbus_get_neighbor_info(struct wsbr_ctxt *ctxt, struct neighbor_info 
     llc_neighbour_req_t neighbor_llc;
 
     neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(net_if, eui64);
-    if (!neighbor_ws_tmp)
-        neighbor_ws_tmp = ws_llc_get_multicast_temp_entry(net_if, eui64);
     if (neighbor_ws_tmp) {
         neighbor_ws = &neighbor_ws_tmp->neigh_info_list;
         neighbor_ws->rssi = neighbor_ws_tmp->signal_dbm;

@@ -123,7 +123,6 @@ typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct temp_entriest {
     ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
-    ws_neighbor_temp_list_t         active_multicast_temp_neigh;
     ws_neighbor_temp_list_t         active_eapol_temp_neigh;
     ws_neighbor_temp_list_t         free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
@@ -368,7 +367,6 @@ static llc_data_base_t *ws_llc_base_allocate(void)
         return NULL;
     }
     memset(base, 0, sizeof(llc_data_base_t));
-    ns_list_init(&base->temp_entries.active_multicast_temp_neigh);
     ns_list_init(&base->temp_entries.active_eapol_temp_neigh);
     ns_list_init(&base->temp_entries.free_temp_neigh);
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
@@ -1471,11 +1469,6 @@ static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base)
         ns_list_remove(&base->active_eapol_temp_neigh, entry);
         ws_llc_temp_entry_free(base, entry);
     }
-
-    ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->active_multicast_temp_neigh) {
-        ns_list_remove(&base->active_multicast_temp_neigh, entry);
-        ws_llc_temp_entry_free(base, entry);
-    }
 }
 
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64)
@@ -1539,16 +1532,6 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_co
     }
 }
 
-ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct net_if *interface, const uint8_t *mac64)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return NULL;
-    }
-
-    return ws_llc_discover_temp_entry(&base->temp_entries.active_multicast_temp_neigh, mac64);
-}
-
 ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
@@ -1581,8 +1564,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
         return entry;
     }
 
-    //Take static if there is still space for multicast
-    if (ns_list_count(&base->free_temp_neigh) > (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE - ns_list_count(&base->active_multicast_temp_neigh))) {
+    if (ns_list_count(&base->free_temp_neigh)) {
         entry = ns_list_get_first(&base->free_temp_neigh);
         ns_list_remove(&base->free_temp_neigh, entry);
     }
@@ -1594,18 +1576,6 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
         ws_init_temporary_neigh_data(entry, mac64);
     }
     return entry;
-}
-
-void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class_t *neighbor)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(cur);
-    if (!base) {
-        return;
-    }
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_drop_fhss_neighbor(neighbor->mac64);
-    ns_list_remove(&base->temp_entries.active_multicast_temp_neigh, neighbor);
-    ns_list_add_to_end(&base->temp_entries.free_temp_neigh, neighbor);
 }
 
 int8_t ws_llc_create(struct net_if *interface, ws_mngt_ind *mngt_ind_cb, ws_asynch_confirm *asynch_cnf_cb)
