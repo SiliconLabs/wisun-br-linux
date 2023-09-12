@@ -25,7 +25,7 @@
 #include "common/bits.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "common/serial_number_arithmetic.h"
+#include "common/seqno.h"
 
 #include "core/timers.h"
 #include "core/ns_buffer.h"
@@ -308,7 +308,7 @@ static void mpl_seed_advance_min_sequence(mpl_seed_t *seed, uint8_t min_sequence
 {
     seed->min_sequence = min_sequence;
     ns_list_foreach_safe(mpl_buffered_message_t, message, &seed->messages) {
-        if (serial_number_cmp8(min_sequence, mpl_buffer_sequence(message))) {
+        if (seqno_cmp8(min_sequence, mpl_buffer_sequence(message)) > 0) {
             mpl_buffer_delete(seed, message);
         }
     }
@@ -375,7 +375,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
      *    accept this message. (If we forced min_sequence to 2, we'd end up processing
      *    message 3 again).
      */
-    if (serial_number_cmp8(seed->min_sequence, sequence)) {
+    if (seqno_cmp8(seed->min_sequence, sequence) > 0) {
         tr_debug("Can no longer accept %"PRIu8" < %"PRIu8, sequence, seed->min_sequence);
         return NULL;
     }
@@ -397,7 +397,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
     ns_list_foreach_reverse(mpl_buffered_message_t, m, &seed->messages) {
-        if (serial_number_cmp8(sequence, mpl_buffer_sequence(m))) {
+        if (seqno_cmp8(sequence, mpl_buffer_sequence(m)) > 0) {
             ns_list_add_after(&seed->messages, m, message);
             inserted = true;
             break;
@@ -581,14 +581,14 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     /* If the M flag is set, we report an inconsistency against any messages with higher sequences */
     if ((opt_data[0] & MPL_OPT_M)) {
         ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
-            if (serial_number_cmp8(mpl_buffer_sequence(message), sequence)) {
+            if (seqno_cmp8(mpl_buffer_sequence(message), sequence) > 0) {
                 mpl_buffer_inconsistent(domain, message);
             }
         }
     }
 
     /* Drop old messages (sequence < MinSequence) */
-    if (serial_number_cmp8(seed->min_sequence, sequence)) {
+    if (seqno_cmp8(seed->min_sequence, sequence) > 0) {
         tr_debug("Old MPL message %"PRIu8" < %"PRIu8, sequence, seed->min_sequence);
         return false;
     }

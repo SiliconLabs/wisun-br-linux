@@ -23,7 +23,6 @@
 #include "common/iobuf.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "common/serial_number_arithmetic.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "stack/source/rpl/rpl_downward.h"
