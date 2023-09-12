@@ -128,6 +128,9 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE]);
 void rpl_recv(struct rpl_root *root);
 void rpl_timer(int ticks);
 
+void rpl_dodag_version_inc(struct rpl_root *root);
+void rpl_dtsn_inc(struct rpl_root *root);
+
 struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16]);
 void rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target);

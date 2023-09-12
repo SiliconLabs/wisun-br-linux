@@ -99,6 +99,11 @@ static bool rpl_lollipop_desync(int8_t a, int8_t b)
         return MIN(distance, 128 - distance) > RPL_SEQUENCE_WINDOW;
 }
 
+static uint8_t rpl_lollipop_inc(int8_t val)
+{
+    return val == INT8_MAX ? 0 : val + 1;
+}
+
 static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params *params)
 {
     memset(params, 0, sizeof(struct trickle_params));
@@ -109,6 +114,29 @@ static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params 
     params->Imax = roundup(1ull << (root->dio_i_min + root->dio_i_doublings),
                            g_timers[WS_TIMER_RPL].period_ms) / g_timers[WS_TIMER_RPL].period_ms;
     params->k    = root->dio_redundancy;
+}
+
+void rpl_dodag_version_inc(struct rpl_root *root)
+{
+    struct trickle_params dio_trickle_params;
+
+    root->dodag_version_number = rpl_lollipop_inc(root->dodag_version_number);
+    //   RFC 6550 - 8.3. DIO Transmission
+    // The following packets and events MUST be considered inconsistencies with
+    // respect to the Trickle timer, and cause the Trickle timer to reset:
+    // - When a node joins a new DODAG Version (e.g., by updating its
+    //   DODAGVersionNumber, joining a new RPL Instance, etc.).
+    rpl_dio_trickle_params(root, &dio_trickle_params);
+    trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
+}
+
+void rpl_dtsn_inc(struct rpl_root *root)
+{
+    struct trickle_params dio_trickle_params;
+
+    root->dtsn++;
+    rpl_dio_trickle_params(root, &dio_trickle_params);
+    trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
 }
 
 // RFC 6550 - 6.7.1. RPL Control Message Option Generic Format
