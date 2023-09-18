@@ -54,6 +54,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     ssize_t ret;
 
     ret = write(ctxt->tun_fd, buf, len);
+    TRACE(TR_TUN, "tx-tun: %u bytes", len);
     if (ret < 0)
         WARN("%s: write: %m", __func__);
     else if (ret != len)
@@ -429,6 +430,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
         WARN("%s: read: %m", __func__);
         return;
     }
+    TRACE(TR_TUN, "rx-tun: %i bytes", iobuf.data_size);
 
     ip_version = FIELD_GET(IPV6_VERSION_MASK, iobuf_pop_be32(&iobuf));
     if (ip_version != 6) {

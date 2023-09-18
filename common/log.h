@@ -72,21 +72,20 @@ extern unsigned int g_enabled_traces;
 extern bool g_enable_color_traces;
 
 enum {
-    TR_RF        = 0x0001,
-    TR_CHAN      = 0x0002,
-    TR_BUS       = 0x0004,
-    TR_HDLC      = 0x0008,
-    TR_HIF       = 0x0010,
-    TR_TRICKLE   = 0x0020,
-    TR_15_4_MNGT = 0x0040,
-    TR_15_4_DATA = 0x0080,
-    TR_EAP       = 0x0100,
-    TR_ICMP      = 0x0200,
-    TR_DHCP      = 0x0800,
-    TR_HIF_EXTRA = 0x1000,
-    TR_CPC       = 0x2000,
-    TR_TIMERS    = 0x4000,
-    TR_DROP      = 0x8000,
+    TR_BUS       = 0x00000001,
+    TR_HDLC      = 0x00000002,
+    TR_CPC       = 0x00000004,
+    TR_HIF       = 0x00000008,
+    TR_HIF_EXTRA = 0x00000010,
+    TR_TUN       = 0x00000020,
+    TR_TIMERS    = 0x00000100,
+    TR_TRICKLE   = 0x00000200,
+    TR_15_4_MNGT = 0x00001000,
+    TR_15_4_DATA = 0x00002000,
+    TR_EAP       = 0x00004000,
+    TR_ICMP      = 0x00008000,
+    TR_DHCP      = 0x00010000,
+    TR_DROP      = 0x00100000,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)

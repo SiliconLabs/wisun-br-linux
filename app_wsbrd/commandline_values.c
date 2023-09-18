@@ -83,6 +83,7 @@ const struct name_value valid_traces[] = {
     { "icmp-rf",   TR_ICMP }, // legacy name
     { "icmp-tun",  0 },       // legacy name
     { "dhcp",      TR_DHCP },
+    { "tun",       TR_TUN },
     { "timers",    TR_TIMERS },
     { "drop",      TR_DROP },
     { NULL },
