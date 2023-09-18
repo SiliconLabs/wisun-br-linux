@@ -184,47 +184,6 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
-void print_help_node(FILE *stream) {
-    fprintf(stream, "\n");
-    fprintf(stream, "Simulate a Wi-SUN node\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wsnode [OPTIONS]\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif,\n");
-    fprintf(stream, "                          hif-extra, timers, drop\n");
-    fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
-    fprintf(stream, "                          on config file\n");
-    fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
-    fprintf(stream, "                          in the config file\n");
-    fprintf(stream, "  -D, --delete-storage  Delete storage upon start, which deauhenticates any previously\n");
-    fprintf(stream, "                          connected nodes. Useful for testing.\n");
-    fprintf(stream, "  -v, --version         Print version and exit\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "Wi-SUN related options:\n");
-    fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
-    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
-    fprintf(stream, "                          4b and 5\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2, 3 or 4\n");
-    fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
-    fprintf(stream, "                          the network. Valid values: S (< 100, default), M (100-1000),\n");
-    fprintf(stream, "                          L (> 1000)\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "Wi-SUN network authentication:\n");
-    fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
-    fprintf(stream, "  or DER format.\n");
-    fprintf(stream, "  -K, --key=FILE         Private key (keep it secret)\n");
-    fprintf(stream, "  -C, --certificate=FILE Certificate for the key\n");
-    fprintf(stream, "  -A, --authority=FILE   Certificate of the authority (CA) (shared with all devices of the\n");
-    fprintf(stream, "                           network)\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
-}
-
 static void conf_deprecated(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->linenr, info->key);
