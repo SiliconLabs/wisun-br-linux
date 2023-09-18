@@ -420,6 +420,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     buffer_t *buf_6lowpan;
     const uint8_t *eui64;
     const uint8_t *ipv6;
+    uint8_t type;
 
     if (lowpan_adaptation_queue_size(ctxt->rcp_if_id) > 2)
         return;
@@ -431,7 +432,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 
     ip_version = FIELD_GET(IPV6_VERSION_MASK, iobuf_pop_be32(&iobuf));
     if (ip_version != 6) {
-        WARN("tun-rx: unsupported ip version %d", ip_version);
+        TRACE(TR_DROP, "drop %-9s: unsupported IPv%u", "tun", ip_version);
         return;
     }
 
@@ -451,6 +452,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 
     if (addr_is_ipv6_multicast(buf_6lowpan->dst_sa.address)) {
         if(!addr_am_group_member_on_interface(cur, buf_6lowpan->dst_sa.address)) {
+            TRACE(TR_DROP, "drop %-9s: unsupported dst=%s", "tun", tr_ipv6(buf_6lowpan->dst_sa.address));
             buffer_free(buf_6lowpan);
             return;
         }
@@ -469,7 +471,9 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
                 wsbr_dhcp_lease_update(ctxt, eui64, ipv6);
         }
     } else if (nxthdr == SOL_ICMPV6) {
-        if (!is_icmpv6_type_supported_by_wisun(iobuf_pop_u8(&iobuf))) {
+        type = iobuf_pop_u8(&iobuf);
+        if (!is_icmpv6_type_supported_by_wisun(type)) {
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "tun", type);
             buffer_free(buf_6lowpan);
             return;
         }
