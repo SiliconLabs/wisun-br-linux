@@ -149,6 +149,7 @@ static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fr
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
 static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
+static int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
 
 //Discover
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId)
@@ -1358,7 +1359,7 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface,
 }
 
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, addrtype_e adr_type)
+static int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, addrtype_e adr_type)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 

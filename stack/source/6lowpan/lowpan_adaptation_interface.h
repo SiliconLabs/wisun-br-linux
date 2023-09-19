@@ -57,8 +57,6 @@ bool lowpan_adaptation_tx_active(int8_t interface_id);
 
 void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
-
 void lowpan_adaptation_expedite_forward_enable(struct net_if *cur);
 
 bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur);
