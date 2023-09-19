@@ -47,8 +47,6 @@ struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, 
 
 int8_t lowpan_adaptation_interface_tx(struct net_if *cur, struct buffer *buf);
 
-void lowpan_adaptation_interface_data_ind(struct net_if *cur, const struct mcps_data_ind *data_ind);
-
 struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *buf);
 
 bool lowpan_adaptation_tx_active(int8_t interface_id);

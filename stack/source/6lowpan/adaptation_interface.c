@@ -150,6 +150,8 @@ static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fr
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
 static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
 static int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
+
+static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind);
 static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_conf_t *confirm);
 
 //Discover
@@ -1223,7 +1225,7 @@ static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const soc
     return neighbor && (neighbor->connected_device || neighbor->trusted_device);
 }
 
-void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)
+static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)
 {
     buffer_t *buf = buffer_get(data_ind->msduLength);
     if (!buf || !cur) {
