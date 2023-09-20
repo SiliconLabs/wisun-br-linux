@@ -333,6 +333,7 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=write
         -Wl,--wrap=recv
         -Wl,--wrap=recvfrom
+        -Wl,--wrap=recvmsg
         -Wl,--wrap=socket
         -Wl,--wrap=setsockopt
         -Wl,--wrap=bind

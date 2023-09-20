@@ -14,7 +14,7 @@
 #define FUZZ_INTERFACES_H
 #include <stdint.h>
 
-#define IF_SOCKET_COUNT 4
+#define IF_SOCKET_COUNT 5
 
 struct wsbr_ctxt;
 struct fuzz_ctxt;
@@ -26,6 +26,7 @@ enum {
     IF_EAPOL_RELAY,
     IF_BR_EAPOL_RELAY,
     IF_PAE_AUTH,
+    IF_RPL,
 };
 
 void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);

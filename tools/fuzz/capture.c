@@ -65,8 +65,8 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
 }
 
 void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
-                            const uint8_t src_addr[16], uint16_t src_port,
-                            const void *data, size_t size)
+                            const uint8_t src_addr[16], const uint8_t dst_addr[16],
+                            uint16_t src_port, const void *data, size_t size)
 {
     struct iobuf_write buf = { };
 
@@ -74,6 +74,7 @@ void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
     spinel_push_uint(&buf, SPINEL_CMD_REPLAY_INTERFACE);
     spinel_push_u8(&buf, interface);
     spinel_push_fixed_u8_array(&buf, src_addr, 16);
+    spinel_push_fixed_u8_array(&buf, dst_addr, 16);
     spinel_push_u16(&buf, src_port);
     spinel_push_data(&buf, data, size);
     fuzz_capture_spinel(ctxt, &buf);
