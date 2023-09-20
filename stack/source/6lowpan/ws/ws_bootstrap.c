@@ -48,10 +48,6 @@
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
-#include "rpl/rpl_policy.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
@@ -83,8 +79,6 @@
 
 static void ws_bootstrap_event_handler(struct event_payload *event);
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, enum event_priority priority, void *event_data);
-static uint16_t ws_bootstrap_rank_get(struct net_if *cur);
-static uint16_t ws_bootstrap_min_rank_inc_get(struct net_if *cur);
 static void ws_bootstrap_mac_security_enable(struct net_if *cur);
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t operation, uint8_t index, uint8_t *key);
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
@@ -164,13 +158,6 @@ void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
     mac_neighbor_table_neighbor_list_clean(interface->mac_parameters.mac_neighbor_table);
 }
 
-static void ws_address_reregister_trig(struct net_if *interface)
-{
-    if (interface->ws_info.aro_registration_timer == 0) {
-        interface->ws_info.aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
-    }
-}
-
 static void ws_bootstrap_address_notification_cb(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason)
 {
     /* No need for LL address registration */
@@ -178,15 +165,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
         return;
 
     if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
-        //If address is generated manually we need to force registration
-        if (addr->source != ADDR_SOURCE_DHCP) {
-            //Trigger Address Registration only when Bootstrap is ready
-            if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-                tr_debug("Address registration %s", tr_ipv6(addr->address));
-                ws_address_registration_update(interface, addr->address);
-            }
-            ws_address_reregister_trig(interface);
-        }
         if (addr_ipv6_scope(addr->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
             // at least ula address available inside mesh.
             interface->global_address_available = true;
@@ -537,55 +515,6 @@ static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
     return 0;
 }
 
-/* Sets the parent and broadcast schedule we are following
- *
- */
-void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *neighbor_info, ws_parent_synch_e synch_req)
-{
-    if (!neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
-        tr_error("No BC timing info for set new parent");
-        return;
-    }
-
-    // Learning broadcast network configuration
-    if (synch_req != WS_EAPOL_PARENT_SYNCH) {
-        ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    }
-    cur->ws_info.fhss_conf.ws_bc_channel_function = (fhss_ws_channel_functions_e)neighbor_info->ws_neighbor->fhss_data.bc_chan_func;
-    if (cur->ws_info.fhss_conf.ws_bc_channel_function == WS_FIXED_CHANNEL) {
-        cur->ws_info.hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_chan_fixed;
-        cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_chan_fixed;
-    } else {
-        ws_common_generate_channel_list(cur,
-                                        cur->ws_info.fhss_conf.broadcast_channel_mask,
-                                        cur->ws_info.hopping_schedule.number_of_channels,
-                                        cur->ws_info.hopping_schedule.regulatory_domain,
-                                        cur->ws_info.hopping_schedule.operating_class,
-                                        cur->ws_info.hopping_schedule.channel_plan_id);
-        // Apply primary parent channel mask to broadcast channel mask.
-        bitand(cur->ws_info.fhss_conf.broadcast_channel_mask,
-               neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask, 256);
-        // Update broadcast excluded channels.
-        ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
-                                    cur->ws_info.fhss_conf.broadcast_channel_mask,
-                                    cur->ws_info.fhss_conf.domain_channel_mask,
-                                    cur->ws_info.hopping_schedule.number_of_channels);
-    }
-    cur->ws_info.fhss_conf.bsi                     = neighbor_info->ws_neighbor->fhss_data.ffn.bsi;
-    cur->ws_info.fhss_conf.fhss_bc_dwell_interval  = neighbor_info->ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms;
-    cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.ffn.bc_interval_ms;
-    cur->ws_info.fhss_conf.broadcast_fixed_channel = cur->ws_info.cfg->fhss.fhss_bc_fixed_channel;
-    neighbor_info->ws_neighbor->synch_done = true;
-
-    rcp_set_fhss_timings(&cur->ws_info.fhss_conf);
-
-    // We have broadcast schedule set up set the broadcast parent schedule
-    rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data, synch_req != WS_PARENT_SOFT_SYNCH);
-
-    // Update LLC to follow updated fhss settings
-    ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
-}
-
 static void ws_bootstrap_ll_address_validate(struct net_if *cur)
 {
     BUG_ON(!cur->rcp);
@@ -838,11 +767,6 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
             memcpy(ll_target + 8, cur->mac64, 8);
             ll_target[8] ^= 2;
-
-            if (rpl_control_is_dodag_parent(interface, ll_target)) {
-                // Possible parent is limited to 3 by default?
-                continue;
-            }
         }
 
         //Read current timestamp
@@ -924,15 +848,6 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 
 }
 
-static uint32_t ws_probe_init_time_get(struct net_if *cur)
-{
-    if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
-        return WS_SMALL_PROBE_INIT_BASE_SECONDS;
-    }
-
-    return WS_NORMAL_PROBE_INIT_BASE_SECONDS;
-}
-
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
 {
     uint32_t time_from_start = entry_ptr->link_lifetime - entry_ptr->lifetime;
@@ -940,7 +855,6 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     bool nud_proces = false;
     bool activate_nud = false;
     bool child;
-    bool candidate_parent;
     struct net_if *cur = user_data;
 
     ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, entry_ptr->index);
@@ -960,12 +874,11 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
 
         child = ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, entry_ptr->mac64);
-        candidate_parent = rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info.cfg->gen.rpl_parent_candidate_max);
         /* For parents ARO registration is sent in link timeout times
          * For candidate parents NUD is needed
          * For children NUD is sent only at very close to end
          */
-        if (!child && !candidate_parent) {
+        if (!child) {
             // No need for keep alive
             return false;
         }
@@ -990,36 +903,6 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
             }
         }
         nud_proces = activate_nud;
-    } else if (etx_entry->etx_samples < WS_NEIGHBOR_ETX_SAMPLE_MAX) {
-        //Take Random number for trig a prope.
-        //Small network
-        //ETX Sample 0: random 1-4
-        //ETX Sample 1: random 2-8
-        //ETX Sample 2: random 4-16
-        //Medium and large
-        //ETX Sample 0: random 1-8
-        //ETX Sample 1: random 2-16
-        //ETX Sample 2: random 4-32
-
-        ws_common_create_ll_address(ll_address, entry_ptr->mac64);
-        if (!rpl_control_probe_parent_candidate(cur, ll_address)) {
-            return false;
-        }
-
-        uint32_t probe_period = ws_probe_init_time_get(cur) << etx_entry->etx_samples;
-        uint32_t time_block = 1u << etx_entry->etx_samples;
-
-        if (time_from_start >= probe_period) {
-            //tr_debug("Link Probe test %u Sample trig", etx_entry->etx_samples);
-            activate_nud = true;
-        } else if (time_from_start > time_block) {
-            uint16_t switch_prob = rand_get_random_in_range(0, probe_period - 1);
-            //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
-            if (switch_prob < 2) {
-                //tr_debug("Link Probe test with jitter %"PRIu32", sample %u", time_from_start, etx_entry->etx_samples);
-                activate_nud = true;
-            }
-        }
     }
 
     if (!activate_nud) {
@@ -1237,7 +1120,6 @@ int ws_bootstrap_neighbor_remove(struct net_if *cur, const uint8_t *ll_address)
 
 int ws_bootstrap_aro_failure(struct net_if *cur, const uint8_t *ll_address)
 {
-    rpl_control_neighbor_delete(cur, ll_address);
     ws_bootstrap_neighbor_remove(cur, ll_address);
     return 0;
 }
@@ -1316,380 +1198,6 @@ void ws_bootstrap_ip_stack_activate(struct net_if *cur)
     clear_power_state(ICMP_ACTIVE);
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     ws_bootstrap_ip_stack_reset(cur);
-}
-
-static void ws_bootstrap_set_fhss_hop(struct net_if *cur)
-{
-    uint16_t own_rank = ws_bootstrap_rank_get(cur);
-    uint16_t rank_inc = ws_bootstrap_min_rank_inc_get(cur);
-    if (own_rank == 0xffff || rank_inc == 0xffff) {
-        return;
-    }
-    // Calculate own hop count. This method gets inaccurate when hop count increases.
-    uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
-    rcp_set_fhss_hop_count(own_hop);
-    tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
-}
-
-void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
-{
-    rpl_control_register_address(interface, addr);
-    // Timer is used only to track full registrations
-
-    if (addr != NULL && interface->ws_info.aro_registration_timer) {
-        // Single address update and timer is running
-        return;
-    }
-
-    if (interface->ws_info.aro_registration_timer == 0) {
-        // Timer expired and check if we have valid address to register
-        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (!addr_is_ipv6_link_local(address->address)) {
-                // We have still valid addresses let the timer run for next period
-                tr_info("ARO registration timer start");
-                interface->ws_info.aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
-                return;
-            }
-        }
-    }
-}
-
-static void ws_address_parent_update(struct net_if *interface)
-{
-    tr_info("RPL parent update ... register ARO");
-    ws_address_registration_update(interface, NULL);
-}
-
-void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance)
-{
-    /* Possible problem with the parent connection
-     * Give some time for parent to rejoin and confirm the connection with ARO and DAO
-     */
-    const rpl_dodag_conf_t *config = NULL;
-    uint32_t Imin_secs = 0;
-
-    if (!ws_bootstrap_state_active(cur)) {
-        // If we are not in Active state no need to confirm parent
-        return;
-    }
-
-    tr_info("RPL parent confirm");
-
-    if (!instance) {
-        // If we dont have instance we take any available to get reference
-        instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
-    }
-
-    if (instance) {
-        config = rpl_control_get_dodag_config(instance);
-    }
-
-    if (config) {
-        //dio imin Period caluclate in seconds
-        uint32_t Imin_ms = config->dio_interval_min < 32 ? (1ul << config->dio_interval_min) : 0xfffffffful;
-        //Covert to seconds and multiple by 2 so we give time to recovery so divide by 500 do that operation
-        Imin_secs = (Imin_ms + 499) / 500;
-
-        if (Imin_secs > 0xffff) {
-            Imin_secs = 0xffff;
-        }
-    }
-    if (Imin_secs == 0) {
-        // If we dont have RPL configuration we assume conservative value
-        Imin_secs = 60;
-    }
-
-    /*Speed up the ARO registration*/
-    if (cur->ws_info.aro_registration_timer > Imin_secs) {
-        cur->ws_info.aro_registration_timer = Imin_secs;
-    }
-}
-
-static void ws_rpl_parent_dis_callback(const uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance)
-{
-    (void) ll_parent_address;
-    struct net_if *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return;
-    }
-    //Multicast DIS from parent indicate that Parent is not valid in short time window possible
-    ws_bootstrap_parent_confirm(cur, instance);
-}
-
-
-static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
-{
-
-    struct net_if *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return;
-    }
-
-    if (event == RPL_EVENT_POISON_FINISHED) {
-        //If we are waiting poison we will trig Discovery after couple seconds
-        if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
-            cur->bootstrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
-        }
-        return;
-    }
-
-    // if waiting for RPL and
-    if (event == RPL_EVENT_DAO_DONE) {
-        // Trigger statemachine check
-        cur->bootstrap_state_machine_cnt = 1;
-        rpl_dodag_info_t dodag_info;
-        struct rpl_instance *instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
-
-        if (instance && rpl_control_read_dodag_info(instance, &dodag_info)) {
-            WARN();
-            tr_debug("Start EAPOL relay");
-            // Set both own port and border router port to 10253
-            ws_eapol_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, dodag_info.dodag_id, EAPOL_RELAY_SOCKET_PORT);
-            // Set network information to PAE
-            ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
-                                          cur->ws_info.pan_information.pan_version,
-                                          cur->ws_info.pan_information.lpan_version,
-                                          cur->ws_info.cfg->gen.network_name);
-        }
-
-        if (!cur->ws_info.mngt.trickle_pa_running || !cur->ws_info.mngt.trickle_pc_running) {
-            //Enable wi-sun asynch adverisment
-            ws_bootstrap_advertise_start(cur);
-        }
-
-        ws_bootstrap_set_fhss_hop(cur);
-
-        rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
-        rcp_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
-    } else if (event == RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS) {
-        /*
-         * RPL goes to passive mode, but does not require any extra changed
-         *
-         * We could remove our current addresses learned from RPL
-         * We could send solicit for configuration and then select new parent when those arrive
-         *
-         */
-
-    } else if (event == RPL_EVENT_LOCAL_REPAIR_START) {
-        tr_debug("RPL local repair start");
-        //Disable Async and go to state 4 to confirm parent connection
-        ws_bootstrap_parent_confirm(cur, NULL);
-        // Move to state 4 if we see issues with primary parent
-        if (ws_bootstrap_state_active(cur)) {
-            tr_info("Move state 4 to wait parent connection confirmation");
-            ws_bootstrap_rpl_scan_start(cur);
-        }
-    } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
-        ws_address_parent_update(cur);
-    }
-    cur->ws_info.rpl_state = event;
-    tr_info("RPL event %d", event);
-}
-
-static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local)
-{
-    struct net_if *cur = (struct net_if *) handle;
-    /* Check if A-Flag.
-     * A RPL node may use this option for the purpose of Stateless Address Autoconfiguration (SLAAC)
-     * from a prefix advertised by a parent.
-     */
-    if (prefix->options & PIO_A) {
-
-        if (parent_link_local) {
-            if (icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, prefix->lifetime, prefix->preftime) != 0) {
-                /*
-                 * Give SLAAC addresses a different label and low precedence to indicate that
-                 * they probably shouldn't be used for external traffic. SLAAC use in Wi-SUN is non-standard,
-                 * and we use it for mesh-local traffic we should prefer any DHCP-assigned addresses
-                 * for talking to the outside world
-                 *
-                 */
-                addr_policy_table_add_entry(prefix->prefix, prefix->prefix_len, 2, WS_NON_PREFFRED_LABEL);
-            }
-        } else {
-            icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, 0, 0);
-        }
-    } else if (prefix->prefix_len && parent_link_local) {
-        WARN();
-    }
-}
-
-static bool ws_rpl_candidate_soft_filtering(struct net_if *cur, struct rpl_instance *instance)
-{
-    //Already many candidates
-    uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-    if (candidate_list_size >= cur->ws_info.cfg->gen.rpl_parent_candidate_max) {
-        return false;
-    }
-
-    uint16_t selected_parents = rpl_control_selected_parent_count(cur, instance);
-
-    //Already enough selected candidates
-    if (selected_parents >= cur->ws_info.cfg->gen.rpl_selected_parent_max) {
-        candidate_list_size -= selected_parents;
-        if (candidate_list_size >= 2) {
-            //We have more candidates than selected
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank)
-{
-    struct net_if *cur = handle;
-    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
-        return false;
-    }
-
-    if (blacklist_reject(ll_parent_address)) {
-        // Rejected by blacklist
-        return false;
-    }
-
-    uint8_t mac64[10];
-    //bool replace_ok = false;
-    //bool create_ok = false;
-    llc_neighbour_req_t neigh_buffer;
-
-    //Discover neigh ready here for possible ETX validate
-    memcpy(mac64, ll_parent_address + 8, 8);
-    mac64[0] ^= 2;
-
-
-    ws_bootstrap_neighbor_get(cur, mac64, &neigh_buffer);
-
-    if (!ws_rpl_candidate_soft_filtering(cur, instance)) {
-
-        //Acept only better than own rank here
-        if (candidate_rank >= rpl_control_current_rank(instance)) {
-            //Do not accept no more siblings
-            return false;
-        }
-
-        uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-        if (candidate_list_size > cur->ws_info.cfg->gen.rpl_parent_candidate_max + 1) {
-            //Accept only 1 better 1 time
-            return false;
-        }
-
-        if (!neigh_buffer.neighbor) {
-            //Do not accept any new in that Place
-            return false;
-        }
-
-        uint8_t replacing[16];
-        //Accept Know neighbour if it is enough good
-        if (!rpl_control_find_worst_neighbor(cur, instance, replacing)) {
-            return false;
-        }
-        // +2 Is for PAN ID space
-        memcpy(mac64, replacing + 8, 8);
-        mac64[0] ^= 2;
-
-        if (ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac64) == 0xffff) {
-            //Not probed yet because ETX is 0xffff
-            return false;
-        }
-
-        uint16_t etx = 0;
-        if (neigh_buffer.neighbor) {
-            etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, neigh_buffer.neighbor->mac64);
-        }
-
-        // Accept now only better one's when max candidates selected and max candidate list size is reached
-        return rpl_possible_better_candidate(cur, instance, replacing, candidate_rank, etx);
-    }
-
-    //Neighbour allready
-    if (neigh_buffer.neighbor) {
-        return true;
-    }
-
-    return false;
-}
-static struct rpl_instance *ws_bootstrap_get_rpl_instance(struct net_if *cur)
-{
-    if (!cur || !cur->rpl_domain) {
-        return NULL;
-    }
-    struct rpl_instance *best_instance = NULL;
-    ns_list_foreach(struct rpl_instance, instance, &cur->rpl_domain->instances) {
-        best_instance = instance;
-        // Select best grounded and lowest rank? But there should be only one really
-    }
-    return best_instance;
-}
-
-static uint16_t ws_bootstrap_rank_get(struct net_if *cur)
-{
-    struct rpl_instance *rpl_instance = ws_bootstrap_get_rpl_instance(cur);
-    if (!rpl_instance) {
-        return 0xffff;
-    }
-    return rpl_control_current_rank(rpl_instance);
-}
-
-
-static uint16_t ws_bootstrap_min_rank_inc_get(struct net_if *cur)
-{
-    struct rpl_instance *rpl_instance = ws_bootstrap_get_rpl_instance(cur);
-    if (!rpl_instance) {
-        return 0xffff;
-    }
-    struct rpl_dodag_info dodag_info;
-    if (!rpl_control_read_dodag_info(rpl_instance, &dodag_info)) {
-        return 0xffff;
-    }
-    return dodag_info.dag_min_hop_rank_inc;
-}
-
-void ws_bootstrap_rpl_scan_start(struct net_if *cur)
-{
-    tr_debug("Start RPL learn");
-    // Stop Trickle timers
-    ws_bootstrap_asynch_trickle_stop(cur);
-
-    // routers wait until RPL root is contacted
-    ws_bootstrap_state_change(cur, ER_RPL_SCAN);
-    // Change state as the state is checked in state machine
-    cur->ws_info.rpl_state = RPL_EVENT_LOCAL_REPAIR_START;
-    //For Large network and medium should do passive scan
-    if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
-        // Set timeout for check to 30 - 60 seconds
-        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
-    }
-}
-
-void ws_bootstrap_rpl_activate(struct net_if *cur)
-{
-    tr_debug("RPL Activate");
-    bool downstream = true;
-    bool leaf = false;
-
-    addr_add_router_groups(cur);
-    rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, downstream);
-    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, ws_rpl_new_parent_callback, ws_rpl_parent_dis_callback, cur);
-    // If i am router I Do this
-    rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
-    rpl_control_process_routes(protocol_6lowpan_rpl_domain, false); // Wi-SUN assumes that no default route needed
-    rpl_control_request_parent_link_confirmation(true);
-    rpl_control_set_dio_multicast_min_config_advertisment_count(WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT);
-    rpl_control_set_address_registration_timeout((WS_NEIGHBOR_LINK_TIMEOUT / 60) + 1);
-    rpl_control_set_dao_retry_count(WS_MAX_DAO_RETRIES);
-    rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
-    rpl_control_set_mrhof_parent_set_size(WS_MAX_PARENT_SET_COUNT);
-    rpl_control_set_force_tunnel(true);
-    // Set RPL Link ETX Validation Threshold to 2.5 - 33.0
-    // This setup will set ETX 0x800 to report ICMP error 18% probability
-    // When ETX start go over 0x280 forward dropping probability start increase  linear to 100% at 0x2100
-    rpl_policy_forward_link_etx_threshold_set(0x280, 0x2100);
-
-    // Set the minimum target refresh to sen DAO registrations before pan timeout
-    rpl_control_set_minimum_dao_target_refresh(WS_RPL_DAO_MAX_TIMOUT);
-
-    cur->ws_info.rpl_state = 0xff; // Set invalid state and learn from event
 }
 
 void ws_bootstrap_advertise_start(struct net_if *cur)
@@ -2045,26 +1553,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     ws_llc_timer_seconds(cur, seconds);
 }
 
-void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
-{
-    llc_neighbour_req_t neighbor_info;
-    uint8_t link_local_address[16];
-
-    neighbor_info.neighbor = neighbor;
-    neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor->index);
-    ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
-    ws_common_create_ll_address(link_local_address, neighbor->mac64);
-    WARN();
-    ws_bootstrap_secondary_parent_update(interface);
-}
-
-void ws_bootstrap_secondary_parent_update(struct net_if *interface)
-{
-    ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses)
-        if (!addr_is_ipv6_link_local(address->address))
-            ws_address_parent_update(interface);
-}
-
 int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr)
 {
 
@@ -2137,11 +1625,6 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
             }
             ws_common_create_ll_address(ll_address, mac_entry->mac64);
             memcpy(neighbor_ptr[count].link_local_address, ll_address, 16);
-
-            if (rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info.cfg->gen.rpl_parent_candidate_max)) {
-                neighbor_ptr[count].type = WS_CANDIDATE_PARENT;
-            }
-            neighbor_ptr[count].rpl_rank = rpl_control_neighbor_info_get(cur, ll_address, neighbor_ptr[count].global_address);
 
             if (mac_entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 neighbor_ptr[count].type = WS_PRIMARY_PARENT;

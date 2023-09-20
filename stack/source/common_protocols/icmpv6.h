@@ -60,20 +60,6 @@
 #define ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT        2
 #define ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR   3
 
-#define ICMPV6_CODE_RPL_DIS                         0x00
-#define ICMPV6_CODE_RPL_DIO                         0x01
-#define ICMPV6_CODE_RPL_DAO                         0x02
-#define ICMPV6_CODE_RPL_DAO_ACK                     0x03
-#define ICMPV6_CODE_RPL_P2P_DRO                     0x04
-#define ICMPV6_CODE_RPL_P2P_DRO_ACK                 0x05
-#define ICMPV6_CODE_RPL_SECURE_DIS                  0x80
-#define ICMPV6_CODE_RPL_SECURE_DIO                  0x81
-#define ICMPV6_CODE_RPL_SECURE_DAO                  0x82
-#define ICMPV6_CODE_RPL_SECURE_DAO_ACK              0x83
-#define ICMPV6_CODE_RPL_SECURE_P2P_DRO              0x84
-#define ICMPV6_CODE_RPL_SECURE_P2P_DRO_ACK          0x85
-#define ICMPV6_CODE_RPL_CC                          0x8A
-
 /* Options in ICMPv6 Neighbor Discovery Protocol (RPL has totally different options...) */
 #define ICMPV6_OPT_SRC_LL_ADDR                      1
 #define ICMPV6_OPT_TGT_LL_ADDR                      2

@@ -202,7 +202,6 @@ buffer_t *buffer_free(buffer_t *buf)
 
         buf = buffer_free_route(buf);
         free(buf->predecessor);
-        free(buf->rpl_option);
         free(buf);
 
     } else {
@@ -230,10 +229,6 @@ buffer_t *buffer_turnaround(buffer_t *buf)
         buf->predecessor = NULL;
     }
 
-    if (buf->rpl_option) {
-        free(buf->rpl_option);
-        buf->rpl_option = NULL;
-    }
     buf->options.tunnelled = false;
     buf->rpl_flag_error = 0;
     buf->rpl_instance_known = false;
@@ -278,7 +273,6 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
 
     /* Extra data pointers now attached to both buffers - there can be only one */
     buffer_t *to_wipe = non_clonable_to_dst ? src : dst;
-    to_wipe->rpl_option = NULL;
     to_wipe->predecessor = NULL;
 }
 
@@ -327,7 +321,6 @@ buffer_t *buffer_clone(buffer_t *buf)
     result_ptr->predecessor = NULL;
     result_ptr->route = NULL; // Don't clone routing info
     result_ptr->options.multicast_loop = false; // Don't loop back more copies!
-    result_ptr->rpl_option = NULL;
     result_ptr->buf_ptr = buf_ptr;
     result_ptr->buf_end = buf_end;
     result_ptr->size = size;

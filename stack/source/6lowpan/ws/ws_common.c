@@ -38,8 +38,6 @@
 
 #include "core/net_interface.h"
 #include "common_protocols/icmpv6.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_control.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
@@ -169,7 +167,6 @@ void ws_common_seconds_timer(int seconds)
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
 
-    ws_bbr_seconds_timer(cur, seconds);
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_bootstrap_6lbr_seconds_timer(cur, seconds);
     blacklist_ttl_update(seconds);
@@ -326,16 +323,6 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 uint32_t ws_common_datarate_get(struct net_if *cur)
 {
     return ws_common_datarate_get_from_phy_mode(cur->ws_info.hopping_schedule.phy_mode_id, cur->ws_info.hopping_schedule.operating_mode);
-}
-
-void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
-{
-    ws_bootstrap_primary_parent_update(interface, neighbor);
-}
-
-void ws_common_secondary_parent_update(struct net_if *interface)
-{
-    ws_bootstrap_secondary_parent_update(interface);
 }
 
 bool ws_common_is_valid_nr(uint8_t node_role)

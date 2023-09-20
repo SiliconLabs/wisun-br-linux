@@ -94,7 +94,6 @@ typedef union buffer_link_info {
 } buffer_link_info_t;
 
 /* Flags to indicate presence of extension headers in _current_ IP layer */
-/* (As opposed to, eg, rpl_option, which is any-layer metadata) */
 /* Placed as a non-bitfield in ip_extflags so that IP core can bulk clear */
 #define IPEXT_HBH_RPL           0x01    /*!< RPL hop-by-hop option */
 #define IPEXT_SRH_RPL           0x02    /*!< RPL Routing Header */
@@ -219,7 +218,6 @@ typedef struct buffer {
     //uint8_t             ip_transmission_prev_seq;  /*!< XXX: this stores the data packet seq. number, which is needed for re-transmission. */
     //uint16_t            bad_channel;
     void                *session_ptr;
-    uint8_t             *rpl_option;
     buffer_priority_e   priority;
     buffer_link_info_t  link_specific;
     uint16_t            mpl_option_data_offset;

@@ -74,13 +74,7 @@ typedef enum ipv6_route_src {
     ROUTE_USER,
     ROUTE_ARO,
     ROUTE_RADV,
-    ROUTE_RPL_DIO,      /* Explicitly advertised in DIO RIO */
-    ROUTE_RPL_DAO,      /* Explicitly advertised in DAO, Storing mode */
     ROUTE_RPL_DAO_SR,   /* Explicitly advertised in DAO, Root Source Routes in Non-Storing mode */
-    ROUTE_RPL_SRH,      /* Not in routing table - used in buffers to represent on-link inferred from SRH */
-    ROUTE_RPL_ROOT,     /* Implicit route to DODAG root */
-    ROUTE_RPL_INSTANCE, /* Implicit instance-specific default upward route (not for general search) */
-    ROUTE_RPL_FWD_ERROR, /* Not in routing table - used in buffers to represent Forwarding-Error bounce */
     ROUTE_MULTICAST,    /* Not in routing table - used to represent multicast interface selection */
     ROUTE_MPL,
     ROUTE_RIP,
@@ -168,10 +162,6 @@ void ipv6_neighbour_cache_fast_timer(int ticks);
 void ipv6_neighbour_cache_slow_timer(int seconds);
 void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache);
 void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-
-/* Backwards compatibility with test app */
-#define ROUTE_RPL_UP ROUTE_RPL_DIO
-#define ROUTE_RPL_DOWN ROUTE_RPL_DAO
 
 typedef struct ipv6_route_info {
     ipv6_route_src_t                source;

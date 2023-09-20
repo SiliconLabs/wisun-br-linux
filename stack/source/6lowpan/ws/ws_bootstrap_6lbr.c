@@ -44,10 +44,6 @@
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
-#include "rpl/rpl_policy.h"
 #include "core/net_interface.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_constants.h"
@@ -470,7 +466,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             // Activate RPL
             // Activate IPv6 stack
             ws_bootstrap_ip_stack_activate(cur);
-            ws_bootstrap_rpl_activate(cur);
+            addr_add_router_groups(cur);
             // Wait for RPL start
             ws_bootstrap_event_routing_ready(cur);
             break;

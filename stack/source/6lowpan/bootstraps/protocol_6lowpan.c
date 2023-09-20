@@ -31,9 +31,6 @@
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
-#include "rpl/rpl_protocol.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -56,7 +53,6 @@
 /* Time after network is considered stable and smaller stagger values can be given*/
 #define STAGGER_STABLE_NETWORK_TIME 3600*4
 
-rpl_domain_t *protocol_6lowpan_rpl_domain;
 /* Having to sidestep old rpl_dodag_t type for the moment */
 struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
@@ -84,7 +80,6 @@ static uint8_t protocol_buffer_valid(buffer_t *b, struct net_if *cur)
 
 void protocol_init(void)
 {
-    protocol_6lowpan_rpl_domain = rpl_control_create_domain();
     ws_cfg_settings_init();
 }
 
@@ -304,76 +299,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_LONG, temp_ll);
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
-}
-
-
-uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !addr_ptr) {
-        return 0;
-    }
-
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
-
-    if (entry) {
-
-        bool new_primary = false;
-        etx_storage_t *etx_entry = etx_storage_entry_get(interface_id, entry->index);
-        // If primary parent has changed clears priority from previous parent
-        if (entry->link_role != PRIORITY_PARENT_NEIGHBOUR) {
-            new_primary = true;
-            protocol_6lowpan_neighbor_priority_clear_all(interface_id, PRIORITY_1ST);
-        }
-        entry->link_role = PRIORITY_PARENT_NEIGHBOUR;
-
-        rcp_set_coordinator_mac16(entry->mac16);
-        rcp_set_coordinator_mac64(entry->mac64);
-        if (etx_entry) {
-            protocol_stats_update(STATS_ETX_1ST_PARENT, etx_entry->etx >> 4);
-        }
-
-        if (new_primary) {
-            ws_common_primary_parent_update(cur, entry);
-        }
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
-{
-
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !addr_ptr) {
-        return 0;
-    }
-
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
-
-    if (entry) {
-        bool new_secondary = false;
-        etx_storage_t *etx_entry = etx_storage_entry_get(interface_id, entry->index);
-        // If secondary parent has changed clears priority from previous parent
-        if (entry->link_role != SECONDARY_PARENT_NEIGHBOUR) {
-            new_secondary = true;
-            protocol_6lowpan_neighbor_priority_clear_all(interface_id, PRIORITY_2ND);
-        }
-        entry->link_role = SECONDARY_PARENT_NEIGHBOUR;
-
-        if (etx_entry) {
-            protocol_stats_update(STATS_ETX_2ND_PARENT, etx_entry->etx >> 4);
-        }
-        if (new_secondary) {
-            ws_common_secondary_parent_update(cur);
-        }
-        return 1;
-    } else {
-        return 0;
-    }
 }
 
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority)

@@ -27,16 +27,12 @@ struct net_if;
 
 extern uint16_t test_pan_size_override;
 
-void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds);
-
 void ws_bbr_pan_version_increase(struct net_if *cur);
 void ws_bbr_lpan_version_increase(struct net_if *cur);
 
 uint16_t ws_bbr_pan_size(struct net_if *cur);
 
 int ws_bbr_get_backbone_id();
-
-void ws_bbr_rpl_config(struct net_if *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime);
 
 bool ws_bbr_backbone_address_get(uint8_t *address);
 

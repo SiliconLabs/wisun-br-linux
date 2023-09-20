@@ -67,11 +67,9 @@ typedef struct ws_info {
     struct ws_ie_custom_list ie_custom_list;
     bool enable_lfn;
     bool enable_ffn10;
-    uint8_t rpl_state; // state from rpl_event_e
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
-    uint16_t rpl_version_timer;            /**< RPL version update timeout */
     uint32_t pan_timeout_timer;            /**< routers will fallback to previous state after this */
     uint32_t uptime;                       /**< Seconds after interface has been started */
     uint32_t authentication_time;          /**< When the last authentication was performed */
@@ -126,10 +124,6 @@ uint32_t ws_common_latency_estimate_get(struct net_if *cur);
 uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode);
 
 uint32_t ws_common_datarate_get(struct net_if *cur);
-
-void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor);
-
-void ws_common_secondary_parent_update(struct net_if *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 

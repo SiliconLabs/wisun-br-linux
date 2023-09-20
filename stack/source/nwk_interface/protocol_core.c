@@ -41,7 +41,6 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "mpl/mpl.h"
-#include "rpl/rpl_control.h"
 
 #include "nwk_interface/protocol_stats.h"
 
@@ -152,8 +151,6 @@ void protocol_core_init(void)
 
     ws_timer_start(WS_TIMER_MONOTONIC_TIME);
     ws_timer_start(WS_TIMER_MPL_SLOW);
-    ws_timer_start(WS_TIMER_RPL_FAST);
-    ws_timer_start(WS_TIMER_RPL_SLOW);
     ws_timer_start(WS_TIMER_PAE_FAST);
     ws_timer_start(WS_TIMER_PAE_SLOW);
     ws_timer_start(WS_TIMER_IPV6_DESTINATION);
@@ -189,8 +186,6 @@ void protocol_core_interface_info_reset(struct net_if *entry)
         ns_list_foreach_safe(if_address_entry_t, addr, &entry->ip_addresses) {
             addr_delete_entry(entry, addr);
         }
-        /* This is done after address deletion, so RPL can act on them */
-        rpl_control_remove_domain_from_interface(entry);
     }
 }
 
@@ -232,7 +227,6 @@ static void protocol_core_base_init(struct net_if *entry)
     entry->if_6lowpan_dad_process.active = false;
     entry->lowpan_desired_short_address = 0xfffe;
     entry->lowpan_info = 0;
-    entry->rpl_domain = NULL;
     entry->if_down = NULL;
     entry->if_up = NULL;
 }
@@ -357,17 +351,6 @@ struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id)
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
     if (cur->bootStrapId == id) {
         return cur;
-    }
-
-    return NULL;
-}
-
-struct net_if *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        if (cur->id > last_id && cur->rpl_domain == domain) {
-            return cur;
-        }
     }
 
     return NULL;

@@ -35,7 +35,6 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "core/net_interface.h"
-#include "rpl/rpl_control.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/nd/nd_router_object.h"

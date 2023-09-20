@@ -25,7 +25,6 @@
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
 
 #include "common_protocols/ip.h"
@@ -152,17 +151,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         route->route_info.pmtu = 0xFFFF;
         route->route_info.source = ROUTE_MULTICAST;
     } else { /* unicast, normal */
-        ipv6_route_predicate_fn_t *predicate = NULL;
-
-        if (buf->rpl_instance_known) {
-            if (!cur) {
-                goto no_route;
-            }
-            /* Limit the route search so we don't match other RPL instances */
-            predicate = rpl_data_get_route_predicate(cur->rpl_domain, buf);
-        }
-
-        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1, predicate);
+        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1, NULL);
         if (!ip_route) {
             goto no_route;
         }
@@ -669,11 +658,6 @@ static const int8_t exit_ecn_combination[4][4] = {
  */
 static buffer_t *ipv6_tunnel_exit(buffer_t *buf, uint8_t *payload)
 {
-    /* We're stripping the IP header - need the HBH header for future reference */
-    if ((buf->options.ip_extflags & IPEXT_HBH_RPL) && !rpl_data_remember_outer(buf)) {
-        goto drop;
-    }
-
     buf->options.ip_extflags = 0;
 
     buffer_data_pointer_set(buf, payload);
@@ -760,15 +744,7 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
         }
         switch (opt_type) {
             case IPV6_OPTION_RPL:
-                if (!cur->rpl_domain) {
-                    goto drop;
-                }
-                if (optlen < 4) {
-                    goto len_err;
-                }
-                if (!rpl_data_process_hbh(buf, cur, opt, ll_src)) {
-                    goto drop;
-                }
+                // TODO
                 break;
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
@@ -828,8 +804,6 @@ static buffer_t *ipv6_handle_routing_header(buffer_t *buf, struct net_if *cur, u
     uint8_t type = ptr[2];
     uint8_t segs_left = ptr[3];
     switch (type) {
-        case IPV6_ROUTING_TYPE_RPL:
-            return rpl_data_process_routing_header(buf, cur, ptr, hdrlen_out, forward_out);
         default:
             /* Unknown type: if segments left is 0, we ignore the header, else return an error */
             if (segs_left == 0) {
@@ -895,10 +869,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
 
     if (!routing) {
         protocol_stats_update(STATS_IP_NO_ROUTE, 1);
-        if (rpl_data_forwarding_error(buf)) {
-            buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
-            return buf;
-        }
         // If we can't route inside the network, let's try outside !
         return ipv6_tun_up(buf);
     }
@@ -906,12 +876,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
     struct net_if *out_interface;
     out_interface = buf->interface;
 
-    /* We must not let RPL-bearing packets out of or into a RPL domain */
-    if (buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL)) {
-        if (out_interface->rpl_domain != cur->rpl_domain || !rpl_data_is_rpl_route(routing->route_info.source)) {
-            return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_ADM_PROHIB, 0);
-        }
-    }
     /* If heading out a different interface, some extra scope checks for
      * crossing a zone boundary (see RFC 4007).
      */

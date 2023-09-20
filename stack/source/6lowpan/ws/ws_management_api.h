@@ -195,8 +195,6 @@ typedef struct ws_neighbour_info {
     uint8_t rsl_out;
     /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
     uint8_t rsl_in;
-    /** RPL Rank value for parents 0xffff for neighbors RANK is unknown*/
-    uint16_t rpl_rank;
     /** Measured ETX value if known set to 0xFFFF if not known or Child*/
     uint16_t etx;
     /** Remaining lifetime Link lifetime for parents and ARO lifetime for children*/

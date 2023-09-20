@@ -28,9 +28,6 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
-#include "rpl/rpl_protocol.h"
 #include "mpl/mpl.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -695,13 +692,6 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { "e. params",       ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM },
         { NULL },
     };
-    static const struct name_value rpl_frames[] = {
-        { " dis",   ICMPV6_CODE_RPL_DIS },
-        { " dio",   ICMPV6_CODE_RPL_DIO },
-        { " dao",   ICMPV6_CODE_RPL_DAO },
-        { " ack",   ICMPV6_CODE_RPL_DAO_ACK },
-        { NULL },
-    };
     struct iobuf_read ns_earo_buf;
     char frame_type[40] = "";
     const char *ns_aro_str;
@@ -709,9 +699,6 @@ void trace_icmp(buffer_t *buf, bool is_rx)
 
     strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"),
             sizeof(frame_type) - strlen(frame_type) - 1);
-    if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL)
-        strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"),
-                sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_NS) {
         if (buffer_data_length(buf) > 20 &&
             icmpv6_nd_option_get(buffer_data_pointer(buf) + 20, buffer_data_length(buf) - 20,
@@ -751,15 +738,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
         return buffer_free(buf);
     }
 
-    // FIXME: what is this?
-    if (buf->options.ll_security_bypass_rx &&
-        buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL &&
-        buf->options.code != ICMPV6_CODE_RPL_DIO &&
-        buf->options.code != ICMPV6_CODE_RPL_DIS) {
-        TRACE(TR_DROP, "drop %-9s: unsecured packet", "icmpv6");
-        return buffer_free(buf);
-    }
-
     if (buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6)) {
         TRACE(TR_DROP, "drop %-9s: invalid checksum", "icmpv6");
         protocol_stats_update(STATS_IP_CKSUM_ERROR, 1);
@@ -782,11 +760,8 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
     case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
         if (buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR)
-            return rpl_control_source_route_error_handler(buf, cur);
+            ; // TODO
         return buffer_free(buf);
-
-    case ICMPV6_TYPE_INFO_RPL_CONTROL:
-        return rpl_control_handler(buf);
 
     default:
         // FIXME: forward DAR/DAC to Linux?
@@ -898,10 +873,6 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
         memcpy(ll_address, ADDR_LINK_LOCAL_PREFIX, 8);
         memcpy(ll_address + 8, &buf->dst_sa.address[2], 8);
         ll_address[8] ^= 2;
-    }
-    if (rpl_control_address_register_done(buf->interface, ll_address, status)) {
-        // When RPL returns true neighbor should be deleted
-        ws_common_aro_failure(buf->interface, ll_address);
     }
 }
 

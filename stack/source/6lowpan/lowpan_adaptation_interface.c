@@ -43,7 +43,6 @@
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
-#include "rpl/rpl_data.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -1180,11 +1179,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
             tr_info("Dest addr: %s", tr_eui64(buf->dst_sa.address + 2));
         }
 
-        if (confirm->status == MLME_TX_NO_ACK || confirm->status == MLME_UNAVAILABLE_KEY) {
-            if (buf->route && rpl_data_is_rpl_parent_route(buf->route->route_info.source)) {
-                protocol_stats_update(STATS_RPL_PARENT_TX_FAIL, 1);
-            }
-        }
         if (tx_ptr->fragmented_data) {
             tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
             tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;

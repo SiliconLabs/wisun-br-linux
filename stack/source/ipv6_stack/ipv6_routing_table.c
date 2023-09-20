@@ -1037,13 +1037,7 @@ static const char *route_src_names[] = {
     [ROUTE_LOOPBACK] = "Loopback",
     [ROUTE_RADV]    = "RAdv",
     [ROUTE_ARO]     = "ARO",
-    [ROUTE_RPL_DAO] = "RPL DAO",
     [ROUTE_RPL_DAO_SR] = "RPL DAO SR",
-    [ROUTE_RPL_SRH] = "RPL SRH",
-    [ROUTE_RPL_DIO] = "RPL DIO",
-    [ROUTE_RPL_ROOT] = "RPL Root",
-    [ROUTE_RPL_INSTANCE] = "RPL Instance",
-    [ROUTE_RPL_FWD_ERROR] = "RPL Fwd-Error",
     [ROUTE_MULTICAST] = "Multicast",
     [ROUTE_MPL]     = "MPL",
     [ROUTE_RIP]     = "RIP",
@@ -1060,10 +1054,6 @@ static const char *route_src_names[] = {
 static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_RADV] = true,
     [ROUTE_ARO] = true,
-    [ROUTE_RPL_DAO] = true,
-    [ROUTE_RPL_DIO] = true,
-    [ROUTE_RPL_ROOT] = true,
-    [ROUTE_RPL_INSTANCE] = true,
 };
 
 static ipv6_route_predicate_fn_t *ipv6_route_predicate[ROUTE_MAX];

@@ -189,14 +189,6 @@ add_library(libwsbrd STATIC
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
-    stack/source/rpl/rpl_control.c
-    stack/source/rpl/rpl_mrhof.c
-    stack/source/rpl/rpl_downward.c
-    stack/source/rpl/rpl_data.c
-    stack/source/rpl/rpl_objective.c
-    stack/source/rpl/rpl_of0.c
-    stack/source/rpl/rpl_policy.c
-    stack/source/rpl/rpl_upward.c
     stack/source/security/eapol/eapol_helper.c
     stack/source/security/eapol/kde_helper.c
     stack/source/security/kmp/kmp_addr.c

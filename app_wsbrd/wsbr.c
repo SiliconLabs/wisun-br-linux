@@ -44,9 +44,6 @@
 #include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "stack/source/rpl/rpl_data.h"
-#include "stack/source/rpl/rpl_of0.h"
-#include "stack/source/rpl/rpl_mrhof.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 
 #include "mbedtls_config_check.h"
@@ -308,10 +305,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     int ret;
 
     protocol_core_init();
-    rpl_data_init();
-    // rpl_of0_init() and rpl_mrhof_init() are probably useless for BR.
-    rpl_of0_init();
-    rpl_mrhof_init();
     address_module_init();
     protocol_init();
     addr_notification_register(net_automatic_loopback_route_update);

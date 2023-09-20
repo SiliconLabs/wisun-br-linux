@@ -61,18 +61,6 @@ typedef struct ws_timing_cfg {
 } ws_timing_cfg_t;
 
 /**
- * \brief Struct ws_rpl_cfg_t RPL configuration
- */
-typedef struct ws_bbr_cfg {
-    uint8_t dio_interval_min;           /**< DIO interval min; DEFAULT_DIO_INTERVAL_MIN; 2^value in milliseconds; range 1-255; default */
-    uint8_t dio_interval_doublings;     /**< DIO interval doublings; DEFAULT_DIO_INTERVAL_DOUBLINGS; range 1-8; default */
-    uint8_t dio_redundancy_constant;    /**< DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
-    uint16_t dag_max_rank_increase;
-    uint16_t min_hop_rank_increase;
-    uint32_t rpl_default_lifetime;      /**< RPL default lifetime value minimum from 30 minutes to 16 hours*/
-} ws_bbr_cfg_t;
-
-/**
  * \brief Struct ws_fhss_cfg_t Frequency hopping configuration
  */
 typedef struct ws_fhss_cfg {
@@ -138,7 +126,6 @@ typedef struct ws_cfg {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_phy_cfg_t phy;                   /**< Physical layer configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
-    ws_bbr_cfg_t bbr;                   /**< RPL configuration */
     ws_fhss_cfg_t fhss;                 /**< Frequency hopping configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
     ws_sec_timer_cfg_t sec_timer;       /**< Security timers configuration */
@@ -194,10 +181,6 @@ int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_validate(ws_timing_cfg_t *new_cfg);
 int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t flags);
-
-int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg);
-int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg);
-int8_t ws_cfg_bbr_set(struct net_if *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg);

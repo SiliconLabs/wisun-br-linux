@@ -67,10 +67,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor);
-
-void ws_bootstrap_secondary_parent_update(struct net_if *interface);
-
 void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor);
 
 void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
@@ -102,14 +98,10 @@ bool ws_bootstrap_state_configure(struct net_if *cur);
 bool ws_bootstrap_state_wait_rpl(struct net_if *cur);
 bool ws_bootstrap_state_active(struct net_if *cur);
 void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
-
-void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
-void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
 bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role);
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface);
 void ws_nud_table_reset(struct net_if *cur);
-void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16]);
 
 
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
@@ -120,9 +112,6 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
 
 
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration);
-
-void ws_bootstrap_rpl_activate(struct net_if *cur);
-void ws_bootstrap_rpl_scan_start(struct net_if *cur);
 
 void ws_bootstrap_ip_stack_reset(struct net_if *cur);
 void ws_bootstrap_ip_stack_activate(struct net_if *cur);

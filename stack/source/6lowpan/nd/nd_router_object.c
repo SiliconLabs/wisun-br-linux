@@ -25,14 +25,11 @@
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
-#include "stack/source/rpl/rpl_downward.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "core/timers.h"
 #include "core/ns_address_internal.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
@@ -161,7 +158,7 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
-        rpl_control_unpublish_address(protocol_6lowpan_rpl_domain, neigh->ip_address);
+        // TODO: remove RPL target
     }
 }
 

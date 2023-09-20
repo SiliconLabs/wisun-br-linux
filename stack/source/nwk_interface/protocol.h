@@ -232,7 +232,6 @@ struct net_if {
     struct red_info *llc_random_early_detection;
     struct red_info *llc_eapol_random_early_detection;
     struct ws_info ws_info;
-    struct rpl_domain *rpl_domain;
 
     struct rcp *rcp;
     arm_15_4_mac_parameters_t mac_parameters;

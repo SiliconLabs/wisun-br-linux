@@ -30,9 +30,6 @@
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
-#include "rpl/rpl_structures.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "core/net_interface.h"
@@ -57,8 +54,6 @@
 
 #define RPL_INSTANCE_ID 1
 
-static uint8_t current_instance_id = RPL_INSTANCE_ID;
-
 #define WS_ULA_LIFETIME 24*3600
 #define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
 #define BBR_CHECK_INTERVAL 60
@@ -70,29 +65,6 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
  */
 static int8_t backbone_interface_id = -1; // BBR backbone information
 static uint32_t pan_version_timer = 0;
-
-static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x72, 0x83, 0x7e};
-static uint8_t static_dodag_id_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
-static uint8_t current_dodag_id[16] = {0};
-static uint8_t current_local_prefix[8] = {0};
-static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
-static uint32_t bbr_delay_timer = 0; // initial delay.
-static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
-
-static rpl_dodag_conf_t rpl_conf = {
-    // Lifetime values
-    .default_lifetime = 120,
-    .lifetime_unit = 60,
-    .objective_code_point = 1, // MRHOF algorithm used
-    .authentication = false,
-    .path_control_size = 7,
-    .dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE,
-    .min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE,
-    // DIO configuration
-    .dio_interval_min = WS_RPL_DIO_IMIN_SMALL,
-    .dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL,
-    .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL
-};
 
 static uint16_t ws_bbr_fhss_bsi = 0;
 static uint16_t ws_bbr_pan_id = 0xffff;
@@ -134,90 +106,9 @@ static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
     storage_close(info);
 }
 
-static void ws_bbr_rpl_version_timer_start(struct net_if *cur, uint8_t version)
-{
-    // Set the next timeout value for version update
-    if (version < 128) {
-        //stable version for RPL so slow timer update is ok
-        cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME;
-    } else {
-        if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
-            // Also handles CONFIG_CERTIFICATE
-            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
-        } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
-            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
-        } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
-            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
-        } else  {
-            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
-        }
-    }
-}
-
-static void ws_bbr_rpl_version_increase(struct net_if *cur)
-{
-    if (!protocol_6lowpan_rpl_root_dodag) {
-        return;
-    }
-    ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
-}
-
 int ws_bbr_get_backbone_id()
 {
     return backbone_interface_id;
-}
-
-void ws_bbr_rpl_config(struct net_if *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
-{
-    if (imin == 0 || doubling == 0) {
-        // use default values
-        imin = WS_RPL_DIO_IMIN_SMALL;
-        doubling = WS_RPL_DIO_DOUBLING_SMALL;
-        redundancy = WS_RPL_DIO_REDUNDANCY_SMALL;
-    }
-    uint8_t lifetime_unit = 60;
-    uint8_t default_lifetime;
-
-    if (lifetime == 0) {
-        // 2 hours default lifetime
-        lifetime = 120 * 60;
-    } else if (lifetime <= 250 * 60) {
-        // Lifetime unit of 60 is ok up to 4 hours
-    } else if (lifetime <= 250 * 120) {
-        //more than 4 hours needs larger lifetime unit
-        lifetime_unit = 120;
-    } else if (lifetime <= 250 * 240) {
-        lifetime_unit = 240;
-    } else {
-        // Maximum lifetime is 16 hours 40 minutes
-        lifetime = 250 * 240;
-        lifetime_unit = 240;
-    }
-    default_lifetime = lifetime / lifetime_unit;
-
-    if (rpl_conf.dio_interval_min == imin &&
-            rpl_conf.dio_interval_doublings == doubling &&
-            rpl_conf.dio_redundancy_constant == redundancy &&
-            rpl_conf.dag_max_rank_increase == dag_max_rank_increase &&
-            rpl_conf.min_hop_rank_increase == min_hop_rank_increase &&
-            rpl_conf.default_lifetime == default_lifetime &&
-            rpl_conf.lifetime_unit == lifetime_unit) {
-        // Same values no update needed
-        return;
-    }
-
-    rpl_conf.dio_interval_min = imin;
-    rpl_conf.dio_interval_doublings = doubling;
-    rpl_conf.dio_redundancy_constant = redundancy;
-    rpl_conf.dag_max_rank_increase = dag_max_rank_increase;
-    rpl_conf.min_hop_rank_increase = min_hop_rank_increase;
-    rpl_conf.default_lifetime = default_lifetime;
-    rpl_conf.lifetime_unit = lifetime_unit;
-
-    if (protocol_6lowpan_rpl_root_dodag) {
-        rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
-        ws_bbr_rpl_version_increase(cur);
-    }
 }
 
 static int8_t ws_bbr_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address)
@@ -276,284 +167,6 @@ bool ws_bbr_backbone_address_get(uint8_t *address)
     return true;
 }
 
-static void ws_bbr_rpl_root_start(struct net_if *cur, uint8_t *dodag_id)
-{
-    tr_info("RPL root start");
-    rpl_data_init_root();
-
-    if (protocol_6lowpan_rpl_root_dodag) {
-        rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
-        protocol_6lowpan_rpl_root_dodag = NULL;
-    }
-
-    protocol_6lowpan_rpl_root_dodag = rpl_control_create_dodag_root(protocol_6lowpan_rpl_domain, current_instance_id, dodag_id, &rpl_conf, rpl_conf.min_hop_rank_increase, RPL_GROUNDED | RPL_MODE_NON_STORING | RPL_DODAG_PREF(0));
-    if (!protocol_6lowpan_rpl_root_dodag) {
-        tr_error("RPL dodag init failed");
-        return;
-    }
-    // RPL memory limits set larger for Border router
-    rpl_control_set_memory_limits(64 * 1024, 0);
-
-    // Initial version number for RPL start is 240 from RPL RFC
-    ws_bbr_rpl_version_timer_start(cur, 240);
-
-}
-
-
-static void ws_bbr_rpl_root_stop(void)
-{
-    tr_info("RPL root stop");
-    if (protocol_6lowpan_rpl_root_dodag) {
-        rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
-        protocol_6lowpan_rpl_root_dodag = NULL;
-    }
-}
-
-static if_address_entry_t *ws_bbr_slaac_generate(struct net_if *cur, uint8_t *ula_prefix)
-{
-    if_address_entry_t *add_entry = NULL;
-    const uint8_t *address;
-
-    address = addr_select_with_prefix(cur, ula_prefix, 64, 0);
-    if (address) {
-        // Address already exists for this prefix find the entry
-        add_entry = addr_get_entry(cur, address);
-    }
-
-    if (!add_entry) {
-        add_entry = icmpv6_slaac_address_add(cur, ula_prefix, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
-    }
-    if (!add_entry) {
-        tr_error("ula create failed");
-        return NULL;
-    }
-    // Set the timeouts for this address and policy
-    icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0xffffffff, 0xffffffff);
-    addr_policy_table_add_entry(ula_prefix, 64, 2, WS_NON_PREFFRED_LABEL);
-    return add_entry;
-}
-
-static void ws_bbr_slaac_remove(struct net_if *cur, uint8_t *ula_prefix)
-{
-    if (cur) {
-        icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
-    }
-
-    addr_policy_table_delete_entry(ula_prefix, 64);
-}
-
-/*
- * 0 static non rooted self generated own address
- * 1 static address with backbone connectivity
- */
-static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
-{
-
-    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
-     *
-     * If there is no address we can use our own generated ULA as a backup ULA
-     */
-
-    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
-
-    if (bb_interface) {
-        ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
-            if (!bitcmp(addr->address, bb_interface->ipv6_configure.static_prefix64, 64)) {
-                // static address available in interface copy the prefix and return the address
-                if (dodag_id_ptr) {
-                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure.static_prefix64, 8);
-                }
-                return addr->address;
-            }
-        }
-    }
-    return NULL;
-}
-
-
-static int ws_bbr_static_dodagid_create(struct net_if *cur)
-{
-    if (memcmp(current_dodag_id, ADDR_UNSPECIFIED, 16) != 0) {
-        // address generated
-        return 0;
-    }
-
-    uint8_t *static_address_ptr = ws_bbr_bb_static_prefix_get(NULL);
-    if (static_address_ptr) {
-        memcpy(current_dodag_id, static_address_ptr, 16);
-        tr_info("BBR Static DODAGID %s", tr_ipv6(current_dodag_id));
-        return 0;
-    }
-
-    // This address is only used if no other address available.
-    if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
-    if (!add_entry) {
-        tr_error("dodagid create failed");
-        return -1;
-    }
-    memcpy(current_dodag_id, add_entry->address, 16);
-    tr_info("BBR generate DODAGID %s", tr_ipv6(current_dodag_id));
-
-    return 0;
-}
-
-static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_ptr)
-{
-    uint8_t global_address[16];
-
-    memset(global_prefix_ptr, 0, 8);
-
-    // By default static dodagID prefix is used as local prefix
-    memcpy(local_prefix_ptr, static_dodag_prefix, 8);
-    ws_bbr_bb_static_prefix_get(local_prefix_ptr);
-
-    if (ws_bbr_address_get(backbone_interface_id, ADDR_IPV6_GP, global_address) != 0) {
-        // No global prefix available
-        return;
-    }
-    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
-    if_address_entry_t *addr_entry = addr_get_entry(bb_interface, global_address);
-
-    if (!addr_entry || addr_entry->preferred_lifetime == 0) {
-        return;
-    }
-    //tr_debug("BBR address %s lifetime %d pref %d", tr_ipv6(addr_entry->address), addr_entry->valid_lifetime, addr_entry->preferred_lifetime);
-
-    if (memcmp(global_address, local_prefix_ptr, 8) == 0) {
-        // static prefix is same
-        return;
-    }
-    memcpy(global_prefix_ptr, global_address, 8);
-    return;
-}
-
-static void ws_bbr_routing_stop(struct net_if *cur)
-{
-    tr_info("BBR routing stop");
-    if (memcmp(current_local_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-        ws_bbr_slaac_remove(cur, current_local_prefix);
-        memset(current_local_prefix, 0, 8);
-    }
-
-    if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-        if (backbone_interface_id >= 0) {
-            // Delete route to backbone if it exists
-            ipv6_route_add_with_info(current_global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0, 0);
-        }
-        memset(current_global_prefix, 0, 8);
-    }
-
-    if (memcmp(current_dodag_id, ADDR_UNSPECIFIED, 8) != 0) {
-        ws_bbr_slaac_remove(cur, current_dodag_id);
-        memset(current_dodag_id, 0, 16);
-    }
-
-    ws_bbr_rpl_root_stop();
-}
-
-static void ws_bbr_rpl_status_check(struct net_if *cur)
-{
-
-    uint8_t local_prefix[8] = {0};
-    uint8_t global_prefix[8] = {0};
-    uint8_t prefix_flags = 0;
-    uint32_t prefix_lifetime = 0;
-
-    //tr_info("BBR status check");
-
-    /*
-     * Start RPL Root
-     */
-    if (!protocol_6lowpan_rpl_root_dodag) {
-        // Generate DODAGID
-        if (ws_bbr_static_dodagid_create(cur) == 0) {
-            ws_bbr_rpl_root_start(cur, current_dodag_id);
-        }
-    }
-
-    if (!protocol_6lowpan_rpl_root_dodag) {
-        // Failed to start
-        tr_error("BBR failed to start");
-        return;
-    }
-
-    /*
-     * Check that DODAGID is still valid
-     */
-    if (protocol_interface_address_compare(current_dodag_id) != 0) {
-        //DODAGID is lost need to restart
-        tr_warn("DODAGID lost restart BBR");
-        ws_bbr_routing_stop(cur);
-        return;
-    }
-
-    ws_bbr_dodag_get(local_prefix, global_prefix);
-
-    /*
-     * Check if backup ULA prefix is needed
-     */
-    if (!memcmp(global_prefix, ADDR_UNSPECIFIED, 8)) {
-        //Global prefix not available count if backup ULA should be created
-        uint32_t prefix_wait_time = BBR_BACKUP_ULA_DELAY;
-        global_prefix_unavailable_timer += BBR_CHECK_INTERVAL;
-
-        if (NULL != ws_bbr_bb_static_prefix_get(NULL)) {
-            // If we have a static configuration we activate it faster.
-            prefix_wait_time = 40;
-        }
-
-        if (global_prefix_unavailable_timer >= prefix_wait_time) {
-            if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
-                tr_info("start using backup prefix %s", tr_ipv6_prefix(local_prefix, 64));
-            }
-            memcpy(global_prefix, local_prefix, 8);
-        }
-    } else {
-        //Global connection OK
-        global_prefix_unavailable_timer = 0;
-    }
-
-    /*
-     * Check for Global prefix
-     */
-    if (memcmp(current_global_prefix, global_prefix, 8) != 0) {
-        // Global prefix changed
-        if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-            // TODO remove old global prefix
-            tr_info("RPL global prefix deactivate %s", tr_ipv6_prefix(current_global_prefix, 64));
-
-            // Old backbone information is deleted after 120 seconds
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, 0, 0, 0, true);
-            if (backbone_interface_id >= 0) {
-                ipv6_route_add_with_info(current_global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 120, 0);
-            }
-        }
-        // TODO add global prefix
-        if (memcmp(global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-            tr_info("RPL global prefix activate %s", tr_ipv6_prefix(global_prefix, 64));
-            // Add default route to RPL
-            // Enable default routing to backbone
-            if (backbone_interface_id >= 0) {
-                if (ipv6_route_add_with_info(global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0xffffffff, 0) == NULL) {
-                    tr_error("global route add failed");
-                    return;
-                }
-            }
-
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
-            // no check for failure should have
-        }
-        memcpy(current_global_prefix, global_prefix, 8);
-        ws_bbr_rpl_version_increase(cur);
-    } else if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-        /*
-         *  This is a keep alive validation RPL is updated to hold the real info.
-         *  There is no status checks on prefix adds so this makes sure they are not lost
-         *  DHCP validation should be done also
-         */
-        rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
-    }
-}
 void ws_bbr_pan_version_increase(struct net_if *cur)
 {
     if (!cur) {
@@ -595,95 +208,20 @@ void ws_bbr_lpan_version_increase(struct net_if *cur)
     ws_bbr_pan_version_increase(cur);
 }
 
-void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
-{
-    (void)seconds;
-
-    if (!cur->rpl_domain) {
-        // RPL not started
-        return;
-    }
-
-    if (bbr_delay_timer > seconds) {
-        bbr_delay_timer -= seconds;
-    } else {
-        bbr_delay_timer = BBR_CHECK_INTERVAL; // 20 second interval between status checks
-
-        // prequisists
-        // Wi-SUN network configuration started without RPL
-
-        // RPL configured simple
-        // 1. Wait for backend connection
-        // 2. When address becomes available in backend start RPL dodag
-        // 3. if address removed remove dodag
-
-        // RPL configured Advanced
-        // 1. Add ULA DODAG and and start ROOT even without backend
-        //   a. If static prefix configured use it.
-        //   b. generate random ULA and publish it to backend
-        // 2. if GUA prefix becomes available in backend add new prefix to DODAG
-        // 3. if GUA prefix is removed remove the prefix.
-
-        ws_bbr_rpl_status_check(cur);
-
-    }
-    // Normal BBR operation
-    if (protocol_6lowpan_rpl_root_dodag) {
-        /*
-         * PAN version change is one way to enable nodes to detect the border router availability
-         * if this is not done periodically devices need to have other means to detect border router condiftion
-         *
-         * If devices do not see version change they need to send DAO to border router before PAN timeout
-         *
-         * The update frequency should be related to PAN timeout and happen for example 4 times.
-         */
-        if (pan_version_timer > 0) {
-            if (pan_version_timer > seconds) {
-                pan_version_timer -= seconds;
-            } else {
-                // PAN version number update
-                pan_version_timer = 0;
-                ws_bbr_pan_version_increase(cur);
-            }
-        }
-        if (cur->ws_info.rpl_version_timer > seconds) {
-            cur->ws_info.rpl_version_timer -= seconds;
-        } else {
-            // RPL version update needed
-            ws_bbr_rpl_version_increase(cur);
-        }
-    }
-}
-
 uint16_t test_pan_size_override = 0xffff;
 
 uint16_t ws_bbr_pan_size(struct net_if *cur)
 {
-    uint16_t result = 0;
-
-    if (!cur || !cur->rpl_domain) {
+    if (!cur) {
         return 0;
     }
 
     if (test_pan_size_override != 0xffff) {
         return test_pan_size_override;
     }
-    //
-    const uint8_t *prefix_ptr;
-    if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-        //Use GUA Prefix
-        prefix_ptr = current_global_prefix;
-    } else {
-        //Use ULA for indentifier
-        prefix_ptr = current_local_prefix;
-    }
 
-    rpl_control_get_instance_dao_target_count(cur->rpl_domain, current_instance_id, NULL, prefix_ptr, &result);
-    if (result > 0) {
-        // remove the Border router from the PAN size
-        result--;
-    }
-    return result;
+    // TODO: get and return RPL target count
+    return 0;
 }
 
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
@@ -751,34 +289,16 @@ int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    rpl_dodag_info_t dodag_info;
 
     if (!info_ptr) {
         return -1;
     }
-    if (!cur || !protocol_6lowpan_rpl_root_dodag) {
+    if (!cur) {
         tr_warn("bbr not started");
         return -1;
     }
-    struct rpl_instance *instance = rpl_control_lookup_instance(protocol_6lowpan_rpl_domain, current_instance_id, current_dodag_id);
-    if (!instance) {
-        tr_warn("bbr instance not found");
-        return -2;
-    }
     // Zero the structure
     memset(info_ptr, 0, sizeof(bbr_information_t));
-
-    rpl_control_read_dodag_info(instance, &dodag_info);
-
-    memcpy(info_ptr->dodag_id, current_dodag_id, 16);
-    memcpy(info_ptr->prefix, current_global_prefix, 8);
-
-    // Get the Wi-SUN interface generated address that is used in the RF interface.
-    const uint8_t *wisun_if_addr = addr_select_with_prefix(cur, current_global_prefix, 64, SOCKET_IPV6_PREFER_SRC_PUBLIC);
-
-    if (wisun_if_addr) {
-        memcpy(info_ptr->IID, wisun_if_addr + 8, 8);
-    }
 
     ipv6_route_t *next_hop = ipv6_route_choose_next_hop(ADDR_6TO4, backbone_interface_id, NULL);
     if (next_hop) {
@@ -786,8 +306,6 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
     }
 
     info_ptr->devices_in_network = ws_bbr_pan_size(cur);
-    info_ptr->instance_id = current_instance_id;
-    info_ptr->version = dodag_info.version_num;
     info_ptr->timestamp = g_monotonic_time_100ms; // TODO switch to second timer
     // consider DTSN included It can also be added for getting device information
     // Consider own device API to get DTSN, DHCP lifetime values
@@ -796,26 +314,8 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    int length;
-
-    if (!cur || !protocol_6lowpan_rpl_root_dodag) {
-        return -1;
-    }
-
-    struct rpl_instance *instance = rpl_control_lookup_instance(protocol_6lowpan_rpl_domain, current_instance_id, current_dodag_id);
-    if (!instance) {
-        tr_warn("bbr instance not found");
-        return -2;
-    }
-    memset(table_ptr, 0, table_len);
-
-    /* RPL structure must match the external structure so we dont need to make conversion.
-     *
-     */
-    length = rpl_control_route_table_get(instance, current_global_prefix, (rpl_route_info_t *)table_ptr, table_len);
-
-    return length;
+    // TODO
+    return 0;
 }
 
 int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
