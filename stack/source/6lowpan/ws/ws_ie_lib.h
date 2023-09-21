@@ -32,7 +32,7 @@ struct ws_hopping_schedule;
 struct ws_fc_ie;
 struct ws_pom_ie;
 
-// Wi-SUN Assigned Value Registry 0v24
+// Wi-SUN Assigned Value Registry 0v25
 //   7.1. Wi-SUN Header Information Eement Sub-IDs
 // FAN 1.0
 #define WS_WHIE_UTT   0x01 // Unicast Timing and Frame Type
@@ -52,7 +52,7 @@ struct ws_pom_ie;
 #define WS_WHIE_LND   0x10 // LFN Network Discovery
 #define WS_WHIE_LTO   0x11 // LFN Timing Offset
 #define WS_WHIE_PANID 0x12 // PAN Identifier
-#define WS_WHIE_LBC   0x80 // LFN Broadcast Configuration
+#define WS_WHIE_LBC   0xc0 // LFN Broadcast Configuration
 
 // Wi-SUN Assigned Value Registry 0v24
 //   7.2. Wi-SUN Payload Information Eement Sub-IDs
