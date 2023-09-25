@@ -10,6 +10,7 @@
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
+#include "stack/source/rpl/rpl.h"
 #include "stack/source/service_libs/etx/etx.h"
 #include "common/utils.h"
 #include "common/log.h"
@@ -29,6 +30,7 @@ struct ws_timer g_timers[] = {
     timer_entry(MONOTONIC_TIME,         timer_update_monotonic_time,                100,                     true),
     timer_entry(MPL_FAST,               mpl_fast_timer,                             MPL_TICK_MS,             false),
     timer_entry(MPL_SLOW,               mpl_slow_timer,                             1000,                    true),
+    timer_entry(RPL,                    rpl_timer,                                  1000,                    true),
     timer_entry(IPV6_DESTINATION,       ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000, true),
     timer_entry(IPV6_ROUTE,             ipv6_route_table_ttl_update,                1000,                    true),
     timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                    true),

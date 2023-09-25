@@ -27,6 +27,7 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/events_scheduler.h"
+#include "common/sys_queue_extra.h"
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
@@ -36,6 +37,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
+#include "rpl/rpl.h"
 
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_bbr_api.h"
@@ -220,8 +222,7 @@ uint16_t ws_bbr_pan_size(struct net_if *cur)
         return test_pan_size_override;
     }
 
-    // TODO: get and return RPL target count
-    return 0;
+    return SLIST_SIZE(&g_ctxt.rpl_root.targets, link);
 }
 
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
@@ -314,8 +315,22 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
-    // TODO
-    return 0;
+    struct rpl_root *root = &g_ctxt.rpl_root;
+    struct rpl_transit *transit;
+    struct rpl_target *target;
+    int cnt = 0;
+
+    SLIST_FOREACH(target, &root->targets, link) {
+        transit = rpl_transit_preferred(root, target);
+        if (!transit)
+            continue;
+        memcpy(table_ptr[cnt].target, target->prefix + 8, 8);
+        memcpy(table_ptr[cnt].parent, transit->parent + 8, 8);
+        cnt++;
+        if (cnt >= table_len)
+            break;
+    }
+    return cnt;
 }
 
 int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)

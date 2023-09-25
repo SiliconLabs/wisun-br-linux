@@ -44,6 +44,8 @@
 #include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol.h"
+#include "stack/source/rpl/rpl_glue.h"
+#include "stack/source/rpl/rpl.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 
 #include "mbedtls_config_check.h"
@@ -71,6 +73,7 @@ enum {
     POLLFD_EVENT,
     POLLFD_TIMER,
     POLLFD_DHCP_SERVER,
+    POLLFD_RPL,
     POLLFD_BR_EAPOL_RELAY,
     POLLFD_EAPOL_RELAY,
     POLLFD_PAE_AUTH,
@@ -92,6 +95,18 @@ struct wsbr_ctxt g_ctxt = {
     .tun_fd = -1,
     .pcapng_fd = -1,
     .dhcp_server.fd = -1,
+    .rpl_root.sockfd = -1,
+    .rpl_root.dio_i_min        = WS_DEFAULT_DIO_INTERVAL_MIN,
+    .rpl_root.dio_i_doublings  = WS_DEFAULT_DIO_INTERVAL_DOUBLINGS,
+    .rpl_root.dio_redundancy   = WS_DEFAULT_DIO_REDUNDANCY_CONSTANT,
+    .rpl_root.lifetime_unit_s  = WS_DEFAULT_DCO_LIFETIME_UNIT,
+    .rpl_root.lifetime_default = WS_DEFAULT_DCO_LIFETIME,
+    .rpl_root.min_rank_hop_inc = WS_DEFAULT_MIN_HOP_RANK_INCREASE,
+    .rpl_root.pcs              = WS_PATH_CONTROL_SIZE,
+    .rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
+    .rpl_root.instance_id      = RPL_DEFAULT_INSTANCE,
+    .rpl_root.route_add = rpl_glue_route_add,
+    .rpl_root.route_del = rpl_glue_route_del,
 
     .os_ctxt = &g_os_ctxt,
 };
@@ -330,6 +345,12 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         WARN("ws_bbr_start");
     if (ctxt->config.internal_dhcp)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
+
+    // TODO: adjust RPL trickle values base on network size hint
+    memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
+    rpl_glue_init(cur);
+    rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
+
     if (strlen(ctxt->config.radius_secret) != 0)
         if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
             WARN("ws_bbr_radius_shared_secret_set");
@@ -469,6 +490,8 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_TIMER].events = POLLIN;
     fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
     fds[POLLFD_DHCP_SERVER].events = POLLIN;
+    fds[POLLFD_RPL].fd = ctxt->rpl_root.sockfd;
+    fds[POLLFD_RPL].events = POLLIN;
     fds[POLLFD_BR_EAPOL_RELAY].fd = ws_bbr_eapol_relay_get_socket_fd();
     fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
     fds[POLLFD_EAPOL_RELAY].fd = ws_bbr_eapol_auth_relay_get_socket_fd();
@@ -494,6 +517,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
         dbus_process(ctxt);
     if (fds[POLLFD_DHCP_SERVER].revents & POLLIN)
         dhcp_recv(&ctxt->dhcp_server);
+    if (fds[POLLFD_RPL].revents & POLLIN)
+        rpl_recv(&ctxt->rpl_root);
     if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
         ws_bbr_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)

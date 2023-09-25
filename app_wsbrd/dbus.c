@@ -591,7 +591,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 if (!memcmp(table[j].target, node_ipv6[1] + 8, 8))
                     break;
             if (j != len_rpl) {
-                // TODO: copy RPL network prefix
+                memcpy(ipv6, g_ctxt.rpl_root.dodag_id, 8);
                 memcpy(ipv6 + 8, table[j].parent, 8);
                 parent = dhcp_ipv6_to_eui64(ctxt, ipv6);
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));

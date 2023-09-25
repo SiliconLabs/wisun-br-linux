@@ -19,12 +19,15 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "app_wsbrd/wsbr.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "rpl/rpl_glue.h"
+#include "rpl/rpl_defs.h"
 #include "mpl/mpl.h"
 
 #include "common_protocols/ip.h"
@@ -743,8 +746,10 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
             goto len_err;
         }
         switch (opt_type) {
-            case IPV6_OPTION_RPL:
-                // TODO
+            case IPV6_OPT_TYPE_RPI:
+            case IPV6_OPT_TYPE_RPI_DEPRECATED:
+                if (!rpl_glue_process_rpi(&g_ctxt.rpl_root, buf, opt, optlen))
+                    goto drop;
                 break;
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
@@ -999,11 +1004,20 @@ no_forward:
 
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 {
-    if (next_header == IPV6_NH_DEST_OPT || next_header == IPV6_NH_ROUTING || next_header == IPV6_NH_IPV6)
+    switch (next_header) {
+    case IPV6_NH_DEST_OPT:
+    case IPV6_NH_ROUTING:
+    case IPV6_NH_IPV6:
         return false;
-    if (next_header == IPV6_NH_ICMPV6 && data_ptr[0] > ICMPV6_TYPE_INFO_ECHO_REPLY)
+    case IPV6_NH_ICMPV6:
+        if (data_ptr[0] <= ICMPV6_TYPE_INFO_ECHO_REPLY)
+            return true;
+        if (data_ptr[0] == ICMPV6_TYPE_RPL)
+            return true;
         return false;
-    return true;
+    default:
+        return true;
+    }
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

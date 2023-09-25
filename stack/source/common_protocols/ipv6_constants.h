@@ -54,7 +54,6 @@
 #define IPV6_OPTION_PAD1            0x00 /* (skip, does not change en-route) */
 #define IPV6_OPTION_PADN            0x01 /* (skip, does not change en-route) */
 #define IPV6_OPTION_ROUTER_ALERT    0x05 /* (skip, does not change en-route) */
-#define IPV6_OPTION_RPL             0x63 /* (discard, may change en-route) */
 #define IPV6_OPTION_MPL             0x6D /* (discard, may change en-route) */
 #define IPV6_OPTION_MPL_EXP         0x7E /* (discard, may change en-route) */
 

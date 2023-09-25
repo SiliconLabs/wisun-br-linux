@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "app_wsbrd/tun.h" // FIXME
+#include "app_wsbrd/wsbr.h"
 #include "common/rand.h"
 #include "common/iobuf.h"
 #include "common/log_legacy.h"
@@ -35,6 +36,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
+#include "rpl/rpl.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 
@@ -140,6 +142,9 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
 
 static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
+    struct rpl_root *root = &g_ctxt.rpl_root;
+    struct rpl_target *target;
+
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
@@ -158,7 +163,9 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
-        // TODO: remove RPL target
+        target = rpl_target_get(root, neigh->ip_address);
+        if (target)
+            rpl_target_del(root, target);
     }
 }
 
