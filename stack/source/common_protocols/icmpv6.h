@@ -38,7 +38,6 @@
 #define ICMPV6_TYPE_INFO_NA                         136
 #define ICMPV6_TYPE_INFO_REDIRECT                   137
 #define ICMPV6_TYPE_INFO_MCAST_LIST_REPORT_V2       143
-#define ICMPV6_TYPE_INFO_RPL_CONTROL                155
 #define ICMPV6_TYPE_INFO_DAR                        157
 #define ICMPV6_TYPE_INFO_DAC                        158
 #define ICMPV6_TYPE_INFO_MPL_CONTROL                159

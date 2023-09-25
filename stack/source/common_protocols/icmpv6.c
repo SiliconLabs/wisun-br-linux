@@ -677,7 +677,6 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { "rs",              ICMPV6_TYPE_INFO_RS },
         { "dac",             ICMPV6_TYPE_INFO_DAC },
         { "dar",             ICMPV6_TYPE_INFO_DAR },
-        { "rpl",             ICMPV6_TYPE_INFO_RPL_CONTROL }, // unused
         { "mpl",             ICMPV6_TYPE_INFO_MPL_CONTROL },
         { "ping rpl",        ICMPV6_TYPE_INFO_ECHO_REPLY },
         { "ping req",        ICMPV6_TYPE_INFO_ECHO_REQUEST },

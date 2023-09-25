@@ -25,6 +25,7 @@ typedef struct sd_bus sd_bus;
 #include "common/events_scheduler.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
+#include "stack/source/rpl/rpl.h"
 #include "rcp_api.h"
 
 #include "commandline.h"
@@ -36,6 +37,7 @@ struct wsbr_ctxt {
     struct events_scheduler scheduler;
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;
+    struct rpl_root rpl_root;
     sd_bus *dbus;
 
     int timerfd;

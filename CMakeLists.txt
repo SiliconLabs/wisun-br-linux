@@ -189,6 +189,9 @@ add_library(libwsbrd STATIC
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
+    stack/source/rpl/rpl_glue.c
+    stack/source/rpl/rpl_srh.c
+    stack/source/rpl/rpl.c
     stack/source/security/eapol/eapol_helper.c
     stack/source/security/eapol/kde_helper.c
     stack/source/security/kmp/kmp_addr.c

@@ -39,6 +39,7 @@
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
+#include "stack/source/rpl/rpl_defs.h"
 
 #include "tun.h"
 #include "wsbr.h"
@@ -406,7 +407,7 @@ static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
     if ((iv6t >= ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && iv6t <= ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM) ||
          iv6t == ICMPV6_TYPE_INFO_ECHO_REQUEST ||
          iv6t == ICMPV6_TYPE_INFO_ECHO_REPLY ||
-         iv6t == ICMPV6_TYPE_INFO_RPL_CONTROL)
+         iv6t == ICMPV6_TYPE_RPL)
         return true;
     else
         return false;
