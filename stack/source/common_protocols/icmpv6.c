@@ -443,43 +443,6 @@ int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, ui
     return ret_val;
 }
 
-if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, slaac_src_e slaac_src)
-{
-    if_address_entry_t *address_entry;
-    uint8_t ipv6_address[16];
-    //define Autonomous address generation
-
-    if (prefix_len != 64) {
-        return NULL;
-    }
-
-    memcpy(ipv6_address, prefix_ptr, 8);
-    switch (slaac_src) {
-        case SLAAC_IID_DEFAULT:
-        case SLAAC_IID_FIXED:
-            memcpy(ipv6_address + 8, cur->iid_slaac, 8);
-            break;
-        case SLAAC_IID_EUI64:
-            memcpy(ipv6_address + 8, cur->iid_eui64, 8);
-            break;
-        case SLAAC_IID_6LOWPAN_SHORT:
-            memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-            write_be16(ipv6_address + 14, 0xfffe);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    //tr_debug("Add add: %s", tr_ipv6(ipv6_address));
-
-    address_entry = addr_add(cur, ipv6_address, 64, ADDR_SOURCE_SLAAC, valid_lifetime, preferred_lifetime);
-    if (address_entry) {
-        address_entry->cb = NULL;
-    }
-    return address_entry;
-}
-
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable)
 {
     if (cur->recv_ra_routes != enable) {

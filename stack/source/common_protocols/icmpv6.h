@@ -101,13 +101,6 @@ struct ipv6_nd_opt_earo {
     bool present;
 };
 
-typedef enum slaac_src {
-    SLAAC_IID_DEFAULT,      // OPAQUE if key available and enabled on interface, else FIXED
-    SLAAC_IID_EUI64,        // use fixed IID based on EUI-64/MAC-64 (iid_eui64)
-    SLAAC_IID_FIXED,        // use fixed IID (iid_slaac)
-    SLAAC_IID_6LOWPAN_SHORT // use IID based on 6LoWPAN short address
-} slaac_src_e;
-
 #define ARO_SUCCESS     0
 #define ARO_DUPLICATE   1
 #define ARO_FULL        2
@@ -137,8 +130,6 @@ struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t 
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);
 
 int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
-struct if_address_entry *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, slaac_src_e slaac_src);
-
 
 /*
  * Write either an ICMPv6 Prefix Information Option for a Router Advertisement
