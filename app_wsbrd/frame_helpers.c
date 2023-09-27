@@ -19,7 +19,6 @@
 #include "common/endian.h"
 #include "common/bits.h"
 
-#include "stack/mac/mlme.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_mcps.h"
 

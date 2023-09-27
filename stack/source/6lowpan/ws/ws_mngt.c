@@ -16,7 +16,6 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "stack/mac/mac_mcps.h"
-#include "stack/mac/mlme.h"
 
 #include "stack/source/core/timers.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"

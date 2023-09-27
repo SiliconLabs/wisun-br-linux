@@ -23,6 +23,7 @@
 #include "common/ns_list.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_mcps.h"
+#include "stack/mac/mlme.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

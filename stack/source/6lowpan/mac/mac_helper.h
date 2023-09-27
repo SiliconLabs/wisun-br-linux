@@ -18,7 +18,8 @@
 #ifndef MAC_HELPER_H
 #define MAC_HELPER_H
 
-#include "stack/mac/mlme.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 struct net_if;
 struct ns_sockaddr;

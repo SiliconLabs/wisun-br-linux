@@ -35,6 +35,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_ws_extension.h"
+#include "stack/mac/mlme.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
