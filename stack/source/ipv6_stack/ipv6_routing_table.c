@@ -1543,19 +1543,6 @@ static void ipv6_route_table_remove_router(int8_t interface_id, const uint8_t *a
     }
 }
 
-/* Somewhat specialised - allow on-the-fly modification of metrics. Masking
- * allows for top "preference" bits to be preserved.
- */
-void ipv6_route_table_modify_router_metric(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source, uint8_t keep, uint8_t toggle)
-{
-    ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && r->info.source == source && !r->on_link && addr_ipv6_equal(addr, r->info.next_hop_addr)) {
-            r->metric = (r->metric & keep) ^ toggle;
-        }
-    }
-
-}
-
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source)
 {
     uint8_t count = 0;
