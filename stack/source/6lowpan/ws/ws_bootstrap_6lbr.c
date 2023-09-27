@@ -58,7 +58,7 @@
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_bbr_api_internal.h"
+#include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neighbor_class.h"

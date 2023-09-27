@@ -32,6 +32,9 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
+extern uint16_t test_pan_size_override;
+struct net_if;
+
 /**
  * \brief Struct ws_statistics Border router dynamic information.
  */
@@ -242,5 +245,17 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
 int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_modes, uint8_t phy_op_mode_number);
 
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
+
+void ws_bbr_pan_version_increase(struct net_if *cur);
+void ws_bbr_lpan_version_increase(struct net_if *cur);
+
+uint16_t ws_bbr_pan_size(struct net_if *cur);
+
+bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address);
+
+uint16_t ws_bbr_bsi_generate(struct net_if *interface);
+uint16_t ws_bbr_pan_id_get(struct net_if *interface);
+void ws_bbr_init(struct net_if *interface);
+
 
 #endif
