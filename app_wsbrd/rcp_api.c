@@ -186,7 +186,7 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
     spinel_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
     spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
     spinel_push_u16(&buf, timing_info->channel_mask_size);
-    spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
+    spinel_push_u8(&buf, timing_info->number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 12, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
@@ -395,7 +395,7 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     spinel_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
     spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
     spinel_push_u16(&buf, timing_info->channel_mask_size);
-    spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
+    spinel_push_u8(&buf, timing_info->number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 18, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
