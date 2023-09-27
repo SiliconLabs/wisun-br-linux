@@ -728,18 +728,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     return entry;
 }
 
-int_fast8_t addr_delete(struct net_if *cur, const uint8_t address[static 16])
-{
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (memcmp(e->address, address, 16) == 0) {
-            addr_delete_entry(cur, e);
-            return 0;
-        }
-    }
-
-    return -1;
-}
-
 void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
