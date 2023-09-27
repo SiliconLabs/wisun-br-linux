@@ -13,9 +13,6 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
 
-#include "stack/mac/mlme.h"
-#include "stack/mac/mlme.h"
-
 #include "common/version.h"
 #include "common/iobuf.h"
 #include "common/utils.h"
@@ -900,9 +897,37 @@ static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct i
     ctxt->rcp.frame_counter = value;
 }
 
+enum mlme_primitive {
+    MLME_ASSOCIATE,
+    MLME_DISASSOCIATE,
+    MLME_BEACON_NOTIFY,
+    MLME_GET,
+    MLME_GTS,
+    MLME_ORPHAN,
+    MLME_RESET,
+    MLME_RX_ENABLE,
+    MLME_SCAN,
+    MLME_COMM_STATUS,
+    MLME_SET,
+    MLME_START,
+    MLME_SYNC,
+    MLME_SYNC_LOSS,
+    MLME_POLL
+};
+
+struct mlme_comm_status {
+    uint16_t PANId;
+    unsigned SrcAddrMode: 2;
+    uint8_t SrcAddr[8];
+    unsigned DstAddrMode: 2;
+    uint8_t DstAddr[8];
+    uint8_t status;
+    mlme_security_t Key;
+};
+
 static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    mlme_comm_status_t *status;
+    struct mlme_comm_status *status;
     int id;
 
     id = spinel_pop_uint(buf);

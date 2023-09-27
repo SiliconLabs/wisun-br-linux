@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/mac/mlme.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

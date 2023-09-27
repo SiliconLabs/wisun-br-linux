@@ -32,7 +32,6 @@
 #include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/etx/etx.h"
-#include "stack/mac/mlme.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"

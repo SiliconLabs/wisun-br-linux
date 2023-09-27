@@ -119,11 +119,49 @@ typedef struct mcps_data_req_ie_list {
     uint16_t payloadIovLength;           /**< Payload IE element list size, set 0 when no elements */
 } mcps_data_req_ie_list_t;
 
+// See IEEE standard 802.15.4-2006 for more details
+enum mcps_data_cnf_status {
+    MLME_SUCCESS                    = 0x00, /**< The requested operation was completed successfully*/
+    MLME_BUSY_CHAN                  = 0xe1, /**< CSMA-CA fail*/
+    MLME_BUSY_RX                    = 0x01, /**< The radio is asked to change its state while receiving */
+    MLME_BUSY_TX                    = 0x02, /**< The radio is asked to change its state while transmitting. */
+    MLME_FORCE_TRX_OFF              = 0x03, /**< The radio is to be switched off immediately */
+    MLME_IDLE                       = 0x04, /**< The CCA attempt has detected an idle channel */
+    MLME_RX_ON                      = 0x06, /**< The radio is in or is to be configured into the receiver enabled state. */
+    MLME_TRX_OFF                    = 0x08, /**< The radio is in or is to be configured into the receiver enabled state. */
+    MLME_TX_ON                      = 0x09, /**< The radio is in or is to be configured into the receiver enabled state. */
+    MLME_COUNTER_ERROR              = 0xdb, /**< Originated messages security counter is not valid */
+    MLME_IMPROPER_KEY_TYPE          = 0xdc, /**< Received Messages key used is agains't key usage policy */
+    MLME_IMPROPER_SECURITY_LEVEL    = 0xdd, /**< Received Messages security level does not meet minimum security level */
+    MLME_UNSUPPORTED_LEGACY         = 0xde, /**< The received frame was purportedly secured using security based on IEEE Std 802.15.4-2003, and such security is not supported by this standard. */
+    MLME_UNSUPPORTED_SECURITY       = 0xdf, /**< The received frame security is not supported */
+    MLME_SECURITY_FAIL              = 0xe4, /**< Cryptographic processing of the received secured frame failed. */
+    MLME_FRAME_TOO_LONG             = 0xe5, /**< Either a frame resulting from processing has a length that is greater than aMaxPHYPacketSize */
+    MLME_INVALID_HANDLE             = 0xe7, /**< Status for Purge request when Mac not detect proper queued message*/
+    MLME_INVALID_PARAMETER          = 0xe8, /**< A parameter in the primitive is either not supported or is out of the valid range */
+    MLME_TX_NO_ACK                  = 0xe9, /**< No ack was received after macMaxFrameRetries */
+    MLME_NO_BEACON                  = 0xea, /**< A scan operation failed to find any network beacons */
+    MLME_NO_DATA                    = 0xeb, /**< No response data were available following a request */
+    MLME_NO_SHORT_ADDRESS           = 0xec, /**< Operation fail because 16-bit address is not allocated */
+    MLME_PAN_ID_CONFLICT            = 0xee, /**< A PAN identifier conflict has been detected and communicated to the PAN coordinator. */
+    MLME_TRANSACTION_EXPIRED        = 0xf0, /**< The transaction has expired and its information was discarded */
+    MLME_TRANSACTION_OVERFLOW       = 0xf1, /**< MAC have no capacity to store the transaction */
+    MLME_UNAVAILABLE_KEY            = 0xf3, /**< Received message use unknown key, or the originating device is unknown or is blacklisted with that particular key */
+    MLME_UNSUPPORTED_ATTRIBUTE      = 0xf4, /**< A SET/GET request was issued with the unsupported identifier */
+    MLME_INVALID_ADDRESS            = 0xf5, /**< A request to send data was unsuccessful because neither the source address parameters nor the destination address parameters were present.*/
+    MLME_INVALID_INDEX              = 0xf9, /**< An attempt to write to a MAC PIB attribute that is in a table failed because the specified table index was out of range. */
+    MLME_LIMIT_REACHED              = 0xfa, /**< A scan operation terminated prematurely because the number of PAN descriptors stored reached an implementation- specified maximum */
+    MLME_READ_ONLY                  = 0xfb, /**< A SET request was issued with the identifier of an attribute that is read only.*/
+    MLME_SCAN_IN_PROGRESS           = 0xfc, /**< Request scan request fail when scan is already active */
+    // NOT-standard
+    MLME_DATA_POLL_NOTIFICATION     = 0xff, /**< Thread requirement feature COMM status status for indicate for successfully data poll event to refresh neighbour data */
+};
+
 // Used by on_tx_cnf()
 // See IEEE standard 802.15.4-2006 (table 42) for more details
 typedef struct mcps_data_conf {
     uint8_t msduHandle;     /**< Handle associated with MSDU */
-    uint8_t status;         /**< Status of the last MSDU transmission */
+    uint8_t status;         /**< Status of the last MSDU transmission, see enum mcps_data_cnf_status */
     uint32_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
     //Non-standard extension
     uint8_t cca_retries;    /**< Number of CCA retries used during sending */

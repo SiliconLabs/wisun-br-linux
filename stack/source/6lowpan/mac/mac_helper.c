@@ -21,7 +21,6 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack/mac/mlme.h"
 
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
