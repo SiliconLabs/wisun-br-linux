@@ -145,7 +145,7 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c
     stack/source/6lowpan/fragmentation/cipv6_fragmenter.c
-    stack/source/6lowpan/iphc_decode/6lowpan_iphc.c
+    stack/source/6lowpan/iphc_decode/cipv6.c
     stack/source/6lowpan/iphc_decode/iphc_compress.c
     stack/source/6lowpan/iphc_decode/iphc_decompress.c
     stack/source/6lowpan/iphc_decode/lowpan_context.c
