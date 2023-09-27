@@ -117,30 +117,6 @@ void event_scheduler_signal(void);
 int8_t event_send(const struct event_payload *event);
 
 /**
- * \brief Send user-allocated event to event scheduler.
- *
- * \param event pointer to pushed event storage.
- *
- * The event structure is not copied by the call, the event system takes
- * ownership and it is threaded directly into the event queue. This avoids the
- * possibility of event sending failing due to memory exhaustion.
- *
- * event->data must be filled in on entry - the rest of the structure (link and
- * allocator) need not be.
- *
- * The structure must remain valid until the recipient is called - the
- * event system passes ownership to the receiving event handler, who may then
- * invalidate it, or send it again.
- *
- * The recipient receives a pointer to the struct event_payload data member of the
- * event - it can use container_of() to get a pointer to the original
- * event passed to this call, or to its outer container.
- *
- * It is a program error to send a user-allocated event to a non-existent task.
- */
-void event_send_user_allocated(struct event_storage *event);
-
-/**
  * \brief Event handler callback register
  *
  * Function will register and allocate unique event id handler

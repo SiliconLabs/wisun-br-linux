@@ -103,12 +103,6 @@ int8_t event_send(const struct event_payload *event)
     return 0;
 }
 
-void event_send_user_allocated(struct event_storage *event)
-{
-    event->allocator = ARM_LIB_EVENT_USER;
-    event_core_write(event);
-}
-
 void event_cancel(struct event_storage *event)
 {
     struct events_scheduler *ctxt = g_event_scheduler;
