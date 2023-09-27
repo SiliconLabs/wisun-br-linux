@@ -51,7 +51,7 @@
 
 #define TRACE_GROUP "6lAd"
 
-typedef void (adaptation_etx_update_cb)(struct net_if *cur, buffer_t *buf, const mcps_data_conf_t *confirm);
+typedef void (adaptation_etx_update_cb)(struct net_if *cur, buffer_t *buf, const mcps_data_cnf_t *confirm);
 
 // #define EXTRA_DEBUG_EXTRA
 #ifdef EXTRA_DEBUG_EXTRA
@@ -149,7 +149,7 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
 static int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
 
 static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind);
-static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_conf_t *confirm);
+static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm);
 
 //Discover
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId)
@@ -423,7 +423,7 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     return 0;
 }
 
-static void lowpan_adaptation_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data)
+static void lowpan_adaptation_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data)
 {
     struct net_if *interface = lowpan_adaptation_network_interface_discover(api);
 
@@ -1101,7 +1101,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
 }
 
 
-static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_conf_t *confirm)
+static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm)
 {
     if (!cur || !confirm) {
         return -1;

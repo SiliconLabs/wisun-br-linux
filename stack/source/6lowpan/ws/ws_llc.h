@@ -171,12 +171,12 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 
 const char *tr_ws_frame(uint8_t frame_type);
 
-typedef struct mcps_data_ind          mcps_data_ind_t;
-typedef struct mcps_data_conf         mcps_data_conf_t;
-typedef struct mcps_data_conf_payload mcps_data_conf_payload_t;
-typedef struct mcps_data_ind_ie_list      mcps_data_ind_ie_list_t;
+typedef struct mcps_data_cnf         mcps_data_cnf_t;
+typedef struct mcps_data_cnf_ie_list mcps_data_cnf_ie_list_t;
+void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data);
 
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);
+typedef struct mcps_data_ind         mcps_data_ind_t;
+typedef struct mcps_data_ind_ie_list mcps_data_ind_ie_list_t;
 void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext);
 
 #endif

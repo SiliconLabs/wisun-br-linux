@@ -23,7 +23,7 @@
 #include "app_wsbrd/rcp_api.h"
 
 struct mcps_data_req;
-struct mcps_data_conf;
+struct mcps_data_cnf;
 struct mcps_data_ind;
 struct mcps_purge;
 
@@ -55,7 +55,7 @@ typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, uint8_t msduHandle,
  * @param data MCPS-DATA.confirm specific values
  * @param user_id MPX user ID
  */
-typedef void mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data);
+typedef void mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data);
 
 /**
  * @brief mpx_data_indication MPX-DATA confirm is called as a response to MPX-DATA request

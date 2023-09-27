@@ -65,7 +65,7 @@ typedef struct eapol_pdu_data {
     ns_list_link_t link;                                   /**< Link */
 } eapol_pdu_data_t;
 
-static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data);
+static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data);
 static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data);
 static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, struct net_if *cur);
 static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr);
@@ -261,7 +261,7 @@ int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *m
     return 0;
 }
 
-static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data)
+static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data)
 {
     eapol_pdu_data_t *eapol_pdu_data = NULL;
 

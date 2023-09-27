@@ -112,6 +112,7 @@ typedef struct mcps_data_req {
 
 // Used by rcp_tx_req_legacy()
 // Structure for IEEE 802.15.4-2015 MCPS data extension to Request
+// FIXME: Mostly the same than mcps_data_ind_ie_list and mcps_data_cnf_ie_list
 typedef struct mcps_data_req_ie_list {
     struct iovec *headerIeVectorList;    /**< Header IE element list */
     struct iovec *payloadIeVectorList;   /**< Payload IE element list */
@@ -159,7 +160,7 @@ enum mcps_data_cnf_status {
 
 // Used by on_tx_cnf()
 // See IEEE standard 802.15.4-2006 (table 42) for more details
-typedef struct mcps_data_conf {
+typedef struct mcps_data_cnf {
     uint8_t msduHandle;     /**< Handle associated with MSDU */
     uint8_t status;         /**< Status of the last MSDU transmission, see enum mcps_data_cnf_status */
     uint32_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
@@ -171,17 +172,18 @@ typedef struct mcps_data_conf {
         uint8_t retries;
     } retry_per_rate[4];         /**< Number of retries sorted by rate */
     uint8_t success_phy_mode_id; /**< PhyModeId used to transmit the frame correctly. Only valide if status is MAC_TX_DONE */
-} mcps_data_conf_t;
+} mcps_data_cnf_t;
 
 // Used by on_tx_cnf()
-typedef struct mcps_data_conf_payload {
+// FIXME: Mostly the same than mcps_data_ind_ie_list and mcps_data_req_ie_list
+typedef struct mcps_data_cnf_ie_list {
     const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
     const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
     const uint8_t *payloadPtr;          /**< Ack payload pointer */
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
     uint16_t payloadLength;             /**< Payload length in bytes */
-} mcps_data_conf_payload_t;
+} mcps_data_cnf_ie_list_t;
 
 // Used by on_rx_ind()
 // See IEEE standard 802.15.4-2006 (table 43) for more details
@@ -207,6 +209,7 @@ typedef struct mcps_data_ind {
 
 // Used by on_rx_ind()
 // Structure for IEEE 802.15.4-2015 MCPS data extension to Indication
+// FIXME: Mostly the same than mcps_data_cnf_ie_list and mcps_data_req_ie_list
 typedef struct mcps_data_ind_ie_list {
     const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
     const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
@@ -228,7 +231,7 @@ struct rcp {
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
     void (*on_reset)(struct wsbr_ctxt *ctxt);
-    void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_conf *conf, const struct mcps_data_conf_payload *payload);
+    void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_cnf *conf, const struct mcps_data_cnf_ie_list *payload);
     void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_ind_ie_list *payload);
     void (*on_rx_err)(uint8_t src[8], uint8_t status);
     void (*on_crc_error)(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter);

@@ -177,7 +177,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_conf_t *data, struct mac_neighbor_table_entry *neighbor);
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct mac_neighbor_table_entry *neighbor);
 
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
@@ -387,9 +387,9 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 }
 
 static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message *msg,
-                                 const struct mcps_data_conf *confirm)
+                                 const struct mcps_data_cnf *confirm)
 {
-    struct mcps_data_conf mpx_confirm;
+    struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
 
     base->temp_entries.active_eapol_session = false;
@@ -412,12 +412,12 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 }
 
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
-                                const struct mcps_data_conf *confirm,
-                                const mcps_data_conf_payload_t *confirm_data,
+                                const struct mcps_data_cnf *confirm,
+                                const mcps_data_cnf_ie_list_t *confirm_data,
                                 struct llc_neighbour_req *neighbor_llc)
 {
     const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
-    struct mcps_data_conf mpx_confirm;
+    struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
     struct ws_utt_ie ie_utt;
@@ -469,7 +469,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     mac_neighbor_table_neighbor_remove(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
 }
 
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
+void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neighbor_temp_class *neighbor_tmp;
@@ -1131,8 +1131,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
-        mcps_data_conf_t data_conf;
-        memset(&data_conf, 0, sizeof(mcps_data_conf_t));
+        mcps_data_cnf_t data_conf;
+        memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
         data_conf.msduHandle = data->msduHandle;
         data_conf.status = MLME_TRANSACTION_OVERFLOW;
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
@@ -1273,8 +1273,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
-        mcps_data_conf_t data_conf;
-        memset(&data_conf, 0, sizeof(mcps_data_conf_t));
+        mcps_data_cnf_t data_conf;
+        memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
         data_conf.msduHandle = data->msduHandle;
         data_conf.status = MLME_TRANSACTION_OVERFLOW;
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
@@ -1493,7 +1493,7 @@ static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t
 #define MS_FALLBACK_MIN_SAMPLE 50
 #define MS_FALLBACK_MAX_SAMPLE 1000
 // Mode Switch rate management function
-static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_conf_t *data, struct mac_neighbor_table_entry *neighbor)
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct mac_neighbor_table_entry *neighbor)
 {
     struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
     uint8_t i;

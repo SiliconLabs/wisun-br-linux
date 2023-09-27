@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 struct net_if;
-struct mcps_data_conf;
+struct mcps_data_cnf;
 struct mcps_data_ind;
 struct buffer;
 struct mpx_api;

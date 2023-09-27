@@ -981,8 +981,8 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
 
 static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    mcps_data_conf_t req = { };
-    mcps_data_conf_payload_t conf_req = { };
+    mcps_data_cnf_t req = { };
+    mcps_data_cnf_ie_list_t conf_req = { };
 
     req.status      = spinel_pop_u8(buf);
     req.msduHandle  = spinel_pop_u8(buf);
