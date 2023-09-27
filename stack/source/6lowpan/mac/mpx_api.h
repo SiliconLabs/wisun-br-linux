@@ -47,7 +47,7 @@ typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *
  * @return 0 if purge requst was OK, non-zero otherwise
  *
  */
-typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge *purge, uint16_t user_id);
+typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, uint8_t msduHandle, uint16_t user_id);
 
 /**
  * @brief mpx_data_confirm MPX-DATA confirm is called as a response to MPX-DATA request

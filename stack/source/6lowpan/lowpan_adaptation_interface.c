@@ -1320,11 +1320,9 @@ static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *addres
 
 static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle)
 {
-    mcps_purge_t purge_req;
-    purge_req.msduHandle = msduhandle;
     bool mac_purge_success = false;
     if (interface_ptr->mpx_api) {
-        if (interface_ptr->mpx_api->mpx_data_purge(interface_ptr->mpx_api, &purge_req, interface_ptr->mpx_user_id) == 0) {
+        if (interface_ptr->mpx_api->mpx_data_purge(interface_ptr->mpx_api, msduhandle, interface_ptr->mpx_user_id) == 0) {
             mac_purge_success = true;
         }
     } else {

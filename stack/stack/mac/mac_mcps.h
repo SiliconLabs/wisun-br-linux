@@ -149,15 +149,6 @@ typedef struct mcps_ack_data_payload {
 } mcps_ack_data_payload_t;
 
 /**
- * @brief struct mcps_purge Purge request structure
- *
- * See IEEE standard 802.15.4-2006 (table 44) for more details
- */
-typedef struct mcps_purge {
-    uint8_t msduHandle;         /**< Handle associated with MSDU */
-} mcps_purge_t;
-
-/**
  * @brief struct mcps_purge_conf Purge confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 45) for more details
