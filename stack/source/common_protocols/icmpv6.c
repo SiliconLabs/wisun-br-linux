@@ -843,50 +843,6 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
     return buf;
 }
 
-buffer_t *icmpv6_build_dad(struct net_if *cur, buffer_t *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime)
-{
-    if (!cur) {
-        return NULL;
-    }
-
-    if (!buf) {
-        buf = buffer_get(4 + 8 + 16);
-        if (!buf) {
-            return buf;
-        }
-    }
-
-    uint8_t *ptr = buffer_data_pointer(buf);
-    buf->options.type = type;
-    buf->options.code = 0;
-    buf->options.hop_limit = 64; /* RFC 6775 MULTIHOP_HOPLIMIT */
-
-    *ptr++ = status;
-    *ptr++ = 0;
-    ptr = write_be16(ptr, lifetime);
-    memcpy(ptr, eui64, 8);
-    ptr += 8;
-    memcpy(ptr, reg_addr, 16);
-    ptr += 16;
-    buffer_data_end_set(buf, ptr);
-
-    memcpy(buf->dst_sa.address, dest_addr, 16);
-    buf->dst_sa.addr_type = ADDR_IPV6;
-
-    const uint8_t *src = addr_select_source(cur, buf->dst_sa.address, 0);
-    if (src && !addr_is_ipv6_link_local(src)) {
-        memcpy(buf->src_sa.address, src, 16);
-    } else {
-        tr_debug("No address for DAD");
-        return buffer_free(buf);
-    }
-    buf->src_sa.addr_type = ADDR_IPV6;
-    buf->interface = cur;
-    buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-
-    return buf;
-}
-
 /*
  * Neighbor Advertisement Message Format
  *

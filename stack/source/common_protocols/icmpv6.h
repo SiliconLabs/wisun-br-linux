@@ -125,7 +125,6 @@ struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[sta
 struct buffer *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required,
                                const uint8_t target[16], const struct ipv6_nd_opt_earo *earo,
                                const uint8_t src_addr[16]);
-struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime);
 
 /*
  * Write either an ICMPv6 Prefix Information Option for a Router Advertisement
