@@ -156,7 +156,6 @@ void address_module_init(void);
 void addr_fast_timer(int ticks);
 void addr_slow_timer(int seconds);
 struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source);
-void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr);
 
 void addr_notification_register(if_address_notification_fn fn);

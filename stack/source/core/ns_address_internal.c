@@ -728,17 +728,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     return entry;
 }
 
-void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source)
-{
-    ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
-        if ((source == ADDR_SOURCE_UNKNOWN || e->source == source) &&
-                !bitcmp(e->address, prefix, prefix_len)) {
-            addr_delete_entry(cur, e);
-        }
-    }
-
-}
-
 void addr_notification_register(if_address_notification_fn *fn)
 {
     ns_list_foreach(addr_notification_t, n, &addr_notifications) {
