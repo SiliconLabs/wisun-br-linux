@@ -166,23 +166,6 @@ void protocol_core_interface_info_reset(struct net_if *entry)
     }
 }
 
-void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur)
-{
-    cur->bootstrap_state_machine_cnt = 0;
-    cur->nwk_bootstrap_state = new_state;
-    struct event_payload event = {
-        .receiver = protocol_root_tasklet_ID,
-        .sender = 0,
-        .event_id = (uint8_t)cur->id,
-        .event_type = ARM_IN_INTERFACE_BOOTSTRAP_CB,
-        .data_ptr = NULL,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-    };
-    if (event_send(&event) != 0) {
-        tr_error("bootstrap_next_state_kick(): event send failed");
-    }
-}
-
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
 {
     cur->base_reachable_time = base_reachable_time;
