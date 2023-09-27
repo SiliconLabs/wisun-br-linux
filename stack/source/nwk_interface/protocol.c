@@ -336,33 +336,6 @@ struct net_if *protocol_stack_interface_info_get()
     return NULL;
 }
 
-struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-    if (cur->id == nwk_id) {
-        return cur;
-    }
-
-    return NULL;
-}
-
-struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-    if (cur->bootStrapId == id) {
-        return cur;
-    }
-
-    return NULL;
-}
-
-struct net_if *protocol_stack_interface_info_get_wisun_mesh(void)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-        return cur;
-    return NULL;
-}
-
 uint8_t nwk_bootstrap_ready(struct net_if *cur)
 {
     int8_t ret_val = 0;
