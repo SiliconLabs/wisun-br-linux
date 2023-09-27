@@ -869,18 +869,6 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
     }
 }
 
-int8_t addr_interface_gp_prefix_compare(struct net_if *cur, const uint8_t *prefix)
-{
-    if (cur->global_address_available) {
-        ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-            if (memcmp(e->address, prefix, 8) == 0) {
-                return 0;
-            }
-        }
-    }
-    return -1;
-}
-
 int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr)
 {
     /* First check the specified interface */

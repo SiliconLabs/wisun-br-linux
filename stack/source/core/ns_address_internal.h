@@ -200,6 +200,5 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb);
 /* address_type 0 means "any" address - we return short by preference */
 /* address_type 1 means long address - we ignore short addresses */
 int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, uint8_t address_type);
-int8_t addr_interface_gp_prefix_compare(struct net_if *cur, const uint8_t *prefix);
 int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr);
 #endif /*_NS_ADDRESS_H*/
