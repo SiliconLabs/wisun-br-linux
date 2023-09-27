@@ -6,7 +6,6 @@
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_mngt.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
-#include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/mpl/mpl.h"
@@ -37,8 +36,6 @@ struct ws_timer g_timers[] = {
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
-    timer_entry(6LOWPAN_ADDR_FAST,      addr_fast_timer,                            100,                     true),
-    timer_entry(6LOWPAN_ADDR_SLOW,      addr_slow_timer,                            1000,                    true),
     timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                     true),
     timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                    true),
     timer_entry(6LOWPAN_ETX,            etx_cache_timer,                            1000,                    true),

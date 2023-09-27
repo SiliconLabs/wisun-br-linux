@@ -644,15 +644,6 @@ void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr)
     free(addr);
 }
 
-/* ticks is in 1/10s */
-void addr_fast_timer(int ticks)
-{
-}
-
-void addr_slow_timer(int seconds)
-{
-}
-
 void notify_user_if_ready()
 {
     bool had_global_address;

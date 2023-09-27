@@ -137,8 +137,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_ICMP_FAST);
     ws_timer_start(WS_TIMER_6LOWPAN_MLD_FAST);
     ws_timer_start(WS_TIMER_6LOWPAN_MLD_SLOW);
-    ws_timer_start(WS_TIMER_6LOWPAN_ADDR_FAST);
-    ws_timer_start(WS_TIMER_6LOWPAN_ADDR_SLOW);
     ws_timer_start(WS_TIMER_6LOWPAN_ND);
     ws_timer_start(WS_TIMER_6LOWPAN_ETX);
     ws_timer_start(WS_TIMER_6LOWPAN_ADAPTATION);
