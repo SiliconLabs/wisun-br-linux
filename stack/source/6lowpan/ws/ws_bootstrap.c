@@ -1181,7 +1181,6 @@ void ws_bootstrap_ip_stack_reset(struct net_if *cur)
 
 void ws_bootstrap_ip_stack_activate(struct net_if *cur)
 {
-    clear_power_state(ICMP_ACTIVE);
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     ws_bootstrap_ip_stack_reset(cur);
 }

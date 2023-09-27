@@ -77,31 +77,11 @@ protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 // maximum value of nwk_interface_id_e is 1
 struct net_if protocol_interface_info;
 
-/** Cores Power Save Varibale whic indicate States  */
-volatile uint8_t power_save_state =  0;
-
 static int8_t net_interface_get_free_id(void);
 
 int8_t protocol_read_tasklet_id(void)
 {
     return protocol_root_tasklet_ID;
-}
-
-uint8_t check_power_state(uint8_t mode)
-{
-    uint8_t ret_val = power_save_state & mode;
-    return ret_val;
-}
-
-
-void set_power_state(uint8_t mode)
-{
-    power_save_state |= mode;
-}
-
-void clear_power_state(uint8_t mode)
-{
-    power_save_state &= ~mode;
 }
 
 void protocol_root_tasklet(struct event_payload *event)

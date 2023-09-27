@@ -55,26 +55,15 @@
 /* Having to sidestep old rpl_dodag_t type for the moment */
 struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
-static uint8_t protocol_buffer_valid(buffer_t *b, struct net_if *cur)
+static bool protocol_buffer_valid(buffer_t *b, struct net_if *cur)
 {
-    uint8_t valid = 1;
-    if (cur) {
-        if ((b->info & B_TO_MAC_MLME_MASK) != B_TO_MAC_FROM_MAC) {
-            if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                //if((power_save_state & (SLEEP_MODE_REQ | ICMP_ACTIVE)) == SLEEP_MODE_REQ)
-                if (check_power_state(SLEEP_MODE_REQ | ICMP_ACTIVE) == SLEEP_MODE_REQ) {
-                    /*  STill active but Sleep Req  and ICMP is not ACTIVE */
-                    valid = 0;
-                }
-            } else {
-                /*  Set Clean Core Becauce Protocol Is not Active */
-                valid = 0;
-            }
-        }
-    } else {
-        valid = 0;
-    }
-    return valid;
+    if (!cur)
+        return false;
+    if ((b->info & B_TO_MAC_MLME_MASK) == B_TO_MAC_FROM_MAC)
+        return true;
+    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE)
+        return true;
+    return false;
 }
 
 void protocol_init(void)
@@ -85,7 +74,7 @@ void protocol_init(void)
 void protocol_6lowpan_stack(buffer_t *b)
 {
     struct net_if *cur = b->interface;
-    if (protocol_buffer_valid(b, cur) == 0) {
+    if (!protocol_buffer_valid(b, cur)) {
         tr_debug("Drop Packets");
         buffer_free(b);
         return;
