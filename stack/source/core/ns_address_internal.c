@@ -903,14 +903,6 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
     }
 }
 
-bool addr_interface_all_address_ready(struct net_if *cur)
-{
-    if (!cur) {
-        return false;
-    }
-    return true;
-}
-
 int8_t addr_interface_gp_prefix_compare(struct net_if *cur, const uint8_t *prefix)
 {
     if (cur->global_address_available) {

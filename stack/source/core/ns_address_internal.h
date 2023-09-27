@@ -200,7 +200,6 @@ uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len);
 
 int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb);
-bool addr_interface_all_address_ready(struct net_if *cur);
 
 /* address_type 0 means "any" address - we return short by preference */
 /* address_type 1 means long address - we ignore short addresses */
