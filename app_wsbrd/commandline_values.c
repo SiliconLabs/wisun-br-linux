@@ -19,6 +19,7 @@
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 
 #include "commandline_values.h"
+#include "commandline.h"
 
 const struct name_value valid_ws_domains[] = {
     { "WW", REG_DOMAIN_WW }, // World wide
@@ -119,5 +120,12 @@ const struct name_value valid_booleans[] = {
 const struct name_value valid_ws_regional_regulations[] = {
     { "none", REG_REGIONAL_NONE },
     { "arib", REG_REGIONAL_ARIB },
+    { NULL },
+};
+
+const struct name_value valid_pcapng_channel[] = {
+    { "all",      PCAP_CHANNEL_RX | PCAP_CHANNEL_TX },
+    { "rx",       PCAP_CHANNEL_RX },
+    { "tx",       PCAP_CHANNEL_TX },
     { NULL },
 };

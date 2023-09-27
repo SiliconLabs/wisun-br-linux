@@ -51,6 +51,7 @@ struct wsbr_ctxt {
 
     int pcapng_fd;
     mode_t pcapng_type;
+    struct timespec boottime;
 
     struct {
         uint8_t eui64[8];

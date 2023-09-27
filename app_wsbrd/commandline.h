@@ -22,6 +22,9 @@
 
 #include "stack/net_interface.h"
 
+#define PCAP_CHANNEL_RX                 (1 << 0)
+#define PCAP_CHANNEL_TX                 (1 << 1)
+
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
     bool list_rf_configs;
@@ -96,6 +99,7 @@ struct wsbrd_conf {
     int lowpan_mtu;
     int pan_size;
     char pcap_file[PATH_MAX];
+    int pcap_channel;
 };
 
 void print_help_br(FILE *stream);

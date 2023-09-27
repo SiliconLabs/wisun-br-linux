@@ -550,6 +550,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
         { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
         { "pcap_file",                     config->pcap_file,                         conf_set_string,      (void *)sizeof(config->pcap_file) },
+        { "pcap_channel",                  &config->pcap_channel,                     conf_set_enum,        &valid_pcapng_channel },
     };
     int i;
 
@@ -641,6 +642,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_regional_regulation = 0;
     config->ws_async_frag_duration = 500;
     config->pan_size = -1;
+    config->pcap_channel = PCAP_CHANNEL_RX | PCAP_CHANNEL_TX;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

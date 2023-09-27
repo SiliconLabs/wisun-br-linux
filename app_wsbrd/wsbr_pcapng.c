@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #include "common/bits.h"
 #include "common/endian.h"
@@ -16,6 +17,22 @@
 #include "wsbr.h"
 
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt);
+
+static uint32_t wsbr_get_timestamp_us(struct wsbr_ctxt *ctxt)
+{
+    struct timespec now, diff;
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+
+    diff.tv_sec = now.tv_sec - ctxt->boottime.tv_sec;
+    diff.tv_nsec = now.tv_nsec - ctxt->boottime.tv_nsec;
+    if (diff.tv_nsec < 0) {
+        diff.tv_sec--;
+        diff.tv_nsec += 1000000000L;
+    }
+
+    return diff.tv_sec * 1000000 + diff.tv_nsec / 1000;
+}
 
 static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct iobuf_write *buf)
 {
@@ -95,19 +112,52 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
     wsbr_pcapng_write_start(ctxt);
 }
 
-void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
+static void wsbr_pcapng_write_frame_pktbuf(struct wsbr_ctxt *ctxt,
+                                           const uint8_t *frame,
+                                           uint32_t pkt_len)
 {
-    uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     struct iobuf_write buf = { };
     struct pcapng_epb epb = {
         .if_id = 0, // only one interface is used
-        .timestamp = ind->timestamp, // ind->timestamp is in us
     };
 
-    epb.pkt_len    = wsbr_data_ind_rebuild(frame, ind, ie);
+    epb.timestamp = wsbr_get_timestamp_us(ctxt);
+
+    epb.pkt_len    = pkt_len;
     epb.pkt_len_og = epb.pkt_len;
     epb.pkt        = frame;
+
     pcapng_write_epb(&buf, &epb);
     wsbr_pcapng_write(ctxt, &buf);
     iobuf_free(&buf);
+}
+
+void wsbr_pcapng_write_ind_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
+{
+    uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
+    uint32_t pkt_len;
+
+    pkt_len = wsbr_data_ind_rebuild(frame, ind, ie);
+
+    wsbr_pcapng_write_frame_pktbuf(ctxt, frame, pkt_len);
+}
+
+void wsbr_pcapng_write_req_frame(struct wsbr_ctxt *ctxt,
+                                 const struct rcp *rcp,
+                                 const struct arm_15_4_mac_parameters *mac,
+                                 const struct mcps_data_req *req,
+                                 const struct mcps_data_req_ie_list *ie)
+{
+    struct iobuf_write frame = { };
+    struct mcps_data_req req_remove_security;
+
+    /* since the data saved in ie is not encrypted, let's remove the
+     * SecurityLevel to make wireshark can handle it.
+     */
+    memcpy(&req_remove_security, req, sizeof(req_remove_security));
+    req_remove_security.Key.SecurityLevel = 0;
+    wsbr_data_req_rebuild(&frame, rcp, mac, &req_remove_security, ie);
+
+    wsbr_pcapng_write_frame_pktbuf(&g_ctxt, frame.data, frame.len);
+    iobuf_free(&frame);
 }

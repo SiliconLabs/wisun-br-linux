@@ -551,6 +551,7 @@ int wsbr_main(int argc, char *argv[])
         drop_privileges(&ctxt->config);
 
     wsbr_fds_init(ctxt, fds);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ctxt->boottime);
 
     while (true)
         wsbr_poll(ctxt, fds);

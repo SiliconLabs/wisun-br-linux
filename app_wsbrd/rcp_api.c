@@ -944,8 +944,8 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
         req.PendingBit         = spinel_pop_bool(buf);
         req.PanIdSuppressed    = spinel_pop_bool(buf);
         // FIXME: remove this hack
-        if (ctxt->config.pcap_file[0])
-            wsbr_pcapng_write_frame(ctxt, &req, &ie_ext);
+        if (ctxt->config.pcap_file[0] && (ctxt->config.pcap_channel & PCAP_CHANNEL_RX))
+            wsbr_pcapng_write_ind_frame(ctxt, &req, &ie_ext);
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;

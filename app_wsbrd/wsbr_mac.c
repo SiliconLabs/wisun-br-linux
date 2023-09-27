@@ -112,6 +112,10 @@ void wsbr_data_req_ext(struct net_if *cur,
             // confirmation error.
             neighbor_ws = &neighbor_ws_dummy;
         }
+
+        if (g_ctxt.config.pcap_file[0] && (g_ctxt.config.pcap_channel & PCAP_CHANNEL_TX))
+            wsbr_pcapng_write_req_frame(&g_ctxt, cur->rcp, &cur->mac_parameters, data, ie_ext);
+
         wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
         rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
                    data->fhss_type, data->ExtendedFrameExchange,
