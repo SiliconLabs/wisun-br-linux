@@ -969,7 +969,7 @@ static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
     conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
     if (iobuf_remaining_size(buf)) {
-        spinel_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(mcps_data_retry_t) * MAX_PHY_MODE_ID_PER_FRAME);
+        spinel_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(req.retry_per_rate));
         req.success_phy_mode_id = spinel_pop_u8(buf);
     }
     if (!spinel_prop_is_valid(buf, prop))

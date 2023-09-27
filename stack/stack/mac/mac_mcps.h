@@ -28,16 +28,6 @@
 #include <stdbool.h>
 #include "6lowpan/mac/mac_common_defines.h"
 
-typedef struct mcps_data_retry_s {
-    uint8_t phy_mode_id;
-    uint8_t retries;
-} mcps_data_retry_t;
-
-// Number of different PhyModeId
-// that can be tried to transmit a packet
-// it contains the base operating mode
-#define MAX_PHY_MODE_ID_PER_FRAME 4
-
 /**
  * @brief struct mcps_data_req Data request structure
  *
@@ -74,7 +64,10 @@ typedef struct mcps_data_conf {
     //Non-standard extension
     uint8_t cca_retries;    /**< Number of CCA retries used during sending */
     uint8_t tx_retries;     /**< Number of retries done during sending, 0 means no retries */
-    mcps_data_retry_t retry_per_rate[MAX_PHY_MODE_ID_PER_FRAME]; /**< Number of retries sorted by rate */
+    struct {
+        uint8_t phy_mode_id;
+        uint8_t retries;
+    } retry_per_rate[4];         /**< Number of retries sorted by rate */
     uint8_t success_phy_mode_id; /**< PhyModeId used to transmit the frame correctly. Only valide if status is MAC_TX_DONE */
 } mcps_data_conf_t;
 

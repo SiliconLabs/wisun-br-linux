@@ -1505,7 +1505,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_co
 
     if (data->tx_retries) {
         // Look for mode switch retries
-        for (i = 0; i < MAX_PHY_MODE_ID_PER_FRAME; i++) {
+        for (i = 0; i < ARRAY_SIZE(data->retry_per_rate); i++) {
             if (data->retry_per_rate[i].phy_mode_id == schedule->phy_mode_id_ms_base) {
                 neighbor->ms_retries_count += data->retry_per_rate[i].retries;
             }
