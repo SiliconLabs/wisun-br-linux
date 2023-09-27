@@ -635,7 +635,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 
     if(ipv6_address) {
-        addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC, 0xffffffff, 0xffffffff, false);
+        addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC, 0xffffffff, 0xffffffff, true);
         tr_debug("global unicast address of interface ws0 is %s", tr_ipv6(ipv6_address));
         memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
     } else {

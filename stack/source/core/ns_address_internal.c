@@ -1035,7 +1035,7 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
     memcpy(temp_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(temp_ll64 + 8, cur->iid_eui64, 8);
 
-    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff, false);
+    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff, true);
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;
