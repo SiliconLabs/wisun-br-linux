@@ -85,21 +85,6 @@ void ws_stats_update(struct net_if *cur, ws_stats_type_e type, uint32_t update_v
         case STATS_WS_ASYNCH_RX_PC:
             stored_stats->recv_PC += update_val;
             break;
-        case STATS_WS_STATE_1:
-            stored_stats->join_state_1 += update_val;
-            break;
-        case STATS_WS_STATE_2:
-            stored_stats->join_state_2 += update_val;
-            break;
-        case STATS_WS_STATE_3:
-            stored_stats->join_state_3 += update_val;
-            break;
-        case STATS_WS_STATE_4:
-            stored_stats->join_state_4 += update_val;
-            break;
-        case STATS_WS_STATE_5:
-            stored_stats->join_state_5 += update_val;
-            break;
         case STATS_WS_NEIGHBOUR_ADD:
             stored_stats->Neighbour_add += update_val;
             break;

@@ -1455,44 +1455,6 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
     ws_bootstrap_6lbr_event_handler(cur, event);
 }
 
-/*
- * State machine
- *
- * */
-bool ws_bootstrap_state_discovery(struct net_if *cur)
-{
-    if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
-        return true;
-    }
-    return false;
-}
-
-bool ws_bootstrap_state_configure(struct net_if *cur)
-{
-    // Think about the state value
-    if (cur->nwk_bootstrap_state == ER_SCAN) {
-        return true;
-    }
-    return false;
-}
-
-bool ws_bootstrap_state_wait_rpl(struct net_if *cur)
-{
-    // Think about the state value
-    if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
-        return true;
-    }
-    return false;
-}
-
-bool ws_bootstrap_state_active(struct net_if *cur)
-{
-    if (cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-        return true;
-    }
-    return false;
-}
-
 void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state)
 {
     cur->bootstrap_state_machine_cnt = 1;
@@ -1523,16 +1485,6 @@ void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
-    /*Update join state statistics*/
-    if (ws_bootstrap_state_discovery(cur)) {
-        ws_stats_update(cur, STATS_WS_STATE_1, 1);
-    } else if (ws_bootstrap_state_configure(cur)) {
-        ws_stats_update(cur, STATS_WS_STATE_3, 1);
-    } else if (ws_bootstrap_state_wait_rpl(cur)) {
-        ws_stats_update(cur, STATS_WS_STATE_4, 1);
-    } else if (ws_bootstrap_state_active(cur)) {
-        ws_stats_update(cur, STATS_WS_STATE_5, 1);
-    }
     cur->ws_info.uptime++;
 
     ws_llc_timer_seconds(cur, seconds);

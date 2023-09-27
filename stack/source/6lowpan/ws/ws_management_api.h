@@ -121,19 +121,6 @@ typedef struct ws_statistics {
     /** Asynch RX counter */
     uint32_t asynch_rx_count;
 
-
-    /** Time spent in individual Wi-SUN join state 1 Discovery*/
-    uint32_t join_state_1;
-    /** Time spent in individual Wi-SUN join state 2 Authentication*/
-    uint32_t join_state_2;
-    /** Time spent in individual Wi-SUN join state 3 Configuration learn*/
-    uint32_t join_state_3;
-    /** Time spent in individual Wi-SUN join state 4 RPL parent discovery*/
-    uint32_t join_state_4;
-    /** Time spent in individual Wi-SUN join state 5 Active state*/
-    uint32_t join_state_5;
-
-
     /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
     uint32_t sent_PAS;
     /** Amount of Wi-SUN Pan Advertisement Message sent*/
