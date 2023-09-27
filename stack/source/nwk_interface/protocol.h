@@ -146,13 +146,6 @@ typedef struct arm_15_4_mac_parameters {
 
 typedef void mac_poll_fail_cb(int8_t nwk_interface_id_e);
 
-typedef struct gp_ipv6_address_entry {
-    uint8_t address[16];
-    ns_list_link_t link;
-} gp_ipv6_address_entry_t;
-
-typedef NS_LIST_HEAD(gp_ipv6_address_entry_t, link) gp_ipv6_address_list_t;
-
 typedef struct if_6lowpan_dad_entry {
     uint8_t address[16];        // IPv6
     uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
