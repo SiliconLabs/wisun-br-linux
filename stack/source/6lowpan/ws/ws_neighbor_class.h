@@ -20,16 +20,57 @@
 #define WS_NEIGHBOR_CLASS_H_
 #include <time.h>
 
-#include "stack/mac/fhss_ws_extension.h"
-
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct net_if;
 
 #define RSL_UNITITIALIZED 0x7fff
 
+struct ws_channel_mask {
+    uint16_t channel_count;                     // Active channels at mask
+    uint8_t channel_mask[32];                   // Supported channels
+};
+
+struct fhss_ws_neighbor_timing_info {
+    uint8_t clock_drift;                        // Neighbor clock drift
+    uint8_t timing_accuracy;                    // Neighbor timing accuracy
+    union {
+        struct {
+            uint8_t  uc_dwell_interval_ms;  // from US-IE
+            uint24_t ufsi;                  // from UTT-IE
+            uint32_t utt_rx_tstamp_us;
+
+            uint32_t bc_interval_ms;        // from BS-IE
+            uint16_t bsi;                   // from BS-IE
+            uint8_t  bc_dwell_interval_ms;  // from BS-IE
+            uint16_t bc_slot;               // from BT-IE
+            uint24_t bc_interval_offset_ms; // from BT-IE
+            uint32_t bt_rx_tstamp_us;
+        } ffn;
+        struct {
+            uint24_t uc_listen_interval_ms; // from LUS-IE
+            uint16_t uc_slot_number;        // from LUTT-IE
+            uint24_t uc_interval_offset_ms; // from LUTT-IE
+            uint32_t lutt_rx_tstamp_us;
+
+            uint24_t lpa_response_delay_ms; // from LND-IE
+            uint8_t  lpa_slot_duration_ms;  // from LND-IE
+            uint8_t  lpa_slot_count;        // from LND-IE
+            uint16_t lpa_slot_first;        // from LND-IE
+            uint32_t lnd_rx_tstamp_us;
+        } lfn;
+    };
+    uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
+    uint16_t uc_chan_count; // from US-IE or LUS-IE/LCP-IE
+    uint16_t uc_chan_fixed; // from US-IE or LUS-IE/LCP-IE
+    uint8_t  bc_chan_func;  // from BS-IE
+    uint16_t bc_chan_fixed; // from BS-IE
+    struct ws_channel_mask uc_channel_list;          // Neighbor unicast channel list
+    struct ws_channel_mask bc_channel_list;          // Neighbor broadcast channel list
+};
+
 typedef struct ws_neighbor_class_entry {
-    struct fhss_ws_neighbor_timing_info   fhss_data;
+    struct fhss_ws_neighbor_timing_info fhss_data;
     uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
