@@ -42,39 +42,6 @@
 
 #define TRACE_GROUP "loND"
 
-static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
-
-static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
-{
-    if_address_entry_t *address_entry = NULL;
-    address_entry = icmpv6_slaac_address_add(cur_interface, prefix, prefix_len, lifetime, preftime, slaac_src);
-    if (address_entry) {
-        //Set Callback
-        address_entry->cb = lowpan_nd_address_cb;
-        if (borRouterDevice) {
-            address_entry->state_timer = 0;
-        } else {
-            // Values inherited from the nanostack
-            address_entry->state_timer = 45 + rand_get_random_in_range(1, 31);
-            //Allocate Addres registration state
-            if (cur_interface->if_6lowpan_dad_process.active == false) {
-                // Number of retry is inherited from nanostack
-                cur_interface->if_6lowpan_dad_process.count = 5;
-                cur_interface->if_6lowpan_dad_process.active = true;
-                memcpy(cur_interface->if_6lowpan_dad_process.address, address_entry->address, 16);
-            }
-
-            if ((cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) && cur_interface->nwk_bootstrap_state == ER_SCAN) {
-                cur_interface->nwk_bootstrap_state = ER_ADDRESS_REQ;
-                cur_interface->bootstrap_state_machine_cnt = 0;
-            }
-        }
-        return 0;
-    }
-    return -1;
-}
-
-
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
