@@ -1556,15 +1556,6 @@ void ipv6_route_table_modify_router_metric(int8_t interface_id, const uint8_t *a
 
 }
 
-void ipv6_route_table_remove_info(int8_t interface_id, ipv6_route_src_t source, void *info)
-{
-    ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
-        if ((interface_id == -1 || interface_id == r->info.interface_id) && r->info.source == source && (info == NULL || r->info.info == info)) {
-            ipv6_route_entry_remove(r);
-        }
-    }
-}
-
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source)
 {
     uint8_t count = 0;
