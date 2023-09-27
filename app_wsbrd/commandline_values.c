@@ -87,6 +87,7 @@ const struct name_value valid_traces[] = {
     { "timers",    TR_TIMERS },
     { "drop",      TR_DROP },
     { "rpl",       TR_RPL },
+    { "neigh",     TR_NEIGH },
     { NULL },
 };
 

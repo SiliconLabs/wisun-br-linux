@@ -33,7 +33,6 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
-#include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"

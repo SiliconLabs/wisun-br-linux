@@ -33,7 +33,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
-#include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/sw_mac.h"

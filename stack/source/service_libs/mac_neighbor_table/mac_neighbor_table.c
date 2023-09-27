@@ -23,7 +23,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "nwk_interface/protocol.h"
 
@@ -74,7 +73,7 @@ static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class,
     if (table_class->user_remove_notify_cb) {
         table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
     }
-    topo_trace(TOPOLOGY_MLE, entry->mac64, TOPO_REMOVE);
+    TRACE(TR_NEIGH, "neighbor del %s", tr_eui64(entry->mac64));
 
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
@@ -90,7 +89,6 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
         neighbor_table_class_remove_entry(table_class, cur);
     }
-    topo_trace(TOPOLOGY_MLE, NULL, TOPO_CLEAR);
 }
 
 
@@ -154,7 +152,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->link_lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->link_role = NORMAL_NEIGHBOUR;
     entry->ms_mode = 0;
-    topo_trace(TOPOLOGY_MLE, mac64, TOPO_ADD);
+    TRACE(TR_NEIGH, "neighbor add %s", tr_eui64(mac64));
     return entry;
 }
 
