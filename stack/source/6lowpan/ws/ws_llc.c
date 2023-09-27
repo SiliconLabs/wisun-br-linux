@@ -30,7 +30,7 @@
 #include "common/iobuf.h"
 #include "common/utils.h"
 #include "common/version.h"
-#include "service_libs/random_early_detection/random_early_detection_api.h"
+#include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_api.h"
