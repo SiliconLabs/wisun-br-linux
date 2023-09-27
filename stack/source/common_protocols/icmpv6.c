@@ -627,12 +627,7 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
     /* RFC 4862 5.4.4 DAD checks */
     addr_entry = addr_get_entry(cur, target);
     if (addr_entry) {
-        if (addr_entry->tentative) {
-            tr_debug("Received NA for our tentative address");
-            addr_duplicate_detected(cur, target);
-        } else {
-            tr_debug("NA received for our own address: %s", tr_ipv6(target));
-        }
+        tr_debug("NA received for our own address: %s", tr_ipv6(target));
         goto drop;
     }
 

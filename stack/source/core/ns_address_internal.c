@@ -318,13 +318,13 @@ if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t
 bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);
-    return entry && !entry->tentative;
+
+    return entry;
 }
 
 bool addr_is_tentative_for_interface(const struct net_if *interface, const uint8_t addr[static 16])
 {
-    if_address_entry_t *entry = addr_get_entry(interface, addr);
-    return entry && entry->tentative;
+    return false;
 }
 
 if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[static 16])
@@ -465,11 +465,6 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[s
 #define PREFER_SB SA = SB; continue
 
     ns_list_foreach(if_address_entry_t, SB, &interface->ip_addresses) {
-        /* Ignore tentative addresses */
-        if (SB->tentative) {
-            continue;
-        }
-
         /* First (non-tentative) address seen becomes SA */
         if (!SA) {
             PREFER_SB;
@@ -580,11 +575,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
     }
 
     ns_list_foreach(if_address_entry_t, SB, &cur->ip_addresses) {
-        /* Ignore tentative addresses */
-        if (SB->tentative) {
-            continue;
-        }
-
         /* Prefix must match */
         if (bitcmp(SB->address, prefix, prefix_len)) {
             continue;
@@ -694,41 +684,7 @@ void addr_fast_timer(int ticks)
         }
 
         addr->state_timer = 0;
-        /* Advance DAD state machine if tentative, else give it to the protocol state machine */
-        if (addr->tentative) {
-            if (addr->count == 0) {
-#if 0
-                // Initial join delay finished
-                // We don't have full MLD support - send 1 report for now
-                // This will become a real "join" later
-                buffer_t *mld_buf;
-                uint8_t sol_addr[16];
-                memcpy(sol_addr, ADDR_MULTICAST_SOLICITED, 13);
-                memcpy(sol_addr + 13, addr->address + 13, 3);
-                mld_buf = mld_build(cur, NULL, ICMPV6_TYPE_INFO_MCAST_LIST_REPORT, 0, sol_addr);
-                protocol_push(mld_buf);
-#endif
-                if (addr_add_solicited_node_group(cur, addr->address)) {
-                    addr->group_added = true;
-                }
-            }
-            if (addr->count >= cur->dup_addr_detect_transmits) {
-                /* Finished - if we've not been nerfed already, we can transition
-                 * to non-tentative.
-                 */
-                addr->tentative = false;
-                addr->count = 0;
-                tr_info("DAD passed on IF %d: %s", cur->id, tr_ipv6(addr->address));
-                addr_cb(cur, addr, ADDR_CALLBACK_DAD_COMPLETE);
-            } else {
-                buffer_t *ns_buf = icmpv6_build_ns(cur, addr->address, NULL, false, true, NULL);
-                protocol_push(ns_buf);
-                addr->state_timer = (cur->ipv6_neighbour_cache.retrans_timer + 50) / 100; // ms -> ticks
-                addr->count++;
-            }
-        } else {
-            addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
-        }
+        addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
 
         /* If a callback has shut down the interface, break now - this isn't
          * just a nicety; it avoids an iteration failure if shutdown disrupted
@@ -807,14 +763,13 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     entry->valid_lifetime = valid_lifetime;
     entry->preferred_lifetime = preferred_lifetime;
     entry->group_added = false;
-    entry->tentative = false;
     if (addr_add_solicited_node_group(cur, entry->address))
         entry->group_added = true;
     // XXX not right? Want to do delay + MLD join, so don't special-case?
     /* entry->cb isn't set yet, but global notifiers will want call */
     addr_cb(cur, entry, ADDR_CALLBACK_DAD_COMPLETE);
 
-    tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, tr_ipv6(address));
+    tr_info("Address added to IF %d: %s", cur->id, tr_ipv6(address));
 
     ns_list_add_to_end(&cur->ip_addresses, entry);
     notify_user_if_ready();
@@ -915,14 +870,8 @@ void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *a
 {
     if (preferred_lifetime != addr->preferred_lifetime) {
         addr->preferred_lifetime = preferred_lifetime;
-        if (preferred_lifetime == 0) {
-            // Entry is deleted if it is tentative
-            if (addr->tentative) {
-                addr_delete_entry(interface, addr);
-            } else {
-                addr_cb(interface, addr, ADDR_CALLBACK_DEPRECATED);
-            }
-        }
+        if (preferred_lifetime == 0)
+            addr_cb(interface, addr, ADDR_CALLBACK_DEPRECATED);
     }
 }
 
@@ -1032,9 +981,7 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
         tr_debug("LL64 Register OK!");
         ret_val = 0;
         address_entry->cb = cb;
-        if (!address_entry->tentative) {
-            addr_cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
-        }
+        addr_cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
     }
     return ret_val;
 }
@@ -1051,7 +998,7 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
     }
 
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (!e->tentative && addr_is_ipv6_link_local(e->address)) {
+        if (addr_is_ipv6_link_local(e->address)) {
             if (memcmp(e->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
                 short_addr = e->address;
             } else {
@@ -1083,12 +1030,6 @@ bool addr_interface_all_address_ready(struct net_if *cur)
 {
     if (!cur) {
         return false;
-    }
-
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->tentative) {
-            return false;
-        }
     }
     return true;
 }

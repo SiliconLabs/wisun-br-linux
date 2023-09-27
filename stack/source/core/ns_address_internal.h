@@ -98,7 +98,6 @@ typedef struct if_address_entry {
     uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
     bool temporary: 1;          // RFC 4941 temporary address
-    bool tentative: 1;          // Tentative address (Duplicate Address Detection running)
     bool group_added: 1;        // Solicited-Node group added
     if_address_source_e source; //
     if_address_callback_fn *cb; // Address protocol callback function
