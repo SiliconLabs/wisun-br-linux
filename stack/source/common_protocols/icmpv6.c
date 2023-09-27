@@ -428,16 +428,6 @@ drop:
 
 }
 
-void icmpv6_recv_ra_routes(struct net_if *cur, bool enable)
-{
-    if (cur->recv_ra_routes != enable) {
-        cur->recv_ra_routes = enable;
-        if (!enable) {
-            ipv6_route_table_remove_info(cur->id, ROUTE_RADV, NULL);
-        }
-    }
-}
-
 static buffer_t *icmpv6_redirect_handler(buffer_t *buf, struct net_if *cur)
 {
     const uint8_t *ptr = buffer_data_pointer(buf);
