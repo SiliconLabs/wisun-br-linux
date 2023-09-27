@@ -808,24 +808,6 @@ void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t pre
 
 }
 
-void addr_duplicate_detected(struct net_if *interface, const uint8_t addr[static 16])
-{
-    if_address_entry_t *entry = addr_get_entry(interface, addr);
-    if (!entry) {
-        return;
-    }
-
-    tr_warn("DAD failed: %s", tr_ipv6(addr));
-
-    interface->dad_failures++;
-    addr_cb(interface, entry, ADDR_CALLBACK_DAD_FAILED);
-
-    /* Callback may have done something drastic like shut down the interface.
-     * Don't assume entry is still valid - remove it by IP address.
-     */
-    addr_delete(interface, addr);
-}
-
 void addr_notification_register(if_address_notification_fn *fn)
 {
     ns_list_foreach(addr_notification_t, n, &addr_notifications) {

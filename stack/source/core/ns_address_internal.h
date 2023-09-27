@@ -183,8 +183,6 @@ bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t
 
 void addr_policy_remove_by_label(uint8_t label);
 
-void addr_duplicate_detected(struct net_if *interface, const uint8_t addr[static 16]);
-
 struct if_group_entry *addr_add_group(struct net_if *interface, const uint8_t group[static 16]);
 void addr_remove_group(struct net_if *interface, const uint8_t group[static 16]);
 bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16]);
