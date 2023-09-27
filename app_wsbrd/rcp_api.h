@@ -27,7 +27,6 @@ struct fhss_ws_neighbor_timing_info;
 struct ws_neighbor_class_entry;
 struct fhss_ws_configuration;
 struct mcps_data_req;
-struct channel_list;
 struct iobuf_write;
 struct iobuf_read;
 struct wsbr_ctxt;
@@ -52,6 +51,25 @@ typedef enum {
     WS_TX_SLOT, // Allow transmitting only on TX slots.
     WS_TX_AND_RX_SLOT, // Allow transmitting only on TX and RX slots.
 } fhss_ws_tx_allow_level_e;
+
+enum channel_page {
+    CHANNEL_PAGE_0 = 0,     ///< Page 0
+    CHANNEL_PAGE_1 = 1,     ///< Page 1
+    CHANNEL_PAGE_2 = 2,     ///< Page 2
+    CHANNEL_PAGE_3 = 3,     ///< Page 3
+    CHANNEL_PAGE_4 = 4,     ///< Page 4
+    CHANNEL_PAGE_5 = 5,     ///< Page 5
+    CHANNEL_PAGE_6 = 6,     ///< Page 6
+    CHANNEL_PAGE_9 = 9,     ///< Page 9
+    CHANNEL_PAGE_10 = 10,   ///< Page 10
+    CHANNEL_PAGE_UNDEFINED  ///< Undefined
+};
+
+struct channel_list {
+    enum channel_page channel_page;    /**< Channel page */
+    uint8_t channel_mask[32];       /**< Channel mask. Each bit defining one channel */
+    uint16_t next_channel_number;   /**< Next channel to use in the list */
+};
 
 typedef struct phy_rf_channel_configuration {
     uint32_t channel_0_center_frequency;
