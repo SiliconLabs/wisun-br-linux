@@ -51,18 +51,7 @@
 #define TRACE_GROUP_LOWPAN_BOOT "6Bo"
 #define TRACE_GROUP "6Bo"
 
-static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface);
-
 #define MAX_MC_DIS_COUNT 3
-
-static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
-{
-}
-
-void protocol_6lowpan_bootstrap_nd_ready(struct net_if *cur_interface)
-{
-    protocol_6lowpan_address_reg_ready(cur_interface);
-}
 
 uint8_t *protocol_6lowpan_nd_border_router_address_get()
 {
