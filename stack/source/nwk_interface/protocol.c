@@ -391,19 +391,6 @@ void net_bootstrap_cb_run(uint8_t event)
         ws_bootstrap_6lbr_state_machine(cur);
 }
 
-void protocol_core_dhcpv6_allocated_address_remove(struct net_if *cur, uint8_t *guaPrefix)
-{
-    //Delete Address & Routes
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_DHCP && (e->prefix_len == 64) && !bitcmp(e->address, guaPrefix, 64)) {
-            ns_list_remove(&cur->ip_addresses, e);
-            free(e);
-            tr_debug("Delete DHCPv6 Allocated Address");
-            break;
-        }
-    }
-}
-
 /* XXX note that this does not perform any scope checks, so will for example match
  * link local addresses on any interface - you may want addr_interface_address_compare */
 int8_t protocol_interface_address_compare(const uint8_t *addr)

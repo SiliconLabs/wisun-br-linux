@@ -256,7 +256,6 @@ void protocol_6lowpan_stack(buffer_t *b);
 void protocol_6lowpan_register_handlers(struct net_if *cur);
 void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress);
 void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64);
-void protocol_core_dhcpv6_allocated_address_remove(struct net_if *cur, uint8_t *guaPrefix);
 
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
