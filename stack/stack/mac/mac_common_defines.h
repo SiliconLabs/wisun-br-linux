@@ -55,6 +55,18 @@
 
 #define mac_unsecured_2003_compatibility false /**< For IEEE 802.15.4-2003 MAC compatibility, force max size to never exceed MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE */
 
+// IEEE standard 802.15.4-2006. Table 95.
+enum {
+    SEC_NONE       = 0, // No payload encoding and and no authentication
+    SEC_MIC32      = 1, // No payload encoding but 32-bit MIC authentication
+    SEC_MIC64      = 2, // No payload encoding but 64-bit MIC authentication
+    SEC_MIC128     = 3, // No payload encoding but 128-bit MIC authentication
+    SEC_ENC        = 4, // Payload encoding but no authentication
+    SEC_ENC_MIC32  = 5, // Payload encoding and 32-bit MIC authentication
+    SEC_ENC_MIC64  = 6, // Payload encoding and 64-bit MIC authentication
+    SEC_ENC_MIC128 = 7  // Payload encoding and 128-bit MIC authentication
+};
+
 /**
  * @brief struct mlme_security MLME/MCPS security structure
  * This structure encapsulates security related variables,

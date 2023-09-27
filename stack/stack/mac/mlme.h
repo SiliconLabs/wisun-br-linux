@@ -85,21 +85,6 @@ typedef struct mlme_key_device_descriptor {
     bool Blacklisted: 1;            /**< true = Description is black listed, False = valid to use */
 } mlme_key_device_descriptor_t;
 
-/**
- * @brief enum mlme_security_type_e Security type enumeration
- *
- * See IEEE standard 802.15.4-2006 (table 95) for more details
- */
-typedef enum {
-    SEC_NONE = 0,       /**< No payload encode and authentication */
-    SEC_MIC32 = 1,      /**< No payload encode with 32-bit MIC authentication */
-    SEC_MIC64 = 2,      /**< No payload encode with 64-bit MIC authentication */
-    SEC_MIC128 = 3,     /**< No payload encode with 128-bit MIC authentication */
-    SEC_ENC = 4,        /**< Payload encode enabled and without authentication */
-    SEC_ENC_MIC32 = 5,  /**< Payload encode enabled with 32-bit MIC authentication */
-    SEC_ENC_MIC64 = 6,  /**< Payload encode enabled with 64-bit MIC authentication */
-    SEC_ENC_MIC128 = 7  /**< Payload encode enabled with 128-bit MIC authentication */
-} mlme_security_type_e;
 
 /**
  * @brief struct mlme_security_level_descriptor Security level descriptor

@@ -37,7 +37,6 @@
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
-#include "stack/mac/ccm.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -1222,7 +1221,7 @@ static void ws_bootstrap_lpan_version_increment(struct net_if *cur)
 static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 {
     cur->mac_parameters.mac_key_id_mode = MAC_KEY_ID_MODE_IDX;
-    cur->mac_parameters.mac_security_level = AES_SECURITY_LEVEL_ENC_MIC64;
+    cur->mac_parameters.mac_security_level = SEC_ENC_MIC64;
     cur->mac_parameters.SecurityEnabled = true;
     rcp_set_security(true);
 }
