@@ -26,6 +26,7 @@
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_management_api.h"
 

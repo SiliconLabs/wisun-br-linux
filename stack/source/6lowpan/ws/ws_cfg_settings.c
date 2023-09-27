@@ -24,7 +24,6 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/fhss_config.h"
 
 #include "core/net_interface.h"
 #include "nwk_interface/protocol.h"

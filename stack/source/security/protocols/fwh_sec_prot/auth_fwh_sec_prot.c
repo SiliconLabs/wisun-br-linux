@@ -24,7 +24,6 @@
 #include "common/ns_list.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
-#include "stack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"

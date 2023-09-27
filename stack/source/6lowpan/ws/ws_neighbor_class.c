@@ -28,7 +28,6 @@
 #include "common/ns_list.h"
 #include "common/version.h"
 #include "stack/mac/mac_mcps.h"
-#include "stack/mac/fhss_config.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api.h"

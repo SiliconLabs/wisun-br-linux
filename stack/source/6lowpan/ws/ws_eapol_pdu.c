@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
 

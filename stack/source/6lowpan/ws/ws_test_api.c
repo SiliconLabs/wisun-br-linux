@@ -22,7 +22,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/mac/fhss_config.h"
 
 #include "6lowpan/mac/mac_helper.h"
 #include "nwk_interface/protocol.h"

@@ -23,7 +23,6 @@
 
 #include "common/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/fhss_config.h"
 
 #include "core/net_interface.h"
 #include "6lowpan/ws/ws_config.h"
@@ -60,6 +59,54 @@ typedef struct ws_bsi_block {
 } ws_bsi_block_t;
 
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
+
+/**
+ * @brief WS channel functions.
+ */
+typedef enum {
+    /** Fixed channel. */
+    WS_FIXED_CHANNEL,
+    /** TR51 channel function. */
+    WS_TR51CF,
+    /** Direct Hash channel function. */
+    WS_DH1CF,
+    /** Vendor Defined channel function. */
+    WS_VENDOR_DEF_CF
+} fhss_ws_channel_functions_e;
+
+/**
+ * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
+ */
+typedef struct fhss_ws_configuration {
+    /** WS unicast channel function. */
+    fhss_ws_channel_functions_e ws_uc_channel_function;
+    /** WS broadcast channel function. */
+    fhss_ws_channel_functions_e ws_bc_channel_function;
+    /** Broadcast schedule identifier. */
+    uint16_t bsi;
+    /** Unicast dwell interval. Range: 15-250 milliseconds. */
+    uint8_t fhss_uc_dwell_interval;
+    /** Broadcast interval. Duration between broadcast dwell intervals. Range: 0-16777216 milliseconds. */
+    uint32_t fhss_broadcast_interval;
+    uint32_t lfn_bc_interval;
+    /** Broadcast dwell interval. Range: 15-250 milliseconds. */
+    uint8_t fhss_bc_dwell_interval;
+    /** Unicast fixed channel */
+    uint8_t unicast_fixed_channel;
+    /** Broadcast fixed channel */
+    uint8_t broadcast_fixed_channel;
+    /** Domain channel mask, Wi-SUN uses it to exclure channels on US-IE and BS-IE. */
+    uint8_t domain_channel_mask[32];
+    /** Wi-SUN specific unicast channel mask */
+    uint8_t unicast_channel_mask[32];
+    /** Wi-SUN specific broadcast channel mask */
+    uint8_t broadcast_channel_mask[32];
+    /** Channel mask size */
+    uint16_t channel_mask_size;
+    /** Number of channel retries defines how many consecutive channels are used when retransmitting a frame after initial transmission channel. */
+    uint8_t number_of_channel_retries;
+} fhss_ws_configuration_t;
+
 
 typedef struct ws_info {
     struct ws_mngt mngt;

@@ -25,7 +25,6 @@
 #include "common/utils.h"
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/fhss_config.h"
 
 #include "core/ns_address.h"
 #include "core/timers.h"

@@ -32,7 +32,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/fhss_config.h"
 #include "6lowpan/mac/mac_common_defines.h"
 
 #include "core/net_interface.h"
