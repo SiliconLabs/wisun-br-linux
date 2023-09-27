@@ -787,21 +787,6 @@ bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[sta
     return iid[0] == (eui64[0] ^ 2);
 }
 
-bool addr_iid_matches_lowpan_short(const uint8_t iid[static 8], uint16_t short_addr)
-{
-    if (iid[7] != (short_addr & 0xFF) ||
-            iid[6] != (short_addr >> 8)) {
-        return false;
-    }
-
-    for (int_fast8_t n = 5; n >= 0; n--) {
-        if (iid[n] != ADDR_SHORT_ADR_SUFFIC[n]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 /* Write a LoWPAN IPv6 address, based on a prefix and short address */
 uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr)
 {

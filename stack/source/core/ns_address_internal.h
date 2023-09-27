@@ -191,7 +191,6 @@ uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const struct net_if 
 #define addr_ipv6_multicast_scope(addr) ((addr)[1] & 0x0F)
 bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
 bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
-bool addr_iid_matches_lowpan_short(const uint8_t iid[static 8], uint16_t short_addr);
 bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
 
 uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr);
