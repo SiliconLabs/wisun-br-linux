@@ -429,16 +429,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
             goto drop; // there is no source link-layer address option in the message.
     }
 
-    /* See RFC 4862 5.4.3 - hook for Duplicate Address Detection */
-    if (addr_is_tentative_for_interface(cur, target)) {
-        if (addr_is_ipv6_unspecified(buf->src_sa.address)) {
-            tr_debug("Received DAD NS for our tentative address");
-            /* Someone else is performing DAD */
-            addr_duplicate_detected(cur, target);
-        }
-        goto drop;
-    }
-
     /* This first check's a bit dodgy - it responds to our address on the other
      * interface, which we should only do in the whiteboard case.
      */

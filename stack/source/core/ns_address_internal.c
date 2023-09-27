@@ -322,11 +322,6 @@ bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t
     return entry;
 }
 
-bool addr_is_tentative_for_interface(const struct net_if *interface, const uint8_t addr[static 16])
-{
-    return false;
-}
-
 if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[static 16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);

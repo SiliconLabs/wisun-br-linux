@@ -180,7 +180,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 int8_t addr_interface_select_source(struct net_if *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences);
 struct if_address_entry *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16]);
 bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16]);
-bool addr_is_tentative_for_interface(const struct net_if *interface, const uint8_t addr[static 16]);
 
 void addr_policy_remove_by_label(uint8_t label);
 
