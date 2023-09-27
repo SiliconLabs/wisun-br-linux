@@ -281,4 +281,9 @@ void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len);
 bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len);
+
+void nwk_bootstrap_timer(int ticks);
+void icmp_fast_timer(int ticks);
+void update_reachable_time(int seconds);
+
 #endif /* _NS_PROTOCOL_H */

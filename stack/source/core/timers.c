@@ -8,7 +8,7 @@
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
-#include "stack/source/nwk_interface/protocol_core.h"
+#include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/service_libs/etx/etx.h"

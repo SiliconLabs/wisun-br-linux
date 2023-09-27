@@ -187,7 +187,7 @@ add_library(libwsbrd STATIC
     stack/source/core/ns_buffer.c
     stack/source/ipv6_stack/ipv6_routing_table.c
     stack/source/mpl/mpl.c
-    stack/source/nwk_interface/protocol_core.c
+    stack/source/nwk_interface/protocol.c
     stack/source/nwk_interface/protocol_stats.c
     stack/source/rpl/rpl_glue.c
     stack/source/rpl/rpl_srh.c
