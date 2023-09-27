@@ -116,15 +116,6 @@ typedef struct if_group_entry {
 
 typedef NS_LIST_HEAD(if_group_entry_t, link) if_group_list_t;
 
-/* Groups we will forward onto an interface */
-typedef struct if_group_fwd_entry {
-    uint8_t group[16];
-    uint32_t lifetime;
-    ns_list_link_t link;
-} if_group_fwd_entry_t;
-
-typedef NS_LIST_HEAD(if_group_fwd_entry_t, link) if_group_fwd_list_t;
-
 extern uint32_t addr_preferences_default;   // default SOCKET_IPV6_ADDR_PREFERENCES
 
 extern const uint8_t ADDR_SHORT_ADR_SUFFIC[6];                      // 0000:00ff:fe00
