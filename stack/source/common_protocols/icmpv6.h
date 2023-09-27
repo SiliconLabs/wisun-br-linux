@@ -129,8 +129,6 @@ struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t 
 
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);
 
-int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
-
 /*
  * Write either an ICMPv6 Prefix Information Option for a Router Advertisement
  * (RFC4861+6275), or an RPL Prefix Information Option (RFC6550).

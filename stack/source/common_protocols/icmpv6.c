@@ -428,21 +428,6 @@ drop:
 
 }
 
-int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime)
-{
-    int ret_val = -1;
-
-    //Validate first current list If prefix is already defined adress
-    ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && !bitcmp(e->address, prefix_ptr, prefix_len)) {
-
-            addr_lifetime_update(cur, e, valid_lifetime, preferred_lifetime, 2 * 60 * 60);
-            ret_val = 0;
-        }
-    }
-    return ret_val;
-}
-
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable)
 {
     if (cur->recv_ra_routes != enable) {
