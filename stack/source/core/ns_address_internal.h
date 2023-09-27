@@ -164,7 +164,6 @@ void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr);
 
 void addr_notification_register(if_address_notification_fn fn);
 void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
-void addr_set_valid_lifetime(struct net_if *interface, if_address_entry_t *entry, uint32_t valid_lifetime);
 void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *entry, uint32_t preferred_lifetime);
 
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);

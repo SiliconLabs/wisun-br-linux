@@ -822,14 +822,6 @@ void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_call
     }
 }
 
-void addr_set_valid_lifetime(struct net_if *interface, if_address_entry_t *addr, uint32_t valid_lifetime)
-{
-    if (valid_lifetime != addr->valid_lifetime) {
-        addr->valid_lifetime = valid_lifetime;
-        addr_cb(interface, addr, ADDR_CALLBACK_REFRESHED);
-    }
-}
-
 void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *addr, uint32_t preferred_lifetime)
 {
     if (preferred_lifetime != addr->preferred_lifetime) {
