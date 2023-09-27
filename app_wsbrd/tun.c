@@ -35,7 +35,6 @@
 #include "common/iobuf.h"
 #include "common/netinet_in_extra.h"
 #include "common_protocols/icmpv6.h"
-#include "stack/mac/platform/arm_hal_phy.h"
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"

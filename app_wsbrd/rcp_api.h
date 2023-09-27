@@ -16,7 +16,6 @@
 #include <sys/uio.h>
 
 #include "stack/mac/fhss_ws_extension.h"
-#include "stack/mac/platform/arm_hal_phy.h"
 
 #define HIF_FHSS_TYPE_FFN_UC 0x00
 #define HIF_FHSS_TYPE_FFN_BC 0x01
@@ -27,7 +26,6 @@
 
 struct ws_neighbor_class_entry;
 struct fhss_ws_configuration;
-struct phy_rf_channel_configuration;
 struct mcps_data_req;
 struct channel_list;
 struct iobuf_write;
@@ -45,6 +43,25 @@ typedef enum mlme_primitive mlme_primitive_e;
 #define RCP_HAS_HWADDR         0x0002
 #define RCP_HAS_RF_CONFIG_LIST 0x0004
 #define RCP_HAS_RF_CONFIG      0x0008
+
+typedef enum {
+    IEEE_802_15_4_2011 = 0,    /**<IEEE 802.15.4-2011*/
+    IEEE_802_15_4G_2012 = 1,   /**<IEEE 802.15.4g-2012*/
+} phy_802_15_4_mode_e;
+
+typedef struct phy_rf_channel_configuration {
+    uint32_t channel_0_center_frequency;
+    uint32_t channel_spacing;
+    uint32_t datarate;
+    uint16_t number_of_channels;
+    uint8_t  modulation;
+    uint8_t  modulation_index;
+    bool     fec;
+    uint8_t  ofdm_option;
+    uint8_t  ofdm_mcs;
+    int      rcp_config_index;
+    bool     use_phy_op_modes;
+} phy_rf_channel_configuration_t;
 
 struct rcp_rail_config {
     int      index;

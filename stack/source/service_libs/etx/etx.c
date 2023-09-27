@@ -22,7 +22,6 @@
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/etx/etx.h"
-#include "stack/mac/platform/arm_hal_phy.h"
 
 #include "core/net_interface.h"
 #include "core/ns_address_internal.h"

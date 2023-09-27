@@ -18,7 +18,20 @@
 #ifndef CHANNEL_LIST_H_
 #define CHANNEL_LIST_H_
 #include <stdint.h>
-#include "stack/mac/platform/arm_hal_phy.h"
+
+/** Channel page numbers */
+typedef enum {
+    CHANNEL_PAGE_0 = 0,     ///< Page 0
+    CHANNEL_PAGE_1 = 1,     ///< Page 1
+    CHANNEL_PAGE_2 = 2,     ///< Page 2
+    CHANNEL_PAGE_3 = 3,     ///< Page 3
+    CHANNEL_PAGE_4 = 4,     ///< Page 4
+    CHANNEL_PAGE_5 = 5,     ///< Page 5
+    CHANNEL_PAGE_6 = 6,     ///< Page 6
+    CHANNEL_PAGE_9 = 9,     ///< Page 9
+    CHANNEL_PAGE_10 = 10,   ///< Page 10
+    CHANNEL_PAGE_UNDEFINED  ///< Undefined
+} channel_page_e;
 
 /** Channel list */
 typedef struct channel_list {

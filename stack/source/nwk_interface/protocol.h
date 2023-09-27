@@ -28,7 +28,6 @@
 #define _NS_PROTOCOL_H
 
 #include "common/trickle.h"
-#include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/channel_list.h"
 
 // Users of protocol.h can assume it includes these headers
