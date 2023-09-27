@@ -93,8 +93,6 @@ typedef void if_address_notification_fn(struct net_if *interface, const struct i
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
-    uint32_t valid_lifetime;    // seconds remaining; 0xffffffff = infinite
-    uint32_t preferred_lifetime; // seconds remaining; 0 if deprecated, 0xffffffff = infinite
     uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
     bool temporary: 1;          // RFC 4941 temporary address
@@ -157,7 +155,7 @@ uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 void address_module_init(void);
 void addr_fast_timer(int ticks);
 void addr_slow_timer(int seconds);
-struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime);
+struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source);
 int_fast8_t addr_delete(struct net_if *cur, const uint8_t address[static 16]);
 void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr);

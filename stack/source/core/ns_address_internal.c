@@ -489,13 +489,6 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[s
             }
         }
 
-        /* Rule 3: Avoid deprecated addresses */
-        if (SA->preferred_lifetime != 0 && SB->preferred_lifetime == 0) {
-            PREFER_SA;
-        } else if (SB->preferred_lifetime != 0 && SA->preferred_lifetime == 0) {
-            PREFER_SB;
-        }
-
         /* (Rule 4: Prefer home addresses - Mobile IPv6 not implemented) */
         /* (Rule 5: Prefer outgoing interface - candidate set already limited) */
         /* (Rule 5.5: Prefer addresses in a prefix advertised by the next-hop - we don't track this information) */
@@ -588,13 +581,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
             PREFER_SB;
         } else if (scope_SB < scope_SA) {
             PREFER_SA;
-        }
-
-        /* Rule 3: Avoid deprecated addresses */
-        if (SA->preferred_lifetime != 0 && SB->preferred_lifetime == 0) {
-            PREFER_SA;
-        } else if (SB->preferred_lifetime != 0 && SA->preferred_lifetime == 0) {
-            PREFER_SB;
         }
 
         /* (Rule 4: Prefer home addresses - Mobile IPv6 not implemented) */
@@ -693,34 +679,6 @@ void addr_fast_timer(int ticks)
 
 void addr_slow_timer(int seconds)
 {
-    struct net_if *cur = protocol_stack_interface_info_get();
-
-    /* Slow (lifetime) timers run whether the interface is active or not */
-    ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
-        if (addr->preferred_lifetime != 0xffffffff && addr->preferred_lifetime != 0) {
-            if (addr->preferred_lifetime > seconds) {
-                addr->preferred_lifetime -= seconds;
-            } else {
-                tr_info("Address deprecated: %s", tr_ipv6(addr->address));
-                addr->preferred_lifetime = 0;
-                addr_cb(cur, addr, ADDR_CALLBACK_DEPRECATED);
-            }
-        }
-
-        if (addr->valid_lifetime != 0xffffffff) {
-            if (addr->valid_lifetime > seconds) {
-                addr->valid_lifetime -= seconds;
-            } else {
-                tr_info("Address invalidated: %s", tr_ipv6(addr->address));
-                addr->valid_lifetime = 0;
-                addr_cb(cur, addr, ADDR_CALLBACK_INVALIDATED);
-                /* Give them the chance to revalidate */
-                if (addr->valid_lifetime == 0) {
-                    addr_delete_entry(cur, addr);
-                }
-            }
-        }
-    }
 }
 
 void notify_user_if_ready()
@@ -739,7 +697,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -755,8 +713,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
     entry->source = source;
-    entry->valid_lifetime = valid_lifetime;
-    entry->preferred_lifetime = preferred_lifetime;
     entry->group_added = false;
     if (addr_add_solicited_node_group(cur, entry->address))
         entry->group_added = true;
@@ -909,7 +865,7 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
     memcpy(temp_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(temp_ll64 + 8, cur->iid_eui64, 8);
 
-    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff);
+    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN);
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;
