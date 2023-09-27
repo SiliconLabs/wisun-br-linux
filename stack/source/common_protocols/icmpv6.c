@@ -640,9 +640,6 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
     if (aro && aro[1] != 2)
         aro = NULL;
     if (aro) {
-        if (cur->ipv6_neighbour_cache.recv_na_aro) {
-            icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
-        }
         icmpv6_na_wisun_aro_handler(cur, aro, buf->src_sa.address);
     }
 

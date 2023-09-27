@@ -120,7 +120,6 @@ typedef struct ipv6_neighbour_cache {
     bool                                    send_nud_probes : 1;
     bool                                    probe_avoided_routers : 1;
     bool                                    recv_ns_aro : 1;
-    bool                                    recv_na_aro : 1;
     bool                                    use_eui64_as_slla_in_aro : 1;
     bool                                    omit_na_aro_success : 1;
     bool                                    omit_na : 1; // except for ARO successes which have a separate flag

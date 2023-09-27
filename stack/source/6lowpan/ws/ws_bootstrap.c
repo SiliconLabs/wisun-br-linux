@@ -626,8 +626,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->ipv6_neighbour_cache.omit_na_aro_success = true;
     /* Omit sending of NA and consider ACK to be success */
     cur->ipv6_neighbour_cache.omit_na = true;
-    // do not process AROs from NA. This is overriden by Wi-SUN specific failure handling
-    cur->ipv6_neighbour_cache.recv_na_aro = false;
     /* Disable NUD Probes */
     cur->ipv6_neighbour_cache.send_nud_probes = false;
     cur->ipv6_neighbour_cache.probe_avoided_routers = true;
