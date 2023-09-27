@@ -33,7 +33,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
-#include "stack/mac/mac_common_defines.h"
 #include "stack/mac/fhss_config.h"
 
 #include "app_wsbrd/wsbr.h"
@@ -52,6 +51,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
+#include "6lowpan/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"

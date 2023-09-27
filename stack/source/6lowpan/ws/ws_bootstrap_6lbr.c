@@ -33,7 +33,7 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 #include "stack/mac/fhss_config.h"
 
 #include "app_wsbrd/rcp_api.h"

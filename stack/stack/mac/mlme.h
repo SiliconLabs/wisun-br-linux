@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 
 enum mlme_primitive {
     MLME_ASSOCIATE,

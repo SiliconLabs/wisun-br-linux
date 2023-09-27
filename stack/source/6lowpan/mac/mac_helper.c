@@ -21,7 +21,6 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
 
 #include "app_wsbrd/wsbr_mac.h"
@@ -30,6 +29,7 @@
 #include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol.h"
 
+#include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "MACh"

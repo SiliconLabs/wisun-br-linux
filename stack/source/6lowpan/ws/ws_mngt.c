@@ -18,6 +18,7 @@
 #include "stack/mac/mac_mcps.h"
 
 #include "stack/source/core/timers.h"
+#include "stack/source/6lowpan/mac/mac_common_defines.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"

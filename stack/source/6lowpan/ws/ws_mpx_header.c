@@ -24,7 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/iobuf.h"
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_mpx_header.h"
 

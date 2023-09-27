@@ -32,7 +32,6 @@
 #include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/etx/etx.h"
-#include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
 
@@ -43,6 +42,7 @@
 #include "nwk_interface/protocol.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
+#include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_common_defines.h"

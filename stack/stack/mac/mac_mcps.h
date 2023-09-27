@@ -26,7 +26,7 @@
 #include <sys/uio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 
 typedef struct mcps_data_retry_s {
     uint8_t phy_mode_id;

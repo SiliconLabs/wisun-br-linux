@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+// FIXME: Merge with other 15.4 definitions
+
 #define MAC_ADDR_MODE_NONE 0                    /**< Address mode for no address defined */
 #define MAC_ADDR_MODE_16_BIT 2                  /**< Address mode for 16-bit addresses */
 #define MAC_ADDR_MODE_64_BIT 3                  /**< Address mode for 64-bit addresses */

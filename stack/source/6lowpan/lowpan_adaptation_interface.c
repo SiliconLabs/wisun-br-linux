@@ -31,7 +31,7 @@
 #include "common/events_scheduler.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_mcps.h"
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"

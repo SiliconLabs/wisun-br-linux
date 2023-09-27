@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
-#include "stack/mac/mac_common_defines.h"
+#include "6lowpan/mac/mac_common_defines.h"
 #include "stack/mac/channel_list.h"
 
 #include "6lowpan/ws/ws_neighbor_class.h"
