@@ -110,13 +110,6 @@ int8_t event_scheduler_get_active_tasklet(void)
     return ctxt->curr_tasklet;
 }
 
-void event_scheduler_set_active_tasklet(int8_t tasklet)
-{
-    struct events_scheduler *ctxt = g_event_scheduler;
-
-    ctxt->curr_tasklet = tasklet;
-}
-
 bool event_scheduler_dispatch_event(void)
 {
     struct events_scheduler *ctxt = g_event_scheduler;

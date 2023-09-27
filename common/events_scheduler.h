@@ -90,14 +90,6 @@ void event_scheduler_run_until_idle(void);
 int8_t event_scheduler_get_active_tasklet(void);
 
 /**
- * \brief Set manually Active Tasklet ID
- *
- * \param tasklet requested tasklet ID
- *
- * */
- void event_scheduler_set_active_tasklet(int8_t tasklet);
-
-/**
  * \brief This function will be called when stack receives an event.
  */
 void event_scheduler_signal(void);
