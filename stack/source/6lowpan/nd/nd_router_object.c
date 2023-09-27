@@ -77,15 +77,8 @@ static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
-    bool g16_address;
     tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
-
-    if (memcmp(&addr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-        g16_address = true;
-    } else {
-        g16_address = false;
-    }
-
+    WARN_ON(memcmp(&addr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0, "short address are not supported");
     switch (reason) {
         case ADDR_CALLBACK_DAD_COMPLETE:
             if (addr_ipv6_equal(interface->if_6lowpan_dad_process.address, addr->address)) {
@@ -114,27 +107,8 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
             break;
 
         case ADDR_CALLBACK_DAD_FAILED:
-            if (g16_address) {
-                tr_warn("ARO Failure:Duplicate address");
-                uint16_t shortAddress = read_be16(&addr->address[14]);
-                tr_warn("Del old ll16");
-                protocol_6lowpan_del_ll16(interface, shortAddress);
-                //Check if Application not freeze new address allocartion
-                if (interface->reallocate_short_address_if_duplicate) {
-
-                    protocol_6lowpan_allocate_mac16(interface);
-                    interface->if_6lowpan_dad_process.active = false;
-                    if (icmp_nd_slaac_prefix_address_gen(interface, addr->address, addr->prefix_len,
-                                                         addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_6LOWPAN_SHORT) == 0) {
-                        addr->state_timer = 1;
-                        return;
-                    }
-                }
-            }
             bootstrap_next_state_kick(ER_BOOTSTRAP_DAD_FAIL, interface);
-
             break;
-
         default:
             break;
     }
