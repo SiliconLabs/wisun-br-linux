@@ -30,7 +30,6 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/etx/etx.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/mac_api.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"

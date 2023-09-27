@@ -34,7 +34,6 @@
 #include "common/events_scheduler.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_common_defines.h"
-#include "stack/mac/mac_api.h"
 
 #include "core/net_interface.h"
 #include "common_protocols/icmpv6.h"

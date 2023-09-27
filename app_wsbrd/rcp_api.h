@@ -37,7 +37,6 @@ struct mcps_data_conf;
 struct mcps_data_ind;
 struct mcps_data_conf_payload;
 struct mcps_data_ie_list;
-typedef enum mlme_primitive mlme_primitive_e;
 
 #define RCP_HAS_RESET          0x0001
 #define RCP_HAS_HWADDR         0x0002

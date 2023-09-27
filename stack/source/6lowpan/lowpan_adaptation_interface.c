@@ -29,7 +29,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_common_defines.h"
 

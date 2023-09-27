@@ -28,7 +28,6 @@
 #include "common/endian.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/mac_api.h"
 
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"

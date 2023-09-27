@@ -21,7 +21,6 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack/mac/mac_api.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
 

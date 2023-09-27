@@ -27,6 +27,24 @@
 
 #include "stack/mac/mac_common_defines.h"
 
+enum mlme_primitive {
+    MLME_ASSOCIATE,
+    MLME_DISASSOCIATE,
+    MLME_BEACON_NOTIFY,
+    MLME_GET,
+    MLME_GTS,
+    MLME_ORPHAN,
+    MLME_RESET,
+    MLME_RX_ENABLE,
+    MLME_SCAN,
+    MLME_COMM_STATUS,
+    MLME_SET,
+    MLME_START,
+    MLME_SYNC,
+    MLME_SYNC_LOSS,
+    MLME_POLL
+};
+
 /**
  * @brief struct mlme_pan_descriptor PAN descriptor
  *

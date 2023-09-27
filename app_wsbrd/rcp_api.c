@@ -16,6 +16,8 @@
 #include "stack/mac/mlme.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/fhss_ws_extension.h"
+#include "stack/mac/mac_mcps.h"
+#include "stack/mac/mlme.h"
 
 #include "common/version.h"
 #include "common/iobuf.h"

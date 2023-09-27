@@ -13,12 +13,14 @@
 #ifndef WSBR_MAC_H
 #define WSBR_MAC_H
 
-#include "stack/mac/mac_api.h"
+#include <stdint.h>
 
 struct net_if;
 struct wsbr_ctxt;
 struct iobuf_write;
 struct iobuf_read;
+struct mcps_data_req;
+struct mcps_data_req_ie_list;
 
 void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len,
                                uint8_t header, uint8_t irq_err_counter);

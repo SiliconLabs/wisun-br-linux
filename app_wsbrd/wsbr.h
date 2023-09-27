@@ -23,7 +23,6 @@ typedef struct sd_bus sd_bus;
 
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
-#include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/source/rpl/rpl.h"
 #include "rcp_api.h"

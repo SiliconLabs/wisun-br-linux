@@ -22,7 +22,6 @@
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_mcps.h"
-#include "stack/mac/mac_api.h"
 
 #include "nwk_interface/protocol.h"
 
