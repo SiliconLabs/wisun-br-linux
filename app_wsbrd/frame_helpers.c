@@ -110,7 +110,7 @@ static const struct {
 
 int wsbr_data_ind_rebuild(uint8_t frame[],
                          const struct mcps_data_ind *ind,
-                         const struct mcps_data_ie_list *ie)
+                         const struct mcps_data_ind_ie_list *ie)
 {
     uint8_t *start = frame;
     uint16_t fcf;

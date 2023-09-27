@@ -46,7 +46,7 @@ struct llc_neighbour_req;
 struct ws_stack_info;
 struct ws_llc_mngt_req;
 struct ws_neighbour_info;
-struct mcps_data_ie_list;
+struct mcps_data_ind_ie_list;
 struct mcps_data_ind;
 
 int ws_bootstrap_init(int8_t interface_id);

@@ -946,7 +946,7 @@ static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
 static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     mcps_data_ind_t req = { };
-    mcps_data_ie_list_t ie_ext = { };
+    mcps_data_ind_ie_list_t ie_ext = { };
 
     req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr);
     req.SrcAddrMode            = spinel_pop_u8(buf);

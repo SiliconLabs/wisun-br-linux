@@ -19,14 +19,14 @@ struct iobuf_write;
 struct rcp;
 struct arm_15_4_mac_parameters;
 struct mcps_data_ind;
-struct mcps_data_ie_list;
+struct mcps_data_ind_ie_list;
 struct mcps_data_req;
 struct mcps_data_req_ie_list;
 
 // FIXME: Unify prototypes of wsbr_data_ind_rebuild() and wsbr_data_req_rebuild()
 int wsbr_data_ind_rebuild(uint8_t frame[],
                           const struct mcps_data_ind *ind,
-                          const struct mcps_data_ie_list *ie);
+                          const struct mcps_data_ind_ie_list *ie);
 
 void wsbr_data_req_rebuild(struct iobuf_write *frame,
                            const struct rcp *rcp,
