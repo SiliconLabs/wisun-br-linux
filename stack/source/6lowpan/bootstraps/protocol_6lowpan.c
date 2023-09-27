@@ -287,11 +287,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 
-void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority)
-{
-}
-
-
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8])
 {

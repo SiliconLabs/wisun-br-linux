@@ -32,16 +32,8 @@ struct rpl_domain;
 struct rpl_dodag;
 enum addrtype;
 
-typedef enum {
-    PRIORITY_1ST,
-    PRIORITY_2ND,
-} neighbor_priority_e;
-
 void protocol_6lowpan_interface_common_init(struct net_if *cur);
 void protocol_6lowpan_configure_core(struct net_if *cur);
-
-void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority);
-
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8]);
 
