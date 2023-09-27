@@ -4,7 +4,8 @@ Requires=wisun-borderrouter.service
 After=wisun-borderrouter.service
 
 [Service]
-EnvironmentFile=/etc/wstbu_dhcpv6_relay.conf
+# Get the DHCPv6 server address from the TBU server config.
+EnvironmentFile=/etc/wstbu-server.ini
 # The border router's unicast IPv6 address is not known in advance, so a
 # wrapper script is used to launch Dnsmasq.
 ExecStart=wstbu-dhcpv6-relay $dhcpv6_server
