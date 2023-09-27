@@ -275,7 +275,6 @@ void protocol_6lowpan_register_handlers(struct net_if *cur)
     /* Always send AROs, (compulsory for hosts, and "SHOULD" in RFC 6557 6.5.5
      * for routers, as RPL doesn't deal with it) */
     cur->ipv6_neighbour_cache.send_addr_reg = true;
-    cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = false;
 }
 void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress)
 {

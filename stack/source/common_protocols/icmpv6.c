@@ -402,7 +402,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
     // SLLAO provides a way to use a link layer address other than the EUI-64,
     // but that comes at a 10 octet overhead, and is unnecessary as FAN assumes
     // EUI-64 global uniqueness.
-    if (has_earo && !has_sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
+    if (has_earo && !has_sllao) {
         has_sllao = icmpv6_nd_ws_sllao_dummy(&sllao_dummy, earo.data, earo.data_size);
         sllao.data_size = sllao_dummy.len;
         sllao.data      = sllao_dummy.data;
@@ -934,11 +934,6 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
                 tr_debug("No address for NS");
                 return buffer_free(buf);
             }
-        }
-        /* SLLAO is required if we're sending an ARO */
-        /* This rule can be bypassed with flag use_eui64_as_slla_in_aro */
-        if (!cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
-            ptr = icmpv6_write_icmp_lla(cur, ptr, ICMPV6_OPT_SRC_LL_ADDR, aro, buf->src_sa.address);
         }
         /* If ARO Success sending is omitted, MAC ACK is used instead */
         /* Setting callback for receiving ACK from adaptation layer */

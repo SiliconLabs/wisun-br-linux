@@ -620,8 +620,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     /* Wi-sun will trig event for stamechine this timer must be zero on init */
     cur->bootstrap_state_machine_cnt = 0;
-    /* Disable SLLAO send/mandatory receive with the ARO */
-    cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = true;
     /* Omit sending of NA if ARO SUCCESS */
     cur->ipv6_neighbour_cache.omit_na_aro_success = true;
     /* Omit sending of NA and consider ACK to be success */
