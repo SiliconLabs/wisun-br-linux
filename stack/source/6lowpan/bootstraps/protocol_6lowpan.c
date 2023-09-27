@@ -339,13 +339,6 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const u
     return 0;
 }
 
-void protocol_6lowpan_allocate_mac16(struct net_if *cur)
-{
-    if (cur) {
-        cur->lowpan_desired_short_address = (rand_get_16bit() & 0x7fff);
-    }
-}
-
 void protocol_6lowpan_interface_common_init(struct net_if *cur)
 {
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;

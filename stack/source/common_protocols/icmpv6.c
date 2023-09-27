@@ -521,7 +521,7 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
             break;
         case SLAAC_IID_6LOWPAN_SHORT:
             memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-            write_be16(ipv6_address + 14, cur->lowpan_desired_short_address);
+            write_be16(ipv6_address + 14, 0xfffe);
             break;
 
         default:

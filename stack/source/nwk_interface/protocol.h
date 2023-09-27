@@ -189,7 +189,6 @@ struct net_if {
     struct mpl_domain *mpl_domain;
     if_6lowpan_dad_entry_t if_6lowpan_dad_process;
     lowpan_context_list_t lowpan_contexts;
-    uint16_t lowpan_desired_short_address;
     bool global_address_available : 1;
     bool reallocate_short_address_if_duplicate : 1;
     uint8_t dad_failures;
