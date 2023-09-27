@@ -116,7 +116,6 @@ typedef struct buffer_options {
     bool    ll_broadcast_tx: 1;         /*!< Tx as link-layer broadcast (set to override multicast-as-unicast) */
     bool    ll_broadcast_rx: 1;         /*!< Was received as link-layer broadcast */
     bool    ll_multicast_rx: 1;         /*!< Was received as link-layer multicast */
-    bool    ll_not_ours_rx: 1;          /*!< Not addressed to us at link layer - snooped */
     bool    lowpan_mesh_rx: 1;          /*!< Had a 6LoWPAN mesh header */
     bool    tunnelled: 1;               /*!< We tunnelled it as part of (RPL?) routing */
     bool    need_predecessor: 1;        /*!< Used as an indicator that predecessor address needed */

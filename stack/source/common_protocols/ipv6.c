@@ -1071,7 +1071,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
 
     // Remember the link-layer address for "special forwarding" check
     sockaddr_t ll_src = buf->src_sa;
-    sockaddr_t ll_dst = buf->dst_sa;
 
     // Get the Source Address
     memcpy(buf->src_sa.address, ptr, 16);
@@ -1143,22 +1142,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         nh_ptr = ptr;
         ptr += hdrlen;
         payload_length -= hdrlen;
-    }
-
-    if (buf->options.ll_not_ours_rx) {
-        /* Wasn't addressed to us, but interface sent it up. It must now tell us
-         * what to do with the packet. Options:
-         * 1) Drop it (it frees)
-         * 2) Bounce it (turns buffer into response, sets bounce true)
-         * 3) Accept or forward as normal based on IP destination (returns buffer, clearing ll_not_ours_rx)
-         * 4) Treat it as for us regardless of IP destination (returns buffer, leaving ll_not_ours_rx set)
-         */
-        bool bounce = false;
-        buf = cur->if_snoop(cur, buf, &ll_dst, &ll_src, &bounce);
-        if (!buf || bounce) {
-            return buf;
-        }
-        intercept = buf->options.ll_not_ours_rx;
     }
 
     if (*nh_ptr == IPV6_NH_ICMPV6 && payload_length >= 4 && ptr[0] == ICMPV6_TYPE_INFO_NS) {
