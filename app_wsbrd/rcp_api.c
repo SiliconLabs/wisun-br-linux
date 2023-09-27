@@ -399,28 +399,6 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_parent(const uint8_t parent[8],
-                         const struct fhss_ws_neighbor_timing_info *timing_info,
-                         bool force_synch)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
-    spinel_push_fixed_u8_array(&buf, parent, 8);
-    spinel_push_bool(&buf, force_synch);
-    spinel_push_u8(&buf, timing_info->bc_chan_func);
-    spinel_push_u8(&buf, timing_info->ffn.bc_dwell_interval_ms);
-    spinel_push_u16(&buf, timing_info->bc_chan_fixed);
-    spinel_push_u16(&buf, timing_info->ffn.bc_slot);
-    spinel_push_u16(&buf, timing_info->ffn.bsi);
-    spinel_push_u32(&buf, timing_info->ffn.bc_interval_offset_ms);
-    spinel_push_u32(&buf, timing_info->ffn.bc_interval_ms);
-    spinel_push_u32(&buf, timing_info->ffn.bt_rx_tstamp_us);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void rcp_set_fhss_neighbor(const uint8_t neigh[8],
                            const struct fhss_ws_neighbor_timing_info *timing_info)
 {

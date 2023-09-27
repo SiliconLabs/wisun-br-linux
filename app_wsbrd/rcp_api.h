@@ -275,9 +275,6 @@ void rcp_set_max_be(uint8_t val);
 void rcp_set_max_async_duration(uint32_t val);
 void rcp_set_tx_power(int8_t val);
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
-void rcp_set_fhss_parent(const uint8_t parent[8],
-                         const struct fhss_ws_neighbor_timing_info *timing_info,
-                         bool force_synch);
 void rcp_set_fhss_neighbor(const uint8_t neigh[8],
                            const struct fhss_ws_neighbor_timing_info *timing_info);
 void rcp_drop_fhss_neighbor(const uint8_t eui64[8]);
