@@ -822,15 +822,6 @@ void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_call
     }
 }
 
-void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *addr, uint32_t preferred_lifetime)
-{
-    if (preferred_lifetime != addr->preferred_lifetime) {
-        addr->preferred_lifetime = preferred_lifetime;
-        if (preferred_lifetime == 0)
-            addr_cb(interface, addr, ADDR_CALLBACK_DEPRECATED);
-    }
-}
-
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
 {
     while (len--) {
