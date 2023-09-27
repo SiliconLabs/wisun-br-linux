@@ -839,20 +839,6 @@ void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *a
     }
 }
 
-void addr_lifetime_update(struct net_if *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold)
-{
-    //Update Current lifetimes (see RFC 4862 for rules detail)
-    if (valid_lifetime > threshold || valid_lifetime > address->valid_lifetime) {
-        addr_set_valid_lifetime(interface, address, valid_lifetime);
-    } else if (address->valid_lifetime <= threshold) {
-        //NOT Update Valid Lifetime
-    } else {
-        addr_set_valid_lifetime(interface, address, threshold);
-    }
-
-    addr_set_preferred_lifetime(interface, address, preferred_lifetime);
-}
-
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
 {
     while (len--) {

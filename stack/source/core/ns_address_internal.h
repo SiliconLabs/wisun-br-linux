@@ -167,8 +167,6 @@ void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_call
 void addr_set_valid_lifetime(struct net_if *interface, if_address_entry_t *entry, uint32_t valid_lifetime);
 void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *entry, uint32_t preferred_lifetime);
 
-void addr_lifetime_update(struct net_if *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold);
-
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
 uint8_t addr_len_from_type(addrtype_e addr_type);
