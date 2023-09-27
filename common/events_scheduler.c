@@ -103,27 +103,6 @@ int8_t event_send(const struct event_payload *event)
     return 0;
 }
 
-void event_cancel(struct event_storage *event)
-{
-    struct events_scheduler *ctxt = g_event_scheduler;
-
-    BUG_ON(!ctxt);
-    if (!event)
-        return;
-
-    /*
-     * Remove event from the list,
-     * Only queued can be removed, unqued are either timers or stale pointers
-     * RUNNING cannot be removed, we are currenly "in" that event.
-     */
-    if (event->state == ARM_LIB_EVENT_QUEUED)
-        ns_list_remove(&ctxt->event_queue, event);
-
-    if (event->state != ARM_LIB_EVENT_RUNNING)
-        if (event->allocator ==  ARM_LIB_EVENT_DYNAMIC)
-            free(event);
-}
-
 int8_t event_scheduler_get_active_tasklet(void)
 {
     struct events_scheduler *ctxt = g_event_scheduler;
