@@ -23,7 +23,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/fhss_ws_extension.h"
 #include "nwk_interface/protocol.h"
 
 #include "core/ns_address_internal.h"

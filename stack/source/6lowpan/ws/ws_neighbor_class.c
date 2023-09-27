@@ -198,7 +198,7 @@ void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const str
     neighbor->fhss_data.lfn.lnd_rx_tstamp_us      = tstamp_us;
 }
 
-static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
+static void ws_neighbour_excluded_mask_by_range(struct ws_channel_mask *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
     const uint8_t *range_ptr = range_info->range_start;
@@ -217,7 +217,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
     }
 }
 
-static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, const ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
+static void ws_neighbour_excluded_mask_by_mask(struct ws_channel_mask *channel_info, const ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
 {
     int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 

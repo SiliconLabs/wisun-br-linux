@@ -29,7 +29,7 @@ struct net_if;
 #define RSL_UNITITIALIZED 0x7fff
 
 typedef struct ws_neighbor_class_entry {
-    fhss_ws_neighbor_timing_info_t   fhss_data;
+    struct fhss_ws_neighbor_timing_info   fhss_data;
     uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */

@@ -13,9 +13,8 @@
 #ifndef RCP_API_H
 #define RCP_API_H
 #include <stdint.h>
+#include <stdbool.h>
 #include <sys/uio.h>
-
-#include "stack/mac/fhss_ws_extension.h"
 
 #define HIF_FHSS_TYPE_FFN_UC 0x00
 #define HIF_FHSS_TYPE_FFN_BC 0x01
@@ -24,6 +23,7 @@
 #define HIF_FHSS_TYPE_ASYNC  0x04
 #define HIF_FHSS_TYPE_LFN_PA 0x06
 
+struct fhss_ws_neighbor_timing_info;
 struct ws_neighbor_class_entry;
 struct fhss_ws_configuration;
 struct mcps_data_req;
@@ -47,6 +47,11 @@ typedef enum {
     IEEE_802_15_4_2011 = 0,    /**<IEEE 802.15.4-2011*/
     IEEE_802_15_4G_2012 = 1,   /**<IEEE 802.15.4g-2012*/
 } phy_802_15_4_mode_e;
+
+typedef enum {
+    WS_TX_SLOT, // Allow transmitting only on TX slots.
+    WS_TX_AND_RX_SLOT, // Allow transmitting only on TX and RX slots.
+} fhss_ws_tx_allow_level_e;
 
 typedef struct phy_rf_channel_configuration {
     uint32_t channel_0_center_frequency;
