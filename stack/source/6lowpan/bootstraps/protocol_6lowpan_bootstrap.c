@@ -100,15 +100,9 @@ bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_
     if (!cur) {
         return false;
     }
-    bool return_value = false;
     mac_neighbor_table_entry_t *neigh_entry = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, link_local_address, false, NULL);
-    if (neigh_entry) {
-        //Remove entry
-        if (neigh_entry->link_role == PRIORITY_PARENT_NEIGHBOUR || neigh_entry->link_role == SECONDARY_PARENT_NEIGHBOUR) {
-            return_value = true;
-        }
+    if (neigh_entry)
         mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, neigh_entry);
-    }
-    return return_value;
+    return false;
 }
 

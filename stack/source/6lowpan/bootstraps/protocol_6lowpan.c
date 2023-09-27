@@ -300,24 +300,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
 
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur) {
-        return;
-    }
-    mac_neighbor_table_list_t *mac_table_list = &cur->mac_parameters.mac_neighbor_table->neighbour_list;
-
-    ns_list_foreach(mac_neighbor_table_entry_t, entry, mac_table_list) {
-        if (priority == PRIORITY_1ST && entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            entry->link_role = NORMAL_NEIGHBOUR;
-        } else {
-            if (entry->link_role == SECONDARY_PARENT_NEIGHBOUR) {
-                protocol_stats_update(STATS_ETX_2ND_PARENT, 0);
-                entry->link_role = NORMAL_NEIGHBOUR;
-            }
-
-        }
-    }
 }
 
 

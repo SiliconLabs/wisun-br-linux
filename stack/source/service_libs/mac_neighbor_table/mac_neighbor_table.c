@@ -149,7 +149,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->trusted_device = false;
     entry->lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->link_lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
-    entry->link_role = NORMAL_NEIGHBOUR;
     entry->ms_mode = 0;
     TRACE(TR_NEIGH, "neighbor add %s", tr_eui64(mac64));
     return entry;
@@ -279,12 +278,6 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class)
 {
-
-    ns_list_foreach(mac_neighbor_table_entry_t, entry, &table_class->neighbour_list) {
-        if (entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            return entry;
-        }
-    }
     return NULL;
 }
 

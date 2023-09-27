@@ -728,11 +728,6 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
         ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
 
-        if (cur->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            //This is our primary parent we cannot delete
-            continue;
-        }
-
         if (cur->nud_active) {
             //If NUD process is active do not trig
             // or Negative ARO is active
@@ -1616,16 +1611,6 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
             }
             ws_common_create_ll_address(ll_address, mac_entry->mac64);
             memcpy(neighbor_ptr[count].link_local_address, ll_address, 16);
-
-            if (mac_entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-                neighbor_ptr[count].type = WS_PRIMARY_PARENT;
-            }
-            if (mac_entry->link_role == SECONDARY_PARENT_NEIGHBOUR) {
-                neighbor_ptr[count].type = WS_SECONDARY_PARENT;
-            }
-            if (mac_entry->link_role == CHILD_NEIGHBOUR) {
-                neighbor_ptr[count].type = WS_CHILD;
-            }
 
             ipv6_neighbour_t *IPv6_neighbor = ipv6_neighbour_get_registered_by_eui64(&cur->ipv6_neighbour_cache, mac_entry->mac64);
             if (IPv6_neighbor) {

@@ -26,10 +26,6 @@
 
 #define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time
 
-#define NORMAL_NEIGHBOUR                0
-#define SECONDARY_PARENT_NEIGHBOUR      1
-#define CHILD_NEIGHBOUR                 2
-#define PRIORITY_PARENT_NEIGHBOUR       3
 /**
  * Generic Neighbor table entry
  */
@@ -49,7 +45,6 @@ typedef struct mac_neighbor_table_entry {
     bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/
     bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
     bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
-    unsigned        link_role: 2;           /*!< Link role: NORMAL_NEIGHBOUR, PRIORITY_PARENT_NEIGHBOUR, SECONDARY_PARENT_NEIGHBOUR, CHILD_NEIGHBOUR */
     uint8_t         node_role;
     ns_list_link_t  link;
 } mac_neighbor_table_entry_t;
