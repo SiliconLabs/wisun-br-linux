@@ -788,7 +788,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -807,20 +807,12 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     entry->valid_lifetime = valid_lifetime;
     entry->preferred_lifetime = preferred_lifetime;
     entry->group_added = false;
-    if (skip_dad || cur->dup_addr_detect_transmits == 0) {
-        entry->tentative = false;
-        if (addr_add_solicited_node_group(cur, entry->address)) {
-            entry->group_added = true;
-        }
-        // XXX not right? Want to do delay + MLD join, so don't special-case?
-        /* entry->cb isn't set yet, but global notifiers will want call */
-        addr_cb(cur, entry, ADDR_CALLBACK_DAD_COMPLETE);
-    } else {
-        entry->tentative = true;
-        // Initial timer is for the multicast join delay
-        entry->count = 0;
-        entry->state_timer = rand_get_random_in_range(1, 10); // MAX_RTR_SOLICITATION_DELAY (1s) in ticks
-    }
+    entry->tentative = false;
+    if (addr_add_solicited_node_group(cur, entry->address))
+        entry->group_added = true;
+    // XXX not right? Want to do delay + MLD join, so don't special-case?
+    /* entry->cb isn't set yet, but global notifiers will want call */
+    addr_cb(cur, entry, ADDR_CALLBACK_DAD_COMPLETE);
 
     tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, tr_ipv6(address));
 
@@ -1035,7 +1027,7 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
     memcpy(temp_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(temp_ll64 + 8, cur->iid_eui64, 8);
 
-    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff, true);
+    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff);
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;

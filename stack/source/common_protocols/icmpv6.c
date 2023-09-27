@@ -500,7 +500,7 @@ int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, ui
     return ret_val;
 }
 
-if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src)
+if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry;
     uint8_t ipv6_address[16];
@@ -530,7 +530,7 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
 
     //tr_debug("Add add: %s", tr_ipv6(ipv6_address));
 
-    address_entry = addr_add(cur, ipv6_address, 64, ADDR_SOURCE_SLAAC, valid_lifetime, preferred_lifetime, skip_dad);
+    address_entry = addr_add(cur, ipv6_address, 64, ADDR_SOURCE_SLAAC, valid_lifetime, preferred_lifetime);
     if (address_entry) {
         address_entry->cb = NULL;
     }

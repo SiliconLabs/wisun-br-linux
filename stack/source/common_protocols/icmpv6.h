@@ -137,7 +137,7 @@ struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t 
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);
 
 int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
-struct if_address_entry *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
+struct if_address_entry *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, slaac_src_e slaac_src);
 
 
 /*

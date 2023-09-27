@@ -47,7 +47,7 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
 static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry = NULL;
-    address_entry = icmpv6_slaac_address_add(cur_interface, prefix, prefix_len, lifetime, preftime, true, slaac_src);
+    address_entry = icmpv6_slaac_address_add(cur_interface, prefix, prefix_len, lifetime, preftime, slaac_src);
     if (address_entry) {
         //Set Callback
         address_entry->cb = lowpan_nd_address_cb;
