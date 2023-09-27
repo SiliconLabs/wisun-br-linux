@@ -787,14 +787,6 @@ bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[sta
     return iid[0] == (eui64[0] ^ 2);
 }
 
-/* Write a LoWPAN IPv6 address, based on a prefix and short address */
-uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr)
-{
-    write_be16(dst + 14, short_addr);
-    memcpy(dst + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-    return memcpy(dst, prefix, 8);
-}
-
 /* Turn an address (either MAC or IP) into a base IP address for context compression */
 bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in)
 {
