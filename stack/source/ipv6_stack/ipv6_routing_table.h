@@ -224,7 +224,6 @@ void ipv6_route_table_change_next_hop_for_info(int8_t interface_id, const uint8_
 void ipv6_route_table_remove_interface(int8_t interface_id);
 void ipv6_route_table_modify_router_metric(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source, uint8_t keep, uint8_t toggle);
 void ipv6_route_table_remove_info(int8_t interface_id, ipv6_route_src_t source, void *info);
-void ipv6_route_table_set_predicate_fn(ipv6_route_src_t src, ipv6_route_predicate_fn_t *fn);
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t *fn);
 void ipv6_route_table_ttl_update(int seconds);
 void ipv6_route_table_print();

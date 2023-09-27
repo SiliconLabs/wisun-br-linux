@@ -1055,13 +1055,7 @@ static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_ARO] = true,
 };
 
-static ipv6_route_predicate_fn_t *ipv6_route_predicate[ROUTE_MAX];
 static ipv6_route_next_hop_fn_t *ipv6_route_next_hop_computation[ROUTE_MAX];
-
-void ipv6_route_table_set_predicate_fn(ipv6_route_src_t src, ipv6_route_predicate_fn_t fn)
-{
-    ipv6_route_predicate[src] = fn;
-}
 
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t fn)
 {
@@ -1215,9 +1209,6 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
          * the route predicate to produce "constant" results.
          */
         bool valid = true;
-        if (ipv6_route_predicate[route->info.source]) {
-            valid = ipv6_route_predicate[route->info.source](&route->info, valid);
-        }
 
         /* Then the supplied search-specific predicate can override */
         if (predicate) {
