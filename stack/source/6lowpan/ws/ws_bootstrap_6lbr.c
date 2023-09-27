@@ -94,10 +94,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 
 static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
 {
-    (void) interface_ptr;
-    (void) address;
-
-    if (ws_bbr_backbone_address_get(address)) {
+    if (ws_bbr_backbone_address_get(interface_ptr, address)) {
         return 0;
     }
 

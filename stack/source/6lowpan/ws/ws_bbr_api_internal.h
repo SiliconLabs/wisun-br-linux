@@ -34,7 +34,7 @@ uint16_t ws_bbr_pan_size(struct net_if *cur);
 
 int ws_bbr_get_backbone_id();
 
-bool ws_bbr_backbone_address_get(uint8_t *address);
+bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address);
 
 uint16_t ws_bbr_bsi_generate(struct net_if *interface);
 uint16_t ws_bbr_pan_id_get(struct net_if *interface);

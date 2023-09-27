@@ -113,16 +113,10 @@ int ws_bbr_get_backbone_id()
     return backbone_interface_id;
 }
 
-static int8_t ws_bbr_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address)
+static int8_t ws_bbr_address_get(struct net_if *cur, net_address_e addr_id, uint8_t *address)
 {
     int8_t ret_val = -1;
-    struct net_if *cur;
     const uint8_t *addr;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
 
     if (!cur->global_address_available && addr_id != ADDR_IPV6_LL) {
         //Should also check Check Bootstrap state
@@ -155,13 +149,9 @@ static int8_t ws_bbr_address_get(int8_t interface_id, net_address_e addr_id, uin
     return ret_val;
 }
 
-bool ws_bbr_backbone_address_get(uint8_t *address)
+bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address)
 {
-    if (backbone_interface_id < 0) {
-        return false;
-    }
-
-    if (ws_bbr_address_get(backbone_interface_id, ADDR_IPV6_GP, address) != 0) {
+    if (ws_bbr_address_get(cur, ADDR_IPV6_GP, address) != 0) {
         // No global prefix available
         return false;
     }
