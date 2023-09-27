@@ -103,13 +103,6 @@ int8_t event_send(const struct event_payload *event)
     return 0;
 }
 
-int8_t event_scheduler_get_active_tasklet(void)
-{
-    struct events_scheduler *ctxt = g_event_scheduler;
-
-    return ctxt->curr_tasklet;
-}
-
 bool event_scheduler_dispatch_event(void)
 {
     struct events_scheduler *ctxt = g_event_scheduler;

@@ -80,16 +80,6 @@ bool event_scheduler_dispatch_event(void);
 void event_scheduler_run_until_idle(void);
 
 /**
- * \brief Read current active Tasklet ID
- *
- * This function not return valid information called inside interrupt
- *
- * \return curret active tasklet id
- *
- * */
-int8_t event_scheduler_get_active_tasklet(void);
-
-/**
  * \brief This function will be called when stack receives an event.
  */
 void event_scheduler_signal(void);
