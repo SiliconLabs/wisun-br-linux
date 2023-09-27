@@ -1538,23 +1538,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     ws_llc_timer_seconds(cur, seconds);
 }
 
-int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr)
-{
-    memset(info_ptr, 0, sizeof(struct ws_stack_info));
-    info_ptr->device_min_sens = DEVICE_MIN_SENS;
-    if (ws_bootstrap_state_discovery(cur)) {
-        info_ptr->join_state = 1;
-    } else if (ws_bootstrap_state_configure(cur)) {
-        info_ptr->join_state = 3;
-    } else if (ws_bootstrap_state_wait_rpl(cur)) {
-        info_ptr->join_state = 4;
-    } else if (ws_bootstrap_state_active(cur)) {
-        info_ptr->join_state = 5;
-    }
-    info_ptr->pan_id = cur->ws_info.network_pan_id;
-
-    return 0;
-}
 int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neighbor_ptr, uint16_t table_max)
 {
     uint8_t count = 0;

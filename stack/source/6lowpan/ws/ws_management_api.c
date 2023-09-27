@@ -895,15 +895,6 @@ int ws_management_timing_parameters_validate(
     return 0;
 }
 
-int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !info_ptr)
-        return -1;
-    return ws_bootstrap_stack_info_get(cur, info_ptr);
-}
-
 int ws_neighbor_info_get(
     int8_t interface_id,
     ws_neighbour_info_t *neighbor_ptr,
