@@ -262,53 +262,6 @@ static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint
     }
 }
 
-static void icmpv6_na_aro_handler(struct net_if *cur_interface, const uint8_t *dptr, const uint8_t *dst_addr)
-{
-    (void)dst_addr;
-    dptr += 2;
-    uint16_t life_time;
-    uint8_t nd_status  = *dptr;
-    dptr += 4;
-    life_time = read_be16(dptr);
-    dptr += 2;
-    if (memcmp(dptr, cur_interface->mac, 8) != 0) {
-        return;
-    }
-
-    /* Failure responses go to LL64, and they thus don't actually indicate the
-     * address that we were trying to register. So we have to rely on having
-     * "current DAD address" stored. We don't get it from the packet in any case.
-     */
-    if (!cur_interface->if_6lowpan_dad_process.active) {
-        return;
-    }
-
-    if_address_entry_t *addr_entry = addr_get_entry(cur_interface, cur_interface->if_6lowpan_dad_process.address);
-    if (!addr_entry) {
-        return;
-    }
-
-    switch (nd_status) {
-        case ARO_SUCCESS:
-            addr_cb(cur_interface, addr_entry, ADDR_CALLBACK_DAD_COMPLETE);
-            if (addr_entry->cb) {
-                /* Lifetime is in minutes, state_timer in 1/10 s: a factor of 600 */
-                /* Set renewal to 75-85% of full lifetime by multiplying by [450..510] */
-                addr_entry->state_timer = life_time * rand_get_random_in_range(450, 510);
-            }
-
-            break;
-
-        case ARO_DUPLICATE:
-            addr_duplicate_detected(cur_interface, addr_entry->address);
-            break;
-
-        case ARO_FULL:
-            addr_cb(cur_interface, addr_entry, ADDR_CALLBACK_PARENT_FULL);
-            break;
-    }
-}
-
 // Wi-SUN allows to use an ARO without an SLLAO. This function builds a dummy
 // SLLAO using the information from the ARO, which can be processed using the
 // standard ND procedure.
