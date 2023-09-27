@@ -24,7 +24,6 @@
 #include "common/endian.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/sw_mac.h"
 
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
