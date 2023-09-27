@@ -93,7 +93,6 @@ typedef void if_address_notification_fn(struct net_if *interface, const struct i
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
-    uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
     bool temporary: 1;          // RFC 4941 temporary address
     bool group_added: 1;        // Solicited-Node group added

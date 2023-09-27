@@ -647,34 +647,6 @@ void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr)
 /* ticks is in 1/10s */
 void addr_fast_timer(int ticks)
 {
-    struct net_if *cur = protocol_stack_interface_info_get();
-
-    /* Fast timers only run while the interface is active. */
-    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return;
-    }
-
-    ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
-        if (addr->state_timer == 0) {
-            continue;
-        }
-
-        if (addr->state_timer > ticks) {
-            addr->state_timer -= ticks;
-            continue;
-        }
-
-        addr->state_timer = 0;
-        addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
-
-        /* If a callback has shut down the interface, break now - this isn't
-         * just a nicety; it avoids an iteration failure if shutdown disrupted
-         * the address list (as is likely).
-         */
-        if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-            break;
-        }
-    }
 }
 
 void addr_slow_timer(int seconds)
