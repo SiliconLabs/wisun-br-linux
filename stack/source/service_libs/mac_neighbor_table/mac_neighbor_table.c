@@ -276,11 +276,6 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
     return mac_neighbor_table_entry_allocate(table_class, mac64);
 }
 
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class)
-{
-    return NULL;
-}
-
 // Update a neighbor entry with the last POM-IE received
 void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, const uint8_t *phy_mode_ids, uint8_t mdr_capable)
 {

@@ -1540,21 +1540,7 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
 
 int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr)
 {
-
-    ws_neighbor_class_entry_t *ws_neighbour = NULL;
-
     memset(info_ptr, 0, sizeof(struct ws_stack_info));
-    mac_neighbor_table_entry_t *mac_parent = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
-
-    if (mac_parent) {
-        ws_neighbour = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_parent->index);
-        ws_common_create_ll_address(info_ptr->parent, mac_parent->mac64);
-    }
-    if (ws_neighbour) {
-        info_ptr->rsl_in = ws_neighbor_class_rsl_in_get(ws_neighbour);
-        info_ptr->rsl_out = ws_neighbor_class_rsl_out_get(ws_neighbour);
-        info_ptr->routing_cost = ws_neighbour->routing_cost;
-    }
     info_ptr->device_min_sens = DEVICE_MIN_SENS;
     if (ws_bootstrap_state_discovery(cur)) {
         info_ptr->join_state = 1;
