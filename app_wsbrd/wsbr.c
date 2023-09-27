@@ -341,8 +341,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     BUG_ON(ret);
 
     wsbr_check_link_local_addr(ctxt);
-    if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
-        WARN("ws_bbr_start");
     if (ctxt->config.internal_dhcp)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
 

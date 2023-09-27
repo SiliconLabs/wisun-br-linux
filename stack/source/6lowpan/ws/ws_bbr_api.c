@@ -65,7 +65,6 @@
  *
  *
  */
-static int8_t backbone_interface_id = -1; // BBR backbone information
 static uint32_t pan_version_timer = 0;
 
 static uint16_t ws_bbr_fhss_bsi = 0;
@@ -106,11 +105,6 @@ static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
     fprintf(info->file, "bsi = %d\n", bsi);
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
     storage_close(info);
-}
-
-int ws_bbr_get_backbone_id()
-{
-    return backbone_interface_id;
 }
 
 static int8_t ws_bbr_address_get(struct net_if *cur, net_address_e addr_id, uint8_t *address)
@@ -261,21 +255,6 @@ uint16_t ws_bbr_pan_id_get(struct net_if *interface)
 /* Public APIs
  *
  */
-
-int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
-{
-    (void)interface_id;
-    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(bb_interface_id);
-
-    if (!bb_interface) {
-        return -1;
-    }
-    // TODO make bb configurations
-
-    backbone_interface_id = bb_interface_id;
-
-    return 0;
-}
 
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {

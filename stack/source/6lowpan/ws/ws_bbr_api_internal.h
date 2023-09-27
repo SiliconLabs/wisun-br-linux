@@ -32,8 +32,6 @@ void ws_bbr_lpan_version_increase(struct net_if *cur);
 
 uint16_t ws_bbr_pan_size(struct net_if *cur);
 
-int ws_bbr_get_backbone_id();
-
 bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address);
 
 uint16_t ws_bbr_bsi_generate(struct net_if *interface);

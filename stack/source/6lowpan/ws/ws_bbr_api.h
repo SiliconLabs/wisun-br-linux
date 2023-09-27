@@ -55,21 +55,6 @@ typedef struct bbr_route_info {
 } bbr_route_info_t;
 
 /**
- * Start backbone border router service.
- *
- * if backbone interface is enabled and allows routing.
- *    Enables ND proxy for address found from backbone
- *
- * \param interface_id Wi-SUN network interface id.
- * \param backbone_interface_id backbone interface id.
- *
- * \return 0 on success
- * \return <0 in case of errors
- *
- */
-int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
-
-/**
  * Get border router information
  *
  * \param interface_id interface ID of the Wi-SUN network
