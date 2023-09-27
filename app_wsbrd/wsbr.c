@@ -25,7 +25,6 @@
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
-#include "stack/mac/fhss_api.h"
 
 #include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
