@@ -42,45 +42,6 @@
 
 #define TRACE_GROUP "loND"
 
-static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
-{
-    tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
-    WARN_ON(memcmp(&addr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0, "short address are not supported");
-    switch (reason) {
-        case ADDR_CALLBACK_DAD_COMPLETE:
-            if (addr_ipv6_equal(interface->if_6lowpan_dad_process.address, addr->address)) {
-                tr_info("Address REG OK: %s", tr_ipv6(interface->if_6lowpan_dad_process.address));
-                interface->if_6lowpan_dad_process.active = false;
-                interface->global_address_available = true;
-                if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)
-                    protocol_6lowpan_bootstrap_nd_ready(interface);
-            }
-            break;
-
-        case ADDR_CALLBACK_TIMER:
-            tr_debug("State Timer CB");
-            if (interface->if_6lowpan_dad_process.active) {
-                if (memcmp(addr->address, interface->if_6lowpan_dad_process.address, 16))
-                    addr->state_timer = 5;
-            } else {
-                tr_debug("No ND Object for Address");
-            }
-
-            break;
-
-        case ADDR_CALLBACK_PARENT_FULL:
-            interface->if_6lowpan_dad_process.count = 0;
-            tr_error("ND cache full--> Black list by given lifetime");
-            break;
-
-        case ADDR_CALLBACK_DAD_FAILED:
-            bootstrap_next_state_kick(ER_BOOTSTRAP_DAD_FAIL, interface);
-            break;
-        default:
-            break;
-    }
-}
-
 static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
     struct rpl_root *root = &g_ctxt.rpl_root;

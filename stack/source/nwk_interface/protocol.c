@@ -159,7 +159,6 @@ void protocol_core_interface_info_reset(struct net_if *entry)
         lowpan_context_list_free(&entry->lowpan_contexts);
         ipv6_neighbour_cache_flush(&entry->ipv6_neighbour_cache);
         entry->if_stack_buffer_handler = 0;
-        entry->if_6lowpan_dad_process.active = false;
         //Clean
         ns_list_foreach_safe(if_address_entry_t, addr, &entry->ip_addresses) {
             addr_delete_entry(entry, addr);
@@ -202,7 +201,6 @@ static void protocol_core_base_init(struct net_if *entry)
     entry->if_snoop = NULL;
     entry->if_map_ip_to_link_addr = NULL;
     entry->if_map_link_addr_to_ip = NULL;
-    entry->if_6lowpan_dad_process.active = false;
     entry->lowpan_info = 0;
     entry->if_down = NULL;
     entry->if_up = NULL;

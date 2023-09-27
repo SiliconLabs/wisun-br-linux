@@ -146,13 +146,6 @@ typedef struct arm_15_4_mac_parameters {
 
 typedef void mac_poll_fail_cb(int8_t nwk_interface_id_e);
 
-typedef struct if_6lowpan_dad_entry {
-    uint8_t address[16];        // IPv6
-    uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
-    uint8_t count;              // general count field - used by DAD, then can be used by protocol
-    bool active;                // RFC 4941 temporary address
-} if_6lowpan_dad_entry_t;
-
 typedef struct ipv6_interface_info {
     uint8_t     static_prefix64[8];
 } ipv6_interface_info_t;
@@ -180,7 +173,6 @@ struct net_if {
     uint16_t mpl_seed_set_entry_lifetime;
     uint8_t mpl_seed_id[16];
     struct mpl_domain *mpl_domain;
-    if_6lowpan_dad_entry_t if_6lowpan_dad_process;
     lowpan_context_list_t lowpan_contexts;
     bool global_address_available : 1;
     bool reallocate_short_address_if_duplicate : 1;
