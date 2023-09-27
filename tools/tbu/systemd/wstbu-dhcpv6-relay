@@ -38,7 +38,9 @@ def main():
         '--port=0', # Disable DNS
         '--no-daemon',
         '--conf-file=/dev/null',
-        f'--dhcp-relay={wsbrd_addr},{dhcpv6_server_addr}'
+        f'--dhcp-relay={wsbrd_addr},{dhcpv6_server_addr}',
+        '--log-debug',
+        '--log-dhcp',
     ]
     print(' '.join(cmd))
     try:
