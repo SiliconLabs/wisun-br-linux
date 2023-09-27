@@ -72,16 +72,6 @@ uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi)
     return i;
 }
 
-int protocol_6lowpan_del_ll16(struct net_if *cur, uint16_t mac_short_address)
-{
-    uint8_t address[16];
-    memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-    write_be16(&address[14], mac_short_address);
-
-    return addr_delete(cur, address);
-}
-
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address)
 {
 
