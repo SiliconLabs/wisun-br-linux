@@ -54,13 +54,6 @@ static void event_core_write(struct event_storage *event)
 
     BUG_ON(!ctxt);
     event->state = ARM_LIB_EVENT_QUEUED;
-    ns_list_foreach(struct event_storage, event_tmp, &ctxt->event_queue) {
-        if (event_tmp->data.priority > event->data.priority) {
-            ns_list_add_before(&ctxt->event_queue, event_tmp, event);
-            event_scheduler_signal();
-            return;
-        }
-    }
     ns_list_add_to_end(&ctxt->event_queue, event);
     event_scheduler_signal();
 }
@@ -78,7 +71,6 @@ int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *), ui
 
     event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
     event_tmp->data.data_ptr = NULL;
-    event_tmp->data.priority = ARM_LIB_LOW_PRIORITY_EVENT;
     event_tmp->data.receiver = new->id;
     event_tmp->data.sender = 0;
     event_tmp->data.event_type = init_event_type;

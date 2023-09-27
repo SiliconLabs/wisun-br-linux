@@ -16,19 +16,12 @@
 #include <stdint.h>
 #include "common/ns_list.h"
 
-enum event_priority {
-    ARM_LIB_HIGH_PRIORITY_EVENT = 0,
-    ARM_LIB_MED_PRIORITY_EVENT  = 1,
-    ARM_LIB_LOW_PRIORITY_EVENT  = 2,
-};
-
 struct event_payload {
     int8_t receiver;    /* Tasklet ID */
     int8_t sender;      /* Tasklet ID */
     uint8_t event_type;
     uint8_t event_id;
     void *data_ptr;
-    enum event_priority priority;
     uintptr_t event_data;
 };
 

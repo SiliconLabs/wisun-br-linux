@@ -73,7 +73,7 @@
 #define TRACE_GROUP "wsbs"
 
 static void ws_bootstrap_event_handler(struct event_payload *event);
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, enum event_priority priority, void *event_data);
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, void *event_data);
 static void ws_bootstrap_mac_security_enable(struct net_if *cur);
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t operation, uint8_t index, uint8_t *key);
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
@@ -198,13 +198,12 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
     return 0;
 }
 
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, enum event_priority priority, void *event_data)
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, void *event_data)
 {
     struct event_payload event = {
         .receiver = interface_id,
         .sender = 0,
         .event_type = event_type,
-        .priority = priority,
         .data_ptr = event_data,
     };
     return event_send(&event);
@@ -1366,16 +1365,16 @@ congestion_get_end:
  * */
 void ws_bootstrap_event_discovery_start(struct net_if *cur)
 {
-    ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, NULL);
 }
 
 void ws_bootstrap_event_operation_start(struct net_if *cur)
 {
-    ws_bootstrap_event_trig(WS_OPERATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_OPERATION_START, cur->bootStrapId, NULL);
 }
 void ws_bootstrap_event_routing_ready(struct net_if *cur)
 {
-    ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, NULL);
 }
 
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)

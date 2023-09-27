@@ -731,7 +731,6 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
         .event_id = pae_auth->interface_ptr->id,
         .data_ptr = data,
         .event_type = PAE_TASKLET_EVENT,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
 
     if (event_send(&event) != 0) {
