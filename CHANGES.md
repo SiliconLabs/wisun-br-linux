@@ -1,3 +1,17 @@
+v1.7
+------
+  - Updated nodes join ability API (`enable_lfn` and `enable_ffn10` replace
+    `fan_version`). FAN 1.0 routers are no longer accepted by default since
+    they conflict with LFN support.
+  - Fix custom channel mask advertisement (note that Silicon Labs embedded
+    Wi-SUN stack older than v1.7.1 becomes incompatible when using that
+    feature).
+  - Drop support for `wsnode`, `wshwsim` and `wssimserver`, remove some unused
+    stack features outside of the scope of a Wi-SUN border router.
+  - New simpler RPL root implementation.
+  - Test Bed Unit (TBU) API implementation for the Wi-SUN certification.
+  - Fix `--list-rf-configs` for custom PHYs.
+
 v1.6.4
 ------
 
