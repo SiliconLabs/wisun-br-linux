@@ -23,6 +23,7 @@
 #include "common/named_values.h"
 #include "common/seqno.h"
 #include "common/string_extra.h"
+#include "common/sys_queue_extra.h"
 #include "common/utils.h"
 #include "rpl_defs.h"
 #include "rpl.h"
@@ -701,7 +702,7 @@ void rpl_timer(int ticks)
 {
     struct trickle_params dio_trickle_params;
     struct rpl_root *root = &g_ctxt.rpl_root;
-    struct rpl_target *target;
+    struct rpl_target *target, *tmp;
     struct timespec tp;
     bool del;
 
@@ -710,7 +711,7 @@ void rpl_timer(int ticks)
         rpl_send_dio(root, rpl_all_nodes);
 
     clock_gettime(CLOCK_MONOTONIC, &tp);
-    SLIST_FOREACH(target, &root->targets, link) {
+    SLIST_FOREACH_SAFE(target, &root->targets, link, tmp) {
         del = true;
         for (uint8_t i = 0; i < root->pcs + 1; i++) {
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
