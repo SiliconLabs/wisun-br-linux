@@ -174,7 +174,6 @@ const char *tr_ws_frame(uint8_t frame_type);
 typedef struct mcps_data_ind          mcps_data_ind_t;
 typedef struct mcps_data_conf         mcps_data_conf_t;
 typedef struct mcps_data_conf_payload mcps_data_conf_payload_t;
-typedef struct mcps_ack_data_payload  mcps_ack_data_payload_t;
 typedef struct mcps_data_ie_list      mcps_data_ie_list_t;
 
 void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);

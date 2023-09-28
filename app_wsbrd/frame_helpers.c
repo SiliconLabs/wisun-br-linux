@@ -19,8 +19,6 @@
 #include "common/endian.h"
 #include "common/bits.h"
 
-#include "stack/mac/mac_mcps.h"
-
 #include "6lowpan/mac/mac_common_defines.h"
 #include "nwk_interface/protocol.h"
 

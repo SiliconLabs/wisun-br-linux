@@ -20,7 +20,7 @@
 #define MPX_API_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack/mac/mac_mcps.h"
+#include "app_wsbrd/rcp_api.h"
 
 struct mcps_data_req;
 struct mcps_data_conf;

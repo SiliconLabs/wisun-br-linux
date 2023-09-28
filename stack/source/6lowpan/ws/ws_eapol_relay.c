@@ -25,7 +25,6 @@
 #include <net/if.h>
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/mac/mac_mcps.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

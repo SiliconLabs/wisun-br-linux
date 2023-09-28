@@ -16,6 +16,8 @@
 #include <stdbool.h>
 #include <sys/uio.h>
 
+#include "6lowpan/mac/mac_common_defines.h"
+
 #define HIF_FHSS_TYPE_FFN_UC 0x00
 #define HIF_FHSS_TYPE_FFN_BC 0x01
 #define HIF_FHSS_TYPE_LFN_UC 0x02
@@ -24,18 +26,13 @@
 #define HIF_FHSS_TYPE_LFN_PA 0x06
 
 struct fhss_ws_neighbor_timing_info;
-struct ws_neighbor_class_entry;
 struct fhss_ws_configuration;
-struct mcps_data_req;
+struct ws_neighbor_class_entry;
 struct iobuf_write;
 struct iobuf_read;
 struct wsbr_ctxt;
 struct os_ctxt;
 struct net_if;
-struct mcps_data_conf;
-struct mcps_data_ind;
-struct mcps_data_conf_payload;
-struct mcps_data_ie_list;
 
 #define RCP_HAS_RESET          0x0001
 #define RCP_HAS_HWADDR         0x0002
@@ -84,6 +81,100 @@ typedef struct phy_rf_channel_configuration {
     int      rcp_config_index;
     bool     use_phy_op_modes;
 } phy_rf_channel_configuration_t;
+
+typedef enum mac_data_priority {
+    MAC_DATA_NORMAL_PRIORITY = 0,   /**< Normal MCPS DATA REQ */
+    MAC_DATA_MEDIUM_PRIORITY = 1,   /**< Indirect Data which is polled */
+    MAC_DATA_HIGH_PRIORITY = 2,     /**< MAC command usually use this and beacon */
+    MAC_DATA_EXPEDITE_FORWARD = 3   /**< Expedite forward level give highest priority */
+} mac_data_priority_e;
+
+// Used by rcp_tx_req_legacy()
+// See IEEE standard 802.15.4-2006 (table 41) for more details
+typedef struct mcps_data_req {
+    unsigned SrcAddrMode: 2;        /**< Source address mode */
+    unsigned DstAddrMode: 2;        /**< Destination address mode */
+    uint16_t DstPANId;              /**< Destination PAN ID */
+    uint8_t DstAddr[8];             /**< Destination address */
+    uint16_t msduLength;            /**< Service data unit length */
+    uint8_t *msdu;                  /**< Service data unit */
+    uint8_t msduHandle;             /**< Handle associated with MSDU */
+    bool TxAckReq: 1;               /**< Specifies whether ACK is needed or not */
+    bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
+    bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
+    bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
+    bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
+    mlme_security_t Key;            /**< Security key */
+    uint8_t priority;               /**< See mac_data_priority_e */
+    uint8_t phy_id;
+    uint8_t fhss_type;              /**< FHSS policy to send that frame */
+} mcps_data_req_t;
+
+// Used by rcp_tx_req_legacy()
+// Structure for IEEE 802.15.4-2015 MCPS data extension to Request
+typedef struct mcps_data_req_ie_list {
+    struct iovec *headerIeVectorList;    /**< Header IE element list */
+    struct iovec *payloadIeVectorList;   /**< Payload IE element list */
+    uint16_t headerIovLength;            /**< Header IE element list size, set 0 when no elements */
+    uint16_t payloadIovLength;           /**< Payload IE element list size, set 0 when no elements */
+} mcps_data_req_ie_list_t;
+
+// Used by on_tx_cnf()
+// See IEEE standard 802.15.4-2006 (table 42) for more details
+typedef struct mcps_data_conf {
+    uint8_t msduHandle;     /**< Handle associated with MSDU */
+    uint8_t status;         /**< Status of the last MSDU transmission */
+    uint32_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
+    //Non-standard extension
+    uint8_t cca_retries;    /**< Number of CCA retries used during sending */
+    uint8_t tx_retries;     /**< Number of retries done during sending, 0 means no retries */
+    struct {
+        uint8_t phy_mode_id;
+        uint8_t retries;
+    } retry_per_rate[4];         /**< Number of retries sorted by rate */
+    uint8_t success_phy_mode_id; /**< PhyModeId used to transmit the frame correctly. Only valide if status is MAC_TX_DONE */
+} mcps_data_conf_t;
+
+// Used by on_tx_cnf()
+typedef struct mcps_data_conf_payload {
+    const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
+    const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
+    const uint8_t *payloadPtr;          /**< Ack payload pointer */
+    uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
+    uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
+    uint16_t payloadLength;             /**< Payload length in bytes */
+} mcps_data_conf_payload_t;
+
+// Used by on_rx_ind()
+// See IEEE standard 802.15.4-2006 (table 43) for more details
+typedef struct mcps_data_ind {
+    unsigned SrcAddrMode: 2;    /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
+    uint16_t SrcPANId;          /**< Source PAN ID */
+    uint8_t SrcAddr[8];         /**< Source address */
+    unsigned DstAddrMode: 2;    /**< Destination address mode */
+    bool DSN_suppressed: 1;     /**< Indicate when DSN not include valid sequency id */
+    bool TxAckReq: 1;           /**< Is ACK needed */
+    bool PendingBit: 1;         /**< Are there more fragments to be sent */
+    bool PanIdSuppressed: 1;    /**< Suppress PAN-ID if possible. 2015 extension only */
+    uint16_t DstPANId;          /**< Destination PAN ID */
+    uint8_t DstAddr[8];         /**< Destination address */
+    uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
+    int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
+    uint32_t timestamp;         /**< The time, in symbols, at which the data were received */
+    uint8_t DSN;                /**< Data sequence number */
+    mlme_security_t Key;        /**< Security key */
+    uint16_t msduLength;        /**< Data unit length */
+    const uint8_t *msdu_ptr;    /**< Data unit */
+} mcps_data_ind_t;
+
+// Used by on_rx_ind()
+// Structure for IEEE 802.15.4-2015 MCPS data extension to Indication
+typedef struct mcps_data_ie_list {
+    const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
+    const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
+    uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
+    uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
+} mcps_data_ie_list_t;
 
 struct rcp_rail_config {
     int      index;

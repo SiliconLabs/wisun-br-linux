@@ -12,8 +12,6 @@
 #include "common/pcapng.h"
 #include "common/string_extra.h"
 
-#include "stack/mac/mac_mcps.h"
-
 #include "frame_helpers.h"
 #include "wsbr.h"
 
