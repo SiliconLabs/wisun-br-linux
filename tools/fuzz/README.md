@@ -1,4 +1,4 @@
-# Fuzzing the Wi-SUN Linux Border Router
+# Wi-SUN Linux Border Router debug and fuzzing
 
 This tool is designed to fuzz the `wsbrd` daemon. To do so an additional
 program `wsbrd-fuzz` is compiled, which wraps `wsbrd` and provides
@@ -26,6 +26,48 @@ While originally designed for fuzzing, these options can also be used as a
 debug tool. The replay mode allows running a debugger several times without
 reproductibility and time constraint present when debugging with real
 hardware.
+
+## Debug usage
+
+The capture and replay feature can be used to debug complex scenarios outside
+of a fuzzing context. The following procedure is presented to help debug
+`wsbrd`:
+
+- Backup the storage files used by `wsbrd` (by default in `/var/lib/wsbrd/`),
+  or alternatively start the border router with a fresh environment using `-D`.
+
+- Run `wsbrd` with capture enabled (prefer passing configuration options using
+  a file):
+
+    `wsbrd-fuzz -F wsbrd.conf --capture capture.raw`
+
+- Once the test has run, gather the following files and information to form a
+  test case:
+  - The **initial** storage files if present.
+  - The configuration file, and any dependant files (eg. certificates).
+  - The specific `wsbrd` version used (output of `wsbrd --version`).
+
+- The test case can then be used to debug issues using `--replay`, and
+  additional tools like `gdb`, `valgrind`, address sanitizer...
+
+### Troubleshooting
+
+When debbuging a test case with `--replay`, it may sometimes happen that the
+interesting part happens after the end of the capture. In particular when the
+capture is interrupted by a crash, the last event recorded will be before the
+crash. In such cases, appending a "replay timers" command to the capture file
+will force wsbrd to continue running for a bit in order to investigate the
+issue.
+
+```bash
+# Append a "replay timers" command to the capture file:
+# 00       hdr
+# 80 80 7c cmd
+# ff ff    ticks
+# 77 85    crc
+# 7e       eof
+echo -ne "\x00\x80\x80\x7c\xff\xff\x77\x85\x7e" >> capture.raw
+```
 
 ## Fuzzing with AFL++
 
