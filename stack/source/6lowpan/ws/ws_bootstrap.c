@@ -1161,7 +1161,6 @@ static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 
 static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 {
-    cur->mac_parameters.mac_key_id_mode = MAC_KEY_ID_MODE_IDX;
     cur->mac_parameters.SecurityEnabled = true;
     rcp_set_security(true);
 }
@@ -1378,7 +1377,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
         .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
+        .security.KeyIdMode     = MAC_KEY_ID_MODE_IDX,
     };
 
     if (cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {

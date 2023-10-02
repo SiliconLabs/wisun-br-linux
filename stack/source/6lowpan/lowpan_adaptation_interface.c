@@ -693,7 +693,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
                 dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
             else
                 dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
-            dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
+            dataReq->Key.KeyIdMode = MAC_KEY_ID_MODE_IDX;
         }
     }
 }

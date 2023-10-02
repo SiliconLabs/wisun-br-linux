@@ -343,7 +343,7 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.lfnver   = true,
         .wp_ies.lgtkhash = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIdMode     = net_if->mac_parameters.mac_key_id_mode,
+        .security.KeyIdMode     = MAC_KEY_ID_MODE_IDX,
         .security.KeyIndex      = net_if->mac_parameters.mac_default_lfn_key_index,
     };
 
