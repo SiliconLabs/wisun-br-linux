@@ -678,12 +678,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     dataReq->SrcAddrMode = buf->src_sa.addr_type;
     dataReq->DstAddrMode = buf->dst_sa.addr_type;
     memcpy(dataReq->DstAddr, &buf->dst_sa.address[2], 8);
-
-    if (buf->link_specific.ieee802_15_4.useDefaultPanId) {
-        dataReq->DstPANId = mac_helper_panid_get(cur);
-    } else {
-        dataReq->DstPANId = buf->link_specific.ieee802_15_4.dstPanId;
-    }
+    dataReq->DstPANId = mac_helper_panid_get(cur);
 
     //Allocate message msdu handle
     dataReq->msduHandle = buf->seq;

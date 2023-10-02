@@ -109,7 +109,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
         buf->options.flow_label = IPV6_FLOW_UNSPECIFIED;
         buf->options.hop_limit = 255;
         buf->options.mpl_permitted = true;
-        buf->link_specific.ieee802_15_4.useDefaultPanId = true;
         buf->size = total_size;
     } else {
         tr_error("buffer_get failed: alloc(%"PRIu32")", (uint32_t)(sizeof(buffer_t) + total_size));
@@ -232,7 +231,6 @@ buffer_t *buffer_turnaround(buffer_t *buf)
     buf->options.tunnelled = false;
     buf->rpl_flag_error = 0;
     buf->rpl_instance_known = false;
-    buf->link_specific.ieee802_15_4.useDefaultPanId = true;
 
     /* Most cases this will be a response to an RX, so no existing routing
      * info, but in the case of TX resolution failure, we're reversing and

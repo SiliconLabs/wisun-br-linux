@@ -70,11 +70,6 @@ buffer_t *lowpan_down(buffer_t *buf)
         }
     }
 
-    if (!buf->link_specific.ieee802_15_4.useDefaultPanId) {
-        /* Override dest PAN ID (from multicast map above, or neighbour cache) */
-        write_be16(buf->dst_sa.address, buf->link_specific.ieee802_15_4.dstPanId);
-    }
-
     /* Figure out which source MAC address to use. Usually try to match the
      * source, for best compression, and to ensure if the layer above uses LL64
      * (like MLE), it forces us to use our MAC64.
