@@ -660,9 +660,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     cur->ws_info.network_pan_id = 0xffff;
     ws_bootstrap_asynch_trickle_stop(cur);
-
-    //cur->mac_security_key_usage_update_cb = ws_management_mac_security_key_update_cb;
-    return;
 }
 
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)

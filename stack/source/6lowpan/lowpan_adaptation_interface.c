@@ -1210,10 +1210,6 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     buf->interface = cur;
     if (data_ind->Key.SecurityLevel) {
         buf->link_specific.ieee802_15_4.fc_security = true;
-
-        if (cur->mac_security_key_usage_update_cb) {
-            cur->mac_security_key_usage_update_cb(cur, &data_ind->Key);
-        }
     } else {
         buf->link_specific.ieee802_15_4.fc_security = false;
         if (cur->mac_parameters.mac_security_level ||
