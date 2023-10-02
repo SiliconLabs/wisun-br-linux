@@ -76,7 +76,6 @@ typedef struct buffer_link_ieee802_15_4 {
     bool fc_security: 1;            // Security Enabled flag from frame control
     bool ack_fc_frame_pending: 1;   // Frame Pending flag that was transmitted in Ack for this frame (used in Data Request)
     bool requestAck: 1;
-    uint32_t indirectTTL;
     uint16_t srcPanId;
     uint16_t dstPanId;
 } buffer_link_ieee802_15_4_t;

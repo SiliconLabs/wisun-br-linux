@@ -1111,16 +1111,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         protocol_stats_update(STATS_AL_TX_LATENCY, ((g_monotonic_time_100ms - buf->adaptation_timestamp) + 5) / 10);
     }
 
-    //Indirect data expiration
-    if (confirm->status == MLME_TRANSACTION_EXPIRED && !active_direct_confirm) {
-        if (buf->link_specific.ieee802_15_4.indirectTTL > 7000) {
-            buf->link_specific.ieee802_15_4.indirectTTL -= 7000;
-            //Push Back to MAC
-            lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
-            return 0;
-        }
-    }
-
     if (interface_ptr->etx_update_cb) {
         interface_ptr->etx_update_cb(cur, buf, confirm);
     }
