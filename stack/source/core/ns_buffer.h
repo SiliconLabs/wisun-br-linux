@@ -197,10 +197,7 @@ typedef struct buffer {
     //uint16_t            queue_timer;
     uint16_t            payload_length;         /*!< Socket payload length */
     uint8_t             IPHC_NH;
-    uint8_t             rpl_instance;
-    bool                rpl_instance_known: 1;
     bool                ip_routed_up: 1;
-    uint8_t             rpl_flag_error;
     uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
     //uint8_t             bc_sending_superframe;  /*FHSS uses this randomly chosen superframe to send this packet (if broadcast)*/
     //uint8_t             fhss_channel_retries_left;

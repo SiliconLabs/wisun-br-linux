@@ -103,7 +103,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
         buf->interface = NULL;
         //buf->bad_channel = 0xffff;
         //buf->bc_sending_superframe = 0xff;
-        buf->rpl_instance = 0xff;
         // Socket TX always overrides this, so this is the default for non-socket buffers.
         // Setting it to 0 would remove flow labels on internal ICMP messages without affecting sockets.
         buf->options.flow_label = IPV6_FLOW_UNSPECIFIED;
@@ -229,8 +228,6 @@ buffer_t *buffer_turnaround(buffer_t *buf)
     }
 
     buf->options.tunnelled = false;
-    buf->rpl_flag_error = 0;
-    buf->rpl_instance_known = false;
 
     /* Most cases this will be a response to an RX, so no existing routing
      * info, but in the case of TX resolution failure, we're reversing and
