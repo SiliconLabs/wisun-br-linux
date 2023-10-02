@@ -1172,17 +1172,6 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
            (addr->address[2] == 0xFF && addr->address[3] == 0xFF);
 }
 
-static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const sockaddr_t *addr)
-{
-    mac_neighbor_table_entry_t *neighbor;
-
-    if (!cur->mac_parameters.mac_neighbor_table)
-        return true; // FIXME: shouldn't we return false? is this case even possible?
-
-    neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr->address + 2, addr->addr_type);
-    return neighbor && (neighbor->connected_device || neighbor->trusted_device);
-}
-
 static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)
 {
     buffer_t *buf = buffer_get(data_ind->msduLength);
