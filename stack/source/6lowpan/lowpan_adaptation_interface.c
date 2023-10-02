@@ -654,9 +654,6 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
 
-    if (buf->link_specific.ieee802_15_4.key_id_mode != B_SECURITY_KEY_ID_2)
-        buf->link_specific.ieee802_15_4.key_id_mode = B_SECURITY_KEY_ID_MODE_DEFAULT;
-
     return buf;
 
 tx_error_handler:
@@ -695,26 +692,13 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     if (!buf->options.ll_security_bypass_tx) {
         dataReq->Key.SecurityLevel = cur->mac_parameters.mac_security_level;
         if (dataReq->Key.SecurityLevel) {
-            switch (buf->link_specific.ieee802_15_4.key_id_mode) {
-                case B_SECURITY_KEY_ID_MODE_DEFAULT:
-                    ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
-                                                              dataReq->DstAddr, dataReq->DstAddrMode);
-                    if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
-                        dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
-                    else
-                        dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
-                    dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
-                    break;
-                case B_SECURITY_KEY_ID_IMPLICIT:
-                    dataReq->Key.KeyIdMode = MAC_KEY_ID_MODE_IMPLICIT;
-                    break;
-
-                case B_SECURITY_KEY_ID_2:
-                    dataReq->Key.KeyIndex = 0xff;
-                    dataReq->Key.KeyIdMode = MAC_KEY_ID_MODE_SRC4_IDX;
-                    write_be32(dataReq->Key.Keysource, 0xffffffff);
-                    break;
-            }
+            ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
+                                                        dataReq->DstAddr, dataReq->DstAddrMode);
+            if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
+                dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
+            else
+                dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
+            dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
         }
     }
 }
