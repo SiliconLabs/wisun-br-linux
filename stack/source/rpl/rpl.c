@@ -290,7 +290,6 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
         .data_size = size,
         .data = pkt,
     };
-    bool solicit_matches = true;
     uint8_t opt_type;
 
     iobuf_pop_u8(&buf); // Flags
@@ -308,7 +307,10 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
         case RPL_OPT_PADN:
             continue;
         case RPL_OPT_SOLICIT:
-            solicit_matches = rpl_opt_solicit_matches(&opt_buf, root);
+            if (!rpl_opt_solicit_matches(&opt_buf, root)) {
+                TRACE(TR_DROP, "drop %-9s: solicit info mismatch", "rpl-dis");
+                return;
+            }
             break;
         default:
             TRACE(TR_IGNORE, "ignore: rpl-dis unsupported option %u", opt_type);
@@ -322,26 +324,10 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     }
     // RFC 6550 - 8.3. DIO Transmission
     if (IN6_IS_ADDR_MULTICAST(dst)) {
-        // The following packets and events MUST be considered inconsistencies
-        // with respect to the Trickle timer, and cause the Trickle timer to
-        // reset:
-        // - When a node receives a multicast DIS message without a Solicited
-        //   Information option, unless a DIS flag restricts this behavior.
-        // - When a node receives a multicast DIS with a Solicited Information
-        //   option and the node matches all of the predicates in the Solicited
-        //   Information option, unless a DIS flag restricts this behavior.
-        if (solicit_matches) {
-            rpl_dio_trickle_params(root, &dio_trickle_params);
-            trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
-        }
+        rpl_dio_trickle_params(root, &dio_trickle_params);
+        trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
     } else {
-        // When a node receives a unicast DIS without a Solicited Information
-        // option, it MUST unicast a DIO to the sender in response. [...] When
-        // a node receives a unicast DIS message with a Solicited Information
-        // option and matches the predicates of that Solicited Information
-        // option, it MUST unicast a DIO to the sender in response.
-        if (solicit_matches)
-            rpl_send_dio(root, src);
+        rpl_send_dio(root, src);
     }
 }
 
