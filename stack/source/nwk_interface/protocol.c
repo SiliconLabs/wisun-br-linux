@@ -365,21 +365,6 @@ void protocol_push(buffer_t *b)
     buffer_free(b);
 }
 
-void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur)
-{
-    //Clear Bootstrap Active Bit always
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
-    cur->bootstrap_state_machine_cnt = 0;
-
-    if (posted_event == ARM_NWK_BOOTSTRAP_READY)
-        return;
-
-    if (cur->if_down)
-        cur->if_down(cur);
-    else
-        tr_debug("if_down() NULL");
-}
-
 void net_bootstrap_cb_run(uint8_t event)
 {
     int8_t nwk_id = (int8_t) event;

@@ -496,8 +496,8 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
             break;
         case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
-            // Bootstrap_done event to application
-            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
+            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
+            cur->bootstrap_state_machine_cnt = 0;
             break;
         case ER_RPL_NETWORK_LEAVING:
             tr_debug("WS SM:RPL Leaving ready trigger discovery");

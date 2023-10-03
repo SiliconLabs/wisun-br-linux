@@ -22,21 +22,6 @@
 struct mac_api;
 struct rcp;
 
-/** Network Interface Status */
-typedef enum arm_nwk_interface_status_type_e {
-    ARM_NWK_BOOTSTRAP_READY = 0, /**< Interface configured Bootstrap is ready.*/
-    ARM_NWK_RPL_INSTANCE_FLOODING_READY, /**< RPL instance has been flooded. */
-    ARM_NWK_SET_DOWN_COMPLETE, /**< Interface DOWN command completed successfully. */
-    ARM_NWK_NWK_SCAN_FAIL,  /**< Interface has not detected any valid network. */
-    ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, /**< IP address allocation failure (ND, DHCPv4 or DHCPv6). */
-    ARM_NWK_DUPLICATE_ADDRESS_DETECTED, /**< User-specific GP16 was not valid. */
-    ARM_NWK_AUHTENTICATION_START_FAIL, /**< No valid authentication server detected behind the access point. */
-    ARM_NWK_AUHTENTICATION_FAIL,    /**< Network authentication failed by handshake. */
-    ARM_NWK_NWK_CONNECTION_DOWN, /**< No connection between access point and default router. */
-    ARM_NWK_NWK_PARENT_POLL_FAIL, /**< Sleepy host poll failed 3 times. Interface is shut down. */
-    ARM_NWK_PHY_CONNECTION_DOWN, /**< Interface PHY cable off or serial port interface not responding anymore. */
-} arm_nwk_interface_status_type_e;
-
 /** Ipv6 address type.*/
 typedef enum net_address {
     ADDR_IPV6_GP,             /**< Node default global address. */
