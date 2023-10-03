@@ -1430,52 +1430,6 @@ int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[LGTK_NUM
     return 0;
 }
 
-int8_t ws_pae_controller_next_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
-{
-    if (!gtk) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    // Inserts new keys and removed keys set as not used
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
-        if (gtk[i]) {
-            sec_prot_keys_gtk_set(&controller->gtks.next_gtks, i, gtk[i], 0);
-        } else {
-            sec_prot_keys_gtk_clear(&controller->gtks.next_gtks, i);
-        }
-    }
-
-    return 0;
-}
-
-int8_t ws_pae_controller_next_lgtk_update(int8_t interface_id, uint8_t *gtk[LGTK_NUM])
-{
-    if (!gtk) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    // Inserts new keys and removed keys set as not used
-    for (uint8_t i = 0; i < LGTK_NUM; i++) {
-        if (gtk[i]) {
-            sec_prot_keys_gtk_set(&controller->lgtks.next_gtks, i, gtk[i], 0);
-        } else {
-            sec_prot_keys_gtk_clear(&controller->lgtks.next_gtks, i);
-        }
-    }
-
-    return 0;
-}
-
 int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64)
 {
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
