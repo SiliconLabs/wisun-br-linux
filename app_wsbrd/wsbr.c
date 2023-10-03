@@ -279,6 +279,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     if (!version_older_than(ctxt->rcp.version_api, 0, 17, 0))
         rcp_set_max_async_duration(ctxt->config.ws_async_frag_duration);
+
+    // Wi-SUN FAN 1.1v06 6.3.4.1.1.2 forbids EDFE when operating in Japan.
+    // Aggregate this restriction with the ARIB regulation for simplicity.
+    if (!version_older_than(ctxt->rcp.version_api, 0, 26, 0) &&
+        ctxt->config.ws_regional_regulation == REG_REGIONAL_ARIB)
+        rcp_set_edfe_mode(false);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
