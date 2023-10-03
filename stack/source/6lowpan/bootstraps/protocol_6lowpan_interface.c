@@ -43,36 +43,6 @@
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 
-static int8_t set_6lowpan_nwk_down(struct net_if *cur)
-{
-    int8_t ret_val = -1;
-    // Check first current state
-    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        /* Change Active -> Idle */
-        /* Disable Protocols Timers */
-        mac_neighbor_table_neighbor_list_clean(cur->mac_parameters.mac_neighbor_table);
-
-        if (cur->interface_mode == INTERFACE_UP) {
-            cur->mac_parameters.pan_id = 0xffff;
-            cur->mac_parameters.SecurityEnabled = false;
-            cur->mac_parameters.mac_security_level = 0;
-            rcp_reset_stack();
-            cur->interface_mode = INTERFACE_IDLE;
-        }
-        lowpan_adaptation_interface_reset(cur->id);
-        reassembly_interface_reset(cur->id);
-
-        /* Init RPL Timers */
-        cur->bootstrap_state_machine_cnt = 0;
-
-        cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
-        cur->lowpan_info &= ~(INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE);
-        cur->interface_mode = INTERFACE_IDLE;
-        ret_val = 0;
-    }
-    return ret_val;
-}
-
 static int8_t set_6lowpan_nwk_up(struct net_if *cur)
 {
     int8_t ret_val = 1;
