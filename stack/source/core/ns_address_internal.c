@@ -634,16 +634,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 #undef PREFER_SA
 #undef PREFER_SB
 
-void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr)
-{
-    if (addr->group_added) {
-        addr_remove_solicited_node_group(cur, addr->address);
-    }
-    ns_list_remove(&cur->ip_addresses, addr);
-    addr_cb(cur, addr, ADDR_CALLBACK_DELETED);
-    free(addr);
-}
-
 void notify_user_if_ready()
 {
     bool had_global_address;
