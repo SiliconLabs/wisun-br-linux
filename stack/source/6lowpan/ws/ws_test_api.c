@@ -54,11 +54,6 @@ int ws_test_lgtk_set(int8_t interface_id, uint8_t *lgtk[3])
     return ws_pae_controller_lgtk_update(interface_id, lgtk);
 }
 
-int ws_test_active_key_set(int8_t interface_id, uint8_t index)
-{
-    return ws_pae_controller_active_key_update(interface_id, index);
-}
-
 int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 {
     return ws_pae_controller_next_gtk_update(interface_id, gtk);

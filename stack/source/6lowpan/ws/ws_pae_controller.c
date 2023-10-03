@@ -1476,23 +1476,6 @@ int8_t ws_pae_controller_next_lgtk_update(int8_t interface_id, uint8_t *gtk[LGTK
     return 0;
 }
 
-int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
-{
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    BUG_ON(index >= GTK_NUM);
-    controller->gtks.gtk_index = index;
-
-    if (controller->pae_nw_key_index_update) {
-        controller->pae_nw_key_index_update(controller->interface_ptr, index, false);
-    }
-
-    return 0;
-}
-
 int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64)
 {
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);

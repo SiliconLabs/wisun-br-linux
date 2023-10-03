@@ -75,20 +75,6 @@ int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
 int ws_test_lgtk_set(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
- * Sets index of active key.
- *
- * Sets index of active Group Transient Key (GTK) to border router. If index is
- * set after bootstrap, initiates dissemination of new key index to network.
- *
- * \param interface_id Network interface ID.
- * \param index Key index
- *
- * \return 0                         Active key index has been set
- * \return <0                        Active key index set has failed
- */
-int ws_test_active_key_set(int8_t interface_id, uint8_t index);
-
-/**
  * Sets Next Group Transient Keys used during GTK life cycle
  *
  * Sets next Group Transient Keys (GTKs) used during GTK life cycle. Up to four

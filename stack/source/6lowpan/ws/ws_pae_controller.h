@@ -349,18 +349,6 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_l
 int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled);
 
 /**
- * ws_pae_controller_active_key_update update active key (test interface)
- *
- * \param interface_id interface identifier
- * \param index GTK index
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index);
-
-/**
  * ws_pae_controller_gtk_hash_ptr_get get pointer to GTK hash storage
  *
  * \param interface_ptr interface
