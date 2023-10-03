@@ -75,23 +75,6 @@ int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
 int ws_test_lgtk_set(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
- * Sets Next Group Transient Keys used during GTK life cycle
- *
- * Sets next Group Transient Keys (GTKs) used during GTK life cycle. Up to four
- * GTKs can be set (GTKs from index 0 to 3). When next GTK(s) are set, border
- * router inserts GTKs from the next GTK list into use during GTK update
- * procedure.
- *
- * \param interface_id Network interface ID.
- * \param gtk GTK array, if GTK is not set, pointer for the index shall be NULL.
- *
- * \return 0                         GTKs are set
- * \return <0                        GTK set has failed
- */
-int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
-int ws_test_next_lgtk_set(int8_t interface_id, uint8_t *gtk[3]);
-
-/**
  * Disable First EDFE data packet send.
  *
  * Made only for test purpose for test EDFE client Data wait timeout.
