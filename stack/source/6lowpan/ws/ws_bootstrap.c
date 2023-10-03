@@ -164,18 +164,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
             // at least ula address available inside mesh.
             interface->global_address_available = true;
         }
-    } else if (reason == ADDR_CALLBACK_DELETED) {
-        //Discover prefix policy
-        addr_policy_remove_by_label(WS_NON_PREFFRED_LABEL);
-
-        interface->global_address_available = false;
-        ns_list_foreach(if_address_entry_t, addr_str, &interface->ip_addresses) {
-            if (addr_ipv6_scope(addr_str->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
-                // at least ula address available inside mesh.
-                interface->global_address_available = true;
-                break;
-            }
-        }
     }
 
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state

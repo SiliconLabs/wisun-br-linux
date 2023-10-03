@@ -84,7 +84,6 @@ typedef enum if_address_callback {
     ADDR_CALLBACK_DEPRECATED,   // preferred lifetime reached 0
     ADDR_CALLBACK_INVALIDATED,  // valid lifetime reached 0 - about to be deleted, unless callback increases lifetime
     ADDR_CALLBACK_REFRESHED,    // valid lifetime updated (up or down, aside from usual expiry)
-    ADDR_CALLBACK_DELETED,      // address is deleted (no longer on interface at point of call)
 } if_address_callback_e;
 
 typedef void if_address_callback_fn(struct net_if *interface, struct if_address_entry *addr, if_address_callback_e reason);

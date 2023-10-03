@@ -306,8 +306,6 @@ static void net_automatic_loopback_route_update(struct net_if *interface, const 
     /* TODO: When/if we have a real loopback interface, these routes would use it instead of interface->id */
     if (reason == ADDR_CALLBACK_DAD_COMPLETE)
         ipv6_route_add(addr->address, 128, interface->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
-    if (reason == ADDR_CALLBACK_DELETED)
-        ipv6_route_delete(addr->address, 128, interface->id, NULL, ROUTE_LOOPBACK);
 }
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)

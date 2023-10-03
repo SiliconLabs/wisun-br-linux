@@ -179,25 +179,9 @@ static bool rpl_glue_nxthop(const uint8_t dst[16], ipv6_route_info_t *route)
     return true;
 }
 
-static void rpl_glue_addr_notifier(struct net_if *interface,
-                                   const struct if_address_entry *addr,
-                                   enum if_address_callback reason)
-{
-    struct rpl_root *root = &g_ctxt.rpl_root;
-    struct rpl_target *target;
-
-    if (reason != ADDR_CALLBACK_DELETED)
-        return;
-
-    target = rpl_target_get(root, addr->address);
-    if (target)
-        rpl_target_del(root, target);
-}
-
 void rpl_glue_init(struct net_if *net_if)
 {
     ipv6_set_exthdr_provider(ROUTE_RPL_DAO_SR, rpl_glue_srh_provider);
     ipv6_route_table_set_next_hop_fn(ROUTE_RPL_DAO_SR, rpl_glue_nxthop);
-    addr_notification_register(rpl_glue_addr_notifier);
     addr_add_group(net_if, ADDR_LINK_LOCAL_ALL_RPL_NODES);
 }
