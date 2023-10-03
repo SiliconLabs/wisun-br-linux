@@ -371,14 +371,3 @@ int8_t protocol_interface_address_compare(const uint8_t *addr)
 
     return -1;
 }
-
-bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len)
-{
-    ns_list_foreach(if_address_entry_t, adr, &cur->ip_addresses) {
-        if (!bitcmp(adr->address, prefix, prefix_len)) {
-            /* Prefix  stil used at list so stop checking */
-            return true;
-        }
-    }
-    return false;
-}
