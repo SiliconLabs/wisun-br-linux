@@ -607,7 +607,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     spinel_push_u8(&buf,   tx_req->Key.SecurityLevel);
     spinel_push_u8(&buf,   MAC_KEY_ID_MODE_IDX);
     spinel_push_u8(&buf,   tx_req->Key.KeyIndex);
-    spinel_push_fixed_u8_array(&buf, tx_req->Key.Keysource, 8);
+    spinel_push_fixed_u8_array(&buf, (uint8_t[8]){ }, 8); // previously KeySource
     spinel_push_u16(&buf,  tx_req->priority);
     if (channel_list) {
         spinel_push_uint(&buf, channel_list->channel_page);
@@ -932,7 +932,7 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     req.Key.SecurityLevel      = spinel_pop_u8(buf);
     key_id_mode                = spinel_pop_u8(buf);
     req.Key.KeyIndex           = spinel_pop_u8(buf);
-    spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
+    spinel_pop_fixed_u8_array(buf, NULL, 8);
     ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
     ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
     if (iobuf_remaining_size(buf)) {
