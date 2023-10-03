@@ -183,13 +183,12 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
  * \param interface_ptr interface
  * \param pan_id PAD ID
  * \param network_name network name
- * \param updated data has been updated
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name);
 
 /**
  * ws_pae_auth_gtk_hash_set GTK hash set callback

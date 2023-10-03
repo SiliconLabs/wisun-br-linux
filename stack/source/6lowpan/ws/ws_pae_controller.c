@@ -62,7 +62,7 @@ typedef int8_t ws_pae_br_addr_read(struct net_if *interface_ptr, uint8_t *eui_64
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
-typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
+typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name);
 
 typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -270,7 +270,6 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
 
     sec_keys_nw_info->gtks = gtks;
     sec_keys_nw_info->lgtks = lgtks;
-    sec_keys_nw_info->new_pan_id = 0xFFFF;
     sec_keys_nw_info->key_pan_id = 0xFFFF;
     sec_keys_nw_info->updated = false;
 }
@@ -289,20 +288,10 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
         return -1;
     }
 
-    bool updated = false;
-
     // Network name has been modified
     if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
         strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
         controller->sec_keys_nw_info.updated = true;
-        updated = true;
-    }
-
-    // PAN ID has been modified
-    if (pan_id != 0xffff && pan_id != controller->sec_keys_nw_info.new_pan_id) {
-        controller->sec_keys_nw_info.new_pan_id = pan_id;
-        controller->sec_keys_nw_info.updated = true;
-        updated = true;
     }
 
     // Store pan version
@@ -310,7 +299,7 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
     controller->sec_keys_nw_info.lpan_version = lpan_version;
 
     if (controller->pae_nw_info_set) {
-        controller->pae_nw_info_set(interface_ptr, pan_id, network_name, updated);
+        controller->pae_nw_info_set(interface_ptr, pan_id, network_name);
     }
 
     return 0;
@@ -788,9 +777,6 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
         sec_prot_keys_gtks_clear(gtks);
         sec_prot_keys_gtks_clear(lgtks);
     }
-
-    // Sets also new pan_id used for pan_id set by bootstrap
-    controller->sec_keys_nw_info.new_pan_id = controller->sec_keys_nw_info.key_pan_id;
 
     return 0;
 }

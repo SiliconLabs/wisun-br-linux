@@ -581,10 +581,8 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     return 0;
 }
 
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name)
 {
-    (void) updated;
-
     if (!interface_ptr || !network_name) {
         return -1;
     }

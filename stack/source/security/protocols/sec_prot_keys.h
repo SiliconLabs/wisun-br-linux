@@ -153,7 +153,6 @@ typedef struct sec_prot_keys_nw_info {
     char network_name[33];                                 /**< Network name for keys */
     sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
     sec_prot_gtk_keys_t *lgtks;                            /**< Link to LGTKs */
-    uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */
     uint16_t key_pan_id;                                   /**< PAN ID for keys */
     uint16_t pan_version;                                  /**< PAN version for keys */
     uint16_t lpan_version;                                 /**< LFN PAN version for keys */
