@@ -84,7 +84,7 @@ const struct name_value valid_traces[] = {
     { "dhcp",      TR_DHCP },
     { "tun",       TR_TUN },
     { "timers",    TR_TIMERS },
-    { "drop",      TR_DROP },
+    { "drop",      TR_DROP | TR_TX_ABORT },
     { "rpl",       TR_RPL },
     { "neigh",     TR_NEIGH },
     { NULL },

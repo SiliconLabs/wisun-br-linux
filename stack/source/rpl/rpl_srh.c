@@ -33,28 +33,28 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16],
     while (1) {
         target = rpl_target_get(root, nxthop);
         if (!target) {
-            TRACE(TR_DROP, "tx-abort: rpl srh unknown target %s", tr_ipv6(nxthop));
+            TRACE(TR_TX_ABORT, "tx-abort: rpl srh unknown target %s", tr_ipv6(nxthop));
             return -1;
         }
         if (target->external) {
-            TRACE(TR_DROP, "tx-abort: rpl srh external target %s", tr_ipv6(target->prefix));
+            TRACE(TR_TX_ABORT, "tx-abort: rpl srh external target %s", tr_ipv6(target->prefix));
             return -1;
         }
         // Only consider the preferred parent
         transit = rpl_transit_preferred(root, target);
         if (!transit) {
-            TRACE(TR_DROP, "tx-abort: rpl srh no transit to target %s", tr_ipv6(target->prefix));
+            TRACE(TR_TX_ABORT, "tx-abort: rpl srh no transit to target %s", tr_ipv6(target->prefix));
             return -1;
         }
         if (!memcmp(transit->parent, root->dodag_id, 16))
             break;
         if (seg_count > WS_RPL_SRH_MAXSEG) {
-            TRACE(TR_DROP, "tx-abort: rpl srh > %u hops", WS_RPL_SRH_MAXSEG);
+            TRACE(TR_TX_ABORT, "tx-abort: rpl srh > %u hops", WS_RPL_SRH_MAXSEG);
             return -1;
         }
         for (uint8_t i = 0; i < seg_count; i++) {
             if (!memcmp(transit->parent, seg_list[i], 16)) {
-                TRACE(TR_DROP, "tx-abort: rpl srh loop");
+                TRACE(TR_TX_ABORT, "tx-abort: rpl srh loop");
                 return -1;
             }
         }

@@ -88,6 +88,7 @@ enum {
     TR_RPL       = 0x00020000,
     TR_NEIGH     = 0x00040000,
     TR_DROP      = 0x00100000,
+    TR_TX_ABORT  = 0x00200000,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)
