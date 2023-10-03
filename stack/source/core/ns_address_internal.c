@@ -403,13 +403,6 @@ static if_group_entry_t *addr_add_solicited_node_group(struct net_if *interface,
     return addr_add_group(interface, group);
 }
 
-static void addr_remove_solicited_node_group(struct net_if *interface, const uint8_t address[static 16])
-{
-    uint8_t group[16];
-    addr_generate_solicited_node_group(group, address);
-    addr_remove_group(interface, group);
-}
-
 void addr_add_router_groups(struct net_if *interface)
 {
     /* The standard IPv6 ones, but not "Realm-Local-All-Routers"
