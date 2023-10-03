@@ -848,21 +848,6 @@ int8_t addr_interface_select_source(struct net_if *cur, uint8_t *src_ptr, const 
     return ret_val;
 }
 
-void addr_policy_remove_by_label(uint8_t label)
-{
-    ns_list_foreach_safe(addr_policy_table_entry_t, entry, &addr_policy_table) {
-        if (entry->label == label) {
-            /*
-             * Remove label policy if no local address matches"
-             */
-            if (!protocol_interface_any_address_match(entry->prefix, entry->prefix_len)) {
-                ns_list_remove(&addr_policy_table, entry);
-                free(entry);
-            }
-        }
-    }
-}
-
 // This last function must always be compiled with tracing enabled
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix)
 {

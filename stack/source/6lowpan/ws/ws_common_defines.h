@@ -439,12 +439,6 @@ typedef struct ws_bs_ie {
 #define WS_CERTIFICATE_RPL_PARENT_CANDIDATE_MAX 8
 #define WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX 4
 
-/**
- * Wi-sun specific non-preferred prefix policy label
- */
-
-#define WS_NON_PREFFRED_LABEL 36
-
 /*
  * Threshold (referenced to DEVICE_MIN_SENS) above which a neighbor node may be considered for inclusion into candidate parent set
  */
