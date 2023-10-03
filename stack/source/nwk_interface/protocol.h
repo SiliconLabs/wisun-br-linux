@@ -256,7 +256,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len);
-bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len);
 
 void nwk_bootstrap_timer(int ticks);
 void icmp_fast_timer(int ticks);

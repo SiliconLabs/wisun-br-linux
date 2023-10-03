@@ -382,17 +382,3 @@ bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint
     }
     return false;
 }
-
-bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-
-        if (protocol_address_prefix_cmp(cur, prefix, prefix_len)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
