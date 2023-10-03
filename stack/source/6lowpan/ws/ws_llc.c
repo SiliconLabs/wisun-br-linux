@@ -1816,10 +1816,16 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     msg->message_type = req->frame_type;
     msg->priority     = priority;
 
-    if (dst)
+    if (dst) {
         memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
-    else if (req->wh_ies.lbt)
-        ws_timer_start(WS_TIMER_LTS); // FIXME: This timer should be restarted at confirmation instead
+    } else {
+        // FIXME: This timer should be restarted at confirmation instead
+        if (req->wh_ies.lbt)
+            ws_timer_start(WS_TIMER_LTS);
+        // Broadcast LPC are the only LFN frames that include a source PAN ID
+        if (req->frame_type == WS_FT_LPC)
+            data_req.PanIdSuppressed = false;
+    }
     if (!dst)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_BC;
     else if (req->frame_type == WS_FT_LPA)
