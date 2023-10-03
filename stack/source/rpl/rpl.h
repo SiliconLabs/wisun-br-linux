@@ -91,7 +91,7 @@ struct rpl_target {
     uint8_t prefix[16]; // Only full address are supported
 
     bool external;
-    int8_t path_seq;
+    uint8_t path_seq;
     //   RFC 6550 - 6.7.8. Transit Information
     // Path Lifetime: [...] The period starts when a new Path Sequence is seen.
     time_t path_seq_tstamp_s;
