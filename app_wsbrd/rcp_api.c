@@ -749,6 +749,11 @@ void rcp_tx_drop(uint8_t handle)
     rcp_set_u8(SPINEL_PROP_WS_MCPS_DROP, handle);
 }
 
+void rcp_set_edfe_mode(bool enable)
+{
+    rcp_set_bool(SPINEL_PROP_WS_ENABLE_EDFE, enable);
+}
+
 static void rcp_rx_no_op(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
 }
