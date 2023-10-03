@@ -75,7 +75,6 @@
 
 static void ws_bootstrap_event_handler(struct event_payload *event);
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, void *event_data);
-static void ws_bootstrap_mac_security_enable(struct net_if *cur);
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t operation, uint8_t index, uint8_t *key);
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
@@ -1121,7 +1120,7 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     cur->mac_parameters.RxOnWhenIdle = true;
     rcp_set_rx_on_idle(true);
-    ws_bootstrap_mac_security_enable(cur);
+    rcp_set_security(true);
     ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;
 }
@@ -1157,12 +1156,6 @@ static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 {
     (void)cur;
     ws_bbr_lfn_version_increase(cur);
-}
-
-static void ws_bootstrap_mac_security_enable(struct net_if *cur)
-{
-    cur->mac_parameters.SecurityEnabled = true;
-    rcp_set_security(true);
 }
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)
