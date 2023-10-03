@@ -105,7 +105,6 @@ typedef struct pae_auth {
     struct net_if *interface_ptr;          /**< Interface pointer */
     ws_pae_auth_gtk_hash_set *hash_set;                      /**< GTK hash set callback */
     ws_pae_auth_nw_key_insert *nw_key_insert;                /**< Key insert callback */
-    ws_pae_auth_nw_keys_remove *nw_keys_remove;              /**< Network keys remove callback */
     ws_pae_auth_nw_key_index_set *nw_key_index_set;          /**< Key index set callback */
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
     ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
@@ -196,7 +195,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
 
     pae_auth->hash_set = NULL;
     pae_auth->nw_key_insert = NULL;
-    pae_auth->nw_keys_remove = NULL;
     pae_auth->nw_key_index_set = NULL;
     pae_auth->nw_info_updated = NULL;
     pae_auth->ip_addr_get = NULL;
@@ -614,10 +612,6 @@ int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, ch
 
     if (!update_keys) {
         return 0;
-    }
-
-    if (pae_auth->nw_keys_remove) {
-        pae_auth->nw_keys_remove(pae_auth->interface_ptr);
     }
 
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, force_install, false);
