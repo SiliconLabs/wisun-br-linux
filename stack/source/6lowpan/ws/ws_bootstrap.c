@@ -1024,7 +1024,6 @@ int ws_bootstrap_init(int8_t interface_id)
     cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = WS_MPX_MAX_MTU;
 
     cur->if_up = ws_bootstrap_up;
-    cur->if_down = ws_bootstrap_down;
     cur->ws_info.neighbor_storage = neigh_info;
     cur->etx_read_override = ws_etx_read;
 
