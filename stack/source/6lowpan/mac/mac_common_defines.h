@@ -60,7 +60,6 @@ enum {
  */
 typedef struct mlme_security {
     unsigned SecurityLevel: 3;  /**< Security level */
-    unsigned KeyIdMode: 2;      /**< 2-bit value which define key source and ID use case */
     uint8_t KeyIndex;           /**< Key index */
     uint8_t Keysource[8];       /**< Key source */
 } mlme_security_t;

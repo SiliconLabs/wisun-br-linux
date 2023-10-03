@@ -605,7 +605,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     spinel_push_bool(&buf, tx_req->PanIdSuppressed);
     spinel_push_bool(&buf, tx_req->ExtendedFrameExchange);
     spinel_push_u8(&buf,   tx_req->Key.SecurityLevel);
-    spinel_push_u8(&buf,   tx_req->Key.KeyIdMode);
+    spinel_push_u8(&buf,   MAC_KEY_ID_MODE_IDX);
     spinel_push_u8(&buf,   tx_req->Key.KeyIndex);
     spinel_push_fixed_u8_array(&buf, tx_req->Key.Keysource, 8);
     spinel_push_u16(&buf,  tx_req->priority);
@@ -913,6 +913,7 @@ static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
 
 static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
+    uint8_t key_id_mode;
     mcps_data_ind_t req = { };
     mcps_data_ind_ie_list_t ie_ext = { };
 
@@ -929,7 +930,7 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     req.DSN_suppressed         = spinel_pop_bool(buf);
     req.DSN                    = spinel_pop_u8(buf);
     req.Key.SecurityLevel      = spinel_pop_u8(buf);
-    req.Key.KeyIdMode          = spinel_pop_u8(buf);
+    key_id_mode                = spinel_pop_u8(buf);
     req.Key.KeyIndex           = spinel_pop_u8(buf);
     spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
     ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
@@ -944,6 +945,10 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
+    if (req.Key.SecurityLevel && key_id_mode != MAC_KEY_ID_MODE_IDX) {
+        TRACE(TR_DROP, "drop %-9s: unsupported key ID mode", "15.4");
+        return;
+    }
     ctxt->rcp.on_rx_ind(ctxt->rcp_if_id, &req, &ie_ext);
 }
 

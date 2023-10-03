@@ -1370,7 +1370,6 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
         .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIdMode     = MAC_KEY_ID_MODE_IDX,
     };
 
     if (cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {

@@ -219,15 +219,10 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     }
 
     if (req->Key.SecurityLevel) {
-        iobuf_push_u8(frame, FIELD_PREP(IEEE802154_SECURITY_KEY_MODE, req->Key.KeyIdMode) |
+        iobuf_push_u8(frame, FIELD_PREP(IEEE802154_SECURITY_KEY_MODE, MAC_KEY_ID_MODE_IDX) |
                              FIELD_PREP(IEEE802154_SECURITY_LEVEL, req->Key.SecurityLevel));
         iobuf_push_data_reserved(frame, 4);  // Frame counter (never suppressed)
-        if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_SRC8_IDX)
-            iobuf_push_data(frame, req->Key.Keysource, 8);
-        else if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX)
-            iobuf_push_data(frame, req->Key.Keysource, 4);
-        else if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_IDX)
-            iobuf_push_u8(frame, req->Key.KeyIndex);
+        iobuf_push_u8(frame, req->Key.KeyIndex);
     }
 
     if (ie->headerIovLength > 0)
