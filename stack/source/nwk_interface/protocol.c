@@ -150,20 +150,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
-void protocol_core_interface_info_reset(struct net_if *entry)
-{
-    if (entry) {
-        entry->global_address_available = false;
-        lowpan_context_list_free(&entry->lowpan_contexts);
-        ipv6_neighbour_cache_flush(&entry->ipv6_neighbour_cache);
-        entry->if_stack_buffer_handler = 0;
-        //Clean
-        ns_list_foreach_safe(if_address_entry_t, addr, &entry->ip_addresses) {
-            addr_delete_entry(entry, addr);
-        }
-    }
-}
-
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
 {
     cur->base_reachable_time = base_reachable_time;

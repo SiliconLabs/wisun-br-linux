@@ -241,8 +241,6 @@ void nwk_interface_flush_neigh_cache(void);
 
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
-void protocol_core_interface_info_reset(struct net_if *entry);
-
 uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
 struct net_if *protocol_stack_interface_info_get();
