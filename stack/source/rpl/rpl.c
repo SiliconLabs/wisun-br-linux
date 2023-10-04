@@ -311,7 +311,7 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
             solicit_matches = rpl_opt_solicit_matches(&opt_buf, root);
             break;
         default:
-            TRACE(TR_DROP, "ignore %-9s: unsupported option %u", "rpl-dis", opt_type);
+            TRACE(TR_IGNORE, "ignore: rpl-dis unsupported option %u", opt_type);
             break;
         }
         buf.err |= opt_buf.err;
@@ -351,7 +351,6 @@ static bool rpl_opt_target_parse(struct iobuf_read *opt_buf,
     iobuf_pop_u8(opt_buf); // Flags
     opt_target->prefix_len = iobuf_pop_u8(opt_buf);
     if (opt_target->prefix_len > 128) {
-        TRACE(TR_DROP, "ignore %-9s: invalid target prefix length", "rpl");
         opt_buf->err = true;
         return false;
     }
@@ -474,19 +473,19 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
             break;
         case RPL_OPT_TARGET:
             if (has_target && !has_transit)
-                TRACE(TR_DROP, "ignore %-9s: unsupported consecutive target options", "rpl-dao");
+                TRACE(TR_IGNORE, "ignore: rpl-dao consecutive target options");
             has_transit = false;
             if (!rpl_opt_target_parse(&opt_buf, &opt_target))
                 break;
             if (opt_target.prefix_len != 128) {
-                TRACE(TR_DROP, "ignore %-9s: unsupported target prefix length != 128", "rpl");
+                TRACE(TR_IGNORE, "ignore: rpl-dao target prefix length != 128");
                 break;
             }
             has_target = true;
             break;
         case RPL_OPT_TRANSIT:
             if (!has_target) {
-                TRACE(TR_DROP, "ignore %-9s: invalid transit without target", "rpl-dao");
+                TRACE(TR_IGNORE, "ignore: rpl-dao transit without target");
                 break;
             }
             if (!rpl_opt_transit_parse(&opt_buf, &opt_transit))
@@ -495,7 +494,7 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
             rpl_transit_update(root, &opt_target, &opt_transit);
             break;
         default:
-            TRACE(TR_DROP, "ignore %-9s: unsupported option %u", "rpl-dao", opt_type);
+            TRACE(TR_IGNORE, "ignore: rpl-dao unsupported option %u", opt_type);
             break;
         }
         buf.err |= opt_buf.err;
