@@ -92,6 +92,11 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
     for (uint8_t i = 0; i < cmpre; i++)
         if (srh->seg_list[srh->seg_count - 1][i] != dst[i])
             cmpre = i;
+    // FIXME: Silicon Labs embedded stack incorrectly support cases where
+    // swapping the final address changes the compression scheme. To remain
+    // compatible, choice is made to use a worse compression scheme.
+    cmpri = MIN(cmpri, cmpre);
+    cmpre = cmpri;
 
     size_no_pad = 8 + (16 - cmpri) * (srh->seg_count - 1) + (16 - cmpre);
     pad = roundup(size_no_pad, 8) - size_no_pad;
