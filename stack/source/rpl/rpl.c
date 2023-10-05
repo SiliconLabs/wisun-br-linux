@@ -652,7 +652,7 @@ void rpl_timer(int ticks)
     struct trickle_params dio_trickle_params;
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target, *tmp;
-    time_t now = time_current(CLOCK_MONOTONIC);
+    time_t elapsed;
     bool del;
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
@@ -661,10 +661,11 @@ void rpl_timer(int ticks)
 
     SLIST_FOREACH_SAFE(target, &root->targets, link, tmp) {
         del = true;
+        elapsed = time_get_elapsed(CLOCK_MONOTONIC, target->path_seq_tstamp_s);
         for (uint8_t i = 0; i < root->pcs + 1; i++) {
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
                 continue;
-            if (target->path_seq_tstamp_s + target->transits[i].path_lifetime * root->lifetime_unit_s < now) {
+            if (elapsed > target->transits[i].path_lifetime * root->lifetime_unit_s) {
                 memset(target->transits + i, 0, sizeof(struct rpl_transit));
                 TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
                       tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
