@@ -127,6 +127,14 @@ struct rpl_root {
     void (*route_add)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);
     void (*route_del)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);
 
+    // When enabled, some parts of the specification are ignored in order to
+    // hopefully improve interoperability with faulty devices.
+    // In particular:
+    // - Path Sequence is ignored, information found in DAO is always
+    //   considered up to date and added to previously learned information.
+    // - Source Routing Header compression always uses CmprI = CmprE.
+    bool compat;
+
     struct rpl_target_list targets;
 };
 

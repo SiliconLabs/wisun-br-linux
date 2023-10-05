@@ -75,7 +75,7 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16],
 
 // RFC 6554 - 3. Format of the RPL Routing Header
 void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
-                  const uint8_t dst[16], uint8_t nxthdr)
+                  const uint8_t dst[16], uint8_t nxthdr, bool cmpri_eq_cmpre)
 {
     uint8_t cmpri, cmpre, pad;
     size_t size_no_pad;
@@ -92,11 +92,13 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
     for (uint8_t i = 0; i < cmpre; i++)
         if (srh->seg_list[srh->seg_count - 1][i] != dst[i])
             cmpre = i;
-    // FIXME: Silicon Labs embedded stack incorrectly support cases where
-    // swapping the final address changes the compression scheme. To remain
-    // compatible, choice is made to use a worse compression scheme.
-    cmpri = MIN(cmpri, cmpre);
-    cmpre = cmpri;
+    if (cmpri_eq_cmpre) {
+        // FIXME: Silicon Labs embedded stack incorrectly support cases where
+        // swapping the final address changes the compression scheme. To remain
+        // compatible, choice is made to use a worse compression scheme.
+        cmpri = MIN(cmpri, cmpre);
+        cmpre = cmpri;
+    }
 
     size_no_pad = 8 + (16 - cmpri) * (srh->seg_count - 1) + (16 - cmpre);
     pad = roundup(size_no_pad, 8) - size_no_pad;

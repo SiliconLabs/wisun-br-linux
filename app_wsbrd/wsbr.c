@@ -105,6 +105,7 @@ struct wsbr_ctxt g_ctxt = {
     .rpl_root.instance_id      = RPL_DEFAULT_INSTANCE,
     .rpl_root.route_add = rpl_glue_route_add,
     .rpl_root.route_del = rpl_glue_route_del,
+    .rpl_root.compat = true,
 
     .os_ctxt = &g_os_ctxt,
 };

@@ -125,7 +125,7 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
     }
     if (!srh.seg_count)
         return buf; // TODO: add hop-by-hop option
-    rpl_srh_push(&srh_buf, &srh, nxthop, buf->options.type);
+    rpl_srh_push(&srh_buf, &srh, nxthop, buf->options.type, root->compat);
 
     switch (stage) {
     case IPV6_EXTHDR_SIZE:

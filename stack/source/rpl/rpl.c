@@ -379,20 +379,27 @@ static void rpl_transit_update(struct rpl_root *root,
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
 
-    path_ctl_desync = rpl_lollipop_desync(opt_transit->path_seq, target->path_seq);
-    path_ctl_old    = rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) < 0;
-    if (path_ctl_desync || path_ctl_old) {
-        TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
-              tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
-              path_ctl_desync ? "desync" : "old");
-        return;
-    }
-    if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
-        memset(target->transits, 0, sizeof(target->transits));
+    if (root->compat) {
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
+    } else {
+        path_ctl_desync = rpl_lollipop_desync(opt_transit->path_seq, target->path_seq);
+        path_ctl_old    = rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) < 0;
+        if (path_ctl_desync || path_ctl_old) {
+            TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
+                  tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
+                  path_ctl_desync ? "desync" : "old");
+            return;
+        }
+        if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
+            memset(target->transits, 0, sizeof(target->transits));
+            target->path_seq = opt_transit->path_seq;
+            target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+            TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
+                  tr_ipv6_prefix(target->prefix, 128), target->path_seq);
+        }
     }
 
     WARN_ON(opt_transit->external != target->external);
