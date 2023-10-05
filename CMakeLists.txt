@@ -140,6 +140,7 @@ add_library(libwsbrd STATIC
     common/ws_regdb.c
     common/key_value_storage.c
     common/ieee802154_ie.c
+    common/time_extra.c
     stack/source/6lowpan/lowpan_adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
