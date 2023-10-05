@@ -81,7 +81,7 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_schedule_info_stored: 1;
     bool synch_done : 1;
     bool unicast_data_rx : 1;
-    struct timespec host_rx_timestamp;
+    time_t host_rx_timestamp;
 } ws_neighbor_class_entry_t;
 
 /**
@@ -163,7 +163,7 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                                  const struct ws_generic_channel_info *chan_info,
                                  uint8_t dwell_interval, const uint8_t eui64[8]);
 // Broadcast Schedule update
-void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor, 
+void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
                                  const struct ws_generic_channel_info *chan_info,
                                  uint8_t dwell_interval, uint32_t interval, uint16_t bsi);
 // LFN Unicast Schedule update

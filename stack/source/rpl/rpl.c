@@ -24,6 +24,7 @@
 #include "common/seqno.h"
 #include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
+#include "common/time_extra.h"
 #include "common/utils.h"
 #include "rpl_defs.h"
 #include "rpl_lollipop.h"
@@ -362,7 +363,6 @@ static void rpl_transit_update(struct rpl_root *root,
     bool path_ctl_desync, path_ctl_old;
     struct rpl_transit transit;
     struct rpl_target *target;
-    struct timespec tp;
 
     BUG_ON(opt_target->prefix_len != 128);
     memcpy(transit.parent, opt_transit->parent, 16);
@@ -374,8 +374,7 @@ static void rpl_transit_update(struct rpl_root *root,
         BUG_ON(!target);
         target->external = opt_transit->external;
         target->path_seq = opt_transit->path_seq;
-        clock_gettime(CLOCK_MONOTONIC, &tp);
-        target->path_seq_tstamp_s = tp.tv_sec;
+        target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
@@ -390,9 +389,8 @@ static void rpl_transit_update(struct rpl_root *root,
     }
     if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
         memset(target->transits, 0, sizeof(target->transits));
-        clock_gettime(CLOCK_MONOTONIC, &tp);
         target->path_seq = opt_transit->path_seq;
-        target->path_seq_tstamp_s = tp.tv_sec;
+        target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
     }
@@ -654,20 +652,19 @@ void rpl_timer(int ticks)
     struct trickle_params dio_trickle_params;
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target, *tmp;
-    struct timespec tp;
+    time_t now = time_current(CLOCK_MONOTONIC);
     bool del;
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
     if (trickle_timer(&root->dio_trickle, &dio_trickle_params, ticks))
         rpl_send_dio(root, rpl_all_nodes);
 
-    clock_gettime(CLOCK_MONOTONIC, &tp);
     SLIST_FOREACH_SAFE(target, &root->targets, link, tmp) {
         del = true;
         for (uint8_t i = 0; i < root->pcs + 1; i++) {
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
                 continue;
-            if (target->path_seq_tstamp_s + target->transits[i].path_lifetime * root->lifetime_unit_s < tp.tv_sec) {
+            if (target->path_seq_tstamp_s + target->transits[i].path_lifetime * root->lifetime_unit_s < now) {
                 memset(target->transits + i, 0, sizeof(struct rpl_transit));
                 TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
                       tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);

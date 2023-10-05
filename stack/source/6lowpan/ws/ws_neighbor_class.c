@@ -26,6 +26,7 @@
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/time_extra.h"
 #include "common/version.h"
 
 #include "app_wsbrd/wsbr.h"
@@ -163,7 +164,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
 
     neighbor->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
     neighbor->fhss_data.ffn.ufsi             = ufsi;
-    clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
+    neighbor->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
