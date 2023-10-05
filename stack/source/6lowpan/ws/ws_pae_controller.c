@@ -33,6 +33,7 @@
 #include "common/parsers.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/time_extra.h"
 
 #include "core/ns_address.h"
 #include "core/timers.h"
@@ -48,7 +49,6 @@
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_auth.h"
-#include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
 #include "6lowpan/ws/ws_pae_controller.h"
@@ -755,7 +755,7 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
                                              sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
     uint8_t nvm_gtk_eui64[8];
-    uint64_t system_time = ws_pae_current_time_get();
+    uint64_t system_time = time_current(CLOCK_REALTIME);
 
     if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr,
                                            &controller->sec_keys_nw_info.key_pan_id,
@@ -793,7 +793,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
-    unsigned long long current_time = ws_pae_current_time_get();
+    unsigned long long current_time = time_current(CLOCK_REALTIME);
     struct storage_parse_info *info = storage_open_prefix("network-keys", "w");
     uint8_t gtk_hash[GTK_HASH_LEN];
     uint8_t gak[GTK_LEN];
@@ -1625,7 +1625,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
 
         if (!info)
             return;
-        fprintf(info->file, "# stored time: %" PRIu64 "\n", ws_pae_current_time_get());
+        fprintf(info->file, "# stored time: %" PRIu64 "\n", time_current(CLOCK_REALTIME));
         // FIXME: It seems harmless, but entry->sec_keys_nw_info.pan_version and
         //        entry->sec_keys_nw_info.lpan_version are not set on wsnode.
         //        They could be replaced by ws_info.pan_information.pan_version

@@ -25,6 +25,7 @@
 #include "common/utils.h"
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
+#include "common/time_extra.h"
 
 #include "core/ns_address.h"
 #include "core/timers.h"
@@ -52,7 +53,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_lib.h"
-#include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
 #include "6lowpan/ws/ws_pae_auth.h"
@@ -534,7 +534,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
         int8_t not_removed_index = active_index;
         uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(timer_cfg);
         uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, active_index);
-        uint64_t current_time = ws_pae_current_time_get();
+        uint64_t current_time = time_current(CLOCK_REALTIME);
 
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
@@ -773,7 +773,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
     struct sec_timer_gtk_cfg *timer_gtk_cfg;
     pae_auth_gtk_t *pae_auth_gtk;
     sec_prot_gtk_keys_t *keys;
-    uint64_t current_time = ws_pae_current_time_get();
+    uint64_t current_time = time_current(CLOCK_REALTIME);
     int8_t active_index;
 
     if (is_lgtk) {

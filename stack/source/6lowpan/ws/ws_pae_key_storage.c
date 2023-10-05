@@ -29,11 +29,11 @@
 #include "common/parsers.h"
 #include "common/named_values.h"
 #include "common/key_value_storage.h"
+#include "common/time_extra.h"
 
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_pae_lib.h"
-#include "6lowpan/ws/ws_pae_time.h"
 
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
@@ -64,7 +64,7 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
 
 int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_supp)
 {
-    uint64_t current_time = ws_pae_current_time_get();
+    uint64_t current_time = time_current(CLOCK_REALTIME);
     struct storage_parse_info *info;
     char str_buf[256];
     int i;
@@ -111,7 +111,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
 supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {
     supp_entry_t *pae_supp = malloc(sizeof(supp_entry_t));
-    uint64_t current_time = ws_pae_current_time_get();
+    uint64_t current_time = time_current(CLOCK_REALTIME);
     struct storage_parse_info *info;
     char str_buf[256];
     int ret;
