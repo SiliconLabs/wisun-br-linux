@@ -68,11 +68,7 @@ if(MBEDTLS_COMPILED_WITH_PIC)
 endif()
 
 find_package(PkgConfig REQUIRED)
-# Note that old libpcap releases didn't provide pkg-config file and are not
-# detected by the line below. The user have to compile without support for
-# libpcap or manually defines the flags.
 pkg_check_modules(LIBCAP               IMPORTED_TARGET libcap>=2.29)
-pkg_check_modules(LIBPCAP              IMPORTED_TARGET libpcap)
 pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 
