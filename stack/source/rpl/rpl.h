@@ -56,10 +56,6 @@
  * - IANA: https://www.iana.org/assignments/rpl/rpl.xhtml
  */
 
-// RFC 6550 - 7.2. Sequence Counter Operation
-#define RPL_SEQUENCE_WINDOW 16
-#define RPL_LOLLIPOP_INIT (-RPL_SEQUENCE_WINDOW)
-
 // RFC 6550 - 17. RPL Constants and Variables
 #define RPL_DEFAULT_INSTANCE                  0
 #define RPL_DEFAULT_PATH_CONTROL_SIZE         0

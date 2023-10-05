@@ -26,6 +26,7 @@
 #include "common/sys_queue_extra.h"
 #include "common/utils.h"
 #include "rpl_defs.h"
+#include "rpl_lollipop.h"
 #include "rpl.h"
 
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
@@ -80,41 +81,6 @@ struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_targ
         if (memzcmp(target->transits + i, sizeof(struct rpl_transit)))
             return target->transits + i;
     return NULL;
-}
-
-// Sequence counter comparison, as defined in RFC 6550 section 7.2.
-// Desynchonization should be verified beforehand using rpl_lollipop_desync().
-//   <0 if a < b
-//    0 if a = b
-//   >0 if a > b
-static int rpl_lollipop_cmp(int8_t a, int8_t b)
-{
-    if (a <  0 && b <  0) // Linear region
-        return a - b;
-    if (a >= 0 && b >= 0) // Circular region
-        return seqno_cmp7(a, b);
-    if (a <  0 && b >= 0) // Mixed
-        return b - a <= RPL_SEQUENCE_WINDOW ? -1 :  1;
-    else
-        return a - b <= RPL_SEQUENCE_WINDOW ?  1 : -1;
-}
-
-static bool rpl_lollipop_desync(int8_t a, int8_t b)
-{
-    uint8_t distance;
-
-    if ((a < 0) != (b < 0))
-        return false;
-    distance = abs(b - a);
-    if (a < 0 && b < 0) // Linear region
-        return distance > RPL_SEQUENCE_WINDOW;
-    else                // Circular region
-        return MIN(distance, 128 - distance) > RPL_SEQUENCE_WINDOW;
-}
-
-static uint8_t rpl_lollipop_inc(int8_t val)
-{
-    return val == INT8_MAX ? 0 : val + 1;
 }
 
 static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params *params)

@@ -43,6 +43,7 @@
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/rpl/rpl_glue.h"
 #include "stack/source/rpl/rpl.h"
+#include "stack/source/rpl/rpl_lollipop.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 
 #include "mbedtls_config_check.h"
