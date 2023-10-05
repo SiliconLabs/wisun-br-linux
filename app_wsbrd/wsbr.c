@@ -105,7 +105,6 @@ struct wsbr_ctxt g_ctxt = {
     .rpl_root.instance_id      = RPL_DEFAULT_INSTANCE,
     .rpl_root.route_add = rpl_glue_route_add,
     .rpl_root.route_del = rpl_glue_route_del,
-    .rpl_root.compat = true,
 
     .os_ctxt = &g_os_ctxt,
 };
@@ -343,6 +342,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     // TODO: adjust RPL trickle values base on network size hint
     memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
+    ctxt->rpl_root.compat = ctxt->config.rpl_compat;
     rpl_glue_init(cur);
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
 

@@ -497,6 +497,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
         { "enable_lfn",                    &config->enable_lfn,                       conf_set_bool,        NULL },
         { "enable_ffn10",                  &config->enable_ffn10,                     conf_set_bool,        NULL },
+        { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
         { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
         { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
@@ -618,6 +619,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_fan_version = WS_FAN_VERSION_1_1;
     config->enable_lfn = true;
     config->enable_ffn10 = false;
+    config->rpl_compat = true;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
