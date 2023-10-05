@@ -24,6 +24,7 @@
 #include "common/dhcp_server.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/time_extra.h"
 #include "common/version.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -77,6 +78,7 @@ typedef struct fragmenter_tx_entry {
     bool indirect_data: 1;
     buffer_t *buf;
     uint8_t *fragmenter_buf;
+    time_t tx_time;
     ns_list_link_t      link; /*!< List link entry */
 } fragmenter_tx_entry_t;
 
@@ -110,7 +112,7 @@ typedef struct fragmenter_interface {
 #define LOWPAN_TX_BUFFER_AGE_LIMIT_HIGH_PRIORITY    60 // Remove high priority packets older than limit (seconds)
 #define LOWPAN_TX_BUFFER_AGE_LIMIT_EF_PRIORITY      120 // Remove expedited forwarding packets older than limit (seconds)
 
-
+#define LOWPAN_TX_CONFIRM_EXTENSIVE_SEC 5
 
 static NS_LIST_DEFINE(fragmenter_interface_list, fragmenter_interface_t, link);
 
@@ -756,6 +758,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
     }
 
     dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
+    tx_ptr->tx_time = time_current(CLOCK_MONOTONIC);
     interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
 }
 
@@ -1100,6 +1103,12 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
     buffer_free(buf);
 }
 
+static void lowpan_adaptation_interface_confirm_extensive_check(fragmenter_tx_entry_t *tx_ptr)
+{
+    time_t diff = time_get_elapsed(CLOCK_MONOTONIC, tx_ptr->tx_time);
+
+    WARN_ON(diff >= LOWPAN_TX_CONFIRM_EXTENSIVE_SEC, "frame spent %ld sec in MAC", diff);
+}
 
 static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm)
 {
@@ -1150,6 +1159,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     }
 
     if (confirm->status == MLME_SUCCESS) {
+        lowpan_adaptation_interface_confirm_extensive_check(tx_ptr);
         //Check is there more packets
         if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
             if (tx_ptr->fragmented_data && active_direct_confirm)
