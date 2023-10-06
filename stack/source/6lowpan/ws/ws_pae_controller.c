@@ -1625,7 +1625,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
 
         if (!info)
             return;
-        fprintf(info->file, "# stored time: %" PRIu64 "\n", time_current(CLOCK_REALTIME));
+        fprintf(info->file, "# stored time: %" PRIu64 "\n", (uint64_t)time_current(CLOCK_REALTIME));
         // FIXME: It seems harmless, but entry->sec_keys_nw_info.pan_version and
         //        entry->sec_keys_nw_info.lpan_version are not set on wsnode.
         //        They could be replaced by ws_info.pan_information.pan_version
