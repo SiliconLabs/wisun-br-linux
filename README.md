@@ -339,6 +339,14 @@ an easier integration for simple setups. However, CPC offers some features:
     between several network stacks (that is, Bluetooth, Zigbee, OpenThread, and
     Wi-SUN)
 
+## I Cannot Connect FAN 1.0 devices
+
+Wi-SUN FAN 1.1 is putting an emphasis on Low Function Nodes (LFNs).
+Unfortunately, the way the standard was written does not allow to safely mix
+FAN 1.0 devices with LFNs. The default configuration provided allows LFNs but
+refuses FAN 1.0 routers. Users need to explicitly set `enable_ffn10 = yes` in
+their configuration in order to connect legacy devices.
+
 ## I get `error inflating zlib stream; class=Zlib (5)` During Compilation
 
 The last update of GitHub seems incompatible with the git version bundled with
