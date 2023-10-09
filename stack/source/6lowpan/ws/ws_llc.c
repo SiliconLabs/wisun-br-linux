@@ -1009,7 +1009,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
         return;
     }
     if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 25, 0)) {
-        TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.23.0", tr_ws_frame(frame_type));
+        TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.25.0", tr_ws_frame(frame_type));
         return;
     }
 
