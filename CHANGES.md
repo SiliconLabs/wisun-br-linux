@@ -10,6 +10,7 @@ v1.7
     stack features outside of the scope of a Wi-SUN border router.
   - New simpler RPL root implementation.
   - Test Bed Unit (TBU) API implementation for the Wi-SUN certification.
+  - Disable EDFE when regional regulation ARIB is enabled.
   - Fix `--list-rf-configs` for custom PHYs.
 
 v1.6.4
