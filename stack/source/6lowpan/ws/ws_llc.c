@@ -1733,17 +1733,16 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
         return -1;
     }
 
-    if (request->frame_type == WS_FT_PA) {
-        if (interface->pan_advert_running)
-            return -1;
-        else
-            interface->pan_advert_running = true;
-    } else if (request->frame_type == WS_FT_PC) {
-        if (interface->pan_config_running)
-            return -1;
-        else
-            interface->pan_config_running = true;
+    if ((request->frame_type == WS_FT_PA && interface->pan_advert_running) ||
+        (request->frame_type == WS_FT_PC && interface->pan_config_running)) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: async tx already in progress",
+              tr_ws_frame(request->frame_type));
+        return -1;
     }
+    if (request->frame_type == WS_FT_PA)
+        interface->pan_advert_running = true;
+    if (request->frame_type == WS_FT_PC)
+        interface->pan_config_running = true;
 
     //Allocate LLC message pointer
     llc_message_t *message = llc_message_allocate(base);
