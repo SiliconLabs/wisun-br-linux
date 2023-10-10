@@ -395,6 +395,22 @@ to them being routed differently, and will be fixed in an future version. Tools
 like `wsbrd_cli` and the web GUI that rely on this D-Bus API are affected by
 this limitation.
 
+## I Observe Strange Behavior Upon Restart
+
+When `wsbrd` restarts, it loses its neighbor cache and its RPL routes. However,
+the nodes may continue to use the data they have in their cache. Thus, the
+network information can be asymmetric: Nodes may be able to reach the Border
+Router while the Border Router cannot reach the Nodes. Normal behavior should
+restored once route timeouts get triggered on the Nodes, which might take 1 hour
+or more.
+
+In addition, on restart, `wsbrd` looses the mapping between the EUI-64 and the
+GUA. Since this mapping is used in order to expose node information via D-Bus,
+some data will inevitably be missing. This issue does not impact the Wi-SUN
+network by itself. However, all the visualisation tools are impacted. The
+normal behavior may be restored when nodes execute a DHCPv6 procedure again.
+However the DHCP lease time can be infinite and this event may never happen.
+
 ## I Have Issues when Trying to Send UDP Data
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
