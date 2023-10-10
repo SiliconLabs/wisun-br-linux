@@ -34,17 +34,16 @@ of a fuzzing context. The following procedure is presented to help debug
 `wsbrd`:
 
 - Backup the storage files used by `wsbrd` (by default in `/var/lib/wsbrd/`),
-  or alternatively start the border router with a fresh environment using `-D`.
+  or alternatively delete storage files using `-D`.
 
 - Run `wsbrd` with capture enabled (prefer passing configuration options using
-  a file):
-
-    `wsbrd-fuzz -F wsbrd.conf --capture capture.raw`
+  a file): `wsbrd-fuzz -F wsbrd.conf --capture capture.raw`
 
 - Once the test has run, gather the following files and information to form a
   test case:
   - The **initial** storage files if present.
   - The configuration file, and any dependant files (eg. certificates).
+  - The capture file.
   - The specific `wsbrd` version used (output of `wsbrd --version`).
 
 - The test case can then be used to debug issues using `--replay`, and
