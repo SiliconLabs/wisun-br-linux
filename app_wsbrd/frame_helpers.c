@@ -22,7 +22,7 @@
 #include "6lowpan/mac/mac_common_defines.h"
 #include "nwk_interface/protocol.h"
 
-#include "rcp_api.h"
+#include "rcp_api_legacy.h"
 #include "wsbr_mac.h"
 #include "frame_helpers.h"
 

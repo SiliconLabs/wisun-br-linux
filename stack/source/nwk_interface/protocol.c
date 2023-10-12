@@ -25,7 +25,7 @@
 #include "common/events_scheduler.h"
 #include "common/endian.h"
 
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "core/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"

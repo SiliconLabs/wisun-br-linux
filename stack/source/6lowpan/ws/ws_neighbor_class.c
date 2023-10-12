@@ -30,7 +30,7 @@
 #include "common/version.h"
 
 #include "app_wsbrd/wsbr.h"
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
@@ -166,7 +166,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
     neighbor->fhss_data.ffn.ufsi             = ufsi;
     neighbor->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
+        rcp_legacy_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
 // Irrelevant for border router
@@ -295,7 +295,7 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
     }
     ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
+        rcp_legacy_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 
 // Irrelevant for border router

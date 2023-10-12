@@ -23,7 +23,7 @@
 #include "common/endian.h"
 
 #include "app_wsbrd/wsbr_mac.h"
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/dbus.h"
 #include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol.h"
@@ -49,7 +49,7 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
 
 void mac_helper_set_default_key_source(struct net_if *interface)
 {
-    rcp_set_default_key_source(mac_helper_default_key_source);
+    rcp_legacy_set_default_key_source(mac_helper_default_key_source);
 }
 
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t slot)
@@ -59,14 +59,14 @@ int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const
     BUG_ON(!id);
     memcpy(lookup_data, mac_helper_default_key_source, 8);
     lookup_data[8] = id;
-    rcp_set_key(slot, lookup_data, key);
+    rcp_legacy_set_key(slot, lookup_data, key);
     dbus_emit_keys_change(&g_ctxt);
     return 0;
 }
 
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t slot)
 {
-    rcp_set_key(slot, NULL, NULL);
+    rcp_legacy_set_key(slot, NULL, NULL);
     return 0;
 }
 
@@ -190,7 +190,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint8_t descr
         return -1;
     }
 
-    rcp_get_frame_counter(descriptor);
+    rcp_legacy_get_frame_counter(descriptor);
 
     return 0;
 }

@@ -41,7 +41,7 @@
 #include "frame_helpers.h"
 #include "version.h"
 #include "wsbr.h"
-#include "rcp_api.h"
+#include "rcp_api_legacy.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
@@ -93,7 +93,7 @@ void wsbr_data_req_ext(struct net_if *cur,
                    sizeof(async_channel_list.channel_mask));
         }
 
-        rcp_tx_req_legacy(data,
+        rcp_legacy_tx_req_legacy(data,
                           (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
                           (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
                           (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
@@ -107,7 +107,7 @@ void wsbr_data_req_ext(struct net_if *cur,
             neighbor_ws = &neighbor_ws_dummy;
         }
         wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
-        rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
+        rcp_legacy_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
                    data->fhss_type, data->ExtendedFrameExchange,
                    data->priority, data->phy_id);
         iobuf_free(&frame);

@@ -33,7 +33,7 @@
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "core/timers.h"
 #include "core/ns_address_internal.h"
 #include "core/ns_error_types.h"
@@ -1271,7 +1271,7 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
         }
     } else {
         if (!version_older_than(g_ctxt.rcp.version_api, 0, 4, 0)) {
-            rcp_tx_drop(msduhandle);
+            rcp_legacy_tx_drop(msduhandle);
             mac_purge_success = true;
         }
     }

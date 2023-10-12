@@ -56,7 +56,7 @@
 #include "libwsbrd.h"
 #include "wsbr.h"
 #include "timers.h"
-#include "rcp_api.h"
+#include "rcp_api_legacy.h"
 #include "rail_config.h"
 #include "dbus.h"
 #include "tun.h"
@@ -141,14 +141,14 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     if (version_older_than(ctxt->rcp.version_api, 0, 3, 0))
         FATAL(1, "RCP API is too old to enable MAC address filtering");
     if (ctxt->config.ws_allowed_mac_address_count)
-        rcp_enable_mac_filter(false);
+        rcp_legacy_enable_mac_filter(false);
     if (ctxt->config.ws_denied_mac_address_count)
-        rcp_enable_mac_filter(true);
-    rcp_clear_mac_filters();
+        rcp_legacy_enable_mac_filter(true);
+    rcp_legacy_clear_mac_filters();
     for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++)
-        rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
+        rcp_legacy_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
     for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++)
-        rcp_add_mac_filter_entry(ctxt->config.ws_denied_mac_addresses[i], false);
+        rcp_legacy_add_mac_filter_entry(ctxt->config.ws_denied_mac_addresses[i], false);
 }
 
 static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
@@ -236,7 +236,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     cur->ws_info.enable_lfn   = ctxt->config.enable_lfn;
     cur->ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 
-    rcp_set_tx_power(ctxt->config.tx_power);
+    rcp_legacy_set_tx_power(ctxt->config.tx_power);
 
     ret = wsbr_configure_ws_sect_time(ctxt);
     WARN_ON(ret);
@@ -279,13 +279,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     if (!version_older_than(ctxt->rcp.version_api, 0, 17, 0))
-        rcp_set_max_async_duration(ctxt->config.ws_async_frag_duration);
+        rcp_legacy_set_max_async_duration(ctxt->config.ws_async_frag_duration);
 
     // Wi-SUN FAN 1.1v06 6.3.4.1.1.2 forbids EDFE when operating in Japan.
     // Aggregate this restriction with the ARIB regulation for simplicity.
     if (!version_older_than(ctxt->rcp.version_api, 0, 26, 0) &&
         ctxt->config.ws_regional_regulation == REG_REGIONAL_ARIB)
-        rcp_set_edfe_mode(false);
+        rcp_legacy_set_edfe_mode(false);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
@@ -406,7 +406,7 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
     if (ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
         FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
               min_device_description_table_size);
-    rcp_get_hw_addr();
+    rcp_legacy_get_hw_addr();
 }
 
 void kill_handler(int signal)
@@ -440,7 +440,7 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
     memcpy(ctxt->dhcp_leases[i].ipv6, ipv6, 16);
 }
 
-static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
+static void wsbr_rcp_legacy_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
     struct pollfd fds = { .fd = ctxt->os_ctxt->data_fd, .events = POLLIN };
@@ -459,7 +459,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     ctxt->os_ctxt->uart_inhibit_crc_warning = true;
     while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
-        rcp_rx(ctxt);
+        rcp_legacy_rx(ctxt);
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
     if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.enable_lfn)
@@ -470,11 +470,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
         while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
-            rcp_rx(ctxt);
+            rcp_legacy_rx(ctxt);
     } else {
-        rcp_get_rf_config_list();
+        rcp_legacy_get_rf_config_list();
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
-            rcp_rx(ctxt);
+            rcp_legacy_rx(ctxt);
     }
     if (ctxt->config.list_rf_configs) {
         rail_print_config_list(ctxt);
@@ -543,7 +543,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_RCP].revents & POLLIN ||
         fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->os_ctxt->uart_next_frame_ready)
-        rcp_rx(ctxt);
+        rcp_legacy_rx(ctxt);
     if (fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);
 }
@@ -591,9 +591,9 @@ int wsbr_main(int argc, char *argv[])
     }
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
-    rcp_noop();
-    rcp_reset();
-    wsbr_rcp_init(ctxt);
+    rcp_legacy_noop();
+    rcp_legacy_reset();
+    wsbr_rcp_legacy_init(ctxt);
     wsbr_tun_init(ctxt);
 
     wsbr_common_timer_init(ctxt);

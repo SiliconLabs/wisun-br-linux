@@ -35,7 +35,7 @@
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/mac/mac_common_defines.h"
 
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -83,7 +83,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                                                                                          cur->ws_info.hopping_schedule.number_of_channels,
                                                                                          cur->ws_info.fhss_conf.domain_channel_mask);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    rcp_set_fhss_timings(&cur->ws_info.fhss_conf);
+    rcp_legacy_set_fhss_timings(&cur->ws_info.fhss_conf);
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;
@@ -346,7 +346,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             break;
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
-            rcp_reset_stack();
+            rcp_legacy_reset_stack();
             ws_llc_reset(cur);
             lowpan_adaptation_interface_reset(cur->id);
             //Clear Pending Key Index State
@@ -406,7 +406,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             ws_bootstrap_6lbr_fhss_configure(cur);
             ws_bootstrap_set_domain_rf_config(cur);
             ws_bootstrap_fhss_activate(cur);
-            rcp_set_fhss_hop_count(0);
+            rcp_legacy_set_fhss_hop_count(0);
 
             ws_bootstrap_6lbr_print_config(cur);
             INFO("");
@@ -438,11 +438,11 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             // Initialize eapol congestion tracking
             ws_bootstrap_6lbr_eapol_congestion_init(cur);
 
-            rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
-            rcp_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
-            rcp_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
-            rcp_set_min_be(WS_MAC_MIN_BE);
-            rcp_set_max_be(WS_MAC_MAX_BE);
+            rcp_legacy_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
+            rcp_legacy_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
+            rcp_legacy_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
+            rcp_legacy_set_min_be(WS_MAC_MIN_BE);
+            rcp_legacy_set_max_be(WS_MAC_MAX_BE);
 
             ws_bootstrap_event_operation_start(cur);
             break;

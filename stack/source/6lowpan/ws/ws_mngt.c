@@ -15,7 +15,7 @@
 #include "common/named_values.h"
 #include "common/rand.h"
 #include "common/trickle.h"
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 
 #include "stack/source/core/timers.h"
 #include "stack/source/6lowpan/mac/mac_common_defines.h"

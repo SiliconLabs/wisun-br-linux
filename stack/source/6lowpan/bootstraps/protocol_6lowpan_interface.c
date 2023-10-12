@@ -29,7 +29,7 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"

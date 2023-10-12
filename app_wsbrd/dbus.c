@@ -33,7 +33,7 @@
 #include "stack/source/common_protocols/icmpv6.h"
 
 #include "commandline_values.h"
-#include "rcp_api.h"
+#include "rcp_api_legacy.h"
 #include "wsbr.h"
 #include "tun.h"
 
@@ -49,9 +49,9 @@ static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_err
         return sd_bus_error_set_errno(ret_error, -ret);
 
     if (mode == 0)
-        rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+        rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     else if (mode == 1)
-        rcp_set_tx_allowance_level(WS_TX_SLOT, WS_TX_SLOT);
+        rcp_legacy_set_tx_allowance_level(WS_TX_SLOT, WS_TX_SLOT);
     else
         return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);

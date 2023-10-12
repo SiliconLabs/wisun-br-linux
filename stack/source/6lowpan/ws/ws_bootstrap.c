@@ -37,7 +37,7 @@
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
-#include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "core/net_interface.h"
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
@@ -97,7 +97,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
     neighbor->node_role = role;
     neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
-    rcp_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
+    rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
     tr_debug("neighbor[%d] = %s, lifetime=%d (new)", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     return neighbor;
 }
@@ -139,8 +139,8 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
 {
     tr_debug("neighbor[%d] = %s, removed", neighbor->index, tr_eui64(neighbor->mac64));
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_drop_fhss_neighbor(neighbor->mac64);
-    rcp_set_neighbor(neighbor->index, 0, 0, NULL, 0);
+        rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
+    rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
     if (!mac_neighbor_lfn_count(interface->mac_parameters.mac_neighbor_table))
@@ -456,9 +456,9 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    rcp_allocate_fhss(&cur->ws_info.fhss_conf);
-    rcp_register_fhss();
-    rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+    rcp_legacy_allocate_fhss(&cur->ws_info.fhss_conf);
+    rcp_legacy_register_fhss();
+    rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     return 0;
 }
 
@@ -873,7 +873,7 @@ int ws_bootstrap_init(int8_t interface_id)
     neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
     neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
-    rcp_set_frame_counter_per_key(true);
+    rcp_legacy_set_frame_counter_per_key(true);
 
     if (!etx_storage_list_allocate(cur->id, neighbors_table_size)) {
         return -1;
@@ -984,7 +984,7 @@ int ws_bootstrap_init(int8_t interface_id)
 
     ws_bootstrap_configuration_reset(cur);
     addr_notification_register(ws_bootstrap_address_notification_cb);
-    rcp_set_accept_unknown_secured_frames(true);
+    rcp_legacy_set_accept_unknown_secured_frames(true);
 
     // Specification is ruling out the compression mode, but we are now doing it.
     cur->mpl_seed = true;
@@ -1036,14 +1036,14 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
     if (rf_configs.modulation == MODULATION_OFDM)
         ack_wait_symbols /= 4;
     ack_wait_symbols += WS_ACK_WAIT_SYMBOLS;
-    rcp_set_802154_mode(IEEE_802_15_4G_2012);
+    rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
     if (version_older_than(cur->rcp->version_api, 0, 25, 1))
-        rcp_set_rf_config_legacy(&rf_configs);
+        rcp_legacy_set_rf_config_legacy(&rf_configs);
     else
-        rcp_set_rf_config(&rf_configs);
-    rcp_set_ack_wait_duration(ack_wait_symbols);
-    rcp_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
-    rcp_get_rx_sensitivity();
+        rcp_legacy_set_rf_config(&rf_configs);
+    rcp_legacy_set_ack_wait_duration(ack_wait_symbols);
+    rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+    rcp_legacy_get_rx_sensitivity();
     return 0;
 }
 
@@ -1109,7 +1109,7 @@ static void ws_bootstrap_mac_activate(struct net_if *cur, uint16_t channel, uint
 {
     cur->mac_parameters.pan_id = panid;
     cur->mac_parameters.mac_channel = channel;
-    rcp_start(channel, panid, coordinator);
+    rcp_legacy_start(channel, panid, coordinator);
 }
 
 void ws_bootstrap_fhss_activate(struct net_if *cur)
@@ -1119,8 +1119,8 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
 
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     cur->mac_parameters.RxOnWhenIdle = true;
-    rcp_set_rx_on_idle(true);
-    rcp_set_security(true);
+    rcp_legacy_set_rx_on_idle(true);
+    rcp_legacy_set_security(true);
     ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;
 }
@@ -1200,7 +1200,7 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot)
 {
-    rcp_set_frame_counter(slot, counter);
+    rcp_legacy_set_frame_counter(slot, counter);
 }
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
