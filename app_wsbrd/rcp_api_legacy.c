@@ -290,11 +290,6 @@ void rcp_legacy_set_802154_mode(phy_802_15_4_mode_e val)
     rcp_legacy_set_u32(SPINEL_PROP_WS_15_4_MODE, val);
 }
 
-void rcp_legacy_set_ack_wait_duration(uint16_t val)
-{
-    rcp_legacy_set_u16(SPINEL_PROP_WS_ACK_WAIT_DURATION, val);
-}
-
 void rcp_legacy_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
                            uint8_t high_limit, uint8_t low_limit)
 {

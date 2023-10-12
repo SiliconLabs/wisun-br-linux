@@ -1030,18 +1030,11 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
 
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
-    unsigned int ack_wait_symbols;
-
-    ack_wait_symbols = WS_TACK_MAX_MS * (rf_configs.datarate / 1000);
-    if (rf_configs.modulation == MODULATION_OFDM)
-        ack_wait_symbols /= 4;
-    ack_wait_symbols += WS_ACK_WAIT_SYMBOLS;
     rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
     if (version_older_than(cur->rcp->version_api, 0, 25, 1))
         rcp_legacy_set_rf_config_legacy(&rf_configs);
     else
         rcp_legacy_set_rf_config(&rf_configs);
-    rcp_legacy_set_ack_wait_duration(ack_wait_symbols);
     rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     rcp_legacy_get_rx_sensitivity();
     return 0;

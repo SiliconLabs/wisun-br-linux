@@ -457,17 +457,6 @@ typedef struct ws_bs_ie {
  */
 #define WS_RPL_DIS_TIMEOUT 1800
 
-/*
- * MAC Ack wait duration in symbols. 2-FSK modulation used -> 1 bit per symbol.
- */
-#define WS_ACK_WAIT_SYMBOLS    800
-
-/*
- * Tack max time in milliseconds.
- */
-#define WS_TACK_MAX_MS 5
-
-
 /* WS requires at least 19 MAC retransmissions (total 1+19=20 attempts). Default 802.15.4 macMaxFrameRetries is 3 (total 1+3=4 attempts).
  * At least 4 request restarts must be used: (Initial channel + WS_TX_REQUEST_RESTART_MAX) * MAC attempts = (1+4)*4=20 attempts
  *

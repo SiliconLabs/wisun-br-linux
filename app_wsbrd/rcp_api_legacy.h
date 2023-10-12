@@ -261,7 +261,6 @@ void rcp_legacy_set_rf_config(const struct phy_rf_channel_configuration *config)
 void rcp_legacy_set_regional_regulation(uint32_t val);
 void rcp_legacy_set_rx_on_idle(bool enable);
 void rcp_legacy_set_802154_mode(phy_802_15_4_mode_e val);
-void rcp_legacy_set_ack_wait_duration(uint16_t val);
 void rcp_legacy_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
                            uint8_t high_limit, uint8_t low_limit);
 void rcp_legacy_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
