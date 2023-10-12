@@ -1439,6 +1439,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
         TRACE(TR_DROP, "drop %-9s: FAN 1.0 authentication disabled", "eap");
         return KMP_TYPE_NONE;
     }
+    if (sec_keys->node_role == WS_NR_ROLE_LFN &&
+        !pae_auth->interface_ptr->ws_info.enable_lfn) {
+        TRACE(TR_DROP, "drop %-9s: LFN authentication disabled", "eap");
+        return KMP_TYPE_NONE;
+    }
     // Supplicant has indicated that PMK is not valid
     if (sec_keys->pmk_mismatch) {
         sec_keys->ptk_mismatch = true;
