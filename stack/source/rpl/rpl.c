@@ -94,6 +94,7 @@ static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params 
     params->Imax = roundup(1ull << (root->dio_i_min + root->dio_i_doublings),
                            g_timers[WS_TIMER_RPL].period_ms) / g_timers[WS_TIMER_RPL].period_ms;
     params->k    = root->dio_redundancy;
+    params->TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;
 }
 
 void rpl_dodag_version_inc(struct rpl_root *root)
