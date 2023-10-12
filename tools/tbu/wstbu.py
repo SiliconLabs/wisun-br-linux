@@ -101,11 +101,14 @@ def put_run_mode(mode: int):
         wsbrd.service.start('fail')
         while wsbrd.service.active_state == 'activating':
             time.sleep(0.5)
-        if wsbrd.service.active_state == 'failed':
+        state = wsbrd.service.active_state
+        if state == 'failed':
             j = systemd.journal.Reader()
             j.add_match(_SYSTEMD_UNIT='wisun-borderrouter.service')
             j.seek_tail()
             return error(500, WSTBU_ERR_UNKNOWN, j.get_previous()['MESSAGE'])
+        elif state != 'active':
+            return error(500, WSTBU_ERR_UNKNOWN, f'wisun-borderrouter.service {state}')
     else:
         return error(400, WSTBU_ERR_RUN_MODE, 'invalid run mode')
     return success()
