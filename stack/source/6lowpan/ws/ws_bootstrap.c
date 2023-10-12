@@ -1111,8 +1111,6 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     // Only supporting fixed channel
 
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-    cur->mac_parameters.RxOnWhenIdle = true;
-    rcp_legacy_set_rx_on_idle(true);
     rcp_legacy_set_security(true);
     ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;

@@ -280,11 +280,6 @@ void rcp_legacy_set_regional_regulation(uint32_t val)
     rcp_legacy_set_u32(SPINEL_PROP_WS_REGIONAL_REGULATION, val);
 }
 
-void rcp_legacy_set_rx_on_idle(bool enable)
-{
-    rcp_legacy_set_bool(SPINEL_PROP_WS_RX_ON_WHEN_IDLE, enable);
-}
-
 void rcp_legacy_set_802154_mode(phy_802_15_4_mode_e val)
 {
     rcp_legacy_set_u32(SPINEL_PROP_WS_15_4_MODE, val);
