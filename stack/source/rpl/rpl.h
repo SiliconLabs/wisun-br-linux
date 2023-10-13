@@ -65,12 +65,14 @@
 #define RPL_DEFAULT_MIN_HOP_RANK_INCREASE   256
 
 // Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
-#define WS_DEFAULT_DCO_LIFETIME_UNIT       1200 // 20min
-#define WS_DEFAULT_DCO_LIFETIME               6 // 2h with default unit
-#define WS_DEFAULT_DIO_INTERVAL_MIN          19 // min interval 9min
-#define WS_DEFAULT_DIO_INTERVAL_DOUBLINGS     1 // max interval 18min with default Imin
-#define WS_DEFAULT_DIO_REDUNDANCY_CONSTANT    0
-#define WS_DEFAULT_MIN_HOP_RANK_INCREASE    128
+#define WS_DEFAULT_DCO_LIFETIME_UNIT            1200 // 20min
+#define WS_DEFAULT_DCO_LIFETIME                    6 // 2h with default unit
+#define WS_DEFAULT_SMALL_DIO_INTERVAL_DOUBLINGS    2 // max interval 131s with default large Imin
+#define WS_DEFAULT_SMALL_DIO_INTERVAL_MIN         15 // min interval 32s
+#define WS_DEFAULT_LARGE_DIO_INTERVAL_DOUBLINGS    1 // max interval 18min with default small Imin
+#define WS_DEFAULT_LARGE_DIO_INTERVAL_MIN         19 // min interval 9min
+#define WS_DEFAULT_DIO_REDUNDANCY_CONSTANT         0
+#define WS_DEFAULT_MIN_HOP_RANK_INCREASE         128
 
 // Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
 #define WS_PATH_CONTROL_SIZE 7

@@ -94,8 +94,8 @@ struct wsbr_ctxt g_ctxt = {
     .pcapng_fd = -1,
     .dhcp_server.fd = -1,
     .rpl_root.sockfd = -1,
-    .rpl_root.dio_i_min        = WS_DEFAULT_DIO_INTERVAL_MIN,
-    .rpl_root.dio_i_doublings  = WS_DEFAULT_DIO_INTERVAL_DOUBLINGS,
+    .rpl_root.dio_i_min        = WS_DEFAULT_LARGE_DIO_INTERVAL_MIN,
+    .rpl_root.dio_i_doublings  = WS_DEFAULT_LARGE_DIO_INTERVAL_DOUBLINGS,
     .rpl_root.dio_redundancy   = WS_DEFAULT_DIO_REDUNDANCY_CONSTANT,
     .rpl_root.lifetime_unit_s  = WS_DEFAULT_DCO_LIFETIME_UNIT,
     .rpl_root.lifetime_default = WS_DEFAULT_DCO_LIFETIME,
@@ -346,9 +346,13 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     if (ctxt->config.internal_dhcp)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
 
-    // TODO: adjust RPL trickle values base on network size hint
     memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
     ctxt->rpl_root.compat = ctxt->config.rpl_compat;
+    if (ctxt->config.ws_size == NETWORK_SIZE_SMALL ||
+        ctxt->config.ws_size == NETWORK_SIZE_CERTIFICATE) {
+        ctxt->rpl_root.dio_i_min       = WS_DEFAULT_SMALL_DIO_INTERVAL_MIN;
+        ctxt->rpl_root.dio_i_doublings = WS_DEFAULT_SMALL_DIO_INTERVAL_DOUBLINGS;
+    }
     rpl_glue_init(cur);
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
 
