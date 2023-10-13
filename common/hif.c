@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -91,6 +92,12 @@ void hif_push_fixed_u32_array(struct iobuf_write *buf, const uint32_t *val, int 
         iobuf_push_le32(buf, val[i]);
     TRACE(TR_HIF_EXTRA, "hif tx:  u32[%2d]: %s", num,
         tr_bytes(buf->data + buf->len - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+}
+
+void hif_push_u64(struct iobuf_write *buf, uint64_t val)
+{
+    iobuf_push_le64(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      u64: %"PRIu64, val);
 }
 
 void hif_push_str(struct iobuf_write *buf, const char *val)
@@ -231,6 +238,15 @@ void hif_pop_fixed_u32_array(struct iobuf_read *buf, uint32_t *val, int num)
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:  u32[%2d]: %s", num,
             tr_bytes(iobuf_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+}
+
+uint64_t hif_pop_u64(struct iobuf_read *buf)
+{
+    uint64_t val = iobuf_pop_le64(buf);
+
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      u64: %"PRIu64, val);
+    return val;
 }
 
 const char *hif_pop_str(struct iobuf_read *buf)
