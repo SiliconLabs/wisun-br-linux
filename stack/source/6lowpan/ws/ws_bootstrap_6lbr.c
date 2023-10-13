@@ -384,10 +384,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
                 cur->ws_info.pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
                 cur->ws_info.pan_information.pan_version_set = true;
             }
-            if (!cur->ws_info.pan_information.lpan_version_set) {
-                cur->ws_info.pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
-                cur->ws_info.pan_information.lpan_version_set = true;
-            }
             cur->ws_info.pan_information.pan_size = 0;
             cur->ws_info.pan_information.jm.plf = ws_common_calc_plf(0, cur->ws_info.cfg->gen.network_size);
             if (cur->ws_info.pan_information.jm.plf == UINT8_MAX)
