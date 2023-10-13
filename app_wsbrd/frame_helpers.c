@@ -10,10 +10,12 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <errno.h>
 #include <stdbool.h>
 #include <string.h>
 #include "common/log.h"
 #include "common/iobuf.h"
+#include "common/ieee802154_ie.h"
 #include "common/string_extra.h"
 #include "common/memutils.h"
 #include "common/endian.h"
@@ -164,6 +166,169 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
     frame += ie->payloadIeListLength;
 
     return frame - start;
+}
+
+static int wsbr_data_sec_parse(struct iobuf_read *iobuf, struct mlme_security *sec)
+{
+    uint8_t scf;
+
+    scf = iobuf_pop_u8(iobuf);
+    sec->SecurityLevel = FIELD_GET(IEEE802154_SECURITY_LEVEL, scf);
+    if (sec->SecurityLevel != SEC_ENC_MIC64) {
+        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
+        return -ENOTSUP;
+    }
+    if (FIELD_GET(IEEE802154_SECURITY_KEY_MODE, scf) != MAC_KEY_ID_MODE_IDX) {
+        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
+        return -ENOTSUP;
+    }
+    if (FIELD_GET(IEEE802154_SECURITY_FRAME_COUNT_SUPPR, scf)) {
+        TRACE(TR_DROP, "drop %-9s: unsupported frame counter suppression", "15.4");
+        return -ENOTSUP;
+    }
+    if (FIELD_GET(IEEE802154_SECURITY_ASN_IN_NONCE, scf))
+        TRACE(TR_IGNORE, "ignore %-9s: ASN in nonce", "15.4");
+
+    iobuf_pop_le32(iobuf); // TODO: store frame counter
+    sec->KeyIndex = iobuf_pop_u8(iobuf);
+
+    if (iobuf_remaining_size(iobuf) < 8) {
+        TRACE(TR_DROP, "drop %-9s: missing MIC-64", "15.4");
+        return -EINVAL;
+    }
+    iobuf->data_size -= 8;
+
+    return 0;
+}
+
+static int wsbr_data_ie_parse(struct iobuf_read *iobuf, struct mcps_data_ind_ie_list *ie)
+{
+    struct iobuf_read iobuf_ie;
+    int ret_ht1, ret_pt;
+
+    memset(ie, 0, sizeof(*ie));
+    ret_ht1 = ieee802154_ie_find_header(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf),
+                                        IEEE802154_IE_ID_HT1, &iobuf_ie);
+    if (ret_ht1 < 0 && ret_ht1 != -ENOENT) {
+        TRACE(TR_DROP, "drop %-9s: malformed IEs", "15.4");
+        return ret_ht1;
+    }
+    if (!ret_ht1 || !ieee802154_ie_find_header(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf),
+                                                IEEE802154_IE_ID_HT2, &iobuf_ie)) {
+        ie->headerIeListLength = iobuf_ptr(&iobuf_ie) - 2 - iobuf_ptr(iobuf);
+        ie->headerIeList       = iobuf_pop_data_ptr(iobuf, ie->headerIeListLength);
+        iobuf_pop_le16(iobuf); // Header Termination IE
+    } else {
+        ie->headerIeListLength = iobuf_remaining_size(iobuf);
+        ie->headerIeList       = iobuf_pop_data_ptr(iobuf, ie->headerIeListLength);
+    }
+    if (!ret_ht1) {
+        ret_pt = ieee802154_ie_find_payload(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf),
+                                            IEEE802154_IE_ID_PT, &iobuf_ie);
+        if (ret_pt < 0 && ret_pt != -ENOENT) {
+            TRACE(TR_DROP, "drop %-9s: malformed IEs", "15.4");
+            return ret_pt;
+        }
+        if (!ret_pt) {
+            ie->payloadIeListLength = iobuf_ptr(&iobuf_ie) - 2 - iobuf_ptr(iobuf);
+            ie->payloadIeList       = iobuf_pop_data_ptr(iobuf, ie->headerIeListLength);
+            iobuf_pop_le16(iobuf); // Payload Termination IE
+        } else {
+            ie->payloadIeListLength = iobuf_remaining_size(iobuf);
+            ie->payloadIeList       = iobuf_pop_data_ptr(iobuf, ie->payloadIeListLength);
+        }
+    }
+    return 0;
+}
+
+int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
+                        const uint8_t *frame, size_t frame_len,
+                        struct mcps_data_ind *ind,
+                        struct mcps_data_ind_ie_list *ie)
+{
+    struct iobuf_read iobuf = {
+        .data_size = frame_len,
+        .data = frame,
+    };
+    uint16_t fcf;
+    int ret, i;
+
+    fcf = iobuf_pop_le16(&iobuf);
+    if (FIELD_GET(IEEE802154_FCF_FRAME_TYPE, fcf) != IEEE802154_FRAME_TYPE_DATA) {
+        TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
+        return -ENOTSUP;
+    }
+    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != MAC_FRAME_VERSION_2015) {
+        TRACE(TR_DROP, "drop %-9s: unsupported frame version", "15.4");
+        return -ENOTSUP;
+    }
+    ind->PendingBit      = FIELD_GET(IEEE802154_FCF_FRAME_PENDING,      fcf);
+    ind->TxAckReq        = FIELD_GET(IEEE802154_FCF_ACK_REQ,            fcf);
+    ind->PanIdSuppressed = FIELD_GET(IEEE802154_FCF_PAN_ID_COMPRESSION, fcf);
+    ind->DSN_suppressed  = FIELD_GET(IEEE802154_FCF_SEQ_NUM_SUPPR,      fcf);
+    ind->DstAddrMode     = FIELD_GET(IEEE802154_FCF_DST_ADDR_MODE,      fcf);
+    ind->SrcAddrMode     = FIELD_GET(IEEE802154_FCF_SRC_ADDR_MODE,      fcf);
+
+    if (!ind->DSN_suppressed)
+        ind->DSN = iobuf_pop_u8(&iobuf);
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_comp); i++)
+        if (ieee802154_table_pan_id_comp[i].dst_addr_mode      == ind->DstAddrMode &&
+            ieee802154_table_pan_id_comp[i].src_addr_mode      == ind->SrcAddrMode &&
+            ieee802154_table_pan_id_comp[i].pan_id_compression == ind->PanIdSuppressed)
+            break;
+    if (i == ARRAY_SIZE(ieee802154_table_pan_id_comp)) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (ieee802154_table_pan_id_comp[i].dst_pan_id)
+        ind->DstPANId = iobuf_pop_le16(&iobuf);
+    else
+        ind->DstPANId = mac->pan_id;
+
+    if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+        write_be64(ind->DstAddr, iobuf_pop_le64(&iobuf));
+    } else if (ind->DstAddrMode != MAC_ADDR_MODE_NONE) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (ieee802154_table_pan_id_comp[i].src_pan_id)
+        ind->SrcPANId = iobuf_pop_le16(&iobuf);
+    else
+        ind->SrcPANId = ind->DstPANId;
+
+    if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+        write_be64(ind->SrcAddr, iobuf_pop_le64(&iobuf));
+    } else if (ind->SrcAddrMode != MAC_ADDR_MODE_NONE) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (FIELD_GET(IEEE802154_FCF_SECURITY_ENABLED, fcf)) {
+        ret = wsbr_data_sec_parse(&iobuf, &ind->Key);
+        if (ret < 0)
+            return ret;
+    } else {
+        memset(&ind->Key, 0, sizeof(&ind->Key));
+    }
+
+    if (FIELD_GET(IEEE802154_FCF_IE_PRESENT, fcf)) {
+        ret = wsbr_data_ie_parse(&iobuf, ie);
+        if (ret < 0)
+            return ret;
+    }
+
+    if (iobuf_remaining_size(&iobuf))
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported frame payload", "15.4");
+
+    if (iobuf.err) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "15.4");
+        return -EINVAL;
+    }
+
+    return 0;
 }
 
 void wsbr_data_req_rebuild(struct iobuf_write *frame,

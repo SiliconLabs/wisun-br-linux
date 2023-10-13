@@ -34,4 +34,9 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
                            const struct mcps_data_req *req,
                            const struct mcps_data_req_ie_list *ie);
 
+int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
+                        const uint8_t *frame, size_t frame_len,
+                        struct mcps_data_ind *ind,
+                        struct mcps_data_ind_ie_list *ie);
+
 #endif
