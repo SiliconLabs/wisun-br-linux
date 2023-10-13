@@ -30,8 +30,8 @@ check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
-find_package(Rust)
-find_package(Cargo)
+find_package(Rust 1.38)
+find_package(Cargo 1.38)
 
 find_package(ns3 QUIET)
 mark_as_advanced(ns3_DIR)
