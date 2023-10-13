@@ -20,72 +20,9 @@
 #define WS_CONFIG_H_
 #include <stdint.h>
 
-/*RPL parameters for DIO messages
- *
- * Small scale spec recomendation imin 15, doubling 2, redudancy 0
- * Small scale values imin 14, doubling 3, redudancy 0
- * Large scale network imin 19, doubling 1, redudancy 1
- *
- */
-
-#define WS_RPL_DIO_IMIN_SMALL 15
-#define WS_RPL_DIO_DOUBLING_SMALL 2
-#define WS_RPL_DIO_REDUNDANCY_SMALL 0
-
-#define WS_RPL_DIO_IMIN_MEDIUM 17
-#define WS_RPL_DIO_DOUBLING_MEDIUM 3
-#define WS_RPL_DIO_REDUNDANCY_MEDIUM 10
-
-#define WS_RPL_DIO_IMIN_LARGE 18
-#define WS_RPL_DIO_DOUBLING_LARGE 3
-#define WS_RPL_DIO_REDUNDANCY_LARGE 10 // May need some tuning still
-
-#define WS_RPL_DIO_IMIN_XLARGE 18
-#define WS_RPL_DIO_DOUBLING_XLARGE 4
-#define WS_RPL_DIO_REDUNDANCY_XLARGE 10 // May need some tuning still
-
-#define WS_RPL_DIO_IMIN_AUTOMATIC 14
-#define WS_RPL_DIO_DOUBLING_AUTOMATIC 3
-#define WS_RPL_DIO_REDUNDANCY_AUTOMATIC 0
-
-#define WS_RPL_MIN_HOP_RANK_INCREASE 196
-#define WS_RPL_MAX_HOP_RANK_INCREASE 2048
-
-#define WS_RPL_DEFAULT_LIFETIME        (3600*2) // 2 hours
-#define WS_RPL_DEFAULT_LIFETIME_MEDIUM (3600*4) // 4 hours
-#define WS_RPL_DEFAULT_LIFETIME_LARGE  (3600*8) // 8 hours
-#define WS_RPL_DEFAULT_LIFETIME_XLARGE (3600*12) // 12 hours
-
-#define WS_DHCP_ADDRESS_LIFETIME_SMALL  (   12*3600)  // Small networks less than devices 100
-#define WS_DHCP_ADDRESS_LIFETIME_MEDIUM ( 7*24*3600) // Medium size networks from 100 - 1000 device networks
-#define WS_DHCP_ADDRESS_LIFETIME_LARGE  (30*24*3600) // Large size networks 1000 + device networks
-
-#define WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE 128
-#define WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE 0
-
-/*
- *  RPL DAO timeout maximum value. This will force DAO timeout to happen before this time
- */
-#define WS_RPL_DAO_MAX_TIMOUT (3600*12)
-
-/* Border router version change interval
- *
- * Amount of version increases border router makes during PAN_TIMEOUT time
- */
-
-#define PAN_VERSION_CHANGE_INTERVAL 3
-
 /* If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days i.e. storage must
    be written at least once a week */
 #define PAN_VERSION_STORAGE_READ_INCREMENT    1000
-
-// RPL version number update intervall
-// after restart version numbers are increased faster and then slowed down when network is stable
-#define RPL_VERSION_LIFETIME 12*3600
-#define RPL_VERSION_LIFETIME_RESTART_SMALL 3600
-#define RPL_VERSION_LIFETIME_RESTART_MEDIUM 2*3600
-#define RPL_VERSION_LIFETIME_RESTART_LARGE 4*3600
-#define RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE 8*3600
 
 /* Border router connection lost timeout
  *
@@ -104,14 +41,6 @@
 
 #define PAN_VERSION_XLARGE_NETWORK_TIMEOUT 120*60
 
-/* Routing Cost Weighting factor
- */
-#define PRC_WEIGHT_FACTOR    256
-
-/* Routing Cost Weighting factor
- */
-#define PS_WEIGHT_FACTOR      64
-
 /* Smoothing factor for RSL calculation 1/8
  */
 #define WS_RSL_SCALING      3
@@ -129,11 +58,6 @@ extern uint8_t DEVICE_MIN_SENS;
 /* Candidate parent Threshold hysteresis
  */
 #define CAND_PARENT_HYSTERISIS 3
-
-/* Maximum amount of Pan Configuration Solicits before restarting Discovery.
- */
-#define PCS_MAX 5
-
 
 /* Multicast MPL data message parameters
  */
@@ -168,15 +92,6 @@ extern uint8_t DEVICE_MIN_SENS;
 #define MPL_XLARGE_K 8
 #define MPL_XLARGE_SEED_LIFETIME (MPL_XLARGE_IMAX * MPL_SAFE_HOP_COUNT * (MPL_XLARGE_EXPIRATIONS + 1)) // time that packet should get to safe distance
 
-/* DHCP client timeout configuration values
- *
- */
-#define WS_DHCP_SOLICIT_TIMEOUT         60
-#define WS_DHCP_SOLICIT_MAX_RT          900
-#define WS_DHCP_SOLICIT_MAX_RC          0
-#define WS_DHCP_SOLICIT_MAX_DELAY       5
-
-
 /* Neighbour table configuration
  *
  * Amount of RPL candidate parents
@@ -206,26 +121,9 @@ extern uint8_t DEVICE_MIN_SENS;
 #define FRAME_COUNTER_INCREMENT             1000000     // How much frame counter is incremented on start up
 #define FRAME_COUNTER_STORE_THRESHOLD       994999      // How much frame counter must increment before it is stored
 
-
-/*
- *  RPL Configuration parameters
- */
-#define WS_MAX_DAO_RETRIES 3 // With 40s, 80s, 160s, 320s, 640s
-#define WS_MAX_DAO_INITIAL_TIMEOUT 400 // With 40s initial value exponentially increasing
-#define WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT 0xff // Advertisment config at every MC DIO
-#define WS_MAX_PARENT_SET_COUNT 2 // maximum amount of parents selected by node
-
-#define WS_NODE_RPL_SOFT_MEM_LIMIT 4*1024 // Limit when RPL start purge unused data
-#define WS_NODE_RPL_HARD_MEM_LIMIT 6*1024 // Limit when RPL memory allocation start limit allocation
-
 /*
  * Candidate parent list parameters
  */
-
-#define WS_PARENT_LIST_SIZE 10
-#define WS_PARENT_LIST_MAX_AGE 3600*10         // 1 hour in 100ms ticks
-#define WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY 5  // During discovery state how many neighbours per pan
-#define WS_PARENT_LIST_MAX_PAN_IN_ACTIVE 2     // During active state two nodes per pan is allowed
 
 #define WS_CONGESTION_PACKET_SIZE 500           // Packet length for calculate how much heap message queue can fit
 #define WS_CONGESTION_QUEUE_DELAY 60            // Define message queue max length for given delay. This value is multiple by packet/seconds
