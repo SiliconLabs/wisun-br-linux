@@ -12,6 +12,7 @@ v1.7
   - Test Bed Unit (TBU) API implementation for the Wi-SUN certification.
   - Disable EDFE when regional regulation ARIB is enabled.
   - Fix `--list-rf-configs` for custom PHYs.
+  - Fix `wsbrd_cli` compilation using any Rust version >= 1.38
 
 v1.6.4
 ------
