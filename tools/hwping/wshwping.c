@@ -221,7 +221,7 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
         uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     else
         uart_tx(ctxt, tx_buf.data, tx_buf.len);
-    spinel_trace_tx(&tx_buf);
+    spinel_trace(tx_buf.data, tx_buf.data_size, "hif tx: ");
     iobuf_free(&tx_buf);
 }
 
@@ -267,7 +267,7 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
         WARN("poll: no answer from RCP on ping %d", counter);
         return counter + 1;
     }
-    spinel_trace_rx(&rx_buf);
+    spinel_trace(rx_buf.data, rx_buf.data_size, "hif rx: ");
 
     hif_pop_u8(&rx_buf);
 

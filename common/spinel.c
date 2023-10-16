@@ -137,47 +137,31 @@ bool spinel_prop_is_valid(struct iobuf_read *buf, int prop)
     return true;
 }
 
-static void spinel_trace(struct iobuf_read *buf, const char *prefix)
+void spinel_trace(const uint8_t *buf, size_t buf_len, const char *prefix)
 {
+    struct iobuf_read iobuf = {
+        .data_size = buf_len,
+        .data = buf,
+    };
     unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
 
     if (!(g_enabled_traces & TR_HIF))
         return;
 
-    iobuf_pop_u8(buf); // ignore header
-    cmd = __hif_pop_uint(buf);
+    iobuf_pop_u8(&iobuf); // ignore header
+    cmd = __hif_pop_uint(&iobuf);
     switch (cmd) {
         case SPINEL_CMD_PROP_IS:
         case SPINEL_CMD_PROP_GET:
         case SPINEL_CMD_PROP_SET:
-            prop = __hif_pop_uint(buf);
+            prop = __hif_pop_uint(&iobuf);
             break;
     }
     cmd_str = spinel_cmd_str(cmd);
     prop_str = spinel_prop_str(prop);
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
-          tr_bytes(iobuf_ptr(buf), iobuf_remaining_size(buf),
+          tr_bytes(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
                    NULL, 128, DELIM_SPACE | ELLIPSIS_STAR),
-          buf->data_size);
-}
-
-void spinel_trace_tx(struct iobuf_write *buf)
-{
-    struct iobuf_read tr_buf = {
-        .data_size = buf->len,
-        .data = buf->data,
-    };
-
-    spinel_trace(&tr_buf, "hif tx: ");
-}
-
-void spinel_trace_rx(struct iobuf_read *buf)
-{
-    struct iobuf_read tr_buf = {
-        .data_size = buf->data_size,
-        .data = buf->data,
-    };
-
-    spinel_trace(&tr_buf, "hif rx: ");
+          iobuf.data_size);
 }

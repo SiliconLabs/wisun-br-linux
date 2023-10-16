@@ -264,7 +264,6 @@ enum {
 const char *spinel_cmd_str(int cmd);
 const char *spinel_prop_str(int prop);
 bool spinel_prop_is_valid(struct iobuf_read *buf, int prop);
-void spinel_trace_tx(struct iobuf_write *buf);
-void spinel_trace_rx(struct iobuf_read *buf);
+void spinel_trace(const uint8_t *buf, size_t buf_len, const char *prefix);
 
 #endif
