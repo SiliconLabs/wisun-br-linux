@@ -640,9 +640,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         WS_BLACKLIST_ENTRY_MAX_NBR,
         WS_BLACKLIST_PURGE_NBR,
         WS_BLACKLIST_PURGE_TIMER_TIMEOUT);
-
-    ws_bootstrap_event_discovery_start(cur);
-
     return 0;
 cleanup:
     return ret_val;

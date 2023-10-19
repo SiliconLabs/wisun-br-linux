@@ -558,6 +558,7 @@ int wsbr_main(int argc, char *argv[])
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
+    struct net_if *cur;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
@@ -598,11 +599,14 @@ int wsbr_main(int argc, char *argv[])
     wsbr_common_timer_init(ctxt);
 
     wsbr_network_init(ctxt);
-    event_scheduler_run_until_idle();
 
     dbus_register(ctxt);
     if (ctxt->config.user[0] && ctxt->config.group[0])
         drop_privileges(&ctxt->config);
+
+    cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    ws_bootstrap_event_discovery_start(cur);
+    event_scheduler_run_until_idle();
 
     wsbr_fds_init(ctxt, fds);
 
