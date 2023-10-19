@@ -721,6 +721,20 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 
                 tr_info("Read frame counter: index %i value %"PRIu32"", index, controller->gtks.frame_counters.counter[index].frame_counter);
             }
+            if (index >= LGTK_NUM)
+                continue;
+            if (controller->lgtks.frame_counters.counter[index].set) {
+                // If there is room on frame counter space
+                if (controller->lgtks.frame_counters.counter[index].frame_counter < (UINT32_MAX - FRAME_COUNTER_INCREMENT * 2)) {
+                    // Increments frame counters
+                    controller->lgtks.frame_counters.counter[index].frame_counter += FRAME_COUNTER_INCREMENT;
+                } else {
+                    tr_error("Frame counter space exhausted");
+                    controller->lgtks.frame_counters.counter[index].frame_counter = UINT32_MAX;
+                }
+
+                tr_info("Read LGTK frame counter: index %i value %"PRIu32"", index, controller->lgtks.frame_counters.counter[index].frame_counter);
+            }
         }
     }
 
