@@ -70,11 +70,11 @@ typedef struct ws_pan_information {
     struct ws_jm jm;
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
-    uint16_t lpan_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */
+    uint16_t lfn_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */
     bool use_parent_bs: 1;      /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
     bool rpl_routing_method: 1; /**< 1 when RPL routing is selected and 0 when L2 routing. */
     bool pan_version_set: 1;    /**< 1 PAN version is set. */
-    bool lpan_version_set: 1;   /**< 1 LFN PAN version is set. */
+    bool lfn_version_set: 1;   /**< 1 LFN PAN version is set. */
     bool lfn_window_style: 1;   /**< 1 FFN management trasmission. */
     unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;

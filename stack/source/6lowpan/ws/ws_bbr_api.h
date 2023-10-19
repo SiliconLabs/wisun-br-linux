@@ -247,7 +247,7 @@ int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
 
 void ws_bbr_pan_version_increase(struct net_if *cur);
-void ws_bbr_lpan_version_increase(struct net_if *cur);
+void ws_bbr_lfn_version_increase(struct net_if *cur);
 
 uint16_t ws_bbr_pan_size(struct net_if *cur);
 

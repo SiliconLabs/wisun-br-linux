@@ -262,7 +262,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     sec_keys_nw_info->updated = false;
 }
 
-int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name)
 {
     (void) pan_id;
     (void) network_name;
@@ -284,7 +284,7 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
 
     // Store pan version
     controller->sec_keys_nw_info.pan_version = pan_version;
-    controller->sec_keys_nw_info.lpan_version = lpan_version;
+    controller->sec_keys_nw_info.lfn_version = lfn_version;
 
     if (controller->pae_nw_info_set) {
         controller->pae_nw_info_set(interface_ptr, pan_id, network_name);
@@ -762,7 +762,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
         return -1;
     fprintf(info->file, "pan_id = %#04x\n", sec_keys_nw_info->key_pan_id);
     fprintf(info->file, "pan_version = %d\n", sec_keys_nw_info->pan_version);
-    fprintf(info->file, "lpan_version = %d\n", sec_keys_nw_info->lpan_version);
+    fprintf(info->file, "lfn_version = %d\n", sec_keys_nw_info->lfn_version);
     str_bytes(sec_keys_nw_info->network_name, strlen(sec_keys_nw_info->network_name),
               NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
@@ -835,8 +835,8 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
             sec_keys_nw_info->key_pan_id = strtoull(info->value, NULL, 0);
         } else if (!fnmatch("pan_version", info->key, 0)) {
             sec_keys_nw_info->pan_version = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("lpan_version", info->key, 0)) {
-            sec_keys_nw_info->lpan_version = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("lfn_version", info->key, 0)) {
+            sec_keys_nw_info->lfn_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("network_name", info->key, 0)) {
             if (parse_escape_sequences(sec_keys_nw_info->network_name, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
@@ -930,7 +930,7 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
             controller->nw_info_updated(interface_ptr,
                                         controller->sec_keys_nw_info.key_pan_id,
                                         controller->sec_keys_nw_info.pan_version,
-                                        controller->sec_keys_nw_info.lpan_version,
+                                        controller->sec_keys_nw_info.lfn_version,
                                         controller->sec_keys_nw_info.network_name);
         }
     }

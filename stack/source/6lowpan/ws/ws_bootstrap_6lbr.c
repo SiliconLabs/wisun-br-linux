@@ -393,13 +393,13 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             cur->ws_info.pan_information.use_parent_bs = true;
             // initialize for FAN 1.1 defaults
             if (cur->ws_info.enable_lfn &&
-                !cur->ws_info.pan_information.lpan_version_set) {
-                cur->ws_info.pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
-                cur->ws_info.pan_information.lpan_version_set = true;
+                !cur->ws_info.pan_information.lfn_version_set) {
+                cur->ws_info.pan_information.lfn_version = rand_get_random_in_range(0, 0xffff);
+                cur->ws_info.pan_information.lfn_version_set = true;
             }
 
             ws_bbr_pan_version_increase(cur);
-            ws_bbr_lpan_version_increase(cur);
+            ws_bbr_lfn_version_increase(cur);
 
             // Set default parameters for FHSS when starting a discovery
             ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
@@ -428,7 +428,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             // Set PAN ID and network name to controller
             ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
                                           cur->ws_info.pan_information.pan_version,
-                                          cur->ws_info.pan_information.lpan_version,
+                                          cur->ws_info.pan_information.lfn_version,
                                           cur->ws_info.cfg->gen.network_name);
 
             // Set backbone IP address get callback
@@ -509,4 +509,3 @@ void ws_bootstrap_6lbr_seconds_timer(struct net_if *cur, uint32_t seconds)
     (void)cur;
     (void)seconds;
 }
-

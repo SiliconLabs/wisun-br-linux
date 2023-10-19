@@ -232,7 +232,7 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name);
 
 /**
  * ws_pae_controller_border_router_addr_write write border router address
@@ -422,7 +422,7 @@ typedef void ws_pae_controller_pan_ver_increment(struct net_if *interface_ptr);
  * \param network_name network name
  *
  */
-typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
+typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name);
 
 /**
  * ws_pae_controller_congestion_get get congestion information

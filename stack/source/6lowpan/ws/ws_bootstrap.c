@@ -81,10 +81,10 @@ static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot);
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot);
-static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
+static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name);
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(struct net_if *cur);
-static void ws_bootstrap_lpan_version_increment(struct net_if *cur);
+static void ws_bootstrap_lfn_version_increment(struct net_if *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *neighbor);
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
@@ -964,7 +964,7 @@ int ws_bootstrap_init(int8_t interface_id)
                                       ws_bootstrap_nw_frame_counter_set,
                                       ws_bootstrap_nw_frame_counter_read,
                                       ws_bootstrap_pan_version_increment,
-                                      ws_bootstrap_lpan_version_increment,
+                                      ws_bootstrap_lfn_version_increment,
                                       ws_bootstrap_nw_info_updated,
                                       ws_bootstrap_eapol_congestion_get) < 0) {
         ret_val =  -4;
@@ -1162,10 +1162,10 @@ static void ws_bootstrap_pan_version_increment(struct net_if *cur)
     ws_bbr_pan_version_increase(cur);
 }
 
-static void ws_bootstrap_lpan_version_increment(struct net_if *cur)
+static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 {
     (void)cur;
-    ws_bbr_lpan_version_increase(cur);
+    ws_bbr_lfn_version_increase(cur);
 }
 
 static void ws_bootstrap_mac_security_enable(struct net_if *cur)
@@ -1227,7 +1227,7 @@ static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
     mac_helper_key_link_frame_counter_read(cur->id, slot);
 }
 
-static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
+static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name)
 {
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
@@ -1244,8 +1244,8 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
         // Sets PAN version
         cur->ws_info.pan_information.pan_version = pan_version;
         cur->ws_info.pan_information.pan_version_set = true;
-        cur->ws_info.pan_information.lpan_version = lpan_version;
-        cur->ws_info.pan_information.lpan_version_set = true;
+        cur->ws_info.pan_information.lfn_version = lfn_version;
+        cur->ws_info.pan_information.lfn_version_set = true;
     }
 
     // If network name has not been set, set it
@@ -1385,13 +1385,13 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .frame_type = WS_FT_PC,
         .wh_ies.utt      = true,
         .wh_ies.bt       = true,
-        .wh_ies.lbc      = cur->ws_info.pan_information.lpan_version_set,
+        .wh_ies.lbc      = cur->ws_info.pan_information.lfn_version_set,
         .wp_ies.us       = true,
         .wp_ies.bs       = true,
         .wp_ies.panver   = true,
         .wp_ies.gtkhash  = true,
-        .wp_ies.lgtkhash = cur->ws_info.pan_information.lpan_version_set,
-        .wp_ies.lfnver   = cur->ws_info.pan_information.lpan_version_set,
+        .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
+        .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
         .security.SecurityLevel = cur->mac_parameters.mac_security_level,
         .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
     };

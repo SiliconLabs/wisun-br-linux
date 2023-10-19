@@ -155,7 +155,7 @@ typedef struct sec_prot_keys_nw_info {
     sec_prot_gtk_keys_t *lgtks;                            /**< Link to LGTKs */
     uint16_t key_pan_id;                                   /**< PAN ID for keys */
     uint16_t pan_version;                                  /**< PAN version for keys */
-    uint16_t lpan_version;                                 /**< LFN PAN version for keys */
+    uint16_t lfn_version;                                 /**< LFN PAN version for keys */
     bool updated : 1;                                      /**< Network info has been updated */
 } sec_prot_keys_nw_info_t;
 

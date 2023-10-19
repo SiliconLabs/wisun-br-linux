@@ -1735,7 +1735,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             // Only unicast schedule using tag 0 is supported
             ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
         if (wp_ies.lfnver)
-            ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lpan_version);
+            ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
         if (wp_ies.lgtkhash)
             ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
                                         ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
