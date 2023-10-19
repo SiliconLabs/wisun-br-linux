@@ -101,7 +101,6 @@ typedef struct pae_auth_gtk {
 typedef struct pae_auth {
     ns_list_link_t link;                                     /**< Link */
     uint16_t pan_id;                                         /**< PAN ID */
-    char network_name[33];                                   /**< Network name */
     kmp_service_t *kmp_service;                              /**< KMP service */
     struct net_if *interface_ptr;          /**< Interface pointer */
     ws_pae_auth_gtk_hash_set *hash_set;                      /**< GTK hash set callback */
@@ -126,7 +125,7 @@ typedef struct pae_auth {
     bool timer_running : 1;                                  /**< Timer is running */
 } pae_auth_t;
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install, bool is_lgtk);
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool is_lgtk);
 static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
@@ -185,7 +184,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
         return -1;
     }
 
-    memset(&pae_auth->network_name, 0, 33);
     pae_auth->pan_id = 0xffff;
     pae_auth->interface_ptr = interface_ptr;
     ws_pae_lib_supp_list_init(&pae_auth->active_supp_list);
@@ -420,8 +418,8 @@ void ws_pae_auth_start(struct net_if *interface_ptr)
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
 
     // Inserts keys and updates GTK hash on stack
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, true);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, true);
 
     // Sets active key index
     ws_pae_auth_network_key_index_set(pae_auth, gtk_index, false);
@@ -439,7 +437,7 @@ void ws_pae_auth_gtks_updated(struct net_if *interface_ptr, bool is_lgtk)
         return;
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
 }
 
 int8_t ws_pae_auth_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
@@ -564,7 +562,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
         ws_pae_auth_gtk_insert(key_nw_info, new_gtk, timer_cfg->expire_offset, is_lgtk);
     else
         ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset, is_lgtk);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
 
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
@@ -572,9 +570,9 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     return 0;
 }
 
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name)
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id)
 {
-    if (!interface_ptr || !network_name) {
+    if (!interface_ptr) {
         return -1;
     }
 
@@ -595,19 +593,11 @@ int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, ch
     }
     pae_auth->pan_id = pan_id;
 
-    bool force_install = false;
-    if (strlen((char *) &pae_auth->network_name) > 0 && strcmp((char *) &pae_auth->network_name, network_name) != 0) {
-        update_keys = true;
-        // Force GTK install to update the new network name to GAK
-        force_install = true;
-    }
-    strcpy((char *) &pae_auth->network_name, network_name);
-
     if (!update_keys) {
         return 0;
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, force_install, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
 
     int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (index >= 0) {
@@ -618,7 +608,7 @@ int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, ch
     return 0;
 }
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install, bool is_lgtk)
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool is_lgtk)
 {
     sec_prot_gtk_keys_t *gtks;
 
@@ -637,7 +627,7 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool 
     }
 
     if (pae_auth->nw_key_insert) {
-        pae_auth->nw_key_insert(pae_auth->interface_ptr, gtks, force_install, is_lgtk);
+        pae_auth->nw_key_insert(pae_auth->interface_ptr, gtks, is_lgtk);
     }
 
     return 0;
@@ -797,7 +787,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
                     tr_info("%s new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"",
                             is_lgtk ? "LGTK" : "GTK", active_index, timer_seconds, g_monotonic_time_100ms / 10);
                     ws_pae_auth_gtk_key_insert(keys, pae_auth_gtk->next_gtks, timer_gtk_cfg->expire_offset, is_lgtk);
-                    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+                    ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
                     // Update keys to NVM as needed
                     pae_auth->nw_info_updated(pae_auth->interface_ptr);
                 } else {
@@ -832,7 +822,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
         tr_info("%s expired index: %i, system time: %"PRIu32"",
                 is_lgtk ? "LGTK" : "GTK", i, g_monotonic_time_100ms / 10);
         ws_pae_auth_gtk_clear(keys, i);
-        ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+        ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
         // Update keys to NVM as needed
         pae_auth->nw_info_updated(pae_auth->interface_ptr);
     }
@@ -1593,5 +1583,5 @@ void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bo
         lifetime = pae_auth->sec_cfg->timer_cfg.gtk.expire_offset;
     }
     ws_pae_auth_gtk_insert(keys, key, lifetime, is_lgtk);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
 }

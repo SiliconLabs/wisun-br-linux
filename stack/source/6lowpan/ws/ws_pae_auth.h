@@ -182,13 +182,12 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
  *
  * \param interface_ptr interface
  * \param pan_id PAD ID
- * \param network_name network name
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name);
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id);
 
 /**
  * ws_pae_auth_gtk_hash_set GTK hash set callback
@@ -204,13 +203,12 @@ typedef void ws_pae_auth_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *g
  *
  * \param interface_ptr interface
  * \param gtks group keys
- * \param force_install TRUE force install keys, FALSE install keys only if GTKs has changed
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_auth_nw_key_insert(struct net_if *interface_ptr, struct sec_prot_gtk_keys *gtks, bool force_install, bool is_lgtk);
+typedef int8_t ws_pae_auth_nw_key_insert(struct net_if *interface_ptr, struct sec_prot_gtk_keys *gtks, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_key_index_set network send key index set callback

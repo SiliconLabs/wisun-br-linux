@@ -62,7 +62,7 @@ typedef int8_t ws_pae_br_addr_read(struct net_if *interface_ptr, uint8_t *eui_64
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
-typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name);
+typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id);
 
 typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -129,7 +129,7 @@ static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, 
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
-static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
+static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
@@ -262,9 +262,6 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
 
 int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name)
 {
-    (void) pan_id;
-    (void) network_name;
-
     if (!interface_ptr) {
         return -1;
     }
@@ -285,7 +282,7 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
     controller->sec_keys_nw_info.lfn_version = lfn_version;
 
     if (controller->pae_nw_info_set) {
-        controller->pae_nw_info_set(interface_ptr, pan_id, network_name);
+        controller->pae_nw_info_set(interface_ptr, pan_id);
     }
 
     return 0;
@@ -356,7 +353,7 @@ void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned
                                         controller->interface_ptr->mac);
 }
 
-static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
+static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk)
 {
     // Adds, removes and updates network keys to MAC based on new GTKs
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -390,13 +387,6 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             nw_key[i].installed = false;
             nw_key[i].set = false;
             tr_info("NW key remove: %i", i + key_offset);
-        }
-
-        if (force_install) {
-            // Install always
-            nw_key[i].installed = false;
-            // Frame counters are fresh
-            memset(&frame_counters->counter[i], 0, sizeof(frame_counters->counter[i]));
         }
 
         // If GTK key is not set, continues to next GTK
