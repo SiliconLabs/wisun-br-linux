@@ -427,7 +427,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
 
             // Set PAN ID and network name to controller
             ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
-                                          cur->ws_info.pan_information.pan_version,
                                           cur->ws_info.pan_information.lfn_version,
                                           cur->ws_info.cfg->gen.network_name);
 

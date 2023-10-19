@@ -167,10 +167,7 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     ws_bootstrap_configuration_trickle_reset(cur);
 
     // Indicate new pan version to PAE controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
-                                  cur->ws_info.pan_information.pan_version,
-                                  cur->ws_info.pan_information.lfn_version,
-                                  cur->ws_info.cfg->gen.network_name);
+    ws_pae_controller_pan_version_set(cur, cur->ws_info.pan_information.pan_version);
 }
 
 void ws_bbr_lfn_version_increase(struct net_if *cur)
@@ -185,7 +182,6 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
 
     // Indicate new pan version to PAE controller
     ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
-                                  cur->ws_info.pan_information.pan_version,
                                   cur->ws_info.pan_information.lfn_version,
                                   cur->ws_info.cfg->gen.network_name);
     //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
