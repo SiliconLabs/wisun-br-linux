@@ -92,7 +92,6 @@ typedef struct pae_controller {
     sec_prot_keys_nw_info_t sec_keys_nw_info;                        /**< Security keys network information */
     sec_prot_certs_t certs;                                          /**< Certificates */
     uint16_t frame_cnt_store_timer;                                  /**< Timer to check if storing of frame counter value is needed */
-    uint32_t frame_cnt_store_force_timer;                            /**< Timer to force storing of frame counter, if no other updates */
     sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
     struct net_if *interface_ptr;                  /**< List link entry */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
@@ -657,7 +656,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->gtks.gtk_index = -1;
     controller->lgtks.gtk_index = -1;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-    controller->frame_cnt_store_force_timer = FRAME_COUNTER_STORE_FORCE_INTERVAL;
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
     ws_pae_controller_frame_counter_reset(&controller->lgtks.frame_counters);
