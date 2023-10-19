@@ -95,18 +95,6 @@ sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void)
     return gtks;
 }
 
-void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks)
-{
-    if (!gtks)
-        return;
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
-        if (sec_prot_keys_gtk_is_set(gtks, i)) {
-            gtks->updated = true;
-        }
-    }
-    memset(gtks, 0, sizeof(sec_prot_gtk_keys_t));
-}
-
 void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks)
 {
     free(gtks);
@@ -803,4 +791,3 @@ bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_gtk_t *sec_gtk
 
     return false;
 }
-

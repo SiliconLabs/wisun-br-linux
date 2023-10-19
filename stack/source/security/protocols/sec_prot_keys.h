@@ -203,14 +203,6 @@ void sec_prot_keys_delete(sec_prot_keys_t *sec_keys);
 sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void);
 
 /**
- * sec_prot_keys_gtks_init clear GTK keys
- *
- * \param gtks GTK keys
- *
- */
-void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks);
-
-/**
  * sec_prot_keys_gtks_delete frees GTK keys memory
  *
  * \param gtks GTK keys

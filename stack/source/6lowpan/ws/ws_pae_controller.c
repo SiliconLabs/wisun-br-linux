@@ -722,8 +722,8 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller)
         return 0;
     if (memcmp(nvm_gtk_eui64, cur->mac, 8) != 0) {
         WARN("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(cur->mac), tr_eui64(nvm_gtk_eui64));
-        sec_prot_keys_gtks_clear(controller->sec_keys_nw_info.gtks);
-        sec_prot_keys_gtks_clear(controller->sec_keys_nw_info.lgtks);
+        memset(controller->sec_keys_nw_info.gtks, 0, sizeof(sec_prot_gtk_keys_t));
+        memset(controller->sec_keys_nw_info.lgtks, 0, sizeof(sec_prot_gtk_keys_t));
     } else {
         // Checks frame counters
         for (uint8_t index = 0; index < GTK_NUM; index++) {
