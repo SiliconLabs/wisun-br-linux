@@ -685,10 +685,10 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
     ws_pae_controller_frame_counter_reset(&controller->lgtks.frame_counters);
-    sec_prot_keys_gtks_init(&controller->gtks.gtks);
-    sec_prot_keys_gtks_init(&controller->lgtks.gtks);
-    sec_prot_keys_gtks_init(&controller->gtks.next_gtks);
-    sec_prot_keys_gtks_init(&controller->lgtks.next_gtks);
+    memset(&controller->gtks.gtks, 0, sizeof(sec_prot_gtk_keys_t));
+    memset(&controller->lgtks.gtks, 0, sizeof(sec_prot_gtk_keys_t));
+    memset(&controller->gtks.next_gtks, 0, sizeof(sec_prot_gtk_keys_t));
+    memset(&controller->lgtks.next_gtks, 0, sizeof(sec_prot_gtk_keys_t));
     sec_prot_certs_init(&controller->certs);
     sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
     ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks, &controller->lgtks.gtks);

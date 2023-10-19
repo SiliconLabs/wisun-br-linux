@@ -90,15 +90,9 @@ sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void)
         return NULL;
     }
 
-    sec_prot_keys_gtks_init(gtks);
+    memset(gtks, 0, sizeof(sec_prot_gtk_keys_t));
 
     return gtks;
-}
-
-void sec_prot_keys_gtks_init(sec_prot_gtk_keys_t *gtks)
-{
-    memset(gtks, 0, sizeof(sec_prot_gtk_keys_t));
-    gtks->updated = false;
 }
 
 void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks)
