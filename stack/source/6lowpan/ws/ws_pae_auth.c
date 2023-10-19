@@ -85,16 +85,17 @@
 // Frame counter exhaust check timer
 #define FRAME_CNT_TIMER                        3600
 
+// Once reached, a new GTK must be propagated (90% of frame counter max)
+#define FRAME_CNT_THRESHOLD                    3865470565U
+
 #define SECONDS_IN_DAY                         (3600 * 24)
 
 typedef struct pae_auth_gtk {
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
     frame_counters_t *frame_counters;                        /**< Frame counters */
-    uint32_t prev_frame_cnt;                                 /**< Previous frame counter */
     uint16_t prev_frame_cnt_timer;                           /**< Previous frame counter timer */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
     bool gtk_new_act_time_exp : 1;                           /**< GTK new activation time expired */
-    bool prev_frame_cnt_set : 1;                             /**< Previous frame counter set */
 } pae_auth_gtk_t;
 
 typedef struct pae_auth {
@@ -209,19 +210,15 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
 
     pae_auth->gtks.next_gtks = next_gtks;
     pae_auth->gtks.frame_counters = gtk_frame_counters;
-    pae_auth->gtks.prev_frame_cnt = 0;
     pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->gtks.gtk_new_inst_req_exp = false;
     pae_auth->gtks.gtk_new_act_time_exp = false;
-    pae_auth->gtks.prev_frame_cnt_set = false;
 
     pae_auth->lgtks.next_gtks = next_lgtks;
     pae_auth->lgtks.frame_counters = lgtk_frame_counters;
-    pae_auth->lgtks.prev_frame_cnt = 0;
     pae_auth->lgtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->lgtks.gtk_new_inst_req_exp = false;
     pae_auth->lgtks.gtk_new_act_time_exp = false;
-    pae_auth->lgtks.prev_frame_cnt_set = false;
 
     pae_auth->relay_socked_msg_if_instance_id = 0;
     pae_auth->radius_socked_msg_if_instance_id = 0;
@@ -870,7 +867,11 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
 
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds)
 {
+    sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
+    uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     uint32_t decrement_seconds = 0;
+    uint32_t frame_cnt = 0;
+    uint32_t key_new_install_threshold;
 
     if (pae_auth->gtks.prev_frame_cnt_timer > seconds) {
         pae_auth->gtks.prev_frame_cnt_timer -= seconds;
@@ -878,86 +879,17 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     }
     pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
 
-    uint32_t frame_cnt = 0;
-    if (pae_auth->nw_frame_cnt_read(pae_auth->interface_ptr, &frame_cnt, gtk_index) < 0) {
+    if (pae_auth->nw_frame_cnt_read(pae_auth->interface_ptr, &frame_cnt, gtk_index) < 0)
         return 0;
-    }
 
-    sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
+    key_new_install_threshold = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
 
-    // For GTK lifetime and frame counter space calculate the percent that has been used
-    uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
-    uint32_t gtk_lifetime = timer_cfg->gtk.expire_offset;
-    uint32_t gtk_lifetime_left_percent = gtk_lifetime_left * 100 / gtk_lifetime;
-
-    uint32_t frame_cnt_left_percent = ((uint64_t)((UINT32_MAX - frame_cnt))) * 100 / UINT32_MAX;
-
-    tr_info("Active GTK lifetime %"PRIu32", frame counter %"PRIu32" percent, counter %"PRIu32, gtk_lifetime_left_percent, frame_cnt_left_percent, frame_cnt);
-
-    /* If frame counter space has been exhausted faster than should be based on GTK lifetime
-     * decrements GTK lifetime. Do not check until 20% of the frame counter space has been used
-     * so that we have data from longer time period. As sanity check, validate that GTK lifetime
-     * is not more than 105% of the GTK lifetime.
-     */
-    uint32_t gtk_new_install_req_seconds = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
-    if ((frame_cnt_left_percent < gtk_lifetime_left_percent && frame_cnt_left_percent < 80) ||
-            gtk_lifetime_left_percent > 105) {
-        // If not yet on GTK update period
-        if (gtk_lifetime_left > (gtk_new_install_req_seconds + SECONDS_IN_DAY)) {
-            uint32_t diff = gtk_lifetime_left_percent - frame_cnt_left_percent;
-            decrement_seconds = gtk_lifetime * diff / 100 + SECONDS_IN_DAY;
-            if (decrement_seconds > gtk_lifetime_left - gtk_new_install_req_seconds) {
-                decrement_seconds = gtk_lifetime_left - gtk_new_install_req_seconds;
-            }
-            tr_info("Decrement GTK lifetime percent, seconds %"PRIu32, decrement_seconds);
-        }
-    }
-
-    // Calculate how much frame counters have changed and store maximum if larger than previous maximum
-    uint32_t frame_cnt_diff = 0;
-    if (pae_auth->gtks.prev_frame_cnt_set && frame_cnt > pae_auth->gtks.prev_frame_cnt) {
-        frame_cnt_diff = frame_cnt - pae_auth->gtks.prev_frame_cnt;
-        if (frame_cnt_diff > pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg) {
-            pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg = frame_cnt_diff;
-        }
-    }
-
-    tr_info("Frame counter change %"PRIu32", max %"PRIu32, frame_cnt_diff, pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg);
-
-    /* Calculates an estimate for how much free frame counter space is needed for the GTK update and
-     * initiates it faster if needed (default length of GTK update is 6 days).
-     */
-    uint32_t max_needed_frame_counters =
-        pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_install_req_seconds / 3600;
-    // Adds 20% to calculated value
-    max_needed_frame_counters = max_needed_frame_counters * 120 / 100;
-    // If estimated value is more than is left starts GTK update right away (if not already started)
-    if (max_needed_frame_counters >= (UINT32_MAX - frame_cnt)) {
-        if (gtk_lifetime_left > gtk_new_install_req_seconds) {
-            decrement_seconds = gtk_lifetime_left - gtk_new_install_req_seconds;
+    if (frame_cnt >= FRAME_CNT_THRESHOLD) {
+        if (key_lifetime_left > key_new_install_threshold) {
+            decrement_seconds = key_lifetime_left - key_new_install_threshold;
             tr_info("Decrement GTK lifetime update, seconds %"PRIu32, decrement_seconds);
         }
     }
-
-    /* Calculates an estimate for how much free frame counter space is needed for the GTK activation and
-     * initiates it faster if needed (default length of GTK activation is 60 minutes).
-     */
-    uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk.expire_offset / timer_cfg->gtk.new_act_time;
-    // Calculates the estimated maximum value for frame counter during GTK update
-    max_needed_frame_counters =
-        pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_activation_time_seconds / 3600;
-    // Adds 200% to calculated value
-    max_needed_frame_counters = max_needed_frame_counters * 300 / 100;
-    // If estimated value is more than is left starts GTK update right away (if not already started)
-    if (max_needed_frame_counters >= (UINT32_MAX - frame_cnt)) {
-        if (gtk_lifetime_left > gtk_new_activation_time_seconds) {
-            decrement_seconds = gtk_lifetime_left - gtk_new_activation_time_seconds;
-            tr_info("Decrement GTK lifetime activation, seconds %"PRIu32, decrement_seconds);
-        }
-    }
-
-    pae_auth->gtks.prev_frame_cnt = frame_cnt;
-    pae_auth->gtks.prev_frame_cnt_set = true;
 
     return decrement_seconds;
 }
