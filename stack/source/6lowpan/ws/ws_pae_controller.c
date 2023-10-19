@@ -749,11 +749,12 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
     fprintf(info->file, "pan_id = %#04x\n", sec_keys_nw_info->key_pan_id);
     fprintf(info->file, "pan_version = %d\n", sec_keys_nw_info->pan_version);
     fprintf(info->file, "lfn_version = %d\n", sec_keys_nw_info->lfn_version);
-    str_bytes(sec_keys_nw_info->network_name, strlen(sec_keys_nw_info->network_name),
-              NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
-    fprintf(info->file, "network_name = %s\n", str_buf);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n", str_buf);
+    fprintf(info->file, "# For information:\n");
+    str_bytes(sec_keys_nw_info->network_name, strlen(sec_keys_nw_info->network_name),
+              NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
+    fprintf(info->file, "#network_name = %s\n", str_buf);
     for (i = 0; i < GTK_NUM; i++) {
         if (gtks && gtks->gtk[i].set) {
             fprintf(info->file, "\n");
