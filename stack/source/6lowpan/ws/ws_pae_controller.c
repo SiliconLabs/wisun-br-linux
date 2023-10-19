@@ -130,30 +130,20 @@ static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uin
 static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
-                                                       uint16_t *pan_version, uint16_t *lpan_version,
-                                                       frame_counters_t *gtk_counters,
-                                                       frame_counters_t *lgtk_counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 static void ws_pae_controller_data_init(pae_controller_t *controller);
-static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller);
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
-static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
-static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
-                                             sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
+static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller);
 static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface_ptr, const sec_prot_keys_nw_info_t *sec_keys_nw_info,
                                                   const frame_counters_t *gtk_frame_counters, const frame_counters_t *lgtk_frame_counters,
                                                   const uint8_t *gtk_eui64);
-static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
-                                                 uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                 sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
+static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                                                 frame_counters_t *gtk_frame_counters, frame_counters_t *lgtk_frame_counters, uint8_t *gtk_eui64,
                                                  uint64_t current_time);
-
 
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
@@ -408,7 +398,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             // Install always
             nw_key[i].installed = false;
             // Frame counters are fresh
-            ws_pae_controller_frame_counter_index_reset(frame_counters, i);
+            memset(&frame_counters->counter[i], 0, sizeof(frame_counters->counter[i]));
         }
 
         // If GTK key is not set, continues to next GTK
@@ -523,9 +513,6 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_
         gtks = &controller->gtks;
     }
 
-    /* Checks if frame counters needs to be stored when keys are removed */
-    ws_pae_controller_frame_counter_store(controller, use_threshold, is_lgtk);
-
     tr_info("NW keys remove");
 
     gtks->gtk_index = -1;
@@ -561,9 +548,6 @@ static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interfac
 
     if (controller->nw_send_key_index_set) {
         gtks->gtk_index = index;
-        /* Checks if frame counters needs to be stored for the new GTK that is taken into
-           use; this is the last check that stored counters are in sync before activating key */
-        ws_pae_controller_frame_counter_store(controller, true, is_lgtk);
         tr_info("NW send key index set: %i", index + key_offset);
         controller->nw_send_key_index_set(interface_ptr, index + key_offset);
     }
@@ -688,20 +672,37 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks, &controller->lgtks.gtks);
 }
 
-static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
+static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters)
 {
-    if (controller->frame_counter_read) {
-        return 0;
+    for (uint8_t index = 0; index < GTK_NUM; index++)
+        memset(&frame_counters->counter[index], 0, sizeof(frame_counters->counter[index]));
+}
+
+static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller)
+{
+    uint8_t nvm_gtk_eui64[8];
+    uint64_t system_time = time_current(CLOCK_REALTIME);
+
+    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info, &controller->gtks.frame_counters,
+                                           &controller->lgtks.frame_counters, nvm_gtk_eui64, system_time) < 0) {
+        // If no stored GTKs and network info (pan_id and network name) exits
+        return -1;
     }
-    controller->frame_counter_read = true;
 
-    uint64_t stored_time = 0;
+    // Increments PAN version to ensure that it is fresh
+    controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
 
-    // Read frame counters
-    if (ws_pae_controller_nvm_frame_counter_read(&stored_time, &controller->sec_keys_nw_info.pan_version, &controller->sec_keys_nw_info.lpan_version, &controller->gtks.frame_counters, &controller->lgtks.frame_counters) >= 0) {
-        // Increments PAN version to ensure that it is fresh
-        controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
-
+    /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
+       full authentication to update keys with new EUI-64 and in case of authenticator to update new
+       authenticator EUI-64 to the network. */
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(controller->interface_ptr->id);
+    if (!cur)
+        return 0;
+    if (memcmp(nvm_gtk_eui64, cur->mac, 8) != 0) {
+        WARN("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(cur->mac), tr_eui64(nvm_gtk_eui64));
+        sec_prot_keys_gtks_clear(controller->sec_keys_nw_info.gtks);
+        sec_prot_keys_gtks_clear(controller->sec_keys_nw_info.lgtks);
+    } else {
         // Checks frame counters
         for (uint8_t index = 0; index < GTK_NUM; index++) {
             if (controller->gtks.frame_counters.counter[index].set) {
@@ -713,10 +714,8 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
                     tr_error("Frame counter space exhausted");
                     controller->gtks.frame_counters.counter[index].frame_counter = UINT32_MAX;
                 }
-                controller->gtks.frame_counters.counter[index].stored_frame_counter =
-                    controller->gtks.frame_counters.counter[index].frame_counter;
 
-                tr_info("Read frame counter: index %i value %"PRIu32"", index, controller->gtks.frame_counters.counter[index].frame_counter);
+                tr_info("Read GTK frame counter: index %i value %"PRIu32"", index, controller->gtks.frame_counters.counter[index].frame_counter);
             }
             if (index >= LGTK_NUM)
                 continue;
@@ -733,49 +732,6 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
                 tr_info("Read LGTK frame counter: index %i value %"PRIu32"", index, controller->lgtks.frame_counters.counter[index].frame_counter);
             }
         }
-    }
-
-    return 0;
-}
-
-static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters)
-{
-    for (uint8_t index = 0; index < GTK_NUM; index++) {
-        ws_pae_controller_frame_counter_index_reset(frame_counters, index);
-    }
-    frame_counters->active_gtk_index = -1;
-}
-
-static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index)
-{
-    memset(&frame_counters->counter[index], 0, sizeof(frame_counters->counter[index]));
-}
-
-static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
-                                             sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
-{
-    uint8_t nvm_gtk_eui64[8];
-    uint64_t system_time = time_current(CLOCK_REALTIME);
-
-    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr,
-                                           &controller->sec_keys_nw_info.key_pan_id,
-                                           controller->sec_keys_nw_info.network_name,
-                                           nvm_gtk_eui64, gtks, lgtks, system_time) < 0) {
-        // If no stored GTKs and network info (pan_id and network name) exits
-        return -1;
-    }
-
-    /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
-       full authentication to update keys with new EUI-64 and in case of authenticator to update new
-       authenticator EUI-64 to the network. */
-    uint8_t gtk_eui64[8] = {0};
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(controller->interface_ptr->id);
-    if (cur)
-        memcpy(gtk_eui64, cur->mac, 8);
-    if (memcmp(nvm_gtk_eui64, gtk_eui64, 8) != 0) {
-        tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(gtk_eui64), tr_eui64(nvm_gtk_eui64));
-        sec_prot_keys_gtks_clear(gtks);
-        sec_prot_keys_gtks_clear(lgtks);
     }
 
     return 0;
@@ -856,10 +812,9 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
-                                                 uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                 sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                 uint64_t current_time)
+static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                                                 frame_counters_t *gtk_frame_counters, frame_counters_t *lgtk_frame_counters,
+                                                 uint8_t *gtk_eui64, uint64_t current_time)
 {
     struct storage_parse_info *info = storage_open_prefix("network-keys", "r");
     gtk_key_t new_gtks[GTK_NUM] = { };
@@ -877,9 +832,13 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
         if (ret) {
             WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
         } else if (!fnmatch("pan_id", info->key, 0)) {
-            *pan_id = strtoull(info->value, NULL, 0);
+            sec_keys_nw_info->key_pan_id = strtoull(info->value, NULL, 0);
+        } else if (!fnmatch("pan_version", info->key, 0)) {
+            sec_keys_nw_info->pan_version = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("lpan_version", info->key, 0)) {
+            sec_keys_nw_info->lpan_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("network_name", info->key, 0)) {
-            if (parse_escape_sequences(network_name, info->value, 33))
+            if (parse_escape_sequences(sec_keys_nw_info->network_name, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
         } else if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(gtk_eui64, 8, info->value))
@@ -912,6 +871,12 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
                 new_lgtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
             else
                 WARN("%s:%d: expired lifetime: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("gtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 4) {
+            gtk_frame_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
+            gtk_frame_counters->counter[info->key_array_index].set = true;
+        } else if (!fnmatch("lgtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 3) {
+            lgtk_frame_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
+            lgtk_frame_counters->counter[info->key_array_index].set = true;
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }
@@ -919,11 +884,17 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
     storage_close(info);
 
     for (i = 0; i < GTK_NUM; i++)
-        if (!gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].lifetime)
-            memcpy(&gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
+        if (!sec_keys_nw_info->gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].lifetime
+            && gtk_frame_counters->counter[i].set) {
+                memcpy(&sec_keys_nw_info->gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
+                memcpy(gtk_frame_counters->counter[i].gtk, new_gtks[i].key, sizeof(new_gtks[i].key));
+            }
     for (i = 0; i < LGTK_NUM; i++)
-        if (!lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].lifetime)
-            memcpy(&lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
+        if (!sec_keys_nw_info->lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].lifetime
+            && lgtk_frame_counters->counter[i].set) {
+            memcpy(&sec_keys_nw_info->lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
+            memcpy(lgtk_frame_counters->counter[i].gtk, new_lgtks[i].key, sizeof(new_lgtks[i].key));
+        }
     return 0;
 }
 
@@ -952,9 +923,17 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
     controller->pae_nw_key_index_update = ws_pae_auth_nw_key_index_update;
     controller->pae_nw_info_set = ws_pae_auth_nw_info_set;
 
-    sec_prot_gtk_keys_t *read_gtks_to = controller->sec_keys_nw_info.gtks;
-    sec_prot_gtk_keys_t *read_lgtks_to = controller->sec_keys_nw_info.lgtks;
-    ws_pae_controller_frame_counter_read(controller);
+    if (ws_pae_controller_nw_info_read(controller) >= 0) {
+        /* If network information i.e pan_id and network name exists updates bootstrap with it,
+           (in case already configured by application then no changes are made) */
+        if (controller->nw_info_updated) {
+            controller->nw_info_updated(interface_ptr,
+                                        controller->sec_keys_nw_info.key_pan_id,
+                                        controller->sec_keys_nw_info.pan_version,
+                                        controller->sec_keys_nw_info.lpan_version,
+                                        controller->sec_keys_nw_info.network_name);
+        }
+    }
 
     if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // If application has set GTK keys prepare those for use
@@ -971,28 +950,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
             controller->pae_nw_key_index_update(interface_ptr, controller->lgtks.gtk_index, true);
         }
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
-    }
-
-    if (ws_pae_controller_nw_info_read(controller, read_gtks_to, read_lgtks_to) >= 0) {
-        /* If network information i.e pan_id and network name exists updates bootstrap with it,
-           (in case already configured by application then no changes are made) */
-        if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr,
-                                        controller->sec_keys_nw_info.key_pan_id,
-                                        controller->sec_keys_nw_info.pan_version,
-                                        controller->sec_keys_nw_info.lpan_version,
-                                        controller->sec_keys_nw_info.network_name);
-        }
-        if (sec_prot_keys_gtk_count(read_gtks_to) == 0 ||
-            sec_prot_keys_gtk_count(read_lgtks_to) == 0) {
-            // Key material invalid or (L)GTKs are expired, delete (L)GTKs from NVM
-            uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
-            ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
-                                                &controller->sec_keys_nw_info,
-                                                &controller->gtks.frame_counters,
-                                                &controller->lgtks.frame_counters,
-                                                gtk_eui64);
-        }
     }
 
     return 0;
@@ -1547,166 +1504,19 @@ static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controll
 {
     if (entry->frame_cnt_store_timer > seconds) {
         entry->frame_cnt_store_timer -= seconds;
-    } else {
-        entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-        ws_pae_controller_frame_counter_store(entry, true, false);
-        ws_pae_controller_frame_counter_store(entry, true, true);
+        return;
     }
 
-    if (entry->frame_cnt_store_force_timer > seconds) {
-        entry->frame_cnt_store_force_timer -= seconds;
-    } else {
-        entry->frame_cnt_store_force_timer = 0;
-        ws_pae_controller_frame_counter_store(entry, true, false);
-        ws_pae_controller_frame_counter_store(entry, true, true);
-    }
-}
-
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk)
-{
-    bool update_needed = false;
-    pae_controller_gtk_t *gtks;
-    int key_offset;
-
-    if (is_lgtk) {
-        gtks = &entry->lgtks;
-        key_offset = GTK_NUM;
-    } else {
-        gtks = &entry->gtks;
-        key_offset = 0;
-    }
+    entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
 
     for (int i = 0; i < GTK_NUM; i++) {
-        /* If network key is set, checks if frame counter needs to be updated to NVM
-         * Note! The frame counters for non-installed keys (previous frame counters) are not changed.
-         *       This is because GTKs are removed e.g. if PAN configuration is not heard/cannot be
-         *       de-crypted during a bootstrap. If BR later installs previous keys using 4WH/GKH, the
-         *       frame counters will be still valid.
-         */
-        if (gtks->nw_key[i].installed) {
-            // Reads MAC frame counter for the key
-            entry->nw_frame_counter_read(entry->interface_ptr, i + key_offset);
-
-            // If frame counter for the network key has already been stored
-            if (gtks->frame_counters.counter[i].set &&
-                    memcmp(gtks->nw_key[i].gtk, gtks->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
-                uint32_t frame_counter = gtks->frame_counters.counter[i].frame_counter;
-
-                /* If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value.
-                   If frame counter is at maximum at storage, do not initiate storing */
-                if (!use_threshold || (
-                            (frame_counter > gtks->frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) &&
-                            !(gtks->frame_counters.counter[i].stored_frame_counter == UINT32_MAX &&
-                              frame_counter >= UINT32_MAX - FRAME_COUNTER_STORE_THRESHOLD))) {
-                    gtks->frame_counters.counter[i].stored_frame_counter = frame_counter;
-                    update_needed = true;
-                    tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, frame_counter);
-                }
-            } else {
-                // New or modified network key
-                gtks->frame_counters.counter[i].set = true;
-                memcpy(gtks->frame_counters.counter[i].gtk, gtks->nw_key[i].gtk, GTK_LEN);
-                gtks->frame_counters.counter[i].stored_frame_counter = gtks->frame_counters.counter[i].frame_counter;
-                tr_debug("Pending to store new frame counter: index %i value %"PRIu32"", i, gtks->frame_counters.counter[i].frame_counter);
-            }
-
-            /* If currently active key is changed or active key is set for the first time,
-               stores the frame counter value */
-            if (gtks->gtk_index == i && gtks->frame_counters.active_gtk_index != i) {
-                gtks->frame_counters.active_gtk_index = gtks->gtk_index;
-                update_needed = true;
-                // Updates MAC frame counter for the key
-                entry->nw_frame_counter_set(entry->interface_ptr, gtks->frame_counters.counter[i].frame_counter, i + key_offset);
-                tr_debug("Stored frame counters, active key set: index %i value %"PRIu32"", i, gtks->frame_counters.counter[i].frame_counter);
-            }
+        if (entry->gtks.gtks.gtk[i].set) {
+            entry->nw_frame_counter_read(entry->interface_ptr, i);
+        }
+        if (i < LGTK_NUM && entry->lgtks.gtks.gtk[i].set) {
+            entry->nw_frame_counter_read(entry->interface_ptr, i + GTK_NUM);
         }
     }
-
-    if (update_needed || entry->frame_cnt_store_force_timer == 0) {
-        struct storage_parse_info *info = storage_open_prefix("counters", "w");
-        char str_buf[256];
-        int i;
-
-        if (!info)
-            return;
-        fprintf(info->file, "# stored time: %" PRIu64 "\n", (uint64_t)time_current(CLOCK_REALTIME));
-        // FIXME: It seems harmless, but entry->sec_keys_nw_info.pan_version and
-        //        entry->sec_keys_nw_info.lpan_version are not set on wsnode.
-        //        They could be replaced by ws_info.pan_information.pan_version
-        //        and ws_info.pan_information.lpan_version
-        fprintf(info->file, "pan_version = %d\n", entry->sec_keys_nw_info.pan_version);
-        fprintf(info->file, "lpan_version = %d\n", entry->sec_keys_nw_info.lpan_version);
-        for (i = 0; i < GTK_NUM; i++) {
-            if (entry->gtks.frame_counters.counter[i].set) {
-                str_key(entry->gtks.frame_counters.counter[i].gtk, GTK_LEN, str_buf, sizeof(str_buf));
-                fprintf(info->file, "gtk[%d] = %s\n", i, str_buf);
-                fprintf(info->file, "gtk[%d].frame_counter = %d\n", i,
-                        entry->gtks.frame_counters.counter[i].frame_counter);
-                fprintf(info->file, "gtk[%d].max_frame_counter = %d\n", i,
-                        entry->gtks.frame_counters.counter[i].max_frame_counter_chg);
-            }
-        }
-        for (i = 0; i < LGTK_NUM; i++) {
-            if (entry->lgtks.frame_counters.counter[i].set) {
-                str_key(entry->lgtks.frame_counters.counter[i].gtk, GTK_LEN, str_buf, sizeof(str_buf));
-                fprintf(info->file, "lgtk[%d] = %s\n", i, str_buf);
-                fprintf(info->file, "lgtk[%d].frame_counter = %d\n", i,
-                        entry->lgtks.frame_counters.counter[i].frame_counter);
-                fprintf(info->file, "lgtk[%d].max_frame_counter = %d\n", i,
-                        entry->lgtks.frame_counters.counter[i].max_frame_counter_chg);
-            }
-        }
-        storage_close(info);
-    }
-}
-
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
-                                                       uint16_t *pan_version, uint16_t *lpan_version,
-                                                       frame_counters_t *gtk_counters,
-                                                       frame_counters_t *lgtk_counters)
-{
-    struct storage_parse_info *info = storage_open_prefix("counters", "r");
-    int ret;
-
-    if (!info)
-        return -1;
-
-    // Wednesday, January 1, 2020 0:00:00 GMT
-    *stored_time = 1577836800;
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("pan_version", info->key, 0)) {
-            *pan_version = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("lpan_version", info->key, 0)) {
-            *lpan_version = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("gtk\\[*]", info->key, 0) && info->key_array_index < 4) {
-            if (parse_byte_array(gtk_counters->counter[info->key_array_index].gtk, GTK_LEN, info->value))
-                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-            else
-                gtk_counters->counter[info->key_array_index].set = true;
-        } else if (!fnmatch("lgtk\\[*]", info->key, 0) && info->key_array_index < 3) {
-            if (parse_byte_array(lgtk_counters->counter[info->key_array_index].gtk, GTK_LEN, info->value))
-                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-            else
-                lgtk_counters->counter[info->key_array_index].set = true;
-        } else if (!fnmatch("gtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 4) {
-            gtk_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("lgtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 3) {
-            lgtk_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("gtk\\[*].max_frame_counter", info->key, 0) && info->key_array_index < 4) {
-            gtk_counters->counter[info->key_array_index].max_frame_counter_chg = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("lgtk\\[*].max_frame_counter", info->key, 0) && info->key_array_index < 3) {
-            lgtk_counters->counter[info->key_array_index].max_frame_counter_chg = strtoul(info->value, NULL, 0);
-        } else {
-            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
-        }
-    }
-    storage_close(info);
-    return 0;
 }
 
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr)

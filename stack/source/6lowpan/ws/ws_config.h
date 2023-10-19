@@ -117,9 +117,7 @@ extern uint8_t DEVICE_MIN_SENS;
  */
 #define FRAME_COUNTER_STORE_INTERVAL        60          // Time interval (on seconds) between checking if frame counter storing is needed
 #define FRAME_COUNTER_STORE_FORCE_INTERVAL  (3600 * 20) // Time interval (on seconds) before frame counter storing is forced (if no other storing operations triggered)
-#define FRAME_COUNTER_STORE_TRIGGER         5           // Delay (on seconds) before storing, when storing of frame counters is triggered
 #define FRAME_COUNTER_INCREMENT             1000000     // How much frame counter is incremented on start up
-#define FRAME_COUNTER_STORE_THRESHOLD       994999      // How much frame counter must increment before it is stored
 
 /*
  * Candidate parent list parameters
