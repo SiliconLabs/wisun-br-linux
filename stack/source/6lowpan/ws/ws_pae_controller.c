@@ -824,9 +824,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
             sec_keys_nw_info->pan_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("lfn_version", info->key, 0)) {
             sec_keys_nw_info->lfn_version = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("network_name", info->key, 0)) {
-            if (parse_escape_sequences(sec_keys_nw_info->network_name, info->value, 33))
-                WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
         } else if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(gtk_eui64, 8, info->value))
                 WARN("%s:%d: invalid EUI64: %s", info->filename, info->linenr, info->value);
