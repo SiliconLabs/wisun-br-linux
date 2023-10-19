@@ -81,7 +81,7 @@ static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot);
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot);
-static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name);
+static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version);
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(struct net_if *cur);
 static void ws_bootstrap_lfn_version_increment(struct net_if *cur);
@@ -1227,7 +1227,7 @@ static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
     mac_helper_key_link_frame_counter_read(cur->id, slot);
 }
 
-static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, char *network_name)
+static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
 {
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
@@ -1246,11 +1246,6 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
         cur->ws_info.pan_information.pan_version_set = true;
         cur->ws_info.pan_information.lfn_version = lfn_version;
         cur->ws_info.pan_information.lfn_version_set = true;
-    }
-
-    // If network name has not been set, set it
-    if (strlen(gen_cfg.network_name) == 0) {
-        strncpy(gen_cfg.network_name, network_name, 32);
     }
 
     // Stores the settings

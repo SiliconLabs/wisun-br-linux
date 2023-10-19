@@ -914,8 +914,7 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
             controller->nw_info_updated(interface_ptr,
                                         controller->sec_keys_nw_info.key_pan_id,
                                         controller->sec_keys_nw_info.pan_version,
-                                        controller->sec_keys_nw_info.lfn_version,
-                                        controller->sec_keys_nw_info.network_name);
+                                        controller->sec_keys_nw_info.lfn_version);
         }
     }
 
