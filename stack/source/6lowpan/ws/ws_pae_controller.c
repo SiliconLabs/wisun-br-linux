@@ -258,7 +258,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     sec_keys_nw_info->updated = false;
 }
 
-int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name)
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id)
 {
     if (!interface_ptr) {
         return -1;
@@ -269,17 +269,29 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
         return -1;
     }
 
-    // Network name has been modified
-    if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
-        strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
-        controller->sec_keys_nw_info.updated = true;
-    }
-
     if (controller->sec_keys_nw_info.key_pan_id != pan_id) {
         controller->sec_keys_nw_info.key_pan_id = pan_id;
         controller->sec_keys_nw_info.updated = true;
     }
 
+    return 0;
+}
+
+int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *network_name)
+{
+    if (!interface_ptr) {
+        return -1;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return -1;
+    }
+
+    if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
+        strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
+        controller->sec_keys_nw_info.updated = true;
+    }
     return 0;
 }
 

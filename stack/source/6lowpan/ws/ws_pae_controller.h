@@ -225,13 +225,12 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
  *
  * \param interface_ptr interface
  * \param pan_id PAD ID
- * \param network_name network name
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name);
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id);
 
 /**
  * ws_pae_controller_border_router_addr_write write border router address
@@ -508,6 +507,8 @@ int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, const uint8_t *gtk, const ch
 sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn);
 
 void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);
+
+int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *network_name);
 
 int8_t ws_pae_controller_pan_version_set(struct net_if *interface_ptr, uint16_t pan_version);
 
