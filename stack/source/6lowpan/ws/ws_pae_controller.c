@@ -114,7 +114,6 @@ typedef struct pae_controller {
     ws_pae_gtk_hash_update *pae_gtk_hash_update;                     /**< PAE GTK HASH update */
     ws_pae_nw_key_index_update *pae_nw_key_index_update;             /**< PAE NW key index update */
     ws_pae_nw_info_set *pae_nw_info_set;                             /**< PAE security key network info set */
-    bool frame_counter_read : 1;                                     /**< Frame counters has been read */
     bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
 
@@ -655,7 +654,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->lgtks.gtks_set = false;
     controller->lgtks.gtkhash_set = false;
     controller->lgtks.key_index_set = false;
-    controller->frame_counter_read = false;
     controller->gtks.gtk_index = -1;
     controller->lgtks.gtk_index = -1;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
