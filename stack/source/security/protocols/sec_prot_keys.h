@@ -117,8 +117,6 @@ typedef struct sec_prot_keys {
 typedef struct frame_counter {
     uint8_t gtk[GTK_LEN];                             /**< GTK of the frame counter */
     uint32_t frame_counter;                           /**< Current frame counter */
-    uint32_t stored_frame_counter;                    /**< Stored frame counter */
-    uint32_t max_frame_counter_chg;                   /**< Maximum frame counter change */
     bool set : 1;                                     /**< Value has been set */
 } frame_counter_t;
 
