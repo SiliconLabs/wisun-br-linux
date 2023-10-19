@@ -427,7 +427,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
 
             // Set PAN ID and network name to controller
             ws_pae_controller_network_name_set(cur, cur->ws_info.cfg->gen.network_name);
-            ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id);
+            ws_pae_controller_pan_id_set(cur, cur->ws_info.network_pan_id);
 
             // Set backbone IP address get callback
             ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);
