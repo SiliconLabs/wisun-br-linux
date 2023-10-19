@@ -134,7 +134,7 @@ static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(struct event_payload *event);
-static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
+static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, sec_prot_gtk_keys_t *keys, pae_auth_gtk_t *pae_keys, uint8_t gtk_index, bool is_lgtk, int seconds);
 static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, const uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
@@ -785,14 +785,8 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
         return;
     }
     uint32_t gtk_lifetime_dec_extra_seconds = 0;
-    if (active_index == i && !is_lgtk) {
-        // FIXME: ws_pae_auth_lifetime_key_frame_cnt_check() and ws_pae_auth_lifetime_system_time_check()
-        // are specific to GTKs. We don't support
-        // gtk_lifetime_dec_extra_seconds. See commits 7415bc724 and 0c5faca46.
-        // for LGTK
-        // Gasp!
-        gtk_lifetime_dec_extra_seconds = ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth, i, seconds);
-    }
+    if (active_index == i)
+        gtk_lifetime_dec_extra_seconds = ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth, keys, pae_auth_gtk, i, is_lgtk, seconds);
     uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(keys, i, current_time, seconds + gtk_lifetime_dec_extra_seconds, true);
     if (active_index == i) {
         if (!pae_auth_gtk->gtk_new_inst_req_exp) {
@@ -861,25 +855,30 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
     }
 }
 
-static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds)
+static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, sec_prot_gtk_keys_t *keys,
+                                                         pae_auth_gtk_t *pae_auth_gtk, uint8_t gtk_index,
+                                                         bool is_lgtk, int seconds)
 {
     sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
-    uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
+    uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(keys, gtk_index);
     uint32_t decrement_seconds = 0;
     uint32_t key_new_install_threshold;
 
-    if (pae_auth->gtks.prev_frame_cnt_timer > seconds) {
-        pae_auth->gtks.prev_frame_cnt_timer -= seconds;
+    if (pae_auth_gtk->prev_frame_cnt_timer > seconds) {
+        pae_auth_gtk->prev_frame_cnt_timer -= seconds;
         return 0;
     }
-    pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
+    pae_auth_gtk->prev_frame_cnt_timer = FRAME_CNT_TIMER;
 
-    key_new_install_threshold = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
+    if (is_lgtk)
+        key_new_install_threshold = timer_cfg->lgtk.expire_offset - timer_cfg->lgtk.new_install_req * timer_cfg->lgtk.expire_offset / 100;
+    else
+        key_new_install_threshold = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
 
-    if (pae_auth->gtks.frame_counters->counter[gtk_index].frame_counter >= FRAME_CNT_THRESHOLD) {
+    if (pae_auth_gtk->frame_counters->counter[gtk_index].frame_counter >= FRAME_CNT_THRESHOLD) {
         if (key_lifetime_left > key_new_install_threshold) {
             decrement_seconds = key_lifetime_left - key_new_install_threshold;
-            tr_info("Decrement GTK lifetime update, seconds %"PRIu32, decrement_seconds);
+            tr_info("Decrement %s lifetime update, seconds %"PRIu32, is_lgtk ? "LGTK" : "GTK", decrement_seconds);
         }
     }
 
