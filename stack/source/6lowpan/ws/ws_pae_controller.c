@@ -404,13 +404,13 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     }
 
     if (is_lgtk) {
-            nw_key = controller->lgtks.nw_key;
-            frame_counters = &controller->lgtks.frame_counters;
-            key_offset = GTK_NUM;
+        nw_key = controller->lgtks.nw_key;
+        frame_counters = &controller->lgtks.frame_counters;
+        key_offset = GTK_NUM;
     } else {
-            nw_key = controller->gtks.nw_key;
-            frame_counters = &controller->gtks.frame_counters;
-            key_offset = 0;
+        nw_key = controller->gtks.nw_key;
+        frame_counters = &controller->gtks.frame_counters;
+        key_offset = 0;
     }
     for (uint8_t i = 0; i < (is_lgtk ? LGTK_NUM : GTK_NUM); i++) {
         // Gets GTK for the index (new, modified or none)
