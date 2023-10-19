@@ -146,9 +146,9 @@ static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counte
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
                                              sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
-static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
-                                                  uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
+static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface_ptr, const sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                                                  const frame_counters_t *gtk_frame_counters, const frame_counters_t *lgtk_frame_counters,
+                                                  const uint8_t *gtk_eui64);
 static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
@@ -314,18 +314,11 @@ static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr
         return;
     }
 
-    if (controller->sec_keys_nw_info.updated || sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
-        // Get own EUI-64
-        uint8_t gtk_eui64[8] = {0};
-        struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_ptr->id);
-        if (cur)
-            memcpy(gtk_eui64, cur->mac, 8);
-        ws_pae_controller_nvm_nw_info_write(interface_ptr,
-                                            controller->sec_keys_nw_info.key_pan_id,
-                                            controller->sec_keys_nw_info.network_name,
-                                            gtk_eui64,
-                                            controller->sec_keys_nw_info.gtks,
-                                            controller->sec_keys_nw_info.lgtks);
+    if (controller->sec_keys_nw_info.updated ||
+        sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
+        ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, &controller->sec_keys_nw_info,
+                                            &controller->gtks.frame_counters, &controller->lgtks.frame_counters,
+                                            controller->interface_ptr->mac);
         controller->sec_keys_nw_info.updated = false;
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
@@ -369,6 +362,10 @@ void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned
         controller->lgtks.frame_counters.counter[gtk_index - GTK_NUM].frame_counter = frame_counter;
     else
         controller->gtks.frame_counters.counter[gtk_index].frame_counter = frame_counter;
+
+    ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, &controller->sec_keys_nw_info,
+                                        &controller->gtks.frame_counters, &controller->lgtks.frame_counters,
+                                        controller->interface_ptr->mac);
 }
 
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
@@ -471,7 +468,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     return ret;
 }
 
-int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
+int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, const uint8_t *gtk, const char *network_name)
 {
     uint8_t network_name_len = strlen(network_name);
     if (network_name_len == 0) {
@@ -792,12 +789,14 @@ const struct name_value valid_gtk_status[] = {
     { NULL },
 };
 
-static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
-                                                  uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
+static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface_ptr, const sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                                                  const frame_counters_t *gtk_frame_counters, const frame_counters_t *lgtk_frame_counters,
+                                                  const uint8_t *gtk_eui64)
 {
     unsigned long long current_time = time_current(CLOCK_REALTIME);
     struct storage_parse_info *info = storage_open_prefix("network-keys", "w");
+    sec_prot_gtk_keys_t *gtks = sec_keys_nw_info->gtks;
+    sec_prot_gtk_keys_t *lgtks = sec_keys_nw_info->lgtks;
     uint8_t gtk_hash[GTK_HASH_LEN];
     uint8_t gak[GTK_LEN];
     char str_buf[256];
@@ -805,8 +804,11 @@ static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
 
     if (!info)
         return -1;
-    fprintf(info->file, "pan_id = %#04x\n", pan_id);
-    str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
+    fprintf(info->file, "pan_id = %#04x\n", sec_keys_nw_info->key_pan_id);
+    fprintf(info->file, "pan_version = %d\n", sec_keys_nw_info->pan_version);
+    fprintf(info->file, "lpan_version = %d\n", sec_keys_nw_info->lpan_version);
+    str_bytes(sec_keys_nw_info->network_name, strlen(sec_keys_nw_info->network_name),
+              NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n", str_buf);
@@ -814,12 +816,13 @@ static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
         if (gtks && gtks->gtk[i].set) {
             fprintf(info->file, "\n");
             sec_prot_keys_gtk_hash_generate(gtks->gtk[i].key, gtk_hash);
-            ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, network_name);
+            ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, sec_keys_nw_info->network_name);
             str_key(gtks->gtk[i].key, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "gtk[%d] = %s\n", i, str_buf);
             fprintf(info->file, "gtk[%d].lifetime = %llu\n", i, gtks->gtk[i].lifetime + current_time);
             fprintf(info->file, "gtk[%d].status = %s\n", i, val_to_str(gtks->gtk[i].status, valid_gtk_status, NULL));
             fprintf(info->file, "gtk[%d].install_order = %u\n", i, gtks->gtk[i].install_order);
+            fprintf(info->file, "gtk[%d].frame_counter = %u\n", i, gtk_frame_counters->counter[i].frame_counter);
             fprintf(info->file, "# For information:\n");
             str_key(gak, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "#gtk[%d].gak = %s\n", i, str_buf);
@@ -833,12 +836,13 @@ static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
         if (lgtks && lgtks->gtk[i].set) {
             fprintf(info->file, "\n");
             sec_prot_keys_gtk_hash_generate(lgtks->gtk[i].key, gtk_hash);
-            ws_pae_controller_gak_from_gtk(gak, lgtks->gtk[i].key, network_name);
+            ws_pae_controller_gak_from_gtk(gak, lgtks->gtk[i].key, sec_keys_nw_info->network_name);
             str_key(lgtks->gtk[i].key, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "lgtk[%d] = %s\n", i, str_buf);
             fprintf(info->file, "lgtk[%d].lifetime = %llu\n", i, lgtks->gtk[i].lifetime + current_time);
             fprintf(info->file, "lgtk[%d].status = %s\n", i, val_to_str(lgtks->gtk[i].status, valid_gtk_status, NULL));
             fprintf(info->file, "lgtk[%d].install_order = %u\n", i, lgtks->gtk[i].install_order);
+            fprintf(info->file, "lgtk[%d].frame_counter = %u\n", i, lgtk_frame_counters->counter[i].frame_counter);
             fprintf(info->file, "# For information:\n");
             str_key(gak, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "#lgtk[%d].gak = %s\n", i, str_buf);
@@ -984,9 +988,10 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
             // Key material invalid or (L)GTKs are expired, delete (L)GTKs from NVM
             uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
             ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
-                                                controller->sec_keys_nw_info.key_pan_id,
-                                                controller->sec_keys_nw_info.network_name,
-                                                gtk_eui64, read_gtks_to, read_lgtks_to);
+                                                &controller->sec_keys_nw_info,
+                                                &controller->gtks.frame_counters,
+                                                &controller->lgtks.frame_counters,
+                                                gtk_eui64);
         }
     }
 
@@ -1004,8 +1009,10 @@ int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
     ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, false);
     ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, true);
 
-    // Store security key network info if it has been modified
-    ws_pae_controller_nw_info_updated_check(interface_ptr);
+    // The controller is stopping, we force write nw information
+    ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, &controller->sec_keys_nw_info,
+                                    &controller->gtks.frame_counters, &controller->lgtks.frame_counters,
+                                    controller->interface_ptr->mac);
 
     // If PAE has been initialized, deletes it
     if (controller->pae_delete) {
