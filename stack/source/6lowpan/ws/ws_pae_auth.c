@@ -110,7 +110,6 @@ typedef struct pae_auth {
     ws_pae_auth_nw_info_updated *nw_info_updated;            /**< Security keys network info updated callback */
     ws_pae_auth_ip_addr_get *ip_addr_get;                    /**< IP address get callback */
     ws_pae_auth_congestion_get *congestion_get;              /**< Congestion get callback */
-    ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read;    /**< Network frame counter read callback */
     supp_list_t active_supp_list;                            /**< List of active supplicants */
     supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
@@ -200,7 +199,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     pae_auth->nw_info_updated = NULL;
     pae_auth->ip_addr_get = NULL;
     pae_auth->congestion_get = NULL;
-    pae_auth->nw_frame_cnt_read = NULL;
 
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
@@ -366,8 +364,7 @@ void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_nw_key_index_set *nw_key_index_set,
                              ws_pae_auth_nw_info_updated *nw_info_updated,
                              ws_pae_auth_ip_addr_get *ip_addr_get,
-                             ws_pae_auth_congestion_get *congestion_get,
-                             ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read)
+                             ws_pae_auth_congestion_get *congestion_get)
 {
     if (!interface_ptr) {
         return;
@@ -384,7 +381,6 @@ void ws_pae_auth_cb_register(struct net_if *interface_ptr,
     pae_auth->nw_info_updated = nw_info_updated;
     pae_auth->ip_addr_get = ip_addr_get;
     pae_auth->congestion_get = congestion_get;
-    pae_auth->nw_frame_cnt_read = nw_frame_cnt_read;
 }
 
 void ws_pae_auth_start(struct net_if *interface_ptr)

@@ -128,7 +128,6 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
 static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr);
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
-static int8_t  ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index);
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
@@ -203,8 +202,7 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
                             ws_pae_controller_nw_key_index_check_and_set,
                             ws_pae_controller_nw_info_updated_check,
                             ws_pae_controller_auth_ip_addr_get,
-                            ws_pae_controller_auth_congestion_get,
-                            ws_pae_controller_auth_nw_frame_counter_read);
+                            ws_pae_controller_auth_congestion_get);
 
     controller->auth_started = true;
 
@@ -371,21 +369,6 @@ void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned
         controller->lgtks.frame_counters.counter[gtk_index - GTK_NUM].frame_counter = frame_counter;
     else
         controller->gtks.frame_counters.counter[gtk_index].frame_counter = frame_counter;
-}
-
-static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    controller->nw_frame_counter_read(interface_ptr, gtk_index);
-    return 0;
 }
 
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)

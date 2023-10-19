@@ -250,19 +250,6 @@ typedef void ws_pae_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *addr
 typedef bool ws_pae_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 
 /**
- * ws_pae_auth_nw_frame_counter_read network frame counter read callback
- *
- * \param interface_ptr interface
- * \param counter frame counter
- * \param gtk_index GTK index
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-typedef int8_t ws_pae_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index);
-
-/**
  *  ws_pae_auth_cb_register register PAE authenticator callbacks
  *
  * \param interface_ptr interface
@@ -281,8 +268,7 @@ void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_nw_key_index_set *nw_key_index_set,
                              ws_pae_auth_nw_info_updated *nw_info_updated,
                              ws_pae_auth_ip_addr_get *ip_addr_get,
-                             ws_pae_auth_congestion_get *congestion_get,
-                             ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read);
+                             ws_pae_auth_congestion_get *congestion_get);
 
 int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len);
 void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bool is_lgtk);
