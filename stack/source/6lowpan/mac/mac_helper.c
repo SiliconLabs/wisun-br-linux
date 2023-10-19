@@ -182,15 +182,15 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode)
     return header_length;
 }
 
-int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
+int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint8_t descriptor)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !seq_ptr) {
+    if (!cur) {
         return -1;
     }
+
     rcp_get_frame_counter(descriptor);
-    *seq_ptr = cur->rcp->frame_counter;
 
     return 0;
 }

@@ -400,10 +400,10 @@ typedef void ws_pae_controller_nw_frame_counter_set(struct net_if *interface_ptr
  * ws_pae_controller_nw_frame_counter_read network frame counter read callback
  *
  * \param interface_ptr interface
- * \param counter frame counter
+ * \param slot slot
  *
  */
-typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t slot);
+typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint8_t slot);
 
 /**
  * ws_pae_controller_pan_ver_increment PAN version increment callback

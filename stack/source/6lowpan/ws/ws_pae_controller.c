@@ -384,7 +384,7 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interf
         return -1;
     }
 
-    controller->nw_frame_counter_read(interface_ptr, counter, gtk_index);
+    controller->nw_frame_counter_read(interface_ptr, gtk_index);
     return 0;
 }
 
@@ -474,17 +474,12 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             // If frame counter value has been stored for the network key, updates the frame counter if needed
             if (frame_counters->counter[i].set &&
                     memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN) == 0) {
-                // Read current counter from MAC
-                uint32_t curr_frame_counter;
-                controller->nw_frame_counter_read(controller->interface_ptr, &curr_frame_counter, i + key_offset);
-
                 // If stored frame counter is greater than MAC counter
-                if (frame_counters->counter[i].frame_counter > curr_frame_counter) {
-                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i + key_offset,
-                             frame_counters->counter[i].frame_counter, curr_frame_counter);
-                    curr_frame_counter = frame_counters->counter[i].frame_counter;
+                if (frame_counters->counter[i].frame_counter) {
+                    tr_debug("Frame counter set: %i, value: %"PRIu32"", i + key_offset,
+                             frame_counters->counter[i].frame_counter);
                     // Updates MAC frame counter
-                    controller->nw_frame_counter_set(controller->interface_ptr, curr_frame_counter, i + key_offset);
+                    controller->nw_frame_counter_set(controller->interface_ptr, frame_counters->counter[i].frame_counter, i + key_offset);
                 }
             }
         }
@@ -1586,16 +1581,11 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
          */
         if (gtks->nw_key[i].installed) {
             // Reads MAC frame counter for the key
-            uint32_t curr_frame_counter;
-            entry->nw_frame_counter_read(entry->interface_ptr, &curr_frame_counter, i + key_offset);
+            entry->nw_frame_counter_read(entry->interface_ptr, i + key_offset);
 
             // If frame counter for the network key has already been stored
             if (gtks->frame_counters.counter[i].set &&
                     memcmp(gtks->nw_key[i].gtk, gtks->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
-
-                if (curr_frame_counter > gtks->frame_counters.counter[i].frame_counter) {
-                    gtks->frame_counters.counter[i].frame_counter = curr_frame_counter;
-                }
                 uint32_t frame_counter = gtks->frame_counters.counter[i].frame_counter;
 
                 /* If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value.
@@ -1612,9 +1602,8 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
                 // New or modified network key
                 gtks->frame_counters.counter[i].set = true;
                 memcpy(gtks->frame_counters.counter[i].gtk, gtks->nw_key[i].gtk, GTK_LEN);
-                gtks->frame_counters.counter[i].frame_counter = curr_frame_counter;
-                gtks->frame_counters.counter[i].stored_frame_counter = curr_frame_counter;
-                tr_debug("Pending to store new frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
+                gtks->frame_counters.counter[i].stored_frame_counter = gtks->frame_counters.counter[i].frame_counter;
+                tr_debug("Pending to store new frame counter: index %i value %"PRIu32"", i, gtks->frame_counters.counter[i].frame_counter);
             }
 
             /* If currently active key is changed or active key is set for the first time,

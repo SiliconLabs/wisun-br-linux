@@ -870,7 +870,6 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
     uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     uint32_t decrement_seconds = 0;
-    uint32_t frame_cnt = 0;
     uint32_t key_new_install_threshold;
 
     if (pae_auth->gtks.prev_frame_cnt_timer > seconds) {
@@ -879,12 +878,9 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     }
     pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
 
-    if (pae_auth->nw_frame_cnt_read(pae_auth->interface_ptr, &frame_cnt, gtk_index) < 0)
-        return 0;
-
     key_new_install_threshold = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
 
-    if (frame_cnt >= FRAME_CNT_THRESHOLD) {
+    if (pae_auth->gtks.frame_counters->counter[gtk_index].frame_counter >= FRAME_CNT_THRESHOLD) {
         if (key_lifetime_left > key_new_install_threshold) {
             decrement_seconds = key_lifetime_left - key_new_install_threshold;
             tr_info("Decrement GTK lifetime update, seconds %"PRIu32, decrement_seconds);

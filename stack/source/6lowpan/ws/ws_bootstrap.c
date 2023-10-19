@@ -80,7 +80,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t operation, uint8
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot);
-static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint32_t *counter, uint8_t slot);
+static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot);
 static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(struct net_if *cur);
@@ -1221,10 +1221,10 @@ static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t count
     rcp_set_frame_counter(slot, counter);
 }
 
-static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint32_t *counter, uint8_t slot)
+static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
 {
     // Read frame counter
-    mac_helper_key_link_frame_counter_read(cur->id, counter, slot);
+    mac_helper_key_link_frame_counter_read(cur->id, slot);
 }
 
 static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)

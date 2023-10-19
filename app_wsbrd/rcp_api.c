@@ -861,7 +861,6 @@ static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct i
     if (!spinel_prop_is_valid(buf, prop))
         return;
 
-    ctxt->rcp.frame_counter = value;
     ERROR_ON(index >= (GTK_NUM + LGTK_NUM), "invalid (l)gtk index");
     ctxt->rcp.on_rx_frame_counter(ctxt->rcp_if_id, index, value);
 }
