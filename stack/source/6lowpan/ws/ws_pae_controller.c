@@ -62,7 +62,6 @@ typedef int8_t ws_pae_br_addr_read(struct net_if *interface_ptr, uint8_t *eui_64
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
-typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id);
 
 typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -112,7 +111,6 @@ typedef struct pae_controller {
     ws_pae_gtks_updated *pae_gtks_updated;                           /**< PAE GTKs updated */
     ws_pae_gtk_hash_update *pae_gtk_hash_update;                     /**< PAE GTK HASH update */
     ws_pae_nw_key_index_update *pae_nw_key_index_update;             /**< PAE NW key index update */
-    ws_pae_nw_info_set *pae_nw_info_set;                             /**< PAE security key network info set */
     bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
 
@@ -281,8 +279,9 @@ int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_
     controller->sec_keys_nw_info.pan_version = pan_version;
     controller->sec_keys_nw_info.lfn_version = lfn_version;
 
-    if (controller->pae_nw_info_set) {
-        controller->pae_nw_info_set(interface_ptr, pan_id);
+    if (controller->sec_keys_nw_info.key_pan_id != pan_id) {
+        controller->sec_keys_nw_info.key_pan_id = pan_id;
+        controller->sec_keys_nw_info.updated = true;
     }
 
     return 0;
@@ -636,7 +635,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->pae_gtks_updated = NULL;
     controller->pae_gtk_hash_update = NULL;
     controller->pae_nw_key_index_update = NULL;
-    controller->pae_nw_info_set = NULL;
     controller->gtks.gtks_set = false;
     controller->gtks.gtkhash_set = false;
     controller->gtks.key_index_set = false;
@@ -905,7 +903,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
     controller->pae_slow_timer = ws_pae_auth_slow_timer;
     controller->pae_gtks_updated = ws_pae_auth_gtks_updated;
     controller->pae_nw_key_index_update = ws_pae_auth_nw_key_index_update;
-    controller->pae_nw_info_set = ws_pae_auth_nw_info_set;
 
     if (ws_pae_controller_nw_info_read(controller) >= 0) {
         /* If network information i.e pan_id and network name exists updates bootstrap with it,

@@ -568,26 +568,6 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     return 0;
 }
 
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
-    if (!pae_auth) {
-        return -1;
-    }
-
-    // On authenticator pan_id is always selected locally and is always valid for keys
-    if (pae_auth->sec_keys_nw_info->key_pan_id != pan_id) {
-        pae_auth->sec_keys_nw_info->key_pan_id = pan_id;
-        pae_auth->sec_keys_nw_info->updated = true;
-    }
-
-    return 0;
-}
-
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool is_lgtk)
 {
     sec_prot_gtk_keys_t *gtks;

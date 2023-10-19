@@ -178,18 +178,6 @@ int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui64
 int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk, uint8_t new_gtk[GTK_LEN]);
 
 /**
- * ws_pae_auth_nw_info_set set network information
- *
- * \param interface_ptr interface
- * \param pan_id PAD ID
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id);
-
-/**
  * ws_pae_auth_gtk_hash_set GTK hash set callback
  *
  * \param interface_ptr interface
