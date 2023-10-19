@@ -101,7 +101,7 @@ typedef struct pae_auth_gtk {
 typedef struct pae_auth {
     ns_list_link_t link;                                     /**< Link */
     kmp_service_t *kmp_service;                              /**< KMP service */
-    struct net_if *interface_ptr;          /**< Interface pointer */
+    struct net_if *interface_ptr;                            /**< Interface pointer */
     ws_pae_auth_gtk_hash_set *hash_set;                      /**< GTK hash set callback */
     ws_pae_auth_nw_key_insert *nw_key_insert;                /**< Key insert callback */
     ws_pae_auth_nw_key_index_set *nw_key_index_set;          /**< Key index set callback */
@@ -111,7 +111,7 @@ typedef struct pae_auth {
     supp_list_t active_supp_list;                            /**< List of active supplicants */
     supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
-    struct event_storage *timer;                              /**< Timer */
+    struct event_storage *timer;                             /**< Timer */
     pae_auth_gtk_t gtks;                                     /**< Material for GTKs */
     pae_auth_gtk_t lgtks;                                    /**< Material for LGTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
