@@ -130,7 +130,7 @@ static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
+static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 static void ws_pae_controller_data_init(pae_controller_t *controller);
@@ -498,7 +498,7 @@ error:
     return ret_val;
 }
 
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
+static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
 {
     pae_controller_gtk_t *gtks;
     int key_offset;
@@ -958,9 +958,9 @@ int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
         return -1;
     }
 
-    // Stores frame counters and removes network keys from PAE controller and MAC
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, false);
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, true);
+    // Remove network keys from PAE controller and MAC
+    ws_pae_controller_nw_keys_remove(interface_ptr, controller, false, false);
+    ws_pae_controller_nw_keys_remove(interface_ptr, controller, false, true);
 
     // The controller is stopping, we force write nw information
     ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, &controller->sec_keys_nw_info,
