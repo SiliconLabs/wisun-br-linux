@@ -79,11 +79,6 @@ struct net_if protocol_interface_info;
 
 static int8_t net_interface_get_free_id(void);
 
-int8_t protocol_read_tasklet_id(void)
-{
-    return protocol_root_tasklet_ID;
-}
-
 void protocol_root_tasklet(struct event_payload *event)
 {
     BUG_ON(event->event_type != ARM_IN_INTERFACE_BOOTSTRAP_CB);

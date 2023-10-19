@@ -248,7 +248,6 @@ struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);
 
-int8_t protocol_read_tasklet_id(void);
 void protocol_6lowpan_stack(buffer_t *b);
 void protocol_6lowpan_register_handlers(struct net_if *cur);
 void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress);
