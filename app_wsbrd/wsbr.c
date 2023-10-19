@@ -87,6 +87,7 @@ struct wsbr_ctxt g_ctxt = {
     .rcp.on_rx_err = wsbr_handle_rx_err,
     .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
     .rcp.on_rx_ind = ws_llc_mac_indication_cb,
+    .rcp.on_rx_frame_counter = ws_pae_controller_nw_frame_counter_indication_cb,
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,

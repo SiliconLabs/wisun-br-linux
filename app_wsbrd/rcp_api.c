@@ -23,6 +23,7 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_management_api.h"
+#include "security/protocols/sec_prot_keys.h"
 
 #include "wsbr_pcapng.h"
 #include "wsbr_mac.h"
@@ -851,13 +852,18 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
 
 static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
+    unsigned int index;
     uint32_t value;
 
-    spinel_pop_uint(buf); /* Unused: key_index */
+    index = spinel_pop_uint(buf);
     value = spinel_pop_u32(buf);
+
     if (!spinel_prop_is_valid(buf, prop))
         return;
+
     ctxt->rcp.frame_counter = value;
+    ERROR_ON(index >= (GTK_NUM + LGTK_NUM), "invalid (l)gtk index");
+    ctxt->rcp.on_rx_frame_counter(ctxt->rcp_if_id, index, value);
 }
 
 enum mlme_primitive {

@@ -235,6 +235,7 @@ struct rcp {
     void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_ind_ie_list *payload);
     void (*on_rx_err)(uint8_t src[8], uint8_t status);
     void (*on_crc_error)(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter);
+    void (*on_rx_frame_counter)(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);
 
     uint32_t init_state;
     uint32_t version_api;

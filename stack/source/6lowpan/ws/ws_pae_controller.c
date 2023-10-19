@@ -362,6 +362,17 @@ static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, 
     return controller->congestion_get(interface_ptr, active_supp);
 }
 
+void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter)
+{
+    struct net_if *interface_ptr = protocol_stack_interface_info_get_by_id(net_if_id);
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+
+    if (gtk_index >= GTK_NUM)
+        controller->lgtks.frame_counters.counter[gtk_index - GTK_NUM].frame_counter = frame_counter;
+    else
+        controller->gtks.frame_counters.counter[gtk_index].frame_counter = frame_counter;
+}
+
 static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index)
 {
     if (!interface_ptr) {
