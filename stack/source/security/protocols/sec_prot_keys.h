@@ -122,7 +122,6 @@ typedef struct frame_counter {
 
 typedef struct frame_counters {
     frame_counter_t counter[GTK_NUM];                 /**< Frame counter for each GTK key */
-    int8_t active_gtk_index;                          /**< Active GTK index */
 } frame_counters_t;
 
 // Authenticator supplicant security key data
