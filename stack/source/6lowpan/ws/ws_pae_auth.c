@@ -100,7 +100,6 @@ typedef struct pae_auth_gtk {
 
 typedef struct pae_auth {
     ns_list_link_t link;                                     /**< Link */
-    uint16_t pan_id;                                         /**< PAN ID */
     kmp_service_t *kmp_service;                              /**< KMP service */
     struct net_if *interface_ptr;          /**< Interface pointer */
     ws_pae_auth_gtk_hash_set *hash_set;                      /**< GTK hash set callback */
@@ -184,7 +183,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
         return -1;
     }
 
-    pae_auth->pan_id = 0xffff;
     pae_auth->interface_ptr = interface_ptr;
     ws_pae_lib_supp_list_init(&pae_auth->active_supp_list);
     ws_pae_lib_supp_list_init(&pae_auth->waiting_supp_list);
@@ -585,24 +583,6 @@ int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id)
     if (pae_auth->sec_keys_nw_info->key_pan_id != pan_id) {
         pae_auth->sec_keys_nw_info->key_pan_id = pan_id;
         pae_auth->sec_keys_nw_info->updated = true;
-    }
-
-    bool update_keys = false;
-    if (pae_auth->pan_id != 0xffff && pae_auth->pan_id != pan_id) {
-        update_keys = true;
-    }
-    pae_auth->pan_id = pan_id;
-
-    if (!update_keys) {
-        return 0;
-    }
-
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
-
-    int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
-    if (index >= 0) {
-        // Sets active key index
-        ws_pae_auth_network_key_index_set(pae_auth, index, false);
     }
 
     return 0;
