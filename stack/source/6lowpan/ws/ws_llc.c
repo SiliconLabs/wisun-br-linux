@@ -511,6 +511,8 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
         ws_llc_data_confirm(base, msg, data, conf_data, &neighbor_llc);
         break;
     case WS_FT_EAPOL:
+        WARN_ON(tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_SEC, "frame spent %"PRIu64" sec in MAC",
+                (uint64_t)tx_confirm_duration);
         ws_llc_eapol_confirm(base, msg, data);
         break;
     case WS_FT_PA:
