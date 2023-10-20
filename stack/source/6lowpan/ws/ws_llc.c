@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/endian.h"
@@ -28,6 +29,7 @@
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
+#include "common/time_extra.h"
 #include "common/utils.h"
 #include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
@@ -60,6 +62,8 @@
 
 #define LLC_MESSAGE_QUEUE_LIST_SIZE_MAX   16 //Do not config over 30 never
 #define MPX_USER_SIZE 2
+
+#define TX_CONFIRM_EXTENSIVE_SEC 5
 
 typedef struct mpx_user {
     uint16_t                user_id;        /**< User ID for identify MPX User */
@@ -113,6 +117,7 @@ typedef struct llc_message {
     struct iovec    ie_iov_payload[2]; // { WP-IE and MPX-IE header, MPX payload }
     mcps_data_req_ie_list_t ie_ext;
     mac_data_priority_e priority;
+    time_t tx_time;
     ns_list_link_t  link;               /**< List link entry */
 } llc_message_t;
 
@@ -476,6 +481,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
     struct llc_neighbour_req neighbor_llc = { };
     struct llc_data_base *base;
     struct llc_message *msg;
+    time_t tx_confirm_duration;
 
     base = ws_llc_discover_by_interface(net_if);
     if (!base)
@@ -496,8 +502,12 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
             neighbor_tmp->eapol_temp_info.eapol_timeout = net_if->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
     }
 
+    tx_confirm_duration = time_get_elapsed(CLOCK_MONOTONIC, msg->tx_time);
+
     switch (msg->message_type) {
     case WS_FT_DATA:
+        WARN_ON(tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_SEC, "frame spent %"PRIu64" sec in MAC",
+                (uint64_t)tx_confirm_duration);
         ws_llc_data_confirm(base, msg, data, conf_data, &neighbor_llc);
         break;
     case WS_FT_EAPOL:
@@ -1201,6 +1211,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIeVectorList = message->ie_iov_payload;
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
+    message->tx_time = time_current(CLOCK_MONOTONIC);
+
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 }
@@ -1254,6 +1266,8 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     else
         data_req.fhss_type = HIF_FHSS_TYPE_FFN_UC;
+
+    message->tx_time = time_current(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
@@ -1774,6 +1788,9 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
 
     ws_llc_prepare_ie(base, message, request->wh_ies, request->wp_ies);
+
+    message->tx_time = time_current(CLOCK_MONOTONIC);
+
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 
@@ -1834,6 +1851,9 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     data_req.msduHandle = msg->msg_handle;
 
     ws_llc_prepare_ie(base, msg, req->wh_ies, req->wp_ies);
+
+    msg->tx_time = time_current(CLOCK_MONOTONIC);
+
     ws_trace_llc_mac_req(&data_req, msg);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &msg->ie_ext);
     return 0;
