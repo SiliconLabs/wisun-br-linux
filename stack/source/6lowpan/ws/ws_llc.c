@@ -63,7 +63,8 @@
 #define LLC_MESSAGE_QUEUE_LIST_SIZE_MAX   16 //Do not config over 30 never
 #define MPX_USER_SIZE 2
 
-#define TX_CONFIRM_EXTENSIVE_SEC 5
+#define TX_CONFIRM_EXTENSIVE_FFN_SEC 5
+#define TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER 3
 
 typedef struct mpx_user {
     uint16_t                user_id;        /**< User ID for identify MPX User */
@@ -474,6 +475,22 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     mac_neighbor_table_neighbor_remove(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
 }
 
+static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)
+{
+    if (!neighbor_llc->neighbor) {
+        WARN("link layer neighbor information unavailable");
+        return false;
+    }
+    if (!neighbor_llc->ws_neighbor) {
+        WARN("wi-sun neighbor information unavailable");
+        return false;
+    }
+
+    if (neighbor_llc->neighbor->node_role == WS_NR_ROLE_LFN)
+        return tx_confirm_duration * 1000 >= neighbor_llc->ws_neighbor->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+    return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
+}
+
 void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
@@ -506,13 +523,13 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
 
     switch (msg->message_type) {
     case WS_FT_DATA:
-        WARN_ON(tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_SEC, "frame spent %"PRIu64" sec in MAC",
-                (uint64_t)tx_confirm_duration);
+        if (tx_confirm_extensive(&neighbor_llc, tx_confirm_duration))
+            WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
         ws_llc_data_confirm(base, msg, data, conf_data, &neighbor_llc);
         break;
     case WS_FT_EAPOL:
-        WARN_ON(tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_SEC, "frame spent %"PRIu64" sec in MAC",
-                (uint64_t)tx_confirm_duration);
+        if (tx_confirm_extensive(&neighbor_llc, tx_confirm_duration))
+            WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
         ws_llc_eapol_confirm(base, msg, data);
         break;
     case WS_FT_PA:
