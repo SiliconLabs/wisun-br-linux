@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <mbedtls/build_info.h>
 #include <mbedtls/version.h>
 #include <mbedtls/ssl.h>
 #include "common/log.h"
