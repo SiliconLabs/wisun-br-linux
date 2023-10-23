@@ -648,9 +648,6 @@ cleanup:
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
     // Configure IP stack to operate as Wi-SUN node
-
-    cur->mac_parameters.mac_security_level = 0;
-
     // Set default parameters to interface
     cur->configure_flags = INTERFACE_BOOTSTRAP_DEFINED;
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
@@ -1165,7 +1162,6 @@ static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 {
     cur->mac_parameters.mac_key_id_mode = MAC_KEY_ID_MODE_IDX;
-    cur->mac_parameters.mac_security_level = SEC_ENC_MIC64;
     cur->mac_parameters.SecurityEnabled = true;
     rcp_set_security(true);
 }
@@ -1381,7 +1377,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .wp_ies.gtkhash  = true,
         .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
         .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
-        .security.SecurityLevel = cur->mac_parameters.mac_security_level,
+        .security.SecurityLevel = SEC_ENC_MIC64,
         .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
     };
 

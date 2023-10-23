@@ -685,7 +685,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
 
     //Set Messages
     if (!buf->options.ll_security_bypass_tx) {
-        dataReq->Key.SecurityLevel = cur->mac_parameters.mac_security_level;
+        dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
         if (dataReq->Key.SecurityLevel) {
             ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
                                                         dataReq->DstAddr, dataReq->DstAddrMode);
@@ -1212,11 +1212,7 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
         buf->link_specific.ieee802_15_4.fc_security = true;
     } else {
         buf->link_specific.ieee802_15_4.fc_security = false;
-        if (cur->mac_parameters.mac_security_level ||
-                !mcps_data_indication_neighbor_validate(cur, &buf->src_sa)) {
-            //SET By Pass
-            buf->options.ll_security_bypass_rx = true;
-        }
+        buf->options.ll_security_bypass_rx = true;
     }
 
     buf->info = (buffer_info_t)(B_TO_IPV6_TXRX | B_FROM_MAC | B_DIR_UP);
