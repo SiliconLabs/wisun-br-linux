@@ -18,29 +18,17 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/iobuf.h"
+#include "common/log.h"
+
 #include "app_wsbrd/tun.h" // FIXME
 #include "app_wsbrd/wsbr.h"
-#include "common/rand.h"
-#include "common/iobuf.h"
-#include "common/log_legacy.h"
-#include "common/endian.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/icmpv6_prefix.h"
-#include "core/timers.h"
-#include "core/ns_address_internal.h"
-#include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
-#include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/ws/ws_common.h"
-#include "rpl/rpl.h"
+#include "ipv6_stack/ipv6_routing_table.h"
 
 #include "6lowpan/nd/nd_router_object.h"
-
-#define TRACE_GROUP "loND"
 
 static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
