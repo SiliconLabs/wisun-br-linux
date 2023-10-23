@@ -123,8 +123,6 @@ typedef enum multicast_mpl_seed_id_mode {
 #define INTERFACE_NWK_ROUTER_DEVICE                     16
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
 
-struct nd_router;
-
 typedef struct mac_cordinator {
     unsigned cord_adr_mode: 2;
     uint8_t mac_mlme_coord_address[8];
