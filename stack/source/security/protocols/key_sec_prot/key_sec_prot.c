@@ -171,12 +171,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
         }
 
         // Get the GTKL that supplicant indicates
-        uint8_t gtkl;
-        if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-            prot->sec_keys->gtks.gtkl = gtkl;
-        } else {
-            prot->sec_keys->gtks.gtkl = 0;
-        }
+        kde_gtkl_read(kde, kde_len, &prot->sec_keys->gtks.gtkl);
 
         // Get the Node Role that supplicant indicates
         uint8_t node_role;
@@ -188,17 +183,14 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
         }
 
         // Get the LGTKL that supplicant indicates (if any)
-        uint8_t lgtkl;
-        if (kde_lgtkl_read(kde, kde_len, &lgtkl) >= 0) {
-            prot->sec_keys->lgtks.gtkl = lgtkl;
-        } else {
-            prot->sec_keys->lgtks.gtkl = 0;
-        }
+        kde_lgtkl_read(kde, kde_len, &prot->sec_keys->lgtks.gtkl);
 
         tr_debug("PMK %s PTK %s NR %d GTKL %x LGTKL %x",
                  prot->sec_keys->pmk_mismatch ? "not live" : "live",
                  prot->sec_keys->ptk_mismatch ? "not live" : "live",
-                 prot->sec_keys->node_role, gtkl, lgtkl);
+                 prot->sec_keys->node_role,
+                 prot->sec_keys->gtks.gtkl,
+                 prot->sec_keys->lgtks.gtkl);
 
         free(kde);
     } else {
