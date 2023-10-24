@@ -959,7 +959,7 @@ static bool rcp_legacy_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
         return false;
     if (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         return prop == SPINEL_PROP_HWADDR;
-    if (!version_older_than(ctxt->rcp.version_api, 0, 11, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 16, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
         return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
     return true;
 }
