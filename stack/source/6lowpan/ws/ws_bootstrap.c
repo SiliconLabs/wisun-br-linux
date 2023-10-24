@@ -873,7 +873,9 @@ int ws_bootstrap_init(int8_t interface_id)
     neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
     neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
-    rcp_legacy_set_frame_counter_per_key(true);
+
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_frame_counter_per_key(true);
 
     if (!etx_storage_list_allocate(cur->id, neighbors_table_size)) {
         return -1;
@@ -984,7 +986,8 @@ int ws_bootstrap_init(int8_t interface_id)
 
     ws_bootstrap_configuration_reset(cur);
     addr_notification_register(ws_bootstrap_address_notification_cb);
-    rcp_legacy_set_accept_unknown_secured_frames(true);
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_accept_unknown_secured_frames(true);
 
     // Specification is ruling out the compression mode, but we are now doing it.
     cur->mpl_seed = true;
@@ -1030,13 +1033,16 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
 
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
-    rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
     if (version_older_than(cur->rcp->version_api, 0, 25, 1))
         rcp_legacy_set_rf_config_legacy(&rf_configs);
     else
         rcp_legacy_set_rf_config(&rf_configs);
-    rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
-    rcp_legacy_get_rx_sensitivity();
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
+        rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels,
+                                     CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+        rcp_legacy_get_rx_sensitivity();
+    }
     return 0;
 }
 
@@ -1111,7 +1117,8 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     // Only supporting fixed channel
 
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-    rcp_legacy_set_security(true);
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_security(true);
     ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;
 }
