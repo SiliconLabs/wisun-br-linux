@@ -47,11 +47,6 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
     return panId;
 }
 
-void mac_helper_set_default_key_source(struct net_if *interface)
-{
-    rcp_legacy_set_default_key_source(mac_helper_default_key_source);
-}
-
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t slot)
 {
     uint8_t lookup_data[9];

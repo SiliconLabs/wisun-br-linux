@@ -238,8 +238,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
     entry->rcp = rcp;
     entry->interface_name = name;
 
-    mac_helper_set_default_key_source(entry);
-
     protocol_core_base_finish_init(entry);
     return entry;
 

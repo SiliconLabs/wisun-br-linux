@@ -92,18 +92,6 @@ static void rcp_legacy_set_u32(unsigned int prop, uint32_t val)
     iobuf_free(&buf);
 }
 
-static void rcp_legacy_set_eui64(unsigned int prop, const uint8_t val[8])
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    hif_push_hdr_set_prop(&buf, prop);
-    hif_push_fixed_u8_array(&buf, val, 8);
-    rcp_legacy_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
-
 void rcp_legacy_noop()
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
@@ -467,11 +455,6 @@ void rcp_legacy_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t 
     }
     rcp_legacy_tx(ctxt, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_legacy_set_default_key_source(const uint8_t lookup_data[8])
-{
-    rcp_legacy_set_eui64(SPINEL_PROP_WS_DEFAULT_KEY_SOURCE, lookup_data);
 }
 
 void rcp_legacy_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac64, uint32_t frame_counter)

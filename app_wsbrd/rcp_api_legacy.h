@@ -283,7 +283,6 @@ void rcp_legacy_set_frame_counter_per_key(bool enable);
 void rcp_legacy_set_frame_counter(int slot, uint32_t val);
 void rcp_legacy_get_frame_counter(int slot);
 void rcp_legacy_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
-void rcp_legacy_set_default_key_source(const uint8_t lookup_data[8]);
 void rcp_legacy_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
                       uint8_t *mac64, uint32_t frame_counter);
 void rcp_legacy_enable_mac_filter(bool forward_unknown);
