@@ -121,6 +121,7 @@ static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e res
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size)
 {
     eapol_pdu_t eapol_pdu;
+    bool has_gtkl, has_lgtkl;
     key_sec_prot_int_t *data = key_sec_prot_get(prot);
     sec_prot_result_e result = SEC_RESULT_OK;
 
@@ -171,7 +172,17 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
         }
 
         // Get the GTKL that supplicant indicates
-        kde_gtkl_read(kde, kde_len, &prot->sec_keys->gtks.gtkl);
+        has_gtkl = (kde_gtkl_read(kde, kde_len, &prot->sec_keys->gtks.gtkl) >= 0);
+        // Get the LGTKL that supplicant indicates (if any)
+        has_lgtkl = (kde_lgtkl_read(kde, kde_len, &prot->sec_keys->lgtks.gtkl) >= 0);
+        if (!has_gtkl && !has_lgtkl) {
+            WARN("missing liveness KDE in EAPOL Key Request");
+            // Assume the supplicant wants GTKs but not LGTKs. This is because
+            // supplicants without LFN support may ignore LGTK handshakes,
+            // forcing the authenticator to perform unecessary retries.
+            prot->sec_keys->gtks.gtkl = 0x00;
+            prot->sec_keys->lgtks.gtkl = 0x07;
+        }
 
         // Get the Node Role that supplicant indicates
         uint8_t node_role;
@@ -181,9 +192,6 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
         } else {
             prot->sec_keys->node_role = WS_NR_ROLE_UNKNOWN;
         }
-
-        // Get the LGTKL that supplicant indicates (if any)
-        kde_lgtkl_read(kde, kde_len, &prot->sec_keys->lgtks.gtkl);
 
         tr_debug("PMK %s PTK %s NR %d GTKL %x LGTKL %x",
                  prot->sec_keys->pmk_mismatch ? "not live" : "live",
