@@ -272,6 +272,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     struct ws_lnd_ie ie_lnd;
     struct ws_lcp_ie ie_lcp;
     struct ws_nr_ie ie_nr;
+    bool add_neighbor;
     uint8_t rsl;
 
     if (g_timers[WS_TIMER_LPA].timeout) {
@@ -320,8 +321,15 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         return;
     }
 
-    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor) &&
-        !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_LFN)) {
+    add_neighbor = false;
+    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+        add_neighbor = true;
+    } else if (neighbor.neighbor && neighbor.neighbor->node_role != WS_NR_ROLE_LFN) {
+        WARN("node changed role");
+        ws_bootstrap_neighbor_del(net_if, &neighbor);
+        add_neighbor = true;
+    }
+    if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_LFN)) {
         TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
         return;
     }

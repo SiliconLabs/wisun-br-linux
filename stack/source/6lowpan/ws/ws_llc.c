@@ -597,14 +597,13 @@ static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_dat
     return mpx_usr;
 }
 
-static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
                                 const mcps_data_ind_ie_list_t *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     mcps_data_ind_t data_ind = *data;
     llc_neighbour_req_t neighbor;
     bool has_us, has_bs, has_pom;
-    bool req_new_ngb, multicast;
     struct ws_utt_ie ie_utt;
     struct ws_bt_ie ie_bt;
     struct iobuf_read ie_wp;
@@ -613,6 +612,7 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
     struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
     mpx_msg_t mpx_frame;
+    bool add_neighbor;
 
     if (!base)
         return;
@@ -639,24 +639,22 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
     if (data->Key.SecurityLevel)
         ws_llc_release_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
 
-    if (data->DstAddrMode == ADDR_802_15_4_LONG) {
-        multicast = false;
-        req_new_ngb = has_us;
-    } else {
-        multicast = true;
-        req_new_ngb = false;
+    add_neighbor = false;
+    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+        add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
+    } else if (neighbor.neighbor && neighbor.neighbor->node_role != WS_NR_ROLE_ROUTER) {
+        WARN("node changed role");
+        ws_bootstrap_neighbor_del(net_if, &neighbor);
+        add_neighbor = true;
     }
-
-    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, &neighbor) &&
-        !(req_new_ngb && ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, &neighbor, WS_NR_ROLE_ROUTER))) {
-        if (!multicast) {
-            //tr_debug("Drop message no neighbor");
-            return;
-        }
+    if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_ROUTER)) {
+        TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s",
+              tr_ws_frame(ie_utt.message_type), tr_eui64(data->SrcAddr));
+        return;
     }
 
     if (neighbor.ws_neighbor) {
-        if (!multicast && !data->DSN_suppressed &&
+        if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed &&
             !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor.ws_neighbor, data->DSN, data->timestamp)) {
             tr_info("Drop duplicate message");
             return;
