@@ -21,7 +21,6 @@
 #if !defined(MBEDTLS_SSL_TLS_C)                        || \
     !defined(MBEDTLS_SSL_SRV_C)                        || \
     !defined(MBEDTLS_SSL_CLI_C)                        || \
-    !defined(MBEDTLS_SSL_EXPORT_KEYS)                  || \
     !defined(MBEDTLS_X509_CRL_PARSE_C)                 || \
     !defined(MBEDTLS_PEM_PARSE_C)                      || \
     !defined(MBEDTLS_NIST_KW_C)                        || \
@@ -40,7 +39,6 @@ void wsbr_check_mbedtls_features()
         "MBEDTLS_SSL_TLS_C",
         "MBEDTLS_SSL_SRV_C",
         "MBEDTLS_SSL_CLI_C",
-        "MBEDTLS_SSL_EXPORT_KEYS",
         "MBEDTLS_X509_CRL_PARSE_C",
         "MBEDTLS_PEM_PARSE_C",
         "MBEDTLS_NIST_KW_C",
@@ -53,6 +51,9 @@ void wsbr_check_mbedtls_features()
             FATAL(1, "MbedTLS is not compiled with %s", features[i]);
     if (mbedtls_version_get_number() < 3000000)
         if (mbedtls_version_check_feature("MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE"))
+            FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE");
+    if (mbedtls_version_get_number() < 3010000)
+        if (mbedtls_version_check_feature("MBEDTLS_SSL_EXPORT_KEYS"))
             FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE");
     if (!mbedtls_ssl_get_ciphersuite_id("TLS-ECDHE-ECDSA-WITH-AES-128-CCM-8"))
             FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8");
