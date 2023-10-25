@@ -28,6 +28,9 @@
 #ifndef SPINEL_DEFS_H
 #define SPINEL_DEFS_H
 
+struct iobuf_read;
+struct iobuf_write;
+
 enum {
     SPINEL_STATUS_OK                  = 0,
     SPINEL_STATUS_FAILURE             = 1,
@@ -258,5 +261,11 @@ enum {
     SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL      = SPINEL_PROP_WS__BEGIN + 39,
     SPINEL_PROP_EXPERIMENTAL__END   = 0x200000,
 };
+
+const char *spinel_cmd_str(int cmd);
+const char *spinel_prop_str(int prop);
+bool spinel_prop_is_valid(struct iobuf_read *buf, int prop);
+void spinel_trace_tx(struct iobuf_write *buf);
+void spinel_trace_rx(struct iobuf_read *buf);
 
 #endif

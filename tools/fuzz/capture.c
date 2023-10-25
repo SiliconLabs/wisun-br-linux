@@ -17,8 +17,8 @@
 #include "common/bus_uart.h"
 #include "common/crc.h"
 #include "common/log.h"
-#include "common/spinel_buffer.h"
-#include "common/spinel_defs.h"
+#include "common/hif.h"
+#include "common/spinel.h"
 #include "common/iobuf.h"
 #include "wsbrd_fuzz.h"
 #include "interfaces.h"
@@ -56,9 +56,9 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
     if (!ctxt->timer_counter)
         return;
 
-    spinel_push_u8(&buf, rcp_get_spinel_hdr());
-    spinel_push_uint(&buf, SPINEL_CMD_REPLAY_TIMERS);
-    spinel_push_u16(&buf, ctxt->timer_counter);
+    hif_push_u8(&buf, rcp_get_spinel_hdr());
+    hif_push_uint(&buf, SPINEL_CMD_REPLAY_TIMERS);
+    hif_push_u16(&buf, ctxt->timer_counter);
     fuzz_capture_spinel(ctxt, &buf);
     iobuf_free(&buf);
     ctxt->timer_counter = 0;
@@ -70,13 +70,13 @@ void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
 {
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, rcp_get_spinel_hdr());
-    spinel_push_uint(&buf, SPINEL_CMD_REPLAY_INTERFACE);
-    spinel_push_u8(&buf, interface);
-    spinel_push_fixed_u8_array(&buf, src_addr, 16);
-    spinel_push_fixed_u8_array(&buf, dst_addr, 16);
-    spinel_push_u16(&buf, src_port);
-    spinel_push_data(&buf, data, size);
+    hif_push_u8(&buf, rcp_get_spinel_hdr());
+    hif_push_uint(&buf, SPINEL_CMD_REPLAY_INTERFACE);
+    hif_push_u8(&buf, interface);
+    hif_push_fixed_u8_array(&buf, src_addr, 16);
+    hif_push_fixed_u8_array(&buf, dst_addr, 16);
+    hif_push_u16(&buf, src_port);
+    hif_push_data(&buf, data, size);
     fuzz_capture_spinel(ctxt, &buf);
     iobuf_free(&buf);
 }

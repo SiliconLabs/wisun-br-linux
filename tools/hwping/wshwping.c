@@ -19,8 +19,8 @@
 #include "common/bits.h"
 #include "common/bus_uart.h"
 #include "common/os_types.h"
-#include "common/spinel_buffer.h"
-#include "common/spinel_defs.h"
+#include "common/hif.h"
+#include "common/spinel.h"
 #include "common/bus_cpc.h"
 #include "common/named_values.h"
 #include "common/iobuf.h"
@@ -197,17 +197,17 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
 
     for (int i = 0; i < cmdline->payload_size; i++)
         payload_buf[i] = i % 0x10;
-    spinel_push_u8(&tx_buf, get_spinel_hdr(ctxt));
-    spinel_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
-    spinel_push_u16(&tx_buf, counter);
+    hif_push_u8(&tx_buf, get_spinel_hdr(ctxt));
+    hif_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
+    hif_push_u16(&tx_buf, counter);
     if (cmdline->mode & MODE_TX)
-        spinel_push_u16(&tx_buf, cmdline->payload_size);
+        hif_push_u16(&tx_buf, cmdline->payload_size);
     else
-        spinel_push_u16(&tx_buf, 0);
+        hif_push_u16(&tx_buf, 0);
     if (cmdline->mode & MODE_RX)
-        spinel_push_raw(&tx_buf, payload_buf, cmdline->payload_size);
+        hif_push_raw(&tx_buf, payload_buf, cmdline->payload_size);
     else
-        spinel_push_raw(&tx_buf, payload_buf, 0);
+        hif_push_raw(&tx_buf, payload_buf, 0);
 
     if (cmdline->cpc_instance[0])
         cpc_tx(ctxt, tx_buf.data, tx_buf.len);
@@ -259,11 +259,11 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
     }
     spinel_trace_rx(&rx_buf);
 
-    spinel_pop_u8(&rx_buf);
+    hif_pop_u8(&rx_buf);
 
-    val = spinel_pop_uint(&rx_buf);
+    val = hif_pop_uint(&rx_buf);
     if (val != SPINEL_CMD_RCP_PING) {
-        if (val == SPINEL_CMD_PROP_IS && spinel_pop_uint(&rx_buf) == SPINEL_PROP_WS_RCP_CRC_ERR) {
+        if (val == SPINEL_CMD_PROP_IS && hif_pop_uint(&rx_buf) == SPINEL_PROP_WS_RCP_CRC_ERR) {
             WARN("RCP complains it received a CRC error");
             return counter + 1;
         } else {
@@ -272,16 +272,16 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
         }
     }
 
-    val = spinel_pop_u16(&rx_buf);
+    val = hif_pop_u16(&rx_buf);
     if (val != counter)
         WARN("sent ping request %d and received reply %d", counter, val);
     counter = val;
 
-    val = spinel_pop_u16(&rx_buf);
+    val = hif_pop_u16(&rx_buf);
     if (val != 0)
         WARN("reply size from RCP was not 0");
 
-    val = spinel_pop_raw_ptr(&rx_buf, &payload);
+    val = hif_pop_raw_ptr(&rx_buf, &payload);
     if (cmdline->mode & MODE_TX)
         expected_payload = cmdline->payload_size;
     else

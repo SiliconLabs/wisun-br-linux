@@ -6,7 +6,7 @@
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
 #include "common/os_types.h"
-#include "common/spinel_buffer.h"
+#include "common/hif.h"
 
 ssize_t __real_write(int fd, const void *buf, size_t count);
 
@@ -35,7 +35,7 @@ void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iob
 {
     FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
-    g_fuzz_ctxt.timer_counter = spinel_pop_u16(buf);
+    g_fuzz_ctxt.timer_counter = hif_pop_u16(buf);
     if (g_fuzz_ctxt.timer_counter)
         fuzz_trigger_timer();
 }

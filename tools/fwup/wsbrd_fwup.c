@@ -23,8 +23,8 @@
 #include "common/log.h"
 #include "common/bus_uart.h"
 #include "common/os_types.h"
-#include "common/spinel_buffer.h"
-#include "common/spinel_defs.h"
+#include "common/hif.h"
+#include "common/spinel.h"
 #include "common/iobuf.h"
 #include "common/utils.h"
 #include "common/bits.h"
@@ -124,8 +124,8 @@ static void send_btl_update(struct os_ctxt *ctxt)
 {
     struct iobuf_write tx_buf = { };
 
-    spinel_push_u8(&tx_buf, 0);
-    spinel_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
+    hif_push_u8(&tx_buf, 0);
+    hif_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
     uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
 }
@@ -178,19 +178,19 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
         return;
     }
 
-    spinel_pop_u8(&rx_buf);
-    cmd = spinel_pop_uint(&rx_buf);
+    hif_pop_u8(&rx_buf);
+    cmd = hif_pop_uint(&rx_buf);
     if (cmd == SPINEL_CMD_NOOP) {
         rx_buf.cnt = 0;
         rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
-        spinel_pop_u8(&rx_buf);
-        cmd = spinel_pop_uint(&rx_buf);
+        hif_pop_u8(&rx_buf);
+        cmd = hif_pop_uint(&rx_buf);
     }
     if (cmd != SPINEL_CMD_RESET)
         FATAL(1, "unexpected firmware boot sequence");
-    rcp_version_api = spinel_pop_u32(&rx_buf);
-    rcp_version_fw = spinel_pop_u32(&rx_buf);
-    version_fw_str = spinel_pop_str(&rx_buf);
+    rcp_version_api = hif_pop_u32(&rx_buf);
+    rcp_version_fw = hif_pop_u32(&rx_buf);
+    version_fw_str = hif_pop_str(&rx_buf);
 
     INFO("Updated to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
          FIELD_GET(0xFF000000, rcp_version_fw),

@@ -23,7 +23,7 @@
 #include "common/log.h"
 #include "common/iobuf.h"
 #include "common/utils.h"
-#include "common/spinel_buffer.h"
+#include "common/hif.h"
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"
 #include "capture.h"
@@ -74,10 +74,10 @@ void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct 
         init = true;
     }
 
-    interface = spinel_pop_u8(buf);
-    spinel_pop_fixed_u8_array(buf, src_addr, 16);
-    spinel_pop_fixed_u8_array(buf, dst_addr, 16);
-    src_port = spinel_pop_u16(buf);
+    interface = hif_pop_u8(buf);
+    hif_pop_fixed_u8_array(buf, src_addr, 16);
+    hif_pop_fixed_u8_array(buf, dst_addr, 16);
+    src_port = hif_pop_u16(buf);
 
     if (interface == IF_TUN) {
         fd = g_fuzz_ctxt.tun_pipe[1];
@@ -97,7 +97,7 @@ void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct 
         return;
     }
 
-    size = spinel_pop_data_ptr(buf, &data);
+    size = hif_pop_data_ptr(buf, &data);
     if (buf->err)
         return;
 

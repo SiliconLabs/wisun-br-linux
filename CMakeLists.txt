@@ -131,7 +131,8 @@ add_library(libwsbrd STATIC
     common/pcapng.c
     common/dhcp_server.c
     common/iobuf.c
-    common/spinel_buffer.c
+    common/hif.c
+    common/spinel.c
     common/trickle.c
     common/ws_regdb.c
     common/key_value_storage.c
@@ -288,7 +289,8 @@ add_executable(wsbrd-fwup
     common/log.c
     common/crc.c
     common/bus_uart.c
-    common/spinel_buffer.c
+    common/hif.c
+    common/spinel.c
     common/iobuf.c
     common/endian.c
 )
@@ -347,7 +349,8 @@ if(COMPILE_DEVTOOLS)
         common/log.c
         common/crc.c
         common/bus_uart.c
-        common/spinel_buffer.c
+        common/hif.c
+        common/spinel.c
         common/named_values.c
         common/iobuf.c
         common/endian.c

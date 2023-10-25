@@ -21,7 +21,7 @@
 #include "utils.h"
 #include "os_types.h"
 #include "bus_uart.h"
-#include "spinel_buffer.h"
+#include "hif.h"
 
 int uart_open(const char *device, int bitrate, bool hardflow)
 {

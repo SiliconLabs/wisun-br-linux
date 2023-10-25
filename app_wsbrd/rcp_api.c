@@ -17,8 +17,9 @@
 #include "common/iobuf.h"
 #include "common/utils.h"
 #include "common/endian.h"
-#include "common/spinel_defs.h"
-#include "common/spinel_buffer.h"
+#include "common/spinel.h"
+#include "common/hif.h"
+#include "common/log.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
@@ -44,18 +45,18 @@ uint8_t rcp_get_spinel_hdr()
     return hdr;
 }
 
-static void spinel_push_hdr_set_prop(struct iobuf_write *buf, unsigned int prop)
+static void hif_push_hdr_set_prop(struct iobuf_write *buf, unsigned int prop)
 {
-    spinel_push_u8(buf, rcp_get_spinel_hdr());
-    spinel_push_uint(buf, SPINEL_CMD_PROP_SET);
-    spinel_push_uint(buf, prop);
+    hif_push_u8(buf, rcp_get_spinel_hdr());
+    hif_push_uint(buf, SPINEL_CMD_PROP_SET);
+    hif_push_uint(buf, prop);
 }
 
-static void spinel_push_hdr_get_prop(struct iobuf_write *buf, unsigned int prop)
+static void hif_push_hdr_get_prop(struct iobuf_write *buf, unsigned int prop)
 {
-    spinel_push_u8(buf, rcp_get_spinel_hdr());
-    spinel_push_uint(buf, SPINEL_CMD_PROP_GET);
-    spinel_push_uint(buf, prop);
+    hif_push_u8(buf, rcp_get_spinel_hdr());
+    hif_push_uint(buf, SPINEL_CMD_PROP_GET);
+    hif_push_uint(buf, prop);
 }
 
 static void rcp_set_bool(unsigned int prop, bool val)
@@ -63,8 +64,8 @@ static void rcp_set_bool(unsigned int prop, bool val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, prop);
-    spinel_push_bool(&buf, val);
+    hif_push_hdr_set_prop(&buf, prop);
+    hif_push_bool(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -74,8 +75,8 @@ static void rcp_set_u8(unsigned int prop, uint8_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, prop);
-    spinel_push_u8(&buf, val);
+    hif_push_hdr_set_prop(&buf, prop);
+    hif_push_u8(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -85,8 +86,8 @@ static void rcp_set_u16(unsigned int prop, uint16_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, prop);
-    spinel_push_u16(&buf, val);
+    hif_push_hdr_set_prop(&buf, prop);
+    hif_push_u16(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -96,8 +97,8 @@ static void rcp_set_u32(unsigned int prop, uint32_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, prop);
-    spinel_push_u32(&buf, val);
+    hif_push_hdr_set_prop(&buf, prop);
+    hif_push_u32(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -107,8 +108,8 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, prop);
-    spinel_push_fixed_u8_array(&buf, val, 8);
+    hif_push_hdr_set_prop(&buf, prop);
+    hif_push_fixed_u8_array(&buf, val, 8);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -119,8 +120,8 @@ void rcp_noop()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, rcp_get_spinel_hdr());
-    spinel_push_uint(&buf, SPINEL_CMD_NOOP);
+    hif_push_u8(&buf, rcp_get_spinel_hdr());
+    hif_push_uint(&buf, SPINEL_CMD_NOOP);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -130,8 +131,8 @@ void rcp_reset()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, rcp_get_spinel_hdr());
-    spinel_push_uint(&buf, SPINEL_CMD_RESET);
+    hif_push_u8(&buf, rcp_get_spinel_hdr());
+    hif_push_uint(&buf, SPINEL_CMD_RESET);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -141,9 +142,9 @@ void rcp_reset_stack()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RESET);
-    spinel_push_bool(&buf, true);
-    spinel_push_u32(&buf, version_daemon_api);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RESET);
+    hif_push_bool(&buf, true);
+    hif_push_u32(&buf, version_daemon_api);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -153,14 +154,14 @@ void rcp_start(uint16_t channel, uint16_t panid, bool coordinator)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_START);
-    spinel_push_u16(&buf,  panid);
-    spinel_push_u8(&buf,   channel);
-    spinel_push_u8(&buf,   0);
-    spinel_push_u32(&buf,  0);
-    spinel_push_u8(&buf,   0x0F);
-    spinel_push_u8(&buf,   0x0F);
-    spinel_push_bool(&buf, coordinator);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_START);
+    hif_push_u16(&buf,  panid);
+    hif_push_u8(&buf,   channel);
+    hif_push_u8(&buf,   0);
+    hif_push_u32(&buf,  0);
+    hif_push_u8(&buf,   0x0F);
+    hif_push_u8(&buf,   0x0F);
+    hif_push_bool(&buf, coordinator);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -170,23 +171,23 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_CREATE);
-    spinel_push_u8(&buf, timing_info->ws_uc_channel_function);
-    spinel_push_u8(&buf, timing_info->ws_bc_channel_function);
-    spinel_push_u16(&buf, timing_info->bsi);
-    spinel_push_u8(&buf, timing_info->fhss_uc_dwell_interval);
-    spinel_push_u32(&buf, timing_info->fhss_broadcast_interval);
-    spinel_push_u8(&buf, timing_info->fhss_bc_dwell_interval);
-    spinel_push_u8(&buf, timing_info->unicast_fixed_channel);
-    spinel_push_u8(&buf, timing_info->broadcast_fixed_channel);
-    spinel_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
-    spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
-    spinel_push_u16(&buf, timing_info->channel_mask_size);
-    spinel_push_u8(&buf, timing_info->number_of_channel_retries);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_CREATE);
+    hif_push_u8(&buf, timing_info->ws_uc_channel_function);
+    hif_push_u8(&buf, timing_info->ws_bc_channel_function);
+    hif_push_u16(&buf, timing_info->bsi);
+    hif_push_u8(&buf, timing_info->fhss_uc_dwell_interval);
+    hif_push_u32(&buf, timing_info->fhss_broadcast_interval);
+    hif_push_u8(&buf, timing_info->fhss_bc_dwell_interval);
+    hif_push_u8(&buf, timing_info->unicast_fixed_channel);
+    hif_push_u8(&buf, timing_info->broadcast_fixed_channel);
+    hif_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
+    hif_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
+    hif_push_u16(&buf, timing_info->channel_mask_size);
+    hif_push_u8(&buf, timing_info->number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 12, 0))
-        spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
+        hif_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
-        spinel_push_u32(&buf, timing_info->lfn_bc_interval);
+        hif_push_u32(&buf, timing_info->lfn_bc_interval);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -196,7 +197,7 @@ void rcp_register_fhss()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_REGISTER);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_REGISTER);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -206,8 +207,8 @@ void rcp_get_rx_sensitivity(void)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RX_SENSITIVITY);
-    spinel_push_uint(&buf, 0);
+    hif_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RX_SENSITIVITY);
+    hif_push_uint(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -217,8 +218,8 @@ void rcp_get_hw_addr()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_HWADDR);
-    spinel_push_uint(&buf, 0);
+    hif_push_hdr_get_prop(&buf, SPINEL_PROP_HWADDR);
+    hif_push_uint(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -228,7 +229,7 @@ void rcp_get_rf_config_list()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
+    hif_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -238,17 +239,17 @@ void rcp_set_rf_config_legacy(const struct phy_rf_channel_configuration *config)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY);
-    spinel_push_u32(&buf, config->channel_0_center_frequency);
-    spinel_push_u32(&buf, config->channel_spacing);
-    spinel_push_u32(&buf, config->datarate);
-    spinel_push_u16(&buf, config->number_of_channels);
-    spinel_push_u8(&buf,  config->modulation);
-    spinel_push_u8(&buf,  config->modulation_index);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY);
+    hif_push_u32(&buf, config->channel_0_center_frequency);
+    hif_push_u32(&buf, config->channel_spacing);
+    hif_push_u32(&buf, config->datarate);
+    hif_push_u16(&buf, config->number_of_channels);
+    hif_push_u8(&buf,  config->modulation);
+    hif_push_u8(&buf,  config->modulation_index);
     if (!version_older_than(ctxt->rcp.version_api, 0, 6, 0)) {
-        spinel_push_bool(&buf, config->fec);
-        spinel_push_uint(&buf, config->ofdm_option);
-        spinel_push_uint(&buf, config->ofdm_mcs);
+        hif_push_bool(&buf, config->fec);
+        hif_push_uint(&buf, config->ofdm_option);
+        hif_push_uint(&buf, config->ofdm_mcs);
     }
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -262,10 +263,10 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_RF_CONFIG);
-    spinel_push_u16(&buf, FIELD_PREP(RF_CONFIG_FLAGS_MCS_MASK, config->ofdm_mcs) |
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_RF_CONFIG);
+    hif_push_u16(&buf, FIELD_PREP(RF_CONFIG_FLAGS_MCS_MASK, config->ofdm_mcs) |
                           FIELD_PREP(RF_CONFIG_FLAGS_USE_POM_MASK, config->use_phy_op_modes));
-    spinel_push_u16(&buf, config->rcp_config_index);
+    hif_push_u16(&buf, config->rcp_config_index);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 
@@ -300,11 +301,11 @@ void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_CCA_THRESHOLD_START);
-    spinel_push_u8(&buf, number_of_channels);
-    spinel_push_u8(&buf, default_dbm);
-    spinel_push_u8(&buf, high_limit);
-    spinel_push_u8(&buf, low_limit);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_CCA_THRESHOLD_START);
+    hif_push_u8(&buf, number_of_channels);
+    hif_push_u8(&buf, default_dbm);
+    hif_push_u8(&buf, high_limit);
+    hif_push_u8(&buf, low_limit);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -315,11 +316,11 @@ void rcp_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_REQUEST_RESTART);
-    spinel_push_u8(&buf, max_cca_failure);
-    spinel_push_u8(&buf, max_tx_failure);
-    spinel_push_u16(&buf, blacklist_min_ms);
-    spinel_push_u16(&buf, blacklist_max_ms);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_REQUEST_RESTART);
+    hif_push_u8(&buf, max_cca_failure);
+    hif_push_u8(&buf, max_tx_failure);
+    hif_push_u16(&buf, blacklist_min_ms);
+    hif_push_u16(&buf, blacklist_max_ms);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -359,23 +360,23 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_CONF);
-    spinel_push_u8(&buf, timing_info->ws_uc_channel_function);
-    spinel_push_u8(&buf, timing_info->ws_bc_channel_function);
-    spinel_push_u16(&buf, timing_info->bsi);
-    spinel_push_u8(&buf, timing_info->fhss_uc_dwell_interval);
-    spinel_push_u32(&buf, timing_info->fhss_broadcast_interval);
-    spinel_push_u8(&buf, timing_info->fhss_bc_dwell_interval);
-    spinel_push_u8(&buf, timing_info->unicast_fixed_channel);
-    spinel_push_u8(&buf, timing_info->broadcast_fixed_channel);
-    spinel_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
-    spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
-    spinel_push_u16(&buf, timing_info->channel_mask_size);
-    spinel_push_u8(&buf, timing_info->number_of_channel_retries);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_CONF);
+    hif_push_u8(&buf, timing_info->ws_uc_channel_function);
+    hif_push_u8(&buf, timing_info->ws_bc_channel_function);
+    hif_push_u16(&buf, timing_info->bsi);
+    hif_push_u8(&buf, timing_info->fhss_uc_dwell_interval);
+    hif_push_u32(&buf, timing_info->fhss_broadcast_interval);
+    hif_push_u8(&buf, timing_info->fhss_bc_dwell_interval);
+    hif_push_u8(&buf, timing_info->unicast_fixed_channel);
+    hif_push_u8(&buf, timing_info->broadcast_fixed_channel);
+    hif_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
+    hif_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
+    hif_push_u16(&buf, timing_info->channel_mask_size);
+    hif_push_u8(&buf, timing_info->number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 18, 0))
-        spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
+        hif_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
-        spinel_push_u32(&buf, timing_info->lfn_bc_interval);
+        hif_push_u32(&buf, timing_info->lfn_bc_interval);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -386,18 +387,18 @@ void rcp_set_fhss_neighbor(const uint8_t neigh[8],
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
-    spinel_push_fixed_u8_array(&buf, neigh, 8);
-    spinel_push_u8(&buf, timing_info->clock_drift);
-    spinel_push_u8(&buf, timing_info->timing_accuracy);
-    spinel_push_u16(&buf, timing_info->uc_channel_list.channel_count);
-    spinel_push_fixed_u8_array(&buf, timing_info->uc_channel_list.channel_mask, 32);
-    spinel_push_u8(&buf, timing_info->uc_chan_func);
-    spinel_push_u8(&buf, timing_info->ffn.uc_dwell_interval_ms);
-    spinel_push_u16(&buf, timing_info->uc_chan_count);
-    spinel_push_u16(&buf, timing_info->uc_chan_fixed);
-    spinel_push_u32(&buf, timing_info->ffn.ufsi);
-    spinel_push_u32(&buf, timing_info->ffn.utt_rx_tstamp_us);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
+    hif_push_fixed_u8_array(&buf, neigh, 8);
+    hif_push_u8(&buf, timing_info->clock_drift);
+    hif_push_u8(&buf, timing_info->timing_accuracy);
+    hif_push_u16(&buf, timing_info->uc_channel_list.channel_count);
+    hif_push_fixed_u8_array(&buf, timing_info->uc_channel_list.channel_mask, 32);
+    hif_push_u8(&buf, timing_info->uc_chan_func);
+    hif_push_u8(&buf, timing_info->ffn.uc_dwell_interval_ms);
+    hif_push_u16(&buf, timing_info->uc_chan_count);
+    hif_push_u16(&buf, timing_info->uc_chan_fixed);
+    hif_push_u32(&buf, timing_info->ffn.ufsi);
+    hif_push_u32(&buf, timing_info->ffn.utt_rx_tstamp_us);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -406,8 +407,8 @@ void rcp_drop_fhss_neighbor(const uint8_t eui64[8])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
-    spinel_push_fixed_u8_array(&buf, eui64, 8);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
+    hif_push_fixed_u8_array(&buf, eui64, 8);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -433,9 +434,9 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
-    spinel_push_uint(&buf, normal);
-    spinel_push_uint(&buf, expedited_forwarding);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
+    hif_push_uint(&buf, normal);
+    hif_push_uint(&buf, expedited_forwarding);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -460,9 +461,9 @@ void rcp_set_frame_counter(int slot, uint32_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
-    spinel_push_uint(&buf, slot);
-    spinel_push_u32(&buf, val);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    hif_push_uint(&buf, slot);
+    hif_push_u32(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -472,8 +473,8 @@ void rcp_get_frame_counter(int slot)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
-    spinel_push_uint(&buf, slot);
+    hif_push_hdr_get_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    hif_push_uint(&buf, slot);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -485,15 +486,15 @@ void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
     uint8_t empty_key[16] = { };
 
     BUG_ON(key && !lookup_data);
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_KEY_TABLE);
-    spinel_push_u8(&buf, slot);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_KEY_TABLE);
+    hif_push_u8(&buf, slot);
     if (key) {
-        spinel_push_fixed_u8_array(&buf, key, 16);
+        hif_push_fixed_u8_array(&buf, key, 16);
         // In 15.4, lookup_data could have a size of 5, but not with Wi-SUN
-        spinel_push_data(&buf, lookup_data, 9);
+        hif_push_data(&buf, lookup_data, 9);
     } else {
-        spinel_push_fixed_u8_array(&buf, empty_key, 16);
-        spinel_push_data(&buf, NULL, 0);
+        hif_push_fixed_u8_array(&buf, empty_key, 16);
+        hif_push_data(&buf, NULL, 0);
     }
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -510,16 +511,16 @@ void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac
     struct iobuf_write buf = { };
     uint8_t empty_mac64[8] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_DEVICE_TABLE);
-    spinel_push_u8(&buf, slot);
-    spinel_push_u16(&buf, panid);
-    spinel_push_u16(&buf, mac16);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_DEVICE_TABLE);
+    hif_push_u8(&buf, slot);
+    hif_push_u16(&buf, panid);
+    hif_push_u16(&buf, mac16);
     if (mac64)
-        spinel_push_fixed_u8_array(&buf, mac64, 8);
+        hif_push_fixed_u8_array(&buf, mac64, 8);
     else
-        spinel_push_fixed_u8_array(&buf, empty_mac64, 8);
-    spinel_push_u32(&buf, frame_counter);
-    spinel_push_bool(&buf, false);
+        hif_push_fixed_u8_array(&buf, empty_mac64, 8);
+    hif_push_u32(&buf, frame_counter);
+    hif_push_bool(&buf, false);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -529,11 +530,11 @@ void rcp_enable_mac_filter(bool forward_unknown)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_START);
-    spinel_push_u16(&buf, forward_unknown ? 0x100 : 0);
-    spinel_push_u16(&buf, 0);
-    spinel_push_u16(&buf, forward_unknown ? 0x200 : 0);
-    spinel_push_u16(&buf, 0);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_START);
+    hif_push_u16(&buf, forward_unknown ? 0x100 : 0);
+    hif_push_u16(&buf, 0);
+    hif_push_u16(&buf, forward_unknown ? 0x200 : 0);
+    hif_push_u16(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -543,7 +544,7 @@ void rcp_disable_mac_filter()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_STOP);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_STOP);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -553,12 +554,12 @@ void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
-    spinel_push_fixed_u8_array(&buf, mac64, 8);
-    spinel_push_u16(&buf, forward ? 0x100 : 0);
-    spinel_push_u16(&buf, 0);
-    spinel_push_u16(&buf, forward ? 0x200 : 0);
-    spinel_push_u16(&buf, 0);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
+    hif_push_fixed_u8_array(&buf, mac64, 8);
+    hif_push_u16(&buf, forward ? 0x100 : 0);
+    hif_push_u16(&buf, 0);
+    hif_push_u16(&buf, forward ? 0x200 : 0);
+    hif_push_u16(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -568,7 +569,7 @@ void rcp_clear_mac_filters()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_CLEAR);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_CLEAR);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -591,53 +592,53 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
 
     BUG_ON(!tx_req);
     BUG_ON((tx_req->fhss_type == HIF_FHSS_TYPE_ASYNC) != !!channel_list);
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_STREAM_RAW);
-    spinel_push_data(&buf, tx_req->msdu, tx_req->msduLength);
-    spinel_push_u8(&buf,   tx_req->SrcAddrMode);
-    spinel_push_u8(&buf,   tx_req->DstAddrMode);
-    spinel_push_u16(&buf,  tx_req->DstPANId);
-    spinel_push_fixed_u8_array(&buf, tx_req->DstAddr, 8);
-    spinel_push_u8(&buf,   tx_req->msduHandle);
-    spinel_push_bool(&buf, tx_req->TxAckReq);
-    spinel_push_bool(&buf, false);
-    spinel_push_bool(&buf, tx_req->PendingBit);
-    spinel_push_bool(&buf, tx_req->SeqNumSuppressed);
-    spinel_push_bool(&buf, tx_req->PanIdSuppressed);
-    spinel_push_bool(&buf, tx_req->ExtendedFrameExchange);
-    spinel_push_u8(&buf,   tx_req->Key.SecurityLevel);
-    spinel_push_u8(&buf,   MAC_KEY_ID_MODE_IDX);
-    spinel_push_u8(&buf,   tx_req->Key.KeyIndex);
-    spinel_push_fixed_u8_array(&buf, (uint8_t[8]){ }, 8); // previously KeySource
-    spinel_push_u16(&buf,  tx_req->priority);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_STREAM_RAW);
+    hif_push_data(&buf, tx_req->msdu, tx_req->msduLength);
+    hif_push_u8(&buf,   tx_req->SrcAddrMode);
+    hif_push_u8(&buf,   tx_req->DstAddrMode);
+    hif_push_u16(&buf,  tx_req->DstPANId);
+    hif_push_fixed_u8_array(&buf, tx_req->DstAddr, 8);
+    hif_push_u8(&buf,   tx_req->msduHandle);
+    hif_push_bool(&buf, tx_req->TxAckReq);
+    hif_push_bool(&buf, false);
+    hif_push_bool(&buf, tx_req->PendingBit);
+    hif_push_bool(&buf, tx_req->SeqNumSuppressed);
+    hif_push_bool(&buf, tx_req->PanIdSuppressed);
+    hif_push_bool(&buf, tx_req->ExtendedFrameExchange);
+    hif_push_u8(&buf,   tx_req->Key.SecurityLevel);
+    hif_push_u8(&buf,   MAC_KEY_ID_MODE_IDX);
+    hif_push_u8(&buf,   tx_req->Key.KeyIndex);
+    hif_push_fixed_u8_array(&buf, (uint8_t[8]){ }, 8); // previously KeySource
+    hif_push_u16(&buf,  tx_req->priority);
     if (channel_list) {
-        spinel_push_uint(&buf, channel_list->channel_page);
-        spinel_push_fixed_u8_array(&buf, channel_list->channel_mask, 32);
+        hif_push_uint(&buf, channel_list->channel_page);
+        hif_push_fixed_u8_array(&buf, channel_list->channel_mask, 32);
     } else {
-        spinel_push_uint(&buf, CHANNEL_PAGE_UNDEFINED);
-        spinel_push_fixed_u8_array(&buf, empty_channel_mask, 32);
+        hif_push_uint(&buf, CHANNEL_PAGE_UNDEFINED);
+        hif_push_fixed_u8_array(&buf, empty_channel_mask, 32);
     }
     len = 0;
     if (payload_ie)
         len += payload_ie->iov_len;
     if (mpx_ie)
         len += mpx_ie->iov_len;
-    spinel_push_u16(&buf, len);
+    hif_push_u16(&buf, len);
     if (payload_ie)
-        spinel_push_raw(&buf, payload_ie->iov_base, payload_ie->iov_len);
+        hif_push_raw(&buf, payload_ie->iov_base, payload_ie->iov_len);
     if (mpx_ie)
-        spinel_push_raw(&buf, mpx_ie->iov_base, mpx_ie->iov_len);
+        hif_push_raw(&buf, mpx_ie->iov_base, mpx_ie->iov_len);
     if (header_ie)
-        spinel_push_data(&buf, header_ie->iov_base, header_ie->iov_len);
+        hif_push_data(&buf, header_ie->iov_base, header_ie->iov_len);
     else
-        spinel_push_data(&buf, NULL, 0);
+        hif_push_data(&buf, NULL, 0);
     if (!version_older_than(ctxt->rcp.version_api, 0, 7, 0)) {
         if (channel_list)
-            spinel_push_u16(&buf, channel_list->next_channel_number);
+            hif_push_u16(&buf, channel_list->next_channel_number);
         else
-            spinel_push_u16(&buf, 0);
+            hif_push_u16(&buf, 0);
     }
     if (!version_older_than(ctxt->rcp.version_api, 0, 12,0))
-        spinel_push_u8(&buf, tx_req->phy_id);
+        hif_push_u8(&buf, tx_req->phy_id);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -667,47 +668,47 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
     struct iobuf_write buf = { };
     int flags, flags_offset, len;
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_FRAME);
-    spinel_push_u8(&buf, handle);
-    spinel_push_data(&buf, frame, frame_len);
+    hif_push_hdr_set_prop(&buf, SPINEL_PROP_FRAME);
+    hif_push_u8(&buf, handle);
+    hif_push_data(&buf, frame, frame_len);
 
     flags = 0;
     flags_offset = buf.len;
-    spinel_push_u16(&buf, 0);
+    hif_push_u16(&buf, 0);
 
     flags |= FIELD_PREP(HIF_FHSS_TYPE_MASK, fhss_type);
     switch (fhss_type) {
     case HIF_FHSS_TYPE_FFN_UC:
         BUG_ON(!neighbor_ws);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.ffn.utt_rx_tstamp_us);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.ffn.ufsi);
-        spinel_push_u8(&buf, neighbor_ws->fhss_data.ffn.uc_dwell_interval_ms);
-        spinel_push_u8(&buf, neighbor_ws->fhss_data.clock_drift);
-        spinel_push_u8(&buf, neighbor_ws->fhss_data.timing_accuracy);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.ffn.utt_rx_tstamp_us);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.ffn.ufsi);
+        hif_push_u8(&buf, neighbor_ws->fhss_data.ffn.uc_dwell_interval_ms);
+        hif_push_u8(&buf, neighbor_ws->fhss_data.clock_drift);
+        hif_push_u8(&buf, neighbor_ws->fhss_data.timing_accuracy);
         break;
     case HIF_FHSS_TYPE_FFN_BC:
         flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
         break;
     case HIF_FHSS_TYPE_LFN_UC:
         BUG_ON(!neighbor_ws);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lutt_rx_tstamp_us);
-        spinel_push_u16(&buf, neighbor_ws->fhss_data.lfn.uc_slot_number);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_interval_offset_ms);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_listen_interval_ms);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.lfn.lutt_rx_tstamp_us);
+        hif_push_u16(&buf, neighbor_ws->fhss_data.lfn.uc_slot_number);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_interval_offset_ms);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_listen_interval_ms);
         break;
     case HIF_FHSS_TYPE_LFN_BC:
         flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
         break;
     case HIF_FHSS_TYPE_ASYNC:
-        spinel_push_u32(&buf, ctxt->config.ws_async_frag_duration);
+        hif_push_u32(&buf, ctxt->config.ws_async_frag_duration);
         break;
     case HIF_FHSS_TYPE_LFN_PA:
         BUG_ON(!neighbor_ws);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lnd_rx_tstamp_us);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lpa_response_delay_ms);
-        spinel_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_duration_ms);
-        spinel_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_count);
-        spinel_push_u16(&buf, neighbor_ws->fhss_data.lfn.lpa_slot_first);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.lfn.lnd_rx_tstamp_us);
+        hif_push_u32(&buf, neighbor_ws->fhss_data.lfn.lpa_response_delay_ms);
+        hif_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_duration_ms);
+        hif_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_count);
+        hif_push_u16(&buf, neighbor_ws->fhss_data.lfn.lpa_slot_first);
         break;
     default:
         BUG();
@@ -716,13 +717,13 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
         switch (neighbor_ws->fhss_data.uc_chan_func) {
         case WS_FIXED_CHANNEL:
             flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_FIXED_CHANNEL);
-            spinel_push_u16(&buf, neighbor_ws->fhss_data.uc_chan_fixed);
+            hif_push_u16(&buf, neighbor_ws->fhss_data.uc_chan_fixed);
             break;
         case WS_DH1CF:
             flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_DH1CF);
             len = roundup(neighbor_ws->fhss_data.uc_chan_count, 8) / 8;
-            spinel_push_u8(&buf, len);
-            spinel_push_fixed_u8_array(&buf, neighbor_ws->fhss_data.uc_channel_list.channel_mask, len);
+            hif_push_u8(&buf, len);
+            hif_push_fixed_u8_array(&buf, neighbor_ws->fhss_data.uc_channel_list.channel_mask, len);
             break;
         default:
             BUG();
@@ -733,11 +734,11 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
     flags |= FIELD_PREP(HIF_FHSS_EDFE_MASK, is_edfe);
     if (phy_id) {
         flags |= FIELD_PREP(HIF_FHSS_MODE_SWITCH_MASK, 1);
-        spinel_push_u8(&buf, 10);
-        spinel_push_u8(&buf, phy_id);
-        spinel_push_u16(&buf, 0);
-        spinel_push_u16(&buf, 0);
-        spinel_push_u16(&buf, 0);
+        hif_push_u8(&buf, 10);
+        hif_push_u8(&buf, phy_id);
+        hif_push_u16(&buf, 0);
+        hif_push_u16(&buf, 0);
+        hif_push_u16(&buf, 0);
     }
     flags |= FIELD_PREP(HIF_FHSS_PRIORITY_MASK, priority);
     write_le16(&buf.data[flags_offset], flags);
@@ -763,16 +764,16 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
 {
     if (iobuf_remaining_size(buf) < 16)
         FATAL(1, "unknown RESET format (bad firmware?)");
-    ctxt->rcp.version_api = spinel_pop_u32(buf);
-    ctxt->rcp.version_fw = spinel_pop_u32(buf);
-    ctxt->rcp.version_label = strdup(spinel_pop_str(buf));
-    spinel_pop_bool(buf); /* Formerly: is_hw_reset */
-    ctxt->rcp.neighbors_table_size = spinel_pop_u8(buf);
-    spinel_pop_u8(buf); /* Formerly: key_description_table_size */
-    spinel_pop_u8(buf); /* Formerly: key_lookup_size */
-    spinel_pop_u8(buf); /* Formerly: key_usage_size */
+    ctxt->rcp.version_api = hif_pop_u32(buf);
+    ctxt->rcp.version_fw = hif_pop_u32(buf);
+    ctxt->rcp.version_label = strdup(hif_pop_str(buf));
+    hif_pop_bool(buf); /* Formerly: is_hw_reset */
+    ctxt->rcp.neighbors_table_size = hif_pop_u8(buf);
+    hif_pop_u8(buf); /* Formerly: key_description_table_size */
+    hif_pop_u8(buf); /* Formerly: key_lookup_size */
+    hif_pop_u8(buf); /* Formerly: key_usage_size */
     if (iobuf_remaining_size(buf))
-        ctxt->rcp.lfn_limit = spinel_pop_u8(buf);
+        ctxt->rcp.lfn_limit = hif_pop_u8(buf);
     ctxt->rcp.init_state |= RCP_HAS_RESET;
     WARN_ON(!ctxt->rcp.on_reset);
     if (ctxt->rcp.on_reset)
@@ -781,10 +782,10 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
 
 static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    uint16_t crc            = spinel_pop_u16(buf);
-    uint32_t frame_len      = spinel_pop_u32(buf);
-    uint8_t header          = spinel_pop_u8(buf);
-    uint8_t irq_err_counter = spinel_pop_u8(buf);
+    uint16_t crc            = hif_pop_u16(buf);
+    uint32_t frame_len      = hif_pop_u32(buf);
+    uint8_t header          = hif_pop_u8(buf);
+    uint8_t irq_err_counter = hif_pop_u8(buf);
 
     if (!spinel_prop_is_valid(buf, prop))
         return;
@@ -795,7 +796,7 @@ static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
 
 static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    int val = spinel_pop_uint(buf);
+    int val = hif_pop_uint(buf);
 
     if (val || !spinel_prop_is_valid(buf, prop))
         return;
@@ -804,7 +805,7 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
 
 static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    int val = spinel_pop_i16(buf);
+    int val = hif_pop_i16(buf);
 
     if (!spinel_prop_is_valid(buf, prop))
         return;
@@ -824,11 +825,11 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
     while (iobuf_remaining_size(buf)) {
         ctxt->rcp.rail_config_list = reallocarray(ctxt->rcp.rail_config_list, i + 2, sizeof(struct rcp_rail_config));
         ctxt->rcp.rail_config_list[i].index = i;
-        ctxt->rcp.rail_config_list[i].chan0_freq = spinel_pop_u32(buf);
-        ctxt->rcp.rail_config_list[i].chan_spacing = spinel_pop_u32(buf);
-        ctxt->rcp.rail_config_list[i].chan_count = spinel_pop_u16(buf);
-        ctxt->rcp.rail_config_list[i].rail_phy_mode_id = spinel_pop_u8(buf);
-        is_submode = spinel_pop_bool(buf);
+        ctxt->rcp.rail_config_list[i].chan0_freq = hif_pop_u32(buf);
+        ctxt->rcp.rail_config_list[i].chan_spacing = hif_pop_u32(buf);
+        ctxt->rcp.rail_config_list[i].chan_count = hif_pop_u16(buf);
+        ctxt->rcp.rail_config_list[i].rail_phy_mode_id = hif_pop_u8(buf);
+        is_submode = hif_pop_bool(buf);
         FATAL_ON(i == 0 && is_submode, 3, "corrupted RAIL configuration");
         if (is_submode && !is_submode_prev)
             ctxt->rcp.rail_config_list[i - 1].phy_mode_group = ++phy_mode_group;
@@ -844,7 +845,7 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
 
 static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    spinel_pop_fixed_u8_array(buf, ctxt->rcp.eui64, 8);
+    hif_pop_fixed_u8_array(buf, ctxt->rcp.eui64, 8);
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_HWADDR;
@@ -855,8 +856,8 @@ static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct i
     unsigned int index;
     uint32_t value;
 
-    index = spinel_pop_uint(buf);
-    value = spinel_pop_u32(buf);
+    index = hif_pop_uint(buf);
+    value = hif_pop_u32(buf);
 
     if (!spinel_prop_is_valid(buf, prop))
         return;
@@ -898,12 +899,12 @@ static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     struct mlme_comm_status *status;
     int id;
 
-    id = spinel_pop_uint(buf);
+    id = hif_pop_uint(buf);
     if (id != MLME_COMM_STATUS) {
         ERROR("%s: received unsupported message: %02x", __func__, id);
         return;
     }
-    spinel_pop_data_ptr(buf, (const uint8_t **)&status);
+    hif_pop_data_ptr(buf, (const uint8_t **)&status);
     if (!spinel_prop_is_valid(buf, prop))
         return;
     WARN_ON(!ctxt->rcp.on_rx_err);
@@ -917,28 +918,28 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     mcps_data_ind_t req = { };
     mcps_data_ind_ie_list_t ie_ext = { };
 
-    req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr);
-    req.SrcAddrMode            = spinel_pop_u8(buf);
-    req.SrcPANId               = spinel_pop_u16(buf);
-    spinel_pop_fixed_u8_array(buf, req.SrcAddr, 8);
-    req.DstAddrMode            = spinel_pop_u8(buf);
-    req.DstPANId               = spinel_pop_u16(buf);
-    spinel_pop_fixed_u8_array(buf, req.DstAddr, 8);
-    req.mpduLinkQuality        = spinel_pop_u8(buf);
-    req.signal_dbm             = spinel_pop_i8(buf);
-    req.timestamp              = spinel_pop_u32(buf);
-    req.DSN_suppressed         = spinel_pop_bool(buf);
-    req.DSN                    = spinel_pop_u8(buf);
-    req.Key.SecurityLevel      = spinel_pop_u8(buf);
-    key_id_mode                = spinel_pop_u8(buf);
-    req.Key.KeyIndex           = spinel_pop_u8(buf);
-    spinel_pop_fixed_u8_array(buf, NULL, 8);
-    ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
-    ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
+    req.msduLength             = hif_pop_data_ptr(buf, &req.msdu_ptr);
+    req.SrcAddrMode            = hif_pop_u8(buf);
+    req.SrcPANId               = hif_pop_u16(buf);
+    hif_pop_fixed_u8_array(buf, req.SrcAddr, 8);
+    req.DstAddrMode            = hif_pop_u8(buf);
+    req.DstPANId               = hif_pop_u16(buf);
+    hif_pop_fixed_u8_array(buf, req.DstAddr, 8);
+    req.mpduLinkQuality        = hif_pop_u8(buf);
+    req.signal_dbm             = hif_pop_i8(buf);
+    req.timestamp              = hif_pop_u32(buf);
+    req.DSN_suppressed         = hif_pop_bool(buf);
+    req.DSN                    = hif_pop_u8(buf);
+    req.Key.SecurityLevel      = hif_pop_u8(buf);
+    key_id_mode                = hif_pop_u8(buf);
+    req.Key.KeyIndex           = hif_pop_u8(buf);
+    hif_pop_fixed_u8_array(buf, NULL, 8);
+    ie_ext.headerIeListLength  = hif_pop_data_ptr(buf, &ie_ext.headerIeList);
+    ie_ext.payloadIeListLength = hif_pop_data_ptr(buf, &ie_ext.payloadIeList);
     if (iobuf_remaining_size(buf)) {
-        req.TxAckReq           = spinel_pop_bool(buf);
-        req.PendingBit         = spinel_pop_bool(buf);
-        req.PanIdSuppressed    = spinel_pop_bool(buf);
+        req.TxAckReq           = hif_pop_bool(buf);
+        req.PendingBit         = hif_pop_bool(buf);
+        req.PanIdSuppressed    = hif_pop_bool(buf);
         // FIXME: remove this hack
         if (ctxt->config.pcap_file[0])
             wsbr_pcapng_write_frame(ctxt, &req, &ie_ext);
@@ -957,17 +958,17 @@ static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     mcps_data_cnf_t req = { };
     mcps_data_cnf_ie_list_t conf_req = { };
 
-    req.status      = spinel_pop_u8(buf);
-    req.msduHandle  = spinel_pop_u8(buf);
-    req.timestamp   = spinel_pop_u32(buf);
-    req.cca_retries = spinel_pop_u8(buf);
-    req.tx_retries  = spinel_pop_u8(buf);
-    conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList);
-    conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
-    conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
+    req.status      = hif_pop_u8(buf);
+    req.msduHandle  = hif_pop_u8(buf);
+    req.timestamp   = hif_pop_u32(buf);
+    req.cca_retries = hif_pop_u8(buf);
+    req.tx_retries  = hif_pop_u8(buf);
+    conf_req.headerIeListLength  = hif_pop_data_ptr(buf, &conf_req.headerIeList);
+    conf_req.payloadIeListLength = hif_pop_data_ptr(buf, &conf_req.payloadIeList);
+    conf_req.payloadLength       = hif_pop_data_ptr(buf, &conf_req.payloadPtr);
     if (iobuf_remaining_size(buf)) {
-        spinel_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(req.retry_per_rate));
-        req.success_phy_mode_id = spinel_pop_u8(buf);
+        hif_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(req.retry_per_rate));
+        req.success_phy_mode_id = hif_pop_u8(buf);
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
@@ -1024,12 +1025,12 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     if (!buf.data_size)
         return;
     spinel_trace_rx(&buf);
-    spinel_pop_u8(&buf); /* packet header */
-    cmd = spinel_pop_uint(&buf);
+    hif_pop_u8(&buf); /* packet header */
+    cmd = hif_pop_uint(&buf);
     if (cmd != SPINEL_CMD_PROP_IS) {
         prop = (uint32_t)-1;
     } else {
-        prop = spinel_pop_uint(&buf);
+        prop = hif_pop_uint(&buf);
         if (!rcp_init_state_is_valid(ctxt, prop)) {
             WARN("ignoring unexpected boot-up sequence");
             return;
