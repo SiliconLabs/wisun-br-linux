@@ -478,35 +478,6 @@ void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour
     entry->is_router = flags & NA_R;
 }
 
-/* RFC 4861 doesn't have this, but would seem sensible to at least nudge it out of REACHABLE state.
- * This doesn't add a new state machine transition, we just cut short the timer.
- * This should normally be called /before/ initiating a retransmit, so the
- * retransmit then triggers an immediate transition into DELAY state.
- */
-void ipv6_neighbour_reachability_problem(const uint8_t ip_address[static 16], int8_t interface_id)
-{
-    /* No point creating an entry if doesn't exist */
-    ipv6_destination_t *dest = ipv6_destination_lookup(ip_address, interface_id);
-    if (!dest) {
-        return;
-    }
-
-    /* We can't be absolutely certain which next hop has problems, but last_neighbour is our best guess */
-    ipv6_neighbour_t *next_hop = dest->last_neighbour;
-    if (!next_hop) {
-        return;
-    }
-
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(dest->interface_id);
-    if (!ncache) {
-        return;
-    }
-
-    if (next_hop->state == IP_NEIGHBOUR_REACHABLE) {
-        ipv6_neighbour_set_state(ncache, next_hop, IP_NEIGHBOUR_STALE);
-    }
-}
-
 static const char *state_names[] = {
     [IP_NEIGHBOUR_NEW]          = "NEW",
     [IP_NEIGHBOUR_INCOMPLETE]   = "INCOMPLETE",
