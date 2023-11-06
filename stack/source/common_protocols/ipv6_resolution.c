@@ -180,13 +180,7 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
     buf->dst_sa.addr_type = n->ll_type;
     memcpy(buf->dst_sa.address, n->ll_address, addr_len_from_type(n->ll_type));
 
-    /* Optimisation trick - if security bypass is set, this is presumably some
-     * sort of MLE-type link management packet. Not worth sending extra NS/NA
-     * noise for these.
-     */
-    if (!(buf->options.ll_security_bypass_tx && addr_is_ipv6_link_local(route->route_info.next_hop_addr))) {
-        n = ipv6_neighbour_used(&cur->ipv6_neighbour_cache, n);
-    }
+    n = ipv6_neighbour_used(&cur->ipv6_neighbour_cache, n);
     return n;
 }
 

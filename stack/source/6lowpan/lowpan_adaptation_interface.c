@@ -639,18 +639,8 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         neigh_entry_ptr = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
 
         //Validate neighbour
-        if (!buf->options.ll_security_bypass_tx && neigh_entry_ptr) {
-
-            if (neigh_entry_ptr->connected_device ||  neigh_entry_ptr->trusted_device) {
-
-            } else {
-                //tr_warn("Drop TX to unassociated %s", trace_sockaddr(&buf->dst_sa, true));
-                goto tx_error_handler;
-            }
-        } else if (!neigh_entry_ptr) {
-            //Do not accept to send unknow device
+        if (!neigh_entry_ptr || (!neigh_entry_ptr->connected_device && !neigh_entry_ptr->trusted_device))
             goto tx_error_handler;
-        }
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
 
@@ -684,16 +674,14 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     dataReq->msduHandle = buf->seq;
 
     //Set Messages
-    if (!buf->options.ll_security_bypass_tx) {
-        dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
-        if (dataReq->Key.SecurityLevel) {
-            ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
-                                                        dataReq->DstAddr, dataReq->DstAddrMode);
-            if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
-                dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
-            else
-                dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
-        }
+    dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
+    if (dataReq->Key.SecurityLevel) {
+        ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
+                                                    dataReq->DstAddr, dataReq->DstAddrMode);
+        if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
+            dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
+        else
+            dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
     }
 }
 
@@ -984,11 +972,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 
     //Allocate Handle
     buf->seq = lowpan_data_request_unique_handle_get(interface_ptr);
-
-    if (buf->options.ll_sec_bypass_frag_deny && fragmented_needed) {
-        // force security for fragmented packets
-        buf->options.ll_security_bypass_tx = false;
-    }
 
     fragmenter_tx_entry_t *tx_ptr = lowpan_adaptation_tx_process_init(interface_ptr, false, fragmented_needed, is_unicast);
     if (!tx_ptr) {

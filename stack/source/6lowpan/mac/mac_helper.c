@@ -123,10 +123,8 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
         length += 4;
     }
 
-    if (!buf->options.ll_security_bypass_tx) {
-        length += mac_helper_header_security_aux_header_length(MAC_KEY_ID_MODE_IDX);
-        length += mac_helper_security_mic_length_get(SEC_ENC_MIC64);
-    }
+    length += mac_helper_header_security_aux_header_length(MAC_KEY_ID_MODE_IDX);
+    length += mac_helper_security_mic_length_get(SEC_ENC_MIC64);
 
     return length;
 }
