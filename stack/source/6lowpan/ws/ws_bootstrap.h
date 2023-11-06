@@ -75,8 +75,6 @@ void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_re
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64);
 
-int ws_bootstrap_neighbor_info_get(struct net_if *cur, struct ws_neighbour_info *neighbor_ptr, uint16_t table_max);
-
 void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time);
 
 /*

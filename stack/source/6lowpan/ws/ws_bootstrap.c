@@ -1434,64 +1434,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     ws_llc_timer_seconds(cur, seconds);
 }
 
-int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neighbor_ptr, uint16_t table_max)
-{
-    uint8_t count = 0;
-    if (!neighbor_ptr) {
-        // Return the aount of neighbors.
-        for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
-            mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
-            if (mac_entry && mac_entry->lifetime && mac_entry->lifetime != 0xffffffff) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    if (table_max > cur->mac_parameters.mac_neighbor_table->list_total_size) {
-        table_max = cur->mac_parameters.mac_neighbor_table->list_total_size;
-    }
-
-    for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
-        if (count > table_max) {
-            break;
-        }
-
-        mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
-        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, n);
-        if (mac_entry && ws_neighbor && mac_entry->lifetime && mac_entry->lifetime != 0xffffffff) {
-            // Active neighbor entry
-            uint8_t ll_address[16];
-            memset(neighbor_ptr + count, 0, sizeof(ws_neighbour_info_t));
-            neighbor_ptr[count].lifetime = mac_entry->lifetime;
-
-            neighbor_ptr[count].rsl_in = ws_neighbor_class_rsl_in_get(ws_neighbor);
-            neighbor_ptr[count].rsl_out = ws_neighbor_class_rsl_out_get(ws_neighbor);
-
-            // ETX is shown calculated as 8 bit integer, but more common way is to use 7 bit such that 128 means ETX:1.0
-            neighbor_ptr[count].etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_entry->mac64);
-            if (neighbor_ptr[count].etx != 0xffff) {
-                neighbor_ptr[count].etx = neighbor_ptr[count].etx >> 1;
-            }
-            ws_common_create_ll_address(ll_address, mac_entry->mac64);
-            memcpy(neighbor_ptr[count].link_local_address, ll_address, 16);
-
-            ipv6_neighbour_t *IPv6_neighbor = ipv6_neighbour_get_registered_by_eui64(&cur->ipv6_neighbour_cache, mac_entry->mac64);
-            if (IPv6_neighbor) {
-                //This is a child
-                neighbor_ptr[count].type = WS_CHILD;
-                memcpy(neighbor_ptr[count].global_address, IPv6_neighbor->ip_address, 16);
-                // Child lifetimes are based on Registration times not a link time
-                neighbor_ptr[count].lifetime = IPv6_neighbor->lifetime;
-            }
-            count++;
-        }
-    }
-
-    // Go through list
-    return count;
-}
-
 //Calculate max_packet queue size
 static uint16_t ws_bootstrap_define_congestin_max_threshold(uint32_t heap_total_size, uint16_t packet_size, uint16_t packet_per_seconds, uint32_t max_delay, uint16_t min_packet_queue_size, uint16_t max_packet_queue_size)
 {
