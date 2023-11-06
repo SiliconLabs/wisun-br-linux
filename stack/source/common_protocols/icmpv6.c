@@ -136,7 +136,7 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
     }
 
     /* RFC 4443 processing rules e.3-5: don't send errors for IP multicasts or link-layer multicasts+broadcasts (with exceptions) */
-    if (addr_is_ipv6_multicast(buf->dst_sa.address) || buf->options.ll_broadcast_rx || buf->options.ll_multicast_rx) {
+    if (addr_is_ipv6_multicast(buf->dst_sa.address) || buf->options.ll_broadcast_rx) {
         if (!(type == ICMPV6_TYPE_ERROR_PACKET_TOO_BIG ||
                 (type == ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM && code == ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT))) {
             return buffer_free(buf);

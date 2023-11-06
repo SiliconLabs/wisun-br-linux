@@ -1103,7 +1103,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
          * address but link-layer multicast or broadcast. And we MUST NOT forward
          * them. So catch them here.
          */
-        if (buf->options.ll_multicast_rx || buf->options.ll_broadcast_rx) {
+        if (buf->options.ll_broadcast_rx) {
             goto drop;
         }
     }

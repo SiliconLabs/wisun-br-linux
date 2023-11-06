@@ -102,7 +102,6 @@ typedef struct buffer_options {
     uint8_t ip_extflags;                /*!< IPv6 extension header flags */
     bool    ll_security_bypass_rx: 1;   /*!< Was received without link-layer security, when security was enabled */
     bool    ll_broadcast_rx: 1;         /*!< Was received as link-layer broadcast */
-    bool    ll_multicast_rx: 1;         /*!< Was received as link-layer multicast */
     bool    tunnelled: 1;               /*!< We tunnelled it as part of (RPL?) routing */
     bool    need_predecessor: 1;        /*!< Used as an indicator that predecessor address needed */
     bool    multicast_loop: 1;          /*!< We want loopback if we're a group member (TX), or this IS the loopback if RX */
