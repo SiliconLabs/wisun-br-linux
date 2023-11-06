@@ -255,13 +255,6 @@ void nwk_interface_print_neigh_cache()
     }
 }
 
-void nwk_interface_flush_neigh_cache(void)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
-    }
-}
-
 struct net_if *protocol_stack_interface_info_get()
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
