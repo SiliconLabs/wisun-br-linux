@@ -211,7 +211,6 @@ typedef struct buffer {
     uint8_t             trickle_data_field[4];
     buffer_options_t    options;                /*!< Additional signal info etc */
     buffer_routing_info_t *route;               /* A pointer last to try to get neat alignment for data */
-    void (*ack_receive_cb)(struct buffer *buffer_ptr, uint8_t status); /*!< ACK receive callback. If set, will be called when TX is done */
     uint8_t             buf[];                  /*!< Trailing buffer data */
 } buffer_t;
 
