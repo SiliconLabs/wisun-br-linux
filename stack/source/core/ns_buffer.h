@@ -94,7 +94,6 @@ typedef union buffer_link_info {
 
 /** buffer option fields */
 typedef struct buffer_options {
-    uint8_t lqi;                        /*!< LQI from RF */
     int8_t  dbm;                        /*!< Signal level */
     uint8_t hop_limit;                  /*!< IPv6 hop limit */
     uint8_t type;                       /*!< ICMP type, IP next header, MAC frame type... */
