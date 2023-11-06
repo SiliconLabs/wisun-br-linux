@@ -79,7 +79,6 @@
 static NS_LIST_DEFINE(ipv6_destination_cache, ipv6_destination_t, link);
 static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 
-static ipv6_destination_t *ipv6_destination_lookup(const uint8_t *address, int8_t interface_id);
 static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *cache, const uint8_t neighbour_addr[16]);
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour);
 static bool ipv6_destination_release(ipv6_destination_t *dest);
@@ -673,29 +672,6 @@ void ipv6_destination_cache_print()
             tr_debug("     Redirect %s%%%u", tr_ipv6(entry->redirect_addr), entry->interface_id);
         }
     }
-}
-
-static ipv6_destination_t *ipv6_destination_lookup(const uint8_t *address, int8_t interface_id)
-{
-    bool is_ll = addr_is_ipv6_link_local(address);
-
-    if (is_ll && interface_id == -1) {
-        return NULL;
-    }
-
-    ns_list_foreach(ipv6_destination_t, cur, &ipv6_destination_cache) {
-        if (!addr_ipv6_equal(cur->destination, address)) {
-            continue;
-        }
-        /* For LL addresses, interface ID must also be compared */
-        if (is_ll && cur->interface_id != interface_id) {
-            continue;
-        }
-
-        return cur;
-    }
-
-    return NULL;
 }
 
 /* Unlike original version, this does NOT perform routing check - it's pure destination cache look-up
