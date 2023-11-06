@@ -180,7 +180,6 @@ typedef struct buffer {
     ns_list_link_t      link;
     sockaddr_t          dst_sa;                 /*!< Destination sockaddr */
     sockaddr_t          src_sa;                 /*!< Source sockaddr */
-    sockaddr_t          *predecessor;           /*!< Predecessor - used by RPL */
     struct net_if *interface; /*!< Pointer to interface */
     buffer_info_t       info;                   /*!< Protocol information */
     uint8_t             seq;                    /*!< Packet MAC header sequence number */

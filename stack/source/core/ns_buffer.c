@@ -199,7 +199,6 @@ buffer_t *buffer_free(buffer_t *buf)
         }
 
         buf = buffer_free_route(buf);
-        free(buf->predecessor);
         free(buf);
 
     } else {
@@ -222,11 +221,6 @@ void buffer_free_list(buffer_list_t *list)
  */
 buffer_t *buffer_turnaround(buffer_t *buf)
 {
-    if (buf->predecessor) {
-        free(buf->predecessor);
-        buf->predecessor = NULL;
-    }
-
     buf->options.tunnelled = false;
 
     /* Most cases this will be a response to an RX, so no existing routing
@@ -255,10 +249,6 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
     dst->size = buf_size;
     dst->buf_ptr = buf_ptr;
     dst->buf_end = buf_end;
-
-    /* Extra data pointers now attached to both buffers - there can be only one */
-    buffer_t *to_wipe = non_clonable_to_dst ? src : dst;
-    to_wipe->predecessor = NULL;
 }
 
 /**
@@ -303,7 +293,6 @@ buffer_t *buffer_clone(buffer_t *buf)
     uint16_t size = result_ptr->size;
 
     *result_ptr = *buf;
-    result_ptr->predecessor = NULL;
     result_ptr->route = NULL; // Don't clone routing info
     result_ptr->options.multicast_loop = false; // Don't loop back more copies!
     result_ptr->buf_ptr = buf_ptr;
