@@ -282,16 +282,6 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
     return entry;
 }
 
-ipv6_neighbour_t *ipv6_neighbour_lookup_or_create_by_interface_id(int8_t interface_id, const uint8_t *address/*, bool tentative*/)
-{
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);
-    if (!ncache) {
-        return NULL;
-    }
-
-    return ipv6_neighbour_lookup_or_create(ncache, address/*, tentative*/);
-}
-
 ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
     /* Reset the GC life, if it's a GC entry */
