@@ -141,7 +141,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
          */
         if (!cur) {
             /* Choose interface (only) from routing table */
-            ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, -1, NULL);
+            ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, -1);
             if (!ip_route) {
                 tr_debug("No route for multicast %s", tr_ipv6(buf->dst_sa.address));
                 goto no_route;
@@ -154,7 +154,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         route->route_info.pmtu = 0xFFFF;
         route->route_info.source = ROUTE_MULTICAST;
     } else { /* unicast, normal */
-        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1, NULL);
+        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1);
         if (!ip_route) {
             goto no_route;
         }

@@ -265,7 +265,7 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
     // Zero the structure
     memset(info_ptr, 0, sizeof(bbr_information_t));
 
-    ipv6_route_t *next_hop = ipv6_route_choose_next_hop(ADDR_6TO4, interface_id, NULL);
+    ipv6_route_t *next_hop = ipv6_route_choose_next_hop(ADDR_6TO4, interface_id);
     if (next_hop) {
         memcpy(info_ptr->gateway, next_hop->info.next_hop_addr, 16);
     }

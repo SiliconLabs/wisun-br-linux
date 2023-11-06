@@ -1155,7 +1155,7 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
     return best;
 }
 
-ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id, ipv6_route_predicate_fn_t *predicate)
+ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id)
 {
     ipv6_route_t *best = NULL;
     bool reachable = false;
@@ -1192,7 +1192,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
      * possibility would be a special precedence flag.
      */
     for (;;) {
-        ipv6_route_t *route = ipv6_route_find_best(dest, interface_id, predicate);
+        ipv6_route_t *route = ipv6_route_find_best(dest, interface_id, NULL);
         if (!route) {
             break;
         }
