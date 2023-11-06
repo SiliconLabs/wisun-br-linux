@@ -100,7 +100,6 @@ typedef struct buffer_options {
     uint8_t type;                       /*!< ICMP type, IP next header, MAC frame type... */
     uint8_t code;                       /*!< ICMP code, TCP flags, MAC ack request... */
     uint8_t ip_extflags;                /*!< IPv6 extension header flags */
-    bool    ll_sec_bypass_frag_deny: 1; /*!< Deny ll_security_bypass_tx usage in fragmented packets */
     bool    ll_security_bypass_rx: 1;   /*!< Was received without link-layer security, when security was enabled */
     bool    ll_broadcast_tx: 1;         /*!< Tx as link-layer broadcast (set to override multicast-as-unicast) */
     bool    ll_broadcast_rx: 1;         /*!< Was received as link-layer broadcast */
