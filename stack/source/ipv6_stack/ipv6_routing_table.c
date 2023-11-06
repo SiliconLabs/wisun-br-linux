@@ -173,17 +173,6 @@ ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uin
     return NULL;
 }
 
-ipv6_neighbour_t *ipv6_neighbour_lookup_by_interface_id(int8_t interface_id, const uint8_t *address)
-{
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);
-    if (!ncache) {
-        return NULL;
-    }
-
-    return ipv6_neighbour_lookup(ncache, address);
-}
-
-
 void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
     /* Remove entry from cache first - avoids weird garbage collection issues, like
