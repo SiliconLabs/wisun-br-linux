@@ -122,13 +122,6 @@ void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
     ipv6_destination_cache_forget_router(cache, entry->ip_address);
 }
 
-/* Called when a neighbour has apparently become reachable */
-static void ipv6_neighbour_appeared(ipv6_neighbour_cache_t *cache, uint8_t address[static 16])
-{
-    (void)cache;
-    (void)address;
-}
-
 /* Called when a neighbour has apparently become unreachable */
 static void ipv6_neighbour_gone(ipv6_neighbour_cache_t *cache, uint8_t address[static 16])
 {
@@ -388,11 +381,6 @@ bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const
 
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_e state)
 {
-    if (!ipv6_neighbour_state_is_probably_reachable(entry->state) &&
-            ipv6_neighbour_state_is_probably_reachable(state)) {
-        /* A neighbour is becoming reachable - may affect destination cache */
-        ipv6_neighbour_appeared(cache, entry->ip_address);
-    }
     switch (state) {
         case IP_NEIGHBOUR_INCOMPLETE:
             entry->retrans_count = 0;
