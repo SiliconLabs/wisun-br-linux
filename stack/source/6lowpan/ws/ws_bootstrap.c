@@ -798,7 +798,6 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
 {
     uint32_t time_from_start = entry_ptr->link_lifetime - entry_ptr->lifetime;
-    uint8_t ll_address[16];
     bool nud_proces = false;
     bool activate_nud = false;
     bool child;
@@ -815,8 +814,6 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         //Do not send any probe or NUD when Expedite forward state is enabled
         return false;
     }
-
-    ws_common_create_ll_address(ll_address, entry_ptr->mac64);
 
     if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
 
