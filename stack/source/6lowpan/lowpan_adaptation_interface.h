@@ -49,8 +49,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, struct buffer *buf);
 
 struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *buf);
 
-bool lowpan_adaptation_tx_active(int8_t interface_id);
-
 void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
 void lowpan_adaptation_expedite_forward_enable(struct net_if *cur);

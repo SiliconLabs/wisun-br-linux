@@ -1206,16 +1206,6 @@ static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status)
     return (socket_event);
 }
 
-bool lowpan_adaptation_tx_active(int8_t interface_id)
-{
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
-
-    if (!interface_ptr || (!ns_list_count(&interface_ptr->activeUnicastList) && !interface_ptr->active_broadcast_tx_buf.buf)) {
-        return false;
-    }
-    return true;
-}
-
 static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *address_ptr, addrtype_e adr_type)
 {
 
