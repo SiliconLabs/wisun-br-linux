@@ -760,23 +760,4 @@ int ws_statistics_start(
 int ws_statistics_stop(
     int8_t interface_id);
 
-/**
- * Get Neighbor table information from stack.
- *
- * To allocate correct amount of memory first use the API with NULL to get current amount
- * of neighbors. Then Allocate the memory and call the function to fill the table.
- *
- * \param interface_id Network interface ID.
- * \param neighbor_ptr Pointer to memory where Neighbor table entries can be written.
- * \param count amount of neighbor table entries allocated to memory.
- *
- * \return >=0 Success with amount of entries written in table.
- * \return >=0 if neighbor_ptr is NULL returns the amount of neighbors currently.
- * \return <0 Failure.
- */
-int ws_neighbor_info_get(
-    int8_t interface_id,
-    ws_neighbour_info_t *neighbor_ptr,
-    uint16_t count);
-
 #endif
