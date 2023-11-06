@@ -660,7 +660,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
-    uint8_t ll_target[16];
     time_t current_time_stamp;
 
     if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size <= interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size)) {
@@ -674,7 +673,6 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
         temp_link_min_timeout = interface->ws_info.cfg->timing.temp_link_min_timeout;
     }
 
-    memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
 
     current_time_stamp = time_current(CLOCK_MONOTONIC);
 
@@ -704,9 +702,6 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
                 // We have registered entry so we have been selected as parent
                 continue;
             }
-
-            memcpy(ll_target + 8, cur->mac64, 8);
-            ll_target[8] ^= 2;
         }
 
         //Read current timestamp
