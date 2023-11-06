@@ -1112,7 +1112,7 @@ static bool ipv6_route_is_better(const ipv6_route_t *a, const ipv6_route_t *b)
 }
 
 /* Find the "best" route regardless of reachability, but respecting the skip flag and predicates */
-static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_id, ipv6_route_predicate_fn_t *predicate)
+static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_id)
 {
     ipv6_route_t *best = NULL;
     ns_list_foreach(ipv6_route_t, route, &ipv6_routing_table) {
@@ -1128,23 +1128,6 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
 
         /* Prefix must match */
         if (bitcmp(addr, route->prefix, route->prefix_len)) {
-            continue;
-        }
-
-        /* Check the predicate for the route itself. This allows,
-         * RPL "root" routes (the instance defaults) to be ignored in normal
-         * lookup. Note that for caching to work properly, we require
-         * the route predicate to produce "constant" results.
-         */
-        bool valid = true;
-
-        /* Then the supplied search-specific predicate can override */
-        if (predicate) {
-            valid = predicate(&route->info, valid);
-        }
-
-        /* If blocked by either predicate, skip */
-        if (!valid) {
             continue;
         }
 
@@ -1192,7 +1175,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
      * possibility would be a special precedence flag.
      */
     for (;;) {
-        ipv6_route_t *route = ipv6_route_find_best(dest, interface_id, NULL);
+        ipv6_route_t *route = ipv6_route_find_best(dest, interface_id);
         if (!route) {
             break;
         }

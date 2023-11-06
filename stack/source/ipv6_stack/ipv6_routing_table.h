@@ -201,9 +201,6 @@ typedef struct ipv6_route {
     uint8_t             prefix[];           // variable length
 } ipv6_route_t;
 
-/* Callback type for route predicate */
-typedef bool ipv6_route_predicate_fn_t(const ipv6_route_info_t *route, bool valid);
-
 /* Callbacks for route providers that dynamically compute next hop */
 typedef bool ipv6_route_next_hop_fn_t(const uint8_t *dest, ipv6_route_info_t *route_info);
 
