@@ -312,11 +312,7 @@ uint16_t ipv6_mtu(buffer_t *buf)
         return IPV6_MIN_LINK_MTU;
     }
 
-    if (buf->options.ipv6_dontfrag) {
-        return buf->interface->ipv6_neighbour_cache.link_mtu;
-    } else {
-        return buf->route->route_info.pmtu;
-    }
+    return buf->route->route_info.pmtu;
 }
 
 /* Input: IP payload. dst/src as source and final destination, type=NH, tclass set.
