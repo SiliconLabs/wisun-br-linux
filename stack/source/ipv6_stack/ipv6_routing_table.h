@@ -148,7 +148,6 @@ bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_ne
 bool ipv6_neighbour_addr_is_probably_reachable(ipv6_neighbour_cache_t *cache, const uint8_t *address);
 bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address);
 void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_e ll_type, const uint8_t *ll_address);
-void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/);
