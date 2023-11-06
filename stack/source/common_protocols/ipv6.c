@@ -862,9 +862,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_TIME_EXCEEDED, ICMPV6_CODE_TME_EXCD_HOP_LIM_EXCD, 0);
     }
 
-    /* Routing rules may require us not to send back to our predecessor */
-    buffer_note_predecessor(buf, ll_src);
-
     buf->ip_routed_up = true;
     buffer_data_pointer(buf)[IPV6_HDROFF_HOP_LIMIT] = --buf->options.hop_limit;
 
@@ -1230,7 +1227,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 if (!(buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL | IPEXT_HBH_MPL))) {
                     goto bad_nh;
                 }
-                buffer_note_predecessor(buf, &ll_src);
                 buf->options.type = *nh_ptr;
                 return ipv6_tunnel_exit(buf, ptr);
             default: {

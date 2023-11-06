@@ -236,16 +236,6 @@ buffer_t *buffer_turnaround(buffer_t *buf)
     return buffer_free_route(buf);
 }
 
-void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr)
-{
-    if (buf->options.need_predecessor && !buf->predecessor) {
-        buf->predecessor = malloc(sizeof * buf->predecessor);
-        if (buf->predecessor) {
-            memcpy(buf->predecessor, addr, sizeof * buf->predecessor);
-        }
-    }
-}
-
 /* Copy metadata information from src into dst.
  *
  * Data size and pointers left unmodified in destination.

@@ -103,7 +103,6 @@ typedef struct buffer_options {
     bool    ll_security_bypass_rx: 1;   /*!< Was received without link-layer security, when security was enabled */
     bool    ll_broadcast_rx: 1;         /*!< Was received as link-layer broadcast */
     bool    tunnelled: 1;               /*!< We tunnelled it as part of (RPL?) routing */
-    bool    need_predecessor: 1;        /*!< Used as an indicator that predecessor address needed */
     bool    multicast_loop: 1;          /*!< We want loopback if we're a group member (TX), or this IS the loopback if RX */
     bool    mpl_permitted: 1;           /*!< MPL will be used if enabled on interface and scope >=3 */
     bool    edfe_mode: 1;               /*!< Use Extended Directed Frame Exchange pattern in MAC layer */
@@ -261,9 +260,6 @@ buffer_t *buffer_turnaround(buffer_t *buf);
 
 /** copy metadata from src to dst - see definition for more info */
 void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst);
-
-/** remember the predecessor address, if needed */
-void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr);
 
 /** set buffer_priority */
 #define buffer_priority_set(x,z)  ((x)->priority = (z))
