@@ -71,17 +71,3 @@ uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi)
     }
     return i;
 }
-
-bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address)
-{
-
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return false;
-    }
-    mac_neighbor_table_entry_t *neigh_entry = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, link_local_address, false, NULL);
-    if (neigh_entry)
-        mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, neigh_entry);
-    return false;
-}
-

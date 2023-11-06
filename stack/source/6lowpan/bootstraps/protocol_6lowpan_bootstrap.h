@@ -38,7 +38,6 @@ enum nwk_interface_id;
 
 uint8_t *protocol_6lowpan_nd_border_router_address_get();
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
-bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address);
 void bootstrap_timer_handle(uint16_t ticks);
 
 #endif /* PROTOCOL_6LOWPAN_BOOTSTRAP_H_ */
