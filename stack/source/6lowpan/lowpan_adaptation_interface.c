@@ -719,7 +719,6 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
             break;
     }
 
-    dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
     interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
 }
 
