@@ -1162,7 +1162,6 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     uint8_t *ptr;
     buffer_data_add(buf, data_ind->msdu_ptr, data_ind->msduLength);
     //tr_debug("MAC Paylod size %u %s",data_ind->msduLength, tr_eui64(data_ind->msdu_ptr));
-    buf->options.dbm = data_ind->signal_dbm;
     buf->src_sa.addr_type = (addrtype_e)data_ind->SrcAddrMode;
     ptr = write_be16(buf->src_sa.address, data_ind->SrcPANId);
     memcpy(ptr, data_ind->SrcAddr, 8);
