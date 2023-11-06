@@ -294,7 +294,6 @@ buffer_t *buffer_clone(buffer_t *buf)
 
     *result_ptr = *buf;
     result_ptr->route = NULL; // Don't clone routing info
-    result_ptr->options.multicast_loop = false; // Don't loop back more copies!
     result_ptr->buf_ptr = buf_ptr;
     result_ptr->buf_end = buf_end;
     result_ptr->size = size;

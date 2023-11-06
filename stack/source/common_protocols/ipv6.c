@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 #include "app_wsbrd/wsbr.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
@@ -499,21 +500,9 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
      * (Note that we could theoretically go forwarding up/down a few times in
      * the event of a weird Routing Header)
      */
-    if (ipv6_packet_is_for_us(buf)) {
-        if (addr_is_ipv6_multicast(buf->dst_sa.address)) {
-            if (buf->options.multicast_loop) {
-                buffer_t *clone = buffer_clone(buf);
-                if (clone) {
-                    clone->options.multicast_loop = true; // Flags that this is the loopback
-                    clone->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
-                    protocol_push(clone);
-                }
-                buf->options.multicast_loop = false; // Clear flag, to ensure only 1 clone (eg if tunnelling)
-            }
-        } else {
-            buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
-            return buf;
-        }
+    if (ipv6_packet_is_for_us(buf) && !IN6_IS_ADDR_MULTICAST(buf->dst_sa.address)) {
+        buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
+        return buf;
     }
 
     /* Note ipv6_buffer_route can change interface */
@@ -967,11 +956,6 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
-        goto no_forward;
-    }
-
-    /* Locally-sourced packets are forwarded on the way down. Don't do it again if we loop back for applications */
-    if ((buf->info & B_DIR_MASK) == B_DIR_UP && buf->options.multicast_loop) {
         goto no_forward;
     }
 

@@ -547,13 +547,6 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     uint8_t seed_id_len = mpl_seed_id_len(seed_id_type);
 
     tr_debug("MPL %s %"PRIu8, seeding ? "transmit" : "received", sequence);
-    /* Special handling - just ignore the MPL option if receiving loopback copy.
-     * (MPL gets to process the outgoing message, and with seeding true - when
-     * looping back, we want to accept it without MPL getting in the way).
-     */
-    if (!seeding && buf->options.multicast_loop) {
-        return true;
-    }
 
     if (!domain) {
         domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
@@ -821,5 +814,3 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
             return buffer_free(buf);
     }
 }
-
-
