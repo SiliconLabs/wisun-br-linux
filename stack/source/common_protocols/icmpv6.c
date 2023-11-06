@@ -676,27 +676,6 @@ uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_o
     return dptr;
 }
 
-void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
-{
-    /*icmpv6_na_handler functionality based on ACK*/
-    uint8_t ll_target[16];
-    (void)status;
-
-    if (buffer_ptr->dst_sa.addr_type == ADDR_IPV6) {
-        /*Full IPv6 address*/
-        memcpy(ll_target, buffer_ptr->dst_sa.address, 16);
-    } else if (buffer_ptr->dst_sa.addr_type == ADDR_802_15_4_LONG) {
-        // Build link local address from long MAC address
-        memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
-        memcpy(ll_target + 8, &buffer_ptr->dst_sa.address[2], 8);
-        ll_target[8] ^= 2;
-    } else {
-        tr_warn("wrong address %d %s", buffer_ptr->dst_sa.addr_type, trace_array(buffer_ptr->dst_sa.address, 16));
-        return;
-    }
-    ws_common_neighbor_remove(buffer_ptr->interface, ll_target);
-}
-
 buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr,
                           bool unicast, bool unspecified_source, const struct ipv6_nd_opt_earo *aro)
 {
