@@ -116,9 +116,10 @@ void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *s
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
 
-    if (neighbor && neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
-        neighbor->lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+    if (neighbor) {
+        if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
+            neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
+        neighbor->lifetime = neighbor->link_lifetime;
         tr_debug("neighbor[%d] = %s, lifetime=%d", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     }
 }
