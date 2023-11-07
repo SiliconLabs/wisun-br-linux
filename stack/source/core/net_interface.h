@@ -77,38 +77,4 @@ typedef enum arm_library_event_type_e {
     ARM_LIB_TASKLET_INIT_EVENT = 0, /**< Tasklet init occurs always when generating a tasklet. */
 } arm_library_event_type_e;
 
-
-/** Socket type exceptions. */
-/** Socket event mask. */
-#define SOCKET_EVENT_MASK                   0xF0
-/** Data received. */
-#define SOCKET_DATA                         (0 << 4)
-/** TCP connection ready. */
-#define SOCKET_CONNECT_DONE                 (1 << 4)
-/** TCP connection failure. */
-#define SOCKET_CONNECT_FAIL                 (2 << 4)
-/** TCP connection authentication failed. */
-#define SOCKET_CONNECT_AUTH_FAIL            (3 << 4)
-/** TCP incoming connection on listening socket */
-#define SOCKET_INCOMING_CONNECTION          (4 << 4)
-/** Socket data send failure. */
-#define SOCKET_TX_FAIL                      (5 << 4)
-/** TCP connection closed (received their FIN and ACK of our FIN). */
-#define SOCKET_CONNECT_CLOSED               (6 << 4)
-/** TCP connection reset */
-#define SOCKET_CONNECTION_RESET             (7 << 4)
-/** No route available to the destination. */
-#define SOCKET_NO_ROUTE                     (8 << 4)
-/** Socket TX done. */
-#define SOCKET_TX_DONE                      (9 << 4)
-/** Out of memory failure. */
-#define SOCKET_NO_RAM                       (10 << 4)
-/** TCP connection problem indication (RFC 1122 R1) */
-#define SOCKET_CONNECTION_PROBLEM           (11 << 4)
-
-#define SOCKET_BIND_DONE                    SOCKET_CONNECT_DONE      /**< Backward compatibility */
-#define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL      /**< Backward compatibility */
-#define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
-
-
 #endif

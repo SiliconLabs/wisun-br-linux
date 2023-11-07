@@ -133,8 +133,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
 /* Tx confirmation local functions */
 static bool lowpan_active_tx_handle_verify(uint8_t handle, buffer_t *buf);
 static fragmenter_tx_entry_t *lowpan_listed_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue);
-static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr, uint8_t socket_event);
-static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status);
+static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
 
 /* Fragmentation local functions */
@@ -1045,7 +1044,7 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
     return false;
 }
 
-static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr, uint8_t socket_event)
+static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     buffer_t *buf = tx_ptr->buf;
 
@@ -1101,7 +1100,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
             if (tx_ptr->fragmented_data && active_direct_confirm)
                 interface_ptr->fragmenter_active = false;
-            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
+            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
         } else {
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
@@ -1132,7 +1131,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
             }
         }
 
-        lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
+        lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     }
     // When confirmation is for direct transmission, push all allowed buffers to MAC
     if (active_direct_confirm == true) {
@@ -1187,25 +1186,6 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     protocol_push(buf);
 }
 
-static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status)
-{
-    uint8_t socket_event;
-
-    switch (mlme_status) {
-        case MLME_SUCCESS:
-            socket_event = SOCKET_TX_DONE;
-            break;
-        case MLME_TX_NO_ACK:
-        case MLME_SECURITY_FAIL:
-        case MLME_TRANSACTION_EXPIRED:
-        default:
-            socket_event = SOCKET_TX_FAIL;
-            break;
-    }
-
-    return (socket_event);
-}
-
 static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *address_ptr, addrtype_e adr_type)
 {
 
@@ -1252,7 +1232,7 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
 static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     tr_debug("Purge from indirect handle %u", tx_ptr->buf->seq);
-    lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, SOCKET_TX_FAIL);
+    lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     return true;
 }
 
