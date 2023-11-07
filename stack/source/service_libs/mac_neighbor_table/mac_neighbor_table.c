@@ -112,9 +112,16 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
             }
 
             cur->lifetime -= time_update;
-            if (!table_class->user_nud_notify_cb ||  table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX || cur->nud_active) {
+
+            // The Wi-SUN specification does not detail the usage of NUD for LFNs.
+            // According to RFC 9010 section 9.2.1, a RUL is supposed to
+            // refresh a registered address periodically.
+            // Therefore we disable NUD for LFNs here.
+            if (!table_class->user_nud_notify_cb ||
+                cur->node_role == WS_NR_ROLE_LFN ||
+                table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX ||
+                cur->nud_active)
                 continue;
-            }
 
             if (table_class->user_nud_notify_cb(cur, table_class->table_user_identifier)) {
                 table_class->active_nud_process++;
