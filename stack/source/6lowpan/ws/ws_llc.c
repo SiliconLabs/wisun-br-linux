@@ -477,14 +477,8 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
 
 static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)
 {
-    if (!neighbor_llc->neighbor) {
-        WARN("link layer neighbor information unavailable");
+    if (!neighbor_llc->neighbor || !neighbor_llc->ws_neighbor)
         return false;
-    }
-    if (!neighbor_llc->ws_neighbor) {
-        WARN("wi-sun neighbor information unavailable");
-        return false;
-    }
 
     if (neighbor_llc->neighbor->node_role == WS_NR_ROLE_LFN)
         return tx_confirm_duration * 1000 >= neighbor_llc->ws_neighbor->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
