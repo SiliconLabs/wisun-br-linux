@@ -797,8 +797,10 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     uint8_t flags;
 
     /* Check if ARO response and status == success, then sending can be omitted with flag */
+    // FIXME: It is not clear how ARO and EARO are differentiated.
+    // This hack is based on the Wi-SUN specification.
     if (cur->ipv6_neighbour_cache.omit_na_aro_success && earo &&
-        !(earo->r && earo->t) && earo->status == ARO_SUCCESS) {
+        !earo->t && earo->status == ARO_SUCCESS) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
