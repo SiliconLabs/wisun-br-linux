@@ -244,6 +244,8 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
         memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
 
     ns_list_add_to_start(&cache->list, entry);
+    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor add %s / %s",
+          tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
 
     return entry;
 }
