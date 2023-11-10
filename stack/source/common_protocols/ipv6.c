@@ -189,7 +189,13 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     dest_entry->interface_id = route->route_info.interface_id;
     if (!addr_is_ipv6_multicast(dest_entry->destination)) {
-        dest_entry->last_neighbour = ipv6_neighbour_lookup_or_create(&outgoing_if->ipv6_neighbour_cache, route->route_info.next_hop_addr);
+        dest_entry->last_neighbour = ipv6_neighbour_lookup(&outgoing_if->ipv6_neighbour_cache, route->route_info.next_hop_addr);
+
+        if (!dest_entry->last_neighbour)
+            dest_entry->last_neighbour = ipv6_neighbour_create(&outgoing_if->ipv6_neighbour_cache,
+                                                               route->route_info.next_hop_addr);
+        if (!dest_entry->last_neighbour)
+            goto no_route;
     }
     //tr_debug("%s->last_neighbour := %s", tr_ipv6(dest_entry->destination), tr_ipv6(route->route_info.next_hop_addr));
 

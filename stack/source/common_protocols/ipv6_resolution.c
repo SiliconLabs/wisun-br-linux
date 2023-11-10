@@ -146,7 +146,9 @@ static void ipv6_trigger_resolve_query(struct net_if *cur_interface, buffer_t *b
  */
 ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
 {
+    ipv6_neighbour_t *n;
     buffer_routing_info_t *route = ipv6_buffer_route(buf);
+
     if (!route) {
         tr_warn("XXX ipv6_interface_resolve no route!");
         // Can this happen? How did it get to this interface in the first place?
@@ -154,7 +156,11 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
         buffer_free(buf);
         return NULL;
     }
-    ipv6_neighbour_t *n = ipv6_neighbour_lookup_or_create(&cur->ipv6_neighbour_cache, route->route_info.next_hop_addr);
+
+    n = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, route->route_info.next_hop_addr);
+    if (!n)
+        n = ipv6_neighbour_create(&cur->ipv6_neighbour_cache,
+                                  route->route_info.next_hop_addr);
     if (!n) {
         // If it can happen, send ICMP Destination Unreachable
         tr_warn("No heap for address resolve");

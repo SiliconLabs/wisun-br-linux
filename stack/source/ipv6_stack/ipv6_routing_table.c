@@ -163,11 +163,9 @@ void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache)
 
 ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uint8_t *address)
 {
-    ns_list_foreach(ipv6_neighbour_t, cur, &cache->list) {
-        if (addr_ipv6_equal(cur->ip_address, address)) {
+    ns_list_foreach(ipv6_neighbour_t, cur, &cache->list)
+        if (addr_ipv6_equal(cur->ip_address, address))
             return cur;
-        }
-    }
 
     return NULL;
 }
@@ -204,25 +202,16 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     free(entry);
 }
 
-ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache, const uint8_t *address/*, bool tentative*/)
+ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address)
 {
     uint_fast16_t count = 0;
     ipv6_neighbour_t *entry = NULL;
     ipv6_neighbour_t *garbage_possible_entry = NULL;
 
     ns_list_foreach(ipv6_neighbour_t, cur, &cache->list) {
-
         if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
             garbage_possible_entry = cur;
             count++;
-        }
-
-        if (addr_ipv6_equal(cur->ip_address, address)) {
-            if (cur != ns_list_get_first(&cache->list)) {
-                ns_list_remove(&cache->list, cur);
-                ns_list_add_to_start(&cache->list, cur);
-            }
-            return cur;
         }
     }
 
@@ -245,9 +234,6 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
     entry->is_router = false;
     entry->from_redirect = false;
     entry->state = IP_NEIGHBOUR_NEW;
-    /*if (tentative && cache->reg_required)
-        entry->type = IP_NEIGHBOUR_TENTATIVE;
-    else*/
     entry->type = IP_NEIGHBOUR_GARBAGE_COLLECTIBLE;
     ns_list_init(&entry->queue);
     entry->timer = 0;
@@ -421,10 +407,11 @@ void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6
 
 ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/)
 {
-    ipv6_neighbour_t *entry = ipv6_neighbour_lookup_or_create(cache, ip_address/*, tentative*/);
-    if (!entry) {
+    ipv6_neighbour_t *entry = ipv6_neighbour_lookup(cache, ip_address);
+    if (!entry)
+        entry = ipv6_neighbour_create(cache, ip_address);
+    if (!entry)
         return NULL;
-    }
 
     ipv6_neighbour_entry_update_unsolicited(cache, entry, type, ll_address/*, tentative*/);
 
@@ -1001,14 +988,17 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
 static void ipv6_route_probe(ipv6_route_t *route)
 {
     ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(route->info.interface_id);
-    if (!ncache || !ncache->probe_avoided_routers || route->probe_timer) {
-        return;
-    }
+    ipv6_neighbour_t *n;
 
-    ipv6_neighbour_t *n = ipv6_neighbour_lookup_or_create(ncache, route->info.next_hop_addr);
-    if (!n) {
+    if (!ncache || !ncache->probe_avoided_routers || route->probe_timer)
         return;
-    }
+
+    n = ipv6_neighbour_lookup(ncache, route->info.next_hop_addr);
+    if (!n)
+        n = ipv6_neighbour_create(ncache, route->info.next_hop_addr);
+    if (!n)
+        return;
+
     ipv6_interface_resolve_send_ns(ncache, n, true, 0);
 
     /* We need to limit to once per minute *per router* - so set the hold-off

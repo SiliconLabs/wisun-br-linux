@@ -84,6 +84,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         .data_size = earo_len,
         .data = earo_ptr,
     };
+    ipv6_neighbour_t *neigh;
     sockaddr_t ll_addr;
     uint8_t flags;
     uint8_t tid;
@@ -171,7 +172,9 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     }
 
     /* We need to have entry in the Neighbour Cache */
-    ipv6_neighbour_t *neigh = ipv6_neighbour_lookup_or_create(&cur_interface->ipv6_neighbour_cache, registered_addr);
+    neigh = ipv6_neighbour_lookup(&cur_interface->ipv6_neighbour_cache, registered_addr);
+    if (!neigh)
+        neigh = ipv6_neighbour_create(&cur_interface->ipv6_neighbour_cache, registered_addr);
     if (!neigh) {
         na_earo->present = true;
         na_earo->status = ARO_FULL;
