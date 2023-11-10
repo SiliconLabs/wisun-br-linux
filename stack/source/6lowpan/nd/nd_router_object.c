@@ -191,8 +191,11 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         }
     }
 
-    /* We need to have entry in the Neighbour Cache */
-    neigh = ipv6_neighbour_lookup(&cur_interface->ipv6_neighbour_cache, registered_addr);
+    if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
+        neigh = ipv6_neighbour_lookup_mc(&cur_interface->ipv6_neighbour_cache, registered_addr, na_earo->eui64);
+    else
+        neigh = ipv6_neighbour_lookup(&cur_interface->ipv6_neighbour_cache, registered_addr);
+
     if (!neigh)
         neigh = ipv6_neighbour_create(&cur_interface->ipv6_neighbour_cache, registered_addr, na_earo->eui64);
     if (!neigh) {

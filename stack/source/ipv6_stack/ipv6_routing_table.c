@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <netinet/in.h>
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
@@ -200,6 +201,21 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     }
     ipv6_destination_cache_forget_neighbour(entry);
     free(entry);
+}
+
+ipv6_neighbour_t *ipv6_neighbour_lookup_mc(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
+{
+    if (!IN6_IS_ADDR_MULTICAST(address))
+        return NULL;
+
+    ns_list_foreach(ipv6_neighbour_t, cur, &cache->list)
+        if (addr_ipv6_equal(cur->ip_address, address)) {
+            if (memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8))
+                continue;
+            return cur;
+        }
+
+    return NULL;
 }
 
 ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
