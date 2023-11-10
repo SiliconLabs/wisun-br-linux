@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 #include "common/iobuf.h"
 #include "common/log.h"
 
@@ -41,21 +42,24 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
         neigh->lifetime = aro->lifetime * UINT32_C(60);
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
-        ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
-        tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
-        tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
-        protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
-
+        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
+            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
+            tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
+            tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
+            protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
+        }
     } else {
         /* Um, no - can't transmit response if we remove NCE now! */
         //ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache, neigh);
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-        ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
-        target = rpl_target_get(root, neigh->ip_address);
-        if (target)
-            rpl_target_del(root, target);
+        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
+            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
+            target = rpl_target_get(root, neigh->ip_address);
+            if (target)
+                rpl_target_del(root, target);
+        }
     }
 }
 
@@ -65,16 +69,16 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
                 || cur->type == IP_NEIGHBOUR_TENTATIVE)
                 && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
-
-            ipv6_route_delete(cur->ip_address, 128, cur_interface->id, cur->ip_address,
-                              ROUTE_ARO);
+            if (!IN6_IS_ADDR_MULTICAST(cur->ip_address))
+                ipv6_route_delete(cur->ip_address, 128, cur_interface->id,
+                                  cur->ip_address, ROUTE_ARO);
             ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache,
                                         cur);
         }
     }
 }
 
-/* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505) EARO. */
+/* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505 + draft-ietf-6lo-multicast-registration-15) EARO. */
 bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, size_t earo_len,
                         const uint8_t *slla_ptr, const uint8_t src_addr[16], const uint8_t target[16],
                         struct ipv6_nd_opt_earo *na_earo)
@@ -106,7 +110,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      * |   Type = 33   |   Length = 2  |    Status     |    Opaque     |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |  Rsvd | I |R|T|     TID       |     Registration Lifetime     |
+     * |Rsv| P | I |R|T|      TID      |     Registration Lifetime     |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      * |                            EUI-64                             |
      * +                              or                               +
@@ -128,9 +132,18 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     na_earo->lifetime = iobuf_pop_be16(&earo);
     iobuf_pop_data(&earo, na_earo->eui64, 8);
 
+    na_earo->t = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags);
+    na_earo->r = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags);
+    na_earo->p = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_P_MASK, flags);
+
+    if (na_earo->p > IPV6_ND_OPT_EARO_FLAGS_P_MC) {
+        TRACE(TR_DROP, "drop %-9s: invalid P flag value in EARO: %d", "ns", na_earo->p);
+        return false;
+    }
+
     // FIXME: It is not clear how ARO and EARO are differentiated.
-    if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags) &&
-        FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags)) {
+    // This hack is based on the Wi-SUN specification.
+    if (na_earo->t && (na_earo->r || na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)) {
         //   RFC 8505 Section 5.6 - Link-Local Addresses and Registration
         // When sending an NS(EARO) to a 6LR, a 6LN MUST use a Link-Local
         // Address as the Source Address of the registration, whatever the type
@@ -152,23 +165,30 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // makes sense to register the address and respond with a NA(EARO).
         na_earo->present = true;
         na_earo->status = ARO_SUCCESS;
-        na_earo->r = true;
-        na_earo->t = true;
         na_earo->tid = tid;
+        if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
+            if (addr_ipv6_equal(ADDR_ALL_MPL_FORWARDERS, registered_addr) ||
+                !IN6_IS_ADDR_MULTICAST(registered_addr)) {
+                TRACE(TR_IGNORE, "invalid multicast address in earo: %s", tr_ipv6(registered_addr));
+                na_earo->status = ARO_TOPOLOGICALLY_INCORRECT;
+                return true;
+            }
     }
 
-    /* Check if we are already using this address ourself */
-    if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
-        na_earo->present = true;
-        na_earo->status = ARO_DUPLICATE;
-        return true;
-    }
+    if (na_earo->p != IPV6_ND_OPT_EARO_FLAGS_P_MC) {
+        /* Check if we are already using this address ourself */
+        if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
+            na_earo->present = true;
+            na_earo->status = ARO_DUPLICATE;
+            return true;
+        }
 
-    /* TODO - check hard upper limit on registrations? */
-    na_earo->status = ws_common_allow_child_registration(cur_interface, na_earo->eui64, na_earo->lifetime);
-    if (na_earo->status != ARO_SUCCESS) {
-        na_earo->present = true;
-        return true;
+        /* TODO - check hard upper limit on registrations? */
+        na_earo->status = ws_common_allow_child_registration(cur_interface, na_earo->eui64, na_earo->lifetime);
+        if (na_earo->status != ARO_SUCCESS) {
+            na_earo->present = true;
+            return true;
+        }
     }
 
     /* We need to have entry in the Neighbour Cache */
