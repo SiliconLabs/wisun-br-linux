@@ -202,7 +202,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     free(entry);
 }
 
-ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address)
+ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
 {
     uint_fast16_t count = 0;
     ipv6_neighbour_t *entry = NULL;
@@ -240,9 +240,8 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     entry->lifetime = 0;
     entry->retrans_count = 0;
     entry->ll_type = ADDR_NONE;
-    if (cache->recv_addr_reg) {
-        memset(ipv6_neighbour_eui64(cache, entry), 0, 8);
-    }
+    if (cache->recv_addr_reg)
+        memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
 
     ns_list_add_to_start(&cache->list, entry);
 
@@ -409,7 +408,7 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
 {
     ipv6_neighbour_t *entry = ipv6_neighbour_lookup(cache, ip_address);
     if (!entry)
-        entry = ipv6_neighbour_create(cache, ip_address);
+        entry = ipv6_neighbour_create(cache, ip_address, ll_address);
     if (!entry)
         return NULL;
 
@@ -985,21 +984,27 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
            addr_ipv6_equal(a->info.next_hop_addr, b->info.next_hop_addr);
 }
 
-static void ipv6_route_probe(ipv6_route_t *route)
+static void ipv6_route_probe(int8_t interface_id, ipv6_route_t *route)
 {
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(route->info.interface_id);
+    addrtype_e ll_type;
+    const uint8_t *ll_addr;
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     ipv6_neighbour_t *n;
 
-    if (!ncache || !ncache->probe_avoided_routers || route->probe_timer)
+    if (!interface->ipv6_neighbour_cache.probe_avoided_routers || route->probe_timer)
         return;
 
-    n = ipv6_neighbour_lookup(ncache, route->info.next_hop_addr);
-    if (!n)
-        n = ipv6_neighbour_create(ncache, route->info.next_hop_addr);
+    n = ipv6_neighbour_lookup(&interface->ipv6_neighbour_cache, route->info.next_hop_addr);
+    if (!n) {
+        if (!ipv6_map_ip_to_ll(interface, NULL, route->info.next_hop_addr, &ll_type, &ll_addr) ||
+            ll_type != ADDR_802_15_4_LONG)
+            return;
+        n = ipv6_neighbour_create(&interface->ipv6_neighbour_cache, route->info.next_hop_addr, ll_addr + PAN_ID_LEN);
+    }
     if (!n)
         return;
 
-    ipv6_interface_resolve_send_ns(ncache, n, true, 0);
+    ipv6_interface_resolve_send_ns(&interface->ipv6_neighbour_cache, n, true, 0);
 
     /* We need to limit to once per minute *per router* - so set the hold-off
      * timer for *all* routing entries to this router
@@ -1165,7 +1170,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
 
             /* Note that best must be set if need_to_probe is */
             if (!ipv6_route_same_router(r, best) && ipv6_route_is_better(r, best)) {
-                ipv6_route_probe(r);
+                ipv6_route_probe(interface_id, r);
             }
         }
     }

@@ -174,7 +174,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     /* We need to have entry in the Neighbour Cache */
     neigh = ipv6_neighbour_lookup(&cur_interface->ipv6_neighbour_cache, registered_addr);
     if (!neigh)
-        neigh = ipv6_neighbour_create(&cur_interface->ipv6_neighbour_cache, registered_addr);
+        neigh = ipv6_neighbour_create(&cur_interface->ipv6_neighbour_cache, registered_addr, na_earo->eui64);
     if (!neigh) {
         na_earo->present = true;
         na_earo->status = ARO_FULL;
@@ -209,7 +209,6 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     if (neigh->type != IP_NEIGHBOUR_REGISTERED) {
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
         neigh->lifetime = TENTATIVE_NCE_LIFETIME;
-        memcpy(nce_eui64, na_earo->eui64, 8);
     }
 
     /* Set the LL address, ensure it's marked STALE */

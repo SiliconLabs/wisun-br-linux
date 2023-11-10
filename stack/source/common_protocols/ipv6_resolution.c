@@ -146,6 +146,8 @@ static void ipv6_trigger_resolve_query(struct net_if *cur_interface, buffer_t *b
  */
 ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
 {
+    addrtype_e ll_type;
+    const uint8_t *ll_addr;
     ipv6_neighbour_t *n;
     buffer_routing_info_t *route = ipv6_buffer_route(buf);
 
@@ -157,26 +159,24 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
         return NULL;
     }
 
-    n = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, route->route_info.next_hop_addr);
-    if (!n)
-        n = ipv6_neighbour_create(&cur->ipv6_neighbour_cache,
-                                  route->route_info.next_hop_addr);
-    if (!n) {
-        // If it can happen, send ICMP Destination Unreachable
-        tr_warn("No heap for address resolve");
+    if (!ipv6_map_ip_to_ll(cur, NULL, route->route_info.next_hop_addr, &ll_type, &ll_addr) ||
+        ll_type != ADDR_802_15_4_LONG) {
+        TRACE(TR_TX_ABORT, "tx-abort: unable to map ip to link layer address");
         buffer_free(buf);
         return NULL;
     }
 
-    if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE) {
-        addrtype_e ll_type;
-        const uint8_t *ll_addr;
-
-        if (cur->if_map_ip_to_link_addr &&
-                cur->if_map_ip_to_link_addr(cur, route->route_info.next_hop_addr, &ll_type, &ll_addr)) {
-            ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, n, NA_O, ll_type, ll_addr);
-        }
+    n = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, route->route_info.next_hop_addr);
+    if (!n)
+        n = ipv6_neighbour_create(&cur->ipv6_neighbour_cache,
+                                  route->route_info.next_hop_addr, ll_addr + PAN_ID_LEN);
+    if (!n) {
+        buffer_free(buf);
+        return NULL;
     }
+
+    if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE)
+        ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, n, NA_O, ll_type, ll_addr);
 
     if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE) {
         ipv6_trigger_resolve_query(cur, buf, n);
