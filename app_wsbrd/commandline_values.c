@@ -69,24 +69,25 @@ const struct name_value valid_fan_versions[] = {
 };
 
 const struct name_value valid_traces[] = {
-    { "bus",       TR_BUS },
-    { "cpc",       TR_CPC },
-    { "hdlc",      TR_HDLC },
-    { "hif",       TR_HIF },
-    { "hif-extra", TR_HIF_EXTRA },
-    { "trickle",   TR_TRICKLE },
-    { "15.4-mngt", TR_15_4_MNGT },
-    { "15.4",      TR_15_4_MNGT | TR_15_4_DATA },
-    { "eap",       TR_EAP },
-    { "icmp",      TR_ICMP },
-    { "icmp-rf",   TR_ICMP }, // legacy name
-    { "icmp-tun",  0 },       // legacy name
-    { "dhcp",      TR_DHCP },
-    { "tun",       TR_TUN },
-    { "timers",    TR_TIMERS },
-    { "drop",      TR_DROP | TR_TX_ABORT | TR_IGNORE },
-    { "rpl",       TR_RPL },
-    { "neigh",     TR_NEIGH },
+    { "bus",        TR_BUS },
+    { "cpc",        TR_CPC },
+    { "hdlc",       TR_HDLC },
+    { "hif",        TR_HIF },
+    { "hif-extra",  TR_HIF_EXTRA },
+    { "trickle",    TR_TRICKLE },
+    { "15.4-mngt",  TR_15_4_MNGT },
+    { "15.4",       TR_15_4_MNGT | TR_15_4_DATA },
+    { "eap",        TR_EAP },
+    { "icmp",       TR_ICMP },
+    { "icmp-rf",    TR_ICMP }, // legacy name
+    { "icmp-tun",   0 },       // legacy name
+    { "dhcp",       TR_DHCP },
+    { "tun",        TR_TUN },
+    { "timers",     TR_TIMERS },
+    { "drop",       TR_DROP | TR_TX_ABORT | TR_IGNORE },
+    { "rpl",        TR_RPL },
+    { "neigh",      TR_NEIGH },
+    { "neigh-ipv6", TR_NEIGH_IPV6 },
     { NULL },
 };
 
