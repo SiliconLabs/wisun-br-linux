@@ -370,8 +370,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         goto drop; // The IP Hop Limit field has a value of 255
     if (buf->options.code != 0)
         goto drop; // ICMP Code is 0.
-    if (addr_is_ipv6_multicast(target))
-        goto drop; // Target Address is not a multicast address.
     if (!icmpv6_nd_options_validate(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf)))
         goto drop; // All included options have a length that is greater than zero.
     if (addr_is_ipv6_unspecified(buf->src_sa.address)) {
