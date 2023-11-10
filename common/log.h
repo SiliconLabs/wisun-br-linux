@@ -86,7 +86,7 @@ enum {
     TR_ICMP       = 0x00008000,
     TR_DHCP       = 0x00010000,
     TR_RPL        = 0x00020000,
-    TR_NEIGH      = 0x00040000,
+    TR_NEIGH_15_4 = 0x00040000,
     TR_NEIGH_IPV6 = 0x00080000,
     TR_DROP       = 0x00100000,
     TR_TX_ABORT   = 0x00200000,

@@ -86,7 +86,8 @@ const struct name_value valid_traces[] = {
     { "timers",     TR_TIMERS },
     { "drop",       TR_DROP | TR_TX_ABORT | TR_IGNORE },
     { "rpl",        TR_RPL },
-    { "neigh",      TR_NEIGH },
+    { "neigh",      TR_NEIGH_15_4 }, // legacy name
+    { "neigh-15.4", TR_NEIGH_15_4 },
     { "neigh-ipv6", TR_NEIGH_IPV6 },
     { NULL },
 };

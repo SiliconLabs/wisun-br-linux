@@ -72,7 +72,7 @@ static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class,
     if (table_class->user_remove_notify_cb) {
         table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
     }
-    TRACE(TR_NEIGH, "neighbor del %s", tr_eui64(entry->mac64));
+    TRACE(TR_NEIGH_15_4, "neighbor del %s", tr_eui64(entry->mac64));
 
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
@@ -157,7 +157,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->link_lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->ms_mode = 0;
-    TRACE(TR_NEIGH, "neighbor add %s", tr_eui64(mac64));
+    TRACE(TR_NEIGH_15_4, "neighbor add %s", tr_eui64(mac64));
     return entry;
 }
 
