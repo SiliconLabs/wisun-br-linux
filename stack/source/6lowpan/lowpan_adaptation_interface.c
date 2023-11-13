@@ -46,6 +46,7 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "6lowpan/ws/ws_common.h"
+#include "6lowpan/ws/ws_cfg_settings.h"
 
 #include "6lowpan/lowpan_adaptation_interface.h"
 
@@ -61,6 +62,7 @@ typedef void (adaptation_etx_update_cb)(struct net_if *cur, buffer_t *buf, const
 #endif
 
 #define ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE 20
+#define LFN_BUFFER_TIMEOUT_PARAM 4
 
 typedef struct fragmenter_tx_entry {
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
@@ -884,10 +886,31 @@ void lowpan_adaptation_interface_slow_timer(int seconds)
     }
 }
 
-static bool lowpan_adaptation_interface_check_buffer_timeout(buffer_t *buf)
+static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur, buffer_t *buf)
 {
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
+    mac_neighbor_table_entry_t *neigh_entry_ptr;
+    ws_neighbor_class_entry_t *ws_neighbor;
+    int lfn_bc_interval_s = cur->ws_info.cfg->fhss.lfn_bc_interval / 1000;
+    int lfn_uc_l_interval_s;
+
+    if (buf->options.lfn_multicast) {
+        return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
+    } else {
+        neigh_entry_ptr = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
+                                                              buf->dst_sa.address + 2,
+                                                              buf->dst_sa.addr_type);
+        if (neigh_entry_ptr && neigh_entry_ptr->node_role == WS_NR_ROLE_LFN) {
+            ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, neigh_entry_ptr->index);
+            if (ws_neighbor) {
+                lfn_uc_l_interval_s = ws_neighbor->fhss_data.lfn.uc_listen_interval_ms / 1000;
+                return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
+            }
+            else
+                return true; // ws_neighbor not found, should not happen
+        }
+    }
 
     if ((buf->priority == QOS_NORMAL) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_LOW_PRIORITY)) {
         return true;
@@ -940,7 +963,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
         if (!buf->adaptation_timestamp) {
             buf->adaptation_timestamp--;
         }
-    } else if (lowpan_adaptation_interface_check_buffer_timeout(buf)) {
+    } else if (lowpan_adaptation_interface_check_buffer_timeout(cur, buf)) {
         goto tx_error_handler;
     }
 
