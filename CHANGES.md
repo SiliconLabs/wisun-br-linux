@@ -1,3 +1,11 @@
+v1.7.1
+------
+  - Fix LFN Time Sync encryption
+  - Improve LFN stability
+  - Improve key distribution
+  - Improve MbedTLS compatibility
+  - Fix TBU API `/config/preferredParent`
+
 v1.7
 ------
   - Updated nodes join ability API (`enable_lfn` and `enable_ffn10` replace
