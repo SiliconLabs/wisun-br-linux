@@ -211,18 +211,6 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
  */
 void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, const uint8_t *phy_mode_ids, uint8_t mdr_capable);
 
-/**
- * Find a PhyModeId matching both transmitter and received capabilities
- *
- * \details if the receiver POM-IE isn't known, use base operating mode
- *          otherwise use the \p PhyModeId if it part of POM-IE
- *
- * \param neighbor_entry pointer to neighbor (receiver)
- * \
- * \param phy_mode_id phy_mode_id the transmitter want to transit the packet
- */
-uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id);
-
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
 
 #endif

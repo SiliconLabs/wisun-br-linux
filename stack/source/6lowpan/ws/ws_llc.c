@@ -1117,6 +1117,16 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
 }
 
+static uint8_t ws_llc_find_phy_mode_id(const uint8_t phy_mode_id_list[],
+                                       uint8_t phy_mode_id_count,
+                                       uint8_t phy_mode_id)
+{
+    for (int i = 0; i < phy_mode_id_count; i++)
+        if (phy_mode_id_list[i] == phy_mode_id)
+            return phy_mode_id;
+    return 0;
+}
+
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
     struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
@@ -1136,7 +1146,9 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
             ms_phy_mode_id = schedule->phy_mode_id_ms_tx;
         break;
     }
-    return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, ms_phy_mode_id);
+    return ws_llc_find_phy_mode_id(neighbor_info.neighbor->phy_mode_ids,
+                                   neighbor_info.neighbor->phy_mode_id_count,
+                                   ms_phy_mode_id);
 }
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
@@ -1928,8 +1940,9 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         } else {
             if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
                 // Check Mode Switch PhyModeId is valid in the neighbor list
-                peer_phy_mode_id = mac_neighbor_find_phy_mode_id(neighbor_info.neighbor,
-                                                                 phy_mode_id);
+                peer_phy_mode_id = ws_llc_find_phy_mode_id(neighbor_info.neighbor->phy_mode_ids,
+                                                           neighbor_info.neighbor->phy_mode_id_count,
+                                                           phy_mode_id);
                 if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
                     return -4;
                 neighbor_info.neighbor->ms_phy_mode_id = phy_mode_id;
