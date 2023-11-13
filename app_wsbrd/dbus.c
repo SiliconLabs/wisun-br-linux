@@ -461,11 +461,12 @@ static int dbus_message_append_node(
             ret = sd_bus_message_append(m, "b", true);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
-
-            dbus_message_open_info(m, property, "rssi", "i");
-            ret = sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            dbus_message_close_info(m, property);
+            if (neighbor->rssi != INT_MAX) {
+                dbus_message_open_info(m, property, "rssi", "i");
+                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
+                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                dbus_message_close_info(m, property);
+            }
             if (neighbor->rsl_in != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl", "i");
                 ret = sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_in_get(neighbor));
@@ -541,6 +542,27 @@ static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt 
     return NULL;
 }
 
+void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
+{
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct ws_neighbor_class_entry neigh = {
+        .rssi    = INT_MAX,
+        .rsl_in  = RSL_UNITITIALIZED,
+        .rsl_out = RSL_UNITITIALIZED,
+    };
+    uint8_t ipv6_addrs[3][16] = { 0 };
+
+    tun_addr_get_link_local(ctxt->config.tun_dev, ipv6_addrs[0]);
+    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6_addrs[1]);
+    while (net_if->ws_info.hopping_schedule.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
+        neigh.pom_ie.phy_op_mode_number++;
+    memcpy(neigh.pom_ie.phy_op_mode_id,
+           net_if->ws_info.hopping_schedule.phy_op_modes,
+           neigh.pom_ie.phy_op_mode_number);
+    dbus_message_append_node(m, property, ctxt->rcp.eui64, NULL,
+                             ipv6_addrs, true, false, &neigh);
+}
+
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
@@ -552,13 +574,9 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     uint8_t *parent, *ucast_addr;
     int len_pae, len_rpl, ret, j;
     uint8_t eui64_pae[4096][8];
-    bbr_information_t br_info;
     supp_entry_t *supp;
     uint8_t ipv6[16];
 
-    ret = ws_bbr_info_get(ctxt->rcp_if_id, &br_info);
-    if (ret)
-        return sd_bus_error_set_errno(ret_error, EAGAIN);
     len_pae = ws_pae_auth_supp_list(ctxt->rcp_if_id, eui64_pae, sizeof(eui64_pae));
     len_rpl = ws_bbr_routing_table_get(ctxt->rcp_if_id, table, ARRAY_SIZE(table));
     if (len_rpl < 0)
@@ -566,10 +584,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
-    tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
-    dbus_message_append_node(reply, property, ctxt->rcp.eui64, NULL,
-                             node_ipv6, true, false, NULL);
+    dbus_message_append_node_br(reply, property, ctxt);
 
     for (int i = 0; i < len_pae; i++) {
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
