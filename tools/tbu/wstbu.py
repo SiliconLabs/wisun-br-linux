@@ -27,7 +27,7 @@ config = None
 
 
 #   Wi-SUN TBU REST API
-# https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
+# https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.1.10
 
 
 # Wi-SUN TBU 1.0.18 {UDPDatagram,ICMPv6Echo}.frameExchangePattern
@@ -39,6 +39,13 @@ WSTBU_FRAME_EXCHANGE_EDFE = 1
 WSTBU_IE_FORMAT_WH       = 0
 WSTBU_IE_FORMAT_WP_SHORT = 1
 WSTBU_IE_FORMAT_WP_LONG  = 2
+
+
+# Wi-SUN TBU 1.1.10 - ICMPv6Echo.modeSwitch
+# https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.1.10#/ICMPv6Echo
+WSTBU_MODE_SWITCH_DISABLED = 0
+WSTBU_MODE_SWITCH_PHY      = 1
+WSTBU_MODE_SWITCH_MAC      = 2
 
 
 # Wi-SUN TBU 1.0.18 ErrorResponse.code
@@ -702,6 +709,7 @@ def put_transmitter_udp():
     return success()
 
 
+@dbus_errcheck
 @json_errcheck('/transmitter/icmpv6Echo')
 def put_transmitter_icmpv6():
     json = flask.request.get_json(force=True, silent=True)
@@ -711,6 +719,32 @@ def put_transmitter_icmpv6():
     dst_addr = utils.parse_ipv6(json['destAddress'])
     if not src_addr or not dst_addr:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
+
+    dst_eui64 = bytes()
+    for eui64, properties in wsbrd.dbus().nodes:
+        if 'ipv6' not in properties:
+            continue
+        assert properties['ipv6'][0] == 'aay'
+        for addr in properties['ipv6'][1]:
+            if ipaddress.IPv6Address(addr) == dst_addr:
+                dst_eui64 = eui64
+                break
+    if not dst_eui64:
+        utils.warn(f'no known EUI-64 for destAddress={dst_addr}: mode switch configured globally')
+
+    ms_mode = json.get('modeSwitch', WSTBU_MODE_SWITCH_DISABLED)
+    if ms_mode == WSTBU_MODE_SWITCH_PHY:
+        if 'phyModeID' not in json:
+            return error(400, WSTBU_ERR_UNKNOWN, 'missing phyModeID')
+        phy_mode_id = json['phyModeID']
+    elif ms_mode == WSTBU_MODE_SWITCH_DISABLED:
+        phy_mode_id = -1
+    else:
+        return error(500, WSTBU_ERR_UNKNOWN, f'unsupported modeSwitch={ms_mode}')
+    try:
+        wsbrd.dbus().set_mode_switch(dst_eui64, phy_mode_id)
+    except sdbus.dbus_exceptions.DbusInvalidArgsError:
+        return error(400, WSTBU_ERR_UNKNOWN, f'invalid phyModeID')
 
     # RFC 4443 - 4.1. Echo Request Message
     data = struct.pack('!BBHHH',

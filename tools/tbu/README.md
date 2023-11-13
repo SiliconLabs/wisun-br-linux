@@ -61,3 +61,4 @@ Finally, the server can be run using:
 - Endpoint `/config/borderRouter/revokeKeys` will always revoke both GTKs and
   LGTKs, inserting a custom (L)GTK based on the `isLgtk` parameter, and a
   random key for the other key type.
+- MAC mode switch (using MDR command frame) is not supported.

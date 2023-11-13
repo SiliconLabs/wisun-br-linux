@@ -69,6 +69,10 @@ class WsbrdDbusInterface(
     def nodes(self) -> list[tuple[bytes, dict[str, tuple[str, typing.Any]]]]:
         raise NotImplementedError
 
+    @sdbus.dbus_method('ayi')
+    def set_mode_switch(self, eui64: bytes, phy_mode_id: int) -> None:
+        raise NotImplementedError
+
     @sdbus.dbus_method('ay')
     def join_multicast_group(self, addr: bytes) -> None:
         raise NotImplementedError

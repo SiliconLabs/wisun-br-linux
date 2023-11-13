@@ -7,6 +7,10 @@ def fatal(msg):
     exit(1)
 
 
+def warn(msg):
+    print(f'\x1b[33mwarn: {msg}\x1b[0m')
+
+
 def extend_to(lst: list, size: int, fill) -> list:
     '''Grow lst to size using fill value. Identity if lst is already big enough.'''
     if size > len(lst):
