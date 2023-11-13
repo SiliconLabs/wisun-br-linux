@@ -478,6 +478,12 @@ static int dbus_message_append_node(
                 WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
                 dbus_message_close_info(m, property);
             }
+            dbus_message_open_info(m, property, "pom", "ay");
+            ret = sd_bus_message_append_array(m, 'y',
+                                                neighbor->pom_ie.phy_op_mode_id,
+                                                neighbor->pom_ie.phy_op_mode_number);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
         }
         dbus_message_open_info(m, property, "ipv6", "aay");
         ret = sd_bus_message_open_container(m, 'a', "ay");

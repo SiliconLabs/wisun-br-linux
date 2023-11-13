@@ -156,6 +156,7 @@ graph is refreshed.
 |`rssi`            |`i`      |Received Signal Strength Indication (RSSI) of the last packet received in dBm (neighbor only)|
 |`rsl`             |`i`      |Exponentially Weighted Moving Average (EWMA) of the Received Signal Level (RSL) in dBm (neighbor only)|
 |`rsl_adv`         |`i`      |EWMA of the RSL in dBm advertised by the node in RSL-IE (neighbor only)   |
+|`pom`             |`ay`     |List of PhyModeIds for mode switch advertised in POM-IE (neighbor only)   |
 
 ### `Gtks` and `Gaks` (`aay`)
 
