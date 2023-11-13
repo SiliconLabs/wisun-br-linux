@@ -104,6 +104,7 @@ typedef struct mcps_data_req {
     bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
     bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
+    bool lfn_multicast: 1;          /**< Multicast packet for LFN */
     mlme_security_t Key;            /**< Security key */
     uint8_t priority;               /**< See mac_data_priority_e */
     uint8_t phy_id;
