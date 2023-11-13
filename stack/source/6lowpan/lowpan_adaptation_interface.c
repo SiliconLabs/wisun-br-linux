@@ -677,7 +677,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     if (dataReq->Key.SecurityLevel) {
         ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
                                                     dataReq->DstAddr, dataReq->DstAddrMode);
-        if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
+        if ((ngb && ngb->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
         else
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
