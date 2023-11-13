@@ -35,6 +35,12 @@ WSTBU_FRAME_EXCHANGE_DFE  = 0
 WSTBU_FRAME_EXCHANGE_EDFE = 1
 
 
+# Wi-SUN TBU 1.1.6 - BorderRouterInformationElement.format
+WSTBU_IE_FORMAT_WH       = 0
+WSTBU_IE_FORMAT_WP_SHORT = 1
+WSTBU_IE_FORMAT_WP_LONG  = 2
+
+
 # Wi-SUN TBU 1.0.18 ErrorResponse.code
 WSTBU_ERR_UNKNOWN     = 0
 WSTBU_ERR_CHAN_EXCL   = 1
@@ -57,6 +63,48 @@ WS_FRAME_TYPE_LPAS  = 10
 WS_FRAME_TYPE_LPC   = 11
 WS_FRAME_TYPE_LPCS  = 12
 WS_FRAME_TYPE_EXT   = 15
+
+
+# Wi-SUN Assigned Value Registry 0v24 - 7.1 Wi-SUN Header Information Element Sub-IDs
+WS_WHIE_UTT   = 0x00
+WS_WHIE_BT    = 0x01
+WS_WHIE_FC    = 0x02
+WS_WHIE_RSL   = 0x03
+WS_WHIE_MHDS  = 0x04
+WS_WHIE_VH    = 0x05
+WS_WHIE_EA    = 0x09
+WS_WHIE_LUTT  = 0x0a
+WS_WHIE_LBT   = 0x0b
+WS_WHIE_NR    = 0x0c
+WS_WHIE_LUS   = 0x0d
+WS_WHIE_FLUS  = 0x0e
+WS_WHIE_LBS   = 0x0f
+WS_WHIE_LND   = 0x10
+WS_WHIE_LTO   = 0x11
+WS_WHIE_PANID = 0x12
+
+
+# Wi-SUN Assigned Value Registry 0v24 - 7.2 Wi-SUN Payload Information Element Sub-IDs
+# Short form
+WS_WPIE_PAN      = 0x04
+WS_WPIE_NETNAME  = 0x05
+WS_WPIE_PANVER   = 0x06
+WS_WPIE_GTKHASH  = 0x07
+WS_WPIE_POM      = 0x08
+WS_WPIE_LBATS    = 0x09
+WS_WPIE_JM       = 0x0a
+WS_WPIE_LFNVER   = 0x40
+WS_WPIE_LGTKHASH = 0x41
+# Long form
+WS_WPIE_US       = 0x01
+WS_WPIE_BS       = 0x02
+WS_WPIE_VP       = 0x03
+WS_WPIE_LCP      = 0x04
+
+
+# Wi-SUN FAN 1.1v06 - Figure 68c JM-IE Metric
+WS_MASK_JM_ID  = 0b00111111
+WS_MASK_JM_LEN = 0b11000000
 
 
 def error(http_code: int, error_code: int, msg: str):
@@ -108,9 +156,13 @@ def json_errcheck(path):
 
 @dbus_errcheck
 def put_run_mode(mode: int):
+    global jm_version, jm_list
+
     if mode == 0:
         wsbrd.service.stop('fail')
         wsbrd.config = wsbrd.config_default(config)
+        jm_list = dict()
+        jm_version = 0
     elif mode == 1:
         configutils.write('/etc/wsbrd.conf', wsbrd.config)
         wsbrd.service.start('fail')
@@ -438,6 +490,68 @@ def config_border_router_information_elements():
     return success()
 
 
+# Dict from JM-ID to tuple (len, data)
+jm_list = dict()
+jm_version = 0
+
+
+@dbus_errcheck
+@json_errcheck('/config/borderRouter/joinMetrics')
+def config_border_router_join_metrics():
+    global jm_list, jm_version
+
+    json = flask.request.get_json(force=True, silent=True)
+    jm_list_cpy = jm_list.copy() # Do not update the JM list before validation
+    for json_jm in json:
+        if json_jm['metricId'] > utils.field_max(WS_MASK_JM_ID):
+            return error(500, WSTBU_ERR_UNKNOWN, 'invalid metric ID')
+        if flask.request.method == 'PUT':
+            jm_data = utils.parse_hexstr(json_jm.get('metricData', ''))
+            if jm_data is None:
+                return error(400, WSTBU_ERR_UNKNOWN, 'invalid metricData')
+            if len(jm_data) == 0:
+                jm_len = 0
+            elif len(jm_data) == 1:
+                jm_len = 1
+            elif len(jm_data) == 2:
+                jm_len = 2
+            elif len(jm_data) == 4:
+                jm_len = 3
+            else:
+                return error(500, WSTBU_ERR_UNKNOWN, 'invalid metricData')
+            if 'metricLength' in json_jm and json_jm['metricLength'] != jm_len:
+                return error(500, WSTBU_ERR_UNKNOWN, 'invalid length')
+            jm_list_cpy[json_jm['metricId']] = (jm_len, jm_data)
+        elif flask.request.method == 'DELETE':
+            del jm_list_cpy[json_jm['metricId']]
+    jm_list = jm_list_cpy
+    if jm_list:
+        jm_content = bytearray()
+        jm_version = (jm_version + 1) % 256
+        jm_content.append(jm_version)
+        for jm_id in jm_list:
+            jm_len, jm_data = jm_list[jm_id]
+            jm_content.append(
+                utils.field_prep(WS_MASK_JM_ID,  jm_id) |
+                utils.field_prep(WS_MASK_JM_LEN, jm_len)
+            )
+            jm_content.extend(jm_data)
+        wsbrd.dbus().ie_custom_insert(
+            WSTBU_IE_FORMAT_WP_SHORT,
+            WS_WPIE_JM,
+            bytes(jm_content),
+            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA])
+        )
+    else:
+        wsbrd.dbus().ie_custom_insert(
+            WSTBU_IE_FORMAT_WP_SHORT,
+            WS_WPIE_JM,
+            bytes(),
+            bytes()
+        )
+    return success()
+
+
 @dbus_errcheck
 @json_errcheck('/config/whitelist')
 def put_config_whitelist():
@@ -684,6 +798,7 @@ def app_build():
     app.add_url_rule('/config/borderRouter/keyLifetimes',        view_func=put_config_border_router_key_lifetimes,    methods=['PUT'])
     app.add_url_rule('/config/borderRouter/revokeKeys',          view_func=put_config_border_router_revoke_keys,      methods=['PUT'])
     app.add_url_rule('/config/borderRouter/informationElements', view_func=config_border_router_information_elements, methods=['PUT', 'DELETE'])
+    app.add_url_rule('/config/borderRouter/joinMetrics',         view_func=config_border_router_join_metrics,         methods=['PUT', 'DELETE'])
     app.add_url_rule('/config/router',                           view_func=put_config_router,                         methods=['PUT'])
     app.add_url_rule('/config/whitelist',                        view_func=put_config_whitelist,                      methods=['PUT'])
     app.add_url_rule('/subscription/frames',                     view_func=put_subscription_frame,                    methods=['PUT'])

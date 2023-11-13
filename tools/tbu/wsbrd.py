@@ -21,6 +21,7 @@ def config_default(wstbu_config):
         gtk_new_install_required  = 0,
         lgtk_new_install_required = 0,
         pcap_file      = wstbu_config.fifo_path,
+        join_metrics   = 'none',
         trace          = '15.4,eap,icmp,dhcp,drop',
     )
 

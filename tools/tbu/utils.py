@@ -89,3 +89,15 @@ def resolve_refs(obj):
     obj = obj.copy()
     _resolve_refs(obj)
     return obj
+
+
+def ctz(val):
+    return int(val & -val).bit_length() - 1
+
+
+def field_prep(mask, val):
+    return (val << ctz(mask)) & mask
+
+
+def field_max(mask):
+    return mask >> ctz(mask)
