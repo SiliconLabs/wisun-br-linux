@@ -1,3 +1,23 @@
+v1.8
+------
+  - Allow neighbor Limited Function Nodes (LFNs) to subscribe to IPv6 multicast
+    groups.
+  - Support O-QPSK PHY configurations using PhyModeIds defined by Silicon Labs
+    (check `--list-rf-configs`).
+  - Update PHY parameters with new standard ChanPlanId definitions.
+  - Update FAN 1.0 Indian PHY definitions (`mode = 1a`, `class = 1` and
+    `mode = 2a`, `class = 2`). The Wi-SUN PHY specification has undergone a
+    breaking change in version 1vA10. Users of the legacy PHY settings are now
+    expected to use `chan0_freq`, `chan_spacing` and `chan_count`. Make sure to
+    verify that the RCP firmware contains the desired PHY configuration (using
+    `--list-rf-configs`).
+  - Refresh neighbor IPv6 address registrations on MAC acknowledgements.
+  - Support LFN schedule adjusting using LTO-IE for energy optimization.
+  - Update Test Bed Unit (TBU) with FAN 1.1 features.
+  - Prevent multicast loopback for RPL DIO packets.
+  - Fix PAN version advertisement.
+  - Internal cleanup.
+
 v1.7.1
 ------
   - Fix LFN Time Sync encryption
