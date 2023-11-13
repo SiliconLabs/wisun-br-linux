@@ -236,7 +236,7 @@ typedef struct ws_pom_ie {
     uint8_t phy_op_mode_number: 4; /**< Number of PHY Operating Modes */
     uint8_t mdr_command_capable: 1;/**< Indicate if the transmitter supports MDR Command */
     uint8_t reserved: 3;           /**< Reserved, set to 0. */
-    const uint8_t *phy_op_mode_id; /**< Pointer to PHY Operating Modes List */
+    uint8_t phy_op_mode_id[15];
 } ws_pom_ie_t;
 
 /**

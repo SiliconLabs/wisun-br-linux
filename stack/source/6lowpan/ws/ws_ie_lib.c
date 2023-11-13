@@ -871,10 +871,7 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
     tmp8 = iobuf_pop_u8(&ie_buf);
     pom_ie->phy_op_mode_number  = FIELD_GET(WS_WPIE_POM_PHY_OP_MODE_NUMBER_MASK, tmp8);
     pom_ie->mdr_command_capable = FIELD_GET(WS_WPIE_POM_MDR_CAPABLE_MASK,        tmp8);
-    if (pom_ie->phy_op_mode_number)
-        pom_ie->phy_op_mode_id = iobuf_pop_data_ptr(&ie_buf, pom_ie->phy_op_mode_number);
-    else
-        pom_ie->phy_op_mode_id = NULL;
+    iobuf_pop_data(&ie_buf, pom_ie->phy_op_mode_id, pom_ie->phy_op_mode_number);
     return !ie_buf.err;
 }
 
