@@ -408,12 +408,6 @@ static int dbus_message_close_info(sd_bus_message *m, const char *property)
     return ret;
 }
 
-struct neighbor_info {
-    int rssi;
-    int rsl;
-    int rsl_adv;
-};
-
 static int dbus_message_append_node(
     sd_bus_message *m,
     const char *property,
@@ -422,7 +416,7 @@ static int dbus_message_append_node(
     const uint8_t ipv6[][16],
     bool is_br,
     supp_entry_t *supp,
-    struct neighbor_info *neighbor)
+    const struct ws_neighbor_class_entry *neighbor)
 {
     int ret, val;
 
@@ -472,15 +466,15 @@ static int dbus_message_append_node(
             ret = sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
-            if (neighbor->rsl != INT_MIN) {
+            if (neighbor->rsl_in != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl", "i");
-                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rsl);
+                ret = sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_in_get(neighbor));
                 WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
                 dbus_message_close_info(m, property);
             }
-            if (neighbor->rsl_adv != INT_MIN) {
+            if (neighbor->rsl_out != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl_adv", "i");
-                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rsl_adv);
+                ret = sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_out_get(neighbor));
                 WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
                 dbus_message_close_info(m, property);
             }
@@ -519,40 +513,28 @@ static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16
     return NULL;
 }
 
-static bool dbus_get_neighbor_info(struct wsbr_ctxt *ctxt, struct neighbor_info *info, const uint8_t eui64[8])
+static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
+                                                               const uint8_t eui64[8])
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    ws_neighbor_class_entry_t *neighbor_ws = NULL;
     ws_neighbor_temp_class_t *neighbor_ws_tmp;
     llc_neighbour_req_t neighbor_llc;
 
     neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(net_if, eui64);
     if (neighbor_ws_tmp) {
-        neighbor_ws = &neighbor_ws_tmp->neigh_info_list;
-        neighbor_ws->rssi = neighbor_ws_tmp->signal_dbm;
+        neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
+        return &neighbor_ws_tmp->neigh_info_list;
     }
-    if (!neighbor_ws) {
-        if (ws_bootstrap_neighbor_get(net_if, eui64, &neighbor_llc))
-            neighbor_ws = neighbor_llc.ws_neighbor;
-        else
-            return false;
-    }
-    info->rssi = neighbor_ws->rssi;
-    info->rsl = neighbor_ws->rsl_in == RSL_UNITITIALIZED
-              ? INT_MIN
-              : -174 + ws_neighbor_class_rsl_in_get(neighbor_ws);
-    info->rsl_adv = neighbor_ws->rsl_in == RSL_UNITITIALIZED
-                  ? INT_MIN
-                  : -174 + ws_neighbor_class_rsl_out_get(neighbor_ws);
-    return true;
+    if (ws_bootstrap_neighbor_get(net_if, eui64, &neighbor_llc))
+        return neighbor_llc.ws_neighbor;
+    return NULL;
 }
 
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
-    struct neighbor_info *neighbor_info_ptr;
-    struct neighbor_info neighbor_info;
+    const struct ws_neighbor_class_entry *neighbor_info;
     struct wsbr_ctxt *ctxt = userdata;
     uint8_t node_ipv6[3][16] = { 0 };
     bbr_route_info_t table[4096];
@@ -596,16 +578,13 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
             }
         }
-        if (dbus_get_neighbor_info(ctxt, &neighbor_info, eui64_pae[i]))
-            neighbor_info_ptr = &neighbor_info;
-        else
-            neighbor_info_ptr = NULL;
+        neighbor_info = dbus_get_neighbor_info(ctxt, eui64_pae[i]);
         if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
             supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
         else
             supp = NULL;
         dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6,
-                                 false, supp, neighbor_info_ptr);
+                                 false, supp, neighbor_info);
         if (supp)
             free(supp);
     }
