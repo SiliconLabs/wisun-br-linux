@@ -805,6 +805,21 @@ def get_config_neighbor_table():
     return error(501, WSTBU_ERR_UNKNOWN, 'unsupported endpoint')
 
 
+@dbus_errcheck
+def get_capabilities_phy(eui64: str):
+    eui64 = utils.parse_eui64(eui64)
+    if not eui64:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid eui64')
+    for _eui64, properties in wsbrd.dbus().nodes:
+        if _eui64  != eui64:
+            continue
+        res = dict()
+        res['mdrCmdCapable'] = properties.get('mdr_cmd_capable', ('b', False))[1]
+        res['phyOpModes'] = [int(pom) for pom in properties.get('pom', ('ay', bytes()))[1]]
+        return res
+    return error(400, WSTBU_ERR_UNKNOWN, 'unknown eui64')
+
+
 def app_build():
     app = flask.Flask(__name__)
     app.add_url_rule('/runMode/<int:mode>',                      view_func=put_run_mode,                                methods=['PUT'])
@@ -834,6 +849,7 @@ def app_build():
     app.add_url_rule('/config/dodagRoutes',                      view_func=get_config_dodag_routes,                     methods=['GET'])
     app.add_url_rule('/config/preferredParent',                  view_func=get_config_preferred_parent,                 methods=['GET'])
     app.add_url_rule('/config/neighborTable',                    view_func=get_config_neighbor_table,                   methods=['GET'])
+    app.add_url_rule('/capabilities/phy/<string:eui64>',         view_func=get_capabilities_phy,                        methods=['GET'])
     return app
 
 

@@ -53,6 +53,10 @@ def parse_key(key: str) -> bytes:
     return parse_hexstr(key, [':', '-'], 16)
 
 
+def parse_eui64(eui64: str) -> bytes:
+    return parse_hexstr(eui64, [':', '-'], 8)
+
+
 def parse_ipv6(addr: str) -> ipaddress.IPv6Address:
     try:
         return ipaddress.IPv6Address(addr)
