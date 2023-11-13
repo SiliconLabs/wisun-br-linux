@@ -42,6 +42,7 @@
 #define TRACE_GROUP "ipv6"
 
 static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct net_if *cur, bool for_us);
+static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf);
 
 static bool ipv6_packet_is_for_us(buffer_t *buf)
 {
@@ -514,6 +515,8 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
         return buf;
     }
+
+    ipv6_consider_forwarding_multicast_packet_to_lfn(buf);
 
     /* Note ipv6_buffer_route can change interface */
     if (!ipv6_buffer_route(buf)) {
@@ -993,6 +996,26 @@ no_forward:
     }
 }
 
+static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
+{
+    buffer_t *clone;
+
+    if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address) ||
+        !ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address)
+        || buf->options.lfn_multicast)
+        return;
+
+    clone = buffer_clone(buf);
+    if (!clone)
+        return;
+
+    clone->route = ipv6_buffer_route(clone);
+    clone->options.lfn_multicast = true;
+    clone->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
+    protocol_push(clone);
+    buf->options.lfn_multicast = false;
+}
+
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 {
     switch (next_header) {
@@ -1157,6 +1180,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
          * clone or take ownership of the buffer, depending on for_us. If not
          * forwarding or for us, it will bin.
          */
+        ipv6_consider_forwarding_multicast_packet_to_lfn(buf);
         buf = ipv6_consider_forwarding_multicast_packet(buf, cur, for_us);
         if (!buf) {
             return NULL;
