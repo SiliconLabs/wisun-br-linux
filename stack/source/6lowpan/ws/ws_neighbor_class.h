@@ -82,6 +82,7 @@ typedef struct ws_neighbor_class_entry {
     bool synch_done : 1;
     bool unicast_data_rx : 1;
     time_t host_rx_timestamp;
+    struct ws_pom_ie pom_ie;
 } ws_neighbor_class_entry_t;
 
 /**

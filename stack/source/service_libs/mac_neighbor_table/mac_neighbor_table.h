@@ -35,13 +35,10 @@ typedef struct mac_neighbor_table_entry {
     uint16_t        mac16;                  /*!< MAC16 address for neighbor 0xffff when no 16-bit address is unknown */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
-    uint8_t         phy_mode_ids[16];       /*!< List of PhyModeId supported by this neighbor */
-    uint8_t         phy_mode_id_count;      /*!< Number of PhyModeId in phy_mode_ids */
     uint8_t         ms_phy_mode_id;         /*!< PhyModeId selected for Mode Switch with this neighbor */
     uint8_t         ms_mode;                /*!< Mode switch mode */
     uint32_t        ms_tx_count;            /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t        ms_retries_count;       /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
-    bool            mdr_capable:1;          /*!< Indicate if the neighbor supports MAC Mode Switch */
     bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/
     bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
     bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
@@ -200,16 +197,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_attribute_discover(mac_neighbor_t
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
-
-/**
- * Update a neighbor entry with the last POM-IE received
- *
- * \param neighbor_entry pointer to neighbor
- * \param phy_mode_id_count number of PhyModeId in \p phy_mode_ids
- * \param phy_mode_ids list of supported PhyModeId
- * \param mdr_capable indicate if the device support MDR Mode Switching capability
- */
-void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, const uint8_t *phy_mode_ids, uint8_t mdr_capable);
 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
 

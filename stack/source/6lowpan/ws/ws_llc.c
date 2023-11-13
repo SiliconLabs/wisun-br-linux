@@ -674,13 +674,10 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         // Calculate RSL for all UDATA packets heard
         ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
-        if (neighbor.neighbor) {
-            if (data->Key.SecurityLevel)
-                mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
-            if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
-                mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
-                                        ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
-        }
+        if (neighbor.neighbor && data->Key.SecurityLevel)
+            mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
+        if (neighbor.ws_neighbor && has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
+            neighbor.ws_neighbor->pom_ie = ie_pom;
     }
 
     if (!neighbor.neighbor)
@@ -759,11 +756,10 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (neighbor.neighbor) {
         if (data->Key.SecurityLevel)
             mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
-        if (has_pom)
-            mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
-                                    ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
         ws_bootstrap_neighbor_set_stable(base->interface_ptr, data->SrcAddr);
     }
+    if (neighbor.ws_neighbor && has_pom)
+        neighbor.ws_neighbor->pom_ie = ie_pom;
 
     if (!neighbor.neighbor)
         data_ind.Key.SecurityLevel = 0;
@@ -1146,8 +1142,8 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
             ms_phy_mode_id = schedule->phy_mode_id_ms_tx;
         break;
     }
-    return ws_llc_find_phy_mode_id(neighbor_info.neighbor->phy_mode_ids,
-                                   neighbor_info.neighbor->phy_mode_id_count,
+    return ws_llc_find_phy_mode_id(neighbor_info.ws_neighbor->pom_ie.phy_op_mode_id,
+                                   neighbor_info.ws_neighbor->pom_ie.phy_op_mode_number,
                                    ms_phy_mode_id);
 }
 
@@ -1940,8 +1936,8 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         } else {
             if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
                 // Check Mode Switch PhyModeId is valid in the neighbor list
-                peer_phy_mode_id = ws_llc_find_phy_mode_id(neighbor_info.neighbor->phy_mode_ids,
-                                                           neighbor_info.neighbor->phy_mode_id_count,
+                peer_phy_mode_id = ws_llc_find_phy_mode_id(neighbor_info.ws_neighbor->pom_ie.phy_op_mode_id,
+                                                           neighbor_info.ws_neighbor->pom_ie.phy_op_mode_number,
                                                            phy_mode_id);
                 if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
                     return -4;

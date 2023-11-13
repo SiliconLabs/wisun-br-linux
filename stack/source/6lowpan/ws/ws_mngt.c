@@ -74,16 +74,14 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_ind_ie_list *ie_ext)
 {
-    mac_neighbor_table_entry_t *neighbor;
+    struct llc_neighbour_req neighbor_llc;
     ws_pom_ie_t ie_pom;
 
-    neighbor = mac_neighbor_table_address_discover(net_if->mac_parameters.mac_neighbor_table,
-                                                   data->SrcAddr, ADDR_802_15_4_LONG);
-    if (!neighbor)
+    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_llc))
         return;
     if (!ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pom))
         return;
-    mac_neighbor_update_pom(neighbor, ie_pom.phy_op_mode_number, ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
+    neighbor_llc.ws_neighbor->pom_ie = ie_pom;
 }
 
 void ws_mngt_pa_analyze(struct net_if *net_if,

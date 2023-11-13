@@ -283,16 +283,6 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
     return mac_neighbor_table_entry_allocate(table_class, mac64);
 }
 
-// Update a neighbor entry with the last POM-IE received
-void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, const uint8_t *phy_mode_ids, uint8_t mdr_capable)
-{
-    neighbor_entry->phy_mode_id_count = phy_mode_id_count;
-    neighbor_entry->mdr_capable = (!!mdr_capable);
-
-    // Copy PhyModeId list from IE to neighbor database
-    memcpy(neighbor_entry->phy_mode_ids, phy_mode_ids, phy_mode_id_count);
-}
-
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)
 {
     int cnt = 0;
