@@ -1142,6 +1142,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
+    llc_neighbour_req_t neighbor_info;
     int ie_offset;
 
     //Allocate Message
@@ -1190,7 +1191,10 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
             data_req.PanIdSuppressed = true;
         }
     }
-    if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN || data->lfn_multicast)
+
+    ws_bootstrap_neighbor_get(base->interface_ptr, message->dst_address, &neighbor_info);
+
+    if ((neighbor_info.neighbor && neighbor_info.neighbor->node_role == WS_NR_ROLE_LFN) || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
     else
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
@@ -1200,6 +1204,10 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         ws_wh_fc_write(&message->ie_buf_header, 50, 255); // No data at initial frame
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
+
+    if ((neighbor_info.neighbor && neighbor_info.neighbor->node_role == WS_NR_ROLE_LFN) || data->lfn_multicast)
+        ws_wh_lbt_write(&message->ie_buf_header, NULL);
+
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
     message->ie_iov_header.iov_len = message->ie_buf_header.len;
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
