@@ -157,6 +157,7 @@ graph is refreshed.
 |`rsl`             |`i`      |Exponentially Weighted Moving Average (EWMA) of the Received Signal Level (RSL) in dBm (neighbor only)|
 |`rsl_adv`         |`i`      |EWMA of the RSL in dBm advertised by the node in RSL-IE (neighbor only)   |
 |`pom`             |`ay`     |List of PhyModeIds for mode switch advertised in POM-IE (neighbor only)   |
+|`mdr_cmd_capable` |`b`      |MAC mode switch support advertised in POM-IE (neighbor only)              |
 
 ### `Gtks` and `Gaks` (`aay`)
 

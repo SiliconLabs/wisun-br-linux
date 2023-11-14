@@ -484,6 +484,11 @@ static int dbus_message_append_node(
                                                 neighbor->pom_ie.phy_op_mode_number);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
+
+            dbus_message_open_info(m, property, "mdr_cmd_capable", "b");
+            ret = sd_bus_message_append(m, "b", neighbor->pom_ie.mdr_command_capable);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
         }
         dbus_message_open_info(m, property, "ipv6", "aay");
         ret = sd_bus_message_open_container(m, 'a', "ay");
