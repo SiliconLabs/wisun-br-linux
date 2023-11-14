@@ -391,6 +391,16 @@ def put_config_chan_plan_bcast():
 
 
 @dbus_errcheck
+@json_errcheck('/config/chanPlan/bcast/lfn')
+def put_config_chan_plan_bcast_lfn():
+    json = flask.request.get_json(force=True, silent=True)
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    wsbrd.config['lfn_broadcast_interval']    = json['bcastInterval']
+    wsbrd.config['lfn_broadcast_sync_period'] = json['bcastSyncPeriod']
+
+
+@dbus_errcheck
 @json_errcheck('/config/borderRouter')
 def put_config_border_router():
     # Wi-SUN FAN 1.1v06 6.3.2.3.2.3 PAN Information Element (PAN-IE)
@@ -865,6 +875,7 @@ def app_build():
     app.add_url_rule('/config/chanPlan/fixed',                   view_func=put_config_chan_plan_fixed,                  methods=['PUT'])
     app.add_url_rule('/config/chanPlan/unicast',                 view_func=put_config_chan_plan_unicast,                methods=['PUT'])
     app.add_url_rule('/config/chanPlan/bcast',                   view_func=put_config_chan_plan_bcast,                  methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/bcast/lfn',               view_func=put_config_chan_plan_bcast_lfn,              methods=['PUT'])
     app.add_url_rule('/config/borderRouter',                     view_func=put_config_border_router,                    methods=['PUT'])
     app.add_url_rule('/config/borderRouter/gtks',                view_func=put_config_border_router_gtks,               methods=['PUT'])
     app.add_url_rule('/config/borderRouter/keyLifetimes',        view_func=put_config_border_router_key_lifetimes,      methods=['PUT'])
