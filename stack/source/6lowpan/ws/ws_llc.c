@@ -1179,6 +1179,10 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         ws_wh_fc_write(&message->ie_buf_header, 50, 255); // No data at initial frame
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
+
+    if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
+        ws_wh_lbt_write(&message->ie_buf_header, NULL);
+
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
     message->ie_iov_header.iov_len = message->ie_buf_header.len;
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
