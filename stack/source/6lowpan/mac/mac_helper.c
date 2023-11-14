@@ -33,7 +33,7 @@
 
 #define TRACE_GROUP "MACh"
 
-static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0, 0};
+static const uint8_t mac_helper_default_key_source[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
