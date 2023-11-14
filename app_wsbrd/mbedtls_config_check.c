@@ -54,7 +54,7 @@ void wsbr_check_mbedtls_features()
             FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE");
     if (mbedtls_version_get_number() < 3010000)
         if (mbedtls_version_check_feature("MBEDTLS_SSL_EXPORT_KEYS"))
-            FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE");
+            FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_SSL_EXPORT_KEYS");
     if (!mbedtls_ssl_get_ciphersuite_id("TLS-ECDHE-ECDSA-WITH-AES-128-CCM-8"))
             FATAL(1, "MbedTLS is not compiled with %s", "MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8");
     if (!mbedtls_ecp_curve_info_from_name("secp256r1"))
