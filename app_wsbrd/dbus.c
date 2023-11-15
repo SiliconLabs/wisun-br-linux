@@ -17,6 +17,7 @@
 #include "app_wsbrd/tun.h"
 #include "common/named_values.h"
 #include "common/utils.h"
+#include "common/version.h"
 #include "common/log.h"
 
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
@@ -549,6 +550,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .rssi    = INT_MAX,
         .rsl_in  = RSL_UNITITIALIZED,
         .rsl_out = RSL_UNITITIALIZED,
+        .pom_ie.mdr_command_capable = !version_older_than(ctxt->rcp.version_api, 0, 26, 0),
     };
     uint8_t ipv6_addrs[3][16] = { 0 };
 
