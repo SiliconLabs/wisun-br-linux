@@ -180,10 +180,8 @@ typedef struct mcps_data_cnf {
 typedef struct mcps_data_cnf_ie_list {
     const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
     const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
-    const uint8_t *payloadPtr;          /**< Ack payload pointer */
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
-    uint16_t payloadLength;             /**< Payload length in bytes */
 } mcps_data_cnf_ie_list_t;
 
 // Used by on_rx_ind()

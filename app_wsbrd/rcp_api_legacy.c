@@ -917,7 +917,7 @@ static void rcp_legacy_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
     req.tx_retries  = hif_pop_u8(buf);
     conf_req.headerIeListLength  = hif_pop_data_ptr(buf, &conf_req.headerIeList);
     conf_req.payloadIeListLength = hif_pop_data_ptr(buf, &conf_req.payloadIeList);
-    conf_req.payloadLength       = hif_pop_data_ptr(buf, &conf_req.payloadPtr);
+    hif_pop_data_ptr(buf, NULL);
     if (iobuf_remaining_size(buf)) {
         hif_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(req.retry_per_rate));
         req.success_phy_mode_id = hif_pop_u8(buf);
