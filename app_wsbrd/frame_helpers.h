@@ -18,6 +18,7 @@
 struct iobuf_write;
 struct rcp;
 struct arm_15_4_mac_parameters;
+struct mcps_data_cnf;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
 struct mcps_data_req;
@@ -37,6 +38,10 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
 int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
                         const uint8_t *frame, size_t frame_len,
                         struct mcps_data_ind *ind,
+                        struct mcps_data_rx_ie_list *ie);
+
+int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
+                        struct mcps_data_cnf *cnf,
                         struct mcps_data_rx_ie_list *ie);
 
 #endif

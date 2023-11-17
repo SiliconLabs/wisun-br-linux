@@ -47,6 +47,7 @@
 
 // IEEE 802.15.4-2020 Table 7-1 Values of the Frame Type field
 #define IEEE802154_FRAME_TYPE_DATA 0b001
+#define IEEE802154_FRAME_TYPE_ACK  0b010
 
 // IEEE 802.15.4-2020 Figure 7-21 Format of Header IEs
 #define IEEE802154_HEADER_IE_LEN_MASK  0b0000000001111111
@@ -311,7 +312,98 @@ int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
         if (ret < 0)
             return ret;
     } else {
-        memset(&ind->Key, 0, sizeof(&ind->Key));
+        memset(&ind->Key, 0, sizeof(ind->Key));
+    }
+
+    if (FIELD_GET(IEEE802154_FCF_IE_PRESENT, fcf)) {
+        ret = wsbr_data_ie_parse(&iobuf, ie);
+        if (ret < 0)
+            return ret;
+    }
+
+    if (iobuf_remaining_size(&iobuf))
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported frame payload", "15.4");
+
+    if (iobuf.err) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "15.4");
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
+int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
+                        struct mcps_data_cnf *cnf,
+                        struct mcps_data_rx_ie_list *ie)
+{
+    struct iobuf_read iobuf = {
+        .data_size = frame_len,
+        .data = frame,
+    };
+    uint8_t src_addr_mode, dst_addr_mode;
+    struct mlme_security sec;
+    bool pan_id_cmpr;
+    uint16_t fcf;
+    int ret, i;
+
+    memset(ie, 0, sizeof(*ie));
+
+    fcf = iobuf_pop_le16(&iobuf);
+    switch (FIELD_GET(IEEE802154_FCF_FRAME_TYPE, fcf)) {
+    case IEEE802154_FRAME_TYPE_DATA:
+    case IEEE802154_FRAME_TYPE_ACK:
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
+        return -ENOTSUP;
+    }
+    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != MAC_FRAME_VERSION_2015) {
+        TRACE(TR_DROP, "drop %-9s: unsupported frame version", "15.4");
+        return -ENOTSUP;
+    }
+    pan_id_cmpr   = FIELD_GET(IEEE802154_FCF_PAN_ID_COMPRESSION, fcf);
+    dst_addr_mode = FIELD_GET(IEEE802154_FCF_DST_ADDR_MODE,      fcf);
+    src_addr_mode = FIELD_GET(IEEE802154_FCF_SRC_ADDR_MODE,      fcf);
+
+    if (!FIELD_GET(IEEE802154_FCF_SEQ_NUM_SUPPR, fcf))
+        iobuf_pop_u8(&iobuf);
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_comp); i++)
+        if (ieee802154_table_pan_id_comp[i].dst_addr_mode      == dst_addr_mode &&
+            ieee802154_table_pan_id_comp[i].src_addr_mode      == src_addr_mode &&
+            ieee802154_table_pan_id_comp[i].pan_id_compression == pan_id_cmpr)
+            break;
+    if (i == ARRAY_SIZE(ieee802154_table_pan_id_comp)) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (ieee802154_table_pan_id_comp[i].dst_pan_id)
+        iobuf_pop_le16(&iobuf);
+
+    if (dst_addr_mode == MAC_ADDR_MODE_64_BIT) {
+        iobuf_pop_le64(&iobuf);
+    } else if (dst_addr_mode != MAC_ADDR_MODE_NONE) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (ieee802154_table_pan_id_comp[i].src_pan_id)
+        iobuf_pop_le16(&iobuf);
+
+    if (src_addr_mode == MAC_ADDR_MODE_64_BIT) {
+        iobuf_pop_le64(&iobuf);
+    } else if (src_addr_mode != MAC_ADDR_MODE_NONE) {
+        TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
+        return -ENOTSUP;
+    }
+
+    if (FIELD_GET(IEEE802154_FCF_SECURITY_ENABLED, fcf)) {
+        ret = wsbr_data_sec_parse(&iobuf, &sec);
+        if (ret < 0)
+            return ret;
+    } else {
+        memset(&sec, 0, sizeof(sec));
     }
 
     if (FIELD_GET(IEEE802154_FCF_IE_PRESENT, fcf)) {
