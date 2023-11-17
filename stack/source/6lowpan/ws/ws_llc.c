@@ -1282,6 +1282,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     llc_neighbour_req_t neighbor_info;
     int node_role;
     int ie_offset;
+    uint24_t adjusted_offset_ms = 0;
+    uint24_t adjusted_listening_interval = 0;
 
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
@@ -1347,6 +1349,25 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         ws_wh_lbt_write(&message->ie_buf_header, NULL);
+
+    // Adding another parameter to the MAC's API just for LTO was not a good idea.
+    // The chosen solution is to write the computed LTO information in the LTO-IE.
+    // The MAC then reads these information and calculates the actual offset to
+    // be applied based on the target's current broadcast schedule offset.
+    if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast &&
+        !version_older_than(base->interface_ptr->rcp->version_api, 0, 27, 0)) {
+        adjusted_listening_interval = ws_llc_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
+                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
+                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
+                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
+        adjusted_offset_ms = ws_llc_get_lfn_offset(adjusted_listening_interval,
+                                                   base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
+        if ((adjusted_listening_interval != neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms ||
+            !neighbor_info.ws_neighbor->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
+            ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
+            neighbor_info.ws_neighbor->offset_adjusted = true;
+        }
+    }
 
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
     message->ie_iov_header.iov_len = message->ie_buf_header.len;
