@@ -565,9 +565,9 @@ def get_config_preferred_parent():
         if 'ipv6' not in properties:
             continue
         assert properties['ipv6'][0] == 'aay'
-        if addr not in properties['ipv6'][1]:
+        if addr.packed not in properties['ipv6'][1]:
             continue
-        parent_eui64 = properties.get('parent')
+        parent_eui64 = properties.get('parent', ('ay', bytes()))[1]
     if not parent_eui64:
         return error(500, WSTBU_ERR_UNKNOWN, 'no known parent')
     for eui64, properties in nodes:
@@ -578,7 +578,7 @@ def get_config_preferred_parent():
         for addr in properties['ipv6'][1]:
             addr = ipaddress.IPv6Address(addr)
             if not addr.is_link_local:
-                return str(addr)
+                return flask.json.jsonify(str(addr))
     return error(500, WSTBU_ERR_UNKNOWN, 'parent has no address')
 
 
