@@ -337,6 +337,8 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor, &ie_lcp.chan_plan, ie_lus.listen_interval);
     ws_neighbor_class_lnd_update(neighbor.ws_neighbor, &ie_lnd, data->timestamp);
 
+    ws_neighbor_class_nr_update(neighbor.ws_neighbor, &ie_nr);
+
     ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
 }
 

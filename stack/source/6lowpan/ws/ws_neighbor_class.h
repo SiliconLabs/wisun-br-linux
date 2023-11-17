@@ -175,6 +175,10 @@ void ws_neighbor_class_lus_update(const struct net_if *net_if,
                                   ws_neighbor_class_entry_t *ws_neighbor,
                                   const struct ws_generic_channel_info *chan_info,
                                   uint24_t listen_interval_ms);
+
+// Node Role update (LFN only)
+void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t *nr_ie);
+
 /**
  * ws_neighbor_class_rsl_from_dbm_calculate
  *
