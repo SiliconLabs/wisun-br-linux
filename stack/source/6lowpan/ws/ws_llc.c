@@ -101,6 +101,7 @@ typedef enum {
     SL_WISUN_MODE_SWITCH_DEFAULT      = 0,     /// Mode switch is allowed for all unicast data frames. PhyModeId is global.
 } sl_wisun_mode_switch_mode_t;
 
+// FIXME: This contains many redundant information with mcps_data_req_t.
 typedef struct llc_message {
     uint8_t dst_address[8];             /**< Destination address */
     uint16_t pan_id;                    /**< Destination Pan-Id */
@@ -119,6 +120,7 @@ typedef struct llc_message {
     mcps_data_req_ie_list_t ie_ext;
     mac_data_priority_e priority;
     time_t tx_time;
+    struct mlme_security security;
     ns_list_link_t  link;               /**< List link entry */
 } llc_message_t;
 
@@ -1169,6 +1171,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
     message->message_type = WS_FT_DATA;
+    message->security = data->Key;
     if (data->TxAckReq) {
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
@@ -1340,6 +1343,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->dst_address_type = data->DstAddrMode;
     message->pan_id = data->DstPANId;
     message->message_type = WS_FT_EAPOL;
+    message->security = data->Key;
 
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
@@ -1817,7 +1821,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
     message->message_type = request->frame_type;
-
+    message->security = request->security;
 
     mcps_data_req_t data_req;
     memset(&data_req, 0, sizeof(mcps_data_req_t));
@@ -1874,6 +1878,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     random_early_detection_aq_calc(interface->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, msg);
     msg->message_type = req->frame_type;
+    msg->security     = req->security;
     msg->priority     = priority;
 
     if (dst) {
