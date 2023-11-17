@@ -159,6 +159,8 @@ void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address);
 
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
 
+void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime);
+
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);
 
 uint32_t ws_common_version_timeout_get(uint8_t config);

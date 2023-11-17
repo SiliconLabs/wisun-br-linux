@@ -59,6 +59,7 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
+            ws_common_neighbour_address_reg_link_update(cur_interface, aro->eui64, aro->lifetime);
         }
     }
 }

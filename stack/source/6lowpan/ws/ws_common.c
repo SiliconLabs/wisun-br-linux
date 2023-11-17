@@ -224,7 +224,7 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
     }
 }
 
-static void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime)
+void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime)
 {
     /*
      * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
