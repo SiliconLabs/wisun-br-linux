@@ -58,6 +58,9 @@ struct fhss_ws_neighbor_timing_info {
             uint8_t  lpa_slot_count;        // from LND-IE
             uint16_t lpa_slot_first;        // from LND-IE
             uint32_t lnd_rx_tstamp_us;
+
+            uint24_t uc_interval_min_ms;    // from NR-IE
+            uint24_t uc_interval_max_ms;    // from NR-IE
         } lfn;
     };
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
