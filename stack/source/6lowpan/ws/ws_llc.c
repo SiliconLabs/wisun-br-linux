@@ -439,7 +439,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_NO_DATA:
             if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
                 break;
-            if (neighbor_llc->neighbor->link_lifetime != ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->neighbor->node_role))
+            if (neighbor_llc->neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->neighbor->node_role))
                 break;
             if (!base->high_priority_mode)
                 etx_transm_attempts_update(base->interface_ptr->id, confirm->tx_retries + 1, success,
