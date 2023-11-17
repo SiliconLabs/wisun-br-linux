@@ -734,8 +734,10 @@ static uint24_t ws_llc_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t
     uint24_t q_above;
     uint24_t q_below;
 
-    if (uc_interval < uc_interval_min || uc_interval > uc_interval_max)
+    if (uc_interval < uc_interval_min || uc_interval > uc_interval_max) {
+        TRACE(TR_IGNORE, "ignore: lto-ie incoherent with nr-ie");
         return 0;
+    }
 
     if (uc_interval > bc_interval) {
         // Current state:
