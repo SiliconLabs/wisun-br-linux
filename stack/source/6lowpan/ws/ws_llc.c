@@ -1280,6 +1280,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
     llc_neighbour_req_t neighbor_info;
+    int node_role;
     int ie_offset;
 
     //Allocate Message
@@ -1331,7 +1332,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     ws_bootstrap_neighbor_get(base->interface_ptr, message->dst_address, &neighbor_info);
 
-    if ((neighbor_info.neighbor && neighbor_info.neighbor->node_role == WS_NR_ROLE_LFN) || data->lfn_multicast)
+    node_role = neighbor_info.neighbor ? neighbor_info.neighbor->node_role : WS_NR_ROLE_UNKNOWN;
+
+    if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
     else
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
@@ -1342,7 +1345,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
 
-    if ((neighbor_info.neighbor && neighbor_info.neighbor->node_role == WS_NR_ROLE_LFN) || data->lfn_multicast)
+    if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         ws_wh_lbt_write(&message->ie_buf_header, NULL);
 
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
