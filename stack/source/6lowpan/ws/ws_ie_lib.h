@@ -103,7 +103,7 @@ void    ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
                        uint8_t clock_drift, uint8_t timing_accuracy,
                        uint24_t listen_interval_min, uint24_t listen_interval_max);
 void   ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie);
-void   ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie);
+void   ws_wh_lto_write(struct iobuf_write *buf, uint24_t offset, uint24_t adjusted_listening_interval);
 void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid);
 void   ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_period);
 

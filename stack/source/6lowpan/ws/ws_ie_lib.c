@@ -271,13 +271,13 @@ void ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie)
+void ws_wh_lto_write(struct iobuf_write *buf, uint24_t req_offset, uint24_t adjusted_listening_interval)
 {
     int offset;
 
     offset = ws_wh_header_base_write(buf, WS_WHIE_LTO);
-    iobuf_push_le24(buf, lto_ie->offset);
-    iobuf_push_le24(buf, lto_ie->adjusted_listening_interval);
+    iobuf_push_le24(buf, req_offset);
+    iobuf_push_le24(buf, adjusted_listening_interval);
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
@@ -948,4 +948,3 @@ bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, st
     ws_channel_excluded_read(&ie_buf, &ws_lcp->chan_plan);
     return !ie_buf.err;
 }
-

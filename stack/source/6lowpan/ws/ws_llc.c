@@ -1833,7 +1833,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.lnd)
         ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
     if (wh_ies.lto)
-        ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing);
+        ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing->offset,
+                        base->ie_params.lfn_timing->adjusted_listening_interval);
     if (wh_ies.panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->network_pan_id);
     if (wh_ies.lbc)
