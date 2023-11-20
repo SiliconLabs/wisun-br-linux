@@ -414,7 +414,7 @@ uint24_t ws_neighbor_class_calc_lfn_adjusted_interval(uint24_t bc_interval, uint
     }
 }
 
-uint24_t ws_neighbor_class_get_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval)
+uint24_t ws_neighbor_class_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval)
 {
     /* This minimalist algorithm ensures that LFN BC will not overlap with any
      * LFN UC.

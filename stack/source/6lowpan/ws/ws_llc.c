@@ -1231,7 +1231,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
-        adjusted_offset_ms = ws_neighbor_class_get_lfn_offset(adjusted_listening_interval,
+        adjusted_offset_ms = ws_neighbor_class_calc_lfn_offset(adjusted_listening_interval,
                                                    base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
         if ((adjusted_listening_interval != neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms ||
             !neighbor_info.ws_neighbor->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
