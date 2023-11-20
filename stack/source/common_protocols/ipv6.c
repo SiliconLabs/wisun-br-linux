@@ -717,6 +717,8 @@ drop:
 
 static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
 {
+    uint8_t *opt_type_ptr;
+
     if (payload_length < 2) {
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, 4);
     }
@@ -738,7 +740,7 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
             opt++;
             continue;
         }
-        uint8_t opt_type = *opt++;
+        opt_type_ptr = opt++;
         if (opt >= end) {
             goto len_err;
         }
@@ -746,11 +748,13 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
         if (opt + optlen > end) {
             goto len_err;
         }
-        switch (opt_type) {
+        switch (*opt_type_ptr) {
             case IPV6_OPT_TYPE_RPI:
             case IPV6_OPT_TYPE_RPI_DEPRECATED:
                 if (!rpl_glue_process_rpi(&g_ctxt.rpl_root, buf, opt, optlen))
                     goto drop;
+                // FIXME: hack to allow ignoring RPI from the kernel.
+                *opt_type_ptr = IPV6_OPT_TYPE_RPI;
                 break;
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
@@ -761,12 +765,12 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
                 }
                 break;
             default:
-                opt_type &= IPV6_OPTION_ACTION_MASK;
-                if (opt_type == IPV6_OPTION_ACTION_SKIP) {
+                *opt_type_ptr &= IPV6_OPTION_ACTION_MASK;
+                if (*opt_type_ptr == IPV6_OPTION_ACTION_SKIP) {
                     break;
                 }
-                if (opt_type == IPV6_OPTION_ACTION_ERROR ||
-                        (opt_type == IPV6_OPTION_ACTION_ERROR_UNICAST && !addr_is_ipv6_multicast(buf->dst_sa.address))) {
+                if (*opt_type_ptr == IPV6_OPTION_ACTION_ERROR ||
+                        (*opt_type_ptr == IPV6_OPTION_ACTION_ERROR_UNICAST && !addr_is_ipv6_multicast(buf->dst_sa.address))) {
                     return icmpv6_error(buf, NULL, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT, (opt - 2) - buffer_data_pointer(buf));
                 }
                 /* falling to */
