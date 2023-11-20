@@ -177,6 +177,9 @@ void ws_neighbor_class_lus_update(const struct net_if *net_if,
                                   const struct ws_generic_channel_info *chan_info,
                                   uint24_t listen_interval_ms);
 
+uint24_t ws_neighbor_class_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
+                uint24_t uc_interval_min, uint24_t uc_interval_max);
+
 // Node Role update (LFN only)
 void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t *nr_ie);
 

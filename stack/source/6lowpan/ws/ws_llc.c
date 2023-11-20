@@ -690,95 +690,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-// Compute the divisors of val closest to q_ref, possibly including 1 and val
-static void ws_llc_calc_closest_divisors(uint24_t val, uint24_t q_ref,
-                                         uint24_t *below, uint24_t *above)
-{
-    uint24_t q;
-    uint24_t _q;
-
-    *below = 0;
-    *above = 0;
-    // Iterate through divisors from 1 to sqrt(val)
-    for (q = 1; q * q <= val; q++) {
-        if (val % q == 0) {
-            if (q <= q_ref) {
-                *below = q;
-            } else {
-                *above = q;
-                return;
-            }
-        }
-    }
-    // Iterate through the remaining divisors
-    q--;
-    for (; q > 0; q--) {
-        _q = val / q;
-        if (val % _q == 0) {
-            if (_q <= q_ref) {
-                *below = _q;
-            } else {
-                *above = _q;
-                return;
-            }
-        }
-    }
-}
-
-// Compute the Adjusted Listening Interval to be included in the LTO-IE
-// See Wi-SUN FAN 1.1v06 6.3.4.6.4.2.1.2 FFN Processing of LFN PAN Advertisement Solicit
-static uint24_t ws_llc_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
-                                                  uint24_t uc_interval_min, uint24_t uc_interval_max)
-{
-    uint24_t r;
-    uint24_t q_above;
-    uint24_t q_below;
-
-    if (uc_interval < uc_interval_min || uc_interval > uc_interval_max) {
-        TRACE(TR_IGNORE, "ignore: lto-ie incoherent with nr-ie");
-        return 0;
-    }
-
-    if (uc_interval > bc_interval) {
-        // Current state:
-        //   uc = q * bc + r
-        // Desired state:
-        //   uc' = q' * bc
-        // This can be solved arithmetically:
-        //   for a bigger interval:  uc' = uc + bc - r = (q + 1) * bc
-        //   for a smaller interval: uc' = uc - r = q * bc
-        r = uc_interval % bc_interval;
-        if (r == 0)
-            return uc_interval; // No need to adjust
-        if (uc_interval + bc_interval - r <= uc_interval_max)
-            return uc_interval + bc_interval - r; // Extend interval
-        if (uc_interval - r >= uc_interval_min)
-            return uc_interval - r; // Reduce interval
-        return uc_interval; // No multiple available in range
-    } else {
-        // Current state:
-        //   bc = q * uc + r
-        // Desired state:
-        //   bc = q' * uc'
-        // This case is much more difficult. The solution proposed here is
-        // iterate through divisors of bc to find those closest to q:
-        //   q_below <= q < q_above
-        //   for a bigger interval:  uc' = bc / q_below
-        //   for a smaller interval: uc' = bc / q_above
-        if (bc_interval % uc_interval == 0)
-            return uc_interval; // No need to adjust
-
-        ws_llc_calc_closest_divisors(bc_interval, bc_interval / uc_interval,
-                                     &q_below, &q_above);
-
-        if (q_above && bc_interval / q_above >= uc_interval_min)
-            return bc_interval / q_above; // Reduce interval
-        if (q_below && bc_interval / q_below <= uc_interval_max)
-            return bc_interval / q_below; // Extend interval
-        return uc_interval; // No sub-multiple available in range
-    }
-}
-
 static uint24_t ws_llc_get_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval)
 {
     /* This minimalist algorithm ensures that LFN BC will not overlap with any
@@ -1356,7 +1267,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // be applied based on the target's current broadcast schedule offset.
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast &&
         !version_older_than(base->interface_ptr->rcp->version_api, 0, 27, 0)) {
-        adjusted_listening_interval = ws_llc_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
+        adjusted_listening_interval = ws_neighbor_class_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
