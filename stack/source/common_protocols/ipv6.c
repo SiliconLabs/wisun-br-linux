@@ -1022,16 +1022,13 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 {
     switch (next_header) {
-    case IPV6_NH_DEST_OPT:
-    case IPV6_NH_ROUTING:
     case IPV6_NH_IPV6:
         return false;
     case IPV6_NH_ICMPV6:
-        if (data_ptr[0] <= ICMPV6_TYPE_INFO_ECHO_REPLY)
-            return true;
-        if (data_ptr[0] == ICMPV6_TYPE_RPL)
-            return true;
-        return false;
+        if (data_ptr[0] == ICMPV6_TYPE_INFO_NS)
+            return false;
+        if (data_ptr[0] == ICMPV6_TYPE_INFO_NA)
+            return false;
     default:
         return true;
     }
