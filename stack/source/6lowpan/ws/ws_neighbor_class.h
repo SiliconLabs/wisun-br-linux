@@ -38,19 +38,19 @@ struct fhss_ws_neighbor_timing_info {
         struct {
             uint8_t  uc_dwell_interval_ms;  // from US-IE
             uint24_t ufsi;                  // from UTT-IE
-            uint32_t utt_rx_tstamp_us;
+            uint64_t utt_rx_tstamp_us;
         } ffn;
         struct {
             uint24_t uc_listen_interval_ms; // from LUS-IE
             uint16_t uc_slot_number;        // from LUTT-IE
             uint24_t uc_interval_offset_ms; // from LUTT-IE
-            uint32_t lutt_rx_tstamp_us;
+            uint64_t lutt_rx_tstamp_us;
 
             uint24_t lpa_response_delay_ms; // from LND-IE
             uint8_t  lpa_slot_duration_ms;  // from LND-IE
             uint8_t  lpa_slot_count;        // from LND-IE
             uint16_t lpa_slot_first;        // from LND-IE
-            uint32_t lnd_rx_tstamp_us;
+            uint64_t lnd_rx_tstamp_us;
 
             uint24_t uc_interval_min_ms;    // from NR-IE
             uint24_t uc_interval_max_ms;    // from NR-IE
@@ -140,13 +140,13 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
 
 // Unicast Timing update
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
-                                 uint32_t tstamp_us, const uint8_t eui64[8]);
+                                 uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Unicast timing update
 void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
                                   uint16_t slot_number, uint24_t interval_offset,
-                                  uint32_t tstamp_us, const uint8_t eui64[8]);
+                                  uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Network Discovery update
-void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint32_t tstamp_us);
+void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
 void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
@@ -200,6 +200,7 @@ void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, 
  */
 void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor, uint8_t rsl_reported);
 
-bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor, uint8_t mac_dsn, uint32_t rx_timestamp);
+bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor,
+                                                       uint8_t mac_dsn, uint64_t rx_timestamp);
 
 #endif

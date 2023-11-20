@@ -108,7 +108,8 @@ static int own_ceil(float value)
     return ivalue + 1;
 }
 
-static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, uint24_t ufsi, uint32_t timestamp, const uint8_t address[8])
+static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, uint24_t ufsi,
+                                             uint64_t timestamp, const uint8_t address[8])
 {
     if (ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us && ws_neighbor->fhss_data.ffn.ufsi) {
         // No UFSI on fixed channel
@@ -158,7 +159,7 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
 }
 
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
-                                 uint32_t tstamp_us, const uint8_t eui64[8])
+                                 uint64_t tstamp_us, const uint8_t eui64[8])
 {
     ws_neighbor_calculate_ufsi_drift(neighbor, ufsi, tstamp_us, eui64);
 
@@ -175,14 +176,14 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
 
 void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
                                   uint16_t slot_number, uint24_t interval_offset,
-                                  uint32_t tstamp_us, const uint8_t eui64[8])
+                                  uint64_t tstamp_us, const uint8_t eui64[8])
 {
     neighbor->fhss_data.lfn.lutt_rx_tstamp_us     = tstamp_us;
     neighbor->fhss_data.lfn.uc_slot_number        = slot_number;
     neighbor->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
 }
 
-void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint32_t tstamp_us)
+void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
 {
     neighbor->fhss_data.lfn.lpa_response_delay_ms = ie_lnd->response_delay;
     neighbor->fhss_data.lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
@@ -507,7 +508,8 @@ void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor,
 }
 
 
-bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor, uint8_t mac_dsn, uint32_t rx_timestamp)
+bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor,
+                                                       uint8_t mac_dsn, uint64_t rx_timestamp)
 {
     if (ws_neighbor->last_DSN != mac_dsn) {
         // New packet always accepted

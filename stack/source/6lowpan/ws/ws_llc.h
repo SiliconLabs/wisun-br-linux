@@ -163,7 +163,8 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);
 
-bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp);
+bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
+                                       uint8_t mac_sequency, uint64_t rx_timestamp);
 
 ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64);
 

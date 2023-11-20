@@ -2022,7 +2022,8 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
     }
 }
 
-bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp)
+bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
+                                       uint8_t mac_sequency, uint64_t rx_timestamp)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {

@@ -164,7 +164,7 @@ enum mcps_data_cnf_status {
 typedef struct mcps_data_cnf {
     uint8_t msduHandle;     /**< Handle associated with MSDU */
     uint8_t status;         /**< Status of the last MSDU transmission, see enum mcps_data_cnf_status */
-    uint32_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
+    uint64_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
     //Non-standard extension
     uint8_t cca_retries;    /**< Number of CCA retries used during sending */
     uint8_t tx_retries;     /**< Number of retries done during sending, 0 means no retries */
@@ -201,7 +201,7 @@ typedef struct mcps_data_ind {
     uint8_t DstAddr[8];         /**< Destination address */
     uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
     int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
-    uint32_t timestamp;         /**< The time, in symbols, at which the data were received */
+    uint64_t timestamp;         /**< The time, in symbols, at which the data were received */
     uint8_t DSN;                /**< Data sequence number */
     mlme_security_t Key;        /**< Security key */
     uint16_t msduLength;        /**< Data unit length */
