@@ -32,7 +32,6 @@
 #include "common/time_extra.h"
 #include "common/utils.h"
 #include "common/version.h"
-#include "common/rand.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/etx/etx.h"
 
@@ -66,8 +65,6 @@
 
 #define TX_CONFIRM_EXTENSIVE_FFN_SEC 5
 #define TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER 3
-
-#define LFN_SCHEDULE_GUARD_TIME_MS 300
 
 typedef struct mpx_user {
     uint16_t                user_id;        /**< User ID for identify MPX User */
@@ -690,43 +687,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static uint24_t ws_llc_get_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval)
-{
-    /* This minimalist algorithm ensures that LFN BC will not overlap with any
-     * LFN UC.
-     * It returns an offset inside the LFN BC Interval that will be used by the
-     * MAC to computed the actual offset to be applied by the targeted LFN.
-     * Any LFN UC is placed randomly after the LFN BC, in an interval of
-     *   offset = [GUARD_INTERVAL, LFN_BC_INTERVAL - GUARD_INTERVAL] or
-     *   offset = [GUARD_INTERVAL, LFN_UC_INTERVAL - GUARD_INTERVAL]
-     * For any multiple LFN UC interval, the listening slot will happen at
-     * "offset + n*LFN_BC_INTERVAL" which guarantees that it will not come near
-     * the LFN BC slot.
-     * For any divisor LFN UC interval, the listening slot will happen an
-     * entire number of times between two LFN BC slot, which is fine.
-     * The two closest LFN UC slots are at:
-     *   "offset + n*LFN_BC_INTERVAL - LFN_UC INTERVAL" and
-     *   "offset + n*LFN_BC_INTERVAL"
-     * These are safe as long as "LFN_UC_INTERVAL >= 2 * GUARD_INTERVAL"
-     * Because of the randomness and the offset range depending on the
-     * LFN UC Interval, there is no protection between LFN Unicast schedules.
-     * However, they are spread as much as possible.
-     * TODO: algorithm that allocates or reallocates offsets to each LFN in
-     * order to minimize overlap.
-     */
-    uint16_t max_offset_ms;
-
-    // Cannot protect LFN BC with such a short interval, do nothing
-    if (adjusted_listening_interval < 2 * LFN_SCHEDULE_GUARD_TIME_MS)
-        return 0;
-
-    if (adjusted_listening_interval >= bc_interval)
-        max_offset_ms = bc_interval - LFN_SCHEDULE_GUARD_TIME_MS;
-    else
-        max_offset_ms = adjusted_listening_interval - LFN_SCHEDULE_GUARD_TIME_MS;
-    return LFN_SCHEDULE_GUARD_TIME_MS * rand_get_random_in_range(1, max_offset_ms / LFN_SCHEDULE_GUARD_TIME_MS);
-}
-
 static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
                                 const mcps_data_ind_ie_list_t *ie_ext)
 {
@@ -1271,7 +1231,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
                                                                         neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
-        adjusted_offset_ms = ws_llc_get_lfn_offset(adjusted_listening_interval,
+        adjusted_offset_ms = ws_neighbor_class_get_lfn_offset(adjusted_listening_interval,
                                                    base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
         if ((adjusted_listening_interval != neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms ||
             !neighbor_info.ws_neighbor->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {

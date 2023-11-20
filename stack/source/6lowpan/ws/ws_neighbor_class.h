@@ -180,6 +180,8 @@ void ws_neighbor_class_lus_update(const struct net_if *net_if,
 uint24_t ws_neighbor_class_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
                 uint24_t uc_interval_min, uint24_t uc_interval_max);
 
+uint24_t ws_neighbor_class_get_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
+
 // Node Role update (LFN only)
 void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t *nr_ie);
 
