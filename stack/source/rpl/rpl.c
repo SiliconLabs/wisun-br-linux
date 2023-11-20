@@ -642,6 +642,8 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     FATAL_ON(root->sockfd < 0, 2, "%s: socket: %m", __func__);
     err = setsockopt(root->sockfd, IPPROTO_IPV6, IPV6_RECVPKTINFO, (int[1]){ true }, sizeof(int));
     FATAL_ON(err < 0, 2, "%s: setsockopt IPV6_RECVPKTINFO: %m", __func__);
+    err = setsockopt(root->sockfd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, (int[1]){ false }, sizeof(int));
+    FATAL_ON(err < 0, 2, "%s: setsockopt IPV6_MULTICAST_LOOP: %m", __func__);
     err = setsockopt(root->sockfd, SOL_SOCKET, SO_BINDTODEVICE, ifname, IF_NAMESIZE);
     FATAL_ON(err < 0, 2, "%s: setsockopt SO_BINDTODEVICE %s: %m", __func__, ifname);
     ICMP6_FILTER_SETBLOCKALL(&filter);
