@@ -369,6 +369,8 @@ uint24_t ws_neighbor_class_calc_lfn_adjusted_interval(uint24_t bc_interval, uint
     uint24_t q_above;
     uint24_t q_below;
 
+    if (!bc_interval || !uc_interval || !uc_interval_min || !uc_interval_max)
+        return 0;
     if (uc_interval < uc_interval_min || uc_interval > uc_interval_max) {
         TRACE(TR_IGNORE, "ignore: lto-ie incoherent with nr-ie");
         return 0;
