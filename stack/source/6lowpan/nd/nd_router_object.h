@@ -23,11 +23,13 @@
 
 struct net_if;
 struct ipv6_nd_opt_earo;
+typedef struct ipv6_neighbour ipv6_neighbour_t;
 enum addrtype;
 
 bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, size_t earo_len,
                         const uint8_t *slla_ptr, const uint8_t src_addr[16], const uint8_t target[16],
                         struct ipv6_nd_opt_earo *na_earo);
+void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro);
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 #endif

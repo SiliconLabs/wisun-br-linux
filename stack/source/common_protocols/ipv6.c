@@ -24,6 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 
+#include "6lowpan/nd/nd_router_object.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -1034,6 +1035,31 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
     }
 }
 
+static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
+{
+    ipv6_neighbour_t *ipv6_neighbour = ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->src_sa.address);
+    mac_neighbor_table_entry_t *mac_neighbor;
+    struct ipv6_nd_opt_earo aro;
+
+    if (!ipv6_neighbour || ipv6_neighbour->type != IP_NEIGHBOUR_REGISTERED)
+        return;
+
+    if (memcmp(ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, ipv6_neighbour), eui64, 8))
+        return;
+
+    mac_neighbor = mac_neighbor_table_address_discover(buf->interface->mac_parameters.mac_neighbor_table,
+                                                        eui64, ADDR_802_15_4_LONG);
+
+    if (!mac_neighbor)
+        return;
+
+    aro.status = ARO_SUCCESS;
+    aro.lifetime = mac_neighbor->link_lifetime;
+
+    nd_update_registration(buf->interface, ipv6_neighbour, &aro);
+    ws_common_neighbour_address_reg_link_update(buf->interface, eui64, mac_neighbor->link_lifetime);
+}
+
 buffer_t *ipv6_forwarding_up(buffer_t *buf)
 {
     uint8_t *ptr = buffer_data_pointer(buf);
@@ -1188,6 +1214,9 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
     } else { /* unicast */
+        if (ll_src.addr_type == ADDR_802_15_4_LONG && buf->link_specific.ieee802_15_4.requestAck)
+            ipv6_refresh_neighbor_lifetime(buf, ll_src.address + PAN_ID_LEN);
+
         if (!for_us) {
             if (cur->if_common_forwarding_out_cb) {
                 cur->if_common_forwarding_out_cb(cur, buf);

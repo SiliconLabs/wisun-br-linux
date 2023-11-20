@@ -31,7 +31,7 @@
 
 #include "6lowpan/nd/nd_router_object.h"
 
-static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
+void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target;

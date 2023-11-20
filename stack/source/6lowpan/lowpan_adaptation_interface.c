@@ -1208,6 +1208,7 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     //Set Link specific stuff to seperately
     buf->link_specific.ieee802_15_4.srcPanId = data_ind->SrcPANId;
     buf->link_specific.ieee802_15_4.dstPanId = data_ind->DstPANId;
+    buf->link_specific.ieee802_15_4.requestAck = data_ind->TxAckReq;
 
     if (mac_data_is_broadcast_addr(&buf->dst_sa)) {
         buf->options.ll_broadcast_rx = true;
