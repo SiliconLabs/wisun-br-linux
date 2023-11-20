@@ -32,6 +32,7 @@
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api_legacy.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
@@ -458,8 +459,17 @@ void ws_neighbor_class_lus_update(const struct net_if *net_if,
                                   const struct ws_generic_channel_info *chan_info,
                                   uint24_t listen_interval_ms)
 {
-    if (ws_neighbor->fhss_data.lfn.uc_listen_interval_ms != listen_interval_ms)
-        ws_neighbor->offset_adjusted = false;
+    uint24_t adjusted_listening_interval;
+
+    if (ws_neighbor->fhss_data.lfn.uc_listen_interval_ms != listen_interval_ms) {
+        adjusted_listening_interval = ws_neighbor_class_calc_lfn_adjusted_interval(net_if->ws_info.fhss_conf.lfn_bc_interval,
+                                                                                        ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
+                                                                                        ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
+                                                                                        ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
+        if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
+            ws_neighbor->offset_adjusted = false;
+    }
+
     ws_neighbor->fhss_data.lfn.uc_listen_interval_ms = listen_interval_ms;
     if (!chan_info)
         return; // Support chan plan tag 255 (reuse previous schedule)
