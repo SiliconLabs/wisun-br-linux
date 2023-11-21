@@ -260,31 +260,6 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
 }
 
 /**
- * \brief A function to read ETX value
- *
- *  Returns ETX value for an address
- *
- * \param interface_id network interface id
- * \param addr_type address type, ADDR_802_15_4_SHORT or ADDR_802_15_4_LONG
- * \param addr_ptr PAN ID with 802.15.4 address
- *
- * \return 0x0100 to 0xFFFF ETX value (8 bit fraction)
- * \return 0xFFFF address not associated
- * \return 0x0000 address unknown or other error
- * \return 0x0001 no ETX statistics on this interface
- */
-uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
-{
-    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!addr_ptr || !interface)
-        return 0;
-
-    BUG_ON(!interface->etx_read_override);
-    return interface->etx_read_override(interface, addr_type, addr_ptr);
-}
-
-/**
  * \brief A function to read local incoming IDR value
  *
  *  Returns local incoming IDR value for an address

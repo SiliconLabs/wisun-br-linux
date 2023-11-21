@@ -66,22 +66,6 @@ typedef struct etx_sample_storage {
 void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
 
 /**
- * \brief A function to read ETX value
- *
- *  Returns ETX value for an address
- *
- * \param interface_id network interface id
- * \param addr_type address type, ADDR_802_15_4_SHORT or ADDR_802_15_4_LONG
- * \param addr_ptr PAN ID with 802.15.4 address
- *
- * \return 0x0100 to 0xFFFF ETX value (8 bit fraction)
- * \return 0xFFFF address not associated
- * \return 0x0000 address unknown or other error
- * \return 0x0001 no ETX statistics on this interface
- */
-uint16_t etx_read(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
-
-/**
  * \brief A function to read local ETXvalue
  *
  *  Returns local ETX value for an address
