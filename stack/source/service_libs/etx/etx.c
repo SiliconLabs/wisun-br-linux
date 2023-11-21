@@ -37,7 +37,6 @@ typedef struct ext_neigh_info {
 } ext_neigh_info_t;
 
 static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
-static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info);
 static void etx_cache_entry_init(uint8_t attribute_index);
 
 #if ETX_ACCELERATED_SAMPLE_COUNT == 0 || ETX_ACCELERATED_SAMPLE_COUNT > 6
@@ -120,11 +119,8 @@ static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t ack
     //Clear Drop count
     entry->drop_bad_count = 0;
 
-    if (entry->etx_samples >= etx_info.init_etx_sample_count) {
+    if (entry->etx_samples >= etx_info.init_etx_sample_count)
         etx_cache_entry_init(etx_neigh_info->attribute_index);
-        // Checks if ETX value change callback is needed
-        etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, etx_neigh_info);
-    }
 }
 
 static void etx_cache_entry_init(uint8_t attribute_index)
@@ -519,25 +515,6 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
 
     etx_storage_t *entry = etx_info.etx_storage_list + attribute_index;
     return entry;
-}
-
-/**
- * \brief A function to check if ETX value change callback is needed
- *
- *  Calculates current ETX and compares it against stored ETX. If change
- *  of the values is more than hysteresis calls ETX value change
- *  callback.
- *
- * \param etx ETX (12 bit fraction)
- * \param stored_diff_etx stored ETX value
- * \param accumulated_failures failed attempts
- * \param mac64_addr_ptr long MAC address
- * \param mac16_addr short MAC address or 0xffff address is not set
- *
- * \return ETX value (12 bit fraction)
- */
-static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info)
-{
 }
 
 void etx_cache_timer(int seconds_update)
