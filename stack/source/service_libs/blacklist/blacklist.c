@@ -74,38 +74,6 @@ void blacklist_params_set(uint16_t entry_lifetime, uint16_t timer_max_timeout, u
     blacklist_data->blacklist_purge_timer_timeout = purge_timer_timeout;
 }
 
-bool blacklist_reject(const uint8_t *ll64_address)
-{
-    if (!blacklist_data) {
-        return false;
-    }
-
-    blacklist_entry_t *blacklist_entry;
-
-    blacklist_entry = blacklist_entry_find(ll64_address + 8);
-
-    // If blacklist entry exists
-    if (blacklist_entry) {
-        // If address is blacklisted rejects
-        if (blacklist_entry->ttl > blacklist_data->blacklist_entry_lifetime) {
-            tr_info("blacklist reject: %s", tr_eui64(ll64_address + 8));
-            return true;
-            // Neighbor heard; updates blacklist entry TTL to full lifetime
-        } else {
-            blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime;
-            return false;
-        }
-    } else {
-        // If blacklist is full rejects
-        if (blacklist_entries_count() >= blacklist_data->blacklist_entry_max_nbr) {
-            tr_debug("blacklist full reject");
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
 void blacklist_update(const uint8_t *ll64_address, bool success)
 {
     if (!blacklist_data) {

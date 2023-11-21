@@ -51,7 +51,6 @@ typedef struct blacklist_data {
 
 uint8_t blacklist_init(void);
 void blacklist_params_set(uint16_t entry_lifetime, uint16_t timer_max_timeout, uint16_t timer_timeout, uint16_t entry_max_nbr, uint16_t purge_nbr, uint16_t purge_timer_timeout);
-bool blacklist_reject(const uint8_t *ll64_address);
 void blacklist_update(const uint8_t *ll64_address, bool success);
 void blacklist_ttl_update(uint16_t ticks);
 void blacklist_clear(void);
