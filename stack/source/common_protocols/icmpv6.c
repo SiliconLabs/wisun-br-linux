@@ -256,10 +256,8 @@ static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint
     }
 
     (void)life_time;
-    if (nd_status != ARO_SUCCESS) {
-        ws_common_black_list_neighbour(src_addr, nd_status);
+    if (nd_status != ARO_SUCCESS)
         ws_common_aro_failure(cur_interface, src_addr);
-    }
 }
 
 // Wi-SUN allows to use an ARO without an SLLAO. This function builds a dummy

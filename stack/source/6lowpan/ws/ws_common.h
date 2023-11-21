@@ -153,8 +153,6 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 
 void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address);
 
-void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status);
-
 void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address);
 
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
