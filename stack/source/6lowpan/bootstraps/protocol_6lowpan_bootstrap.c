@@ -27,7 +27,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/blacklist/blacklist.h"
 #include "service_libs/etx/etx.h"
 #include "common/events_scheduler.h"
 

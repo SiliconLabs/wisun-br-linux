@@ -31,7 +31,6 @@
 #include "common/version.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/mac/mac_common_defines.h"
@@ -356,9 +355,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             cur->mac_parameters.mac_default_lfn_key_index = 0;
 
             ipv6_destination_cache_clean(cur->id);
-
-            // Clear parent blacklist
-            blacklist_clear();
 
             // All trickle timers stopped to allow entry from any state
             ws_bootstrap_asynch_trickle_stop(cur);

@@ -30,7 +30,6 @@
 #include "common/utils.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/blacklist/blacklist.h"
 #include "common/events_scheduler.h"
 #include "6lowpan/mac/mac_common_defines.h"
 
@@ -167,7 +166,6 @@ void ws_common_seconds_timer(int seconds)
 
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_bootstrap_6lbr_seconds_timer(cur, seconds);
-    blacklist_ttl_update(seconds);
 }
 
 void ws_common_fast_timer(int ticks)
@@ -200,9 +198,6 @@ void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address)
 
 void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status)
 {
-    if (nd_status == ARO_FULL) {
-        blacklist_update(ll_address, false);
-    }
 }
 
 void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address)

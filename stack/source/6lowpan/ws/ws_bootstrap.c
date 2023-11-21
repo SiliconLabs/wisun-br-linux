@@ -32,7 +32,6 @@
 #include "common/events_scheduler.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 
 #include "app_wsbrd/wsbr.h"
@@ -633,13 +632,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->ws_info.authentication_time = 0;
     cur->ws_info.connected_time = 0;
 
-    blacklist_params_set(
-        WS_BLACKLIST_ENTRY_LIFETIME,
-        WS_BLACKLIST_TIMER_MAX_TIMEOUT,
-        WS_BLACKLIST_TIMER_TIMEOUT,
-        WS_BLACKLIST_ENTRY_MAX_NBR,
-        WS_BLACKLIST_PURGE_NBR,
-        WS_BLACKLIST_PURGE_TIMER_TIMEOUT);
     return 0;
 cleanup:
     return ret_val;
@@ -892,11 +884,6 @@ int ws_bootstrap_init(int8_t interface_id)
 
     etx_max_update_set(WS_ETX_MAX_UPDATE);
     etx_max_set(WS_ETX_MAX);
-
-    if (blacklist_init() != 0) {
-        tr_error("MLE blacklist init failed.");
-        return -1;
-    }
 
     if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size)) {
         ret_val = -1;
