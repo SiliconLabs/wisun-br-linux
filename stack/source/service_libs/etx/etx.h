@@ -129,21 +129,6 @@ uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index);
 typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
 
 /**
- * \brief A function to register ETX value change callback
- *
- *  When ETX value has changed more or equal to hysteresis value ETX
- *  module calls ETX value change callback.
- *
- * \param nwk_interface_id_e network interface id
- * \param hysteresis hysteresis value (8 bit fraction)
- * \param callback_ptr callback function pointer
- *
- * \return 0 not 6LowPAN interface
- * \return 1 success
- */
-uint8_t etx_value_change_callback_register(int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
-
-/**
  * \brief A function to allocte ETX storage list
  *
  * \param interface_id interface id
