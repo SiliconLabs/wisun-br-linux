@@ -151,26 +151,6 @@ typedef struct ws_statistics {
 } ws_statistics_t;
 
 /**
- * \brief Struct ws_neighbour_info_t Gives the neighbour information.
- */
-typedef struct ws_neighbour_info {
-    /** Link local address*/
-    uint8_t link_local_address[16];
-    /** Global address if it is known set to 0 if not available*/
-    uint8_t global_address[16];
-    /** parent RSSI Out measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
-    uint8_t rsl_out;
-    /** parent RSSI in measured RSSI value calculated using EWMA specified by Wi-SUN from range of -174 (0) to +80 (254) dBm.*/
-    uint8_t rsl_in;
-    /** Measured ETX value if known set to 0xFFFF if not known or Child*/
-    uint16_t etx;
-    /** Remaining lifetime Link lifetime for parents and ARO lifetime for children*/
-    uint32_t lifetime;
-    /** Neighbour type (Primary Parent, Secondary Parent, Candidate parent, child, other(Temporary neighbours))*/
-    ws_management_neighbor_type_e type;
-} ws_neighbour_info_t;
-
-/**
  * Initialize Wi-SUN stack.
  *
  * Generates the default configuration for Wi-SUN operation
