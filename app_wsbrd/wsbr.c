@@ -395,7 +395,8 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
     if (ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
         FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
               min_device_description_table_size);
-    rcp_legacy_get_hw_addr();
+    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
+        rcp_legacy_get_hw_addr();
 }
 
 void kill_handler(int signal)
