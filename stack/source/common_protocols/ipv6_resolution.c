@@ -246,5 +246,5 @@ uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(struct net_if *cur, int8_t i
     }
 
     BUG_ON(!cur->etx_read_override);
-    return cur->etx_read_override(cur, ll_type, ll_addr);
+    return cur->etx_read_override(cur, ll_type, ll_addr + PAN_ID_LEN);
 }

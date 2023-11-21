@@ -513,7 +513,7 @@ static void ws_bootstrap_ll_address_validate(struct net_if *cur)
  * \return 0x0000 address unknown or other error
  * \return 0x0001 no ETX statistics on this interface
  */
-uint16_t ws_local_etx_read(struct net_if *interface, addrtype_e addr_type, const uint8_t *mac_adddress)
+static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, const uint8_t *mac_adddress)
 {
     uint16_t etx;
 
@@ -551,14 +551,6 @@ uint16_t ws_local_etx_read(struct net_if *interface, addrtype_e addr_type, const
     }
 
     return etx;
-}
-
-uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, const uint8_t *addr_ptr)
-{
-    if (!addr_ptr || !interface) {
-        return 0;
-    }
-    return ws_local_etx_read(interface, addr_type, addr_ptr + PAN_ID_LEN);
 }
 
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
