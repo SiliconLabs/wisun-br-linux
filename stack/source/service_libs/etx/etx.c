@@ -54,7 +54,6 @@ static void etx_cache_entry_init(uint8_t attribute_index);
 
 
 typedef struct ext_info {
-    etx_value_change_handler_t *callback_ptr;
     etx_storage_t *etx_storage_list;
     etx_sample_storage_t *etx_cache_storage_list;
     uint32_t max_etx_update;
@@ -72,7 +71,6 @@ typedef struct ext_info {
 
 static ext_info_t etx_info = {
     .accum_threshold = 0,
-    .callback_ptr = NULL,
     .etx_storage_list = NULL,
     .etx_cache_storage_list = NULL,
     .ext_storage_list_size = 0,
@@ -553,29 +551,6 @@ static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *store
  */
 void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
 {
-
-    //tr_debug("Remove attribute %u", attribute_index);
-    uint16_t stored_diff_etx;
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-    if (entry && etx_info.callback_ptr) {
-
-        if (entry->etx) {
-            stored_diff_etx = entry->stored_diff_etx >> 4;
-            if (!stored_diff_etx) {
-                stored_diff_etx = 0xffff;
-            }
-
-            etx_info.callback_ptr(etx_info.interface_id, stored_diff_etx, 0xffff, attribute_index, mac64_addr_ptr);
-        }
-
-        if (etx_info.cache_sample_requested) {
-            //Clear cached values
-            etx_sample_storage_t *cache_entry = etx_info.etx_cache_storage_list + attribute_index;
-            memset(cache_entry, 0, sizeof(etx_sample_storage_t));
-        }
-        //Clear all data base back to zero for new user
-        memset(entry, 0, sizeof(etx_storage_t));
-    }
 }
 
 void etx_cache_timer(int seconds_update)

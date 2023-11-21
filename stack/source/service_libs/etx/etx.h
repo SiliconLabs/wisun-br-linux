@@ -114,21 +114,6 @@ uint16_t etx_read(int8_t interface_id, enum addrtype addr_type, const uint8_t *a
 uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index);
 
 /**
- * \brief A function callback that indicates ETX value change
- *
- *  Callback indicates when ETX value has changed more or equal to
- *  hysteresis value.
- *
- * \param nwk_interface_id_e network interface id
- * \param previous_etx ETX value to what the current ETX was compared (8 bit fraction)
- * \param current_etx current ETX value (8 bit fraction)
- * \param attribute_index Neighbour attribute index
- * \param mac64_addr_ptr Pointer to MAC64 for given etx update
- *
- */
-typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
-
-/**
  * \brief A function to allocte ETX storage list
  *
  * \param interface_id interface id
