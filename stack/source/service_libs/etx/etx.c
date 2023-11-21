@@ -39,19 +39,6 @@ typedef struct ext_neigh_info {
 static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
 static void etx_cache_entry_init(uint8_t attribute_index);
 
-#if ETX_ACCELERATED_SAMPLE_COUNT == 0 || ETX_ACCELERATED_SAMPLE_COUNT > 6
-#error "ETX_ACCELERATED_SAMPLE_COUNT accepted values 1-6"
-#endif
-
-#if ETX_ACCELERATED_INTERVAL == 0
-#error "ETX_ACCELERATED_INTERVAL can't be zero"
-#endif
-
-#if ETX_ACCELERATED_INTERVAL >= ETX_ACCELERATED_SAMPLE_COUNT
-#error "ETX_ACCELERATED_INTERVAL must be < ETX_ACCELERATED_SAMPLE_COUNT"
-#endif
-
-
 typedef struct ext_info {
     etx_storage_t *etx_storage_list;
     etx_sample_storage_t *etx_cache_storage_list;

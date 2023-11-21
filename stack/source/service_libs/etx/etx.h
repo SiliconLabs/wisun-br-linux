@@ -35,28 +35,8 @@ enum addrtype;
    Range for value can be from 1 to 11 */
 #define ETX_MOVING_AVERAGE_FRACTION      3     // n >> 3, 1/8
 
-/* ETX cache configuration definitions */
-
-/* Amount of accelerated ETX samples
- * After this value is received the ETX calculation starts to follow the
- * slower ETX cache configuration values.
- *
- * Maximum value is 6
- */
-#define ETX_ACCELERATED_SAMPLE_COUNT      3
-
-/* Amount of samples before updating the ETX value when in accelerated mode.
- *
- * if set to 1 every sample updates an ETX value. if set to 2 every second
- * ETX sample updates the ETX value.
- *
- * This value should be smaller than ETX_ACCELERATED_SAMPLE_COUNT
- */
-#define ETX_ACCELERATED_INTERVAL          2
-
 typedef struct etx_storage {
     uint16_t        etx;                       /*!< 12 bits fraction */
-    uint16_t        stored_diff_etx;           /*!< 12 bits fraction */
     unsigned        accumulated_failures: 5;
     unsigned        tmp_etx: 1;
     unsigned        linkIdr: 4;
