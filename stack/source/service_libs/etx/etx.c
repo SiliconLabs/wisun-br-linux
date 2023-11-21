@@ -277,34 +277,11 @@ uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr
 {
     struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!addr_ptr || !interface) {
+    if (!addr_ptr || !interface)
         return 0;
-    }
 
-    if (interface->etx_read_override) {
-        // Interface has modified ETX calculation
-        return interface->etx_read_override(interface, addr_type, addr_ptr);
-    }
-
-    uint8_t attribute_index;
-
-    //Must Support old MLE table and new still same time
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
-    if (!mac_neighbor) {
-        return 0xffff;
-    }
-    attribute_index = mac_neighbor->index;
-
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-
-    if (!entry) {
-        return 0xffff;
-    }
-
-    uint16_t etx  = etx_current_calc(entry->etx, entry->accumulated_failures);
-    etx >>= 4;
-
-    return etx;
+    BUG_ON(!interface->etx_read_override);
+    return interface->etx_read_override(interface, addr_type, addr_ptr);
 }
 
 /**
