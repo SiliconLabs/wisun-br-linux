@@ -599,7 +599,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     llc_neighbour_req_t neighbor;
     bool has_us, has_bs, has_pom;
     struct ws_utt_ie ie_utt;
-    struct ws_bt_ie ie_bt;
     struct iobuf_read ie_wp;
     struct ws_pom_ie ie_pom;
     struct ws_us_ie ie_us;
@@ -657,17 +656,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
         ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-        if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
-            ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
-                                        ie_bt.broadcast_interval_offset, data->timestamp);
-        }
         if (has_us)
             ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
-        if (has_bs)
-            ws_neighbor_class_bs_update(base->interface_ptr, neighbor.ws_neighbor, &ie_bs.chan_plan, ie_bs.dwell_interval,
-                                        ie_bs.broadcast_interval, ie_bs.broadcast_schedule_identifier);
-
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             neighbor.ws_neighbor->unicast_data_rx = true;
 
@@ -794,7 +785,6 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mcps_data_ind_t data_ind = *data;
     llc_neighbour_req_t neighbor;
     struct ws_utt_ie ie_utt;
-    struct ws_bt_ie ie_bt;
     struct iobuf_read ie_wp;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -823,15 +813,9 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt))
-        ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
-                                    ie_bt.broadcast_interval_offset, data->timestamp);
     if (has_us)
         ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
-    if (has_bs)
-        ws_neighbor_class_bs_update(base->interface_ptr, neighbor.ws_neighbor, &ie_bs.chan_plan, ie_bs.dwell_interval,
-                                    ie_bs.broadcast_interval, ie_bs.broadcast_schedule_identifier);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
 

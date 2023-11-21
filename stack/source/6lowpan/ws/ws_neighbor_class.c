@@ -173,16 +173,6 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
         rcp_legacy_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
-// Irrelevant for border router
-void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
-                                 uint24_t interval_offset,uint32_t timestamp)
-{
-    neighbor->broadcast_timing_info_stored = true;
-    neighbor->fhss_data.ffn.bt_rx_tstamp_us       = timestamp;
-    neighbor->fhss_data.ffn.bc_slot               = slot_number;
-    neighbor->fhss_data.ffn.bc_interval_offset_ms = interval_offset;
-}
-
 void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
                                   uint16_t slot_number, uint24_t interval_offset,
                                   uint32_t tstamp_us, const uint8_t eui64[8])
@@ -306,24 +296,6 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
     ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
-}
-
-// Irrelevant for border router
-void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
-                                 const struct ws_generic_channel_info *chan_info,
-                                 uint8_t dwell_interval, uint32_t interval, uint16_t bsi)
-{
-    uint16_t chan_cnt;
-
-    ws_neighbor->broadcast_schedule_info_stored = true;
-    ws_neighbor->fhss_data.bc_chan_func = chan_info->channel_function;
-    if (chan_info->channel_function == WS_FIXED_CHANNEL)
-        ws_neighbor->fhss_data.bc_chan_fixed = chan_info->function.zero.fixed_channel;
-    else
-        ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.bc_channel_list, chan_info, &chan_cnt);
-    ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms = dwell_interval;
-    ws_neighbor->fhss_data.ffn.bc_interval_ms       = interval;
-    ws_neighbor->fhss_data.ffn.bsi                  = bsi;
 }
 
 // Compute the divisors of val closest to q_ref, possibly including 1 and val

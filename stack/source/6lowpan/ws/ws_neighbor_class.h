@@ -39,13 +39,6 @@ struct fhss_ws_neighbor_timing_info {
             uint8_t  uc_dwell_interval_ms;  // from US-IE
             uint24_t ufsi;                  // from UTT-IE
             uint32_t utt_rx_tstamp_us;
-
-            uint32_t bc_interval_ms;        // from BS-IE
-            uint16_t bsi;                   // from BS-IE
-            uint8_t  bc_dwell_interval_ms;  // from BS-IE
-            uint16_t bc_slot;               // from BT-IE
-            uint24_t bc_interval_offset_ms; // from BT-IE
-            uint32_t bt_rx_tstamp_us;
         } ffn;
         struct {
             uint24_t uc_listen_interval_ms; // from LUS-IE
@@ -66,10 +59,7 @@ struct fhss_ws_neighbor_timing_info {
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
     uint16_t uc_chan_count; // from US-IE or LUS-IE/LCP-IE
     uint16_t uc_chan_fixed; // from US-IE or LUS-IE/LCP-IE
-    uint8_t  bc_chan_func;  // from BS-IE
-    uint16_t bc_chan_fixed; // from BS-IE
     struct ws_channel_mask uc_channel_list;          // Neighbor unicast channel list
-    struct ws_channel_mask bc_channel_list;          // Neighbor broadcast channel list
 };
 
 typedef struct ws_neighbor_class_entry {
@@ -80,8 +70,6 @@ typedef struct ws_neighbor_class_entry {
     uint8_t last_DSN;
     int rssi;
     bool candidate_parent: 1;
-    bool broadcast_timing_info_stored: 1;
-    bool broadcast_schedule_info_stored: 1;
     bool synch_done : 1;
     bool unicast_data_rx : 1;
     time_t host_rx_timestamp;
@@ -153,9 +141,6 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
 // Unicast Timing update
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
                                  uint32_t tstamp_us, const uint8_t eui64[8]);
-// Broadcast Timing update
-void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
-                                 uint24_t interval_offset, uint32_t timestamp);
 // LFN Unicast timing update
 void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
                                   uint16_t slot_number, uint24_t interval_offset,
@@ -167,10 +152,6 @@ void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const str
 void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
                                  const struct ws_generic_channel_info *chan_info,
                                  uint8_t dwell_interval, const uint8_t eui64[8]);
-// Broadcast Schedule update
-void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
-                                 const struct ws_generic_channel_info *chan_info,
-                                 uint8_t dwell_interval, uint32_t interval, uint16_t bsi);
 // LFN Unicast Schedule update
 void ws_neighbor_class_lus_update(const struct net_if *net_if,
                                   ws_neighbor_class_entry_t *ws_neighbor,
