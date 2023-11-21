@@ -103,16 +103,6 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES 25
 
 /*
- * Neighbour blacklist timers
- */
-#define WS_BLACKLIST_ENTRY_LIFETIME      60*30 // initial value for reject
-#define WS_BLACKLIST_TIMER_MAX_TIMEOUT   60*60 // Can increase to this
-#define WS_BLACKLIST_TIMER_TIMEOUT       60*30 // Blacklist is valid this time after first accept
-#define WS_BLACKLIST_ENTRY_MAX_NBR       10
-#define WS_BLACKLIST_PURGE_NBR            3
-#define WS_BLACKLIST_PURGE_TIMER_TIMEOUT 60
-
-/*
  * MAC frame counter NVM storing configuration
  */
 #define FRAME_COUNTER_STORE_INTERVAL        60          // Time interval (on seconds) between checking if frame counter storing is needed
