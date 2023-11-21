@@ -59,7 +59,6 @@ typedef struct ext_info {
     etx_sample_storage_t *etx_cache_storage_list;
     uint32_t max_etx_update;
     uint32_t max_etx;
-    uint16_t hysteresis;                            // 12 bit fraction
     uint16_t init_etx_sample_count;
     uint8_t accum_threshold;
     uint8_t etx_min_sampling_time;
@@ -72,7 +71,6 @@ typedef struct ext_info {
 } ext_info_t;
 
 static ext_info_t etx_info = {
-    .hysteresis = 0,
     .accum_threshold = 0,
     .callback_ptr = NULL,
     .etx_storage_list = NULL,
@@ -91,12 +89,6 @@ static ext_info_t etx_info = {
 
 static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t acks_rx, ext_neigh_info_t *etx_neigh_info)
 {
-    if (etx_info.hysteresis && !entry->stored_diff_etx) {
-        if (entry->etx_samples >= etx_info.init_etx_sample_count) {
-            entry->stored_diff_etx = entry->etx;
-        }
-    }
-
     uint32_t etx = attempts << (12 - ETX_MOVING_AVERAGE_FRACTION);
 
     if (acks_rx) {
@@ -548,33 +540,6 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
  */
 static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info)
 {
-    uint16_t current_etx;
-    bool callback = false;
-    if (!etx_info.hysteresis) {
-        return;
-    }
-
-    // Calculates current ETX
-    current_etx = etx_current_calc(etx, accumulated_failures);
-
-    // If difference is more than hysteresis
-    if (current_etx > *stored_diff_etx) {
-        if (current_etx - *stored_diff_etx >= etx_info.hysteresis) {
-            callback = true;
-        } else if (current_etx == etx_info.max_etx && *stored_diff_etx != etx_info.max_etx) {
-            callback = true;
-        }
-    } else if (current_etx < *stored_diff_etx) {
-        if (*stored_diff_etx - current_etx >= etx_info.hysteresis) {
-            callback = true;
-        }
-    }
-
-    // Calls callback function
-    if (callback) {
-        etx_info.callback_ptr(etx_info.interface_id, (*stored_diff_etx) >> 4, current_etx >> 4, etx_neigh_info->attribute_index, etx_neigh_info->mac64);
-        *stored_diff_etx = current_etx;
-    }
 }
 
 /**
