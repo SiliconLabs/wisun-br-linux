@@ -229,7 +229,7 @@ bool ipv6_map_ll_to_ip_link_local(struct net_if *cur, addrtype_e ll_type, const 
 }
 
 /* To comply with ETX returns 0xFFFF when neighbor doesn't exist and 0 when neighbor is currently unknown. */
-uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(struct net_if *cur, int8_t interface_id, ipv6_neighbour_t *n, const uint8_t ipaddr[16], ll_addr_handler_t *ll_addr_handler_ptr)
+uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(struct net_if *cur, int8_t interface_id, ipv6_neighbour_t *n, const uint8_t ipaddr[16])
 {
     addrtype_e ll_type;
     const uint8_t *ll_addr;
@@ -245,5 +245,5 @@ uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(struct net_if *cur, int8_t i
         return 0;
     }
 
-    return ll_addr_handler_ptr(cur->id, ll_type, ll_addr);
+    return etx_read(cur->id, ll_type, ll_addr);
 }

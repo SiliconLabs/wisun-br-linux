@@ -316,7 +316,7 @@ bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_ne
     if (!ipv6_neighbour_state_is_probably_reachable(n->state)) {
         return false;
     }
-    uint16_t etx = ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, cache->interface_id, n, n->ip_address, etx_read);
+    uint16_t etx = ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, cache->interface_id, n, n->ip_address);
     if (etx > ETX_REACHABILITY_THRESHOLD) {
         /* "Unknown" is signalled as low values, so will be return "true" */
         return false;
