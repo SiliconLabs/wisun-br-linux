@@ -540,19 +540,6 @@ static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *store
 {
 }
 
-/**
- * \brief A function to remove ETX neighbor
- *
- *  Notifies ETX module that neighbor has been removed. Calls ETX value change callback
- *  if that is set.
- *
- * \param mac64_addr_ptr long MAC address
- *
- */
-void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
-{
-}
-
 void etx_cache_timer(int seconds_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();

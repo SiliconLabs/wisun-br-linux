@@ -136,18 +136,6 @@ bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size);
 etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_index);
 
 /**
- * \brief A function to remove ETX neighbor
- *
- *  Notifies ETX module that neighbor has been removed. Calls ETX value change callback
- *  if that is set.
- *
- * \param attribute_index Neighbour attribute index
- * \param mac64_addr_ptr Neighbour MAC64
- *
- */
-void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
-
-/**
  * \brief A function for update cached ETX calculation
  *
  *  Shuold be call second intevall

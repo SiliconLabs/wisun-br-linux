@@ -141,7 +141,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
-    etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
     if (!mac_neighbor_lfn_count(interface->mac_parameters.mac_neighbor_table))
         ws_timer_stop(WS_TIMER_LTS);
