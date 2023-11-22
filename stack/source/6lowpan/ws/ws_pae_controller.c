@@ -394,10 +394,13 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
 {
     // Adds, removes and updates network keys to MAC based on new GTKs
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    nw_key_t *nw_key;
     frame_counters_t *frame_counters;
+    uint8_t gak[GTK_LEN];
+    gtkhash_t gtkhash;
+    nw_key_t *nw_key;
     int8_t ret = -1;
     int key_offset;
+    uint8_t *gtk;
 
     if (!controller) {
         return -1;
@@ -414,7 +417,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     }
     for (uint8_t i = 0; i < (is_lgtk ? LGTK_NUM : GTK_NUM); i++) {
         // Gets GTK for the index (new, modified or none)
-        uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
+        gtk = sec_prot_keys_gtk_get(gtks, i);
 
         // If network key is set and GTK key is not set or not the same, removes network key
         if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
@@ -444,39 +447,39 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         }
 
         // If network key has not been installed, installs it and updates frame counter as needed
-        if (!nw_key[i].installed) {
-            gtkhash_t gtkhash;
-            sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
-            tr_info("NW key set: %i, hash: %s", i + key_offset, trace_array(gtkhash, 8));
-            uint8_t gak[GTK_LEN];
-            if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) >= 0) {
-                // Install the new network key derived from GTK and network name (GAK) to MAC
-                controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
-                nw_key[i].installed = true;
-                ret = 0;
-#ifdef EXTRA_DEBUG_INFO
-                tr_info("NW name: %s", controller->sec_keys_nw_info.network_name);
-                size_t nw_name_len = strlen(controller->sec_keys_nw_info.network_name);
-                tr_info("NW name: %s", trace_array((uint8_t *)controller->sec_keys_nw_info.network_name, nw_name_len));
-                tr_info("%s: %s", is_lgtk ? "LGTK" : "GTK", trace_array(gtk, 16));
-                tr_info("%s: %s", is_lgtk ? "LGAK" : "GAK", trace_array(gak, 16));
-#endif
-            } else {
-                tr_error("GAK generation failed network name: %s", controller->sec_keys_nw_info.network_name);
-                continue;
-            }
+        if (nw_key[i].installed)
+            continue;
 
-            // If frame counter value has been stored for the network key, updates the frame counter if needed
-            if (frame_counters->counter[i].set &&
-                    memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN) == 0) {
-                // If stored frame counter is greater than MAC counter
-                if (frame_counters->counter[i].frame_counter) {
-                    tr_debug("Frame counter set: %i, value: %"PRIu32"", i + key_offset,
-                             frame_counters->counter[i].frame_counter);
-                    // Updates MAC frame counter
-                    controller->nw_frame_counter_set(controller->interface_ptr, frame_counters->counter[i].frame_counter, i + key_offset);
-                }
-            }
+        sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
+        tr_info("NW key set: %i, hash: %s", i + key_offset, trace_array(gtkhash, 8));
+
+        if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) < 0) {
+            tr_error("GAK generation failed network name: %s", controller->sec_keys_nw_info.network_name);
+            continue;
+        }
+
+        // Install the new network key derived from GTK and network name (GAK) to MAC
+        controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
+        nw_key[i].installed = true;
+        ret = 0;
+#ifdef EXTRA_DEBUG_INFO
+        tr_info("NW name: %s", controller->sec_keys_nw_info.network_name);
+        size_t nw_name_len = strlen(controller->sec_keys_nw_info.network_name);
+        tr_info("NW name: %s", trace_array((uint8_t *)controller->sec_keys_nw_info.network_name, nw_name_len));
+        tr_info("%s: %s", is_lgtk ? "LGTK" : "GTK", trace_array(gtk, 16));
+        tr_info("%s: %s", is_lgtk ? "LGAK" : "GAK", trace_array(gak, 16));
+#endif
+
+        // If frame counter value has been stored for the network key, updates the frame counter if needed
+        if (frame_counters->counter[i].set &&
+            !memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN) &&
+            frame_counters->counter[i].frame_counter) {
+            tr_debug("Frame counter set: %i, value: %"PRIu32"", i + key_offset,
+                     frame_counters->counter[i].frame_counter);
+            // Updates MAC frame counter
+            controller->nw_frame_counter_set(controller->interface_ptr,
+                                             frame_counters->counter[i].frame_counter,
+                                             i + key_offset);
         }
     }
 
