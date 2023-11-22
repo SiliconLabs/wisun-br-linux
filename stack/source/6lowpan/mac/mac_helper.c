@@ -24,16 +24,12 @@
 
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api_legacy.h"
-#include "app_wsbrd/dbus.h"
-#include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol.h"
 
 #include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "MACh"
-
-static const uint8_t mac_helper_default_key_source[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
@@ -45,18 +41,6 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
         panId = interface->mac_parameters.pan_id;
     }
     return panId;
-}
-
-int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t slot)
-{
-    uint8_t lookup_data[9];
-
-    BUG_ON(!id);
-    memcpy(lookup_data, mac_helper_default_key_source, 8);
-    lookup_data[8] = id;
-    rcp_legacy_set_key(slot, lookup_data, key);
-    dbus_emit_keys_change(&g_ctxt);
-    return 0;
 }
 
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t slot)

@@ -28,7 +28,6 @@ struct mac_api;
 enum addrtype;
 
 uint16_t mac_helper_panid_get(const struct net_if *interface);
-int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor);
 bool mac_helper_write_our_addr(struct net_if *interface, struct ns_sockaddr *ptr);
 uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead);
