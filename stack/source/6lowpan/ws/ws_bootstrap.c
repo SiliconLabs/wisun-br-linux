@@ -902,8 +902,7 @@ static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t count
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
 {
-    // Read frame counter
-    mac_helper_key_link_frame_counter_read(cur->id, slot);
+    rcp_legacy_get_frame_counter(slot);
 }
 
 static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
