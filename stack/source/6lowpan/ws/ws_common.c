@@ -116,7 +116,7 @@ int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedul
 
     hopping_schedule->ch0_freq = chan_params->chan0_freq;
     hopping_schedule->number_of_channels = chan_params->chan_count;
-    hopping_schedule->channel_spacing = ws_regdb_chan_spacing_id(chan_params->chan_spacing);
+    hopping_schedule->channel_spacing = chan_params->chan_spacing;
     BUG_ON(hopping_schedule->channel_spacing < 0);
 
     return 0;

@@ -194,14 +194,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                               ctxt->config.ws_class, ctxt->config.ws_mode,
                                               ctxt->config.ws_phy_mode_id, ctxt->config.ws_chan_plan_id);
     WARN_ON(ret);
-    if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF) {
+    if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF)
         ret = ws_management_channel_plan_set(ctxt->rcp_if_id,
                                              CHANNEL_FUNCTION_DH1CF,
                                              CHANNEL_FUNCTION_DH1CF,
                                              ctxt->config.ws_chan0_freq,
-                                             ws_regdb_chan_spacing_id(ctxt->config.ws_chan_spacing),
+                                             ctxt->config.ws_chan_spacing,
                                              ctxt->config.ws_chan_count);
-    }
     WARN_ON(ret);
 
     rail_fill_pom(ctxt);

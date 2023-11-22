@@ -488,7 +488,7 @@ int ws_management_channel_plan_set(
     uint8_t uc_channel_function,
     uint8_t bc_channel_function,
     uint32_t ch0_freq, // Stack can not modify this
-    uint8_t channel_spacing,// Stack can not modify this
+    uint32_t channel_spacing,// Stack can not modify this
     uint8_t number_of_channels)
 {
     struct net_if *cur;

@@ -26,6 +26,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/utils.h"
+#include "common/ws_regdb.h"
 #include "6lowpan/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_common_defines.h"
@@ -311,7 +312,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
         break;
     case 1:
         iobuf_push_le24(buf, hopping_schedule->ch0_freq / 1000);
-        iobuf_push_u8(buf, hopping_schedule->channel_spacing);
+        iobuf_push_u8(buf, ws_regdb_chan_spacing_id(hopping_schedule->channel_spacing));
         iobuf_push_le16(buf, hopping_schedule->number_of_channels);
         break;
     case 2:

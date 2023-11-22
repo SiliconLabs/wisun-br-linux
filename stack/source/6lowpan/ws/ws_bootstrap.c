@@ -1067,7 +1067,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 
     if (!chan_params) {
         rf_config.channel_0_center_frequency = hopping_schedule->ch0_freq;
-        rf_config.channel_spacing = ws_regdb_chan_spacing_value(hopping_schedule->channel_spacing);
+        rf_config.channel_spacing = hopping_schedule->channel_spacing;
         rf_config.number_of_channels = hopping_schedule->number_of_channels;
     } else {
         WARN_ON(!ws_regdb_check_phy_chan_compat(phy_params, chan_params),

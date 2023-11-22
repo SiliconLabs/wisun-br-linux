@@ -118,7 +118,7 @@ typedef struct ws_hopping_schedule {
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */
     uint8_t uc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
     uint8_t bc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
-    uint8_t channel_spacing;            /**< derived from regulatory domain. 0:200k, 1:400k, 2:600k, 3:100k */
+    uint32_t channel_spacing;
     uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;
     uint8_t timing_accuracy;
