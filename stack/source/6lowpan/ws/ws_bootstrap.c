@@ -455,7 +455,8 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
 {
-    rcp_legacy_get_frame_counter(slot);
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_get_frame_counter(slot);
 }
 
 static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
