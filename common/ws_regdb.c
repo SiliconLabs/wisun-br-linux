@@ -247,7 +247,7 @@ int ws_regdb_chan_spacing_id(int val)
     for (i = 0; i < ARRAY_SIZE(chan_spacing_table); i++)
         if (val == chan_spacing_table[i].val)
             return chan_spacing_table[i].id;
-    return -1;
+    return CHANNEL_SPACING_UNDEF;
 }
 
 int ws_regdb_chan_spacing_value(int id)

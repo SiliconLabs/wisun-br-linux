@@ -40,13 +40,14 @@ enum {
 
 enum {
     // These values are specified by the Wi-SUN specification
-    CHANNEL_SPACING_200  = 0x00,
-    CHANNEL_SPACING_400  = 0x01,
-    CHANNEL_SPACING_600  = 0x02,
-    CHANNEL_SPACING_100  = 0x03,
-    CHANNEL_SPACING_250  = 0x04,
-    CHANNEL_SPACING_800  = 0x05,
-    CHANNEL_SPACING_1200 = 0x06,
+    CHANNEL_SPACING_200   = 0x00,
+    CHANNEL_SPACING_400   = 0x01,
+    CHANNEL_SPACING_600   = 0x02,
+    CHANNEL_SPACING_100   = 0x03,
+    CHANNEL_SPACING_250   = 0x04, // Silicon Labs specific
+    CHANNEL_SPACING_800   = 0x05, // Silicon Labs specific
+    CHANNEL_SPACING_1200  = 0x06, // Silicon Labs specific
+    CHANNEL_SPACING_UNDEF = 0x0F, // Silicon Labs specific
 };
 
 enum {
