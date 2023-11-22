@@ -133,11 +133,6 @@ static const int valid_ws_chan_plan_ids[] = {
     INT_MIN
 };
 
-static const int valid_ws_chan_spacing[] = {
-    100000, 200000, 400000, 600000, 800000, 1200000,
-    INT_MIN
-};
-
 void print_help_br(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN border router\n");
@@ -491,7 +486,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "regional_regulation",           &config->ws_regional_regulation,           conf_set_enum,        &valid_ws_regional_regulations },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
-        { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_enum_int,    &valid_ws_chan_spacing },
+        { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
