@@ -238,7 +238,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.enable_lfn   = ctxt->config.enable_lfn;
     ctxt->net_if.ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 
-    rcp_legacy_set_tx_power(ctxt->config.tx_power);
+    rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
 
     ret = wsbr_configure_ws_sect_time(ctxt);
     WARN_ON(ret);

@@ -270,6 +270,24 @@ void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
     }
 }
 
+static void __rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_RADIO_TX_POWER);
+    hif_push_i8(&buf, power_dbm);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_tx_power(power_dbm);
+    else
+        __rcp_set_radio_tx_power(rcp, power_dbm);
+}
+
 static void __rcp_set_sec_key(struct rcp *rcp,
                               uint8_t key_index,
                               const uint8_t key[16],
