@@ -459,7 +459,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         }
 
         // Install the new network key derived from GTK and network name (GAK) to MAC
-        controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
+        controller->nw_key_set(interface_ptr, i + key_offset + 1, gak);
         nw_key[i].installed = true;
         ret = 0;
 #ifdef EXTRA_DEBUG_INFO

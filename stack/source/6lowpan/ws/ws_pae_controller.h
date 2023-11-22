@@ -344,16 +344,9 @@ gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr);
 
 int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
 
-/**
- * ws_pae_controller_nw_key_insert network key insert callback
- *
- * \param interface_ptr interface
- * \param slot key slot (MAC key descriptor), from 0 to 4
- * \param index index of the new network key
- * \param key new key
- *
- */
-typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr, uint8_t slot, uint8_t index, uint8_t *key);
+typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
+                                          uint8_t key_index,
+                                          const uint8_t key[16]);
 
 /**
  * ws_pae_controller_nw_key_clear network key clear callback

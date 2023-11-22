@@ -852,14 +852,19 @@ static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
     ws_bbr_lfn_version_increase(cur);
 }
 
-static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)
+static void ws_bootstrap_nw_key_set(struct net_if *cur,
+                                    uint8_t key_index,
+                                    const uint8_t key[16])
 {
-    uint8_t lookup_data[9] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, index + 1 };
+    uint8_t lookup_data[9] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, key_index };
+    uint8_t key_slot;
 
+    BUG_ON(key_index < 1 || key_index > 7);
+    key_slot = key_index - 1;
     // Firmware API < 0.15 crashes if slots > 3 are accessed
-    if (!cur->ws_info.enable_lfn && slot > 3)
+    if (!cur->ws_info.enable_lfn && key_slot > 3)
         return;
-    rcp_legacy_set_key(slot, lookup_data, key);
+    rcp_legacy_set_key(key_slot, lookup_data, key);
     dbus_emit_keys_change(&g_ctxt);
 }
 
