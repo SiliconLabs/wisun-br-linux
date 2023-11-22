@@ -43,12 +43,6 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
     return panId;
 }
 
-int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t slot)
-{
-    rcp_legacy_set_key(slot, NULL, NULL);
-    return 0;
-}
-
 static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
 {
     write_be16(addrPtr, temp16);

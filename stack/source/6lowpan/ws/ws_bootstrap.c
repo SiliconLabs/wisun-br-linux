@@ -868,7 +868,7 @@ static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot)
     // Firmware API < 0.15 crashes if slots > 3 are accessed
     if (!cur->ws_info.enable_lfn && slot > 3)
         return;
-    mac_helper_security_key_descriptor_clear(cur, slot);
+    rcp_legacy_set_key(slot, NULL, NULL);
 }
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
