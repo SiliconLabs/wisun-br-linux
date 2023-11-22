@@ -94,7 +94,6 @@ typedef struct pae_controller {
     sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
     struct net_if *interface_ptr;                  /**< List link entry */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
-    ws_pae_controller_nw_key_clear *nw_key_clear;                    /**< Key clear callback */
     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set;  /**< Send key index set callback */
     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set;    /**< Frame counter set callback */
     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read;  /**< Frame counter read callback */
@@ -199,7 +198,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
-                                     ws_pae_controller_nw_key_clear *nw_key_clear,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
                                      ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
@@ -218,7 +216,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
     }
 
     controller->nw_key_set = nw_key_set;
-    controller->nw_key_clear = nw_key_clear;
     controller->nw_send_key_index_set = nw_send_key_index_set;
     controller->nw_frame_counter_set = nw_frame_counter_set;
     controller->nw_frame_counter_read = nw_frame_counter_read;
@@ -423,7 +420,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
             // Removes key from MAC if installed
             if (nw_key[i].installed)
-                controller->nw_key_clear(interface_ptr, i + key_offset);
+                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL);
             nw_key[i].installed = false;
             nw_key[i].set = false;
             tr_info("NW key remove: %i", i + key_offset);
@@ -551,7 +548,7 @@ static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_c
         if (nw_key[i].set) {
             tr_info("NW key remove: %i", i + key_offset);
             if (nw_key[i].installed)
-                controller->nw_key_clear(interface_ptr, i + key_offset);
+                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL);
             nw_key[i].set = false;
             nw_key[i].installed = false;
         }
@@ -610,7 +607,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
 
     controller->interface_ptr = interface_ptr;
     controller->nw_key_set = NULL;
-    controller->nw_key_clear = NULL;
     controller->nw_send_key_index_set = NULL;
     controller->nw_frame_counter_set = NULL;
     controller->pan_ver_increment = NULL;

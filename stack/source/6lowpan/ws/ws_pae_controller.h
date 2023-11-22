@@ -349,15 +349,6 @@ typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
                                           const uint8_t key[16]);
 
 /**
- * ws_pae_controller_nw_key_clear network key clear callback
- *
- * \param interface_ptr interface
- * \param slot key slot (MAC key descriptor), from 0 to 4
- *
- */
-typedef void ws_pae_controller_nw_key_clear(struct net_if *interface_ptr, uint8_t slot);
-
-/**
  * ws_pae_controller_nw_send_key_index_set network send key index set callback
  *
  * \param interface_ptr interface
@@ -421,7 +412,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  * \param completed authentication completed callback
  * \param next_target authentication next target callback
  * \param nw_key_set network key set callback
- * \param nw_key_clear network key clear callback
  * \param nw_send_key_index_set network send key index set callback
  * \param nw_frame_counter_set network frame counter set callback
  * \param nw_frame_counter_read network frame counter read callback
@@ -435,7 +425,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  */
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
-                                     ws_pae_controller_nw_key_clear *nw_key_clear,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
                                      ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
