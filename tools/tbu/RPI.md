@@ -78,18 +78,25 @@ command:
     make -C /home/pi/src/dnsmasq -j $(nproc)
     sudo make -C /home/pi/src/dnsmasq install
 
-### `systemd` services
+## TBU server
 
+    sudo pip3 install -r /home/pi/src/wisun-br-linux/tbu/requirements.txt
     sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wisun-borderrouter.service /usr/local/lib/systemd/system
     sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay.service /usr/local/lib/systemd/system
     sudo install -m 0755 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay         /usr/local/bin
-    sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/config.ini                         /etc/wstbu-server.ini
+
+To setup a service for the TBU server:
+
+    sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/config.ini /etc/wstbu-server.ini
     sudo sed -i 's/ttyACM0/ttyAMA0/g' /etc/wstbu-server.ini
     sudo tee -a /usr/local/lib/systemd/system/wstbu-server.service <<- EOF
     	[Service]
     	WorkingDirectory=/home/pi/src/wisun-br-linux/tools/tbu
     	ExecStart=python3 /home/pi/src/wisun-br-linux/tools/tbu/wstbu.py /etc/wstbu-server.ini
     EOF
+
+Don't forget to refresh the services:
+
     sudo systemctl daemon-reload
 
 ## `README.txt`
