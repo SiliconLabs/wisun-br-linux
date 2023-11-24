@@ -122,6 +122,8 @@ These steps are described in more detail in [AN1332][1].
     	[all]
     	dtoverlay=disable-bt
     	enable_uart=1
+        # Trigger the reset pin
+        gpio=23=op,dh
     EOF
     sudo reboot
     sudo raspi-config nonint do_serial 2
