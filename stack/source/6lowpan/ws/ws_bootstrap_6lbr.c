@@ -241,7 +241,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         INFO("  class: 0x%x", hopping_schedule->operating_class);
 
     if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
-        INFO("  phy mode id: %d", hopping_schedule->phy_mode_id);
+        INFO("  phy mode id: 0x%02x", hopping_schedule->phy_mode_id);
     else
         INFO("  mode: 0x%x", hopping_schedule->operating_mode);
 
