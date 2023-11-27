@@ -216,14 +216,14 @@ static void rail_print_config(struct wsbr_ctxt *ctxt,
     else
         sprintf(str + strlen(str), "   ??");
 
-    sprintf(str + strlen(str), "   %2d", phy_mode_id);
+    sprintf(str + strlen(str), "  0x%02x", phy_mode_id);
 
     if (phy_params && phy_params->op_mode)
-        sprintf(str + strlen(str), "   %-2x", phy_params->op_mode);
+        sprintf(str + strlen(str), "  %-2x", phy_params->op_mode);
     else if (phy_params)
-        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "  --");
     else
-        sprintf(str + strlen(str), "   ??");
+        sprintf(str + strlen(str), "  ??");
 
     if (phy_params && phy_params->modulation == MODULATION_OFDM) {
         sprintf(str + strlen(str), "   OFDM");
