@@ -227,25 +227,42 @@ static void rail_print_config(struct wsbr_ctxt *ctxt,
 
     if (phy_params && phy_params->modulation == MODULATION_OFDM) {
         sprintf(str + strlen(str), "   OFDM");
-        sprintf(str + strlen(str), "   %1d", phy_params->ofdm_mcs);
+        sprintf(str + strlen(str), "    %1d", phy_params->ofdm_mcs);
         sprintf(str + strlen(str), "    %1d", phy_params->ofdm_option);
+        sprintf(str + strlen(str), "          --");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "     --");
         sprintf(str + strlen(str), "   --");
     } else if (phy_params && phy_params->modulation == MODULATION_2FSK) {
         sprintf(str + strlen(str), "    FSK");
-        sprintf(str + strlen(str), "  --");
         sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "          --");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "     --");
         sprintf(str + strlen(str), "  %3s", val_to_str(phy_params->fsk_modulation_index, valid_fsk_modulation_indexes, "??"));
+    } else if (phy_params && phy_params->modulation == MODULATION_OQPSK) {
+        sprintf(str + strlen(str), "  OQPSK");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), " %4dkchip/s", phy_params->oqpsk_chip_rate / 1000);
+        sprintf(str + strlen(str), "    %1d", phy_params->oqpsk_rate_mode);
+        sprintf(str + strlen(str), "      %1d", phy_params->oqpsk_spreading_mode);
+        sprintf(str + strlen(str), "   --");
     } else {
         sprintf(str + strlen(str), "     ??");
-        sprintf(str + strlen(str), "  ??");
         sprintf(str + strlen(str), "   ??");
+        sprintf(str + strlen(str), "   ??");
+        sprintf(str + strlen(str), "          ??");
+        sprintf(str + strlen(str), "   ??");
+        sprintf(str + strlen(str), "     ??");
         sprintf(str + strlen(str), "   ??");
     }
 
     if (phy_params)
         sprintf(str + strlen(str), " %4dkbps", phy_params->datarate / 1000);
     else
-        sprintf(str + strlen(str), "   ??    ");
+        sprintf(str + strlen(str), "       ??");
 
     sprintf(str + strlen(str), " %4.1fMHz", (double)rail_params->chan0_freq / 1000000);
     sprintf(str + strlen(str), " %4dkHz", rail_params->chan_spacing / 1000);
@@ -283,8 +300,8 @@ void rail_print_config_list(struct wsbr_ctxt *ctxt)
     bool entry_found;
     int domain;
 
-    INFO("dom  phy cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans is  chans");
-    INFO("-ain grp -ss plan mode      -tion      opt. idx    rate    base    space        std allowed");
+    INFO("dom  phy cla chan phy  mode modula mcs opt.   chip rate rate spread  mod    data    chan    chan  #chans is  chans");
+    INFO("-ain grp -ss plan mode      -tion                       mode   mode  idx    rate    base    space        std allowed");
 
     for (domain = REG_DOMAIN_WW; domain < REG_DOMAIN_UNDEF; domain++) {
         for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
