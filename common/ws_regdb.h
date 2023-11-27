@@ -84,6 +84,9 @@ struct phy_params {
     uint8_t ofdm_mcs;
     uint8_t ofdm_option;
     bool fec;
+    uint32_t oqpsk_chip_rate;
+    uint8_t oqpsk_rate_mode;
+    uint8_t oqpsk_spreading_mode;
 };
 
 struct chan_params {
