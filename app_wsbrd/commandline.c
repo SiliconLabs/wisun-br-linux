@@ -128,9 +128,16 @@ static const int valid_ws_classes[] = {
 };
 
 static const int valid_ws_chan_plan_ids[] = {
-    0x01, 0x02, 0x03, 0x04, 0x05,       // NA / BZ / MX
-    0x15, 0x16, 0x17, 0x18,             // JP
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, // EU / SG / IN
+    0x01, 0x02, 0x03, 0x04, 0x05,                         // NA / BZ / MX
+    0x15, 0x16, 0x17, 0x18,                               // JP
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, // EU / SG / IN
+    0x30, 0x31,                                           // PH / NZ
+    0x40, 0x41,                                           // SG / TH / VN
+    0x50, 0x51,                                           // MY
+    0x60, 0x61,                                           // KR
+    0x70, 0x71,                                           // WW
+    0x80,                                                 // CN
+    0x90,                                                 // CN
     INT_MIN
 };
 
