@@ -701,7 +701,7 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("JoinMulticastGroup",  "ay",     NULL, dbus_join_multicast_group,  0),
         SD_BUS_METHOD("LeaveMulticastGroup", "ay",     NULL, dbus_leave_multicast_group, 0),
         SD_BUS_METHOD("SetModeSwitch",       "ayi",    NULL, dbus_set_mode_switch,       0),
-        SD_BUS_METHOD("SetSlotAlgorithm",    "y",      NULL, dbus_set_slot_algorithm,    0),
+        SD_BUS_METHOD("SetSlotAlgorithm",    "y",      NULL, dbus_set_slot_algorithm,    SD_BUS_VTABLE_DEPRECATED),
         SD_BUS_METHOD("RevokePairwiseKeys",  "ay",     NULL, dbus_revoke_pairwise_keys,  0),
         SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, dbus_revoke_group_keys,     0),
         SD_BUS_METHOD("InstallGtk",          "ay",     NULL, dbus_install_gtk,           0),
