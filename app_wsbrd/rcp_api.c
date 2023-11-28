@@ -99,6 +99,35 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
         __rcp_set_host_api(rcp, host_api_version);
 }
 
+static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
+{
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+    struct mcps_data_rx_ie_list ie = { };
+    struct mcps_data_cnf cnf = { };
+    const uint8_t *frame;
+    size_t frame_len;
+    int ret;
+
+    cnf.msduHandle    = hif_pop_u8(buf);
+    cnf.status        = hif_pop_u8(buf);
+    frame_len         = hif_pop_data_ptr(buf, &frame);
+    cnf.timestamp     = hif_pop_u64(buf);
+    hif_pop_u8(buf);  // TODO: LQI
+    hif_pop_u8(buf);  // TODO: RSSI
+    cnf.frame_counter = hif_pop_u32(buf);
+    hif_pop_u16(buf); // TODO: channel
+    cnf.cca_retries   = hif_pop_u8(buf);
+    cnf.tx_retries    = hif_pop_u8(buf);
+    hif_pop_u8(buf);  // TODO: mode switch stats
+    BUG_ON(buf->err);
+
+    if (frame_len) {
+        ret = wsbr_data_cnf_parse(frame, frame_len, &cnf, &ie);
+        WARN_ON(ret < 0, "invalid ack frame");
+    }
+    ctxt->rcp.on_tx_cnf(ctxt->net_if.id, &cnf, &ie);
+}
+
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
@@ -281,6 +310,7 @@ static const struct {
 } rcp_cmd_table[] = {
     { HIF_CMD_IND_RESET,      rcp_ind_reset      },
     { HIF_CMD_IND_FATAL,      rcp_ind_fatal      },
+    { HIF_CMD_CNF_DATA_TX,    rcp_cnf_data_tx    },
     { HIF_CMD_IND_DATA_RX,    rcp_ind_data_rx    },
     { HIF_CMD_CNF_RADIO_LIST, rcp_cnf_radio_list },
     { 0xff,                   rcp_ind_legacy     },

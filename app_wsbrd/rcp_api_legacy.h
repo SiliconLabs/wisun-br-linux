@@ -174,6 +174,7 @@ typedef struct mcps_data_cnf {
     //Non-standard extension
     uint8_t cca_retries;    /**< Number of CCA retries used during sending */
     uint8_t tx_retries;     /**< Number of retries done during sending, 0 means no retries */
+    uint32_t frame_counter; // Frame counter used for successful TX of a secured frame
     struct {
         uint8_t phy_mode_id;
         uint8_t retries;

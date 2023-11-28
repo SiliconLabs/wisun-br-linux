@@ -492,6 +492,9 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     if (!msg)
         return;
 
+    if (msg->security.SecurityLevel && data->frame_counter)
+        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data->frame_counter);
+
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
 
