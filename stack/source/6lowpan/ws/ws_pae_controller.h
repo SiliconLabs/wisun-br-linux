@@ -346,7 +346,8 @@ int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
 
 typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
                                           uint8_t key_index,
-                                          const uint8_t key[16]);
+                                          const uint8_t key[16],
+                                          uint32_t frame_counter);
 
 /**
  * ws_pae_controller_nw_send_key_index_set network send key index set callback
@@ -356,16 +357,6 @@ typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
  *
  */
 typedef void ws_pae_controller_nw_send_key_index_set(struct net_if *interface_ptr, uint8_t index);
-
-/**
- * ws_pae_controller_nw_frame_counter_set network frame counter set callback
- *
- * \param interface_ptr interface
- * \param counter frame counter
- * \param slot key slot (MAC key descriptor), from 0 to 4
- *
- */
-typedef void ws_pae_controller_nw_frame_counter_set(struct net_if *interface_ptr, uint32_t counter, uint8_t slot);
 
 /**
  * ws_pae_controller_nw_frame_counter_read network frame counter read callback
@@ -413,7 +404,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  * \param next_target authentication next target callback
  * \param nw_key_set network key set callback
  * \param nw_send_key_index_set network send key index set callback
- * \param nw_frame_counter_set network frame counter set callback
  * \param nw_frame_counter_read network frame counter read callback
  * \param pan_ver_increment PAN version increment callback
  * \param nw_info_updated network information updated callback
@@ -426,7 +416,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
-                                     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
                                      ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,

@@ -95,7 +95,6 @@ typedef struct pae_controller {
     struct net_if *interface_ptr;                  /**< List link entry */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set;  /**< Send key index set callback */
-    ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set;    /**< Frame counter set callback */
     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read;  /**< Frame counter read callback */
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
     ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
@@ -199,7 +198,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
-                                     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
                                      ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
@@ -217,7 +215,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
 
     controller->nw_key_set = nw_key_set;
     controller->nw_send_key_index_set = nw_send_key_index_set;
-    controller->nw_frame_counter_set = nw_frame_counter_set;
     controller->nw_frame_counter_read = nw_frame_counter_read;
     controller->pan_ver_increment = pan_ver_increment;
     controller->lpan_ver_increment = lpan_ver_increment;
@@ -392,6 +389,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     // Adds, removes and updates network keys to MAC based on new GTKs
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     frame_counters_t *frame_counters;
+    uint32_t frame_counter;
     uint8_t gak[GTK_LEN];
     gtkhash_t gtkhash;
     nw_key_t *nw_key;
@@ -420,7 +418,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
             // Removes key from MAC if installed
             if (nw_key[i].installed)
-                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL);
+                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL, 0);
             nw_key[i].installed = false;
             nw_key[i].set = false;
             tr_info("NW key remove: %i", i + key_offset);
@@ -455,8 +453,14 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             continue;
         }
 
+        if (frame_counters->counter[i].set &&
+            !memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN))
+            frame_counter = frame_counters->counter[i].frame_counter;
+        else
+            frame_counter = 0;
+
         // Install the new network key derived from GTK and network name (GAK) to MAC
-        controller->nw_key_set(interface_ptr, i + key_offset + 1, gak);
+        controller->nw_key_set(interface_ptr, i + key_offset + 1, gak, frame_counter);
         nw_key[i].installed = true;
         ret = 0;
 #ifdef EXTRA_DEBUG_INFO
@@ -465,19 +469,8 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         tr_info("NW name: %s", trace_array((uint8_t *)controller->sec_keys_nw_info.network_name, nw_name_len));
         tr_info("%s: %s", is_lgtk ? "LGTK" : "GTK", trace_array(gtk, 16));
         tr_info("%s: %s", is_lgtk ? "LGAK" : "GAK", trace_array(gak, 16));
+        tr_info("Frame counter set: %i, value: %"PRIu32"", i + key_offset, frame_counter);
 #endif
-
-        // If frame counter value has been stored for the network key, updates the frame counter if needed
-        if (frame_counters->counter[i].set &&
-            !memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN) &&
-            frame_counters->counter[i].frame_counter) {
-            tr_debug("Frame counter set: %i, value: %"PRIu32"", i + key_offset,
-                     frame_counters->counter[i].frame_counter);
-            // Updates MAC frame counter
-            controller->nw_frame_counter_set(controller->interface_ptr,
-                                             frame_counters->counter[i].frame_counter,
-                                             i + key_offset);
-        }
     }
 
     return ret;
@@ -548,7 +541,7 @@ static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_c
         if (nw_key[i].set) {
             tr_info("NW key remove: %i", i + key_offset);
             if (nw_key[i].installed)
-                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL);
+                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL, 0);
             nw_key[i].set = false;
             nw_key[i].installed = false;
         }
@@ -608,7 +601,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     controller->interface_ptr = interface_ptr;
     controller->nw_key_set = NULL;
     controller->nw_send_key_index_set = NULL;
-    controller->nw_frame_counter_set = NULL;
     controller->pan_ver_increment = NULL;
     controller->nw_info_updated = NULL;
     controller->congestion_get = NULL;

@@ -854,7 +854,8 @@ static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     uint8_t key_index,
-                                    const uint8_t key[16])
+                                    const uint8_t key[16],
+                                    uint32_t frame_counter)
 {
     uint8_t lookup_data[9] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, key_index };
     uint8_t key_slot;
@@ -866,6 +867,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
         return;
     if (key) {
         rcp_legacy_set_key(key_slot, lookup_data, key);
+        rcp_legacy_set_frame_counter(key_slot, frame_counter);
         dbus_emit_keys_change(&g_ctxt);
     } else {
         rcp_legacy_set_key(key_slot, NULL, NULL);
@@ -894,11 +896,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         cur->mac_parameters.mac_default_ffn_key_index = index + 1;
     else if (index >= 4 && index < 7)
         cur->mac_parameters.mac_default_lfn_key_index = index + 1;
-}
-
-static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot)
-{
-    rcp_legacy_set_frame_counter(slot, counter);
 }
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
@@ -1084,7 +1081,6 @@ int ws_bootstrap_init(int8_t interface_id)
     if (ws_pae_controller_cb_register(cur,
                                       ws_bootstrap_nw_key_set,
                                       ws_bootstrap_nw_key_index_set,
-                                      ws_bootstrap_nw_frame_counter_set,
                                       ws_bootstrap_nw_frame_counter_read,
                                       ws_bootstrap_pan_version_increment,
                                       ws_bootstrap_lfn_version_increment,
