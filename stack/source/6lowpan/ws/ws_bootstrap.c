@@ -79,13 +79,13 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
 
     if (!neighbor)
         return NULL;
-    rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
+    rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), 0, neighbor->mac64, 0);
     return neighbor;
 }
 
 static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64, uint8_t role)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64);
     if (neighbor) {
         return neighbor;
     }
@@ -475,7 +475,7 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
 
     uint8_t attribute_index;
 
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, mac_adddress, addr_type);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, mac_adddress);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -666,7 +666,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
     neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = mac_neighbor_table_get_by_mac64(net_if->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
+    neighbor->neighbor = mac_neighbor_table_get_by_mac64(net_if->mac_parameters.mac_neighbor_table, eui64);
     if (!neighbor->neighbor)
         return false;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
@@ -715,7 +715,6 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
         ws_stats_update(cur, STATS_WS_CHILD_REMOVE, 1);
     }
 
-    protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_ptr->mac16);
     protocol_6lowpan_release_long_link_address_from_neighcache(cur, entry_ptr->mac64);
 
     //NUD Process Clear Here

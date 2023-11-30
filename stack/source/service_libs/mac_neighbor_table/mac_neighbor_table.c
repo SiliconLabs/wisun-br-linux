@@ -165,7 +165,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     ns_list_add_to_end(&table_class->neighbour_list, entry);
     table_class->neighbour_list_size++;
     memcpy(entry->mac64, mac64, 8);
-    entry->mac16 = 0xffff;
     entry->nud_active = false;
     entry->connected_device = false;
     entry->trusted_device = false;
@@ -189,7 +188,7 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
 
 void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t link_lifetime)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64);
 
     if (neighbor) {
         neighbor->link_lifetime = link_lifetime;
@@ -200,7 +199,7 @@ void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint
 
 void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *eui64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64);
 
     if (neighbor) {
         if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
@@ -212,7 +211,7 @@ void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *e
 
 void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t valid_time)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64);
 
     if (neighbor && neighbor->link_lifetime <= valid_time) {
         //mlme_device_descriptor_t device_desc;
@@ -222,31 +221,11 @@ void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_
     }
 }
 
-mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
+mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address)
 {
-    if (!table_class) {
-        return NULL;
-    }
-    uint16_t short_address;
-    if (address_type == ADDR_802_15_4_SHORT) {
-        short_address = read_be16(address);
-    } else if (address_type == ADDR_802_15_4_LONG) {
-
-    } else {
-        return NULL;
-    }
-
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-        if (address_type == ADDR_802_15_4_SHORT) {
-            if (cur->mac16 != 0xffff && cur->mac16 == short_address) {
-                return cur;
-            }
-        } else {
-            if (memcmp(cur->mac64, address, 8) == 0) {
-                return cur;
-            }
-        }
-    }
+    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
+        if (memcmp(cur->mac64, address, 8) == 0)
+            return cur;
 
     return NULL;
 }
@@ -266,7 +245,7 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
     memcpy(temporary_mac64, (ipv6Address + 8), 8);
     temporary_mac64[0] ^= 2;
 
-    return mac_neighbor_table_get_by_mac64(table_class, temporary_mac64, ADDR_802_15_4_LONG);
+    return mac_neighbor_table_get_by_mac64(table_class, temporary_mac64);
 }
 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)

@@ -31,7 +31,6 @@
 typedef struct mac_neighbor_table_entry {
     uint8_t         index;                  /*!< Unique Neighbour index */
     uint8_t         mac64[8];               /*!< MAC64 */
-    uint16_t        mac16;                  /*!< MAC16 address for neighbor 0xffff when no 16-bit address is unknown */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
     uint8_t         ms_phy_mode_id;         /*!< PhyModeId selected for Mode Switch with this neighbor */
@@ -148,11 +147,10 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
  *
  *  \param table_class pointer to table class
  *  \param address pointer to 16-bit MAC or 64-bit address for discover
- *  \param address_type 2 for 16-bit address and 3 for 64-bit (same than 802.15.4 define)
  *
  *  \return pointer to neighbor entry if it exists
  */
-mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type);
+mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address);
 

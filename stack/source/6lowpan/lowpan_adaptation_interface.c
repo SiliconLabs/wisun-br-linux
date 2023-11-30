@@ -644,7 +644,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
 
-        neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
+        neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2);
 
         //Validate neighbour
         if (!neigh_entry_ptr || (!neigh_entry_ptr->connected_device && !neigh_entry_ptr->trusted_device))
@@ -684,8 +684,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     //Set Messages
     dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
-        ngb = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table,
-                                                    dataReq->DstAddr, dataReq->DstAddrMode);
+        ngb = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, dataReq->DstAddr);
         if ((ngb && ngb->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
         else
@@ -899,8 +898,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     } else {
         neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table,
-                                                              buf->dst_sa.address + 2,
-                                                              buf->dst_sa.addr_type);
+                                                          buf->dst_sa.address + 2);
         if (neigh_entry_ptr && neigh_entry_ptr->node_role == WS_NR_ROLE_LFN) {
             ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, neigh_entry_ptr->index);
             if (ws_neighbor) {
@@ -1277,12 +1275,6 @@ static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fr
 
 void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, mac_neighbor_table_entry_t *entry_ptr)
 {
-    //Free first by defined short address
-    if (entry_ptr->mac16 < 0xfffe) {
-        uint8_t temp_address[2];
-        write_be16(temp_address, entry_ptr->mac16);
-        lowpan_adaptation_free_messages_from_queues_by_address(cur_interface, temp_address, ADDR_802_15_4_SHORT);
-    }
     lowpan_adaptation_free_messages_from_queues_by_address(cur_interface, entry_ptr->mac64, ADDR_802_15_4_LONG);
 }
 
