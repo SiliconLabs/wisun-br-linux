@@ -166,7 +166,6 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 
 static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
 {
-    memset(&cur->ws_info.fhss_conf, 0, sizeof(fhss_ws_configuration_t));
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);

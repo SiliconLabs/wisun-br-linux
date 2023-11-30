@@ -80,6 +80,8 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                                                                                          cur->ws_info.fhss_conf.domain_channel_mask);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
     rcp_legacy_set_fhss_timings(&cur->ws_info.fhss_conf);
+    if (!version_older_than(cur->rcp->version_api, 0, 17, 0))
+        rcp_legacy_set_max_async_duration(cur->ws_info.fhss_conf.async_tx_duration_ms);
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;

@@ -224,6 +224,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ret = ws_management_channel_mask_set(ctxt->net_if.id, ctxt->config.ws_allowed_channels);
         WARN_ON(ret);
     }
+    // FIXME: no ws_management_xxx() setter
+    ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
     if (ctxt->config.ws_pan_id >= 0)
         ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
@@ -279,9 +281,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.regulation = ctxt->config.ws_regional_regulation;
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
-
-    if (!version_older_than(ctxt->rcp.version_api, 0, 17, 0))
-        rcp_legacy_set_max_async_duration(ctxt->config.ws_async_frag_duration);
 
     // Wi-SUN FAN 1.1v06 6.3.4.1.1.2 forbids EDFE when operating in Japan.
     // Aggregate this restriction with the ARIB regulation for simplicity.

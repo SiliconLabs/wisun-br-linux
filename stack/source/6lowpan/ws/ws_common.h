@@ -89,6 +89,8 @@ typedef struct fhss_ws_configuration {
     uint16_t channel_mask_size;
     /** Number of channel retries defines how many consecutive channels are used when retransmitting a frame after initial transmission channel. */
     uint8_t number_of_channel_retries;
+
+    uint32_t async_tx_duration_ms;
 } fhss_ws_configuration_t;
 
 
