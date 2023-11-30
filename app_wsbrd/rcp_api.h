@@ -18,6 +18,7 @@
 #include "common/hif.h"
 
 // TODO: drop legacy structures
+struct fhss_ws_configuration;
 struct mcps_data_cnf;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
@@ -67,6 +68,9 @@ void rcp_req_radio_list(struct rcp *rcp);
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
+
+// TODO: split into rcp_set_fhss_{uc,ffn_bc,lfn_bc,async}()
+void rcp_set_fhss(struct rcp *rcp, const struct fhss_ws_configuration *cfg);
 
 void rcp_set_sec_key(struct rcp *rcp,
                      uint8_t key_index,

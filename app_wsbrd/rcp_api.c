@@ -288,6 +288,105 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
         __rcp_set_radio_tx_power(rcp, power_dbm);
 }
 
+static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_FHSS_UC);
+    hif_push_u8(&buf, cfg->fhss_uc_dwell_interval);
+    hif_push_u8(&buf, cfg->ws_uc_channel_function);
+    switch (cfg->ws_uc_channel_function) {
+    case WS_FIXED_CHANNEL:
+        hif_push_u16(&buf, cfg->unicast_fixed_channel);
+        break;
+    case WS_DH1CF:
+        hif_push_u8(&buf, sizeof(cfg->unicast_channel_mask));
+        hif_push_fixed_u8_array(&buf, cfg->unicast_channel_mask, sizeof(cfg->unicast_channel_mask));
+        break;
+    default:
+        BUG("unsupported channel function");
+        break;
+    }
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+static void __rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf,  HIF_CMD_SET_FHSS_FFN_BC);
+    hif_push_u24(&buf, cfg->fhss_broadcast_interval);
+    hif_push_u16(&buf, cfg->bsi);
+    hif_push_u8(&buf,  cfg->fhss_bc_dwell_interval);
+    hif_push_u8(&buf,  cfg->ws_bc_channel_function);
+    switch (cfg->ws_bc_channel_function) {
+    case WS_FIXED_CHANNEL:
+        hif_push_u16(&buf, cfg->broadcast_fixed_channel);
+        break;
+    case WS_DH1CF:
+        hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
+        hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
+        break;
+    default:
+        BUG("unsupported channel function");
+        break;
+    }
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+static void __rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+{
+    struct iobuf_write buf = { };
+
+    // FIXME: Some parameters are shared with FFN broadcast
+    hif_push_u8(&buf,  HIF_CMD_SET_FHSS_LFN_BC);
+    hif_push_u24(&buf, cfg->lfn_bc_interval);
+    hif_push_u16(&buf, cfg->bsi);
+    hif_push_u8(&buf,  cfg->ws_bc_channel_function);
+    switch (cfg->ws_bc_channel_function) {
+    case WS_FIXED_CHANNEL:
+        hif_push_u16(&buf, cfg->broadcast_fixed_channel);
+        break;
+    case WS_DH1CF:
+        hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
+        hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
+        break;
+    default:
+        BUG("unsupported channel function");
+        break;
+    }
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+static void __rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);
+    hif_push_u32(&buf, cfg->async_tx_duration_ms);
+    hif_push_u8(&buf, sizeof(cfg->domain_channel_mask));
+    hif_push_fixed_u8_array(&buf, cfg->domain_channel_mask, sizeof(cfg->domain_channel_mask));
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_fhss(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_set_fhss_timings(cfg);
+        if (!version_older_than(rcp->version_api, 0, 17, 0))
+            rcp_legacy_set_max_async_duration(cfg->async_tx_duration_ms);
+    } else {
+        __rcp_set_fhss_uc(rcp, cfg);
+        __rcp_set_fhss_ffn_bc(rcp, cfg);
+        __rcp_set_fhss_lfn_bc(rcp, cfg);
+        __rcp_set_fhss_async(rcp, cfg);
+    }
+}
+
 static void __rcp_set_sec_key(struct rcp *rcp,
                               uint8_t key_index,
                               const uint8_t key[16],
