@@ -287,22 +287,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 
-
-int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8])
-{
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
-
-    if (!entry)
-        return -1;
-
-    if (memcmp(iid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-        iid += 6;
-        //Set Short Address to MLE
-        entry->mac16 = read_be16(iid);
-    }
-    return 0;
-}
-
 void protocol_6lowpan_interface_common_init(struct net_if *cur)
 {
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;

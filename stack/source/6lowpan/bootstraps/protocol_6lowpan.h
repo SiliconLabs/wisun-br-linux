@@ -35,6 +35,4 @@ enum addrtype;
 void protocol_6lowpan_interface_common_init(struct net_if *cur);
 void protocol_6lowpan_configure_core(struct net_if *cur);
 
-int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8]);
-
 #endif /* PROTOCOL_6LOWPAN_H_ */

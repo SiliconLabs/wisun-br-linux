@@ -51,7 +51,6 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
             tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
             tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
-            protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
         }
     } else {
         /* Um, no - can't transmit response if we remove NCE now! */
