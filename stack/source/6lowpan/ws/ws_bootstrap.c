@@ -706,7 +706,7 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 {
 
     struct net_if *cur = user_data;
-    lowpan_adaptation_neigh_remove_free_tx_tables(cur, entry_ptr);
+    lowpan_adaptation_free_messages_from_queues_by_address(cur, entry_ptr->mac64, ADDR_802_15_4_LONG);
 
     //TODO State machine check here
 

@@ -28,7 +28,7 @@ struct buffer;
 struct mpx_api;
 struct mac_neighbor_table_entry;
 enum buffer_priority;
-enum addrtype;
+typedef enum addrtype addrtype_e;
 
 int8_t lowpan_adaptation_interface_init(int8_t interface_id);
 
@@ -49,12 +49,12 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, struct buffer *buf);
 
 struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *buf);
 
-void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
-
 void lowpan_adaptation_expedite_forward_enable(struct net_if *cur);
 
 bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur);
 
 void lowpan_adaptation_interface_slow_timer(int seconds);
+
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, addrtype_e adr_type);
 
 #endif
