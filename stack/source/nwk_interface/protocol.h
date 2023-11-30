@@ -242,7 +242,6 @@ void net_bootstrap_cb_run(uint8_t event);
 
 void protocol_6lowpan_stack(buffer_t *b);
 void protocol_6lowpan_register_handlers(struct net_if *cur);
-void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress);
 void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);

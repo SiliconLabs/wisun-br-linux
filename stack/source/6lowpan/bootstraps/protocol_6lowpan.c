@@ -265,16 +265,6 @@ void protocol_6lowpan_register_handlers(struct net_if *cur)
      * for routers, as RPL doesn't deal with it) */
     cur->ipv6_neighbour_cache.send_addr_reg = true;
 }
-void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress)
-{
-    uint8_t temp_ll[4];
-    uint8_t *ptr = temp_ll;
-    ptr = write_be16(ptr, cur->mac_parameters.pan_id);
-    ptr = write_be16(ptr, shortAddress);
-    ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
-                                      ADDR_802_15_4_SHORT, temp_ll);
-    nd_remove_registration(cur, ADDR_802_15_4_SHORT, temp_ll);
-}
 
 void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64)
 {
