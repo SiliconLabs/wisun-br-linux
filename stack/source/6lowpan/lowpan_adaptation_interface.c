@@ -654,11 +654,8 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
     return buf;
 
 tx_error_handler:
-    if (neigh_entry_ptr && neigh_entry_ptr->nud_active) {
-        cur->mac_parameters.mac_neighbor_table->active_nud_process--;
+    if (neigh_entry_ptr && neigh_entry_ptr->nud_active)
         neigh_entry_ptr->nud_active = false;
-
-    }
     buffer_free(buf);
     return NULL;
 

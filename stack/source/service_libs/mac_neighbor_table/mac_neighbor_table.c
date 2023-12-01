@@ -80,10 +80,8 @@ void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_ne
 
     ns_list_remove(&table_class->neighbour_list, entry);
     table_class->neighbour_list_size--;
-    if (entry->nud_active) {
+    if (entry->nud_active)
         entry->nud_active = false;
-        table_class->active_nud_process--;
-    }
 
     if (table_class->user_remove_notify_cb) {
         table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
@@ -135,12 +133,10 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
             // Therefore we disable NUD for LFNs here.
             if (!table_class->user_nud_notify_cb ||
                 cur->node_role == WS_NR_ROLE_LFN ||
-                table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX ||
                 cur->nud_active)
                 continue;
 
             if (table_class->user_nud_notify_cb(cur, table_class->table_user_identifier)) {
-                table_class->active_nud_process++;
                 cur->nud_active = true;
             }
 

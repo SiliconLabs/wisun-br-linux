@@ -204,10 +204,8 @@ static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
     free(entry);
 
-    if (neighbor->nud_active) {
+    if (neighbor->nud_active)
         neighbor->nud_active = false;
-        cur->mac_parameters.mac_neighbor_table->active_nud_process--;
-    }
 }
 
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr)

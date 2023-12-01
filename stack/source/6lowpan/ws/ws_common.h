@@ -47,8 +47,6 @@ typedef struct ws_nud_table_entry {
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
 
-#define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time
-
 typedef struct ws_pending_key_index {
     unsigned state: 2;
     uint8_t index;

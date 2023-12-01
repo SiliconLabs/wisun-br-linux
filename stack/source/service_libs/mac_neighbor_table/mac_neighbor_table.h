@@ -74,7 +74,6 @@ typedef struct mac_neighbor_table {
     mac_neighbor_table_list_t free_list;                    /*!< List of free neighbors entries */
     uint32_t nud_threshold;                                 /*!< NUD threshold time which generates keep alive message */
     uint8_t list_total_size;                                /*!< Total number allocated neighbor entries */
-    uint8_t active_nud_process;                             /*!< Indicate Active NUD Process */
     uint8_t neighbour_list_size;                            /*!< Active Neighbor list size */
     void *table_user_identifier;                            /*!< Table user identifier like interface pointer */
     neighbor_entry_remove_notify *user_remove_notify_cb;    /*!< Neighbor Remove Callback notify */
