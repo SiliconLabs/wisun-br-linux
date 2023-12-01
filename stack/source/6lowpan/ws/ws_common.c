@@ -136,7 +136,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
     memset(&cur->ws_info, 0, sizeof(ws_info_t));
     ns_list_init(&cur->ws_info.active_nud_process);
-    ns_list_init(&cur->ws_info.free_nud_entries);
 
     cur->ws_info.network_pan_id = 0xffff;
     cur->ws_info.pan_information.use_parent_bs = true;

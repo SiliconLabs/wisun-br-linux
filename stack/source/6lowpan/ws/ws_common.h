@@ -124,9 +124,7 @@ typedef struct ws_info {
     uint16_t network_pan_id;
     bool configuration_learned: 1;
     ws_pending_key_index_t pending_key_index_info;
-    ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;
-    ws_nud_table_list_t free_nud_entries;
     struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information pan_information;
     ws_hopping_schedule_t hopping_schedule;

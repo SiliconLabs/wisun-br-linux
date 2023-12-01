@@ -169,30 +169,21 @@ void ws_nud_table_reset(struct net_if *cur)
     //Empty active list
     ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
         ns_list_remove(&cur->ws_info.active_nud_process, entry);
-    }
-
-    //Empty free list
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.free_nud_entries) {
-        ns_list_remove(&cur->ws_info.free_nud_entries, entry);
-    }
-    //Add to free list to full
-    for (int i = 0; i < ACTIVE_NUD_PROCESS_MAX; i++) {
-        ns_list_add_to_end(&cur->ws_info.free_nud_entries, &cur->ws_info.nud_table_entrys[i]);
+        free(entry);
     }
 }
 
 static ws_nud_table_entry_t *ws_nud_entry_get_free(struct net_if *cur)
 {
-    ws_nud_table_entry_t *entry = ns_list_get_first(&cur->ws_info.free_nud_entries);
-    if (entry) {
-        entry->wait_response = false;
-        entry->retry_count = 0;
-        entry->nud_process = false;
-        entry->timer = rand_get_random_in_range(1, 900);
-        entry->neighbor_info = NULL;
-        ns_list_remove(&cur->ws_info.free_nud_entries, entry);
-        ns_list_add_to_end(&cur->ws_info.active_nud_process, entry);
-    }
+    ws_nud_table_entry_t *entry = malloc(sizeof(ws_nud_table_entry_t));
+
+    if (!entry)
+        return NULL;
+
+    memset(entry, 0, sizeof(ws_nud_table_entry_t));
+
+    entry->timer = rand_get_random_in_range(1, 900);
+    ns_list_add_to_end(&cur->ws_info.active_nud_process, entry);
     return entry;
 }
 
@@ -209,8 +200,10 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *nei
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
     mac_neighbor_table_entry_t *neighbor = entry->neighbor_info;
+
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
-    ns_list_add_to_end(&cur->ws_info.free_nud_entries, entry);
+    free(entry);
+
     if (neighbor->nud_active) {
         neighbor->nud_active = false;
         cur->mac_parameters.mac_neighbor_table->active_nud_process--;
