@@ -222,12 +222,12 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
     mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64);
-    if (!neighbour) {
-        return false;
-    }
 
-    mac_neighbor_table_set_short_time(interface->mac_parameters.mac_neighbor_table, eui64,
-                                      WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
+    if (!neighbour)
+        return false;
+
+    mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64,
+                                        WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
     return true;
 }
 
