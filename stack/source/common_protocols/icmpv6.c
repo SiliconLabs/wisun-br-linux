@@ -406,45 +406,6 @@ drop:
 
 }
 
-static buffer_t *icmpv6_redirect_handler(buffer_t *buf, struct net_if *cur)
-{
-    const uint8_t *ptr = buffer_data_pointer(buf);
-    const uint8_t *tgt = ptr + 4;
-    const uint8_t *dest = ptr + 20;
-    sockaddr_t tgt_ll = { .addr_type = ADDR_NONE };
-
-    if (buf->options.hop_limit != 255) {
-        goto drop;
-    }
-
-    if (!addr_is_ipv6_link_local(buf->src_sa.address)) {
-        goto drop;
-    }
-
-    if (buf->options.code != 0) {
-        goto drop;
-    }
-
-    if (!icmpv6_options_well_formed_in_buffer(buf, 36)) {
-        goto drop;
-    }
-
-    if (addr_is_ipv6_multicast(dest)) {
-        goto drop;
-    }
-
-    const uint8_t *tllao = icmpv6_find_option_in_buffer(buf, 36, ICMPV6_OPT_TGT_LL_ADDR);
-    if (tllao) {
-        cur->if_llao_parse(cur, tllao, &tgt_ll);
-    }
-    ipv6_destination_redirect(tgt, buf->src_sa.address, dest, buf->interface->id, tgt_ll.addr_type, tgt_ll.address);
-    return buffer_free(buf);
-
-drop:
-    tr_warn("Redirect drop");
-    return buffer_free(buf);
-}
-
 void trace_icmp(buffer_t *buf, bool is_rx)
 {
     static const struct name_value icmp_frames[] = {
@@ -504,7 +465,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
         .data      = buffer_data_pointer(buf),
         .data_size = buffer_data_length(buf),
     };
-    struct net_if *cur = buf->interface;
 
     buf->options.type = iobuf_pop_u8(&iobuf);
     buf->options.code = iobuf_pop_u8(&iobuf);
@@ -527,9 +487,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
     switch (buf->options.type) {
     case ICMPV6_TYPE_INFO_NS:
         return icmpv6_ns_handler(buf);
-
-    case ICMPV6_TYPE_INFO_REDIRECT:
-        return icmpv6_redirect_handler(buf, cur);
 
     default:
         // FIXME: forward DAR/DAC to Linux?
