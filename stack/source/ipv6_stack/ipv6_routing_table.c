@@ -176,6 +176,8 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
             break;
     }
     ipv6_destination_cache_forget_neighbour(entry);
+    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor del %s / %s",
+        tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
     free(entry);
 }
 

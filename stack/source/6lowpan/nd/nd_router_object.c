@@ -36,6 +36,10 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target;
 
+    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor refresh %s / %s / %ds",
+          tr_eui64(ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh)),
+          tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
+
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
