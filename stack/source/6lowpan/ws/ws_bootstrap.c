@@ -594,6 +594,8 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size < interface->mac_parameters.mac_neighbor_table->list_total_size)
         return;
 
+    WARN("neighbor table full");
+
     current_time_stamp = time_current(CLOCK_MONOTONIC);
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
