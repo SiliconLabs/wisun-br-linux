@@ -99,8 +99,6 @@ extern uint8_t DEVICE_MIN_SENS;
  * rest are used as child count, but is related to neighbour table size
  */
 #define WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES 10
-#define WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES 15
-#define WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES 25
 
 /*
  * MAC frame counter NVM storing configuration

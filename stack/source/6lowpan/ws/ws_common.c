@@ -182,23 +182,9 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
     ll_address[8] ^= 2;
 }
 
-uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
-{
-    if (mac_table_size >= 128) {
-        return (WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES);
-    } else if (mac_table_size >= 64) {
-        return (WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES);
-    } else if (mac_table_size >= WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES) {
-        return WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
-    } else {
-        BUG();
-    }
-}
-
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     uint8_t child_count = 0;
-    uint8_t max_child_count = interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     if (aro_timeout == 0) {
         //DeRegister Address Reg
@@ -221,13 +207,13 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         }
     }
 
-    if (child_count >= max_child_count) {
-        tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
+    if (child_count >= interface->mac_parameters.mac_neighbor_table->list_total_size) {
+        tr_warn("Child registration not allowed %d/%d", child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
         return ARO_FULL;
     }
 
     mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64, link_lifetime);
-    tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
+    tr_info("Child registration allowed %d/%d", child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
     return ARO_SUCCESS;

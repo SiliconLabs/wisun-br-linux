@@ -591,17 +591,8 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     ws_neighbor_class_entry_t *ws_neighbor;
     time_t current_time_stamp;
 
-    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size <= interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size)) {
-        // Enough neighbor entries
+    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size < interface->mac_parameters.mac_neighbor_table->list_total_size)
         return;
-    }
-    uint32_t temp_link_min_timeout;
-    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size == interface->mac_parameters.mac_neighbor_table->list_total_size) {
-        temp_link_min_timeout = 1; //Accept 1 second time from last
-    } else {
-        temp_link_min_timeout = interface->ws_info.cfg->timing.temp_link_min_timeout;
-    }
-
 
     current_time_stamp = time_current(CLOCK_MONOTONIC);
 
@@ -637,7 +628,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
         //Read current timestamp
         uint32_t time_from_last_unicast_schedule = current_time_stamp - ws_neighbor->host_rx_timestamp;
-        if (time_from_last_unicast_schedule >= temp_link_min_timeout) {
+        if (time_from_last_unicast_schedule >= interface->ws_info.cfg->timing.temp_link_min_timeout) {
             //Accept only Enough Old Device
             if (!neighbor_entry_ptr) {
                 //Accept first compare

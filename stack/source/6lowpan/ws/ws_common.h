@@ -158,8 +158,6 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 
 uint32_t ws_common_datarate_get(struct net_if *cur);
 
-uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
-
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size);
