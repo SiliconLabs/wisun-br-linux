@@ -186,6 +186,17 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
     TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neighbor_entry->mac64), neighbor_entry->lifetime);
 }
 
+void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t link_lifetime)
+{
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64, ADDR_802_15_4_LONG);
+
+    if (neighbor) {
+        neighbor->link_lifetime = link_lifetime;
+        neighbor->lifetime = link_lifetime;
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
+    }
+}
+
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
 {
     if (!table_class) {

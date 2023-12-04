@@ -24,6 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -1052,7 +1053,8 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     aro.lifetime = mac_neighbor->link_lifetime;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    ws_common_neighbour_address_reg_link_update(buf->interface, eui64, mac_neighbor->link_lifetime);
+    mac_neighbor_table_refresh_neighbor(buf->interface->mac_parameters.mac_neighbor_table, eui64,
+                                        mac_neighbor->link_lifetime);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

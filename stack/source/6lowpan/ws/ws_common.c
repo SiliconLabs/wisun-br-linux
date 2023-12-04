@@ -200,20 +200,6 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
     }
 }
 
-void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime)
-{
-    /*
-     * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
-     */
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
-
-    if (mac_neighbor) {
-        mac_neighbor->link_lifetime = link_lifetime;
-        mac_neighbor->lifetime = link_lifetime;
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(mac_neighbor->mac64), mac_neighbor->lifetime);
-    }
-}
-
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     uint8_t child_count = 0;
@@ -232,9 +218,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
-        tr_info("Child registration from old child");
-
+        mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64, link_lifetime);
         return ARO_SUCCESS;
     }
 
@@ -250,7 +234,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_FULL;
     }
 
-    ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
+    mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64, link_lifetime);
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);

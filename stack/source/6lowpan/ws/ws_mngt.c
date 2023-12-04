@@ -30,6 +30,7 @@
 #include "stack/source/6lowpan/ws/ws_ie_validation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_ind_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,

@@ -22,7 +22,6 @@
 #include <stdbool.h>
 
 #include "common/ns_list.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "core/net_interface.h"
 #include "6lowpan/ws/ws_config.h"
@@ -47,6 +46,8 @@ typedef struct ws_nud_table_entry {
 #define NO_PENDING_PROCESS 0
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
+
+#define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time
 
 typedef struct ws_pending_key_index {
     unsigned state: 2;
@@ -152,8 +153,6 @@ void ws_common_fast_timer(int ticks);
 void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
-
-void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime);
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);
 

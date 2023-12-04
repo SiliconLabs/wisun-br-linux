@@ -21,10 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
+#include "nwk_interface/protocol.h"
 
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240
-
-#define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time
 
 /**
  * Generic Neighbor table entry
@@ -160,5 +159,7 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
 
 void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry);
+
+void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t link_lifetime);
 
 #endif

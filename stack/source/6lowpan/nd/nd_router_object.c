@@ -28,6 +28,7 @@
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 
@@ -63,7 +64,8 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
-            ws_common_neighbour_address_reg_link_update(cur_interface, aro->eui64, aro->lifetime);
+            mac_neighbor_table_refresh_neighbor(cur_interface->mac_parameters.mac_neighbor_table, aro->eui64,
+                                                aro->lifetime);
         }
     }
 }

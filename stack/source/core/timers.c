@@ -11,6 +11,7 @@
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/service_libs/etx/etx.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/utils.h"
 #include "common/log.h"
 
