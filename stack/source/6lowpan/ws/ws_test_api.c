@@ -38,12 +38,6 @@
 
 #define TRACE_GROUP "wste"
 
-int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count)
-{
-    test_max_child_count_override = child_count;
-    return 0;
-}
-
 int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 {
     return ws_pae_controller_gtk_update(interface_id, gtk);

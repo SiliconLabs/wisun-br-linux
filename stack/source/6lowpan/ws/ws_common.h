@@ -30,8 +30,6 @@
 #include "6lowpan/ws/ws_mngt.h"
 #include "6lowpan/ws/ws_ie_custom.h"
 
-extern uint16_t test_max_child_count_override;
-
 struct ws_cfg;
 
 typedef struct ws_nud_table_entry {

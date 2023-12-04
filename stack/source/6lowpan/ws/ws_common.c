@@ -56,10 +56,6 @@
 // This provides a range of -174 (0) to +80 (254) dBm
 uint8_t DEVICE_MIN_SENS = 174 - 93;
 
-
-
-uint16_t test_max_child_count_override = 0xffff;
-
 int8_t ws_common_generate_channel_list(const struct net_if *cur,
                                        uint8_t *channel_mask,
                                        uint16_t number_of_channels,
@@ -209,11 +205,6 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_SUCCESS;
     }
     uint32_t link_lifetime = (aro_timeout * 60) + 1;
-
-    // Test API to limit child count
-    if (test_max_child_count_override != 0xffff) {
-        max_child_count = test_max_child_count_override;
-    }
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {

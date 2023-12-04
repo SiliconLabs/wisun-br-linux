@@ -37,23 +37,6 @@
 
 
 /**
- * \brief Set maximum child count.
- *
- * Maximum amount of children allowed for this device
- *
- * Values above MAC neighbor table - RPL parents - temporary entries will cause undefined behaviour
- *
- * Set child count to 0xffff to stop override
- *
- * \param interface_id               Network Interface
- * \param child_count                   Pan size reported in advertisements
- *
- * \return 0                         OK
- * \return <0                        Failure
- */
-int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count);
-
-/**
  * Sets Group Transient Keys.
  *
  * Sets Group Transient Keys (GTKs). Up to four GTKs can be set (GTKs from index
