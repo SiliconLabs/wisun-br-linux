@@ -112,7 +112,7 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
     }
 
     if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE)
-        ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, n, NA_O, ll_type, ll_addr);
+        ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, n, ll_type, ll_addr);
 
     buf->dst_sa.addr_type = n->ll_type;
     memcpy(buf->dst_sa.address, n->ll_address, addr_len_from_type(n->ll_type));

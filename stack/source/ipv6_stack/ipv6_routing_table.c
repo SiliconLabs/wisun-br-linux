@@ -426,19 +426,14 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     return entry;
 }
 
-void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_e ll_type, const uint8_t *ll_address)
+void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
-    entry->is_router = flags & NA_R;
     if (ll_type == ADDR_NONE) {
         return;
     }
 
     ipv6_neighbour_update_ll(entry, ll_type, ll_address);
-    if (flags & NA_S) {
-        ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_REACHABLE);
-    } else {
-        ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-    }
+    ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
     return;
 }
 
