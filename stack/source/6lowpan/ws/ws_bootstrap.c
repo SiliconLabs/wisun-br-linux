@@ -235,22 +235,6 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *nei
     return NULL;
 }
 
-void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor)
-{
-    ws_nud_table_entry_t *entry = ws_nud_entry_discover(cur, neighbor);
-
-    if (entry) {
-        mac_neighbor_table_entry_t *mac_neighbor = neighbor;
-        ns_list_remove(&cur->ws_info.active_nud_process, entry);
-        ns_list_add_to_end(&cur->ws_info.free_nud_entries, entry);
-        if (mac_neighbor->nud_active) {
-            mac_neighbor_table_neighbor_refresh(cur->mac_parameters.mac_neighbor_table, mac_neighbor, mac_neighbor->link_lifetime);
-        }
-
-        mac_neighbor_table_neighbor_connected(cur->mac_parameters.mac_neighbor_table, mac_neighbor);
-    }
-}
-
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
     mac_neighbor_table_entry_t *neighbor = entry->neighbor_info;
