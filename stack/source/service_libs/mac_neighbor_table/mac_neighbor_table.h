@@ -140,11 +140,9 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
  *
  * Call this function when node is trusted connected
  *
- * \param table_class pointer to table class
  * \param neighbor_entry pointer to refreshed entry
- * \param trusted_device True neigbor is part of mesh and will use group key , false enable pairwose key
  */
-void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device);
+void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_entry);
 
 /**
  * mac_neighbor_table_get_by_mac64 Get neighbor from list by mac address

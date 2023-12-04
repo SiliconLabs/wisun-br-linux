@@ -176,13 +176,13 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     return entry;
 }
 
-void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device)
+void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_entry)
 {
-    (void)table_class;
-    if (!neighbor_entry->trusted_device && trusted_device) {
-        neighbor_entry->lifetime = neighbor_entry->link_lifetime;
-    }
-    neighbor_entry->trusted_device = trusted_device;
+    if (neighbor_entry->trusted_device)
+        return;
+
+    neighbor_entry->lifetime = neighbor_entry->link_lifetime;
+    neighbor_entry->trusted_device = true;
 }
 
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)

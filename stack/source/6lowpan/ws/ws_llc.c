@@ -658,7 +658,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
         if (neighbor.neighbor && data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
+            mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
         if (neighbor.ws_neighbor && has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
             neighbor.ws_neighbor->pom_ie = ie_pom;
     }
@@ -738,7 +738,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
 
     if (neighbor.neighbor) {
         if (data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
+            mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
         ws_bootstrap_neighbor_set_stable(base->interface_ptr, data->SrcAddr);
     }
     if (neighbor.ws_neighbor && has_pom)
