@@ -80,7 +80,6 @@
 static NS_LIST_DEFINE(ipv6_destination_cache, ipv6_destination_t, link);
 static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 
-static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *cache, const uint8_t neighbour_addr[16]);
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour);
 static bool ipv6_destination_release(ipv6_destination_t *dest);
 static uint16_t total_metric(const ipv6_route_t *route);
@@ -353,7 +352,7 @@ void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *e
             break;
         case IP_NEIGHBOUR_UNREACHABLE:
             /* Progress to this from PROBE - timers continue */
-            ipv6_destination_cache_forget_router(cache, entry->ip_address);
+            ipv6_destination_cache_forget_neighbour(entry);
             break;
         default:
             entry->timer = 0;
@@ -482,7 +481,7 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
             case IP_NEIGHBOUR_TENTATIVE:
             case IP_NEIGHBOUR_REGISTERED:
                 /* These are deleted as soon as lifetime expires */
-                ipv6_destination_cache_forget_router(cache, cur->ip_address);
+                ipv6_destination_cache_forget_neighbour(cur);
                 ipv6_neighbour_entry_remove(cache, cur);
                 break;
         }
@@ -523,7 +522,7 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
             case IP_NEIGHBOUR_INCOMPLETE:
                 if (++cur->retrans_count >= MAX_MULTICAST_SOLICIT) {
                     /* Should be safe for registration - Tentative/Registered entries can't be INCOMPLETE */
-                    ipv6_destination_cache_forget_router(cache, cur->ip_address);
+                    ipv6_destination_cache_forget_neighbour(cur);
                     ipv6_neighbour_entry_remove(cache, cur);
                 } else {
                     ipv6_interface_resolve_send_ns(cache, cur, false, cur->retrans_count);
@@ -543,7 +542,7 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
             case IP_NEIGHBOUR_PROBE:
                 if (cur->retrans_count >= MARK_UNREACHABLE - 1) {
                     if (cur->from_redirect) {
-                        ipv6_destination_cache_forget_router(cache, cur->ip_address);
+                        ipv6_destination_cache_forget_neighbour(cur);
                         ipv6_neighbour_entry_remove(cache, cur);
                         break;
                     } else {
@@ -658,21 +657,6 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
     }
 
     return entry;
-}
-
-
-/* Force re-evaluation of next hop for all entries using the specified next hop as
- * a router. Will keep using it for direct comms.
- */
-static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *ncache, const uint8_t neighbour_addr[static 16])
-{
-    ipv6_neighbour_t *neighbour = ipv6_neighbour_lookup(ncache, neighbour_addr);
-
-    ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->last_neighbour && entry->interface_id == ncache->interface_id && entry->last_neighbour == neighbour) {
-            entry->last_neighbour = NULL;
-        }
-    }
 }
 
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour)
