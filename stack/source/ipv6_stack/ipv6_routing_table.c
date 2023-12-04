@@ -104,24 +104,6 @@ static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retr
     return rand_randomise_base(t, 0x4000, 0xBFFF);
 }
 
-/* Called when we determine a neighbour is no longer a router */
-void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
-{
-    tr_debug("Router gone: %s", tr_ipv6(entry->ip_address));
-    entry->is_router = false;
-    /* Only delete RA routes to satisfy RFC 4861. We should have a callback to
-     * other route providers here - eg RPL might want to know, and delete from
-     * the Candidate Neighbour set. But unfortunately our 6lowpan-ND routers do
-     * currently send RS packets while running, which means this would break
-     * stuff. We get spurious switches of IsRouter to false :(
-     */
-    ipv6_route_table_remove_router(cache->interface_id, entry->ip_address, ROUTE_RADV);
-    /* The above will re-evaluate all destinations affected by the routing
-     * change; the below is needed to also forget redirections to the router.
-     */
-    ipv6_destination_cache_forget_router(cache, entry->ip_address);
-}
-
 /* Called when a neighbour has apparently become unreachable */
 static void ipv6_neighbour_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {

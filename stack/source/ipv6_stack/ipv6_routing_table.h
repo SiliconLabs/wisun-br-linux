@@ -152,7 +152,6 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
 void ipv6_neighbour_cache_fast_timer(int ticks);
 void ipv6_neighbour_cache_slow_timer(int seconds);
 void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache);
-void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
 
 typedef struct ipv6_route_info {
     ipv6_route_src_t                source;
