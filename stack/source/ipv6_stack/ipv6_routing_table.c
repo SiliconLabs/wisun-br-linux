@@ -103,16 +103,6 @@ static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retr
     return rand_randomise_base(t, 0x4000, 0xBFFF);
 }
 
-/* Called when a neighbour has apparently become unreachable */
-static void ipv6_neighbour_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
-{
-    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor del %s / %s", tr_eui64(ipv6_neighbour_eui64(cache, entry)),
-          tr_ipv6(entry->ip_address));
-    // We can keep trying to talk directly to that neighbour, but should
-    // avoid using it any more as a router, if there's an alternative.
-    ipv6_destination_cache_forget_router(cache, entry->ip_address);
-}
-
 void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id)
 {
     /* Init Double linked Routing Table */
@@ -168,11 +158,6 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
         case IP_NEIGHBOUR_DELAY:
         case IP_NEIGHBOUR_PROBE:
         case IP_NEIGHBOUR_UNREACHABLE:
-            /* Destination cache no longer has direct pointers to neighbour cache,
-             * so a NCE being deleted no longer necessarily needs any special
-             * action. Neighbour GC needn't affect the Dest Cache.
-             */
-            // ipv6_neighbour_gone(cache, entry);
             break;
     }
     ipv6_destination_cache_forget_neighbour(entry);
@@ -368,7 +353,7 @@ void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *e
             break;
         case IP_NEIGHBOUR_UNREACHABLE:
             /* Progress to this from PROBE - timers continue */
-            ipv6_neighbour_gone(cache, entry);
+            ipv6_destination_cache_forget_router(cache, entry->ip_address);
             break;
         default:
             entry->timer = 0;
@@ -497,7 +482,7 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
             case IP_NEIGHBOUR_TENTATIVE:
             case IP_NEIGHBOUR_REGISTERED:
                 /* These are deleted as soon as lifetime expires */
-                ipv6_neighbour_gone(cache, cur);
+                ipv6_destination_cache_forget_router(cache, cur->ip_address);
                 ipv6_neighbour_entry_remove(cache, cur);
                 break;
         }
@@ -538,7 +523,7 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
             case IP_NEIGHBOUR_INCOMPLETE:
                 if (++cur->retrans_count >= MAX_MULTICAST_SOLICIT) {
                     /* Should be safe for registration - Tentative/Registered entries can't be INCOMPLETE */
-                    ipv6_neighbour_gone(cache, cur);
+                    ipv6_destination_cache_forget_router(cache, cur->ip_address);
                     ipv6_neighbour_entry_remove(cache, cur);
                 } else {
                     ipv6_interface_resolve_send_ns(cache, cur, false, cur->retrans_count);
@@ -558,7 +543,7 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
             case IP_NEIGHBOUR_PROBE:
                 if (cur->retrans_count >= MARK_UNREACHABLE - 1) {
                     if (cur->from_redirect) {
-                        ipv6_neighbour_gone(cache, cur);
+                        ipv6_destination_cache_forget_router(cache, cur->ip_address);
                         ipv6_neighbour_entry_remove(cache, cur);
                         break;
                     } else {
