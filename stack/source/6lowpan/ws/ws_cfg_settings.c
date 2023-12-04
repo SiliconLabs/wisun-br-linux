@@ -55,7 +55,6 @@ typedef struct ws_cfg_nw_size {
     ws_mpl_cfg_t mpl;                   /**< Multicast timing configuration*/
 } ws_cfg_nw_size_t;
 
-static uint32_t ws_test_temporary_entry_lifetime = 0;
 typedef int8_t (*ws_cfg_default_set)(void *cfg);
 typedef int8_t (*ws_cfg_validate)(void *new_cfg);
 typedef int8_t (*ws_cfg_set)(struct net_if *cur, void *new_cfg, uint8_t flags);
@@ -1101,9 +1100,7 @@ int8_t ws_cfg_settings_set(struct net_if *cur, ws_cfg_t *new_cfg)
 
 uint32_t ws_cfg_neighbour_temporary_lifetime_get(uint8_t role)
 {
-    if (ws_test_temporary_entry_lifetime) {
-        return ws_test_temporary_entry_lifetime;
-    } else if (role == WS_NR_ROLE_ROUTER) {
+    if (role == WS_NR_ROLE_ROUTER) {
         return WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     } else if (role == WS_NR_ROLE_LFN) {
         return WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME;
@@ -1111,14 +1108,3 @@ uint32_t ws_cfg_neighbour_temporary_lifetime_get(uint8_t role)
         BUG();
     }
 }
-
-void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime)
-{
-    if (lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME || lifetime == 0) {
-        if (lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
-            lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        }
-        ws_test_temporary_entry_lifetime = lifetime;
-    }
-}
-

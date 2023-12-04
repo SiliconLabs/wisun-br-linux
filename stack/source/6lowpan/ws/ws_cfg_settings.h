@@ -200,6 +200,5 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg);
 int8_t ws_cfg_sec_prot_set(struct net_if *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags);
 
 uint32_t ws_cfg_neighbour_temporary_lifetime_get(uint8_t role);
-void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime);
 
 #endif // WS_CFG_STORAGE_H_
