@@ -202,18 +202,6 @@ void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint
     }
 }
 
-void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *eui64)
-{
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64);
-
-    if (neighbor) {
-        if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
-            neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        neighbor->lifetime = neighbor->link_lifetime;
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor stable %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
-    }
-}
-
 void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t valid_time)
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64);

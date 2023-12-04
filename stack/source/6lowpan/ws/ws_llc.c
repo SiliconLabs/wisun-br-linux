@@ -740,7 +740,10 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (neighbor.neighbor) {
         if (data->Key.SecurityLevel)
             mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
-        mac_neighbor_table_set_stable(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr);
+        if (neighbor.neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.neighbor->node_role))
+            mac_neighbor_table_refresh_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr, WS_NEIGHBOR_LINK_TIMEOUT);
+        else
+            mac_neighbor_table_refresh_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr, neighbor.neighbor->link_lifetime);
     }
     if (neighbor.ws_neighbor && has_pom)
         neighbor.ws_neighbor->pom_ie = ie_pom;
