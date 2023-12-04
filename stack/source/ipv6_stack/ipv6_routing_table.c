@@ -426,17 +426,6 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     return entry;
 }
 
-void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
-{
-    if (ll_type == ADDR_NONE) {
-        return;
-    }
-
-    ipv6_neighbour_update_ll(entry, ll_type, ll_address);
-    ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-    return;
-}
-
 static const char *state_names[] = {
     [IP_NEIGHBOUR_NEW]          = "NEW",
     [IP_NEIGHBOUR_INCOMPLETE]   = "INCOMPLETE",
