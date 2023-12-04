@@ -165,16 +165,6 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_
  */
 mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type);
 
-/**
- * mac_neighbor_table_attribute_discover Discover neighbor from list by attribute index
- *
- *  \param table_class pointer to table class
- *  \param index neighbor index
- *
- *  \return pointer to discover neighbor entry if it exist
- */
-mac_neighbor_table_entry_t *mac_neighbor_table_attribute_discover(mac_neighbor_table_t *table_class, uint8_t index);
-
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);

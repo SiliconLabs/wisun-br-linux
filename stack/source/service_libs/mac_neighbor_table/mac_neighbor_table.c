@@ -218,17 +218,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_tab
     return NULL;
 }
 
-mac_neighbor_table_entry_t *mac_neighbor_table_attribute_discover(mac_neighbor_table_t *table_class, uint8_t index)
-{
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-
-        if (cur->index == index) {
-            return cur;
-        }
-    }
-    return NULL;
-}
-
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated)
 {
     // Check it really is LL64 (not LL16)
