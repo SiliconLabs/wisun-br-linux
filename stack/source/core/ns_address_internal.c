@@ -169,9 +169,8 @@ static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
 }
 
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
-uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const struct net_if *interface)
+uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16])
 {
-    (void)interface;
     if (addr_is_ipv6_multicast(addr)) {
         return addr_ipv6_multicast_scope(addr);
     }
@@ -435,7 +434,7 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[s
      * make it look like a bit like RFC 6724
      */
     if_address_entry_t *SA = NULL;
-    uint_fast8_t scope_D = addr_ipv6_scope(dest, interface);
+    uint_fast8_t scope_D = addr_ipv6_scope(dest);
     const addr_policy_table_entry_t *policy_D = addr_get_policy(dest);
 
     if (addr_preferences == 0) {
@@ -466,8 +465,8 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[s
         }
 
         /* Rule 2: Prefer appropriate scope */
-        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address, interface);
-        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address, interface);
+        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address);
+        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address);
         if (scope_SA < scope_SB) {
             if (scope_SA < scope_D) {
                 PREFER_SB;
@@ -568,8 +567,8 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 
         /* (Rule 1: Prefer same address - doesn't apply here) */
         /* Rule 2: Was prefer appropriate scope - for this purpose we instead prefer wider scope */
-        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address, cur);
-        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address, cur);
+        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address);
+        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address);
         if (scope_SA < scope_SB) {
             PREFER_SB;
         } else if (scope_SB < scope_SA) {
@@ -823,7 +822,7 @@ int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr)
     }
 
     /* Then check other interfaces, enforcing scope zones */
-    uint_fast8_t scope = addr_ipv6_scope(addr, cur);
+    uint_fast8_t scope = addr_ipv6_scope(addr);
     ns_list_foreach(struct net_if, other, &protocol_interface_info_list) {
         if (other != cur &&
                 other->zone_index[scope] == cur->zone_index[scope] &&

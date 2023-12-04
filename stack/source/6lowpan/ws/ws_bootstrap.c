@@ -145,7 +145,7 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
         return;
 
     if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
-        if (addr_ipv6_scope(addr->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
+        if (addr_ipv6_scope(addr->address) > IPV6_SCOPE_LINK_LOCAL) {
             // at least ula address available inside mesh.
             interface->global_address_available = true;
         }
@@ -274,7 +274,7 @@ if_address_entry_t *ws_probe_aro_address(struct net_if *interface)
 {
     if (interface->global_address_available) {
         ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (addr_ipv6_scope(address->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
+            if (addr_ipv6_scope(address->address) > IPV6_SCOPE_LINK_LOCAL) {
                 return address;
             }
         }

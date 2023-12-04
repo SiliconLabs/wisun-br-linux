@@ -111,7 +111,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     route->ref_count = 1;
 
     /* Realm-or-lower scope addresses must have interface specified */
-    bool interface_specific = addr_ipv6_scope(buf->dst_sa.address, buf->interface) <= IPV6_SCOPE_REALM_LOCAL;
+    bool interface_specific = addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL;
     struct net_if *cur = buf->interface;
     if (cur == NULL && interface_specific) {
         goto no_route;
@@ -888,7 +888,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
      * crossing a zone boundary (see RFC 4007).
      */
     if (out_interface->id != cur->id) {
-        uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address, cur);
+        uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address);
         /* Check source scope (standard RFC 4007 test) */
         if (out_interface->zone_index[src_scope] != cur->zone_index[src_scope]) {
             buf->interface = cur;
@@ -913,12 +913,12 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
          * to another interface, catching the first two cases, and the last
          * would have been caught by "Beyond scope of source address").
          */
-        if (addr_ipv6_scope(buf->src_sa.address, out_interface) <= IPV6_SCOPE_REALM_LOCAL) {
+        if (addr_ipv6_scope(buf->src_sa.address) <= IPV6_SCOPE_REALM_LOCAL) {
             buf->interface = cur;
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_SRC_FAILED_POLICY, 0);
         }
-        if (addr_ipv6_scope(buf->dst_sa.address, out_interface) <= IPV6_SCOPE_REALM_LOCAL ||
-                addr_ipv6_scope(buf->dst_sa.address, cur) <= IPV6_SCOPE_REALM_LOCAL) {
+        if (addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL ||
+                addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL) {
             buf->interface = cur;
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_ADM_PROHIB, 0);
         }
@@ -1152,7 +1152,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
      * or multicast with link-local scope), as per ZigBee IP
      */
     if (buf->options.ll_security_bypass_rx) {
-        if (addr_ipv6_scope(buf->dst_sa.address, cur) != IPV6_SCOPE_LINK_LOCAL) {
+        if (addr_ipv6_scope(buf->dst_sa.address) != IPV6_SCOPE_LINK_LOCAL) {
             goto drop;
         }
     }

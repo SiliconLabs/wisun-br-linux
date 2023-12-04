@@ -639,7 +639,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
 {
     uint_fast16_t count = 0;
     ipv6_destination_t *entry = NULL;
-    bool interface_specific = addr_ipv6_scope(address, NULL) <= IPV6_SCOPE_REALM_LOCAL;
+    bool interface_specific = addr_ipv6_scope(address) <= IPV6_SCOPE_REALM_LOCAL;
 
     if (interface_specific && interface_id == -1) {
         return NULL;
@@ -688,7 +688,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         ns_list_add_to_start(&ipv6_destination_cache, entry);
     }
 
-    if (addr_ipv6_scope(address, NULL) <= IPV6_SCOPE_LINK_LOCAL) {
+    if (addr_ipv6_scope(address) <= IPV6_SCOPE_LINK_LOCAL) {
         entry->lifetime = DCACHE_GC_AGE_LL;
     } else {
         entry->lifetime = DCACHE_GC_AGE / DCACHE_GC_PERIOD;
