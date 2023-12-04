@@ -178,7 +178,6 @@ void ipv6_destination_cache_print();
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);
 ipv6_destination_t *ipv6_destination_lookup_or_create_with_route(const uint8_t *address, int8_t interface_id, ipv6_route_info_t *route_out);
 void ipv6_destination_cache_timer(int ticks);
-void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_e ll_type, const uint8_t *ll_address);
 void ipv6_destination_cache_clean(int8_t interface_id);
 
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */

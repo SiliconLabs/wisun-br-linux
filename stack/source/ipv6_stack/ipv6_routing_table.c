@@ -705,65 +705,6 @@ static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neig
     }
 }
 
-void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_e ll_type, const uint8_t *ll_address)
-{
-    ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(dest_addr, interface_id);
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);
-    bool to_router;
-
-    if (!dest_entry || !ncache) {
-        tr_warn("Redirect failure - no dest entry/ncache");
-        return;
-    }
-
-    if (!dest_entry->last_neighbour || dest_entry->interface_id != interface_id || !addr_ipv6_equal(dest_entry->last_neighbour->ip_address, sender_addr)) {
-        tr_warn("Redirect not sent from current next hop");
-        return;
-    }
-
-    if (addr_ipv6_equal(redirect_addr, dest_addr)) {
-        /* We're being told it is on-link */
-        to_router = false;
-    } else if (addr_is_ipv6_link_local(redirect_addr)) {
-        /* We're being sent to a different router */
-        to_router = true;
-    } else {
-        tr_debug("Invalid redirection: %s", tr_ipv6(redirect_addr));
-        return;
-    }
-
-    // XXX need to consider invalidating/preserving other information?
-    // Possibly not as we should only be handling this if not a router, so no
-    // possibility of screwing up RPL. Although the "am I a router" check isn't
-    // in place...
-    dest_entry->redirected = true;
-    memcpy(dest_entry->redirect_addr, redirect_addr, 16);
-
-    ipv6_neighbour_t *ncache_entry = NULL;
-
-    if (ll_type != ADDR_NONE) {
-        ncache_entry = ipv6_neighbour_update_unsolicited(ncache, redirect_addr, ll_type, ll_address);
-        if (ncache_entry) {
-            ncache_entry->from_redirect = true;
-        }
-    }
-
-    if (to_router) {
-        if (!ncache_entry) {
-            ncache_entry = ipv6_neighbour_lookup(ncache, redirect_addr);
-        }
-
-        if (ncache_entry) {
-            ncache_entry->is_router = true;
-        }
-    }
-
-    tr_debug("Redirection added");
-    tr_debug("Iface %d destination: %s", interface_id, tr_ipv6(dest_addr));
-    tr_debug("Old next hop: %s", tr_ipv6(sender_addr));
-    tr_debug("New next hop: %s", tr_ipv6(redirect_addr));
-}
-
 void ipv6_destination_cache_clean(int8_t interface_id)
 {
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
