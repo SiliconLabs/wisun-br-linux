@@ -24,6 +24,7 @@
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nwk_interface/protocol.h"
+#include "6lowpan/ws/ws_cfg_settings.h"
 
 #include "core/ns_address_internal.h"
 
@@ -148,8 +149,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
     }
 }
 
-
-mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64)
+mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role)
 {
     if (!table_class) {
         return NULL;
@@ -168,8 +168,9 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->nud_active = false;
     entry->connected_device = false;
     entry->trusted_device = false;
-    entry->lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
-    entry->link_lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
+    entry->node_role = role;
+    entry->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
+    entry->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     entry->ms_mode = 0;
     TRACE(TR_NEIGH_15_4, "neighbor add %s", tr_eui64(mac64));
     return entry;

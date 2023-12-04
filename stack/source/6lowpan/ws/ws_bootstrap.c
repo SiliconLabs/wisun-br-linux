@@ -75,13 +75,10 @@
 
 static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *mac64, uint8_t role)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, mac64);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, mac64, role);
 
     if (!neighbor)
         return NULL;
-    neighbor->node_role = role;
-    neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
-    neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
     tr_debug("neighbor[%d] = %s, lifetime=%d (new)", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     return neighbor;
