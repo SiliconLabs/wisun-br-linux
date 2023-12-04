@@ -465,14 +465,6 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         mpx_confirm.msduHandle = msg->mpx_user_handle;
         mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
     }
-
-    if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
-        return;
-    if (neighbor_llc->neighbor->link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
-        return;
-
-    tr_debug("remove temporary MAC neighbor by TX confirm (%s)", tr_eui64(neighbor_llc->neighbor->mac64));
-    neighbor_table_class_remove_entry(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
 }
 
 static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)
