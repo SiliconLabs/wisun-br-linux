@@ -53,14 +53,3 @@ int ws_test_lgtk_set(int8_t interface_id, uint8_t *lgtk[3])
 {
     return ws_pae_controller_lgtk_update(interface_id, lgtk);
 }
-
-int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur)
-        return -1;
-
-    ws_cfg_neighbour_temporary_lifetime_set(temporary_lifetime);
-    return 0;
-}
