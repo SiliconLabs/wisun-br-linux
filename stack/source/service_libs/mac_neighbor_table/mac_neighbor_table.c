@@ -181,17 +181,6 @@ void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_n
 }
 
 
-void mac_neighbor_table_neighbor_refresh(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, uint32_t life_time)
-{
-    neighbor_entry->lifetime = life_time;
-    neighbor_entry->link_lifetime = life_time;
-    if (neighbor_entry->nud_active) {
-        neighbor_entry->nud_active = false;
-        table_class->active_nud_process--;
-    }
-
-}
-
 void mac_neighbor_table_neighbor_connected(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
 {
     (void)table_class;

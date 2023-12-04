@@ -144,15 +144,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
 void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry);
 
 /**
- * mac_neighbor_table_neighbor_refresh Refresh neigbor timeout and time to live values based on giving time
- *
- * \param table_class pointer to table class
- * \param neighbor_entry pointer to refreshed entry
- * \param life_time define lifetime for neighbor
- */
-void mac_neighbor_table_neighbor_refresh(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, uint32_t life_time);
-
-/**
  * mac_neighbor_table_neighbor_connected Mark neighbour connected state and data is accepted from device
  *
  * Call this function when node is trusted connected
