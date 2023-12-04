@@ -1042,7 +1042,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     if (memcmp(ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, ipv6_neighbour), eui64, 8))
         return;
 
-    mac_neighbor = mac_neighbor_table_address_discover(buf->interface->mac_parameters.mac_neighbor_table,
+    mac_neighbor = mac_neighbor_table_get_by_mac64(buf->interface->mac_parameters.mac_neighbor_table,
                                                         eui64, ADDR_802_15_4_LONG);
 
     if (!mac_neighbor)

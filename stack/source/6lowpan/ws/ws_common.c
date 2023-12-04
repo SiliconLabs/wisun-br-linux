@@ -205,7 +205,7 @@ void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const
     /*
      * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
      */
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, false, false);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
 
     if (mac_neighbor) {
         if (link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME && mac_neighbor->link_lifetime < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
@@ -261,7 +261,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
-    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (!neighbour) {
         return false;
     }

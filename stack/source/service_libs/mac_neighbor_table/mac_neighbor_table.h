@@ -146,19 +146,17 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device);
 
 /**
- * mac_neighbor_table_address_discover Discover neighbor from list by address
+ * mac_neighbor_table_get_by_mac64 Get neighbor from list by mac address
  *
  *  \param table_class pointer to table class
  *  \param address pointer to 16-bit MAC or 64-bit address for discover
  *  \param address_type 2 for 16-bit address and 3 for 64-bit (same than 802.15.4 define)
  *
- *  \return pointer to discover neighbor entry if it exist
+ *  \return pointer to neighbor entry if it exists
  */
-mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type);
+mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type);
 
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated);
-
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
+mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address);
 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
 

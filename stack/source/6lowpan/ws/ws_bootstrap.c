@@ -89,7 +89,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
 
 static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64, uint8_t role)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
     if (neighbor) {
         return neighbor;
     }
@@ -99,7 +99,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
 
     if (neighbor) {
         if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
@@ -111,7 +111,7 @@ void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *s
 
 void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
 
     if (neighbor && neighbor->link_lifetime <= valid_time) {
         //mlme_device_descriptor_t device_desc;
@@ -504,7 +504,7 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
 
     uint8_t attribute_index;
 
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, mac_adddress, addr_type);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, mac_adddress, addr_type);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -695,7 +695,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
     neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = mac_neighbor_table_address_discover(net_if->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
+    neighbor->neighbor = mac_neighbor_table_get_by_mac64(net_if->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (!neighbor->neighbor)
         return false;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);

@@ -290,7 +290,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8])
 {
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
 
     if (!entry)
         return -1;

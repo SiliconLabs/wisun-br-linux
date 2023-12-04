@@ -184,7 +184,7 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_
     neighbor_entry->trusted_device = trusted_device;
 }
 
-mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
+mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
 {
     if (!table_class) {
         return NULL;
@@ -213,7 +213,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_tab
     return NULL;
 }
 
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated)
+mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address)
 {
     // Check it really is LL64 (not LL16)
     if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX, 8) != 0) {
@@ -228,25 +228,7 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
     memcpy(temporary_mac64, (ipv6Address + 8), 8);
     temporary_mac64[0] ^= 2;
 
-    return mac_neighbor_entry_get_by_mac64(table_class, temporary_mac64, allocateNew, new_entry_allocated);
-
-}
-
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated)
-{
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(table_class, mac64, ADDR_802_15_4_LONG);
-    if (entry || !allocateNew) {
-        if (new_entry_allocated) {
-            *new_entry_allocated = false;
-        }
-        return entry;
-    }
-
-    if (new_entry_allocated) {
-        *new_entry_allocated = true;
-    }
-
-    return mac_neighbor_table_entry_allocate(table_class, mac64);
+    return mac_neighbor_table_get_by_mac64(table_class, temporary_mac64, ADDR_802_15_4_LONG);
 }
 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)
