@@ -144,16 +144,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
 void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry);
 
 /**
- * mac_neighbor_table_neighbor_connected Mark neighbour connected state and data is accepted from device
- *
- * Call this function when node is trusted connected
- *
- * \param table_class pointer to table class
- * \param neighbor_entry pointer to refreshed entry
- */
-void mac_neighbor_table_neighbor_connected(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry);
-
-/**
  * mac_neighbor_table_trusted_neighbor Function for manage neighbor role at mesh network
  *
  * Call this function when node is trusted connected

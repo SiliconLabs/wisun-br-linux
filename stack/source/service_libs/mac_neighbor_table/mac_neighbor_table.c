@@ -180,13 +180,6 @@ void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_n
     }
 }
 
-
-void mac_neighbor_table_neighbor_connected(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
-{
-    (void)table_class;
-    neighbor_entry->connected_device = true;
-}
-
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device)
 {
     (void)table_class;
