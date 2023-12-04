@@ -187,15 +187,6 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
     ll_address[8] ^= 2;
 }
 
-void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address)
-{
-    //Neighbor connectected update
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, ll_address, false, NULL);
-    if (mac_neighbor) {
-        ws_nud_entry_remove_active(cur, mac_neighbor);
-    }
-}
-
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
 {
     if (mac_table_size >= 128) {
