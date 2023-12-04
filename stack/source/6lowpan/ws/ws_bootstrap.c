@@ -1161,7 +1161,6 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 static void ws_bootstrap_mac_activate(struct net_if *cur, uint16_t channel, uint16_t panid, bool coordinator)
 {
     cur->mac_parameters.pan_id = panid;
-    cur->mac_parameters.mac_channel = channel;
     rcp_legacy_start(channel, panid, coordinator);
 }
 

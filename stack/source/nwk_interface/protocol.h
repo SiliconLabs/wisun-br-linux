@@ -133,7 +133,6 @@ typedef struct arm_15_4_mac_parameters {
     /* Security API USE */
     uint8_t mac_default_ffn_key_index;
     uint8_t mac_default_lfn_key_index;
-    uint8_t mac_channel;
     uint16_t pan_id;
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
