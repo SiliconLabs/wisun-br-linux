@@ -424,7 +424,7 @@ void ws_wp_nested_netname_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_panver_write(struct iobuf_write *buf, uint8_t pan_version)
+void ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version)
 {
     int offset;
 
