@@ -83,7 +83,6 @@ static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *cache, const uint8_t neighbour_addr[16]);
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour);
 static bool ipv6_destination_release(ipv6_destination_t *dest);
-static void ipv6_route_table_remove_router(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source);
 static uint16_t total_metric(const ipv6_route_t *route);
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source);
 static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source);
@@ -1316,15 +1315,6 @@ void ipv6_route_table_remove_interface(int8_t interface_id)
 {
     ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
         if (interface_id == r->info.interface_id) {
-            ipv6_route_entry_remove(r);
-        }
-    }
-}
-
-static void ipv6_route_table_remove_router(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source)
-{
-    ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && r->info.source == source && !r->on_link && addr_ipv6_equal(addr, r->info.next_hop_addr)) {
             ipv6_route_entry_remove(r);
         }
     }
