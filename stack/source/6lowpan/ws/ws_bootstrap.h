@@ -57,10 +57,6 @@ int ws_bootstrap_restart(int8_t interface_id);
 
 int ws_bootstrap_restart_delayed(int8_t interface_id);
 
-int ws_bootstrap_neighbor_remove(struct net_if *cur, const uint8_t *ll_address);
-
-int ws_bootstrap_aro_failure(struct net_if *cur, const uint8_t *ll_address);
-
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur);
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);

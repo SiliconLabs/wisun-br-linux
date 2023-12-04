@@ -196,12 +196,6 @@ void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address)
     }
 }
 
-void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address)
-{
-    tr_warn("ARO registration Failure %s", tr_ipv6(ll_address));
-    ws_bootstrap_aro_failure(cur, ll_address);
-}
-
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
 {
     if (mac_table_size >= 128) {

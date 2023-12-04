@@ -1173,22 +1173,6 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
     return 0;
 }
 
-int ws_bootstrap_neighbor_remove(struct net_if *cur, const uint8_t *ll_address)
-{
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, ll_address, false, NULL);
-
-    if (mac_neighbor) {
-        mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, mac_neighbor);
-    }
-    return 0;
-}
-
-int ws_bootstrap_aro_failure(struct net_if *cur, const uint8_t *ll_address)
-{
-    ws_bootstrap_neighbor_remove(cur, ll_address);
-    return 0;
-}
-
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
     const struct chan_params *chan_params;

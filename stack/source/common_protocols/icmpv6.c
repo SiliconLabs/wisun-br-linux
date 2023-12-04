@@ -242,24 +242,6 @@ static bool icmpv6_nd_option_get(const uint8_t *data, size_t len, uint16_t optio
     return false;
 }
 
-static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
-{
-    (void) src_addr;
-    dptr += 2;
-    uint16_t life_time;
-    uint8_t nd_status  = *dptr;
-    dptr += 4;
-    life_time = read_be16(dptr);
-    dptr += 2;
-    if (memcmp(dptr, cur_interface->mac, 8) != 0) {
-        return;
-    }
-
-    (void)life_time;
-    if (nd_status != ARO_SUCCESS)
-        ws_common_aro_failure(cur_interface, src_addr);
-}
-
 // Wi-SUN allows to use an ARO without an SLLAO. This function builds a dummy
 // SLLAO using the information from the ARO, which can be processed using the
 // standard ND procedure.
