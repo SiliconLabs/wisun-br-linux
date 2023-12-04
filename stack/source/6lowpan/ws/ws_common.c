@@ -208,11 +208,9 @@ void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
 
     if (mac_neighbor) {
-        if (link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME && mac_neighbor->link_lifetime < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
-            tr_info("Added new neighbor %s : index:%u", tr_eui64(eui64), mac_neighbor->index);
-        // Refresh
         mac_neighbor->link_lifetime = link_lifetime;
         mac_neighbor->lifetime = link_lifetime;
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(mac_neighbor->mac64), mac_neighbor->lifetime);
     }
 }
 

@@ -80,7 +80,6 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
     if (!neighbor)
         return NULL;
     rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
-    tr_debug("neighbor[%d] = %s, lifetime=%d (new)", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     return neighbor;
 }
 
@@ -102,7 +101,7 @@ void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *s
         if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
             neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
         neighbor->lifetime = neighbor->link_lifetime;
-        tr_debug("neighbor[%d] = %s, lifetime=%d", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor stable %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
     }
 }
 
@@ -114,13 +113,12 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const ui
         //mlme_device_descriptor_t device_desc;
         neighbor->lifetime = valid_time;
         neighbor->link_lifetime = valid_time;
-        tr_debug("neighbor[%d] = %s, lifetime=%d", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor reset %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
     }
 }
 
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
-    tr_debug("neighbor[%d] = %s, removed", neighbor->index, tr_eui64(neighbor->mac64));
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
@@ -814,9 +812,10 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     if (!entry) {
         return false;
     }
-    entry->neighbor_info = entry_ptr;
 
+    entry->neighbor_info = entry_ptr;
     entry->nud_process = nud_proces;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor unreachable %s / %ds", tr_eui64(entry_ptr->mac64), entry_ptr->lifetime);
 
     return true;
 }

@@ -87,7 +87,8 @@ void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_ne
     if (table_class->user_remove_notify_cb) {
         table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
     }
-    TRACE(TR_NEIGH_15_4, "neighbor del %s", tr_eui64(entry->mac64));
+
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
 
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
@@ -104,7 +105,6 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
         neighbor_table_class_remove_entry(table_class, cur);
     }
 }
-
 
 void mac_neighbor_table_neighbor_timeout_update(int time_update)
 {
@@ -172,7 +172,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     entry->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     entry->ms_mode = 0;
-    TRACE(TR_NEIGH_15_4, "neighbor add %s", tr_eui64(mac64));
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
     return entry;
 }
 
@@ -183,6 +183,7 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
 
     neighbor_entry->lifetime = neighbor_entry->link_lifetime;
     neighbor_entry->trusted_device = true;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neighbor_entry->mac64), neighbor_entry->lifetime);
 }
 
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
