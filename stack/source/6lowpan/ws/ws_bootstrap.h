@@ -67,8 +67,6 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
 
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
-void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time);
-
 /*
  * Functions shared with different bootstrap modes
  */

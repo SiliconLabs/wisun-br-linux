@@ -210,6 +210,18 @@ void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *e
     }
 }
 
+void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t valid_time)
+{
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(table, eui64, MAC_ADDR_MODE_64_BIT);
+
+    if (neighbor && neighbor->link_lifetime <= valid_time) {
+        //mlme_device_descriptor_t device_desc;
+        neighbor->lifetime = valid_time;
+        neighbor->link_lifetime = valid_time;
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor reset %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
+    }
+}
+
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address, uint8_t address_type)
 {
     if (!table_class) {

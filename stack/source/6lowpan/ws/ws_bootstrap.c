@@ -93,18 +93,6 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *
     return ws_bootstrap_mac_neighbor_allocate(interface, src64, role);
 }
 
-void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time)
-{
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
-
-    if (neighbor && neighbor->link_lifetime <= valid_time) {
-        //mlme_device_descriptor_t device_desc;
-        neighbor->lifetime = valid_time;
-        neighbor->link_lifetime = valid_time;
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor reset %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
-    }
-}
-
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))

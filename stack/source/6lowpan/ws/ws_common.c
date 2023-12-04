@@ -248,7 +248,8 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
         return false;
     }
 
-    ws_bootstrap_mac_neighbor_short_time_set(interface, eui64, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
+    mac_neighbor_table_set_short_time(interface->mac_parameters.mac_neighbor_table, eui64,
+                                      WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
     return true;
 }
 

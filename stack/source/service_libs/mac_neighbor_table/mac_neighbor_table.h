@@ -164,4 +164,6 @@ void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint
 
 void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *eui64);
 
+void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t valid_time);
+
 #endif
