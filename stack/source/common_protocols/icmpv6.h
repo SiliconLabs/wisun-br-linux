@@ -121,7 +121,6 @@ struct buffer *icmpv6_down(struct buffer *buf);
 struct buffer *icmpv6_up(struct buffer *buf);
 struct buffer *icmpv6_error(struct buffer *buf, struct net_if *cur, uint8_t type, uint8_t code, uint32_t aux);
 
-bool icmpv6_options_well_formed_in_buffer(const struct buffer *buf, uint16_t offset);
 const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast16_t offset, uint8_t option);
 
 struct net_if;

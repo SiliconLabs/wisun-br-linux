@@ -766,18 +766,6 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     return (buf);
 }
 
-// TODO: remove this function, and call directly icmpv6_nd_options_validate()
-// after popping the fields before offset from the packet.
-bool icmpv6_options_well_formed_in_buffer(const buffer_t *buf, uint16_t offset)
-{
-    if (buffer_data_length(buf) < offset) {
-        return false;
-    }
-
-    return icmpv6_nd_options_validate(buffer_data_pointer(buf) + offset,
-                                      buffer_data_length(buf) - offset);
-}
-
 // TODO: remove this function and use directly icmpv6_nd_option_get()
 const uint8_t *icmpv6_find_option_in_buffer(const buffer_t *buf, uint_fast16_t offset, uint8_t option)
 {
