@@ -765,15 +765,3 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
 
     return (buf);
 }
-
-// TODO: remove this function and use directly icmpv6_nd_option_get()
-const uint8_t *icmpv6_find_option_in_buffer(const buffer_t *buf, uint_fast16_t offset, uint8_t option)
-{
-    struct iobuf_read res;
-
-    icmpv6_nd_option_get(buffer_data_pointer(buf) + offset, buffer_data_length(buf) - offset, option, &res);
-    if (res.err)
-        return NULL;
-    else
-        return res.data;
-}
