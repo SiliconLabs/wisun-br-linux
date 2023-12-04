@@ -135,15 +135,6 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update);
 mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64);
 
 /**
- * mac_neighbor_table_neighbor_remove Remove neighbor from list
- *
- * \param table_class pointer to table class
- * \param neighbor_entry pointer to removed entry
- *
- */
-void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry);
-
-/**
  * mac_neighbor_table_trusted_neighbor Function for manage neighbor role at mesh network
  *
  * Call this function when node is trusted connected
@@ -170,5 +161,7 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
 
 int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
+
+void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry);
 
 #endif

@@ -60,8 +60,22 @@ void mac_neighbor_table_delete(mac_neighbor_table_t *table_class)
     free(table_class);
 }
 
-static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry)
+static mac_neighbor_table_entry_t *neighbor_table_class_entry_validate(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
 {
+    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
+        if (cur == neighbor_entry)
+            return cur;
+
+    return NULL;
+}
+
+void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry)
+{
+    if (!neighbor_table_class_entry_validate(table_class, entry)) {
+        WARN("15.4 neighbor not found");
+        return;
+    }
+
     ns_list_remove(&table_class->neighbour_list, entry);
     table_class->neighbour_list_size--;
     if (entry->nud_active) {
@@ -159,25 +173,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->ms_mode = 0;
     TRACE(TR_NEIGH_15_4, "neighbor add %s", tr_eui64(mac64));
     return entry;
-}
-
-static mac_neighbor_table_entry_t *neighbor_table_class_entry_validate(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
-{
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-        if (cur == neighbor_entry) {
-            return cur;
-        }
-    }
-    return NULL;
-
-}
-
-void mac_neighbor_table_neighbor_remove(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
-{
-    mac_neighbor_table_entry_t *entry = neighbor_table_class_entry_validate(table_class, neighbor_entry);
-    if (entry) {
-        neighbor_table_class_remove_entry(table_class, entry);
-    }
 }
 
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device)

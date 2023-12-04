@@ -472,7 +472,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         return;
 
     tr_debug("remove temporary MAC neighbor by TX confirm (%s)", tr_eui64(neighbor_llc->neighbor->mac64));
-    mac_neighbor_table_neighbor_remove(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
+    neighbor_table_class_remove_entry(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
 }
 
 static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)

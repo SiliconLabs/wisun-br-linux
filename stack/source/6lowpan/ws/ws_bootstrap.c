@@ -322,7 +322,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, entry->neighbor_info);
+                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, entry->neighbor_info);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -687,7 +687,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     }
     if (neighbor_entry_ptr) {
         tr_info("dropped oldest neighbour %s", tr_eui64(neighbor_entry_ptr->mac64));
-        mac_neighbor_table_neighbor_remove(interface->mac_parameters.mac_neighbor_table, neighbor_entry_ptr);
+        neighbor_table_class_remove_entry(interface->mac_parameters.mac_neighbor_table, neighbor_entry_ptr);
     }
 
 }
@@ -715,7 +715,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
     if (!neighbor->ws_neighbor) {
-        mac_neighbor_table_neighbor_remove(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
+        neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
     }
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
@@ -728,7 +728,7 @@ void ws_bootstrap_neighbor_del(struct net_if *net_if, struct llc_neighbour_req *
 {
     if (neighbor->neighbor)
         ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
-    mac_neighbor_table_neighbor_remove(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
+    neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
 }
 
 static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
