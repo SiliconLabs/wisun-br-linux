@@ -222,6 +222,8 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
     }
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
+        if (!cur->in_use)
+            continue;
 
         if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
             child_count++;

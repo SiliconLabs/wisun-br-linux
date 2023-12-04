@@ -587,6 +587,8 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
+    mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
+    ws_neighbor_class_entry_t *ws_neighbor;
     time_t current_time_stamp;
 
     if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size <= interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size)) {
@@ -603,9 +605,11 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     current_time_stamp = time_current(CLOCK_MONOTONIC);
 
-    mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
-        ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
+        if (!cur->in_use)
+            continue;
+
+        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
 
         if (cur->nud_active) {
             //If NUD process is active do not trig

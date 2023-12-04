@@ -473,6 +473,8 @@ void etx_cache_timer(int seconds_update)
     }
 
     ns_list_foreach(mac_neighbor_table_entry_t, neighbour, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
+        if (!neighbour->in_use)
+            continue;
 
         etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, neighbour->index);
 

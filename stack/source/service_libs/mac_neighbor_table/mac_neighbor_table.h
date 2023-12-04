@@ -30,6 +30,7 @@
  */
 typedef struct mac_neighbor_table_entry {
     uint8_t         index;                  /*!< Unique Neighbour index */
+    bool            in_use;                 /*!< True if the entry is in use */
     uint8_t         mac64[8];               /*!< MAC64 */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
@@ -70,15 +71,13 @@ typedef bool neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, vo
  * Neighbor table class structure
  */
 typedef struct mac_neighbor_table {
-    mac_neighbor_table_list_t neighbour_list;               /*!< List of active neighbors */
-    mac_neighbor_table_list_t free_list;                    /*!< List of free neighbors entries */
+    mac_neighbor_table_list_t neighbour_list;               /*!< List of neighbors */
     uint32_t nud_threshold;                                 /*!< NUD threshold time which generates keep alive message */
     uint8_t list_total_size;                                /*!< Total number allocated neighbor entries */
     uint8_t neighbour_list_size;                            /*!< Active Neighbor list size */
     void *table_user_identifier;                            /*!< Table user identifier like interface pointer */
     neighbor_entry_remove_notify *user_remove_notify_cb;    /*!< Neighbor Remove Callback notify */
     neighbor_entry_nud_notify *user_nud_notify_cb;          /*!< Trig NUD process for neighbor */
-    mac_neighbor_table_entry_t neighbor_entry_buffer[];     /*!< Pointer for allocated neighbor table entries*/
 } mac_neighbor_table_t;
 
 

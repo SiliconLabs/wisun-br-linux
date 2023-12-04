@@ -31,29 +31,37 @@
 
 mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)
 {
-    mac_neighbor_table_t *table_class = malloc(sizeof(mac_neighbor_table_t) + sizeof(mac_neighbor_table_entry_t) * table_size);
-    if (!table_class) {
+    mac_neighbor_table_t *table_class = malloc(sizeof(mac_neighbor_table_t));
+    mac_neighbor_table_entry_t *entry;
+
+    if (!table_class)
         return NULL;
-    }
+
     memset(table_class, 0, sizeof(mac_neighbor_table_t));
 
-    mac_neighbor_table_entry_t *cur_ptr = &table_class->neighbor_entry_buffer[0];
     table_class->list_total_size = table_size;
     table_class->table_user_identifier = user_indentifier;
     table_class->user_nud_notify_cb = nud_cb;
     table_class->user_remove_notify_cb = remove_cb;
+
     ns_list_init(&table_class->neighbour_list);
-    ns_list_init(&table_class->free_list);
+
+    // The size of the neighbor table is an information given by the RCP.
+    // The index field is used to set neighbor information in the RCP.
+    // This early allocation process makes the maintenance of this
+    // index easier.
     for (uint8_t i = 0; i < table_size; i++) {
-        memset(cur_ptr, 0, sizeof(mac_neighbor_table_entry_t));
-        cur_ptr->index = i;
-        //Add to list
-        ns_list_add_to_end(&table_class->free_list, cur_ptr);
-        cur_ptr++;
+        entry = malloc(sizeof(mac_neighbor_table_entry_t));
+
+        if (!entry)
+            return NULL;
+
+        memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
+        entry->index = i;
+        ns_list_add_to_end(&table_class->neighbour_list, entry);
     }
 
     return table_class;
-
 }
 
 void mac_neighbor_table_delete(mac_neighbor_table_t *table_class)
@@ -73,26 +81,25 @@ static mac_neighbor_table_entry_t *neighbor_table_class_entry_validate(mac_neigh
 
 void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry)
 {
+    uint8_t entry_index;
+
     if (!neighbor_table_class_entry_validate(table_class, entry)) {
         WARN("15.4 neighbor not found");
         return;
     }
 
-    ns_list_remove(&table_class->neighbour_list, entry);
     table_class->neighbour_list_size--;
     if (entry->nud_active)
         entry->nud_active = false;
 
-    if (table_class->user_remove_notify_cb) {
+    if (table_class->user_remove_notify_cb)
         table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
-    }
 
     TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
 
-    uint8_t index = entry->index;
-    memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
-    entry->index = index;
-    ns_list_add_to_end(&table_class->free_list, entry);
+    entry_index = entry->index;
+    memset(entry, 0, sizeof(mac_neighbor_table_entry_t) - sizeof(entry->link));
+    entry->index = entry_index;
 }
 
 void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
@@ -101,6 +108,8 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
         return;
     }
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
+        if (!cur->in_use)
+            continue;
         neighbor_table_class_remove_entry(table_class, cur);
     }
 }
@@ -119,6 +128,8 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
     }
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
+        if (!cur->in_use)
+            continue;
 
         if (cur->lifetime > time_update) {
             if (cur->lifetime == 0xffffffff && cur->link_lifetime == 0xffffffff) {
@@ -148,26 +159,24 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
 
 mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role)
 {
-    if (!table_class) {
+    mac_neighbor_table_entry_t *entry;
+
+    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
+        if (!cur->in_use) {
+            entry = cur;
+            break;
+        }
+
+    if (!entry)
         return NULL;
-    }
-    mac_neighbor_table_entry_t *entry = ns_list_get_first(&table_class->free_list);
-    if (!entry) {
-        return NULL;
-    }
-    //Remove from the list
-    ns_list_remove(&table_class->free_list, entry);
-    //Add to list
-    ns_list_add_to_end(&table_class->neighbour_list, entry);
+
     table_class->neighbour_list_size++;
+    entry->in_use = true;
     memcpy(entry->mac64, mac64, 8);
-    entry->nud_active = false;
-    entry->connected_device = false;
-    entry->trusted_device = false;
     entry->node_role = role;
     entry->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     entry->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
-    entry->ms_mode = 0;
+
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
     return entry;
 }
@@ -219,9 +228,12 @@ void mac_neighbor_table_set_short_time(mac_neighbor_table_t *table, const uint8_
 
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address)
 {
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
+    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
+        if (!cur->in_use)
+            continue;
         if (memcmp(cur->mac64, address, 8) == 0)
             return cur;
+    }
 
     return NULL;
 }
@@ -248,8 +260,11 @@ int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)
 {
     int cnt = 0;
 
-    ns_list_foreach(struct mac_neighbor_table_entry, entry, &table->neighbour_list)
+    ns_list_foreach(struct mac_neighbor_table_entry, entry, &table->neighbour_list) {
+        if (!entry->in_use)
+            continue;
         if (entry->node_role == WS_NR_ROLE_LFN)
             cnt++;
+    }
     return cnt;
 }
