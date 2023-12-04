@@ -46,6 +46,7 @@
 void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, bool unicast, uint_fast8_t seq)
 {
     struct net_if *cur_interface = container_of(cache, struct net_if, ipv6_neighbour_cache);
+    buffer_t *buf;
 
     if (cur_interface->if_ns_transmit) {
         /* Thread uses DHCP Leasequery (!) instead of NS for address resolution */
@@ -58,37 +59,8 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
     tr_debug("Sending %s NS for: %s",
              (unicast ? "unicast" : "multicast"), tr_ipv6(entry->ip_address));
 
-    buffer_t *prompting_packet = ns_list_get_first(&entry->queue);
-    buffer_t *buf = icmpv6_build_ns(cur_interface, entry->ip_address,
-                                    prompting_packet ? prompting_packet->src_sa.address : NULL,
-                                    unicast, false, NULL);
+    buf = icmpv6_build_ns(cur_interface, entry->ip_address, NULL, unicast, false, NULL);
     protocol_push(buf);
-}
-
-/* Entry has already been removed from cache, and is about to be freed. Hence entry->queue can't change while we process it */
-void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
-{
-    struct net_if *cur_interface = container_of(cache, struct net_if, ipv6_neighbour_cache);
-
-    tr_warn("LL addr of %s not found", tr_ipv6(entry->ip_address));
-    ns_list_foreach_safe(buffer_t, buf, &entry->queue) {
-        ns_list_remove(&entry->queue, buf);
-        uint8_t code;
-        if (buf->options.ip_extflags & IPEXT_SRH_RPL) {
-            /* Note that as the border router we loopback SRH errors to ourselves if the first hop doesn't resolve */
-            code = ICMPV6_CODE_DST_UNREACH_SRH;
-        } else {
-            code = ICMPV6_CODE_DST_UNREACH_ADDR_UNREACH;
-        }
-        /* XXX note no special handling for our own socket transmissions,
-         * unlike original case. If we want this, we should do it in ICMP
-         * RX handling, so we get events for external errors.
-         */
-        if (buf) {
-            buf = icmpv6_error(buf, cur_interface, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, code, 0);
-            protocol_push(buf);
-        }
-    }
 }
 
 /* Silly bit of interface glue - ipv6_routing_table.c doesn't know about interface structures,
@@ -100,15 +72,6 @@ ipv6_neighbour_cache_t *ipv6_neighbour_cache_by_interface_id(int8_t interface_id
     struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     return interface ? &interface->ipv6_neighbour_cache : NULL;
-}
-
-void ipv6_send_queued(ipv6_neighbour_t *entry)
-{
-    ns_list_foreach_safe(buffer_t, buf, &entry->queue) {
-        ns_list_remove(&entry->queue, buf);
-        tr_debug("Destination solved");
-        protocol_push(buf);
-    }
 }
 
 /* Given a buffer with IP next-hop address and outgoing interface, find the

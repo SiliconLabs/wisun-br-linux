@@ -100,7 +100,6 @@ typedef struct ipv6_neighbour {
     uint32_t                        timer;                      /* 100ms ticks */
     uint32_t                        lifetime;                   /* seconds */
     ns_list_link_t                  link;                       /*!< List link */
-    NS_LIST_HEAD_INCOMPLETE(struct buffer) queue;
     uint8_t                         ll_address[];
 } ipv6_neighbour_t;
 

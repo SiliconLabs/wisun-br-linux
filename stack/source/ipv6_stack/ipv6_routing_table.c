@@ -180,12 +180,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     ns_list_remove(&cache->list, entry);
     switch (entry->state) {
         case IP_NEIGHBOUR_NEW:
-            break;
         case IP_NEIGHBOUR_INCOMPLETE:
-            /* If the NCE is discarded, the queued packet must also be discarded */
-            /* Handle this here to avoid leakage in the event that the NCE is */
-            /* dropped by garbage collection rather than the expected timeout */
-            ipv6_interface_resolution_failed(cache, entry);
             break;
         case IP_NEIGHBOUR_STALE:
         case IP_NEIGHBOUR_REACHABLE:
@@ -251,7 +246,6 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     entry->from_redirect = false;
     entry->state = IP_NEIGHBOUR_NEW;
     entry->type = IP_NEIGHBOUR_GARBAGE_COLLECTIBLE;
-    ns_list_init(&entry->queue);
     entry->timer = 0;
     entry->lifetime = 0;
     entry->retrans_count = 0;
@@ -408,11 +402,8 @@ void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6
 
     switch (entry->state) {
         case IP_NEIGHBOUR_NEW:
-            ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-            break;
         case IP_NEIGHBOUR_INCOMPLETE:
             ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-            ipv6_send_queued(entry);
             break;
         default:
             if (modified_ll) {
@@ -449,7 +440,6 @@ void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour
         } else {
             ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
         }
-        ipv6_send_queued(entry);
         return;
     }
 
