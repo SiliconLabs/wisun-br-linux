@@ -93,18 +93,6 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *
     return ws_bootstrap_mac_neighbor_allocate(interface, src64, role);
 }
 
-void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64)
-{
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
-
-    if (neighbor) {
-        if (neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor->node_role))
-            neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        neighbor->lifetime = neighbor->link_lifetime;
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor stable %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
-    }
-}
-
 void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time)
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);

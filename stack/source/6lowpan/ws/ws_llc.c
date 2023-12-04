@@ -740,7 +740,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (neighbor.neighbor) {
         if (data->Key.SecurityLevel)
             mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
-        ws_bootstrap_neighbor_set_stable(base->interface_ptr, data->SrcAddr);
+        mac_neighbor_table_set_stable(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr);
     }
     if (neighbor.ws_neighbor && has_pom)
         neighbor.ws_neighbor->pom_ie = ie_pom;

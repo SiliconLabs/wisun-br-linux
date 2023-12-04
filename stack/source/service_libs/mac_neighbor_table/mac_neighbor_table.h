@@ -162,4 +162,6 @@ void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_ne
 
 void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t link_lifetime);
 
+void mac_neighbor_table_set_stable(mac_neighbor_table_t *table, const uint8_t *eui64);
+
 #endif
