@@ -123,11 +123,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;
     }
 
-    if (!next_hop && dest_entry->redirected) {
-        next_hop = dest_entry->redirect_addr;
-        next_if = protocol_stack_interface_info_get_by_id(dest_entry->interface_id);
-    }
-
     if (next_hop && next_if) {
         if (interface_specific && next_if != buf->interface) {
             tr_error("Next hop interface mismatch %s%%%d vs %s%%%d", tr_ipv6(buf->dst_sa.address), buf->interface->id,

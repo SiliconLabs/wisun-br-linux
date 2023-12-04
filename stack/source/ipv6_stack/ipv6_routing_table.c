@@ -598,9 +598,6 @@ void ipv6_destination_cache_print()
     tr_debug("Destination Cache:");
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
         tr_debug(" %s (%d id) (life %u)", tr_ipv6(entry->destination), entry->interface_id, entry->lifetime);
-        if (entry->redirected) {
-            tr_debug("     Redirect %s%%%u", tr_ipv6(entry->redirect_addr), entry->interface_id);
-        }
     }
 }
 
@@ -655,7 +652,6 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         }
         memcpy(entry->destination, address, 16);
         entry->refcount = 1;
-        entry->redirected = false;
         entry->last_neighbour = NULL;
         if (interface_specific) {
             entry->interface_id = interface_id;
@@ -689,9 +685,6 @@ static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *ncache,
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
         if (entry->last_neighbour && entry->interface_id == ncache->interface_id && entry->last_neighbour == neighbour) {
             entry->last_neighbour = NULL;
-        }
-        if (entry->redirected && entry->interface_id == ncache->interface_id && addr_ipv6_equal(entry->redirect_addr, neighbour_addr)) {
-            entry->redirected = false;
         }
     }
 }

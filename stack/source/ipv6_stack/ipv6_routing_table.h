@@ -165,8 +165,6 @@ typedef struct ipv6_route_info {
 typedef struct ipv6_destination {
     /* Destination/path information */
     uint8_t                         destination[16];
-    uint8_t                         redirect_addr[16];
-    bool                            redirected;         // we have a redirect in force
     int8_t                          interface_id;       // fixed if link-local destination, else variable and gets set from redirect interface and/or last_neighbour interface
     uint16_t                        refcount;
     uint16_t                        lifetime;           // Life in GC calls, so 20s units
