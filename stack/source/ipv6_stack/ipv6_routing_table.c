@@ -428,47 +428,18 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
 
 void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_e ll_type, const uint8_t *ll_address)
 {
-    if (entry->state == IP_NEIGHBOUR_NEW || entry->state == IP_NEIGHBOUR_INCOMPLETE) {
-        entry->is_router = flags & NA_R;
-        if (ll_type == ADDR_NONE) {
-            return;
-        }
-
-        ipv6_neighbour_update_ll(entry, ll_type, ll_address);
-        if (flags & NA_S) {
-            ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_REACHABLE);
-        } else {
-            ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-        }
+    entry->is_router = flags & NA_R;
+    if (ll_type == ADDR_NONE) {
         return;
     }
 
-    /* Already have a complete entry with known LL address */
-    bool ll_addr_differs = ll_type != ADDR_NONE && !ipv6_neighbour_ll_addr_match(entry, ll_type, ll_address);
-
-    if (ll_addr_differs) {
-        if (flags & NA_O) {
-            entry->ll_type = ll_type;
-            memcpy(entry->ll_address, ll_address, addr_len_from_type(ll_type));
-        } else {
-            if (entry->state == IP_NEIGHBOUR_REACHABLE) {
-                ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
-            }
-            return;
-        }
-    }
-
+    ipv6_neighbour_update_ll(entry, ll_type, ll_address);
     if (flags & NA_S) {
         ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_REACHABLE);
-    } else if (ll_addr_differs) {
+    } else {
         ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_STALE);
     }
-
-    if (entry->is_router && !(flags & NA_R)) {
-        ipv6_router_gone(cache, entry);
-    }
-
-    entry->is_router = flags & NA_R;
+    return;
 }
 
 static const char *state_names[] = {
