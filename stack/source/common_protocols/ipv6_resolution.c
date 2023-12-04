@@ -111,33 +111,6 @@ void ipv6_send_queued(ipv6_neighbour_t *entry)
     }
 }
 
-static void ipv6_trigger_resolve_query(struct net_if *cur_interface, buffer_t *buf, ipv6_neighbour_t *n)
-{
-    if (n->state != IP_NEIGHBOUR_NEW && n->state != IP_NEIGHBOUR_INCOMPLETE) {
-        tr_debug("ipv6_resolve_query");
-        buffer_free(buf);
-        return;
-    }
-
-    uint_fast16_t count = ns_list_count(&n->queue);
-    while (count >= RESOLUTION_QUEUE_LIMIT) {
-        buffer_t *b = ns_list_get_first(&n->queue);
-        ns_list_remove(&n->queue, b);
-        buffer_free(b);
-        count--;
-    }
-    tr_debug("Queueing for: %s", tr_ipv6(n->ip_address));
-    ns_list_add_to_end(&n->queue, buf);
-
-    if (n->state == IP_NEIGHBOUR_NEW) {
-        /* Start NS timers, send first NS */
-        ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, n, IP_NEIGHBOUR_INCOMPLETE);
-        ipv6_interface_resolve_send_ns(&cur_interface->ipv6_neighbour_cache, n, false, 0);
-    }
-
-}
-
-
 /* Given a buffer with IP next-hop address and outgoing interface, find the
  * neighbour entry, and if complete, write the link-layer address into the buffer
  * destination, and return the Neighbour Cache entry.
@@ -177,11 +150,6 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
 
     if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE)
         ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, n, NA_O, ll_type, ll_addr);
-
-    if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE) {
-        ipv6_trigger_resolve_query(cur, buf, n);
-        return NULL;
-    }
 
     buf->dst_sa.addr_type = n->ll_type;
     memcpy(buf->dst_sa.address, n->ll_address, addr_len_from_type(n->ll_type));
