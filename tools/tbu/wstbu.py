@@ -161,6 +161,34 @@ def json_errcheck(path):
     return decorator
 
 
+# HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
+def wsbrd_set_join_metrics(jm_list, jm_version):
+    if jm_list:
+        jm_content = bytearray()
+        jm_version = (jm_version + 1) % 256
+        jm_content.append(jm_version)
+        for jm_id in jm_list:
+            jm_len, jm_data = jm_list[jm_id]
+            jm_content.append(
+                utils.field_prep(WS_MASK_JM_ID,  jm_id) |
+                utils.field_prep(WS_MASK_JM_LEN, jm_len)
+            )
+            jm_content.extend(jm_data)
+        wsbrd.dbus().ie_custom_insert(
+            WSTBU_IE_FORMAT_WP_SHORT,
+            WS_WPIE_JM,
+            bytes(jm_content),
+            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA])
+        )
+    else:
+        wsbrd.dbus().ie_custom_insert(
+            WSTBU_IE_FORMAT_WP_SHORT,
+            WS_WPIE_JM,
+            bytes(),
+            bytes()
+        )
+
+
 @dbus_errcheck
 def put_run_mode(mode: int):
     global jm_version, jm_list
@@ -190,6 +218,8 @@ def put_run_mode(mode: int):
             return error(500, WSTBU_ERR_UNKNOWN, j.get_previous()['MESSAGE'])
         elif state != 'active':
             return error(500, WSTBU_ERR_UNKNOWN, f'wisun-borderrouter.service {state}')
+        # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
+        wsbrd_set_join_metrics(jm_list, jm_version)
     else:
         return error(400, WSTBU_ERR_RUN_MODE, 'invalid run mode')
     return success()
@@ -549,30 +579,9 @@ def config_border_router_join_metrics():
         elif flask.request.method == 'DELETE':
             del jm_list_cpy[json_jm['metricId']]
     jm_list = jm_list_cpy
-    if jm_list:
-        jm_content = bytearray()
-        jm_version = (jm_version + 1) % 256
-        jm_content.append(jm_version)
-        for jm_id in jm_list:
-            jm_len, jm_data = jm_list[jm_id]
-            jm_content.append(
-                utils.field_prep(WS_MASK_JM_ID,  jm_id) |
-                utils.field_prep(WS_MASK_JM_LEN, jm_len)
-            )
-            jm_content.extend(jm_data)
-        wsbrd.dbus().ie_custom_insert(
-            WSTBU_IE_FORMAT_WP_SHORT,
-            WS_WPIE_JM,
-            bytes(jm_content),
-            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA])
-        )
-    else:
-        wsbrd.dbus().ie_custom_insert(
-            WSTBU_IE_FORMAT_WP_SHORT,
-            WS_WPIE_JM,
-            bytes(),
-            bytes()
-        )
+    # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
+    if wsbrd.service.active_state == 'active':
+        wsbrd_set_join_metrics(jm_list, jm_version)
     return success()
 
 
