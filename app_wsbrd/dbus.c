@@ -28,7 +28,7 @@
 #include "stack/source/6lowpan/ws/ws_pae_lib.h"
 #include "stack/source/6lowpan/ws/ws_pae_auth.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
-#include "stack/source/6lowpan/ws/ws_bootstrap.h"
+#include "stack/source/6lowpan/ws/ws_neighbor_class.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/protocols/sec_prot_keys.h"
@@ -537,7 +537,7 @@ static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt 
         neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
         return &neighbor_ws_tmp->neigh_info_list;
     }
-    return ws_bootstrap_neighbor_get(net_if, eui64);
+    return ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)

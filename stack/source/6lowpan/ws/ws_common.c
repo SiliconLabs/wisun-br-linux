@@ -171,8 +171,8 @@ void ws_common_fast_timer(int ticks)
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
+    struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, eui64);
     ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
-    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(interface, eui64);
     uint32_t link_lifetime = (aro_timeout * 60) + 1;
     uint8_t child_count = 0;
 
@@ -211,7 +211,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
-    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(interface, eui64);
+    struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, eui64);
 
     if (!ws_neigh)
         return false;
