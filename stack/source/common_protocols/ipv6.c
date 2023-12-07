@@ -1000,9 +1000,20 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
 {
     buffer_t *clone;
 
-    if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address) ||
-        !ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address)
-        || buf->options.lfn_multicast)
+    if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address) || buf->options.lfn_multicast)
+        return;
+
+    // In Wi-SUN FAN 1.1v07 - 6.2.3.1.2.2 Multicast Addresses,
+    // All FAN nodes MUST recognize the link-local-scope all-nodes group
+    // (ff02::1) [RFC4291] as identifying itself.
+    // [...]
+    // With the exception of the link-local-scope all-nodes group (ff02::1),
+    // to participate in any other multicast group an LFN MUST use the LFN
+    // Multicast Group Enrollment mechanism described in section 6.2.3.1.4.3.
+    if (!ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address) &&
+        memcmp(buf->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16))
+        return;
+    if (!mac_neighbor_lfn_count(buf->interface->mac_parameters.mac_neighbor_table))
         return;
 
     clone = buffer_clone(buf);
