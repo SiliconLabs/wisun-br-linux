@@ -187,10 +187,10 @@ static ws_nud_table_entry_t *ws_nud_entry_get_free(struct net_if *cur)
     return entry;
 }
 
-static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *neighbor)
+static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64)
 {
     ns_list_foreach(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
-        if (entry->neighbor_info == neighbor) {
+        if (!memcmp(entry->mac64, mac64, 8)) {
             return entry;
         }
     }
@@ -199,18 +199,20 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *nei
 
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
-    mac_neighbor_table_entry_t *neighbor = entry->neighbor_info;
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table,
+                                                                           entry->mac64);
 
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
     free(entry);
 
-    if (neighbor->nud_active)
+    if (neighbor && neighbor->nud_active)
         neighbor->nud_active = false;
 }
 
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr)
 {
-    ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, entry_ptr);
+    ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, entry_ptr->mac64);
+
     if (nud_entry) {
         ws_nud_state_clean(cur, nud_entry);
     }
@@ -261,6 +263,8 @@ static bool ws_nud_message_build(struct net_if *cur, mac_neighbor_table_entry_t 
 
 void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 {
+    mac_neighbor_table_entry_t *mac_neighbor;
+
     //Convert TICKS to real milliseconds
     if (ticks > 0xffff / 100) {
         ticks = 0xffff;
@@ -271,6 +275,13 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
     }
 
     ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
+        mac_neighbor = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, entry->mac64);
+
+        if (!mac_neighbor) {
+            ws_nud_state_clean(cur, entry);
+            continue;
+        }
+
         if (entry->timer <= ticks) {
             //TX Process or timeout
             if (entry->wait_response) {
@@ -284,7 +295,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, entry->neighbor_info);
+                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, mac_neighbor);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -292,7 +303,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 
             } else {
                 //Random TX wait period is over
-                entry->wait_response = ws_nud_message_build(cur, entry->neighbor_info, entry->nud_process);
+                entry->wait_response = ws_nud_message_build(cur, mac_neighbor, entry->nud_process);
                 if (!entry->wait_response) {
                     if (entry->nud_process && entry->retry_count < 2) {
                         entry->timer = rand_get_random_in_range(1, 900);
@@ -776,7 +787,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         return false;
     }
 
-    entry->neighbor_info = entry_ptr;
+    memcpy(entry->mac64, entry_ptr->mac64, 8);
     entry->nud_process = nud_proces;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor unreachable %s / %ds", tr_eui64(entry_ptr->mac64), entry_ptr->lifetime);
 

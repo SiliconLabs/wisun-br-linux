@@ -33,7 +33,7 @@
 struct ws_cfg;
 
 typedef struct ws_nud_table_entry {
-    void                            *neighbor_info;
+    uint8_t                         mac64[8];
     uint16_t                        timer;                    /*!< Timer which resolution is 100ms*/
     unsigned                        retry_count: 2;
     bool                            wait_response: 1;           /*!< True when NS is sended and wait NA, False when random timer is active*/
