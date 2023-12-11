@@ -724,7 +724,8 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_security(true);
     cur->mac_parameters.pan_id = cur->ws_info.network_pan_id;
-    rcp_legacy_start(cur->mac_parameters.pan_id, true);
+    rcp_req_radio_enable(cur->rcp, cur->mac_parameters.pan_id);
+    return;
 }
 
 void ws_bootstrap_ip_stack_reset(struct net_if *cur)

@@ -64,6 +64,8 @@ void rcp_rx(struct rcp *rcp);
 void rcp_req_reset(struct rcp *rcp, bool bootload);
 void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version);
 
+// TODO: split into rcp_req_radio_enable() and rcp_set_filter_pan_id()
+void rcp_req_radio_enable(struct rcp *rcp, uint16_t pan_id);
 void rcp_req_radio_list(struct rcp *rcp);
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
