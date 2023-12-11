@@ -136,14 +136,14 @@ void rcp_legacy_reset_stack()
     iobuf_free(&buf);
 }
 
-void rcp_legacy_start(uint16_t channel, uint16_t panid, bool coordinator)
+void rcp_legacy_start(uint16_t panid, bool coordinator)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
     hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_START);
     hif_push_u16(&buf,  panid);
-    hif_push_u8(&buf,   channel);
+    hif_push_u8(&buf,   0); // previously LogicalChannel
     hif_push_u8(&buf,   0);
     hif_push_u32(&buf,  0);
     hif_push_u8(&buf,   0x0F);

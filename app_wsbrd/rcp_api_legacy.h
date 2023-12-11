@@ -216,7 +216,7 @@ struct mcps_data_rx_ie_list {
 void rcp_legacy_noop(void);
 void rcp_legacy_reset(void);
 void rcp_legacy_reset_stack(void);
-void rcp_legacy_start(uint16_t channel, uint16_t panid, bool coordinator);
+void rcp_legacy_start(uint16_t panid, bool coordinator);
 void rcp_legacy_allocate_fhss(const struct fhss_ws_configuration *timing_info);
 void rcp_legacy_register_fhss(void);
 void rcp_legacy_get_hw_addr(void);
