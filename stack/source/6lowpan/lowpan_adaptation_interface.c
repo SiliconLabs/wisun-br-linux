@@ -648,7 +648,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2);
 
         //Validate neighbour
-        if (!neigh_entry_ptr || (!neigh_entry_ptr->connected_device && !neigh_entry_ptr->trusted_device))
+        if (!neigh_entry_ptr || !neigh_entry_ptr->trusted_device)
             goto tx_error_handler;
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
