@@ -21,7 +21,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
-#include "nwk_interface/protocol.h"
 
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240
 

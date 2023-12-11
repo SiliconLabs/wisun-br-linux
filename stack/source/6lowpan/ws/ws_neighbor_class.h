@@ -20,6 +20,7 @@
 #define WS_NEIGHBOR_CLASS_H_
 #include <time.h>
 
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct net_if;
@@ -64,6 +65,7 @@ struct fhss_ws_neighbor_timing_info {
 
 typedef struct ws_neighbor_class_entry {
     struct fhss_ws_neighbor_timing_info fhss_data;
+    struct mac_neighbor_table_entry mac_data;
     uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
