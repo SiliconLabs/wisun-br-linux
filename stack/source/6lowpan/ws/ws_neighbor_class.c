@@ -46,18 +46,21 @@
 
 bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
 {
+    ws_neighbor_class_entry_t *list_ptr;
 
     class_data->neigh_info_list = malloc(sizeof(ws_neighbor_class_entry_t) * list_size);
-    if (!class_data->neigh_info_list) {
+
+    if (!class_data->neigh_info_list)
         return false;
-    }
 
     class_data->list_size = list_size;
-    ws_neighbor_class_entry_t *list_ptr = class_data->neigh_info_list;
+    list_ptr = class_data->neigh_info_list;
+
     for (uint8_t i = 0; i < list_size; i++) {
         memset(list_ptr, 0, sizeof(ws_neighbor_class_entry_t));
         list_ptr->rsl_in = RSL_UNITITIALIZED;
         list_ptr->rsl_out = RSL_UNITITIALIZED;
+        list_ptr->mac_data.index = i;
         list_ptr++;
     }
     return true;
@@ -100,10 +103,12 @@ uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_ne
 void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t attribute_index)
 {
     ws_neighbor_class_entry_t *entry = ws_neighbor_class_entry_get(class_data, attribute_index);
+
     if (entry) {
         memset(entry, 0, sizeof(ws_neighbor_class_entry_t));
         entry->rsl_in = RSL_UNITITIALIZED;
         entry->rsl_out = RSL_UNITITIALIZED;
+        entry->mac_data.index = attribute_index;
     }
 }
 
