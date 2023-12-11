@@ -715,12 +715,6 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     return 0;
 }
 
-static void ws_bootstrap_mac_activate(struct net_if *cur, uint16_t channel, uint16_t panid, bool coordinator)
-{
-    cur->mac_parameters.pan_id = panid;
-    rcp_legacy_start(channel, panid, coordinator);
-}
-
 void ws_bootstrap_fhss_activate(struct net_if *cur)
 {
     ws_bootstrap_fhss_enable(cur);
@@ -729,8 +723,9 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_security(true);
-    ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
-    return;
+    cur->mac_parameters.pan_id = cur->ws_info.network_pan_id;
+    rcp_legacy_start(cur->ws_info.cfg->fhss.fhss_uc_fixed_channel,
+                     cur->mac_parameters.pan_id, true);
 }
 
 void ws_bootstrap_ip_stack_reset(struct net_if *cur)
