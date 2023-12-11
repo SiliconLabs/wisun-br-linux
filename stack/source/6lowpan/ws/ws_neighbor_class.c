@@ -30,6 +30,7 @@
 #include "common/time_extra.h"
 #include "common/version.h"
 
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "nwk_interface/protocol.h"
@@ -74,12 +75,27 @@ void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data)
     class_data->list_size = 0;
 }
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, uint8_t attribute_index, uint8_t role)
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, const uint8_t *mac64, uint8_t role)
 {
-    ws_neighbor_class_entry_t *entry = class_data->neigh_info_list + attribute_index;
+    ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
+    ws_neighbor_class_entry_t *neigh_entry = NULL;
 
-    entry->node_role = role;
-    return entry;
+    for (uint8_t i = 0; i < class_data->list_size; i++) {
+        if (!neigh_table[i].mac_data.in_use) {
+            neigh_entry = &neigh_table[i];
+            break;
+        }
+    }
+
+    if (!neigh_entry)
+        return NULL;
+
+    neigh_entry->node_role = role;
+    if (role == WS_NR_ROLE_LFN)
+        mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
+    else
+        mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
+    return neigh_entry;
 }
 
 ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index)
@@ -88,8 +104,7 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *clas
         return NULL;
     }
 
-    ws_neighbor_class_entry_t *entry = class_data->neigh_info_list + attribute_index;
-    return entry;
+    return class_data->neigh_info_list + attribute_index;
 }
 
 uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry)

@@ -164,6 +164,14 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
     }
 }
 
+void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint8_t *mac64, uint32_t lifetime)
+{
+    entry->in_use = true;
+    memcpy(entry->mac64, mac64, 8);
+    entry->lifetime = lifetime;
+    entry->link_lifetime = lifetime;
+}
+
 mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role)
 {
     mac_neighbor_table_entry_t *entry;

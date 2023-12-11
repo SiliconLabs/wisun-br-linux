@@ -683,7 +683,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     if (!neighbor->neighbor)
         return false;
 
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index, role);
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
     if (!neighbor->ws_neighbor) {
         neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
