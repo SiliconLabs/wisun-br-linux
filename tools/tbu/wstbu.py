@@ -634,29 +634,43 @@ def put_config_router():
     return error(400, WSTBU_ERR_NOT_ROUTER, 'unsupported endpoint')
 
 
+sub_eventfd = os.eventfd(0)
+sub_running = False
 sub_thread = None
 sub_fifo = None
 
 
 def subscription_frame_forward(family, sockaddr):
     ''' Read from the pcap capture FIFO and send into a UDP stream.'''
+    global sub_running
+    global sub_eventfd
     global sub_fifo
 
+    sub_running = True
     sub_fifo = os.open(config.fifo_path, os.O_RDONLY)
     poll = select.poll()
-    poll.register(sub_fifo, select.POLLIN)
+    poll.register(sub_fifo,    select.POLLIN)
+    poll.register(sub_eventfd, select.POLLIN)
     with socket.socket(family, socket.SOCK_DGRAM) as sck:
-        while True:
-            revents = poll.poll()[0][1]
-            if revents & select.POLLIN:
-                data = os.read(sub_fifo, 2000)
-                sck.sendto(data, sockaddr)
-            elif revents & select.POLLHUP:
-                return
+        while sub_running:
+            for fd, revents in poll.poll():
+                if fd == sub_eventfd and revents & select.POLLIN:
+                    os.eventfd_read(sub_eventfd)
+                if fd == sub_fifo:
+                    if revents & select.POLLIN:
+                        data = os.read(sub_fifo, 2000)
+                        sck.sendto(data, sockaddr)
+                    elif revents & select.POLLHUP:
+                        utils.warn('subscription disconnected')
+                        sub_running = False
+    os.close(sub_fifo)
+    sub_fifo = None
 
 
 @json_errcheck('/subscription/frames')
 def put_subscription_frame():
+    global sub_running
+    global sub_eventfd
     global sub_thread
     global sub_fifo
 
@@ -670,10 +684,16 @@ def put_subscription_frame():
             return error(500, WSTBU_ERR_UNKNOWN, f'getaddrinfo(address={addr}, port={port}): {e}')
         family, _, _, _, sockaddr = addrinfo[0]
         if sub_fifo:
-            os.close(sub_fifo)
-            sub_fifo = None
+            sub_running = False
+            os.eventfd_write(sub_eventfd, 1)
             sub_thread.join()
             sub_thread = None
+        elif sub_thread:
+            if sub_thread.is_alive():
+                sub_running = True
+            else:
+                sub_thread.join()
+                sub_thread = None
         if not sub_thread:
             sub_thread = threading.Thread(
                 target=subscription_frame_forward,
@@ -683,8 +703,10 @@ def put_subscription_frame():
             sub_thread.start()
     elif json['subscriptionMode'] == 'Stop':
         if sub_thread:
-            os.close(sub_fifo)
-            sub_fifo = None
+            sub_running = False
+            os.eventfd_write(sub_eventfd, 1)
+        # The thread may not be able to join now if it is blocking on FIFO open()
+        if sub_fifo:
             sub_thread.join()
             sub_thread = None
     else:
