@@ -98,7 +98,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
-    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
+    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->mac64);
     if (!ws_neighbor_class_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
 }
@@ -482,7 +482,7 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
         return 0xffff;
     }
     attribute_index = mac_neighbor->index;
-    ws_neighbor_class_entry_t *ws_neighbour = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, attribute_index);
+    ws_neighbor_class_entry_t *ws_neighbour = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, mac_adddress);
     etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, attribute_index);
 
     if (!ws_neighbour || !etx_entry) {
@@ -613,7 +613,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
         if (!cur->in_use)
             continue;
 
-        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
+        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->mac64);
 
         if (cur->nud_active) {
             //If NUD process is active do not trig
@@ -647,7 +647,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
                 //Accept first compare
                 neighbor_entry_ptr = cur;
             } else {
-                uint32_t compare_neigh_time = current_time_stamp - ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->index)->host_rx_timestamp;
+                uint32_t compare_neigh_time = current_time_stamp - ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->mac64)->host_rx_timestamp;
                 if (compare_neigh_time < time_from_last_unicast_schedule)  {
                     //Accept older RX timeout always
                     neighbor_entry_ptr = cur;
@@ -668,7 +668,7 @@ bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], st
     neighbor->neighbor = mac_neighbor_table_get_by_mac64(net_if->mac_parameters.mac_neighbor_table, eui64);
     if (!neighbor->neighbor)
         return false;
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!neighbor->ws_neighbor)
         return false;
     return true;
@@ -698,7 +698,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 void ws_bootstrap_neighbor_del(struct net_if *net_if, struct llc_neighbour_req *neighbor)
 {
     if (neighbor->neighbor)
-        ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
+        ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, neighbor->neighbor->mac64);
     neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
 }
 
@@ -733,7 +733,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     bool child;
     struct net_if *cur = user_data;
 
-    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, entry_ptr->index);
+    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, entry_ptr->mac64);
     etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
 
     if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || entry_ptr->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {

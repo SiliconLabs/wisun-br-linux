@@ -133,7 +133,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
         if (!cur->in_use)
             continue;
 
-        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
+        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->mac64);
 
         if (!ws_neighbor)
             continue;

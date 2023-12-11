@@ -109,17 +109,7 @@ bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
  */
 void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data);
 
-/**
- * ws_neighbor_class_entry_t a function for search hopping info for giving neighbor attribut
- *
- * \param class_data pointer to structure which will be initialized by this function
- * \param attribute_index define pointer to storage info
- *
- * \return NULL when Attribute is not correct
- * \return Pointer to neighbor hopping info
- *
- */
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index);
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64);
 
 /**
  * ws_neighbor_class_entry_t a function for search hopping info for giving neighbor attribute index
@@ -132,14 +122,7 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *clas
  */
 uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry);
 
-/**
- * ws_neighbor_class_entry_remove a function for clean information should be call when neighbor is removed
- *
- * \param class_data pointer to structure which will be initialized by this function
- * \param attribute_index define pointer to storage info
- *
- */
-void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t attribute_index);
+void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64);
 
 // Unicast Timing update
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,

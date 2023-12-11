@@ -98,13 +98,18 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *
     return neigh_entry;
 }
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index)
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64)
 {
-    if (!class_data->neigh_info_list || attribute_index >= class_data->list_size) {
-        return NULL;
+    ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
+
+    for (uint8_t i = 0; i < class_data->list_size; i++) {
+        if (!neigh_table[i].mac_data.in_use)
+            continue;
+        if (!memcmp(neigh_table[i].mac_data.mac64, mac64, 8))
+            return &neigh_table[i];
     }
 
-    return class_data->neigh_info_list + attribute_index;
+    return NULL;
 }
 
 uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry)
@@ -115,15 +120,17 @@ uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_ne
     return entry - class_data->neigh_info_list;
 }
 
-void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t attribute_index)
+void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64)
 {
-    ws_neighbor_class_entry_t *entry = ws_neighbor_class_entry_get(class_data, attribute_index);
+    ws_neighbor_class_entry_t *entry = ws_neighbor_class_entry_get(class_data, mac64);
+    uint8_t index;
 
     if (entry) {
+        index = entry->mac_data.index;
         memset(entry, 0, sizeof(ws_neighbor_class_entry_t));
         entry->rsl_in = RSL_UNITITIALIZED;
         entry->rsl_out = RSL_UNITITIALIZED;
-        entry->mac_data.index = attribute_index;
+        entry->mac_data.index = index;
     }
 }
 
