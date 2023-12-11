@@ -71,6 +71,12 @@ void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data)
     class_data->list_size = 0;
 }
 
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, uint8_t attribute_index)
+{
+    ws_neighbor_class_entry_t *entry = class_data->neigh_info_list + attribute_index;
+    return entry;
+}
+
 ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index)
 {
     if (!class_data->neigh_info_list || attribute_index >= class_data->list_size) {
