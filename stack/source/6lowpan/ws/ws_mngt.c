@@ -325,7 +325,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         add_neighbor = true;
     } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(net_if, &neighbor);
+        ws_bootstrap_neighbor_del(net_if, neighbor.neighbor->mac64);
         add_neighbor = true;
     }
     if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_LFN)) {

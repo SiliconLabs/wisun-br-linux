@@ -695,11 +695,10 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     return true;
 }
 
-void ws_bootstrap_neighbor_del(struct net_if *net_if, struct llc_neighbour_req *neighbor)
+void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
 {
-    if (neighbor->neighbor)
-        ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, neighbor->neighbor->mac64);
-    neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor->mac64);
+    ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, mac64);
+    neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, mac64);
 }
 
 static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
