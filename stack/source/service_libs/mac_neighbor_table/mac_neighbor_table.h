@@ -41,7 +41,6 @@ typedef struct mac_neighbor_table_entry {
     bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/
     bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
     bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
-    uint8_t         node_role;
     ns_list_link_t  link;
 } mac_neighbor_table_entry_t;
 
@@ -151,8 +150,6 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
 mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address);
-
-int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
 
 void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry);
 

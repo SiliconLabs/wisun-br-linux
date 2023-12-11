@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/utils.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_common_defines.h"
@@ -118,6 +119,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();
     mac_neighbor_table_t *table_class;
+    ws_neighbor_class_entry_t *ws_neighbor;
 
     if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -129,6 +131,11 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
         if (!cur->in_use)
+            continue;
+
+        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
+
+        if (!ws_neighbor)
             continue;
 
         if (cur->lifetime > time_update) {
@@ -143,7 +150,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
             // refresh a registered address periodically.
             // Therefore we disable NUD for LFNs here.
             if (!table_class->user_nud_notify_cb ||
-                cur->node_role == WS_NR_ROLE_LFN ||
+                ws_neighbor->node_role == WS_NR_ROLE_LFN ||
                 cur->nud_active)
                 continue;
 
@@ -173,7 +180,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     table_class->neighbour_list_size++;
     entry->in_use = true;
     memcpy(entry->mac64, mac64, 8);
-    entry->node_role = role;
     entry->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     entry->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
 
@@ -230,17 +236,4 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
     temporary_mac64[0] ^= 2;
 
     return mac_neighbor_table_get_by_mac64(table_class, temporary_mac64);
-}
-
-int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)
-{
-    int cnt = 0;
-
-    ns_list_foreach(struct mac_neighbor_table_entry, entry, &table->neighbour_list) {
-        if (!entry->in_use)
-            continue;
-        if (entry->node_role == WS_NR_ROLE_LFN)
-            cnt++;
-    }
-    return cnt;
 }

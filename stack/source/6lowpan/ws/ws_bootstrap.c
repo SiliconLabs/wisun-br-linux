@@ -99,7 +99,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
-    if (!mac_neighbor_lfn_count(interface->mac_parameters.mac_neighbor_table))
+    if (!ws_neighbor_class_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
 }
 
@@ -683,11 +683,12 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     if (!neighbor->neighbor)
         return false;
 
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index, role);
     if (!neighbor->ws_neighbor) {
         neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
     }
+
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);

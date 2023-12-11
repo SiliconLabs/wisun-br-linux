@@ -323,7 +323,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     add_neighbor = false;
     if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
         add_neighbor = true;
-    } else if (neighbor.neighbor && neighbor.neighbor->node_role != WS_NR_ROLE_LFN) {
+    } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
         ws_bootstrap_neighbor_del(net_if, &neighbor);
         add_neighbor = true;
@@ -360,7 +360,7 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
 
 void ws_mngt_lpc_pae_cb(struct net_if *net_if)
 {
-    if (mac_neighbor_lfn_count(net_if->mac_parameters.mac_neighbor_table))
+    if (ws_neighbor_class_lfn_count(&net_if->ws_info.neighbor_storage))
         ws_mngt_lpc_send(net_if, NULL);
 }
 

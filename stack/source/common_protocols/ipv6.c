@@ -1013,7 +1013,7 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
     if (!ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address) &&
         memcmp(buf->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16))
         return;
-    if (!mac_neighbor_lfn_count(buf->interface->mac_parameters.mac_neighbor_table))
+    if (!ws_neighbor_class_lfn_count(&buf->interface->ws_info.neighbor_storage))
         return;
 
     clone = buffer_clone(buf);

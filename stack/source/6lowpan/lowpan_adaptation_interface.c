@@ -47,6 +47,8 @@
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
+#include "6lowpan/ws/ws_bootstrap.h"
+#include "6lowpan/ws/ws_llc.h"
 
 #include "6lowpan/lowpan_adaptation_interface.h"
 
@@ -663,9 +665,9 @@ tx_error_handler:
 
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur)
 {
-    memset(dataReq, 0, sizeof(mcps_data_req_t));
-    mac_neighbor_table_entry_t *ngb;
+    llc_neighbour_req_t neighbor_llc;
 
+    memset(dataReq, 0, sizeof(mcps_data_req_t));
     //Check do we need fragmentation
 
     dataReq->TxAckReq = buf->link_specific.ieee802_15_4.requestAck;
@@ -680,8 +682,10 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     //Set Messages
     dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
-        ngb = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, dataReq->DstAddr);
-        if ((ngb && ngb->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
+        ws_bootstrap_neighbor_get(cur, dataReq->DstAddr, &neighbor_llc);
+
+        if ((neighbor_llc.ws_neighbor && neighbor_llc.ws_neighbor->node_role == WS_NR_ROLE_LFN) ||
+            buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
         else
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
@@ -885,24 +889,18 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
 {
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
-    mac_neighbor_table_entry_t *neigh_entry_ptr;
-    ws_neighbor_class_entry_t *ws_neighbor;
+    llc_neighbour_req_t neighbor_llc;
     int lfn_bc_interval_s = cur->ws_info.cfg->fhss.lfn_bc_interval / 1000;
     int lfn_uc_l_interval_s;
 
     if (buf->options.lfn_multicast) {
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     } else {
-        neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table,
-                                                          buf->dst_sa.address + 2);
-        if (neigh_entry_ptr && neigh_entry_ptr->node_role == WS_NR_ROLE_LFN) {
-            ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, neigh_entry_ptr->index);
-            if (ws_neighbor) {
-                lfn_uc_l_interval_s = ws_neighbor->fhss_data.lfn.uc_listen_interval_ms / 1000;
-                return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
-            }
-            else
-                return true; // ws_neighbor not found, should not happen
+        if (!ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN, &neighbor_llc))
+            return true;
+        if (neighbor_llc.ws_neighbor->node_role == WS_NR_ROLE_LFN) {
+            lfn_uc_l_interval_s = neighbor_llc.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms / 1000;
+            return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
         }
     }
 

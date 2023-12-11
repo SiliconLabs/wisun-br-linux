@@ -197,7 +197,7 @@ static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui6
     llc_neighbour_req_t neighbor;
 
     if (ws_bootstrap_neighbor_get(interface, eui64, &neighbor))
-        return neighbor.neighbor->node_role;
+        return neighbor.ws_neighbor->node_role;
     else
         return WS_NR_ROLE_UNKNOWN;
 }
@@ -437,7 +437,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_NO_DATA:
             if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
                 break;
-            if (neighbor_llc->neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->neighbor->node_role))
+            if (neighbor_llc->neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->ws_neighbor->node_role))
                 break;
             if (!base->high_priority_mode)
                 etx_transm_attempts_update(base->interface_ptr->id, confirm->tx_retries + 1, success,
@@ -473,7 +473,7 @@ static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t 
     if (!neighbor_llc->neighbor || !neighbor_llc->ws_neighbor)
         return false;
 
-    if (neighbor_llc->neighbor->node_role == WS_NR_ROLE_LFN)
+    if (neighbor_llc->ws_neighbor->node_role == WS_NR_ROLE_LFN)
         return tx_confirm_duration * 1000 >= neighbor_llc->ws_neighbor->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
     return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
@@ -628,7 +628,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     add_neighbor = false;
     if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
-    } else if (neighbor.neighbor && neighbor.neighbor->node_role != WS_NR_ROLE_ROUTER) {
+    } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_ROUTER) {
         WARN("node changed role");
         ws_bootstrap_neighbor_del(net_if, &neighbor);
         add_neighbor = true;
@@ -740,7 +740,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (neighbor.neighbor) {
         if (data->Key.SecurityLevel)
             mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
-        if (neighbor.neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.neighbor->node_role))
+        if (neighbor.neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.ws_neighbor->node_role))
             mac_neighbor_table_refresh_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr, WS_NEIGHBOR_LINK_TIMEOUT);
         else
             mac_neighbor_table_refresh_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, data->SrcAddr, neighbor.neighbor->link_lifetime);
@@ -1185,7 +1185,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     ws_bootstrap_neighbor_get(base->interface_ptr, message->dst_address, &neighbor_info);
 
-    node_role = neighbor_info.neighbor ? neighbor_info.neighbor->node_role : WS_NR_ROLE_UNKNOWN;
+    node_role = neighbor_info.ws_neighbor ? neighbor_info.ws_neighbor->node_role : WS_NR_ROLE_UNKNOWN;
 
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;

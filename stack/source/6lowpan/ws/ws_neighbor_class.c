@@ -71,9 +71,11 @@ void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data)
     class_data->list_size = 0;
 }
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, uint8_t attribute_index)
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, uint8_t attribute_index, uint8_t role)
 {
     ws_neighbor_class_entry_t *entry = class_data->neigh_info_list + attribute_index;
+
+    entry->node_role = role;
     return entry;
 }
 
@@ -538,4 +540,16 @@ bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t
     }
 
     return true;
+}
+
+int ws_neighbor_class_lfn_count(ws_neighbor_class_t *class_data)
+{
+    ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
+    int cnt = 0;
+
+    for (uint8_t i = 0; i < class_data->list_size; i++)
+        if (neigh_table[i].node_role == WS_NR_ROLE_LFN)
+            cnt++;
+
+    return cnt;
 }
