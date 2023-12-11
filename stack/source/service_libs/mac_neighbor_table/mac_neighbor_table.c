@@ -71,20 +71,12 @@ void mac_neighbor_table_delete(mac_neighbor_table_t *table_class)
     free(table_class);
 }
 
-static mac_neighbor_table_entry_t *neighbor_table_class_entry_validate(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry)
+void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, const uint8_t *mac64)
 {
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
-        if (cur == neighbor_entry)
-            return cur;
-
-    return NULL;
-}
-
-void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry)
-{
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_get_by_mac64(table_class, mac64);
     uint8_t entry_index;
 
-    if (!neighbor_table_class_entry_validate(table_class, entry)) {
+    if (!entry) {
         WARN("15.4 neighbor not found");
         return;
     }
@@ -111,7 +103,7 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
         if (!cur->in_use)
             continue;
-        neighbor_table_class_remove_entry(table_class, cur);
+        neighbor_table_class_remove_entry(table_class, cur->mac64);
     }
 }
 
@@ -159,7 +151,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
             }
 
         } else {
-            neighbor_table_class_remove_entry(table_class, cur);
+            neighbor_table_class_remove_entry(table_class, cur->mac64);
         }
     }
 }

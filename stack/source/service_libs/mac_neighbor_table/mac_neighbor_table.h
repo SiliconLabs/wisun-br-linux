@@ -149,7 +149,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address);
 
-void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *entry);
+void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, const uint8_t *mac64);
 
 void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_t *table, const uint8_t *eui64, uint32_t link_lifetime);
 
