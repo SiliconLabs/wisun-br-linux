@@ -227,21 +227,3 @@ mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t
 
     return NULL;
 }
-
-mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address)
-{
-    // Check it really is LL64 (not LL16)
-    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX, 8) != 0) {
-        return NULL;    //Mot Link Local Address
-    }
-
-    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-        return NULL;
-    }
-    // map
-    uint8_t temporary_mac64[8];
-    memcpy(temporary_mac64, (ipv6Address + 8), 8);
-    temporary_mac64[0] ^= 2;
-
-    return mac_neighbor_table_get_by_mac64(table_class, temporary_mac64);
-}
