@@ -16,9 +16,11 @@
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/nwk_interface/protocol_abstract.h"
 #include "common/bits.h"
+#include "common/endian.h"
 #include "common/hif.h"
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/spinel.h"
 #include "common/string_extra.h"
@@ -97,6 +99,100 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 {
     if (!version_older_than(rcp->version_api, 2, 0, 0))
         __rcp_set_host_api(rcp, host_api_version);
+}
+
+#define HIF_MASK_FHSS_TYPE    0x0007
+#define HIF_MASK_FHSS_DEFAULT 0x0010
+#define HIF_MASK_MODE_SWITCH  0x0020
+
+static void __rcp_req_data_tx(struct rcp *rcp,
+                              const uint8_t *frame, int frame_len,
+                              uint8_t handle, uint8_t fhss_type,
+                              const struct ws_neighbor_class_entry *neigh)
+{
+    struct iobuf_write buf = { };
+    int bitfield_offset;
+    uint16_t bitfield;
+
+    hif_push_u8(&buf, HIF_CMD_REQ_DATA_TX);
+    hif_push_u8(&buf, handle);
+    hif_push_data(&buf, frame, frame_len);
+
+    bitfield = 0;
+    bitfield_offset = buf.len;
+    hif_push_u16(&buf, 0);
+
+    bitfield |= FIELD_PREP(HIF_MASK_FHSS_TYPE, fhss_type);
+    switch (fhss_type) {
+    case HIF_FHSS_TYPE_FFN_UC:
+        BUG_ON(!neigh);
+        BUG_ON(!neigh->fhss_data.ffn.uc_dwell_interval_ms);
+        hif_push_u64(&buf, neigh->fhss_data.ffn.utt_rx_tstamp_us);
+        hif_push_u24(&buf, neigh->fhss_data.ffn.ufsi);
+        hif_push_u8(&buf, neigh->fhss_data.ffn.uc_dwell_interval_ms);
+        break;
+    case HIF_FHSS_TYPE_FFN_BC:
+        bitfield |= HIF_MASK_FHSS_DEFAULT;
+        break;
+    case HIF_FHSS_TYPE_LFN_UC:
+        BUG_ON(!neigh);
+        BUG_ON(!neigh->fhss_data.lfn.uc_listen_interval_ms);
+        hif_push_u64(&buf, neigh->fhss_data.lfn.lutt_rx_tstamp_us);
+        hif_push_u16(&buf, neigh->fhss_data.lfn.uc_slot_number);
+        hif_push_u24(&buf, neigh->fhss_data.lfn.uc_interval_offset_ms);
+        hif_push_u24(&buf, neigh->fhss_data.lfn.uc_listen_interval_ms);
+        break;
+    case HIF_FHSS_TYPE_LFN_BC:
+        bitfield |= HIF_MASK_FHSS_DEFAULT;
+        break;
+    case HIF_FHSS_TYPE_ASYNC:
+        bitfield |= HIF_MASK_FHSS_DEFAULT;
+        break;
+    case HIF_FHSS_TYPE_LFN_PA:
+        BUG_ON(!neigh);
+        BUG_ON(!neigh->fhss_data.lfn.lpa_slot_duration_ms);
+        hif_push_u64(&buf, neigh->fhss_data.lfn.lnd_rx_tstamp_us);
+        hif_push_u32(&buf, neigh->fhss_data.lfn.lpa_response_delay_ms);
+        hif_push_u8(&buf,  neigh->fhss_data.lfn.lpa_slot_duration_ms);
+        hif_push_u8(&buf,  neigh->fhss_data.lfn.lpa_slot_count);
+        hif_push_u16(&buf, neigh->fhss_data.lfn.lpa_slot_first);
+        break;
+    default:
+        BUG();
+    }
+    if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
+        hif_push_u8(&buf, neigh->fhss_data.uc_chan_func);
+        switch (neigh->fhss_data.uc_chan_func) {
+        case WS_FIXED_CHANNEL:
+            hif_push_u16(&buf, neigh->fhss_data.uc_chan_fixed);
+            break;
+        case WS_DH1CF: {
+            uint8_t chan_mask_len = roundup(neigh->fhss_data.uc_chan_count, 8) / 8;
+
+            hif_push_u8(&buf, chan_mask_len);
+            hif_push_fixed_u8_array(&buf, neigh->fhss_data.uc_channel_list.channel_mask, chan_mask_len);
+            break;
+        }
+        default:
+            BUG();
+        }
+    }
+    // TODO: mode switch
+    write_le16(buf.data + bitfield_offset, bitfield);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_req_data_tx(struct rcp *rcp,
+                     const uint8_t *frame, int frame_len,
+                     uint8_t handle, uint8_t fhss_type,
+                     const struct ws_neighbor_class_entry *neigh)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0))
+        rcp_legacy_tx_req(frame, frame_len, neigh, handle, fhss_type,
+                          false, MAC_DATA_MEDIUM_PRIORITY, 0);
+    else
+        __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh);
 }
 
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)

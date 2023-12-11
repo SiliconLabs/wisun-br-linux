@@ -66,6 +66,15 @@ enum hif_reg {
     HIF_REG_ETSI = 3,
 };
 
+enum hif_fhss_type {
+    HIF_FHSS_TYPE_FFN_UC = 0x00,
+    HIF_FHSS_TYPE_FFN_BC = 0x01,
+    HIF_FHSS_TYPE_LFN_UC = 0x02,
+    HIF_FHSS_TYPE_LFN_BC = 0x03,
+    HIF_FHSS_TYPE_ASYNC  = 0x04,
+    HIF_FHSS_TYPE_LFN_PA = 0x06,
+};
+
 const char *hif_cmd_str(uint8_t cmd);
 
 void hif_push_bool(struct iobuf_write *buf, bool val);

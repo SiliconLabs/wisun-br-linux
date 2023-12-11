@@ -18,13 +18,6 @@
 
 #include "app_wsbrd/rcp_api.h"
 
-#define HIF_FHSS_TYPE_FFN_UC 0x00
-#define HIF_FHSS_TYPE_FFN_BC 0x01
-#define HIF_FHSS_TYPE_LFN_UC 0x02
-#define HIF_FHSS_TYPE_LFN_BC 0x03
-#define HIF_FHSS_TYPE_ASYNC  0x04
-#define HIF_FHSS_TYPE_LFN_PA 0x06
-
 struct fhss_ws_neighbor_timing_info;
 struct fhss_ws_configuration;
 struct ws_neighbor_class_entry;

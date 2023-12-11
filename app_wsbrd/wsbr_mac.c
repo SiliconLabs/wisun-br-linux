@@ -103,9 +103,10 @@ void wsbr_data_req_ext(struct net_if *cur,
             neighbor_ws = &neighbor_ws_dummy;
         }
         wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
-        rcp_legacy_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
-                   data->fhss_type, data->ExtendedFrameExchange,
-                   data->priority, data->phy_id);
+        BUG_ON(data->ExtendedFrameExchange);
+        BUG_ON(data->phy_id);
+        rcp_req_data_tx(cur->rcp, frame.data, frame.len,
+                        data->msduHandle,  data->fhss_type, neighbor_ws);
         iobuf_free(&frame);
     }
 
