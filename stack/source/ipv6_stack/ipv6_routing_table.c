@@ -832,14 +832,14 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
            addr_ipv6_equal(a->info.next_hop_addr, b->info.next_hop_addr);
 }
 
-static void ipv6_route_probe(int8_t interface_id, ipv6_route_t *route)
+static void ipv6_route_probe(ipv6_route_t *route)
 {
     addrtype_e ll_type;
     const uint8_t *ll_addr;
-    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(route->info.interface_id);
     ipv6_neighbour_t *n;
 
-    if (!interface->ipv6_neighbour_cache.probe_avoided_routers || route->probe_timer)
+    if (!interface ||!interface->ipv6_neighbour_cache.probe_avoided_routers || route->probe_timer)
         return;
 
     n = ipv6_neighbour_lookup(&interface->ipv6_neighbour_cache, route->info.next_hop_addr);
@@ -1018,7 +1018,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
 
             /* Note that best must be set if need_to_probe is */
             if (!ipv6_route_same_router(r, best) && ipv6_route_is_better(r, best)) {
-                ipv6_route_probe(interface_id, r);
+                ipv6_route_probe(r);
             }
         }
     }
