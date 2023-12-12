@@ -413,6 +413,7 @@ static void ws_mngt_lts_send(struct net_if *net_if)
         .wp_ies.lfnver = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
         .security.KeyIndex      = net_if->mac_parameters.mac_default_lfn_key_index,
+        .security.KeyIdMode     = net_if->mac_parameters.mac_key_id_mode,
     };
 
     ws_llc_mngt_lfn_request(net_if, &req, NULL, MAC_DATA_NORMAL_PRIORITY);
