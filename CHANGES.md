@@ -14,9 +14,13 @@ v1.8
   - Refresh neighbor IPv6 address registrations on MAC acknowledgements.
   - Support LFN schedule adjusting using LTO-IE for energy optimization.
   - Update Test Bed Unit (TBU) with FAN 1.1 features.
-  - Prevent multicast loopback for RPL DIO packets.
-  - Fix PAN version advertisement.
   - Internal cleanup.
+
+v1.7.2
+------
+  - Fix PAN version advertisement.
+  - Prevent multicast loopback for RPL DIO packets.
+  - Deprecate `SetSlotAlgorithm` D-Bus method.
 
 v1.7.1
 ------
