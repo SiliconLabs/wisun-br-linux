@@ -1,12 +1,12 @@
 v1.7.2
 ------
+  - Fix LFN Time Sync transmission.
   - Fix PAN version advertisement.
   - Prevent multicast loopback for RPL DIO packets.
   - Deprecate `SetSlotAlgorithm` D-Bus method.
 
 v1.7.1
 ------
-  - Fix LFN Time Sync encryption
   - Improve LFN stability
   - Improve key distribution
   - Improve MbedTLS compatibility
