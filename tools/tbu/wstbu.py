@@ -457,32 +457,35 @@ def put_config_border_router():
 @dbus_errcheck
 @json_errcheck('/config/borderRouter/gtks')
 def put_config_border_router_gtks():
+    def set_keys(json, key_name, key_count):
+        keys = key_count * [None]
+        for i in range(key_count):
+            if f'{key_name}{i}' in json:
+                keys[i] = utils.parse_key(json[f'{key_name}{i}'])
+                if not keys[i]:
+                    return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
+        if wsbrd.service.active_state == 'active':
+            i = -1
+            for j, key in enumerate(keys):
+                if key:
+                    if i > 0:
+                        return error(500, WSTBU_ERR_UNKNOWN, f'unsupported runtime operation: more than 1 {key_name}')
+                    i = j
+            if i < 0:
+                return
+            keys_cur = getattr(wsbrd.dbus(), key_name)
+            if keys_cur[i] != bytes(16):
+                return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: key already installed')
+            if keys_cur[(i + key_count - 1) % key_count] == bytes(16):
+                return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: previous key not installed')
+            getattr(wsbrd.dbus(), f'install_{key_name}')(keys[i])
+        else:
+            for i, key in enumerate(keys):
+                if key:
+                    wsbrd.config[f'{key_name}[{i}]'] = utils.format_key(key)
     json = flask.request.get_json(force=True, silent=True)
-    gtks = 4 * [None]
-    for i in range(4):
-        if f'gtk{i}' in json:
-            gtks[i] = utils.parse_key(json[f'gtk{i}'])
-            if not gtks[i]:
-                return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
-    if wsbrd.service.active_state == 'active':
-        i = -1
-        for j, gtk in enumerate(gtks):
-            if gtk:
-                if i > 0:
-                    return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: more than 1 key')
-                i = j
-        if i < 0:
-            return
-        gtks_cur = wsbrd.dbus().gtks
-        if gtks_cur[i] != bytes(16):
-            return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: key already installed')
-        if gtks_cur[(i + 3) % 4] == bytes(16):
-            return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: previous key not installed')
-        wsbrd.dbus().install_gtk(gtks[i])
-    else:
-        for i, gtk in enumerate(gtks):
-            if gtk:
-                wsbrd.config[f'gtk[{i}]'] = utils.format_key(gtk)
+    set_keys(json, 'gtk', 4)
+    set_keys(json, 'lgtk', 3)
     return success()
 
 

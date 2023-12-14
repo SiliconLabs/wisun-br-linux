@@ -89,6 +89,10 @@ class WsbrdDbusInterface(
     def install_gtk(self, gtk: bytes) -> None:
         raise NotImplementedError
 
+    @sdbus.dbus_method('ay')
+    def install_lgtk(self, lgtk: bytes) -> None:
+        raise NotImplementedError
+
     @sdbus.dbus_method('yyayay')
     def ie_custom_insert(self, ie_type, id, content, frame_types) -> None:
         raise NotImplementedError
