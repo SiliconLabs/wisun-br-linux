@@ -17,10 +17,10 @@ v1.7
 v1.6.4
 ------
 
-- Fix MAC address filtering.
-- Fix join metrics IE.
-- Fix `wsbrd-fwup` edge cases.
-- Fix `wsbrd-fuzz` capture from TUN.
+  - Fix MAC address filtering.
+  - Fix join metrics IE.
+  - Fix `wsbrd-fwup` edge cases.
+  - Fix `wsbrd-fuzz` capture from TUN.
 
 v1.6.3
 ------
