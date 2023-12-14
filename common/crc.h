@@ -15,7 +15,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-uint16_t crc16(const uint8_t *data, int len);
-bool crc_check(const uint8_t *data, int len, uint16_t expected_crc);
+#define CRC_INIT_LEGACY   0xffff
+#define CRC_XOROUT_LEGACY 0xffff
+
+uint16_t crc16(uint16_t crc, const uint8_t *data, int len);
+bool crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc);
 
 #endif

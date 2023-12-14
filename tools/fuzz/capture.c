@@ -40,7 +40,7 @@ void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
 
 static void fuzz_capture_spinel(struct fuzz_ctxt *ctxt, struct iobuf_write *buf)
 {
-    uint16_t crc = crc16(buf->data, buf->data_size);
+    uint16_t crc = crc16(CRC_INIT_LEGACY, buf->data, buf->data_size) ^ CRC_XOROUT_LEGACY;
     uint8_t *frame = malloc(buf->data_size * 2 + 3);
     size_t frame_len;
 

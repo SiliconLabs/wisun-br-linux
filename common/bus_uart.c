@@ -111,7 +111,7 @@ size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, u
 
 int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
-    uint16_t crc = crc16(buf, buf_len);
+    uint16_t crc = crc16(CRC_INIT_LEGACY, buf, buf_len) ^ CRC_XOROUT_LEGACY;
     uint8_t *frame = malloc(buf_len * 2 + 3);
     int frame_len;
     int ret;
@@ -205,7 +205,8 @@ size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, 
         return 0;
     } else {
         frame_len -= sizeof(uint16_t);
-        if (!crc_check(out, frame_len, read_le16(out + frame_len))) {
+        if (!crc_check(CRC_INIT_LEGACY, out, frame_len,
+                       read_le16(out + frame_len) ^ CRC_XOROUT_LEGACY)) {
             if (!inhibit_crc_warning)
                 WARN("bad crc, frame dropped");
             return 0;

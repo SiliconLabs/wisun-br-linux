@@ -95,13 +95,13 @@ int __wrap_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     return frame_len;
 }
 
-bool __real_crc_check(const uint8_t *data, int len, uint16_t expected_crc);
-bool __wrap_crc_check(const uint8_t *data, int len, uint16_t expected_crc)
+bool __real_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc);
+bool __wrap_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc)
 {
     if (g_fuzz_ctxt.fuzzing_enabled)
         return true;
     else
-        return __real_crc_check(data, len, expected_crc);
+        return __real_crc_check(init, data, len, expected_crc);
 }
 
 bool __real_spinel_prop_is_valid(struct iobuf_read *buf, int prop);
