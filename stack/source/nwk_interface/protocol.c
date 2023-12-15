@@ -28,7 +28,6 @@
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "core/timers.h"
-#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
