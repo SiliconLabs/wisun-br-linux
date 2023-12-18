@@ -11,7 +11,6 @@
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/service_libs/etx/etx.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/utils.h"
 #include "common/log.h"
 
@@ -22,6 +21,12 @@ int g_monotonic_time_100ms = 0;
 static void timer_update_monotonic_time(int ticks)
 {
     g_monotonic_time_100ms += ticks;
+}
+
+static void timer_refresh_neighbors(int time_update)
+{
+    struct net_if *interface = protocol_stack_interface_info_get();
+    ws_neighbor_class_refresh(&interface->ws_info.neighbor_storage, time_update);
 }
 
 #define timer_entry(name, callback, period_ms, is_periodic) \
@@ -41,7 +46,7 @@ struct ws_timer g_timers[] = {
     timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                    true),
     timer_entry(6LOWPAN_ETX,            etx_cache_timer,                            1000,                    true),
     timer_entry(6LOWPAN_ADAPTATION,     lowpan_adaptation_interface_slow_timer,     1000,                    true),
-    timer_entry(6LOWPAN_NEIGHBOR,       mac_neighbor_table_neighbor_timeout_update, 1000,                    true),
+    timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    5000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),

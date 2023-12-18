@@ -45,7 +45,8 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
+bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb,
+                             neighbor_entry_nud_notify *nud_cb)
 {
     ws_neighbor_class_entry_t *list_ptr;
 
@@ -55,6 +56,8 @@ bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
         return false;
 
     class_data->list_size = list_size;
+    class_data->remove_cb = remove_cb;
+    class_data->nud_cb = nud_cb;
     list_ptr = class_data->neigh_info_list;
 
     for (uint8_t i = 0; i < list_size; i++) {
@@ -131,6 +134,35 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8
         entry->rsl_in = RSL_UNITITIALIZED;
         entry->rsl_out = RSL_UNITITIALIZED;
         entry->mac_data.index = index;
+    }
+}
+
+void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update)
+{
+    ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
+
+    for (uint8_t i = 0; i < class_data->list_size; i++) {
+        if (!neigh_table[i].mac_data.in_use)
+            continue;
+
+        if (neigh_table[i].mac_data.lifetime > time_update) {
+            if (neigh_table[i].mac_data.lifetime == 0xffffffff && neigh_table[i].mac_data.link_lifetime == 0xffffffff)
+                continue; //Infinite Lifetime too not touch
+
+            neigh_table[i].mac_data.lifetime -= time_update;
+
+            // The Wi-SUN specification does not detail the usage of NUD for LFNs.
+            // According to RFC 9010 section 9.2.1, a RUL is supposed to
+            // refresh a registered address periodically.
+            // Therefore we disable NUD for LFNs here.
+            if (neigh_table[i].node_role == WS_NR_ROLE_LFN || neigh_table[i].mac_data.nud_active)
+                continue;
+
+            if (class_data->nud_cb(&neigh_table[i]))
+                neigh_table[i].mac_data.nud_active = true;
+        } else {
+            class_data->remove_cb(neigh_table[i].mac_data.mac64);
+        }
     }
 }
 

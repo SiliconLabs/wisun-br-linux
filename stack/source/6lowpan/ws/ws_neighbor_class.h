@@ -80,12 +80,16 @@ typedef struct ws_neighbor_class_entry {
     uint8_t node_role;
 } ws_neighbor_class_entry_t;
 
+typedef bool neighbor_entry_nud_notify(ws_neighbor_class_entry_t *entry_ptr);
+
 /**
  * Neighbor hopping info data base
  */
 typedef struct ws_neighbor_class {
     ws_neighbor_class_entry_t *neigh_info_list;           /*!< Allocated hopping info array*/
     uint8_t list_size;                                    /*!< List size*/
+    neighbor_entry_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
+    neighbor_entry_nud_notify *nud_cb;
 } ws_neighbor_class_t;
 
 
@@ -99,7 +103,8 @@ typedef struct ws_neighbor_class {
  * \return false Allocate Fail
  *
  */
-bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size);
+bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb,
+                             neighbor_entry_nud_notify *nud_cb);
 
 /**
  * ws_neighbor_class_dealloc a function for free allocated neighbor hopping info
@@ -192,5 +197,7 @@ bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t
 int ws_neighbor_class_lfn_count(ws_neighbor_class_t *class_data);
 
 ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, const uint8_t *mac64, uint8_t role);
+
+void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update);
 
 #endif

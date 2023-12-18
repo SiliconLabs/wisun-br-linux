@@ -30,7 +30,7 @@
 
 #include "core/ns_address_internal.h"
 
-mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)
+mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, void *user_indentifier)
 {
     mac_neighbor_table_t *table_class = malloc(sizeof(mac_neighbor_table_t));
     mac_neighbor_table_entry_t *entry;
@@ -42,7 +42,6 @@ mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_ent
 
     table_class->list_total_size = table_size;
     table_class->table_user_identifier = user_indentifier;
-    table_class->user_nud_notify_cb = nud_cb;
     table_class->user_remove_notify_cb = remove_cb;
 
     ns_list_init(&table_class->neighbour_list);
@@ -106,55 +105,6 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
         if (!cur->in_use)
             continue;
         neighbor_table_class_remove_entry(table_class, cur->mac64);
-    }
-}
-
-void mac_neighbor_table_neighbor_timeout_update(int time_update)
-{
-    struct net_if *interface = protocol_stack_interface_info_get();
-    mac_neighbor_table_t *table_class;
-    ws_neighbor_class_entry_t *ws_neighbor;
-
-    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
-    table_class = interface->mac_parameters.mac_neighbor_table;
-    if (!table_class) {
-        return;
-    }
-
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-        if (!cur->in_use)
-            continue;
-
-        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->mac64);
-
-        if (!ws_neighbor)
-            continue;
-
-        if (cur->lifetime > time_update) {
-            if (cur->lifetime == 0xffffffff && cur->link_lifetime == 0xffffffff) {
-                continue; //Infinite Lifetime too not touch
-            }
-
-            cur->lifetime -= time_update;
-
-            // The Wi-SUN specification does not detail the usage of NUD for LFNs.
-            // According to RFC 9010 section 9.2.1, a RUL is supposed to
-            // refresh a registered address periodically.
-            // Therefore we disable NUD for LFNs here.
-            if (!table_class->user_nud_notify_cb ||
-                ws_neighbor->node_role == WS_NR_ROLE_LFN ||
-                cur->nud_active)
-                continue;
-
-            if (table_class->user_nud_notify_cb(cur, table_class->table_user_identifier)) {
-                cur->nud_active = true;
-            }
-
-        } else {
-            neighbor_table_class_remove_entry(table_class, cur->mac64);
-        }
     }
 }
 

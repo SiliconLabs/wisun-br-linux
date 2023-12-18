@@ -52,18 +52,6 @@ typedef NS_LIST_HEAD(mac_neighbor_table_entry_t, link) mac_neighbor_table_list_t
  */
 typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
 
-
-/**
- * NUD entry notify
- *
- * \param entry_ptr Pointer to neighbor entry
- * \param user_data pointer for user to detect interface
- *
- * \return true NUD message generated
- * \return false When NUD is not generated
- */
-typedef bool neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
-
 /**
  * Neighbor table class structure
  */
@@ -74,7 +62,6 @@ typedef struct mac_neighbor_table {
     uint8_t neighbour_list_size;                            /*!< Active Neighbor list size */
     void *table_user_identifier;                            /*!< Table user identifier like interface pointer */
     neighbor_entry_remove_notify *user_remove_notify_cb;    /*!< Neighbor Remove Callback notify */
-    neighbor_entry_nud_notify *user_nud_notify_cb;          /*!< Trig NUD process for neighbor */
 } mac_neighbor_table_t;
 
 
@@ -92,7 +79,7 @@ typedef struct mac_neighbor_table {
  * \return NULL when memory allocation happen
  *
  */
-mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier);
+mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, void *user_indentifier);
 
 /**
  * mac_neighbor_table_delete Delete Neigbor table class
@@ -105,15 +92,6 @@ void mac_neighbor_table_delete(mac_neighbor_table_t *table_class);
  * mac_neighbor_table_neighbor_list_clean Clean neighbour_list from giving class
  */
 void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class);
-
-/**
- * mac_neighbor_table_neighbor_timeout_update Update Neighbor table timeout values
- *
- * \param interface pointer to interface
- * \param time_update in seconds
- *
- */
-void mac_neighbor_table_neighbor_timeout_update(int time_update);
 
 /**
  * mac_neighbor_table_trusted_neighbor Function for manage neighbor role at mesh network

@@ -701,20 +701,17 @@ static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
 
 }
 
-static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+static bool ws_neighbor_entry_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
 {
-    uint32_t time_from_start = entry_ptr->link_lifetime - entry_ptr->lifetime;
-    bool nud_proces = false;
+    uint32_t time_from_start = ws_neigh->mac_data.link_lifetime - ws_neigh->mac_data.lifetime;
+    struct net_if *cur = protocol_stack_interface_info_get();
+    etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, ws_neigh->mac_data.index);
     bool activate_nud = false;
+    bool nud_proces = false;
     bool child;
-    struct net_if *cur = user_data;
 
-    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, entry_ptr->mac64);
-    etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
-
-    if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || entry_ptr->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
+    if (!etx_entry || !ws_neigh->mac_data.trusted_device || ws_neigh->mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
         return false;
-    }
 
     if (lowpan_adaptation_expedite_forward_state_get(cur)) {
         //Do not send any probe or NUD when Expedite forward state is enabled
@@ -723,7 +720,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
 
     if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
 
-        child = ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, entry_ptr->mac64);
+        child = ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, ws_neigh->mac_data.mac64);
         /* For parents ARO registration is sent in link timeout times
          * For candidate parents NUD is needed
          * For children NUD is sent only at very close to end
@@ -764,9 +761,9 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         return false;
     }
 
-    memcpy(entry->mac64, entry_ptr->mac64, 8);
+    memcpy(entry->mac64, ws_neigh->mac_data.mac64, 8);
     entry->nud_process = nud_proces;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor unreachable %s / %ds", tr_eui64(entry_ptr->mac64), entry_ptr->lifetime);
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor unreachable %s / %ds", tr_eui64(ws_neigh->mac_data.mac64), ws_neigh->mac_data.lifetime);
 
     return true;
 }
@@ -958,7 +955,8 @@ int ws_bootstrap_init(int8_t interface_id)
     etx_max_update_set(WS_ETX_MAX_UPDATE);
     etx_max_set(WS_ETX_MAX);
 
-    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size)) {
+    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_neighbor_entry_remove_notify,
+                                 ws_neighbor_entry_nud_notify)) {
         ret_val = -1;
         goto init_fail;
     }
@@ -969,7 +967,7 @@ int ws_bootstrap_init(int8_t interface_id)
     mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
     cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(neighbors_table_size,
                                                                        ws_neighbor_entry_remove_notify,
-                                                                       ws_neighbor_entry_nud_notify, cur);
+                                                                       cur);
     if (!cur->mac_parameters.mac_neighbor_table) {
         ret_val = -1;
         goto init_fail;
