@@ -694,25 +694,29 @@ void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
     neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, mac64);
 }
 
-static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
 {
+    struct net_if *cur = protocol_stack_interface_info_get();
+    struct llc_neighbour_req neighbor;
 
-    struct net_if *cur = user_data;
-    lowpan_adaptation_free_messages_from_queues_by_address(cur, entry_ptr->mac64, ADDR_802_15_4_LONG);
+    ws_bootstrap_neighbor_get(cur, mac64, &neighbor);
+    BUG_ON(!neighbor.neighbor);
+
+    lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
 
     //TODO State machine check here
 
-    if (ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, entry_ptr->mac64)) {
+    if (ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, mac64)) {
         // Child entry deleted
         ws_stats_update(cur, STATS_WS_CHILD_REMOVE, 1);
     }
 
-    protocol_6lowpan_release_long_link_address_from_neighcache(cur, entry_ptr->mac64);
+    protocol_6lowpan_release_long_link_address_from_neighcache(cur, mac64);
 
     //NUD Process Clear Here
-    ws_nud_entry_remove(cur, entry_ptr->mac64);
+    ws_nud_entry_remove(cur, mac64);
 
-    ws_bootstrap_neighbor_delete(cur, entry_ptr);
+    ws_bootstrap_neighbor_delete(cur, neighbor.neighbor);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 
 }

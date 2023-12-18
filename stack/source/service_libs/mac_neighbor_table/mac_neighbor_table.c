@@ -86,7 +86,7 @@ void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, const 
         entry->nud_active = false;
 
     if (table_class->user_remove_notify_cb)
-        table_class->user_remove_notify_cb(entry, table_class->table_user_identifier);
+        table_class->user_remove_notify_cb(mac64);
 
     TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
 

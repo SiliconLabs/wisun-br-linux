@@ -55,6 +55,6 @@ bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur);
 
 void lowpan_adaptation_interface_slow_timer(int seconds);
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, addrtype_e adr_type);
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, const uint8_t *address_ptr, addrtype_e adr_type);
 
 #endif

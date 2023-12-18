@@ -50,7 +50,7 @@ typedef NS_LIST_HEAD(mac_neighbor_table_entry_t, link) mac_neighbor_table_list_t
  * \param entry_ptr Pointer to removed entry
  * \param user_data pointer for user to detect interface
  */
-typedef void neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
+typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
 
 
 /**

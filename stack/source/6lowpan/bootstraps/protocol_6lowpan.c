@@ -266,7 +266,7 @@ void protocol_6lowpan_register_handlers(struct net_if *cur)
     cur->ipv6_neighbour_cache.send_addr_reg = true;
 }
 
-void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64)
+void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
 {
     uint8_t temp_ll[10];
     uint8_t *ptr = temp_ll;
