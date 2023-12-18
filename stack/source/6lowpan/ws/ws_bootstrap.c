@@ -691,7 +691,6 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 
 void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
 {
-    ws_neighbor_class_entry_remove(&net_if->ws_info.neighbor_storage, mac64);
     neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, mac64);
 }
 
