@@ -459,36 +459,31 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
 void etx_cache_timer(int seconds_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();
+    ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
+    ext_neigh_info_t etx_neigh_info;
+    etx_sample_storage_t *storage;
+    etx_storage_t *etx_entry;
 
-    if (!etx_info.cache_sample_requested) {
+    if (!etx_info.cache_sample_requested)
         return;
-    }
-
-    if (!interface || !interface->mac_parameters.mac_neighbor_table) {
+    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
-    }
 
-    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return;
-    }
-
-    ns_list_foreach(mac_neighbor_table_entry_t, neighbour, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
-        if (!neighbour->in_use)
+    for (int i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
+        if (!neigh_table[i].mac_data.in_use)
             continue;
 
-        etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, neighbour->index);
+        etx_entry = etx_storage_entry_get(interface->id, neigh_table[i].mac_data.index);
 
-        if (!etx_entry || etx_entry->tmp_etx) {
+        if (!etx_entry || etx_entry->tmp_etx)
             continue;
-        }
-        etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + neighbour->index;
+
+        storage = etx_info.etx_cache_storage_list + neigh_table[i].mac_data.index;
 
         if (etx_update_possible(storage, etx_entry, seconds_update)) {
-            ext_neigh_info_t etx_neigh_info;
-            etx_neigh_info.attribute_index = neighbour->index;
-            etx_neigh_info.mac64 = neighbour->mac64;
+            etx_neigh_info.attribute_index = neigh_table[i].mac_data.index;
+            etx_neigh_info.mac64 = neigh_table[i].mac_data.mac64;
             etx_calculation(etx_entry, storage->attempts_count, storage->received_acks, &etx_neigh_info);
         }
     }
-
 }

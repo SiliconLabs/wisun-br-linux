@@ -166,6 +166,18 @@ void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_up
     }
 }
 
+uint8_t ws_neighbor_class_get_neigh_count(ws_neighbor_class_t *class_data)
+{
+    ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
+    uint8_t count = 0;
+
+    for (uint8_t i = 0; i < class_data->list_size; i++)
+        if (neigh_table[i].mac_data.in_use)
+            count++;
+
+    return count;
+}
+
 static int own_ceil(float value)
 {
     int ivalue = (int)value;

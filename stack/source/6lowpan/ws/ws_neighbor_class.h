@@ -200,4 +200,6 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *
 
 void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update);
 
+uint8_t ws_neighbor_class_get_neigh_count(ws_neighbor_class_t *class_data);
+
 #endif

@@ -570,70 +570,62 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     ws_bootstrap_asynch_trickle_stop(cur);
 }
 
+// TODO: in wsbrd 2.0, this function must disappear.
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
-    mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
-    ws_neighbor_class_entry_t *ws_neighbor;
-    time_t current_time_stamp;
+    uint8_t neigh_count = ws_neighbor_class_get_neigh_count(&interface->ws_info.neighbor_storage);
+    ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
+    time_t current_time_stamp = time_current(CLOCK_MONOTONIC);
+    ws_neighbor_class_entry_t *oldest_neigh = NULL;
 
-    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size < interface->mac_parameters.mac_neighbor_table->list_total_size)
+    if (neigh_count < interface->ws_info.neighbor_storage.list_size)
         return;
 
     WARN("neighbor table full");
 
-    current_time_stamp = time_current(CLOCK_MONOTONIC);
-
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
-        if (!cur->in_use)
+    for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
+        if (!neigh_table[i].mac_data.in_use)
             continue;
 
-        ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->mac64);
-
-        if (cur->nud_active) {
+        if (neigh_table[i].mac_data.nud_active)
             //If NUD process is active do not trig
             // or Negative ARO is active
             continue;
-        }
 
-        if (neighbor_entry_ptr && neighbor_entry_ptr->lifetime < cur->lifetime) {
+        if (oldest_neigh && oldest_neigh->mac_data.lifetime < neigh_table[i].mac_data.lifetime)
             // We have already shorter link entry found this cannot replace it
             continue;
-        }
 
-        if (cur->link_lifetime > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME && cur->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
+        if (neigh_table[i].mac_data.link_lifetime > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME && neigh_table[i].mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
             //Do not permit to remove configured temp life time
             continue;
-        }
 
-        if (cur->trusted_device) {
-
-            if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
+        if (neigh_table[i].mac_data.trusted_device)
+            if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac_data.mac64))
                 // We have registered entry so we have been selected as parent
                 continue;
-            }
-        }
 
         //Read current timestamp
-        uint32_t time_from_last_unicast_schedule = current_time_stamp - ws_neighbor->host_rx_timestamp;
+        uint32_t time_from_last_unicast_schedule = current_time_stamp - neigh_table[i].host_rx_timestamp;
         if (time_from_last_unicast_schedule >= interface->ws_info.cfg->timing.temp_link_min_timeout) {
             //Accept only Enough Old Device
-            if (!neighbor_entry_ptr) {
+            if (!oldest_neigh) {
                 //Accept first compare
-                neighbor_entry_ptr = cur;
+                oldest_neigh = &neigh_table[i];
             } else {
-                uint32_t compare_neigh_time = current_time_stamp - ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->mac64)->host_rx_timestamp;
+                uint32_t compare_neigh_time = current_time_stamp - oldest_neigh->host_rx_timestamp;
                 if (compare_neigh_time < time_from_last_unicast_schedule)  {
                     //Accept older RX timeout always
-                    neighbor_entry_ptr = cur;
+                    oldest_neigh = &neigh_table[i];
                 }
             }
         }
     }
-    if (neighbor_entry_ptr) {
-        tr_info("dropped oldest neighbour %s", tr_eui64(neighbor_entry_ptr->mac64));
-        neighbor_table_class_remove_entry(interface->mac_parameters.mac_neighbor_table, neighbor_entry_ptr->mac64);
-    }
 
+    if (oldest_neigh) {
+        tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac_data.mac64));
+        neighbor_table_class_remove_entry(interface->mac_parameters.mac_neighbor_table, oldest_neigh->mac_data.mac64);
+    }
 }
 
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
