@@ -20,93 +20,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
-#include "common/endian.h"
-#include "common/utils.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "nwk_interface/protocol.h"
-#include "6lowpan/mac/mac_common_defines.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
+#include "common/log.h"
 
-#include "core/ns_address_internal.h"
-
-mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, void *user_indentifier)
-{
-    mac_neighbor_table_t *table_class = malloc(sizeof(mac_neighbor_table_t));
-    mac_neighbor_table_entry_t *entry;
-
-    if (!table_class)
-        return NULL;
-
-    memset(table_class, 0, sizeof(mac_neighbor_table_t));
-
-    table_class->list_total_size = table_size;
-    table_class->table_user_identifier = user_indentifier;
-    table_class->user_remove_notify_cb = remove_cb;
-
-    ns_list_init(&table_class->neighbour_list);
-
-    // The size of the neighbor table is an information given by the RCP.
-    // The index field is used to set neighbor information in the RCP.
-    // This early allocation process makes the maintenance of this
-    // index easier.
-    for (uint8_t i = 0; i < table_size; i++) {
-        entry = malloc(sizeof(mac_neighbor_table_entry_t));
-
-        if (!entry)
-            return NULL;
-
-        memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
-        entry->index = i;
-        ns_list_add_to_end(&table_class->neighbour_list, entry);
-    }
-
-    return table_class;
-}
-
-void mac_neighbor_table_delete(mac_neighbor_table_t *table_class)
-{
-    mac_neighbor_table_neighbor_list_clean(table_class);
-    free(table_class);
-}
-
-void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, const uint8_t *mac64)
-{
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_get_by_mac64(table_class, mac64);
-    uint8_t entry_index;
-
-    if (!entry) {
-        // FIXME: needed to ensure associated ws_neighbor is deleted
-        if (table_class->user_remove_notify_cb)
-            table_class->user_remove_notify_cb(mac64);
-        return;
-    }
-
-    table_class->neighbour_list_size--;
-    if (entry->nud_active)
-        entry->nud_active = false;
-
-    if (table_class->user_remove_notify_cb)
-        table_class->user_remove_notify_cb(mac64);
-
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
-
-    entry_index = entry->index;
-    memset(entry, 0, sizeof(mac_neighbor_table_entry_t) - sizeof(entry->link));
-    entry->index = entry_index;
-}
-
-void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
-{
-    if (!table_class) {
-        return;
-    }
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-        if (!cur->in_use)
-            continue;
-        neighbor_table_class_remove_entry(table_class, cur->mac64);
-    }
-}
+#include "mac_neighbor_table.h"
 
 void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint8_t *mac64, uint32_t lifetime)
 {
@@ -132,16 +48,4 @@ void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, u
     neighbor->link_lifetime = link_lifetime;
     neighbor->lifetime = link_lifetime;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
-}
-
-mac_neighbor_table_entry_t *mac_neighbor_table_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *address)
-{
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
-        if (!cur->in_use)
-            continue;
-        if (memcmp(cur->mac64, address, 8) == 0)
-            return cur;
-    }
-
-    return NULL;
 }

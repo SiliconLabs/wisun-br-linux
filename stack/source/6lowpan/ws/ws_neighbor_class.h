@@ -80,6 +80,8 @@ typedef struct ws_neighbor_class_entry {
     uint8_t node_role;
 } ws_neighbor_class_entry_t;
 
+typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
+
 typedef bool neighbor_entry_nud_notify(ws_neighbor_class_entry_t *entry_ptr);
 
 /**

@@ -83,12 +83,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
-{
-
-    mac_neighbor_table_neighbor_list_clean(interface->mac_parameters.mac_neighbor_table);
-}
-
 static void ws_bootstrap_address_notification_cb(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason)
 {
     /* No need for LL address registration */
@@ -276,7 +270,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, neighbor.neighbor->mac64);
+                        ws_bootstrap_neighbor_del(cur, neighbor.neighbor->mac64);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -624,7 +618,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     if (oldest_neigh) {
         tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac_data.mac64));
-        neighbor_table_class_remove_entry(interface->mac_parameters.mac_neighbor_table, oldest_neigh->mac_data.mac64);
+        ws_bootstrap_neighbor_del(interface, oldest_neigh->mac_data.mac64);
     }
 }
 
@@ -661,11 +655,6 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     return true;
 }
 
-void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
-{
-    neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, mac64);
-}
-
 static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -691,6 +680,11 @@ static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
     ws_bootstrap_neighbor_delete(cur, neighbor.neighbor);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 
+}
+
+void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
+{
+    ws_neighbor_entry_remove_notify(mac64);
 }
 
 static bool ws_neighbor_entry_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
@@ -956,15 +950,6 @@ int ws_bootstrap_init(int8_t interface_id)
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
-    mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
-    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(neighbors_table_size,
-                                                                       ws_neighbor_entry_remove_notify,
-                                                                       cur);
-    if (!cur->mac_parameters.mac_neighbor_table) {
-        ret_val = -1;
-        goto init_fail;
-    }
-
     ws_llc_create(cur, &ws_bootstrap_6lbr_mngt_ind, &ws_bootstrap_6lbr_asynch_confirm);
 
     mpx_api_t *mpx_api = ws_llc_mpx_api_get(cur);
@@ -1051,7 +1036,6 @@ int ws_bootstrap_init(int8_t interface_id)
 init_fail:
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
     ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
     etx_storage_list_allocate(cur->id, 0);
     ws_neighbor_class_dealloc(&neigh_info);
     ws_llc_delete(cur);

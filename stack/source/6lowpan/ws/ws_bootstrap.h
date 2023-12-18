@@ -83,7 +83,6 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
 bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role);
 void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64);
-void ws_bootstrap_neighbor_list_clean(struct net_if *interface);
 void ws_nud_table_reset(struct net_if *cur);
 
 

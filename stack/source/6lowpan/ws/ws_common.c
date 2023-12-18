@@ -217,7 +217,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
     }
 
     mac_neighbor_table_refresh_neighbor(neighbor.neighbor, link_lifetime);
-    tr_info("Child registration allowed %d/%d", child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
+    tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
     return ARO_SUCCESS;

@@ -134,6 +134,7 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8
         entry->rsl_in = RSL_UNITITIALIZED;
         entry->rsl_out = RSL_UNITITIALIZED;
         entry->mac_data.index = index;
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac_data.mac64), entry->mac_data.lifetime);
     }
 }
 

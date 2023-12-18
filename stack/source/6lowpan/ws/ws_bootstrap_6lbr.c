@@ -365,7 +365,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             cur->ws_info.network_pan_id = 0xffff;
             cur->ws_info.pan_information.pan_version_set = false;
             ws_nud_table_reset(cur);
-            ws_bootstrap_neighbor_list_clean(cur);
             ws_bootstrap_ip_stack_reset(cur);
             ws_pae_controller_auth_init(cur);
 
