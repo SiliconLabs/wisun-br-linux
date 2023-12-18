@@ -1057,14 +1057,14 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
         return;
 
     ws_bootstrap_neighbor_get(buf->interface, eui64, &neighbor);
-    if (!neighbor.neighbor)
+    if (!neighbor.ws_neighbor)
         return;
 
     aro.status = ARO_SUCCESS;
-    aro.lifetime = neighbor.neighbor->link_lifetime / 60;
+    aro.lifetime = neighbor.ws_neighbor->mac_data.link_lifetime / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    mac_neighbor_table_refresh_neighbor(neighbor.neighbor, neighbor.neighbor->link_lifetime);
+    mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, neighbor.ws_neighbor->mac_data.link_lifetime);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

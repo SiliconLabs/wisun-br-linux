@@ -435,24 +435,24 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_SUCCESS:
         case MLME_TX_NO_ACK:
         case MLME_NO_DATA:
-            if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
+            if (!neighbor_llc->ws_neighbor)
                 break;
-            if (neighbor_llc->neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->ws_neighbor->node_role))
+            if (neighbor_llc->ws_neighbor->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->ws_neighbor->node_role))
                 break;
             if (!base->high_priority_mode)
                 etx_transm_attempts_update(base->interface_ptr->id, confirm->tx_retries + 1, success,
-                                           neighbor_llc->neighbor->index, neighbor_llc->neighbor->mac64);
+                                           neighbor_llc->ws_neighbor->mac_data.index, neighbor_llc->ws_neighbor->mac_data.mac64);
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    neighbor_llc->neighbor->lifetime = neighbor_llc->neighbor->link_lifetime;
+                    neighbor_llc->ws_neighbor->mac_data.lifetime = neighbor_llc->ws_neighbor->mac_data.link_lifetime;
                 ws_neighbor_class_ut_update(neighbor_llc->ws_neighbor, ie_utt.ufsi, confirm->timestamp,
-                                            neighbor_llc->neighbor->mac64);
+                                            neighbor_llc->ws_neighbor->mac_data.mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    neighbor_llc->neighbor->lifetime = neighbor_llc->neighbor->link_lifetime;
+                    neighbor_llc->ws_neighbor->mac_data.lifetime = neighbor_llc->ws_neighbor->mac_data.link_lifetime;
                 ws_neighbor_class_lut_update(neighbor_llc->ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                             confirm->timestamp, neighbor_llc->neighbor->mac64);
+                                             confirm->timestamp, neighbor_llc->ws_neighbor->mac_data.mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
                 ws_neighbor_class_rsl_out_calculate(neighbor_llc->ws_neighbor, ie_rsl);
@@ -470,7 +470,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
 
 static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)
 {
-    if (!neighbor_llc->neighbor || !neighbor_llc->ws_neighbor)
+    if (!neighbor_llc->ws_neighbor)
         return false;
 
     if (neighbor_llc->ws_neighbor->node_role == WS_NR_ROLE_LFN)
@@ -497,8 +497,8 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_bootstrap_neighbor_get(net_if, msg->dst_address, &neighbor_llc);
 
-    if (neighbor_llc.neighbor)
-        ws_llc_rate_handle_tx_conf(base, data, neighbor_llc.neighbor);
+    if (neighbor_llc.ws_neighbor)
+        ws_llc_rate_handle_tx_conf(base, data, &neighbor_llc.ws_neighbor->mac_data);
 
     if (msg->eapol_temporary && (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA)) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
@@ -630,7 +630,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
     } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_ROUTER) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(net_if, neighbor.neighbor->mac64);
+        ws_bootstrap_neighbor_del(net_if, neighbor.ws_neighbor->mac_data.mac64);
         add_neighbor = true;
     }
     if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_ROUTER)) {
@@ -658,13 +658,13 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         // Calculate RSL for all UDATA packets heard
         ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
-        if (neighbor.neighbor && data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
-        if (neighbor.ws_neighbor && has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
+        if (data->Key.SecurityLevel)
+            mac_neighbor_table_trusted_neighbor(&neighbor.ws_neighbor->mac_data);
+        if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
             neighbor.ws_neighbor->pom_ie = ie_pom;
     }
 
-    if (!neighbor.neighbor)
+    if (!neighbor.ws_neighbor)
         data_ind.Key.SecurityLevel = 0;
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -737,18 +737,18 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     // Calculate RSL for all UDATA packets heard
     ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
-    if (neighbor.neighbor) {
+    if (neighbor.ws_neighbor) {
         if (data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(neighbor.neighbor);
-        if (neighbor.neighbor->link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.ws_neighbor->node_role))
-            mac_neighbor_table_refresh_neighbor(neighbor.neighbor, WS_NEIGHBOR_LINK_TIMEOUT);
+            mac_neighbor_table_trusted_neighbor(&neighbor.ws_neighbor->mac_data);
+        if (neighbor.ws_neighbor->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.ws_neighbor->node_role))
+            mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
         else
-            mac_neighbor_table_refresh_neighbor(neighbor.neighbor, neighbor.neighbor->link_lifetime);
+            mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, neighbor.ws_neighbor->mac_data.link_lifetime);
     }
     if (neighbor.ws_neighbor && has_pom)
         neighbor.ws_neighbor->pom_ie = ie_pom;
 
-    if (!neighbor.neighbor)
+    if (!neighbor.ws_neighbor)
         data_ind.Key.SecurityLevel = 0;
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -1113,9 +1113,9 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
         return 0;
     if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr, &neighbor_info))
         return 0;
-    switch (neighbor_info.neighbor->ms_mode) {
+    switch (neighbor_info.ws_neighbor->mac_data.ms_mode) {
     case SL_WISUN_MODE_SWITCH_ENABLED:
-        ms_phy_mode_id = neighbor_info.neighbor->ms_phy_mode_id;
+        ms_phy_mode_id = neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id;
         break;
     case SL_WISUN_MODE_SWITCH_DEFAULT:
         if (schedule->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
@@ -1902,7 +1902,6 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
     neighbor_info.ws_neighbor = NULL;
-    neighbor_info.neighbor = NULL;
 
     if (!llc) // Invalid LLC context
         return -1;
@@ -1948,16 +1947,16 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
                                                            phy_mode_id);
                 if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
                     return -4;
-                neighbor_info.neighbor->ms_phy_mode_id = phy_mode_id;
+                neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id = phy_mode_id;
             } else {
-                neighbor_info.neighbor->ms_phy_mode_id = 0;
+                neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id = 0;
             }
 
-            neighbor_info.neighbor->ms_mode = mode;
+            neighbor_info.ws_neighbor->mac_data.ms_mode = mode;
 
             // Reset counters
-            neighbor_info.neighbor->ms_tx_count = 0;
-            neighbor_info.neighbor->ms_retries_count = 0;
+            neighbor_info.ws_neighbor->mac_data.ms_tx_count = 0;
+            neighbor_info.ws_neighbor->mac_data.ms_retries_count = 0;
         }
     }
 

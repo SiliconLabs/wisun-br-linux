@@ -646,7 +646,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN, &neigh_entry_ptr);
 
         //Validate neighbour
-        if (!neigh_entry_ptr.neighbor || !neigh_entry_ptr.neighbor->trusted_device)
+        if (!neigh_entry_ptr.ws_neighbor || !neigh_entry_ptr.ws_neighbor->mac_data.trusted_device)
             goto tx_error_handler;
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
@@ -654,8 +654,8 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
     return buf;
 
 tx_error_handler:
-    if (neigh_entry_ptr.neighbor && neigh_entry_ptr.neighbor->nud_active)
-        neigh_entry_ptr.neighbor->nud_active = false;
+    if (neigh_entry_ptr.ws_neighbor && neigh_entry_ptr.ws_neighbor->mac_data.nud_active)
+        neigh_entry_ptr.ws_neighbor->mac_data.nud_active = false;
     buffer_free(buf);
     return NULL;
 

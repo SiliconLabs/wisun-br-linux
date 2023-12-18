@@ -81,7 +81,6 @@ struct ws_llc_mngt_req {
  * @brief LLC neighbour info request parameters
  */
 typedef struct llc_neighbour_req {
-    struct mac_neighbor_table_entry *neighbor;                  /**< Generic Link Layer Neighbor information entry. */
     struct ws_neighbor_class_entry *ws_neighbor;                /**< Wi-sun Neighbor information entry. */
 } llc_neighbour_req_t;
 

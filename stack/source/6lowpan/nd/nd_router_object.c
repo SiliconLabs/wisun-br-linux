@@ -42,7 +42,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 
     ws_bootstrap_neighbor_get(cur_interface, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh),
                               &neighbor);
-    BUG_ON(!neighbor.neighbor);
+    BUG_ON(!neighbor.ws_neighbor);
 
     TRACE(TR_NEIGH_IPV6, "IPv6 neighbor refresh %s / %s / %ds",
           tr_eui64(ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh)),
@@ -70,7 +70,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
-            mac_neighbor_table_refresh_neighbor(neighbor.neighbor, aro->lifetime);
+            mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, aro->lifetime);
         }
     }
 }

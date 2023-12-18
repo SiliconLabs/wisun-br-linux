@@ -180,8 +180,8 @@ static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
     free(entry);
 
-    if (neighbor.neighbor && neighbor.neighbor->nud_active)
-        neighbor.neighbor->nud_active = false;
+    if (neighbor.ws_neighbor && neighbor.ws_neighbor->mac_data.nud_active)
+        neighbor.ws_neighbor->mac_data.nud_active = false;
 }
 
 static void ws_nud_entry_remove(struct net_if *cur, const uint8_t *mac64)
@@ -252,7 +252,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
     ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
         ws_bootstrap_neighbor_get(cur, entry->mac64, &neighbor);
 
-        if (!neighbor.neighbor) {
+        if (!neighbor.ws_neighbor) {
             ws_nud_state_clean(cur, entry);
             continue;
         }
@@ -270,7 +270,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        ws_bootstrap_neighbor_del(cur, neighbor.neighbor->mac64);
+                        ws_bootstrap_neighbor_del(cur, neighbor.ws_neighbor->mac_data.mac64);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -278,7 +278,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 
             } else {
                 //Random TX wait period is over
-                entry->wait_response = ws_nud_message_build(cur, neighbor.neighbor, entry->nud_process);
+                entry->wait_response = ws_nud_message_build(cur, &neighbor.ws_neighbor->mac_data, entry->nud_process);
                 if (!entry->wait_response) {
                     if (entry->nud_process && entry->retry_count < 2) {
                         entry->timer = rand_get_random_in_range(1, 900);
@@ -453,8 +453,8 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
     if (!ws_bootstrap_neighbor_get(interface, mac_adddress, &neighbor))
         return 0xffff;
 
-    etx_entry = etx_storage_entry_get(interface->id, neighbor.neighbor->index);
-    etx = etx_local_etx_read(interface->id, neighbor.neighbor->index);
+    etx_entry = etx_storage_entry_get(interface->id, neighbor.ws_neighbor->mac_data.index);
+    etx = etx_local_etx_read(interface->id, neighbor.ws_neighbor->mac_data.index);
 
     if (!etx_entry)
         return 0xffff;
@@ -468,7 +468,7 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
     // If we dont have valid ETX for children we assume good ETX.
     // After enough packets is sent to children real calculated ETX is given.
     // This might result in ICMP source route errors returned to Border router causing secondary route uses
-    if (etx == 0xffff && ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neighbor.neighbor->mac64)) {
+    if (etx == 0xffff && ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neighbor.ws_neighbor->mac_data.mac64)) {
         return 0x100;
     }
 
@@ -624,19 +624,14 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
-    neighbor->neighbor = NULL;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
-    if (!neighbor->ws_neighbor)
-        return false;
-    neighbor->neighbor = &neighbor->ws_neighbor->mac_data;
-    return true;
+    return neighbor->ws_neighbor != NULL;
 }
 
 bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role)
 {
     ws_bootstrap_neighbor_table_clean(net_if);
 
-    neighbor->neighbor = NULL;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!neighbor->ws_neighbor) {
         neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
@@ -647,8 +642,6 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 
     if (!neighbor->ws_neighbor)
         return false;
-
-    neighbor->neighbor = &neighbor->ws_neighbor->mac_data;
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
@@ -661,7 +654,7 @@ static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
     struct llc_neighbour_req neighbor;
 
     ws_bootstrap_neighbor_get(cur, mac64, &neighbor);
-    BUG_ON(!neighbor.neighbor);
+    BUG_ON(!neighbor.ws_neighbor);
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
 
@@ -677,7 +670,7 @@ static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
     //NUD Process Clear Here
     ws_nud_entry_remove(cur, mac64);
 
-    ws_bootstrap_neighbor_delete(cur, neighbor.neighbor);
+    ws_bootstrap_neighbor_delete(cur, &neighbor.ws_neighbor->mac_data);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 
 }
