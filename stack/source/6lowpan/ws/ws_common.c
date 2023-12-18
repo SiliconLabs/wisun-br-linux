@@ -184,7 +184,12 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
+    struct llc_neighbour_req neighbor;
     uint8_t child_count = 0;
+
+    ws_bootstrap_neighbor_get(interface, eui64, &neighbor);
+    if (!neighbor.neighbor)
+        return ARO_TOPOLOGICALLY_INCORRECT;
 
     if (aro_timeout == 0) {
         //DeRegister Address Reg
@@ -194,7 +199,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64, link_lifetime);
+        mac_neighbor_table_refresh_neighbor(neighbor.neighbor, link_lifetime);
         return ARO_SUCCESS;
     }
 
@@ -212,7 +217,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_FULL;
     }
 
-    mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64, link_lifetime);
+    mac_neighbor_table_refresh_neighbor(neighbor.neighbor, link_lifetime);
     tr_info("Child registration allowed %d/%d", child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
@@ -228,8 +233,7 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
     if (!neighbor.neighbor)
         return false;
 
-    mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64,
-                                        WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
+    mac_neighbor_table_refresh_neighbor(neighbor.neighbor, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
     return true;
 }
 

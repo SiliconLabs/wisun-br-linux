@@ -1064,8 +1064,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     aro.lifetime = neighbor.neighbor->link_lifetime / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    mac_neighbor_table_refresh_neighbor(buf->interface->mac_parameters.mac_neighbor_table, eui64,
-                                        neighbor.neighbor->link_lifetime);
+    mac_neighbor_table_refresh_neighbor(neighbor.neighbor, neighbor.neighbor->link_lifetime);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

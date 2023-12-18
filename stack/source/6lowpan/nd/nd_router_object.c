@@ -27,6 +27,8 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/ws/ws_bootstrap.h"
+#include "6lowpan/ws/ws_llc.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
@@ -34,8 +36,13 @@
 
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
+    struct llc_neighbour_req neighbor;
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target;
+
+    ws_bootstrap_neighbor_get(cur_interface, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh),
+                              &neighbor);
+    BUG_ON(!neighbor.neighbor);
 
     TRACE(TR_NEIGH_IPV6, "IPv6 neighbor refresh %s / %s / %ds",
           tr_eui64(ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh)),
@@ -63,8 +70,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
-            mac_neighbor_table_refresh_neighbor(cur_interface->mac_parameters.mac_neighbor_table, aro->eui64,
-                                                aro->lifetime);
+            mac_neighbor_table_refresh_neighbor(neighbor.neighbor, aro->lifetime);
         }
     }
 }
