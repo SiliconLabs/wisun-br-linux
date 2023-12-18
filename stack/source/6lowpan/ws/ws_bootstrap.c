@@ -210,9 +210,9 @@ static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
         neighbor.neighbor->nud_active = false;
 }
 
-static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr)
+static void ws_nud_entry_remove(struct net_if *cur, const uint8_t *mac64)
 {
-    ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, entry_ptr->mac64);
+    ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, mac64);
 
     if (nud_entry) {
         ws_nud_state_clean(cur, nud_entry);
@@ -711,7 +711,7 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
     protocol_6lowpan_release_long_link_address_from_neighcache(cur, entry_ptr->mac64);
 
     //NUD Process Clear Here
-    ws_nud_entry_remove(cur, entry_ptr);
+    ws_nud_entry_remove(cur, entry_ptr->mac64);
 
     ws_bootstrap_neighbor_delete(cur, entry_ptr);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
