@@ -221,9 +221,11 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
-    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64);
+    llc_neighbour_req_t neighbor;
 
-    if (!neighbour)
+    ws_bootstrap_neighbor_get(interface, eui64, &neighbor);
+
+    if (!neighbor.neighbor)
         return false;
 
     mac_neighbor_table_refresh_neighbor(interface->mac_parameters.mac_neighbor_table, eui64,

@@ -26,6 +26,8 @@
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
+#include "6lowpan/ws/ws_bootstrap.h"
+#include "6lowpan/ws/ws_llc.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -1045,7 +1047,7 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
 {
     ipv6_neighbour_t *ipv6_neighbour = ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->src_sa.address);
-    mac_neighbor_table_entry_t *mac_neighbor;
+    struct llc_neighbour_req neighbor;
     struct ipv6_nd_opt_earo aro;
 
     if (!ipv6_neighbour || ipv6_neighbour->type != IP_NEIGHBOUR_REGISTERED)
@@ -1054,17 +1056,16 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     if (memcmp(ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, ipv6_neighbour), eui64, 8))
         return;
 
-    mac_neighbor = mac_neighbor_table_get_by_mac64(buf->interface->mac_parameters.mac_neighbor_table, eui64);
-
-    if (!mac_neighbor)
+    ws_bootstrap_neighbor_get(buf->interface, eui64, &neighbor);
+    if (!neighbor.neighbor)
         return;
 
     aro.status = ARO_SUCCESS;
-    aro.lifetime = mac_neighbor->link_lifetime / 60;
+    aro.lifetime = neighbor.neighbor->link_lifetime / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
     mac_neighbor_table_refresh_neighbor(buf->interface->mac_parameters.mac_neighbor_table, eui64,
-                                        mac_neighbor->link_lifetime);
+                                        neighbor.neighbor->link_lifetime);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

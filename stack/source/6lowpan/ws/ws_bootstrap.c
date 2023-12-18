@@ -199,14 +199,15 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uin
 
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table,
-                                                                           entry->mac64);
+    struct llc_neighbour_req neighbor;
+
+    ws_bootstrap_neighbor_get(cur, entry->mac64, &neighbor);
 
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
     free(entry);
 
-    if (neighbor && neighbor->nud_active)
-        neighbor->nud_active = false;
+    if (neighbor.neighbor && neighbor.neighbor->nud_active)
+        neighbor.neighbor->nud_active = false;
 }
 
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr)
@@ -263,7 +264,7 @@ static bool ws_nud_message_build(struct net_if *cur, mac_neighbor_table_entry_t 
 
 void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 {
-    mac_neighbor_table_entry_t *mac_neighbor;
+    struct llc_neighbour_req neighbor;
 
     //Convert TICKS to real milliseconds
     if (ticks > 0xffff / 100) {
@@ -275,9 +276,9 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
     }
 
     ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
-        mac_neighbor = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, entry->mac64);
+        ws_bootstrap_neighbor_get(cur, entry->mac64, &neighbor);
 
-        if (!mac_neighbor) {
+        if (!neighbor.neighbor) {
             ws_nud_state_clean(cur, entry);
             continue;
         }
@@ -295,7 +296,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, mac_neighbor->mac64);
+                        neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, neighbor.neighbor->mac64);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -303,7 +304,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 
             } else {
                 //Random TX wait period is over
-                entry->wait_response = ws_nud_message_build(cur, mac_neighbor, entry->nud_process);
+                entry->wait_response = ws_nud_message_build(cur, neighbor.neighbor, entry->nud_process);
                 if (!entry->wait_response) {
                     if (entry->nud_process && entry->retry_count < 2) {
                         entry->timer = rand_get_random_in_range(1, 900);
@@ -469,30 +470,23 @@ static void ws_bootstrap_ll_address_validate(struct net_if *cur)
  */
 static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, const uint8_t *mac_adddress)
 {
+    struct llc_neighbour_req neighbor;
+    etx_storage_t *etx_entry;
     uint16_t etx;
 
-    if (!mac_adddress || !interface) {
+    if (!mac_adddress || !interface)
         return 0;
-    }
-
-    uint8_t attribute_index;
-
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, mac_adddress);
-    if (!mac_neighbor) {
+    if (!ws_bootstrap_neighbor_get(interface, mac_adddress, &neighbor))
         return 0xffff;
-    }
-    attribute_index = mac_neighbor->index;
-    ws_neighbor_class_entry_t *ws_neighbour = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, mac_adddress);
-    etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, attribute_index);
 
-    if (!ws_neighbour || !etx_entry) {
+    etx_entry = etx_storage_entry_get(interface->id, neighbor.neighbor->index);
+    etx = etx_local_etx_read(interface->id, neighbor.neighbor->index);
+
+    if (!etx_entry)
         return 0xffff;
-    }
-
-    etx = etx_local_etx_read(interface->id, attribute_index);
 
     // if we have a measurement ready then we will check the RSL validity
-    if (etx != 0xffff && !ws_neighbour->candidate_parent) {
+    if (etx != 0xffff && !neighbor.ws_neighbor->candidate_parent) {
         // RSL value measured is lower than acceptable ETX will be given as MAX
         return WS_ETX_MAX << 1; // We use 8 bit fraction and ETX is usually 7 bit fraction
     }
@@ -500,7 +494,7 @@ static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, cons
     // If we dont have valid ETX for children we assume good ETX.
     // After enough packets is sent to children real calculated ETX is given.
     // This might result in ICMP source route errors returned to Border router causing secondary route uses
-    if (etx == 0xffff && ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, mac_neighbor->mac64)) {
+    if (etx == 0xffff && ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neighbor.neighbor->mac64)) {
         return 0x100;
     }
 

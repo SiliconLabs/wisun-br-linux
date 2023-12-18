@@ -630,8 +630,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
 
 buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffer_t *buf)
 {
-    mac_neighbor_table_entry_t *neigh_entry_ptr = NULL;
-
+    struct llc_neighbour_req neigh_entry_ptr;
 
     //Validate is link known and set indirect, datareq and security key id mode
     if (buf->dst_sa.addr_type == ADDR_NONE) {
@@ -644,11 +643,10 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->dst_sa.address[3] = 0xff;
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
-
-        neigh_entry_ptr = mac_neighbor_table_get_by_mac64(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2);
+        ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN, &neigh_entry_ptr);
 
         //Validate neighbour
-        if (!neigh_entry_ptr || !neigh_entry_ptr->trusted_device)
+        if (!neigh_entry_ptr.neighbor || !neigh_entry_ptr.neighbor->trusted_device)
             goto tx_error_handler;
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
@@ -656,8 +654,8 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
     return buf;
 
 tx_error_handler:
-    if (neigh_entry_ptr && neigh_entry_ptr->nud_active)
-        neigh_entry_ptr->nud_active = false;
+    if (neigh_entry_ptr.neighbor && neigh_entry_ptr.neighbor->nud_active)
+        neigh_entry_ptr.neighbor->nud_active = false;
     buffer_free(buf);
     return NULL;
 
