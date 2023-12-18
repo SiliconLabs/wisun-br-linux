@@ -115,19 +115,6 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class);
  */
 void mac_neighbor_table_neighbor_timeout_update(int time_update);
 
-
-/**
- * mac_neighbor_table_entry_allocate Allocate Neighbour table class entry
- *
- * \param table_class pointer to table class
- * \param mac64 neighbor 64-bit mac address
- * \param role neighbor role
- *
- * \return NULL allocate fail
- * \return pointer to allocated neighbor table entry
- */
-mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role);
-
 /**
  * mac_neighbor_table_trusted_neighbor Function for manage neighbor role at mesh network
  *

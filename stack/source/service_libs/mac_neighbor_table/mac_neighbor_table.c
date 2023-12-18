@@ -77,7 +77,9 @@ void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class, const 
     uint8_t entry_index;
 
     if (!entry) {
-        WARN("15.4 neighbor not found");
+        // FIXME: needed to ensure associated ws_neighbor is deleted
+        if (table_class->user_remove_notify_cb)
+            table_class->user_remove_notify_cb(mac64);
         return;
     }
 
@@ -162,29 +164,7 @@ void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint
     memcpy(entry->mac64, mac64, 8);
     entry->lifetime = lifetime;
     entry->link_lifetime = lifetime;
-}
-
-mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role)
-{
-    mac_neighbor_table_entry_t *entry;
-
-    ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
-        if (!cur->in_use) {
-            entry = cur;
-            break;
-        }
-
-    if (!entry)
-        return NULL;
-
-    table_class->neighbour_list_size++;
-    entry->in_use = true;
-    memcpy(entry->mac64, mac64, 8);
-    entry->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
-    entry->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
-
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
-    return entry;
 }
 
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_entry)

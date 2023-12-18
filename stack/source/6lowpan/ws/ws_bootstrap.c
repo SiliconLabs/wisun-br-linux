@@ -73,26 +73,6 @@
 
 #define TRACE_GROUP "wsbs"
 
-static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *mac64, uint8_t role)
-{
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, mac64, role);
-
-    if (!neighbor)
-        return NULL;
-    rcp_legacy_set_neighbor(neighbor->index, mac_helper_panid_get(interface), 0, neighbor->mac64, 0);
-    return neighbor;
-}
-
-static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64, uint8_t role)
-{
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_get_by_mac64(interface->mac_parameters.mac_neighbor_table, src64);
-    if (neighbor) {
-        return neighbor;
-    }
-
-    return ws_bootstrap_mac_neighbor_allocate(interface, src64, role);
-}
-
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
@@ -658,13 +638,11 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
-    neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = mac_neighbor_table_get_by_mac64(net_if->mac_parameters.mac_neighbor_table, eui64);
-    if (!neighbor->neighbor)
-        return false;
+    neighbor->neighbor = NULL;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!neighbor->ws_neighbor)
         return false;
+    neighbor->neighbor = &neighbor->ws_neighbor->mac_data;
     return true;
 }
 
@@ -672,17 +650,19 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 {
     ws_bootstrap_neighbor_table_clean(net_if);
 
-    neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = ws_bootstrap_mac_neighbor_add(net_if, eui64, role);
-    if (!neighbor->neighbor)
-        return false;
-
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
+    neighbor->neighbor = NULL;
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!neighbor->ws_neighbor) {
-        neighbor_table_class_remove_entry(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor->mac64);
-        return false;
+        neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
+        if (neighbor->ws_neighbor)
+            rcp_legacy_set_neighbor(neighbor->ws_neighbor->mac_data.index, mac_helper_panid_get(net_if), 0,
+                                    neighbor->ws_neighbor->mac_data.mac64, 0);
     }
 
+    if (!neighbor->ws_neighbor)
+        return false;
+
+    neighbor->neighbor = &neighbor->ws_neighbor->mac_data;
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
