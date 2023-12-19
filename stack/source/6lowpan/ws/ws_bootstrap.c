@@ -263,7 +263,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        ws_bootstrap_neighbor_del(cur, neighbor.ws_neighbor->mac_data.mac64);
+                        ws_bootstrap_neighbor_del(neighbor.ws_neighbor->mac_data.mac64);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -611,7 +611,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     if (oldest_neigh) {
         tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac_data.mac64));
-        ws_bootstrap_neighbor_del(interface, oldest_neigh->mac_data.mac64);
+        ws_bootstrap_neighbor_del(oldest_neigh->mac_data.mac64);
     }
 }
 
@@ -641,7 +641,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     return true;
 }
 
-static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
+void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
     struct llc_neighbour_req neighbor;
@@ -666,11 +666,6 @@ static void ws_neighbor_entry_remove_notify(const uint8_t *mac64)
     ws_bootstrap_neighbor_delete(cur, &neighbor.ws_neighbor->mac_data);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 
-}
-
-void ws_bootstrap_neighbor_del(struct net_if *net_if, const uint8_t *mac64)
-{
-    ws_neighbor_entry_remove_notify(mac64);
 }
 
 static bool ws_neighbor_entry_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
@@ -927,7 +922,7 @@ int ws_bootstrap_init(int8_t interface_id)
     etx_max_update_set(WS_ETX_MAX_UPDATE);
     etx_max_set(WS_ETX_MAX);
 
-    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_neighbor_entry_remove_notify,
+    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del,
                                  ws_neighbor_entry_nud_notify)) {
         ret_val = -1;
         goto init_fail;
