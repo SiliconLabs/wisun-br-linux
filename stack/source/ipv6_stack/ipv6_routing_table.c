@@ -831,10 +831,6 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
            addr_ipv6_equal(a->info.next_hop_addr, b->info.next_hop_addr);
 }
 
-static void ipv6_route_probe(ipv6_route_t *route)
-{
-}
-
 /* Return true is a is better than b */
 static bool ipv6_route_is_better(const ipv6_route_t *a, const ipv6_route_t *b)
 {
@@ -978,11 +974,6 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
                 continue;
             }
             r->probe = false;
-
-            /* Note that best must be set if need_to_probe is */
-            if (!ipv6_route_same_router(r, best) && ipv6_route_is_better(r, best)) {
-                ipv6_route_probe(r);
-            }
         }
     }
 
