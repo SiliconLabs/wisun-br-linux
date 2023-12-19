@@ -1046,7 +1046,6 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         bitcpy(route->prefix, prefix, prefix_len);
         route->prefix_len = prefix_len;
         route->search_skip = false;
-        route->probe = false;
         route->lifetime = lifetime;
         route->metric = metric;
         route->info.source = source;
