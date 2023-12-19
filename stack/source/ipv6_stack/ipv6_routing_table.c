@@ -248,22 +248,6 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     return entry;
 }
 
-static bool ipv6_neighbour_state_is_probably_reachable(ip_neighbour_cache_state_e state)
-{
-    switch (state) {
-        case IP_NEIGHBOUR_NEW:
-        case IP_NEIGHBOUR_INCOMPLETE:
-        case IP_NEIGHBOUR_UNREACHABLE:
-            return false;
-        case IP_NEIGHBOUR_REACHABLE:
-        case IP_NEIGHBOUR_STALE:
-        case IP_NEIGHBOUR_DELAY:
-        case IP_NEIGHBOUR_PROBE:
-            return true;
-    }
-    return false;
-}
-
 bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
     return ll_type == entry->ll_type && memcmp(entry->ll_address, ll_address, addr_len_from_type(ll_type)) == 0;
