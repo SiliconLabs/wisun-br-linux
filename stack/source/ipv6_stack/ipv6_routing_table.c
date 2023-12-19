@@ -809,16 +809,6 @@ static void ipv6_route_entry_remove(ipv6_route_t *route)
     free(route);
 }
 
-static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
-{
-    if (a == b) {
-        return true;
-    }
-    return !a->on_link && !b->on_link &&
-           a->info.interface_id == b->info.interface_id &&
-           addr_ipv6_equal(a->info.next_hop_addr, b->info.next_hop_addr);
-}
-
 /* Return true is a is better than b */
 static bool ipv6_route_is_better(const ipv6_route_t *a, const ipv6_route_t *b)
 {
