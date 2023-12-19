@@ -874,7 +874,6 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
 ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id)
 {
     ipv6_route_t *best = NULL;
-    bool need_to_probe = false;
 
     ns_list_foreach(ipv6_route_t, route, &ipv6_routing_table) {
         route->search_skip = false;
@@ -932,19 +931,6 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
         /* If router is reachable, we'll take it now */
         best = route;
         break;
-    }
-
-    /* This is a bit icky - data structures are routes, but we need to probe
-     * routers - a many->1 mapping. Probe flag is set on all routes we skipped;
-     * but we don't want to probe the router we actually chose.
-     */
-    if (need_to_probe) {
-        ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-            if (!r->probe) {
-                continue;
-            }
-            r->probe = false;
-        }
     }
 
     return best;
