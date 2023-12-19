@@ -633,12 +633,11 @@ static bool ws_bootstrap_neighbor_nud_notify(ws_neighbor_class_entry_t *ws_neigh
 {
     uint32_t time_from_start = ws_neigh->mac_data.link_lifetime - ws_neigh->mac_data.lifetime;
     struct net_if *cur = protocol_stack_interface_info_get();
-    etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, ws_neigh->mac_data.index);
     bool activate_nud = false;
     bool nud_proces = false;
     bool child;
 
-    if (!etx_entry || !ws_neigh->mac_data.trusted_device || ws_neigh->mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
+    if (!ws_neigh->mac_data.trusted_device || ws_neigh->mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
         return false;
 
     if (lowpan_adaptation_expedite_forward_state_get(cur)) {
