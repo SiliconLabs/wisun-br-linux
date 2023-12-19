@@ -283,11 +283,6 @@ bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_ne
     return true;
 }
 
-bool ipv6_neighbour_addr_is_probably_reachable(ipv6_neighbour_cache_t *cache, const uint8_t *address)
-{
-    return ipv6_neighbour_is_probably_reachable(cache, ipv6_neighbour_lookup(cache, address));
-}
-
 bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
     return ll_type == entry->ll_type && memcmp(entry->ll_address, ll_address, addr_len_from_type(ll_type)) == 0;
