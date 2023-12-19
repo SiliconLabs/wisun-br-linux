@@ -16,32 +16,20 @@
  * limitations under the License.
  */
 
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include "common/bits.h"
+#include "common/time_extra.h"
+#include "common/ws_regdb.h"
+#include "common/version.h"
 #include "common/endian.h"
 #include "common/mathutils.h"
-#include "common/ws_regdb.h"
-#include "common/log.h"
-#include "common/ns_list.h"
 #include "common/rand.h"
-#include "common/time_extra.h"
-#include "common/version.h"
+#include "common/log.h"
 #include "common/specs/ws.h"
 
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "app_wsbrd/wsbr.h"
-#include "app_wsbrd/rcp_api_legacy.h"
-#include "nwk_interface/protocol.h"
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_ie_lib.h"
+#include "nwk_interface/protocol.h"
+#include "app_wsbrd/wsbr.h"
 
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "ws_neighbor_class.h"
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
