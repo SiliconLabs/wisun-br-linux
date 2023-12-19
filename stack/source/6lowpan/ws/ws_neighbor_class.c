@@ -24,7 +24,7 @@
 #include "common/endian.h"
 #include "common/mathutils.h"
 #include "common/ws_regdb.h"
-#include "common/log_legacy.h"
+#include "common/log.h"
 #include "common/ns_list.h"
 #include "common/rand.h"
 #include "common/time_extra.h"
@@ -42,8 +42,6 @@
 #include "6lowpan/ws/ws_ie_lib.h"
 
 #include "6lowpan/ws/ws_neighbor_class.h"
-
-#define TRACE_GROUP "wsne"
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
@@ -169,15 +167,6 @@ uint8_t ws_neighbor_class_get_neigh_count(ws_neighbor_class_t *class_data)
     return count;
 }
 
-static int own_ceil(float value)
-{
-    int ivalue = (int)value;
-    if (value == (float)ivalue) {
-        return ivalue;
-    }
-    return ivalue + 1;
-}
-
 static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, uint24_t ufsi,
                                              uint64_t timestamp, const uint8_t address[8])
 {
@@ -186,21 +175,21 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
         if (ws_neighbor->fhss_data.uc_chan_func == WS_FIXED_CHANNEL) {
             return;
         }
-        uint32_t seq_length = 0x10000;
+        double seq_length = 0x10000;
         if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
             seq_length = ws_neighbor->fhss_data.uc_chan_count;
         }
-        uint32_t ufsi_prev_tmp = ws_neighbor->fhss_data.ffn.ufsi;
-        uint32_t ufsi_cur_tmp = ufsi;
+        double ufsi_prev_tmp = ws_neighbor->fhss_data.ffn.ufsi;
+        double ufsi_cur_tmp = ufsi;
         if (ws_neighbor->fhss_data.uc_chan_func == WS_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
             }
         }
         // Convert 24-bit UFSI to real time before drift calculation
-        uint32_t time_since_seq_start_prev_ms = own_ceil((float)((uint64_t)ufsi_prev_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000);
-        uint32_t time_since_seq_start_cur_ms = own_ceil((float)((uint64_t)ufsi_cur_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000);
-        uint32_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
+        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
+        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
+        uint64_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
 
         if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
             uint32_t full_uc_schedule_ms = ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms * ws_neighbor->fhss_data.uc_chan_count;
@@ -215,16 +204,21 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
             time_since_seq_start_cur_ms += temp_ms * full_uc_schedule_ms + (full_uc_schedule_ms - time_since_seq_start_prev_ms) + time_since_seq_start_prev_ms;
         }
 
-        uint32_t ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
+        double ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
         if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
             // add ufsi sequence length
             ufsi_diff_ms += seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms;
 
-        int32_t ufsi_drift_ms = (int32_t)(time_since_last_ufsi_us / 1000 - ufsi_diff_ms);
-        // Only trace if there is significant error
-        if (ufsi_drift_ms < -5 || ufsi_drift_ms > 5) {
-            tr_debug("UFSI updated: %s, drift: %"PRIi32"ms in %"PRIu32" seconds", tr_eui64(address), ufsi_drift_ms, time_since_last_ufsi_us / 1000000);
-        }
+        double ufsi_drift_ms = time_since_last_ufsi_us / 1000.f - ufsi_diff_ms;
+        // Since resolution of the RCP timer is 1µs, a window 10 million times
+        // larger (=10s) allows to get 0.1ppm of precision in the calculus below
+        // FIXME: improve precision by storing ufsi over time and calculate drift
+        // over a bigger window
+        if (time_since_last_ufsi_us >= 10000000)
+            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / %.01lfppm drift (%.0lfus in %lds)", tr_eui64(address),
+                  1000000000.f * ufsi_drift_ms / time_since_last_ufsi_us, ufsi_drift_ms * 1000, time_since_last_ufsi_us / 1000000);
+        else
+            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / drift measure not available", tr_eui64(address));
     }
 }
 
