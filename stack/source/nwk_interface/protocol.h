@@ -220,7 +220,6 @@ struct net_if {
     buffer_t *(*if_snoop)(struct net_if *cur, buffer_t *buf, const sockaddr_t *ll_dst, const sockaddr_t *ll_src, bool *bounce);
     uint8_t (*if_llao_parse)(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
     uint8_t (*if_llao_write)(struct net_if *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
-    uint16_t (*etx_read_override)(struct net_if *cur, enum addrtype addr_type, const uint8_t *addr_ptr);
 };
 
 typedef NS_LIST_HEAD(struct net_if, link) protocol_interface_list_t;

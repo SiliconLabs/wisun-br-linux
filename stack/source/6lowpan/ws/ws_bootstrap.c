@@ -995,7 +995,6 @@ int ws_bootstrap_init(int8_t interface_id)
 
     cur->if_up = ws_bootstrap_up;
     cur->ws_info.neighbor_storage = neigh_info;
-    cur->etx_read_override = ws_etx_read;
 
     ws_bootstrap_configuration_reset(cur);
     addr_notification_register(ws_bootstrap_address_notification_cb);
