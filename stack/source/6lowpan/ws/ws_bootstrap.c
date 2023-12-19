@@ -668,7 +668,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 
 }
 
-static bool ws_neighbor_entry_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
+static bool ws_bootstrap_neighbor_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
 {
     uint32_t time_from_start = ws_neigh->mac_data.link_lifetime - ws_neigh->mac_data.lifetime;
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -923,7 +923,7 @@ int ws_bootstrap_init(int8_t interface_id)
     etx_max_set(WS_ETX_MAX);
 
     if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del,
-                                 ws_neighbor_entry_nud_notify)) {
+                                 ws_bootstrap_neighbor_nud_notify)) {
         ret_val = -1;
         goto init_fail;
     }
