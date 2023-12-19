@@ -36,7 +36,6 @@ typedef struct ext_neigh_info {
     const uint8_t *mac64;
 } ext_neigh_info_t;
 
-static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
 static void etx_cache_entry_init(uint8_t attribute_index);
 
 typedef struct ext_info {
@@ -257,61 +256,6 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
             etx_calculation(entry, attempts + accumulated_failures, 1, &etx_neigh_info);
         }
     }
-}
-
-/**
- * \brief A function to read local incoming IDR value
- *
- *  Returns local incoming IDR value for an address
- *
- * \param mac64_addr_ptr long MAC address
- *
- * \return 0x0100 to 0xFFFF incoming IDR value (8 bit fraction)
- * \return 0x0000 address unknown
- */
-uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index)
-{
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-    if (!entry) {
-        return 0;
-    }
-
-    if (etx_info.cache_sample_requested && entry->etx_samples < etx_info.init_etx_sample_count) {
-        //Not ready yet
-        return 0xffff;
-    }
-
-    return etx_current_calc(entry->etx, entry->accumulated_failures) >> 4;
-}
-
-/**
- * \brief A function to calculate current ETX
- *
- *  Returns current ETX value based on ETX and failed attempts. Return
- *  value is scaled by scaling factor
- *
- * \param etx ETX (12 bit fraction)
- * \param accumulated_failures failed attempts
- *
- * \return ETX value (12 bit fraction)
- */
-static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures)
-{
-    uint32_t current_etx;
-
-    // If there is no failed attempts
-    if (accumulated_failures == 0) {
-        current_etx = etx;
-    } else {
-        /* Calculates ETX estimate based on failed attempts
-           ETX = current ETX + 1/8 * (failed attempts << 12) */
-        current_etx = etx + (accumulated_failures << (12 - ETX_MOVING_AVERAGE_FRACTION));
-        if (current_etx > 0xffff) {
-            current_etx = 0xffff;
-        }
-    }
-
-    return current_etx;
 }
 
 bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size)

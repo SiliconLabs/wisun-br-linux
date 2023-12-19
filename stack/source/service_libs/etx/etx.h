@@ -66,18 +66,6 @@ typedef struct etx_sample_storage {
 void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
 
 /**
- * \brief A function to read local ETXvalue
- *
- *  Returns local ETX value for an address
- *
- * \param mac64_addr_ptr long MAC address
- *
- * \return 0x0100 to 0xFFFF ETX value (8 bit fraction)
- * \return 0x0000 address unknown
- */
-uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index);
-
-/**
  * \brief A function to allocte ETX storage list
  *
  * \param interface_id interface id
