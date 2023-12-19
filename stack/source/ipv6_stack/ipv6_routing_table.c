@@ -74,9 +74,6 @@
  * for garbage-collection. */
 #define DCACHE_GC_AGE_LL (120 / DCACHE_GC_PERIOD)  /* 2 minutes for link-local destinations, in DCACHE_GC_PERIOD intervals */
 
-/* For probable routers, consider them unreachable if ETX is greater than this */
-#define ETX_REACHABILITY_THRESHOLD 0x200    /* 8.8 fixed-point, so 2 */
-
 static NS_LIST_DEFINE(ipv6_destination_cache, ipv6_destination_t, link);
 static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 
@@ -265,22 +262,6 @@ static bool ipv6_neighbour_state_is_probably_reachable(ip_neighbour_cache_state_
             return true;
     }
     return false;
-}
-
-bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *n)
-{
-    if (!n) {
-        return false;
-    }
-    if (!ipv6_neighbour_state_is_probably_reachable(n->state)) {
-        return false;
-    }
-    uint16_t etx = ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, cache->interface_id, n, n->ip_address);
-    if (etx > ETX_REACHABILITY_THRESHOLD) {
-        /* "Unknown" is signalled as low values, so will be return "true" */
-        return false;
-    }
-    return true;
 }
 
 bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
