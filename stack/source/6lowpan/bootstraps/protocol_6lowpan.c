@@ -244,7 +244,7 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
     cur->ipv6_neighbour_cache.send_nud_probes = true;
-    cur->ipv6_neighbour_cache.probe_avoided_routers = true;
+    cur->ipv6_neighbour_cache.probe_avoided_routers = false;
     cur->max_link_mtu = LOWPAN_MAX_MTU;
     cur->send_mld = false;
 }

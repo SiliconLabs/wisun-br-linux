@@ -519,7 +519,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->ipv6_neighbour_cache.omit_na = true;
     /* Disable NUD Probes */
     cur->ipv6_neighbour_cache.send_nud_probes = false;
-    cur->ipv6_neighbour_cache.probe_avoided_routers = true;
+    cur->ipv6_neighbour_cache.probe_avoided_routers = false;
     /*Replace NS handler to disable multicast address queries */
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 

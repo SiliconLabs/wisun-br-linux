@@ -115,7 +115,7 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->recv_addr_reg = false;
     cache->send_addr_reg = false;
     cache->send_nud_probes = true;
-    cache->probe_avoided_routers = true;
+    cache->probe_avoided_routers = false;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
     memset(cache->route_if_info.sources, 0, sizeof(cache->route_if_info.sources));
