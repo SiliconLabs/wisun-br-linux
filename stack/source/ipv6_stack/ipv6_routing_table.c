@@ -740,13 +740,6 @@ static const char *route_src_names[] = {
     [ROUTE_REDIRECT] = "Redirect",
 };
 
-/* Which types of routes get probed as per RFC 4191 */
-/* (Others are assumed to be always reachable) */
-static const bool ipv6_route_probing[ROUTE_MAX] = {
-    [ROUTE_RADV] = true,
-    [ROUTE_ARO] = true,
-};
-
 static ipv6_route_next_hop_fn_t *ipv6_route_next_hop_computation[ROUTE_MAX];
 
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t fn)
