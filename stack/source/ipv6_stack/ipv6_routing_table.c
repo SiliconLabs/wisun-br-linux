@@ -1090,7 +1090,6 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         route->prefix_len = prefix_len;
         route->search_skip = false;
         route->probe = false;
-        route->probe_timer = 0;
         route->lifetime = lifetime;
         route->metric = metric;
         route->info.source = source;
@@ -1105,18 +1104,6 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         } else {
             route->on_link = true;
             memset(route->info.next_hop_addr, 0, 16);
-        }
-
-        /* See ipv6_route_probe - all routing entries to the same router
-         * want to share the same hold-off time, so search and copy.
-         */
-        if (next_hop) {
-            ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-                if (ipv6_route_same_router(r, route)) {
-                    route->probe_timer = r->probe_timer;
-                    break;
-                }
-            }
         }
 
         /* Routing table will be resorted during use, thanks to probing. */
@@ -1195,14 +1182,6 @@ static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ip
 void ipv6_route_table_ttl_update(int seconds)
 {
     ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
-        if (r->probe_timer) {
-            if (r->probe_timer > seconds) {
-                r->probe_timer -= seconds;
-            } else {
-                r->probe_timer = 0;
-            }
-        }
-
         if (r->lifetime == 0xFFFFFFFF) {
             continue;
         }

@@ -186,7 +186,6 @@ typedef struct ipv6_route {
     uint8_t             metric;             // 0x40 = RFC 4191 pref high, 0x80 = default, 0xC0 = RFC 4191 pref low
     ipv6_route_info_t   info;
     uint32_t            lifetime;           // (seconds); 0xFFFFFFFF means permanent
-    uint16_t            probe_timer;
     ns_list_link_t      link;
     uint8_t             prefix[];           // variable length
 } ipv6_route_t;
