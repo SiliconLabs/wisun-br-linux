@@ -115,7 +115,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->recv_addr_reg = false;
     cache->send_addr_reg = false;
     cache->send_nud_probes = true;
-    cache->probe_avoided_routers = false;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
     memset(cache->route_if_info.sources, 0, sizeof(cache->route_if_info.sources));
@@ -834,35 +833,6 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
 
 static void ipv6_route_probe(ipv6_route_t *route)
 {
-    addrtype_e ll_type;
-    const uint8_t *ll_addr;
-    struct net_if *interface = protocol_stack_interface_info_get_by_id(route->info.interface_id);
-    ipv6_neighbour_t *n;
-
-    if (!interface ||!interface->ipv6_neighbour_cache.probe_avoided_routers || route->probe_timer)
-        return;
-
-    n = ipv6_neighbour_lookup(&interface->ipv6_neighbour_cache, route->info.next_hop_addr);
-    if (!n) {
-        if (!ipv6_map_ip_to_ll(interface, NULL, route->info.next_hop_addr, &ll_type, &ll_addr) ||
-            ll_type != ADDR_802_15_4_LONG)
-            return;
-        n = ipv6_neighbour_create(&interface->ipv6_neighbour_cache, route->info.next_hop_addr, ll_addr + PAN_ID_LEN);
-    }
-    if (!n)
-        return;
-
-    ipv6_interface_resolve_send_ns(&interface->ipv6_neighbour_cache, n, true, 0);
-
-    /* We need to limit to once per minute *per router* - so set the hold-off
-     * timer for *all* routing entries to this router
-     */
-    ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        if (ipv6_route_same_router(r, route)) {
-            r->probe_timer = 60;
-            r->probe = false;
-        }
-    }
 }
 
 /* Return true is a is better than b */
@@ -977,14 +947,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
                 continue;
             }
 
-            if (ncache->probe_avoided_routers && ipv6_route_probing[route->info.source]) {
-                /* Going via a router - check reachability, as per RFC 4191.
-                 * This only applies for certain routes (currently those from RAs) */
-                reachable = ipv6_neighbour_addr_is_probably_reachable(ncache, route->info.next_hop_addr);
-            } else {
-                /* Can't probe, so have to assume router is reachable */
-                reachable = true;
-            }
+            reachable = true;
         }
 
         if (reachable) {
