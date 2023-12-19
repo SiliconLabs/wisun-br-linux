@@ -874,7 +874,6 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
 ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id)
 {
     ipv6_route_t *best = NULL;
-    bool reachable = false;
     bool need_to_probe = false;
 
     ns_list_foreach(ipv6_route_t, route, &ipv6_routing_table) {
@@ -913,9 +912,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
             break;
         }
 
-        if (route->on_link) {
-            reachable = true;
-        } else {
+        if (!route->on_link) {
             /* Some routes (eg RPL SR) compute next hop on demand */
             if (ipv6_route_next_hop_computation[route->info.source]) {
                 if (!ipv6_route_next_hop_computation[route->info.source](dest, &route->info)) {
@@ -930,26 +927,11 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
                 route->search_skip = true;
                 continue;
             }
-
-            reachable = true;
         }
 
-        if (reachable) {
-            /* If router is reachable, we'll take it now */
-            best = route;
-            break;
-        } else {
-            /* Otherwise, note it, and look for other less-good reachable ones */
-            route->search_skip = true;
-
-            /* As we would have used it, probe to check for reachability */
-            route->probe = need_to_probe = true;
-
-            if (!best) {
-                best = route;
-            }
-            continue;
-        }
+        /* If router is reachable, we'll take it now */
+        best = route;
+        break;
     }
 
     /* This is a bit icky - data structures are routes, but we need to probe
@@ -963,17 +945,6 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
             }
             r->probe = false;
         }
-    }
-
-    if (best && !reachable) {
-        /* We've chosen a non-reachable router; this means no routers were
-         * reachable. Move it to the bottom of the list, so that next time
-         * we do this, we try (and hence probe) another non-reachable router,
-         * otherwise we'll never make progress. This satisfies the
-         * round-robin requirement in RFC 4861 6.3.6.2, enhanced for RFC 4191.
-         */
-        ns_list_remove(&ipv6_routing_table, best);
-        ns_list_add_to_end(&ipv6_routing_table, best);
     }
 
     return best;
