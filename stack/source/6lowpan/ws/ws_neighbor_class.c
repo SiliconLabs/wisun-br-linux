@@ -35,6 +35,7 @@
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_management_api.h"
+#include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"
@@ -138,7 +139,8 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8
     }
 }
 
-void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update)
+// FIXME: remove net_if dependancy
+void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, struct net_if *cur, int time_update)
 {
     ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
 
@@ -156,11 +158,10 @@ void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_up
             // According to RFC 9010 section 9.2.1, a RUL is supposed to
             // refresh a registered address periodically.
             // Therefore we disable NUD for LFNs here.
-            if (neigh_table[i].node_role == WS_NR_ROLE_LFN || neigh_table[i].mac_data.nud_active)
+            if (neigh_table[i].node_role == WS_NR_ROLE_LFN ||
+                ws_nud_entry_discover(cur, neigh_table[i].mac_data.mac64))
                 continue;
-
-            if (class_data->nud_cb(&neigh_table[i]))
-                neigh_table[i].mac_data.nud_active = true;
+            class_data->nud_cb(&neigh_table[i]);
         } else {
             class_data->remove_cb(neigh_table[i].mac_data.mac64);
         }

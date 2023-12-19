@@ -65,6 +65,8 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 
 void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
 
+ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64);
+
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
 /*

@@ -35,7 +35,6 @@ typedef struct mac_neighbor_table_entry {
     uint32_t        ms_tx_count;            /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t        ms_retries_count;       /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
     bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
-    bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
 } mac_neighbor_table_entry_t;
 
 void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint8_t *mac64, uint32_t lifetime);

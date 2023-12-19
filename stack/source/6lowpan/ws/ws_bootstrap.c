@@ -161,7 +161,7 @@ static ws_nud_table_entry_t *ws_nud_entry_get_free(struct net_if *cur)
     return entry;
 }
 
-static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64)
+ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64)
 {
     ns_list_foreach(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
         if (!memcmp(entry->mac64, mac64, 8)) {
@@ -173,15 +173,8 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uin
 
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
-    struct llc_neighbour_req neighbor;
-
-    ws_bootstrap_neighbor_get(cur, entry->mac64, &neighbor);
-
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
     free(entry);
-
-    if (neighbor.ws_neighbor && neighbor.ws_neighbor->mac_data.nud_active)
-        neighbor.ws_neighbor->mac_data.nud_active = false;
 }
 
 static void ws_nud_entry_remove(struct net_if *cur, const uint8_t *mac64)
@@ -581,7 +574,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
         if (!neigh_table[i].mac_data.in_use)
             continue;
 
-        if (neigh_table[i].mac_data.nud_active)
+        if (ws_nud_entry_discover(interface, neigh_table[i].mac_data.mac64))
             //If NUD process is active do not trig
             // or Negative ARO is active
             continue;
