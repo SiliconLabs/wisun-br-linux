@@ -430,44 +430,6 @@ static void ws_bootstrap_ll_address_validate(struct net_if *cur)
     cur->iid_slaac[0] ^= 2;
 }
 
-/* \return 0x0100 to 0xFFFF ETX value (8 bit fraction)
- * \return 0xFFFF address not associated
- * \return 0x0000 address unknown or other error
- * \return 0x0001 no ETX statistics on this interface
- */
-static uint16_t ws_etx_read(struct net_if *interface, addrtype_e addr_type, const uint8_t *mac_adddress)
-{
-    struct llc_neighbour_req neighbor;
-    etx_storage_t *etx_entry;
-    uint16_t etx;
-
-    if (!mac_adddress || !interface)
-        return 0;
-    if (!ws_bootstrap_neighbor_get(interface, mac_adddress, &neighbor))
-        return 0xffff;
-
-    etx_entry = etx_storage_entry_get(interface->id, neighbor.ws_neighbor->mac_data.index);
-    etx = etx_local_etx_read(interface->id, neighbor.ws_neighbor->mac_data.index);
-
-    if (!etx_entry)
-        return 0xffff;
-
-    // if we have a measurement ready then we will check the RSL validity
-    if (etx != 0xffff && !neighbor.ws_neighbor->candidate_parent) {
-        // RSL value measured is lower than acceptable ETX will be given as MAX
-        return WS_ETX_MAX << 1; // We use 8 bit fraction and ETX is usually 7 bit fraction
-    }
-
-    // If we dont have valid ETX for children we assume good ETX.
-    // After enough packets is sent to children real calculated ETX is given.
-    // This might result in ICMP source route errors returned to Border router causing secondary route uses
-    if (etx == 0xffff && ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neighbor.ws_neighbor->mac_data.mac64)) {
-        return 0x100;
-    }
-
-    return etx;
-}
-
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
 {
     (void)cur;
