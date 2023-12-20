@@ -22,7 +22,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "app_wsbrd/rcp_api_legacy.h"

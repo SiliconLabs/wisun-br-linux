@@ -30,7 +30,6 @@
 #include "common/time_extra.h"
 #include "common/version.h"
 #include "common/events_scheduler.h"
-#include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 
@@ -866,22 +865,6 @@ int ws_bootstrap_init(int8_t interface_id)
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_frame_counter_per_key(true);
 
-    if (!etx_storage_list_allocate(cur->id, neighbors_table_size)) {
-        return -1;
-    }
-    if (!etx_cached_etx_parameter_set(WS_ETX_MIN_WAIT_TIME, WS_ETX_MIN_SAMPLE_COUNT, WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT)) {
-        etx_storage_list_allocate(cur->id, 0);
-        return -1;
-    }
-
-    if (!etx_allow_drop_for_poor_measurements(WS_ETX_BAD_INIT_LINK_LEVEL, WS_ETX_MAX_BAD_LINK_DROP)) {
-        etx_storage_list_allocate(cur->id, 0);
-        return -1;
-    }
-
-    etx_max_update_set(WS_ETX_MAX_UPDATE);
-    etx_max_set(WS_ETX_MAX);
-
     if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del,
                                  ws_bootstrap_neighbor_nud_notify)) {
         ret_val = -1;
@@ -976,7 +959,6 @@ int ws_bootstrap_init(int8_t interface_id)
 init_fail:
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
     ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    etx_storage_list_allocate(cur->id, 0);
     ws_neighbor_class_dealloc(&neigh_info);
     ws_llc_delete(cur);
     ws_eapol_pdu_delete(cur);

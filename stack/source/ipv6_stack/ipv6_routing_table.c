@@ -41,7 +41,6 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "service_libs/etx/etx.h"
 
 #include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_constants.h"

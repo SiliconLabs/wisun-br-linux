@@ -209,7 +209,6 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/sec_prot_lib.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    stack/source/service_libs/etx/etx.c
     stack/source/service_libs/fnv_hash/fnv_hash.c
     stack/source/service_libs/hmac/hmac_md.c
     stack/source/service_libs/ieee_802_11/ieee_802_11.c

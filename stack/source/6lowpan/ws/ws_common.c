@@ -28,7 +28,6 @@
 #include "common/endian.h"
 #include "common/ns_list.h"
 #include "common/utils.h"
-#include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/events_scheduler.h"
 #include "6lowpan/mac/mac_common_defines.h"

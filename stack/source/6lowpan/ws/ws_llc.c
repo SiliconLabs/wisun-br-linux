@@ -34,7 +34,6 @@
 #include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/etx/etx.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -439,9 +438,6 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 break;
             if (neighbor_llc->ws_neighbor->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->ws_neighbor->node_role))
                 break;
-            if (!base->high_priority_mode)
-                etx_transm_attempts_update(base->interface_ptr->id, confirm->tx_retries + 1, success,
-                                           neighbor_llc->ws_neighbor->mac_data.index, neighbor_llc->ws_neighbor->mac_data.mac64);
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
                     neighbor_llc->ws_neighbor->mac_data.lifetime = neighbor_llc->ws_neighbor->mac_data.link_lifetime;

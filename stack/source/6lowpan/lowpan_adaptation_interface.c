@@ -25,7 +25,6 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/version.h"
-#include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "common/events_scheduler.h"
