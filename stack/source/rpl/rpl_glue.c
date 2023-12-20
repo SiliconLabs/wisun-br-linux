@@ -58,22 +58,31 @@ bool rpl_glue_process_rpi(struct rpl_root *root, struct buffer *buf,
         .data_size = opt_len,
         .data = opt,
     };
-    uint8_t flags;
+    uint8_t flags, instance_id;
+    uint16_t rank;
 
-    flags = iobuf_pop_u8(&iobuf);
-    // FIXME: To comply with RFC 6550 11.2.2.2, the packet should only be
-    // dropped if the R bit is set.
-    if (FIELD_GET(RPL_MASK_RPI_O, flags)) {
-        TRACE(TR_DROP, "drop %-9s: invalid down direction", "rpl-ipv6");
-        return false;
-    }
-    if (iobuf_pop_u8(&iobuf) != root->instance_id) {
+    flags       = iobuf_pop_u8(&iobuf);
+    instance_id = iobuf_pop_u8(&iobuf);
+    rank        = iobuf_pop_be16(&iobuf);
+
+    if (instance_id != root->instance_id) {
         TRACE(TR_DROP, "drop %-9s: invalid InstanceID", "rpl-ipv6");
         return false;
     }
-    if (iobuf_pop_be16(&iobuf) <= rpl_dag_rank(root, rpl_root_rank(root))) {
-        TRACE(TR_DROP, "drop %-9s: invalid rank", "rpl-ipv6");
-        return false;
+    // It is not clear from RFC 6550, but it was confirmed by one of the
+    // authors that SenderRank = 0 signifies "not set" and the O R F flags
+    // should be ignored in that case.
+    if (rank) {
+        // FIXME: To comply with RFC 6550 11.2.2.2, the packet should only be
+        // dropped if the R bit is set.
+        if (FIELD_GET(RPL_MASK_RPI_O, flags)) {
+            TRACE(TR_DROP, "drop %-9s: invalid down direction", "rpl-ipv6");
+            return false;
+        }
+        if (rank <= rpl_dag_rank(root, rpl_root_rank(root))) {
+            TRACE(TR_DROP, "drop %-9s: invalid rank", "rpl-ipv6");
+            return false;
+        }
     }
     buf->options.ip_extflags |= IPEXT_HBH_RPL;
     return !iobuf.err;
