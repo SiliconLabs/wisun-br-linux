@@ -25,7 +25,7 @@ static void timer_update_monotonic_time(int ticks)
 static void timer_refresh_neighbors(int time_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();
-    ws_neighbor_class_refresh(&interface->ws_info.neighbor_storage, interface, time_update);
+    ws_neighbor_class_refresh(&interface->ws_info.neighbor_storage, time_update);
 }
 
 #define timer_entry(name, callback, period_ms, is_periodic) \

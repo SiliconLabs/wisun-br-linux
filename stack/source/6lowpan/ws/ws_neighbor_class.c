@@ -46,8 +46,7 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb,
-                             neighbor_entry_nud_notify *nud_cb)
+bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
 {
     ws_neighbor_class_entry_t *list_ptr;
 
@@ -58,7 +57,6 @@ bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size,
 
     class_data->list_size = list_size;
     class_data->remove_cb = remove_cb;
-    class_data->nud_cb = nud_cb;
     list_ptr = class_data->neigh_info_list;
 
     for (uint8_t i = 0; i < list_size; i++) {
@@ -139,8 +137,7 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8
     }
 }
 
-// FIXME: remove net_if dependancy
-void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, struct net_if *cur, int time_update)
+void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update)
 {
     ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
 
@@ -153,15 +150,6 @@ void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, struct net_
                 continue; //Infinite Lifetime too not touch
 
             neigh_table[i].mac_data.lifetime -= time_update;
-
-            // The Wi-SUN specification does not detail the usage of NUD for LFNs.
-            // According to RFC 9010 section 9.2.1, a RUL is supposed to
-            // refresh a registered address periodically.
-            // Therefore we disable NUD for LFNs here.
-            if (neigh_table[i].node_role == WS_NR_ROLE_LFN ||
-                ws_nud_entry_discover(cur, neigh_table[i].mac_data.mac64))
-                continue;
-            class_data->nud_cb(&neigh_table[i]);
         } else {
             class_data->remove_cb(neigh_table[i].mac_data.mac64);
         }

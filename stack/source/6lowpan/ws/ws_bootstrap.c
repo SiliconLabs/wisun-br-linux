@@ -137,159 +137,6 @@ static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8
     return event_send(&event);
 }
 
-void ws_nud_table_reset(struct net_if *cur)
-{
-    //Empty active list
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
-        ns_list_remove(&cur->ws_info.active_nud_process, entry);
-        free(entry);
-    }
-}
-
-static ws_nud_table_entry_t *ws_nud_entry_get_free(struct net_if *cur)
-{
-    ws_nud_table_entry_t *entry = malloc(sizeof(ws_nud_table_entry_t));
-
-    if (!entry)
-        return NULL;
-
-    memset(entry, 0, sizeof(ws_nud_table_entry_t));
-
-    entry->timer = rand_get_random_in_range(1, 900);
-    ns_list_add_to_end(&cur->ws_info.active_nud_process, entry);
-    return entry;
-}
-
-ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64)
-{
-    ns_list_foreach(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
-        if (!memcmp(entry->mac64, mac64, 8)) {
-            return entry;
-        }
-    }
-    return NULL;
-}
-
-static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
-{
-    ns_list_remove(&cur->ws_info.active_nud_process, entry);
-    free(entry);
-}
-
-static void ws_nud_entry_remove(struct net_if *cur, const uint8_t *mac64)
-{
-    ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, mac64);
-
-    if (nud_entry) {
-        ws_nud_state_clean(cur, nud_entry);
-    }
-}
-
-if_address_entry_t *ws_probe_aro_address(struct net_if *interface)
-{
-    if (interface->global_address_available) {
-        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (addr_ipv6_scope(address->address) > IPV6_SCOPE_LINK_LOCAL) {
-                return address;
-            }
-        }
-    }
-    return NULL;
-}
-
-static bool ws_nud_message_build(struct net_if *cur, mac_neighbor_table_entry_t *neighbor, bool nud_process)
-{
-    //Send NS
-    uint8_t ll_target[16];
-    struct ipv6_nd_opt_earo aro_temp;
-    //SET ARO and src address pointer to NULL by default
-    struct ipv6_nd_opt_earo *aro_ptr = NULL;
-    uint8_t *src_address_ptr = NULL;
-
-    ws_common_create_ll_address(ll_target, neighbor->mac64);
-    if (!nud_process) {
-        if_address_entry_t *gp_address = ws_probe_aro_address(cur);
-        if (gp_address) {
-            src_address_ptr = gp_address->address;
-            aro_temp.status = ARO_SUCCESS;
-            aro_temp.present = true;
-            memcpy(aro_temp.eui64, cur->mac, 8);
-            //Just Short Test
-            aro_temp.lifetime = 1;
-            aro_ptr = &aro_temp;
-        }
-    }
-    buffer_t *buffer = icmpv6_build_ns(cur, ll_target, src_address_ptr, true, false, aro_ptr);
-    if (buffer) {
-        buffer->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
-        protocol_push(buffer);
-        return true;
-    }
-    return false;
-}
-
-void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
-{
-    struct llc_neighbour_req neighbor;
-
-    //Convert TICKS to real milliseconds
-    if (ticks > 0xffff / 100) {
-        ticks = 0xffff;
-    } else if (ticks == 0) {
-        ticks = 1;
-    } else {
-        ticks *= 100;
-    }
-
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
-        ws_bootstrap_neighbor_get(cur, entry->mac64, &neighbor);
-
-        if (!neighbor.ws_neighbor) {
-            ws_nud_state_clean(cur, entry);
-            continue;
-        }
-
-        if (entry->timer <= ticks) {
-            //TX Process or timeout
-            if (entry->wait_response) {
-                //Timeout for NUD or Probe
-                if (entry->nud_process) {
-                    tr_debug("NUD NA timeout");
-                    if (entry->retry_count < 2) {
-                        entry->timer = rand_get_random_in_range(1, 900);
-                        entry->wait_response = false;
-                    } else {
-                        //Clear entry from active list
-                        ws_nud_state_clean(cur, entry);
-                        //Remove whole entry
-                        ws_bootstrap_neighbor_del(neighbor.ws_neighbor->mac_data.mac64);
-                    }
-                } else {
-                    ws_nud_state_clean(cur, entry);
-                }
-
-            } else {
-                //Random TX wait period is over
-                entry->wait_response = ws_nud_message_build(cur, &neighbor.ws_neighbor->mac_data, entry->nud_process);
-                if (!entry->wait_response) {
-                    if (entry->nud_process && entry->retry_count < 2) {
-                        entry->timer = rand_get_random_in_range(1, 900);
-                    } else {
-                        //Clear entry from active list
-                        //Remove and try again later on
-                        ws_nud_state_clean(cur, entry);
-                    }
-                } else {
-                    entry->retry_count++;
-                    entry->timer = 5001;
-                }
-            }
-        } else {
-            entry->timer -= ticks;
-        }
-    }
-}
-
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
     cur->ws_info.hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
@@ -491,8 +338,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         WARN();
     }
 
-    ws_nud_table_reset(cur);
-
     // Zero uptime counters
     cur->ws_info.uptime = 0;
     cur->ws_info.authentication_time = 0;
@@ -532,11 +377,6 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
         if (!neigh_table[i].mac_data.in_use)
-            continue;
-
-        if (ws_nud_entry_discover(interface, neigh_table[i].mac_data.mac64))
-            //If NUD process is active do not trig
-            // or Negative ARO is active
             continue;
 
         if (oldest_neigh && oldest_neigh->mac_data.lifetime < neigh_table[i].mac_data.lifetime)
@@ -619,79 +459,8 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     }
 
     protocol_6lowpan_release_long_link_address_from_neighcache(cur, mac64);
-
-    //NUD Process Clear Here
-    ws_nud_entry_remove(cur, mac64);
-
     ws_bootstrap_neighbor_delete(cur, &neighbor.ws_neighbor->mac_data);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
-
-}
-
-static bool ws_bootstrap_neighbor_nud_notify(ws_neighbor_class_entry_t *ws_neigh)
-{
-    uint32_t time_from_start = ws_neigh->mac_data.link_lifetime - ws_neigh->mac_data.lifetime;
-    struct net_if *cur = protocol_stack_interface_info_get();
-    bool activate_nud = false;
-    bool nud_proces = false;
-    bool child;
-
-    if (!ws_neigh->mac_data.trusted_device || ws_neigh->mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
-        return false;
-
-    if (lowpan_adaptation_expedite_forward_state_get(cur)) {
-        //Do not send any probe or NUD when Expedite forward state is enabled
-        return false;
-    }
-
-    if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
-
-        child = ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, ws_neigh->mac_data.mac64);
-        /* For parents ARO registration is sent in link timeout times
-         * For candidate parents NUD is needed
-         * For children NUD is sent only at very close to end
-         */
-        if (!child) {
-            // No need for keep alive
-            return false;
-        }
-        if (child && (time_from_start < WS_NEIGHBOR_NUD_TIMEOUT * 1.8)) {
-            /* This is our child with valid ARO registration send NUD if we are close to delete
-             *
-             * if ARO was received link is considered active so this is only in case of very long ARO registration times
-             *
-             * 1.8 means with link timeout of 30 minutes that NUD is sent 6 minutes before timeout
-             *
-             */
-            return false;
-        }
-
-        if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT * 1.5) {
-            activate_nud = true;
-        } else {
-            uint16_t switch_prob = rand_get_random_in_range(0, WS_NUD_RANDOM_SAMPLE_LENGTH - 1);
-            //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
-            if (switch_prob < WS_NUD_RANDOM_COMPARE) {
-                activate_nud = true;
-            }
-        }
-        nud_proces = activate_nud;
-    }
-
-    if (!activate_nud) {
-        return false;
-    }
-
-    ws_nud_table_entry_t *entry = ws_nud_entry_get_free(cur);
-    if (!entry) {
-        return false;
-    }
-
-    memcpy(entry->mac64, ws_neigh->mac_data.mac64, 8);
-    entry->nud_process = nud_proces;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor unreachable %s / %ds", tr_eui64(ws_neigh->mac_data.mac64), ws_neigh->mac_data.lifetime);
-
-    return true;
 }
 
 static void ws_bootstrap_pan_version_increment(struct net_if *cur)
@@ -865,8 +634,7 @@ int ws_bootstrap_init(int8_t interface_id)
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_frame_counter_per_key(true);
 
-    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del,
-                                 ws_bootstrap_neighbor_nud_notify)) {
+    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
         goto init_fail;
     }

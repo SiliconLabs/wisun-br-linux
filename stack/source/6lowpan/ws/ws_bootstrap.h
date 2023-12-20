@@ -63,10 +63,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
-
-ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, const uint8_t *mac64);
-
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
 /*
@@ -85,7 +81,6 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
 bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
-void ws_nud_table_reset(struct net_if *cur);
 
 
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);

@@ -848,15 +848,6 @@ void lowpan_adaptation_expedite_forward_enable(struct net_if *cur)
     lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
 }
 
-bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur)
-{
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
-    if (!interface_ptr || !interface_ptr->last_rx_high_priority) {
-        return false;
-    }
-    return true;
-}
-
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();

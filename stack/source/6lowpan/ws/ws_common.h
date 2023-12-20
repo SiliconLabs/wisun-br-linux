@@ -32,15 +32,6 @@
 
 struct ws_cfg;
 
-typedef struct ws_nud_table_entry {
-    uint8_t                         mac64[8];
-    uint16_t                        timer;                    /*!< Timer which resolution is 100ms*/
-    unsigned                        retry_count: 2;
-    bool                            wait_response: 1;           /*!< True when NS is sended and wait NA, False when random timer is active*/
-    bool                            nud_process;
-    ns_list_link_t  link;
-} ws_nud_table_entry_t;
-
 #define NO_PENDING_PROCESS 0
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
@@ -54,8 +45,6 @@ typedef struct ws_bsi_block {
     uint32_t block_time;
     uint16_t old_bsi;
 } ws_bsi_block_t;
-
-typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 /**
  * @brief WS channel functions.
@@ -120,7 +109,6 @@ typedef struct ws_info {
     uint16_t network_pan_id;
     bool configuration_learned: 1;
     ws_pending_key_index_t pending_key_index_info;
-    ws_nud_table_list_t active_nud_process;
     struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information pan_information;
     ws_hopping_schedule_t hopping_schedule;
@@ -143,8 +131,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur);
 void ws_common_seconds_timer(int seconds);
 
 void ws_common_fast_timer(int ticks);
-
-void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
 

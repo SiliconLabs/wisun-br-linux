@@ -130,7 +130,6 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
 int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
     memset(&cur->ws_info, 0, sizeof(ws_info_t));
-    ns_list_init(&cur->ws_info.active_nud_process);
 
     cur->ws_info.network_pan_id = 0xffff;
     cur->ws_info.pan_information.use_parent_bs = true;
@@ -170,15 +169,7 @@ void ws_common_fast_timer(int ticks)
         return;
 
     ws_bootstrap_trickle_timer(cur, ticks);
-    ws_nud_active_timer(cur, ticks);
     ws_llc_fast_timer(cur, ticks);
-}
-
-void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
-{
-    memcpy(ll_address, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(ll_address + 8, mac64, 8);
-    ll_address[8] ^= 2;
 }
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
