@@ -744,6 +744,8 @@ def put_transmitter_icmpv6():
 
     dst_eui64 = bytes()
     for eui64, properties in wsbrd.dbus().nodes:
+        if not properties.get('is_neighbor', ('b', False))[1]:
+            continue
         if 'ipv6' not in properties:
             continue
         assert properties['ipv6'][0] == 'aay'
