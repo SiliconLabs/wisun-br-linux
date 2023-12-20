@@ -374,30 +374,12 @@ typedef struct ws_bs_ie {
 
 #define WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME 240
 #define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 5
-#define WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME 60
 #define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE 520
 #define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL 260
 
 #define WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT 330
 #define WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT
 #define WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT 750
-
-#define WS_NEIGHBOR_ETX_SAMPLE_MAX 3
-#define WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT 3 //This can't be bigger than WS_NEIGHBOR_ETX_SAMPLE_MAX
-
-#define WS_SMALL_PROBE_INIT_BASE_SECONDS 4
-#define WS_NORMAL_PROBE_INIT_BASE_SECONDS 8
-
-#define WS_ETX_MIN_SAMPLE_COUNT 4
-
-#define WS_ETX_MAX_UPDATE 1024
-#define WS_ETX_MAX 1024
-
-#define WS_ETX_MIN_WAIT_TIME 60
-
-#define WS_ETX_BAD_INIT_LINK_LEVEL 3 //3 or higher attempt count will be dropped
-#define WS_ETX_MAX_BAD_LINK_DROP 2 //Drop 2 bad link from init 3
-
 
 #define WS_RPL_PARENT_CANDIDATE_MAX 5
 #define WS_RPL_SELECTED_PARENT_MAX 2
@@ -414,15 +396,6 @@ typedef struct ws_bs_ie {
  */
 #define CAND_PARENT_HYSTERISIS 3
 
-/*
- * value when send the first RPL DIS in 100ms ticks. Value is randomized between timeout/2 - timeout
- */
-#define WS_RPL_DIS_INITIAL_TIMEOUT 600
-/*
- * value when send subsequent RPL DIS in 100 ms tics. Value is randomized between timeout/2 - timeout
- */
-#define WS_RPL_DIS_TIMEOUT 1800
-
 /* WS requires at least 19 MAC retransmissions (total 1+19=20 attempts). Default 802.15.4 macMaxFrameRetries is 3 (total 1+3=4 attempts).
  * At least 4 request restarts must be used: (Initial channel + WS_TX_REQUEST_RESTART_MAX) * MAC attempts = (1+4)*4=20 attempts
  *
@@ -436,14 +409,11 @@ typedef struct ws_bs_ie {
  */
 // This configuration is used when bootstrap is ready
 #define WS_MAX_FRAME_RETRIES            3
-// This configuration is used during bootstrap
-#define WS_MAX_FRAME_RETRIES_BOOTSTRAP  0
 
 // Configuring data request restart allows MAC to push failed packet back to MAC TX queue up to WS_CCA_REQUEST_RESTART_MAX times for CCA failure and WS_TX_REQUEST_RESTART_MAX for TX failure.
 // Packet cannot be taken back to transmission before it has finished the blacklist period.
 #define WS_CCA_REQUEST_RESTART_MAX          4
 #define WS_TX_REQUEST_RESTART_MAX           4
-#define WS_TX_REQUEST_RESTART_MAX_BOOTSTRAP 19
 #define WS_REQUEST_RESTART_BLACKLIST_MIN    20
 #define WS_REQUEST_RESTART_BLACKLIST_MAX    300
 
@@ -465,11 +435,6 @@ typedef struct ws_bs_ie {
 #define CCA_HIGH_LIMIT  -60
 #define CCA_LOW_LIMIT   -100
 
-
-/*
- * Config new version consistent filter period in 100ms periods
- */
-#define WS_CONFIG_CONSISTENT_FILTER_PERIOD 100
 
 /* Default FHSS timing information
  *
