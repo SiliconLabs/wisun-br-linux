@@ -614,7 +614,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
 
 buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffer_t *buf)
 {
-    struct llc_neighbour_req neigh_entry_ptr;
+    struct ws_neighbor_class_entry *ws_neigh;
 
     //Validate is link known and set indirect, datareq and security key id mode
     if (buf->dst_sa.addr_type == ADDR_NONE) {
@@ -627,10 +627,10 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->dst_sa.address[3] = 0xff;
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
-        ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN, &neigh_entry_ptr);
+        ws_neigh = ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN);
 
         //Validate neighbour
-        if (!neigh_entry_ptr.ws_neighbor || !neigh_entry_ptr.ws_neighbor->mac_data.trusted_device)
+        if (!ws_neigh || !ws_neigh->mac_data.trusted_device)
             goto tx_error_handler;
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
@@ -645,7 +645,7 @@ tx_error_handler:
 
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur)
 {
-    llc_neighbour_req_t neighbor_llc;
+    struct ws_neighbor_class_entry *ws_neigh;
 
     memset(dataReq, 0, sizeof(mcps_data_req_t));
     //Check do we need fragmentation
@@ -662,10 +662,9 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     //Set Messages
     dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
-        ws_bootstrap_neighbor_get(cur, dataReq->DstAddr, &neighbor_llc);
+        ws_neigh = ws_bootstrap_neighbor_get(cur, dataReq->DstAddr);
 
-        if ((neighbor_llc.ws_neighbor && neighbor_llc.ws_neighbor->node_role == WS_NR_ROLE_LFN) ||
-            buf->options.lfn_multicast)
+        if ((ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
         else
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
@@ -860,17 +859,19 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
 {
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
-    llc_neighbour_req_t neighbor_llc;
     int lfn_bc_interval_s = cur->ws_info.cfg->fhss.lfn_bc_interval / 1000;
+    struct ws_neighbor_class_entry *ws_neigh;
     int lfn_uc_l_interval_s;
 
     if (buf->options.lfn_multicast) {
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     } else {
-        if (!ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN, &neighbor_llc))
+        ws_neigh = ws_bootstrap_neighbor_get(cur, buf->dst_sa.address + PAN_ID_LEN);
+
+        if (!ws_neigh)
             return true;
-        if (neighbor_llc.ws_neighbor->node_role == WS_NR_ROLE_LFN) {
-            lfn_uc_l_interval_s = neighbor_llc.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms / 1000;
+        if (ws_neigh->node_role == WS_NR_ROLE_LFN) {
+            lfn_uc_l_interval_s = ws_neigh->fhss_data.lfn.uc_listen_interval_ms / 1000;
             return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
         }
     }

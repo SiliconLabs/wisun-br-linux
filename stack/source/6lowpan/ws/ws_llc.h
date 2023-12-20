@@ -76,13 +76,6 @@ struct ws_llc_mngt_req {
     struct mlme_security security;
 };
 
-/**
- * @brief LLC neighbour info request parameters
- */
-typedef struct llc_neighbour_req {
-    struct ws_neighbor_class_entry *ws_neighbor;                /**< Wi-sun Neighbor information entry. */
-} llc_neighbour_req_t;
-
 typedef struct eapol_temporary_info {
     uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
     uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */

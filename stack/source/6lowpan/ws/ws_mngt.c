@@ -75,14 +75,14 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_ind_ie_list *ie_ext)
 {
-    struct llc_neighbour_req neighbor_llc;
+    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
     ws_pom_ie_t ie_pom;
 
-    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_llc))
+    if (!ws_neigh)
         return;
     if (!ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pom))
         return;
-    neighbor_llc.ws_neighbor->pom_ie = ie_pom;
+    ws_neigh->pom_ie = ie_pom;
 }
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
@@ -140,7 +140,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_ind_ie_list *ie_ext)
 {
-    llc_neighbour_req_t neighbor_info;
+    struct ws_neighbor_class_entry *ws_neigh;
     uint16_t ws_pan_version;
     ws_utt_ie_t ie_utt;
     ws_bt_ie_t ie_bt;
@@ -182,18 +182,18 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                    &net_if->ws_info.mngt.trickle_params);
 
-    if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
-        ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
-                                    ie_us.dwell_interval, data->SrcAddr);
-    }
+    ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
+    if (!ws_neigh)
+        return;
+    ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neighbor_class_us_update(net_if, ws_neigh, &ie_us.chan_plan,ie_us.dwell_interval, data->SrcAddr);
 }
 
 void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_ind_ie_list *ie_ext)
 {
-    llc_neighbour_req_t neighbor_info;
+    struct ws_neighbor_class_entry *ws_neigh;
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
@@ -212,11 +212,11 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                &net_if->ws_info.mngt.trickle_params);
 
-    if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
-        ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
-                                    ie_us.dwell_interval, data->SrcAddr);
-    }
+    ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
+    if (!ws_neigh)
+        return;
+    ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neighbor_class_us_update(net_if, ws_neigh, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
 }
 
 static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
@@ -265,7 +265,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ind_ie_list *ie_ext)
 {
-    llc_neighbour_req_t neighbor;
+    struct ws_neighbor_class_entry *ws_neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct ws_lnd_ie ie_lnd;
@@ -321,24 +321,29 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     }
 
     add_neighbor = false;
-    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+    ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
+
+    if (!ws_neigh) {
         add_neighbor = true;
-    } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_LFN) {
+    } else if (ws_neigh->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(neighbor.ws_neighbor->mac_data.mac64);
+        ws_bootstrap_neighbor_del(ws_neigh->mac_data.mac64);
         add_neighbor = true;
     }
-    if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_LFN)) {
-        TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
-        return;
+    if (add_neighbor) {
+        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_LFN);
+        if (!ws_neigh) {
+            TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
+            return;
+        }
     }
 
-    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
-    ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor, &ie_lcp.chan_plan, ie_lus.listen_interval);
-    ws_neighbor_class_lnd_update(neighbor.ws_neighbor, &ie_lnd, data->timestamp);
+    ws_neighbor_class_lus_update(net_if, ws_neigh, &ie_lcp.chan_plan, ie_lus.listen_interval);
+    ws_neighbor_class_lnd_update(ws_neigh, &ie_lnd, data->timestamp);
 
-    ws_neighbor_class_nr_update(neighbor.ws_neighbor, &ie_nr);
+    ws_neighbor_class_nr_update(ws_neigh, &ie_nr);
 
     ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
 }
@@ -368,7 +373,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ind_ie_list *ie_ext)
 {
-    llc_neighbour_req_t neighbor;
+    struct ws_neighbor_class_entry *ws_neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct ws_lcp_ie ie_lcp;
@@ -396,15 +401,16 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
             return;
     }
 
-    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+    ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
+    if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
         return;
     }
 
-    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
     if (has_lus)
-        ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor,
+        ws_neighbor_class_lus_update(net_if, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
                                      ie_lus.listen_interval);
 

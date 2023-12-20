@@ -193,10 +193,10 @@ static uint8_t test_drop_data_message = 0;
 
 static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui64[8])
 {
-    llc_neighbour_req_t neighbor;
+    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(interface, eui64);
 
-    if (ws_bootstrap_neighbor_get(interface, eui64, &neighbor))
-        return neighbor.ws_neighbor->node_role;
+    if (ws_neigh)
+        return ws_neigh->node_role;
     else
         return WS_NR_ROLE_UNKNOWN;
 }
@@ -420,7 +420,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
                                 const struct mcps_data_cnf *confirm,
                                 const mcps_data_cnf_ie_list_t *confirm_data,
-                                struct llc_neighbour_req *neighbor_llc)
+                                struct ws_neighbor_class_entry *ws_neigh)
 {
     const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
     struct mcps_data_cnf mpx_confirm;
@@ -434,24 +434,24 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_SUCCESS:
         case MLME_TX_NO_ACK:
         case MLME_NO_DATA:
-            if (!neighbor_llc->ws_neighbor)
+            if (!ws_neigh)
                 break;
-            if (neighbor_llc->ws_neighbor->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor_llc->ws_neighbor->node_role))
+            if (ws_neigh->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    neighbor_llc->ws_neighbor->mac_data.lifetime = neighbor_llc->ws_neighbor->mac_data.link_lifetime;
-                ws_neighbor_class_ut_update(neighbor_llc->ws_neighbor, ie_utt.ufsi, confirm->timestamp,
-                                            neighbor_llc->ws_neighbor->mac_data.mac64);
+                    ws_neigh->mac_data.lifetime = ws_neigh->mac_data.link_lifetime;
+                ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp,
+                                            ws_neigh->mac_data.mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    neighbor_llc->ws_neighbor->mac_data.lifetime = neighbor_llc->ws_neighbor->mac_data.link_lifetime;
-                ws_neighbor_class_lut_update(neighbor_llc->ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                             confirm->timestamp, neighbor_llc->ws_neighbor->mac_data.mac64);
+                    ws_neigh->mac_data.lifetime = ws_neigh->mac_data.link_lifetime;
+                ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                             confirm->timestamp, ws_neigh->mac_data.mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
-                ws_neighbor_class_rsl_out_calculate(neighbor_llc->ws_neighbor, ie_rsl);
+                ws_neighbor_class_rsl_out_calculate(ws_neigh, ie_rsl);
             break;
         }
     }
@@ -464,21 +464,21 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     }
 }
 
-static bool tx_confirm_extensive(struct llc_neighbour_req *neighbor_llc, time_t tx_confirm_duration)
+static bool tx_confirm_extensive(struct ws_neighbor_class_entry *ws_neigh, time_t tx_confirm_duration)
 {
-    if (!neighbor_llc->ws_neighbor)
+    if (!ws_neigh)
         return false;
 
-    if (neighbor_llc->ws_neighbor->node_role == WS_NR_ROLE_LFN)
-        return tx_confirm_duration * 1000 >= neighbor_llc->ws_neighbor->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN)
+        return tx_confirm_duration * 1000 >= ws_neigh->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
     return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
 
 void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
+    struct ws_neighbor_class_entry *ws_neigh = NULL;
     struct ws_neighbor_temp_class *neighbor_tmp;
-    struct llc_neighbour_req neighbor_llc = { };
     struct llc_data_base *base;
     struct llc_message *msg;
     time_t tx_confirm_duration;
@@ -491,10 +491,10 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
         return;
 
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
-        ws_bootstrap_neighbor_get(net_if, msg->dst_address, &neighbor_llc);
+        ws_neigh = ws_bootstrap_neighbor_get(net_if, msg->dst_address);
 
-    if (neighbor_llc.ws_neighbor)
-        ws_llc_rate_handle_tx_conf(base, data, &neighbor_llc.ws_neighbor->mac_data);
+    if (ws_neigh)
+        ws_llc_rate_handle_tx_conf(base, data, &ws_neigh->mac_data);
 
     if (msg->eapol_temporary && (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA)) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
@@ -506,12 +506,12 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const 
 
     switch (msg->message_type) {
     case WS_FT_DATA:
-        if (tx_confirm_extensive(&neighbor_llc, tx_confirm_duration))
+        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
             WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
-        ws_llc_data_confirm(base, msg, data, conf_data, &neighbor_llc);
+        ws_llc_data_confirm(base, msg, data, conf_data, ws_neigh);
         break;
     case WS_FT_EAPOL:
-        if (tx_confirm_extensive(&neighbor_llc, tx_confirm_duration))
+        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
             WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
         ws_llc_eapol_confirm(base, msg, data);
         break;
@@ -584,8 +584,8 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                                 const mcps_data_ind_ie_list_t *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
+    struct ws_neighbor_class_entry *ws_neigh;
     mcps_data_ind_t data_ind = *data;
-    llc_neighbour_req_t neighbor;
     bool has_us, has_bs, has_pom;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
@@ -622,45 +622,50 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_llc_release_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
 
     add_neighbor = false;
-    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+    ws_neigh = ws_bootstrap_neighbor_get(net_if, data->SrcAddr);
+
+    if (!ws_neigh) {
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
-    } else if (neighbor.ws_neighbor && neighbor.ws_neighbor->node_role != WS_NR_ROLE_ROUTER) {
+    } else if (ws_neigh->node_role != WS_NR_ROLE_ROUTER) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(neighbor.ws_neighbor->mac_data.mac64);
+        ws_bootstrap_neighbor_del(ws_neigh->mac_data.mac64);
         add_neighbor = true;
     }
-    if (add_neighbor && !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_ROUTER)) {
-        TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s",
-              tr_ws_frame(ie_utt.message_type), tr_eui64(data->SrcAddr));
-        return;
+    if (add_neighbor) {
+        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+        if (!ws_neigh) {
+            TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s",
+                tr_ws_frame(ie_utt.message_type), tr_eui64(data->SrcAddr));
+            return;
+        }
     }
 
-    if (neighbor.ws_neighbor) {
+    if (ws_neigh) {
         if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed &&
-            !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor.ws_neighbor, data->DSN, data->timestamp)) {
+            !ws_neighbor_class_neighbor_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
             tr_info("Drop duplicate message");
             return;
         }
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
-        ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+        ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
         if (has_us)
-            ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
+            ws_neighbor_class_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
-            neighbor.ws_neighbor->unicast_data_rx = true;
+            ws_neigh->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
+        ws_neighbor_class_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
         if (data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(&neighbor.ws_neighbor->mac_data);
+            mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
         if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
-            neighbor.ws_neighbor->pom_ie = ie_pom;
+            ws_neigh->pom_ie = ie_pom;
     }
 
-    if (!neighbor.ws_neighbor)
+    if (!ws_neigh)
         data_ind.Key.SecurityLevel = 0;
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -671,9 +676,9 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
                                 const mcps_data_ind_ie_list_t *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
+    struct ws_neighbor_class_entry *ws_neigh;
     mcps_data_ind_t data_ind = *data;
     bool has_lus, has_lcp, has_pom;
-    llc_neighbour_req_t neighbor;
     struct ws_lutt_ie ie_lutt;
     struct iobuf_read ie_wp;
     struct ws_lus_ie ie_lus;
@@ -707,75 +712,73 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (data->Key.SecurityLevel)
         ws_llc_release_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
 
-    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, &neighbor)) {
+    ws_neigh = ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr);
+    if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_DATA), tr_eui64(data->SrcAddr));
         return;
     }
 
     if (!data->DstAddrMode && !data->DSN_suppressed &&
-        !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor.ws_neighbor, data->DSN, data->timestamp)) {
+        !ws_neighbor_class_neighbor_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in ULAD frame from LFN");
-    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
     if (has_lus)
-        ws_neighbor_class_lus_update(base->interface_ptr, neighbor.ws_neighbor,
+        ws_neighbor_class_lus_update(base->interface_ptr, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
                                      ie_lus.listen_interval);
 
     if (data->DstAddrMode == ADDR_802_15_4_LONG)
-        neighbor.ws_neighbor->unicast_data_rx = true;
+        ws_neigh->unicast_data_rx = true;
 
     // Calculate RSL for all UDATA packets heard
-    ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
+    ws_neighbor_class_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
-    if (neighbor.ws_neighbor) {
-        if (data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(&neighbor.ws_neighbor->mac_data);
-        if (neighbor.ws_neighbor->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(neighbor.ws_neighbor->node_role))
-            mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
-        else
-            mac_neighbor_table_refresh_neighbor(&neighbor.ws_neighbor->mac_data, neighbor.ws_neighbor->mac_data.link_lifetime);
-    }
-    if (neighbor.ws_neighbor && has_pom)
-        neighbor.ws_neighbor->pom_ie = ie_pom;
+    if (data->Key.SecurityLevel)
+        mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
+    if (ws_neigh->mac_data.link_lifetime == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
+        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
+    else
+        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.link_lifetime);
+    if (has_pom)
+        ws_neigh->pom_ie = ie_pom;
 
-    if (!neighbor.ws_neighbor)
-        data_ind.Key.SecurityLevel = 0;
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data, llc_neighbour_req_t *neighbor)
+static struct ws_neighbor_class_entry *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data)
 {
+    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr);
     ws_neighbor_temp_class_t *tmp;
 
-    if (ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, neighbor))
-        return true;
+    if (ws_neigh)
+        return ws_neigh;
 
     tmp = ws_allocate_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
     if (!tmp) {
         WARN("EAPOL temporary pool empty");
-        return false;
+        return NULL;
     }
 
-    neighbor->ws_neighbor = &tmp->neigh_info_list;
+    ws_neigh = &tmp->neigh_info_list;
     tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
     tmp->mpduLinkQuality = data->mpduLinkQuality;
     tmp->signal_dbm = data->signal_dbm;
-    return true;
+    return ws_neigh;
 }
 
 static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
+    struct ws_neighbor_class_entry *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
-    llc_neighbour_req_t neighbor;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
     struct ws_us_ie ie_us;
@@ -799,14 +802,15 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
-    if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))
+    ws_neigh = ws_llc_eapol_neighbor_get(base, data);
+    if (!ws_neigh)
         return;
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
     if (has_us)
-        ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
+        ws_neighbor_class_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
@@ -819,8 +823,8 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
 static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
+    struct ws_neighbor_class_entry *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
-    llc_neighbour_req_t neighbor;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct iobuf_read ie_wp;
@@ -850,15 +854,16 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
             return;
     }
 
-    if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))
+    ws_neigh = ws_llc_eapol_neighbor_get(base, data);
+    if (!ws_neigh)
         return;
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
-    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
     if (has_lus)
-        ws_neighbor_class_lus_update(base->interface_ptr, neighbor.ws_neighbor,
+        ws_neighbor_class_lus_update(base->interface_ptr, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
                                      ie_lus.listen_interval);
 
@@ -1102,31 +1107,33 @@ static uint8_t ws_llc_find_phy_mode_id(const uint8_t phy_mode_id_list[],
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
     struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
-    llc_neighbour_req_t neighbor_info;
+    struct ws_neighbor_class_entry *ws_neigh;
     uint8_t ms_phy_mode_id = 0;
 
     if (!data->TxAckReq || data->msduLength < 500)
         return 0;
-    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr, &neighbor_info))
+
+    ws_neigh = ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr);
+    if (!ws_neigh)
         return 0;
-    switch (neighbor_info.ws_neighbor->mac_data.ms_mode) {
+    switch (ws_neigh->mac_data.ms_mode) {
     case SL_WISUN_MODE_SWITCH_ENABLED:
-        ms_phy_mode_id = neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id;
+        ms_phy_mode_id = ws_neigh->mac_data.ms_phy_mode_id;
         break;
     case SL_WISUN_MODE_SWITCH_DEFAULT:
         if (schedule->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
             ms_phy_mode_id = schedule->phy_mode_id_ms_tx;
         break;
     }
-    return ws_llc_find_phy_mode_id(neighbor_info.ws_neighbor->pom_ie.phy_op_mode_id,
-                                   neighbor_info.ws_neighbor->pom_ie.phy_op_mode_number,
+    return ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
+                                   ws_neigh->pom_ie.phy_op_mode_number,
                                    ms_phy_mode_id);
 }
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
-    llc_neighbour_req_t neighbor_info;
+    struct ws_neighbor_class_entry *ws_neigh;
     int node_role;
     int ie_offset;
     uint24_t adjusted_offset_ms = 0;
@@ -1179,9 +1186,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         }
     }
 
-    ws_bootstrap_neighbor_get(base->interface_ptr, message->dst_address, &neighbor_info);
-
-    node_role = neighbor_info.ws_neighbor ? neighbor_info.ws_neighbor->node_role : WS_NR_ROLE_UNKNOWN;
+    ws_neigh = ws_bootstrap_neighbor_get(base->interface_ptr, message->dst_address);
+    node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
 
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
@@ -1204,15 +1210,15 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast &&
         !version_older_than(base->interface_ptr->rcp->version_api, 0, 27, 0)) {
         adjusted_listening_interval = ws_neighbor_class_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
-                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
-                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
-                                                                        neighbor_info.ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
+                                                                                   ws_neigh->fhss_data.lfn.uc_listen_interval_ms,
+                                                                                   ws_neigh->fhss_data.lfn.uc_interval_min_ms,
+                                                                                   ws_neigh->fhss_data.lfn.uc_interval_max_ms);
         adjusted_offset_ms = ws_neighbor_class_calc_lfn_offset(adjusted_listening_interval,
                                                    base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
-        if ((adjusted_listening_interval != neighbor_info.ws_neighbor->fhss_data.lfn.uc_listen_interval_ms ||
-            !neighbor_info.ws_neighbor->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
+        if ((adjusted_listening_interval != ws_neigh->fhss_data.lfn.uc_listen_interval_ms ||
+            !ws_neigh->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
-            neighbor_info.ws_neighbor->offset_adjusted = true;
+            ws_neigh->offset_adjusted = true;
         }
     }
 
@@ -1893,11 +1899,9 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
     struct ws_hopping_schedule *schedule = &llc->interface_ptr->ws_info.hopping_schedule;
-    llc_neighbour_req_t neighbor_info;
+    struct ws_neighbor_class_entry *ws_neigh;
     uint8_t peer_phy_mode_id;
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
-    neighbor_info.ws_neighbor = NULL;
 
     if (!llc) // Invalid LLC context
         return -1;
@@ -1932,27 +1936,28 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         schedule->ms_mode = mode;
     } else {
         // Specific neighbor address
-        if (!ws_bootstrap_neighbor_get(llc->interface_ptr, neighbor_mac_address, &neighbor_info)) {
+        ws_neigh = ws_bootstrap_neighbor_get(llc->interface_ptr, neighbor_mac_address);
+        if (!ws_neigh) {
             // Wrong peer
             return -5;
         } else {
             if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
                 // Check Mode Switch PhyModeId is valid in the neighbor list
-                peer_phy_mode_id = ws_llc_find_phy_mode_id(neighbor_info.ws_neighbor->pom_ie.phy_op_mode_id,
-                                                           neighbor_info.ws_neighbor->pom_ie.phy_op_mode_number,
+                peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
+                                                           ws_neigh->pom_ie.phy_op_mode_number,
                                                            phy_mode_id);
                 if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
                     return -4;
-                neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id = phy_mode_id;
+                ws_neigh->mac_data.ms_phy_mode_id = phy_mode_id;
             } else {
-                neighbor_info.ws_neighbor->mac_data.ms_phy_mode_id = 0;
+                ws_neigh->mac_data.ms_phy_mode_id = 0;
             }
 
-            neighbor_info.ws_neighbor->mac_data.ms_mode = mode;
+            ws_neigh->mac_data.ms_mode = mode;
 
             // Reset counters
-            neighbor_info.ws_neighbor->mac_data.ms_tx_count = 0;
-            neighbor_info.ws_neighbor->mac_data.ms_retries_count = 0;
+            ws_neigh->mac_data.ms_tx_count = 0;
+            ws_neigh->mac_data.ms_retries_count = 0;
         }
     }
 
@@ -2017,24 +2022,26 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
                                        uint8_t mac_sequency, uint64_t rx_timestamp)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return false;
-    }
+    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neighbor_temp_class *tmp_neigh;
 
-    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, joiner_eui64);
-    if (!neighbor) {
-        llc_neighbour_req_t neighbor_info;
+    if (!base)
+        return false;
+
+    tmp_neigh = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, joiner_eui64);
+    if (!tmp_neigh) {
         //Discover here Normal Neighbour
-        if (!ws_bootstrap_neighbor_get(interface, joiner_eui64, &neighbor_info))
+        ws_neigh = ws_bootstrap_neighbor_get(interface, joiner_eui64);
+        if (!ws_neigh)
             return false;
-        return ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, mac_sequency, rx_timestamp);
+        return ws_neighbor_class_neighbor_duplicate_packet_check(ws_neigh, mac_sequency, rx_timestamp);
     }
 
-    if (neighbor->eapol_temp_info.eapol_rx_relay_filter && neighbor->eapol_temp_info.last_rx_mac_sequency == mac_sequency) {
+    if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter && tmp_neigh->eapol_temp_info.last_rx_mac_sequency == mac_sequency)
         return false;
-    }
-    neighbor->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
-    neighbor->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
+
+    tmp_neigh->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
+    tmp_neigh->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
     return true;
 
 }

@@ -51,16 +51,11 @@
 
 struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
 {
-    ws_neighbor_temp_class_t *neighbor_ws_tmp;
-    llc_neighbour_req_t neighbor_llc;
+    ws_neighbor_temp_class_t *neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(cur, eui64);
 
-    neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(cur, eui64);
     if (neighbor_ws_tmp)
         return &neighbor_ws_tmp->neigh_info_list;
-    if (ws_bootstrap_neighbor_get(cur, eui64, &neighbor_llc))
-        return neighbor_llc.ws_neighbor;
-    else
-        return NULL;
+    return ws_bootstrap_neighbor_get(cur, eui64);
 }
 
 void wsbr_data_req_ext(struct net_if *cur,

@@ -31,7 +31,6 @@ typedef enum {
 } ws_parent_synch_e;
 
 struct rpl_instance;
-struct llc_neighbour_req;
 struct ws_stack_info;
 struct ws_llc_mngt_req;
 struct ws_neighbour_info;
@@ -50,8 +49,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
-
 /*
  * Functions shared with different bootstrap modes
  */
@@ -60,8 +57,8 @@ void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_re
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
 
 // Bootstrap state machine state Functions
-bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
-bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role);
+struct ws_neighbor_class_entry *ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8]);
+struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 
 

@@ -356,30 +356,31 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     }
 }
 
-bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
+struct ws_neighbor_class_entry *ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8])
 {
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
-    return neighbor->ws_neighbor != NULL;
+    return ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
 }
 
-bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role)
+struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
 {
+    struct ws_neighbor_class_entry *ws_neigh;
+
     ws_bootstrap_neighbor_table_clean(net_if);
 
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
-    if (!neighbor->ws_neighbor) {
-        neighbor->ws_neighbor = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
-        if (neighbor->ws_neighbor)
-            rcp_legacy_set_neighbor(neighbor->ws_neighbor->mac_data.index, mac_helper_panid_get(net_if), 0,
-                                    neighbor->ws_neighbor->mac_data.mac64, 0);
+    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
+    if (!ws_neigh) {
+        ws_neigh = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
+        if (ws_neigh)
+            rcp_legacy_set_neighbor(ws_neigh->mac_data.index, mac_helper_panid_get(net_if), 0,
+                                    ws_neigh->mac_data.mac64, 0);
     }
 
-    if (!neighbor->ws_neighbor)
-        return false;
+    if (!ws_neigh)
+        return NULL;
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
-    return true;
+    return ws_neigh;
 }
 
 static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
@@ -396,11 +397,9 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
-    struct llc_neighbour_req neighbor;
+    struct ws_neighbor_class_entry *ws_neigh = ws_bootstrap_neighbor_get(cur, mac64);
 
-    ws_bootstrap_neighbor_get(cur, mac64, &neighbor);
-    BUG_ON(!neighbor.ws_neighbor);
-
+    BUG_ON(!ws_neigh);
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
 
@@ -412,7 +411,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     }
 
     ws_neighbor_entry_remove_long_link_address_from_neighcache(cur, mac64);
-    ws_bootstrap_neighbor_delete(cur, &neighbor.ws_neighbor->mac_data);
+    ws_bootstrap_neighbor_delete(cur, &ws_neigh->mac_data);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 }
 

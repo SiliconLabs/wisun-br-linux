@@ -531,16 +531,13 @@ static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt 
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     ws_neighbor_temp_class_t *neighbor_ws_tmp;
-    llc_neighbour_req_t neighbor_llc;
 
     neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(net_if, eui64);
     if (neighbor_ws_tmp) {
         neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
         return &neighbor_ws_tmp->neigh_info_list;
     }
-    if (ws_bootstrap_neighbor_get(net_if, eui64, &neighbor_llc))
-        return neighbor_llc.ws_neighbor;
-    return NULL;
+    return ws_bootstrap_neighbor_get(net_if, eui64);
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
