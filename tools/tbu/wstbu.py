@@ -498,7 +498,7 @@ def put_config_border_router_key_lifetimes():
     if 'pmkLifetime' in json:
         wsbrd.config['pmk_lifetime'] = json['pmkLifetime']
     if 'ptkLifetime' in json:
-        wsbrd.config['pmk_lifetime'] = json['ptkLifetime']
+        wsbrd.config['ptk_lifetime'] = json['ptkLifetime']
     if 'gtkLifetime' in json:
         wsbrd.config['gtk_expire_offset'] = json['gtkLifetime']
     if 'gtkNewActivationTime' in json:
