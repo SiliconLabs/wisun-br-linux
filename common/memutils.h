@@ -18,6 +18,22 @@
  * Common functions related to the memory management.
  */
 
+/*
+ * A wrapper around malloc(). However, the memory is initialized and it never
+ * return NULL (if it fail, an error is raised to the user).
+ *
+ * Prefer this macro to allocate structs, thus it garantee no bug will be
+ * introduced if a field is inserted in the struct. However, plain buffers
+ * should be allocated using plain malloc(). Thus, Valgrind and related tools
+ * can eaily detect overflows.
+ */
+// Defined as a macro, so FATAL_ON will display the name of the caller
+#define zalloc(size) ({ \
+    void *_ptr = calloc(1, size);                               \
+    FATAL_ON(!_ptr, 2, "%s: cannot allocate memory", __func__); \
+    _ptr;                                                       \
+})
+
 
 /*
  * Commonly used macro that return number elements in a array.
