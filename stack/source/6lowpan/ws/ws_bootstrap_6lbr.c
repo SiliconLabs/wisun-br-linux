@@ -439,7 +439,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_asynch_trickle_stop(cur);
 
     ws_bootstrap_advertise_start(cur);
-    ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 }
 
 void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
@@ -448,7 +448,6 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
     switch (cur->nwk_bootstrap_state) {
         case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
-            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
             cur->bootstrap_state_machine_cnt = 0;
             break;
         default:
