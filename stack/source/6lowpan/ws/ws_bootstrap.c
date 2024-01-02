@@ -297,6 +297,8 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 {
     int8_t ret_val = -1;
 
+    BUG_ON(!ipv6_address);
+
     if (!cur) {
         return -1;
     }
@@ -331,13 +333,8 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     /*Replace NS handler to disable multicast address queries */
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 
-    if(ipv6_address) {
-        addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC);
-        tr_debug("global unicast address of interface ws0 is %s", tr_ipv6(ipv6_address));
-        memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
-    } else {
-        WARN();
-    }
+    addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC);
+    memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
 
     // Zero uptime counters
     cur->ws_info.uptime = 0;
