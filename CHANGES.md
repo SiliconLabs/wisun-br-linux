@@ -1,3 +1,10 @@
+v1.8.2
+------
+  - Fix crash on full neighbor table.
+  - Fix crash on external RADIUS server unreachable.
+  - Fix crash on external RADIUS invalid configuration.
+  - Fix replay with `wsbrd-fuzz`.
+
 v1.8.1
 ------
   - Improve RPL interoperability (accept rank 0)
