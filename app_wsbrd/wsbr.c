@@ -31,6 +31,7 @@
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
+#include "stack/source/6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
@@ -592,8 +593,7 @@ int wsbr_main(int argc, char *argv[])
         drop_privileges(&ctxt->config);
 
     cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    ws_bootstrap_event_discovery_start(cur);
-    event_scheduler_run_until_idle();
+    ws_bootstrap_6lbr_init(cur);
 
     wsbr_fds_init(ctxt, fds);
 

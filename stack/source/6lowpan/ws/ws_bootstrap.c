@@ -91,7 +91,7 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
         return;
     }
 
-    ws_bootstrap_6lbr_event_handler(cur, event);
+    BUG_ON(event->event_type != WS_INIT_EVENT);
 }
 
 static int ws_bootstrap_tasklet_init(struct net_if *cur)

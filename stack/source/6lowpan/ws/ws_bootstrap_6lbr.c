@@ -330,130 +330,116 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
     }
 }
 
-void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *event)
+void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
-    ws_bootstrap_event_type_e event_type;
-    event_type = (ws_bootstrap_event_type_e)event->event_type;
+    rcp_legacy_reset_stack();
+    ws_llc_reset(cur);
+    lowpan_adaptation_interface_reset(cur->id);
+    //Clear Pending Key Index State
+    cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
+    cur->mac_parameters.mac_default_ffn_key_index = 0;
+    cur->mac_parameters.mac_default_lfn_key_index = 0;
 
-    switch (event_type) {
-        case WS_INIT_EVENT:
-            tr_debug("Tasklet init");
-            break;
-        case WS_DISCOVERY_START:
-            tr_info("Discovery start");
-            rcp_legacy_reset_stack();
-            ws_llc_reset(cur);
-            lowpan_adaptation_interface_reset(cur->id);
-            //Clear Pending Key Index State
-            cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
-            cur->mac_parameters.mac_default_ffn_key_index = 0;
-            cur->mac_parameters.mac_default_lfn_key_index = 0;
+    ipv6_destination_cache_clean(cur->id);
 
-            ipv6_destination_cache_clean(cur->id);
+    // All trickle timers stopped to allow entry from any state
+    ws_bootstrap_asynch_trickle_stop(cur);
+    //Init Packet congestion
+    ws_bootstrap_packet_congestion_init(cur);
 
-            // All trickle timers stopped to allow entry from any state
-            ws_bootstrap_asynch_trickle_stop(cur);
-            //Init Packet congestion
-            ws_bootstrap_packet_congestion_init(cur);
+    // Clear Old information from stack
+    cur->ws_info.network_pan_id = 0xffff;
+    cur->ws_info.pan_information.pan_version_set = false;
+    ws_bootstrap_ip_stack_reset(cur);
+    ws_pae_controller_auth_init(cur);
 
-            // Clear Old information from stack
-            cur->ws_info.network_pan_id = 0xffff;
-            cur->ws_info.pan_information.pan_version_set = false;
-            ws_bootstrap_ip_stack_reset(cur);
-            ws_pae_controller_auth_init(cur);
-
-            uint16_t pan_id = ws_bbr_pan_id_get(cur);
-            if (pan_id != 0xffff) {
-                cur->ws_info.network_pan_id = pan_id;
-            } else {
-                if (cur->ws_info.network_pan_id == 0xffff) {
-                    cur->ws_info.network_pan_id = rand_get_random_in_range(0, 0xfffd);
-                }
-            }
-            if (!cur->ws_info.pan_information.pan_version_set) {
-                cur->ws_info.pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
-                cur->ws_info.pan_information.pan_version_set = true;
-            }
-            cur->ws_info.pan_information.pan_size = 0;
-            cur->ws_info.pan_information.jm.plf = ws_common_calc_plf(0, cur->ws_info.cfg->gen.network_size);
-            if (cur->ws_info.pan_information.jm.plf == UINT8_MAX)
-                cur->ws_info.pan_information.jm.mask &= ~(1 << WS_JM_PLF);
-            cur->ws_info.pan_information.routing_cost = 0;
-            cur->ws_info.pan_information.rpl_routing_method = true;
-            cur->ws_info.pan_information.use_parent_bs = true;
-            // initialize for FAN 1.1 defaults
-            if (cur->ws_info.enable_lfn &&
-                !cur->ws_info.pan_information.lfn_version_set) {
-                cur->ws_info.pan_information.lfn_version = rand_get_random_in_range(0, 0xffff);
-                cur->ws_info.pan_information.lfn_version_set = true;
-            }
-
-            ws_bbr_pan_version_increase(cur);
-            ws_bbr_lfn_version_increase(cur);
-
-            // Set default parameters for FHSS when starting a discovery
-            ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
-            ws_bootstrap_6lbr_fhss_configure(cur);
-            ws_bootstrap_set_domain_rf_config(cur);
-            ws_bootstrap_fhss_activate(cur);
-            rcp_legacy_set_fhss_hop_count(0);
-
-            ws_bootstrap_6lbr_print_config(cur);
-            INFO("");
-            ws_bootstrap_6lbr_print_interop(cur);
-            INFO("");
-
-            uint8_t ll_addr[16];
-            addr_interface_get_ll_address(cur, ll_addr, 1);
-
-            //SET EAPOL authenticator EUI64
-            ws_pae_controller_border_router_addr_write(cur, cur->mac);
-
-            // Set EAPOL relay to port 10255 and authenticator relay to 10253 (and to own ll address)
-            ws_eapol_relay_start(cur, BR_EAPOL_RELAY_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
-
-            // Set authenticator relay to port 10253 and PAE to 10254 (and to own ll address)
-            ws_eapol_auth_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, ll_addr, PAE_AUTH_SOCKET_PORT);
-
-            // Set PAN ID and network name to controller
-            ws_pae_controller_network_name_set(cur, cur->ws_info.cfg->gen.network_name);
-            ws_pae_controller_pan_id_set(cur, cur->ws_info.network_pan_id);
-
-            // Set backbone IP address get callback
-            ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);
-
-            // Set PAE port to 10254 and authenticator relay to 10253 (and to own ll address)
-            ws_pae_controller_authenticator_start(cur, PAE_AUTH_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
-
-            // Initialize eapol congestion tracking
-            ws_bootstrap_6lbr_eapol_congestion_init(cur);
-
-            if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
-                rcp_legacy_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
-                rcp_legacy_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX,
-                                            WS_TX_REQUEST_RESTART_MAX,
-                                            WS_REQUEST_RESTART_BLACKLIST_MIN,
-                                            WS_REQUEST_RESTART_BLACKLIST_MAX);
-                rcp_legacy_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
-                rcp_legacy_set_min_be(WS_MAC_MIN_BE);
-                rcp_legacy_set_max_be(WS_MAC_MAX_BE);
-            }
-            // Advertisements stopped during the RPL scan
-            ws_bootstrap_asynch_trickle_stop(cur);
-            // Activate RPL
-            // Activate IPv6 stack
-            ws_bootstrap_ip_stack_activate(cur);
-            addr_add_router_groups(cur);
-            // stopped all to make sure we can enter here from any state
-            ws_bootstrap_asynch_trickle_stop(cur);
-
-            ws_bootstrap_advertise_start(cur);
-            ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
-            break;
-        default:
-            tr_error("Invalid event received");
-            break;
+    uint16_t pan_id = ws_bbr_pan_id_get(cur);
+    if (pan_id != 0xffff) {
+        cur->ws_info.network_pan_id = pan_id;
+    } else {
+        if (cur->ws_info.network_pan_id == 0xffff) {
+            cur->ws_info.network_pan_id = rand_get_random_in_range(0, 0xfffd);
+        }
     }
+    if (!cur->ws_info.pan_information.pan_version_set) {
+        cur->ws_info.pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
+        cur->ws_info.pan_information.pan_version_set = true;
+    }
+    cur->ws_info.pan_information.pan_size = 0;
+    cur->ws_info.pan_information.jm.plf = ws_common_calc_plf(0, cur->ws_info.cfg->gen.network_size);
+    if (cur->ws_info.pan_information.jm.plf == UINT8_MAX)
+        cur->ws_info.pan_information.jm.mask &= ~(1 << WS_JM_PLF);
+    cur->ws_info.pan_information.routing_cost = 0;
+    cur->ws_info.pan_information.rpl_routing_method = true;
+    cur->ws_info.pan_information.use_parent_bs = true;
+    // initialize for FAN 1.1 defaults
+    if (cur->ws_info.enable_lfn &&
+        !cur->ws_info.pan_information.lfn_version_set) {
+        cur->ws_info.pan_information.lfn_version = rand_get_random_in_range(0, 0xffff);
+        cur->ws_info.pan_information.lfn_version_set = true;
+    }
+
+    ws_bbr_pan_version_increase(cur);
+    ws_bbr_lfn_version_increase(cur);
+
+    // Set default parameters for FHSS when starting a discovery
+    ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
+    ws_bootstrap_6lbr_fhss_configure(cur);
+    ws_bootstrap_set_domain_rf_config(cur);
+    ws_bootstrap_fhss_activate(cur);
+    rcp_legacy_set_fhss_hop_count(0);
+
+    ws_bootstrap_6lbr_print_config(cur);
+    INFO("");
+    ws_bootstrap_6lbr_print_interop(cur);
+    INFO("");
+
+    uint8_t ll_addr[16];
+    addr_interface_get_ll_address(cur, ll_addr, 1);
+
+    //SET EAPOL authenticator EUI64
+    ws_pae_controller_border_router_addr_write(cur, cur->mac);
+
+    // Set EAPOL relay to port 10255 and authenticator relay to 10253 (and to own ll address)
+    ws_eapol_relay_start(cur, BR_EAPOL_RELAY_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
+
+    // Set authenticator relay to port 10253 and PAE to 10254 (and to own ll address)
+    ws_eapol_auth_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, ll_addr, PAE_AUTH_SOCKET_PORT);
+
+    // Set PAN ID and network name to controller
+    ws_pae_controller_network_name_set(cur, cur->ws_info.cfg->gen.network_name);
+    ws_pae_controller_pan_id_set(cur, cur->ws_info.network_pan_id);
+
+    // Set backbone IP address get callback
+    ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);
+
+    // Set PAE port to 10254 and authenticator relay to 10253 (and to own ll address)
+    ws_pae_controller_authenticator_start(cur, PAE_AUTH_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
+
+    // Initialize eapol congestion tracking
+    ws_bootstrap_6lbr_eapol_congestion_init(cur);
+
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
+        rcp_legacy_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX,
+                                    WS_TX_REQUEST_RESTART_MAX,
+                                    WS_REQUEST_RESTART_BLACKLIST_MIN,
+                                    WS_REQUEST_RESTART_BLACKLIST_MAX);
+        rcp_legacy_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
+        rcp_legacy_set_min_be(WS_MAC_MIN_BE);
+        rcp_legacy_set_max_be(WS_MAC_MAX_BE);
+    }
+    // Advertisements stopped during the RPL scan
+    ws_bootstrap_asynch_trickle_stop(cur);
+    // Activate RPL
+    // Activate IPv6 stack
+    ws_bootstrap_ip_stack_activate(cur);
+    addr_add_router_groups(cur);
+    // stopped all to make sure we can enter here from any state
+    ws_bootstrap_asynch_trickle_stop(cur);
+
+    ws_bootstrap_advertise_start(cur);
+    ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
 }
 
 void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
