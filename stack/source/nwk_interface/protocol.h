@@ -216,8 +216,6 @@ void nwk_interface_print_neigh_cache();
 
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
-uint8_t nwk_bootstrap_ready(struct net_if *cur);
-
 struct net_if *protocol_stack_interface_info_get();
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);

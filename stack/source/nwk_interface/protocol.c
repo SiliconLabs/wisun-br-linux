@@ -245,17 +245,6 @@ struct net_if *protocol_stack_interface_info_get()
     return NULL;
 }
 
-uint8_t nwk_bootstrap_ready(struct net_if *cur)
-{
-    int8_t ret_val = 0;
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) == 0) {
-        if (cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-            ret_val = 1;
-        }
-    }
-    return ret_val;
-}
-
 static int8_t net_interface_get_free_id(void)
 {
     uint_fast8_t id; // Must be unsigned for loop test to work...
