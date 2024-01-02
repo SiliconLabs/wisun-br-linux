@@ -112,17 +112,6 @@ int8_t ws_pae_controller_stop(struct net_if *interface_ptr);
 int8_t ws_pae_controller_delete(struct net_if *interface_ptr);
 
 /**
- * ws_pae_controller_certificate_chain_set set certificate chain
- *
- * \param chain certificate chain
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *chain);
-
-/**
  * ws_pae_controller_own_certificate_add add own certificate to certificate chain
  *
  * \param cert own certificate

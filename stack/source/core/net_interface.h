@@ -51,14 +51,6 @@ typedef struct arm_certificate_entry {
     uint16_t key_len;              /**< Key length. */
 } arm_certificate_entry_s;
 
-/** Certificate chain structure. */
-typedef struct arm_certificate_chain_entry {
-    uint8_t chain_length;           /**< Certificate chain length, indicates the chain length. */
-    const uint8_t *cert_chain[4];   /**< Certificate chain pointer list. */
-    uint16_t cert_len[4];           /**< Certificate length. */
-    const uint8_t *key_chain[4];    /**< Certificate private key. */
-} arm_certificate_chain_entry_s;
-
 /** Event library type. */
 typedef enum arm_library_event_type_e {
     ARM_LIB_TASKLET_INIT_EVENT = 0, /**< Tasklet init occurs always when generating a tasklet. */

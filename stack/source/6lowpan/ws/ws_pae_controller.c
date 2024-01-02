@@ -1013,42 +1013,6 @@ int8_t ws_pae_controller_delete(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *new_chain)
-{
-    if (!new_chain) {
-        return -1;
-    }
-
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        // Delete previous information
-        sec_prot_certs_delete(&entry->certs);
-
-        // Adds a trusted certificate from index 0
-        if (new_chain->cert_chain[0]) {
-            cert_chain_entry_t *root_ca_chain = sec_prot_certs_chain_entry_create();
-            sec_prot_certs_cert_set(root_ca_chain, 0, (uint8_t *) new_chain->cert_chain[0], new_chain->cert_len[0]);
-            sec_prot_certs_chain_list_add(&entry->certs.trusted_cert_chain_list, root_ca_chain);
-        }
-
-        // Adds own certificate chain from indexes 1 to 3
-        for (uint8_t i = 1; i < SEC_PROT_CERT_CHAIN_DEPTH; i++) {
-            if (new_chain->cert_chain[i]) {
-                sec_prot_certs_cert_set(&entry->certs.own_cert_chain, i - 1, (uint8_t *) new_chain->cert_chain[i], new_chain->cert_len[i]);
-                if (new_chain->key_chain[i]) {
-                    // Will be the key from top certificate in chain after all certificates are added
-                    uint8_t key_len = strlen((char *) new_chain->key_chain[i]) + 1;
-                    sec_prot_certs_priv_key_set(&entry->certs.own_cert_chain, (uint8_t *) new_chain->key_chain[i], key_len);
-                }
-            }
-        }
-
-        // Updates the length of own certificates
-        entry->certs.own_cert_chain_len = sec_prot_certs_cert_chain_entry_len_get(&entry->certs.own_cert_chain);
-    }
-
-    return 0;
-}
-
 int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
 {
     if (!cert) {
