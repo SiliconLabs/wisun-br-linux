@@ -140,6 +140,7 @@ add_library(libwsbrd STATIC
     common/ws_regdb.c
     common/key_value_storage.c
     common/ieee802154_ie.c
+    common/ieee80211_prf.c
     common/time_extra.c
     stack/source/6lowpan/lowpan_adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -211,7 +212,6 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/sec_prot_lib.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    stack/source/service_libs/ieee_802_11/ieee_802_11.c
     stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
 )

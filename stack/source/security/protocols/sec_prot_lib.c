@@ -30,7 +30,7 @@
 #include "common/nist_kw.h"
 #include "common/ns_list.h"
 #include "common/hmac_md.h"
-#include "service_libs/ieee_802_11/ieee_802_11.h"
+#include "common/ieee80211_prf.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -195,35 +195,13 @@ void sec_prot_lib_nonce_generate(uint8_t *nonce)
  */
 void sec_prot_lib_nonce_init(uint8_t *nonce, uint8_t *eui64, uint64_t time)
 {
-    // For now, use randlib
     uint8_t random[EAPOL_KEY_NONCE_LEN];
+    uint8_t buffer[EUI64_LEN + sizeof(uint64_t)];
+
+    memcpy(buffer + 0, eui64, EUI64_LEN);
+    memcpy(buffer + EUI64_LEN, &time, sizeof(uint64_t));
     rand_get_n_bytes_random(random, EAPOL_KEY_NONCE_LEN);
-
-    const uint8_t a_string_val[] = {"Init Counter"};
-    const uint8_t a_string_val_len = sizeof(a_string_val) - 1;
-
-    ieee_802_11_prf_t prf;
-
-    uint16_t string_len = ieee_802_11_prf_setup(&prf, EAPOL_KEY_NONCE_LEN * 8, a_string_val_len, EUI64_LEN + EUI64_LEN);
-    uint8_t string[string_len];
-
-    uint8_t *a_string = ieee_802_11_prf_get_a_string(&prf, string);
-    memcpy(a_string, a_string_val, a_string_val_len);
-
-    uint8_t *b_string = ieee_802_11_prf_get_b_string(&prf, string);
-    memcpy(b_string, eui64, EUI64_LEN);
-    b_string += EUI64_LEN;
-    memcpy(b_string, &time, sizeof(uint64_t));
-
-    uint16_t result_len = ieee_802_11_prf_starts(&prf, random, EAPOL_KEY_NONCE_LEN);
-
-    ieee_802_11_prf_update(&prf, string);
-
-    uint8_t result[result_len];
-
-    ieee_802_11_prf_finish(&prf, result);
-
-    memcpy(nonce, result, EAPOL_KEY_NONCE_LEN);
+    ieee80211_prf(random, EAPOL_KEY_NONCE_LEN, "Init Counter", buffer, sizeof(buffer), nonce, EAPOL_KEY_NONCE_LEN);
 }
 
 /*
@@ -232,60 +210,35 @@ void sec_prot_lib_nonce_init(uint8_t *nonce, uint8_t *eui64, uint64_t time)
  *
  * PMK is 256 bits, PTK is 382 bits
  */
-int8_t sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const uint8_t *eui64_2, const uint8_t *nonce1, const uint8_t *nonce2, uint8_t *ptk)
+void sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const uint8_t *eui64_2, const uint8_t *nonce1, const uint8_t *nonce2, uint8_t *ptk)
 {
-    const uint8_t a_string_val[] = {"Pairwise key expansion"};
-    const uint8_t a_string_val_len = sizeof(a_string_val) - 1;
-
+    uint8_t buffer[EUI64_LEN + EUI64_LEN + EAPOL_KEY_NONCE_LEN + EAPOL_KEY_NONCE_LEN];
     const uint8_t *min_eui64 = eui64_1;
     const uint8_t *max_eui64 = eui64_2;
+    const uint8_t *min_nonce = nonce1;
+    const uint8_t *max_nonce = nonce2;
+
     if (memcmp(eui64_1, eui64_2, EUI64_LEN) > 0) {
         min_eui64 = eui64_2;
         max_eui64 = eui64_1;
     }
-
-    const uint8_t *min_nonce = nonce1;
-    const uint8_t *max_nonce = nonce2;
     if (memcmp(nonce1, nonce2, EAPOL_KEY_NONCE_LEN) > 0) {
         min_nonce = nonce2;
         max_nonce = nonce1;
     }
 
-    ieee_802_11_prf_t prf;
+    memcpy(buffer, min_eui64, EUI64_LEN);
+    memcpy(buffer + EUI64_LEN, max_eui64, EUI64_LEN);
+    memcpy(buffer + EUI64_LEN + EUI64_LEN, min_nonce, EAPOL_KEY_NONCE_LEN);
+    memcpy(buffer + EUI64_LEN + EUI64_LEN + EAPOL_KEY_NONCE_LEN, max_nonce, EAPOL_KEY_NONCE_LEN);
 
-    uint16_t string_len = ieee_802_11_prf_setup(&prf, 384, a_string_val_len, EUI64_LEN + EUI64_LEN + EAPOL_KEY_NONCE_LEN + EAPOL_KEY_NONCE_LEN);
-    uint8_t string[string_len];
-
-    uint8_t *a_string = ieee_802_11_prf_get_a_string(&prf, string);
-    memcpy(a_string, a_string_val, a_string_val_len);
-
-    uint8_t *b_string = ieee_802_11_prf_get_b_string(&prf, string);
-    memcpy(b_string, min_eui64, EUI64_LEN);
-    b_string += EUI64_LEN;
-    memcpy(b_string, max_eui64, EUI64_LEN);
-    b_string += EUI64_LEN;
-
-    memcpy(b_string, min_nonce, EAPOL_KEY_NONCE_LEN);
-    b_string += EAPOL_KEY_NONCE_LEN;
-    memcpy(b_string, max_nonce, EAPOL_KEY_NONCE_LEN);
-
-    uint16_t result_len = ieee_802_11_prf_starts(&prf, pmk, PMK_LEN);
-
-    ieee_802_11_prf_update(&prf, string);
-
-    uint8_t result[result_len];
-
-    ieee_802_11_prf_finish(&prf, result);
-
-    memcpy(ptk, result, PTK_LEN);
+    ieee80211_prf(pmk, PMK_LEN, "Pairwise key expansion", buffer, sizeof(buffer), ptk, PTK_LEN);
 
 #ifdef EXTRA_DEBUG_INFO
     tr_debug("PTK EUI: %s %s", tr_eui64(eui64_1), tr_eui64(eui64_2));
     tr_debug("PTK NONCE: %s %s", trace_array(nonce1, 32), trace_array(nonce2, 32));
-    tr_debug("PTK: %s:%s", trace_array(ptk, PTK_LEN / 2), trace_array(ptk + PTK_LEN / 2, PTK_LEN / 2));
+    tr_debug("PTK: %s", trace_array(ptk, PTK_LEN));
 #endif
-
-    return 0;
 }
 
 int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, const uint8_t *supp_eui64, uint8_t *pmkid)
