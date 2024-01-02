@@ -441,19 +441,6 @@ typedef struct ns_list_link {
 #define ns_list_replace(list, current, replacement) \
     ns_list_replace_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, current), NS_LIST_TYPECHECK_(list, replacement))
 
-/** \hideinitializer \brief Concatenate two lists.
- *
- * Attach the entries on the source list to the end of the destination
- * list, leaving the source list empty.
- *
- * \param dst `(list_t *)` Pointer to destination list.
- * \param src `(list_t *)` Pointer to source list.
- *
- */
-#define ns_list_concatenate(dst, src) \
-        (NS_PTR_MATCH_(dst, src, "concatenating different list types"), \
-        ns_list_concatenate_(&(dst)->slist, &(src)->slist, NS_LIST_OFFSET_(src)))
-
 /** \brief Iterate forwards over a list.
  *
  * Example:
@@ -701,22 +688,6 @@ static inline void ns_list_replace_(ns_list_t *list, uintptr_t offset, void *cur
     *prev_nextptr = replacement;
 
     ns_list_link_init_(NS_LIST_LINK_(current, offset));
-}
-
-static inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, uintptr_t offset)
-{
-    ns_list_link_t *src_first;
-
-    src_first = (ns_list_link_t *)src->first_entry;
-    if (!src_first) {
-        return;
-    }
-
-    *dst->last_nextptr = src_first;
-    NS_LIST_PREV_(src_first, offset) = dst->last_nextptr;
-    dst->last_nextptr = src->last_nextptr;
-
-    ns_list_init_(src);
 }
 
 static inline uint_fast16_t ns_list_count_(const ns_list_t *list, uintptr_t offset)
