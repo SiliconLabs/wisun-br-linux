@@ -255,7 +255,7 @@ bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
     }
 
     //ipv6_route_delete(address, 128, cur->id, NULL, ROUTE_MPL);
-    addr_delete_group(cur, address);
+    addr_remove_group(cur, address);
     ns_list_remove(&mpl_domains, domain);
     free(domain);
     return true;

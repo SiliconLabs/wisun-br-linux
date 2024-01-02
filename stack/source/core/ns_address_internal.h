@@ -119,7 +119,6 @@ struct if_group_entry *addr_add_group(struct net_if *interface, const uint8_t gr
 void addr_remove_group(struct net_if *interface, const uint8_t group[static 16]);
 bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16]);
 struct if_group_entry *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16]);
-void addr_delete_group(struct net_if *interface, const uint8_t group[static 16]);
 void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry);
 
 void addr_add_router_groups(struct net_if *interface);

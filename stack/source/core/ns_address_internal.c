@@ -343,14 +343,6 @@ void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry)
     free(entry);
 }
 
-void addr_delete_group(struct net_if *interface, const uint8_t group[static 16])
-{
-    if_group_entry_t *entry = addr_get_group_entry(interface, group);
-    if (entry) {
-        addr_delete_group_entry(interface, entry);
-    }
-}
-
 if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16])
 {
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
