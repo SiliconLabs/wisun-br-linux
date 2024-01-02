@@ -43,7 +43,6 @@ int8_t sec_prot_certs_init(sec_prot_certs_t *certs)
 
     sec_prot_certs_chain_entry_init(&certs->own_cert_chain);
     ns_list_init(&certs->trusted_cert_chain_list);
-    ns_list_init(&certs->cert_revocat_lists);
     certs->own_cert_chain_len = 0;
     certs->ext_cert_valid_enabled = false;
 
@@ -58,7 +57,6 @@ void sec_prot_certs_delete(sec_prot_certs_t *certs)
 
     sec_prot_certs_chain_entry_init(&certs->own_cert_chain);
     sec_prot_certs_chain_list_delete(&certs->trusted_cert_chain_list);
-    sec_prot_certs_revocat_lists_delete(&certs->cert_revocat_lists);
 }
 
 int8_t sec_prot_certs_ext_certificate_validation_set(sec_prot_certs_t *certs, bool enabled)
@@ -206,77 +204,3 @@ cert_chain_entry_t *sec_prot_certs_chain_list_entry_find(cert_chain_list_t *chai
     }
     return NULL;
 }
-
-cert_revocat_list_entry_t *sec_prot_certs_revocat_list_entry_create(void)
-{
-    cert_revocat_list_entry_t *entry = malloc(sizeof(cert_revocat_list_entry_t));
-    if (!entry) {
-        return NULL;
-    }
-    sec_prot_certs_revocat_list_entry_init(entry);
-    return entry;
-}
-
-void sec_prot_certs_revocat_list_entry_init(cert_revocat_list_entry_t *entry)
-{
-    memset(entry, 0, sizeof(cert_revocat_list_entry_t));
-}
-
-void sec_prot_certs_revocat_list_entry_delete(cert_revocat_list_entry_t *entry)
-{
-    free(entry);
-}
-
-int8_t sec_prot_certs_revocat_list_set(cert_revocat_list_entry_t *entry, const uint8_t *crl, uint16_t crl_len)
-{
-    if (!entry) {
-        return -1;
-    }
-
-    entry->crl = crl;
-    entry->crl_len = crl_len;
-
-    return 0;
-}
-
-const uint8_t *sec_prot_certs_revocat_list_get(const cert_revocat_list_entry_t *entry, uint16_t *crl_len)
-{
-    if (!entry) {
-        return NULL;
-    }
-    *crl_len = entry->crl_len;
-    return entry->crl;
-}
-
-void sec_prot_certs_revocat_lists_add(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry)
-{
-    ns_list_add_to_end(cert_revocat_lists, entry);
-}
-
-void sec_prot_certs_revocat_lists_entry_delete(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry)
-{
-    ns_list_remove(cert_revocat_lists, entry);
-    sec_prot_certs_revocat_list_entry_delete(entry);
-}
-
-cert_revocat_list_entry_t *sec_prot_certs_revocat_lists_entry_find(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry)
-{
-    ns_list_foreach_safe(cert_revocat_list_entry_t, list_entry, cert_revocat_lists) {
-        if (list_entry->crl_len == entry->crl_len) {
-            if (memcmp(list_entry->crl, entry->crl, list_entry->crl_len) == 0) {
-                return list_entry;
-            }
-        }
-    }
-
-    return NULL;
-}
-
-void sec_prot_certs_revocat_lists_delete(cert_revocat_lists_t *cert_revocat_lists)
-{
-    ns_list_foreach_safe(cert_revocat_list_entry_t, entry, cert_revocat_lists) {
-        ns_list_remove(cert_revocat_lists, entry);
-        free(entry);
-    }
-}
-

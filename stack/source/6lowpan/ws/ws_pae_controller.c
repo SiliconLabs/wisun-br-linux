@@ -1142,54 +1142,6 @@ int8_t ws_pae_controller_trusted_certificates_remove(void)
     return 0;
 }
 
-int8_t ws_pae_controller_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
-{
-    if (!crl) {
-        return -1;
-    }
-
-    int8_t ret = -1;
-
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        cert_revocat_list_entry_t *cert_revoc_list = sec_prot_certs_revocat_list_entry_create();
-        sec_prot_certs_revocat_list_set(cert_revoc_list, crl->crl, crl->crl_len);
-
-        if (sec_prot_certs_revocat_lists_entry_find(&entry->certs.cert_revocat_lists, cert_revoc_list)) {
-            sec_prot_certs_revocat_list_entry_delete(cert_revoc_list);
-            continue;
-        }
-
-        sec_prot_certs_revocat_lists_add(&entry->certs.cert_revocat_lists, cert_revoc_list);
-        ret = 0;
-    }
-
-    return ret;
-}
-
-int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl)
-{
-    if (!crl) {
-        return -1;
-    }
-
-    int8_t ret = -1;
-
-    cert_revocat_list_entry_t *cert_revoc_list = sec_prot_certs_revocat_list_entry_create();
-    sec_prot_certs_revocat_list_set(cert_revoc_list, crl->crl, crl->crl_len);
-
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        cert_revocat_list_entry_t *removed_cert_revoc_list = sec_prot_certs_revocat_lists_entry_find(&entry->certs.cert_revocat_lists, cert_revoc_list);
-        if (removed_cert_revoc_list) {
-            sec_prot_certs_revocat_lists_entry_delete(&entry->certs.cert_revocat_lists, removed_cert_revoc_list);
-            ret = 0;
-        }
-    }
-
-    sec_prot_certs_revocat_list_entry_delete(cert_revoc_list);
-
-    return ret;
-}
-
 sec_radius_cfg_t *ws_pae_controller_radius_config_get(void)
 {
     if (pae_controller_config.radius_cfg != NULL) {

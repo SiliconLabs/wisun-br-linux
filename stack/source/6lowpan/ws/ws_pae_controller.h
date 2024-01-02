@@ -174,28 +174,6 @@ int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_
 int8_t ws_pae_controller_trusted_certificates_remove(void);
 
 /**
- * ws_pae_controller_certificate_revocation_list_add add certification revocation list
- *
- * \param crl certification revocation list
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl);
-
-/**
- * ws_pae_controller_certificate_revocation_list_remove remove certification revocation list
- *
- * \param crl certification revocation list
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl);
-
-/**
  * ws_pae_controller_radius_address_set set radius address
  *
  * \param interface_id interface identifier

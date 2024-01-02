@@ -246,28 +246,6 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
         }
     }
 
-    // Parse certificate revocation lists
-    ns_list_foreach(cert_revocat_list_entry_t, entry, &certs->cert_revocat_lists) {
-        uint16_t crl_len;
-        const uint8_t *crl = sec_prot_certs_revocat_list_get(entry, &crl_len);
-        if (!crl) {
-            break;
-        }
-        if (!sec->crl) {
-            sec->crl = malloc(sizeof(mbedtls_x509_crl));
-            if (!sec->crl) {
-                tr_error("No memory for CRL");
-                return -1;
-            }
-            mbedtls_x509_crl_init(sec->crl);
-        }
-
-        if (mbedtls_x509_crl_parse(sec->crl, crl, crl_len) < 0) {
-            tr_error("CRL parse error");
-            return -1;
-        }
-    }
-
     // Configure trusted certificates and certificate revocation lists
     mbedtls_ssl_conf_ca_chain(&sec->conf, &sec->cacert, sec->crl);
 
