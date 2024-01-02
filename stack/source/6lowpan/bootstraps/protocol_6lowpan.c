@@ -203,18 +203,6 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->send_mld = false;
 }
 
-
-void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
-{
-    uint8_t temp_ll[10];
-    uint8_t *ptr = temp_ll;
-    ptr = write_be16(ptr, cur->mac_parameters.pan_id);
-    memcpy(ptr, mac64, 8);
-    ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
-                                      ADDR_802_15_4_LONG, temp_ll);
-    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
-}
-
 int8_t protocol_6lowpan_up(struct net_if *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE)

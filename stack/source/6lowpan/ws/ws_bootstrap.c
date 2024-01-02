@@ -52,6 +52,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
+#include "6lowpan/nd/nd_router_object.h"
 
 #include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
@@ -441,6 +442,17 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     return true;
 }
 
+static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
+{
+    uint8_t temp_ll[10];
+    uint8_t *ptr = temp_ll;
+    ptr = write_be16(ptr, cur->mac_parameters.pan_id);
+    memcpy(ptr, mac64, 8);
+    ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
+                                      ADDR_802_15_4_LONG, temp_ll);
+    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
+}
+
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -448,6 +460,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 
     ws_bootstrap_neighbor_get(cur, mac64, &neighbor);
     BUG_ON(!neighbor.ws_neighbor);
+
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
 
@@ -458,7 +471,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
         ws_stats_update(cur, STATS_WS_CHILD_REMOVE, 1);
     }
 
-    protocol_6lowpan_release_long_link_address_from_neighcache(cur, mac64);
+    ws_neighbor_entry_remove_long_link_address_from_neighcache(cur, mac64);
     ws_bootstrap_neighbor_delete(cur, &neighbor.ws_neighbor->mac_data);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 }
