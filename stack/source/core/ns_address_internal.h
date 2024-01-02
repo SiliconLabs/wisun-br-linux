@@ -105,7 +105,6 @@ void addr_notification_register(if_address_notification_fn fn);
 void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
-int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 

@@ -201,18 +201,6 @@ int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint
     return 0;
 }
 
-int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len)
-{
-    ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
-        if (entry->prefix_len == len && !bitcmp(entry->prefix, prefix, len)) {
-            ns_list_remove(&addr_policy_table, entry);
-            free(entry);
-            return 0;
-        }
-    }
-
-    return -1;
-}
 /// @TODO do we need this test print anymore ?
 void addr_policy_table_print(void)
 {
