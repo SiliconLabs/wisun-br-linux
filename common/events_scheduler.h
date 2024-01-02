@@ -38,7 +38,6 @@ struct event_tasklet {
 
 struct events_scheduler {
     int event_fd[2];
-    int8_t curr_tasklet;
     NS_LIST_HEAD(struct event_tasklet, link) event_tasklet_list;
     NS_LIST_HEAD(struct event_storage, link) event_queue;
 };

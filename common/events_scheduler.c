@@ -91,19 +91,16 @@ bool event_scheduler_dispatch_event(void)
     struct event_tasklet *tasklet;
 
     BUG_ON(!ctxt);
-    ctxt->curr_tasklet = 0;
     if (!event)
         return false;
     ns_list_remove(&ctxt->event_queue, event);
-    ctxt->curr_tasklet = event->data.receiver;
-    tasklet = event_tasklet_handler_get(ctxt->curr_tasklet);
+    tasklet = event_tasklet_handler_get(event->data.receiver);
     if (tasklet) {
         tasklet->func_ptr(&event->data);
     } else {
         WARN();
     }
     free(event);
-    ctxt->curr_tasklet = 0;
 
     return true;
 }
