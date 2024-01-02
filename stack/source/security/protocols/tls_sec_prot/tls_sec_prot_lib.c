@@ -103,14 +103,6 @@ static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
 #endif
-#ifdef MBEDTLS_PLATFORM_MEMORY
-// Disable for now
-//#define TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
-#endif
-#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
-static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
-static void tls_sec_prot_lib_mem_free(void *ptr);
-#endif
 
 #define is_server_is_set (is_server == true)
 #define is_server_is_not_set (is_server == false)
@@ -118,10 +110,6 @@ static void tls_sec_prot_lib_mem_free(void *ptr);
 int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 {
     const char *pers = "ws_tls";
-
-#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
-    mbedtls_platform_set_calloc_free(tls_sec_prot_lib_mem_calloc, tls_sec_prot_lib_mem_free);
-#endif
 
     mbedtls_ssl_init(&sec->ssl);
     mbedtls_ssl_config_init(&sec->conf);
@@ -636,21 +624,3 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     *olen = len;
     return 0;
 }
-
-#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
-static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size)
-{
-    void *mem_ptr = malloc(count * size);
-
-    if (mem_ptr) {
-        // Calloc should initialize with zero
-        memset(mem_ptr, 0, count * size);
-    }
-    return mem_ptr;
-}
-
-static void tls_sec_prot_lib_mem_free(void *ptr)
-{
-    free(ptr);
-}
-#endif
