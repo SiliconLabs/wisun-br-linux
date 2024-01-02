@@ -432,15 +432,6 @@ typedef struct ns_list_link {
 #define ns_list_remove(list, entry) \
     ns_list_remove_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, entry))
 
-/** \hideinitializer \brief Replace an entry.
- *
- * \param list        `(list_t *)`           Pointer to list.
- * \param current     `(entry_t *)`          Existing entry on list to be replaced.
- * \param replacement `(entry_t *)` New entry to be the replacement.
- */
-#define ns_list_replace(list, current, replacement) \
-    ns_list_replace_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, current), NS_LIST_TYPECHECK_(list, replacement))
-
 /** \brief Iterate forwards over a list.
  *
  * Example:
@@ -670,24 +661,6 @@ static inline void ns_list_remove_(ns_list_t *list, uintptr_t offset, void *remo
     *prev_nextptr = next;
 
     ns_list_link_init_(NS_LIST_LINK_(removed, offset));
-}
-
-static inline void ns_list_replace_(ns_list_t *list, uintptr_t offset, void *current, void *replacement)
-{
-    void *next;
-    void **prev_nextptr;
-
-    NS_LIST_PREV_(replacement, offset) = prev_nextptr = NS_LIST_PREV_(current, offset);
-    NS_LIST_NEXT_(replacement, offset) = next = NS_LIST_NEXT_(current, offset);
-
-    if (next) {
-        NS_LIST_PREV_(next, offset) = &NS_LIST_NEXT_(replacement, offset);
-    } else {
-        list->last_nextptr = &NS_LIST_NEXT_(replacement, offset);
-    }
-    *prev_nextptr = replacement;
-
-    ns_list_link_init_(NS_LIST_LINK_(current, offset));
 }
 
 static inline uint_fast16_t ns_list_count_(const ns_list_t *list, uintptr_t offset)
