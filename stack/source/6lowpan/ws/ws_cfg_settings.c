@@ -41,8 +41,7 @@
 #define CFG_SETTINGS_OK                       0
 #define CFG_SETTINGS_CHANGED                  1
 
-#define CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE   0x01
-#define CFG_FLAGS_BOOTSTRAP_SET_VALUES        0x02
+#define CFG_FLAGS_BOOTSTRAP_SET_VALUES        0x01
 
 #define TRICKLE_IMIN_60_SECS 60
 #define TRICKLE_IMIN_30_SECS 30
@@ -1011,7 +1010,7 @@ int8_t ws_cfg_settings_interface_set(struct net_if *cur)
         if (cfg_cb[index].set) {
             if (cfg_cb[index].set(cur,
                                   ((uint8_t *)&ws_cfg) + cfg_cb[index].setting_offset,
-                                  CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE | CFG_FLAGS_BOOTSTRAP_SET_VALUES) < 0) {
+                                  CFG_FLAGS_BOOTSTRAP_SET_VALUES) < 0) {
                 tr_info("FATAL CONFIG FAILURE");
                 ret_value = CFG_SETTINGS_OTHER_ERROR;
             }
