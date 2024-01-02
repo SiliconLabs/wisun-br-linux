@@ -283,7 +283,6 @@ typedef int8_t sec_prot_shared_comp_delete(void);
 
 typedef struct shared_comp_data {
     sec_prot_shared_comp_timer_timeout *timeout;
-    sec_prot_shared_comp_delete *delete;
 } shared_comp_data_t;
 
 /**

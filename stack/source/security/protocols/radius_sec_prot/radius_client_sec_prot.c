@@ -204,16 +204,6 @@ static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range
     shared_data->radius_id_timer_running = true;
 }
 
-static int8_t radius_client_sec_prot_shared_data_delete(void)
-{
-    if (shared_data == NULL) {
-        return -1;
-    }
-    free(shared_data);
-    shared_data = NULL;
-    return 0;
-}
-
 static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
 {
     prot->create_req = NULL;
@@ -262,7 +252,6 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
         shared_data->radius_id_timer_running = false;
         // Add as shared component to enable timers and delete
         shared_data->comp_data.timeout = radius_client_sec_prot_shared_data_timeout;
-        shared_data->comp_data.delete = radius_client_sec_prot_shared_data_delete;
         prot->shared_comp_add(prot, &shared_data->comp_data);
     }
 
