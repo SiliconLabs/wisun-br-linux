@@ -57,18 +57,6 @@ typedef enum if_address_source {
     ADDR_SOURCE_THREAD_DOMAIN
 } if_address_source_e;
 
-typedef enum if_address_callback {
-    ADDR_CALLBACK_DAD_COMPLETE, // Duplicate Address Detection complete - address now valid
-    ADDR_CALLBACK_DAD_FAILED,   // Duplicate Address Detection failed - address is a duplicate, about to be deleted
-    ADDR_CALLBACK_PARENT_FULL,  // Neighbour Cache full at parent or 6LBR - couldn't register address, about to be deleted
-    ADDR_CALLBACK_TIMER,        // state_timer reached 0
-    ADDR_CALLBACK_DEPRECATED,   // preferred lifetime reached 0
-    ADDR_CALLBACK_INVALIDATED,  // valid lifetime reached 0 - about to be deleted, unless callback increases lifetime
-    ADDR_CALLBACK_REFRESHED,    // valid lifetime updated (up or down, aside from usual expiry)
-} if_address_callback_e;
-
-typedef void if_address_notification_fn(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason);
-
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
@@ -100,8 +88,6 @@ uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 
 void address_module_init(void);
 struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source);
-
-void addr_notification_register(if_address_notification_fn fn);
 
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);

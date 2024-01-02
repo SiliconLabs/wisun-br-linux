@@ -37,13 +37,6 @@
 
 #define TRACE_GROUP "addr"
 
-typedef struct addr_notification {
-    if_address_notification_fn *fn;
-    ns_list_link_t link;
-} addr_notification_t;
-
-static NS_LIST_DEFINE(addr_notifications, addr_notification_t, link);
-
 typedef struct addr_policy_table_entry {
     uint8_t prefix[16];
     uint8_t prefix_len;
@@ -596,13 +589,6 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-static void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
-{
-    ns_list_foreach(addr_notification_t, n, &addr_notifications) {
-        n->fn(interface, addr, reason);
-    }
-}
-
 if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source)
 {
     if (addr_get_entry(cur, address)) {
@@ -621,9 +607,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     entry->group_added = false;
     if (addr_add_solicited_node_group(cur, entry->address))
         entry->group_added = true;
-    // XXX not right? Want to do delay + MLD join, so don't special-case?
-    /* entry->cb isn't set yet, but global notifiers will want call */
-    addr_cb(cur, entry, ADDR_CALLBACK_DAD_COMPLETE);
 
     tr_info("Address added to IF %d: %s", cur->id, tr_ipv6(address));
 
@@ -631,23 +614,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     notify_user_if_ready();
 
     return entry;
-}
-
-void addr_notification_register(if_address_notification_fn *fn)
-{
-    ns_list_foreach(addr_notification_t, n, &addr_notifications) {
-        if (n->fn == fn) {
-            return;
-        }
-    }
-
-    addr_notification_t *n = malloc(sizeof(addr_notification_t));
-    if (!n) {
-        tr_error("addr_notification_register mem");
-        return;
-    }
-    n->fn = fn;
-    ns_list_add_to_end(&addr_notifications, n);
 }
 
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
@@ -718,7 +684,6 @@ int addr_interface_set_ll64(struct net_if *cur)
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;
-        addr_cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
     }
     return ret_val;
 }
