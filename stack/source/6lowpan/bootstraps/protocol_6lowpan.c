@@ -229,8 +229,6 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
     // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
     // Interface metric will determine which interface is actually used, if we have multiple.
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
-
-    cur->nwk_mode = ARM_NWK_GP_IP_MODE;
     return 0;
 }
 

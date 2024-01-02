@@ -94,15 +94,6 @@ typedef enum arm_internal_event_type {
     ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootstrap_cb_run */
 } arm_internal_event_type_e;
 
-typedef enum {
-    ARM_NWK_IDLE_MODE = 0,
-    ARM_NWK_GP_IP_MODE,
-    ARM_NWK_LL_IP_MODE,
-    ARM_NWK_MAC_MODE,
-    ARM_NWK_RAW_PHY_MODE,
-    ARM_NWK_SNIFFER_MODE,
-} arm_nwk_interface_mode_e;
-
 /** Control selection of MPL Seed Identifier for packets we originate */
 typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
@@ -151,7 +142,6 @@ struct net_if {
     uint8_t zone_index[16];
     const char *interface_name;
     ns_list_link_t link;
-    arm_nwk_interface_mode_e nwk_mode;
     uint8_t configure_flags;
     uint8_t lowpan_info;
     uint16_t bootstrap_state_machine_cnt;
