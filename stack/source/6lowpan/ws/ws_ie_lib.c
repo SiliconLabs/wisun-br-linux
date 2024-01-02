@@ -27,7 +27,7 @@
 #include "common/iobuf.h"
 #include "common/utils.h"
 #include "common/ws_regdb.h"
-#include "6lowpan/mac/mac_common_defines.h"
+#include "common/specs/ieee802154.h"
 
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_management_api.h"

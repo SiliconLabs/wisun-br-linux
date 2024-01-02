@@ -30,11 +30,11 @@
 #include "common/events_scheduler.h"
 #include "common/version.h"
 #include "common/specs/ipv6.h"
+#include "common/specs/ieee802154.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
-#include "6lowpan/mac/mac_common_defines.h"
 
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/commandline_values.h"

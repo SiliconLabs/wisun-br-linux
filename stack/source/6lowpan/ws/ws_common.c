@@ -31,7 +31,6 @@
 #include "common/specs/icmpv6.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/events_scheduler.h"
-#include "6lowpan/mac/mac_common_defines.h"
 
 #include "core/net_interface.h"
 #include "6lowpan/mac/mpx_api.h"

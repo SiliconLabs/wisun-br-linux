@@ -11,6 +11,7 @@
 #include "common/iobuf.h"
 #include "common/pcapng.h"
 #include "common/string_extra.h"
+#include "common/specs/ieee802154.h"
 
 #include "frame_helpers.h"
 #include "wsbr.h"

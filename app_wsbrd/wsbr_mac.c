@@ -28,6 +28,7 @@
 #include "common/utils.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
+#include "common/specs/ieee802154.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_bbr_api.h"

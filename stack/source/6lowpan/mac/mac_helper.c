@@ -21,12 +21,12 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/specs/ieee802154.h"
 
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "nwk_interface/protocol.h"
 
-#include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "MACh"

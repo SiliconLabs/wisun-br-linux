@@ -32,6 +32,7 @@
 #include "common/time_extra.h"
 #include "common/utils.h"
 #include "common/version.h"
+#include "common/specs/ieee802154.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

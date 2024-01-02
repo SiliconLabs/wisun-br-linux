@@ -2,7 +2,7 @@
 #ifndef LOWPAN_MTU_H
 #define LOWPAN_MTU_H
 
-#include "6lowpan/mac/mac_common_defines.h"
+#include "common/specs/ieee802154.h"
 
 // FCS is handled by the RCP
 #define LOWPAN_MTU_MAX (MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE - 4)

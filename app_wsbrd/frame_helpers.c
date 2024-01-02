@@ -18,8 +18,8 @@
 #include "common/utils.h"
 #include "common/endian.h"
 #include "common/bits.h"
+#include "common/specs/ieee802154.h"
 
-#include "6lowpan/mac/mac_common_defines.h"
 #include "nwk_interface/protocol.h"
 
 #include "rcp_api_legacy.h"

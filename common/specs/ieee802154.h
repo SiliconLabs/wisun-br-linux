@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2023 Silicon Laboratories Inc. (www.silabs.com)
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
+ *
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
+ */
+#ifndef SPECS_IEEE802154_H
+#define SPECS_IEEE802154_H
+
+// 802.15.4 ANA database - IE Header
+// https://mentor.ieee.org/802.15/documents?is_dcn=257&is_group=0000
+enum {
+    // ...
+    IEEE802154_IE_ID_WH  = 0x2a, // Wi-SUN Header (WH-IE)
+    // 0x2b to 0x7d are reserved or unused
+    IEEE802154_IE_ID_HT1 = 0x7e, // Header Termination 1
+    IEEE802154_IE_ID_HT2 = 0x7f, // Header Termination 2
+};
+
+// 802.15.4 ANA database - IE Payload
+// https://mentor.ieee.org/802.15/documents?is_dcn=257&is_group=0000
+enum {
+    IEEE802154_IE_ID_ESDU   = 0x0, // Unused
+    IEEE802154_IE_ID_MLME   = 0x1, // Unused
+    IEEE802154_IE_ID_VEMDOR = 0x2, // Unused
+    IEEE802154_IE_ID_MPX    = 0x3, // Multiplexed IE (MPX-IE)
+    IEEE802154_IE_ID_WP     = 0x4, // Wi-SUN Payload (WP-IE)
+    IEEE802154_IE_ID_IETF   = 0x5, // Unused
+    // 0x6 to 0xe are reserved
+    IEEE802154_IE_ID_PT     = 0xf, // Payload Termination
+};
+
+// IEEE 802.15.4-202, Table 7-3, "Valid values of the Destination Addressing
+// Mode and Source Addressing Mode fields"
+enum {
+    MAC_ADDR_MODE_NONE     = 0,
+    // 1 is reserved
+    MAC_ADDR_MODE_16_BIT   = 2,
+    MAC_ADDR_MODE_64_BIT   = 3,
+};
+
+// IEEE 802.15.4-202, Table 7-4, "Frame Version field values"
+enum {
+    MAC_FRAME_VERSION_2003 = 0,
+    MAC_FRAME_VERSION_2006 = 1,
+    MAC_FRAME_VERSION_2015 = 2,
+};
+
+// IEEE 802.15.4-2020, Table 9-7, "Values of the Key Identifier Mode field"
+enum {
+    MAC_KEY_ID_MODE_IMPLICIT = 0,
+    MAC_KEY_ID_MODE_IDX      = 1,
+    MAC_KEY_ID_MODE_SRC4_IDX = 2,
+    MAC_KEY_ID_MODE_SRC8_IDX = 3,
+};
+
+// IEEE 802.15.4-2020, Table 9-6, "Security levels available to the MAC sublayer"
+enum {
+    SEC_NONE       = 0, // No payload encoding and and no authentication
+    SEC_MIC32      = 1, // No payload encoding but 32-bit MIC authentication
+    SEC_MIC64      = 2, // No payload encoding but 64-bit MIC authentication
+    SEC_MIC128     = 3, // No payload encoding but 128-bit MIC authentication
+    SEC_ENC        = 4, // Payload encoding but no authentication
+    SEC_ENC_MIC32  = 5, // Payload encoding and 32-bit MIC authentication
+    SEC_ENC_MIC64  = 6, // Payload encoding and 64-bit MIC authentication
+    SEC_ENC_MIC128 = 7  // Payload encoding and 128-bit MIC authentication
+};
+
+// IEEE 802.15.4-202, Table 11-1, "PHY constants"
+#define MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE 2047
+
+#endif

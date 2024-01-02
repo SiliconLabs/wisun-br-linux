@@ -38,16 +38,6 @@ struct iobuf_write;
 #define IEEE802154_IE_NESTED_LONG_LEN_MASK  0b0000011111111111
 #define IEEE802154_IE_NESTED_LONG_ID_MASK   0b0111100000000000
 
-// 802.15.4 ANA database
-// IE Header
-#define IEEE802154_IE_ID_WH  0x2a // Wi-SUN Header (WH-IE)
-#define IEEE802154_IE_ID_HT1 0x7e // Header Termination 1
-#define IEEE802154_IE_ID_HT2 0x7f // Header Termination 2
-// IE Payload
-#define IEEE802154_IE_ID_MPX  0x3 // Multiplexed IE (MPX-IE)
-#define IEEE802154_IE_ID_WP   0x4 // Wi-SUN Payload (WP-IE)
-#define IEEE802154_IE_ID_PT   0xf // Payload Termination
-
 /*
  * Functions ieee802154_ie_push*() return an offset into the iobuf, pointing
  * to the start of the IE. An offset is returned instead of a pointer since
