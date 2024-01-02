@@ -134,6 +134,7 @@ add_library(libwsbrd STATIC
     common/pcapng.c
     common/dhcp_server.c
     common/iobuf.c
+    common/ipv6_flow_label.c
     common/hif.c
     common/spinel.c
     common/trickle.c
@@ -178,7 +179,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_test_api.c
     stack/source/common_protocols/icmpv6.c
     stack/source/common_protocols/ipv6.c
-    stack/source/common_protocols/ipv6_flow.c
     stack/source/common_protocols/ipv6_resolution.c
     stack/source/core/timers.c
     stack/source/core/ns_address_internal.c
