@@ -49,15 +49,6 @@ static int8_t event_tasklet_get_free_id(void)
     return -1;
 }
 
-static void event_core_write(struct event_storage *event)
-{
-    struct events_scheduler *ctxt = g_event_scheduler;
-
-    BUG_ON(!ctxt);
-    ns_list_add_to_end(&ctxt->event_queue, event);
-    event_scheduler_signal();
-}
-
 int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *))
 {
     struct events_scheduler *ctxt = g_event_scheduler;
@@ -73,30 +64,33 @@ int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *))
 
 int8_t event_send(const struct event_payload *event)
 {
-    struct event_storage *event_tmp;
+    struct events_scheduler *ctxt = g_event_scheduler;
+    struct event_payload *event_dup;
 
+    BUG_ON(!ctxt);
     if (!event_tasklet_handler_get(event->receiver))
         return -1;
 
-    event_tmp = malloc(sizeof(struct event_storage));
-    memcpy(&event_tmp->data, event, sizeof(struct event_payload));
-    event_core_write(event_tmp);
+    event_dup = malloc(sizeof(struct event_payload));
+    memcpy(event_dup, event, sizeof(struct event_payload));
+    ns_list_add_to_end(&ctxt->event_queue, event_dup);
+    event_scheduler_signal();
     return 0;
 }
 
 bool event_scheduler_dispatch_event(void)
 {
     struct events_scheduler *ctxt = g_event_scheduler;
-    struct event_storage *event = ns_list_get_first(&ctxt->event_queue);
+    struct event_payload *event = ns_list_get_first(&ctxt->event_queue);
     struct event_tasklet *tasklet;
 
     BUG_ON(!ctxt);
     if (!event)
         return false;
     ns_list_remove(&ctxt->event_queue, event);
-    tasklet = event_tasklet_handler_get(event->data.receiver);
+    tasklet = event_tasklet_handler_get(event->receiver);
     if (tasklet) {
-        tasklet->func_ptr(&event->data);
+        tasklet->func_ptr(event);
     } else {
         WARN();
     }

@@ -21,10 +21,6 @@ struct event_payload {
     int8_t receiver;    /* Tasklet ID */
     uint8_t event_id;
     void *data_ptr;
-};
-
-struct event_storage {
-    struct event_payload data;
     ns_list_link_t link;
 };
 
@@ -37,7 +33,7 @@ struct event_tasklet {
 struct events_scheduler {
     int event_fd[2];
     NS_LIST_HEAD(struct event_tasklet, link) event_tasklet_list;
-    NS_LIST_HEAD(struct event_storage, link) event_queue;
+    NS_LIST_HEAD(struct event_payload, link) event_queue;
 };
 
 /**
