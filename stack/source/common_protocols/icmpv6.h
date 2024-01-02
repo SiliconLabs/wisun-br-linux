@@ -74,16 +74,6 @@
 #define NA_S    0x40
 #define NA_O    0x20
 
-/* Router Advertisement flags */
-#define RA_M            0x80    // Managed
-#define RA_O            0x40    // Other Configuration
-#define RA_H            0x20    // Home Agent (RFC 6275)
-#define RA_PRF_MASK     0x18    // Router Preference (RFC 4191)
-#define RA_PRF_LOW      0x18    // (RA_PRF_xxx also occurs in Route Info Options)
-#define RA_PRF_MEDIUM   0x00
-#define RA_PRF_HIGH     0x08
-#define RA_PRF_INVALID  0x10
-
 struct buffer;
 struct net_if;
 
