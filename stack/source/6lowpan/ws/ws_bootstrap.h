@@ -25,10 +25,6 @@
 #include "nwk_interface/protocol.h"
 
 typedef enum {
-    WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
-} ws_bootstrap_event_type_e;
-
-typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
     WS_PARENT_HARD_SYNCH,      /**< Synch FHSS with latest synch information*/
     WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/

@@ -27,13 +27,3 @@ struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id)
 
     return NULL;
 }
-struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-    if (cur->bootStrapId == id) {
-        return cur;
-    }
-
-    return NULL;
-}
-

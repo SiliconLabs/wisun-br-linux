@@ -83,31 +83,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-static void ws_bootstrap_event_handler(struct event_payload *event)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_bootstrap_id(event->receiver);
-    if (!cur) {
-        return;
-    }
-
-    BUG_ON(event->event_type != WS_INIT_EVENT);
-}
-
-static int ws_bootstrap_tasklet_init(struct net_if *cur)
-{
-    if (cur->bootStrapId < 0)
-        cur->bootStrapId = event_handler_create(&ws_bootstrap_event_handler, WS_INIT_EVENT);
-
-    if (cur->bootStrapId < 0) {
-        tr_error("tasklet init failed");
-        return -1;
-    }
-
-
-    return 0;
-}
-
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
     cur->ws_info.hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
@@ -637,11 +612,6 @@ int ws_bootstrap_init(int8_t interface_id)
     }
 
     if (ws_cfg_settings_interface_set(cur) < 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
-
-    if (ws_bootstrap_tasklet_init(cur) != 0) {
         ret_val =  -4;
         goto init_fail;
     }

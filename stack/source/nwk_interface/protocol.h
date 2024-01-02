@@ -130,7 +130,6 @@ struct rpl_domain;
 
 struct net_if {
     int8_t id;
-    int8_t bootStrapId;
     uint8_t zone_index[16];
     const char *interface_name;
     ns_list_link_t link;
