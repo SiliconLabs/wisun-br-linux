@@ -190,7 +190,6 @@ struct net_if {
     struct rcp *rcp;
     arm_15_4_mac_parameters_t mac_parameters;
 
-    int8_t (*if_up)(struct net_if *cur, const uint8_t * ipv6_address);
     void (*if_stack_buffer_handler)(buffer_t *);
     void (*if_common_forwarding_out_cb)(struct net_if *, buffer_t *);
     bool (*if_ns_transmit)(struct net_if *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);

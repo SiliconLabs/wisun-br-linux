@@ -293,7 +293,7 @@ bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  b
     return true;
 }
 
-static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
+int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 {
     int8_t ret_val = -1;
 
@@ -718,7 +718,6 @@ int ws_bootstrap_init(int8_t interface_id)
 
     cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = WS_MPX_MAX_MTU;
 
-    cur->if_up = ws_bootstrap_up;
     cur->ws_info.neighbor_storage = neigh_info;
 
     ws_bootstrap_configuration_reset(cur);

@@ -161,7 +161,6 @@ static void protocol_core_base_init(struct net_if *entry)
     entry->if_snoop = NULL;
     entry->if_map_ip_to_link_addr = NULL;
     entry->lowpan_info = 0;
-    entry->if_up = NULL;
 }
 
 static void protocol_core_base_finish_init(struct net_if *entry)
