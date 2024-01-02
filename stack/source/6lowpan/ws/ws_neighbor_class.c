@@ -22,7 +22,7 @@
 #include <inttypes.h>
 #include "common/bits.h"
 #include "common/endian.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"

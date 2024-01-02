@@ -16,7 +16,7 @@
 
 #include "common/iobuf.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 
 #include "hif.h"
 

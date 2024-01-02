@@ -26,7 +26,7 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/time_extra.h"
 #include "common/version.h"
 #include "common/events_scheduler.h"

@@ -25,7 +25,7 @@
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/ws_regdb.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"

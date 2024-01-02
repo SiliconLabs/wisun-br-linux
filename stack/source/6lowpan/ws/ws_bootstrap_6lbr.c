@@ -21,7 +21,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/rand.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/ws_regdb.h"
 #include "common/trickle.h"
 #include "common/named_values.h"

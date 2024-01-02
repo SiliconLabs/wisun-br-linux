@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef COMMON_UTILS_H
-#define COMMON_UTILS_H
+#ifndef MATHUTILS_H
+#define MATHUTILS_H
 #include <stddef.h>
 
 #define MIN(x, y) ({ \

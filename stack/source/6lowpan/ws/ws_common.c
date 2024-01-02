@@ -27,7 +27,7 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/ns_list.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ws.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

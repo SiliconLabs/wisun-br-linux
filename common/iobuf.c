@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "common/endian.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/log.h"
 
 #include "iobuf.h"

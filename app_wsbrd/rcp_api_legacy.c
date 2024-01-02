@@ -15,7 +15,7 @@
 
 #include "common/version.h"
 #include "common/iobuf.h"
-#include "common/utils.h"
+#include "common/mathutils.h"
 #include "common/endian.h"
 #include "common/spinel.h"
 #include "common/hif.h"
