@@ -27,7 +27,6 @@
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
     WS_DISCOVERY_START,      /**< discovery start*/
-    WS_OPERATION_START,      /**< active operation start*/
     WS_ROUTING_READY,        /**< RPL routing connected to BR*/
 } ws_bootstrap_event_type_e;
 
@@ -65,8 +64,6 @@ void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_re
 
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
-
-void ws_bootstrap_event_operation_start(struct net_if *cur);
 
 void ws_bootstrap_event_routing_ready(struct net_if *cur);
 

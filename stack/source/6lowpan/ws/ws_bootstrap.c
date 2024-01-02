@@ -829,10 +829,6 @@ void ws_bootstrap_event_discovery_start(struct net_if *cur)
     ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, NULL);
 }
 
-void ws_bootstrap_event_operation_start(struct net_if *cur)
-{
-    ws_bootstrap_event_trig(WS_OPERATION_START, cur->bootStrapId, NULL);
-}
 void ws_bootstrap_event_routing_ready(struct net_if *cur)
 {
     ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, NULL);

@@ -438,11 +438,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
                 rcp_legacy_set_min_be(WS_MAC_MIN_BE);
                 rcp_legacy_set_max_be(WS_MAC_MAX_BE);
             }
-
-            ws_bootstrap_event_operation_start(cur);
-            break;
-        case WS_OPERATION_START:
-            tr_info("Operation start");
             // Advertisements stopped during the RPL scan
             ws_bootstrap_asynch_trickle_stop(cur);
             // Activate RPL
