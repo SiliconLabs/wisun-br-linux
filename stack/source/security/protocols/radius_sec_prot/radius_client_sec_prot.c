@@ -125,7 +125,6 @@ typedef struct radius_client_sec_prot_shared {
 static uint16_t radius_client_sec_prot_size(void);
 static int8_t radius_client_sec_prot_init(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_shared_data_timeout(uint16_t ticks);
-static int8_t radius_client_sec_prot_shared_data_delete(void);
 static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
 static void radius_client_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void radius_client_sec_prot_delete(sec_prot_t *prot);
