@@ -102,23 +102,18 @@ void address_module_init(void);
 struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source);
 
 void addr_notification_register(if_address_notification_fn fn);
-void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
-int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
 const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[static 16], uint32_t addr_preferences);
 const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences);
 int8_t addr_interface_select_source(struct net_if *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences);
-struct if_address_entry *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16]);
 bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16]);
 
 struct if_group_entry *addr_add_group(struct net_if *interface, const uint8_t group[static 16]);
 void addr_remove_group(struct net_if *interface, const uint8_t group[static 16]);
 bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16]);
-struct if_group_entry *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16]);
-void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry);
 
 void addr_add_router_groups(struct net_if *interface);
 

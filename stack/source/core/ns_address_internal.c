@@ -57,6 +57,7 @@ static NS_LIST_DEFINE(addr_policy_table, addr_policy_table_entry_t, link);
 uint32_t addr_preferences_default = SOCKET_IPV6_PREFER_SRC_TMP | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
 
 static void addr_policy_table_reset(void);
+static struct if_group_entry *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16]);
 
 static bool addr_am_implicit_group_member(const uint8_t group[static 16])
 {
@@ -168,7 +169,7 @@ void address_module_init(void)
     //mac_reset_short_address();
 }
 
-int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label)
+static int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label)
 {
     addr_policy_table_entry_t *entry = malloc(sizeof(addr_policy_table_entry_t));
     if (!entry) {
@@ -264,7 +265,7 @@ static uint_fast8_t addr_common_prefix_len(const uint8_t src[static 16], uint_fa
     return i;
 }
 
-if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16])
+static if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16])
 {
     ns_list_foreach(if_address_entry_t, entry, &interface->ip_addresses) {
         if (addr_ipv6_equal(entry->address, addr)) {
@@ -311,6 +312,13 @@ if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[s
     return entry;
 }
 
+/* This does NOT reference count - it actually deletes the entry */
+static void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry)
+{
+    ns_list_remove(&interface->ip_groups, entry);
+    free(entry);
+}
+
 /* This does reference count */
 void addr_remove_group(struct net_if *interface, const uint8_t group[static 16])
 {
@@ -324,14 +332,7 @@ void addr_remove_group(struct net_if *interface, const uint8_t group[static 16])
     }
 }
 
-/* This does NOT reference count - it actually deletes the entry */
-void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry)
-{
-    ns_list_remove(&interface->ip_groups, entry);
-    free(entry);
-}
-
-if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16])
+static if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16])
 {
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
         if (addr_ipv6_equal(entry->group, group)) {
@@ -595,6 +596,13 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
+static void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
+{
+    ns_list_foreach(addr_notification_t, n, &addr_notifications) {
+        n->fn(interface, addr, reason);
+    }
+}
+
 if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source)
 {
     if (addr_get_entry(cur, address)) {
@@ -640,13 +648,6 @@ void addr_notification_register(if_address_notification_fn *fn)
     }
     n->fn = fn;
     ns_list_add_to_end(&addr_notifications, n);
-}
-
-void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
-{
-    ns_list_foreach(addr_notification_t, n, &addr_notifications) {
-        n->fn(interface, addr, reason);
-    }
 }
 
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
