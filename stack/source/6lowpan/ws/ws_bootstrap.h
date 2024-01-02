@@ -60,7 +60,6 @@ void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_re
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
 
 // Bootstrap state machine state Functions
-void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
 bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);

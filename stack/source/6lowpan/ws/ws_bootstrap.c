@@ -844,12 +844,6 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
     ws_llc_asynch_request(cur, &req);
 }
 
-void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state)
-{
-    cur->bootstrap_state_machine_cnt = 1;
-    cur->nwk_bootstrap_state = nwk_bootstrap_state;
-}
-
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
     if (cur->ws_info.mngt.trickle_pa_running &&
