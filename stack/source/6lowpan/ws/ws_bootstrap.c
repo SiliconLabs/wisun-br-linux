@@ -108,17 +108,6 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
     return 0;
 }
 
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, void *event_data)
-{
-    struct event_payload event = {
-        .receiver = interface_id,
-        .sender = 0,
-        .event_type = event_type,
-        .data_ptr = event_data,
-    };
-    return event_send(&event);
-}
-
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
     cur->ws_info.hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
