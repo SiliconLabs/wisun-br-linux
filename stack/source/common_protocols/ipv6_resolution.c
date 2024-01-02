@@ -139,21 +139,3 @@ bool ipv6_map_ip_to_ll(struct net_if *cur, ipv6_neighbour_t *n, const uint8_t ip
 
     return false;
 }
-
-/* Attempt a mapping from current information (neighbour cache, hard mappings) */
-bool ipv6_map_ll_to_ip_link_local(struct net_if *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16])
-{
-    if (cur->if_map_link_addr_to_ip &&
-            cur->if_map_link_addr_to_ip(cur, ll_type, ll_addr, ip_addr_out)) {
-        return true;
-    }
-
-    ns_list_foreach(ipv6_neighbour_t, n, &cur->ipv6_neighbour_cache.list) {
-        if (ipv6_neighbour_ll_addr_match(n, ll_type, ll_addr) && addr_is_ipv6_link_local(n->ip_address)) {
-            memcpy(ip_addr_out, n->ip_address, 16);
-            return true;
-        }
-    }
-
-    return false;
-}

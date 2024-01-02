@@ -32,6 +32,5 @@ struct ipv6_neighbour *ipv6_interface_resolve_new(struct net_if *cur, struct buf
 void ipv6_interface_resolve_send_ns(struct ipv6_neighbour_cache *cache, struct ipv6_neighbour *entry, bool unicast, uint_fast8_t seq);
 struct ipv6_neighbour_cache *ipv6_neighbour_cache_by_interface_id(int8_t interface_id);
 bool ipv6_map_ip_to_ll(struct net_if *cur, struct ipv6_neighbour *n, const uint8_t ip_addr[16], enum addrtype *ll_type, const uint8_t **ll_addr_out);
-bool ipv6_map_ll_to_ip_link_local(struct net_if *cur, enum addrtype ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16]);
 
 #endif /* IPV6_RESOLUTION_H_ */
