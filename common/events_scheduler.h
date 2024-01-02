@@ -104,6 +104,6 @@ int8_t event_send(const struct event_payload *event);
  * \return < 0 Register fail
  *
  * */
-int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *), uint8_t init_event_type);
+int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *));
 
 #endif

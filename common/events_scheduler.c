@@ -59,25 +59,15 @@ static void event_core_write(struct event_storage *event)
     event_scheduler_signal();
 }
 
-int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *), uint8_t init_event_type)
+int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *))
 {
     struct events_scheduler *ctxt = g_event_scheduler;
-    struct event_storage *event_tmp = malloc(sizeof(struct event_storage));
     struct event_tasklet *new = malloc(sizeof(struct event_tasklet));
 
     BUG_ON(!ctxt);
     new->id = event_tasklet_get_free_id();
     new->func_ptr = handler_func_ptr;
     ns_list_add_to_end(&ctxt->event_tasklet_list, new);
-
-    event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
-    event_tmp->data.data_ptr = NULL;
-    event_tmp->data.receiver = new->id;
-    event_tmp->data.sender = 0;
-    event_tmp->data.event_type = init_event_type;
-    event_tmp->data.event_id = 0;
-    event_tmp->data.event_data = 0;
-    event_core_write(event_tmp);
 
     return new->id;
 }

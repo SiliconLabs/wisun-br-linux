@@ -59,7 +59,6 @@
 
 #define TRACE_GROUP "wspa"
 
-#define PAE_TASKLET_INIT                       1
 #define PAE_TASKLET_EVENT                      2
 #define PAE_TASKLET_TIMER                      3
 
@@ -281,7 +280,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     }
 
     if (tasklet_id < 0) {
-        tasklet_id = event_handler_create(ws_pae_auth_tasklet_handler, PAE_TASKLET_INIT);
+        tasklet_id = event_handler_create(ws_pae_auth_tasklet_handler);
         if (tasklet_id < 0) {
             goto error;
         }
@@ -677,9 +676,7 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
 
 static void ws_pae_auth_tasklet_handler(struct event_payload *event)
 {
-    if (event->event_type == PAE_TASKLET_INIT) {
-
-    } else if (event->event_type == PAE_TASKLET_EVENT) {
+    if (event->event_type == PAE_TASKLET_EVENT) {
         pae_auth_t *pae_auth = NULL;
 
         ns_list_foreach(pae_auth_t, entry, &pae_auth_list) {
