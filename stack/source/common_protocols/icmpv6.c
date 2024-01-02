@@ -26,6 +26,7 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/specs/icmpv6.h"
+#include "common/specs/ipv6.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

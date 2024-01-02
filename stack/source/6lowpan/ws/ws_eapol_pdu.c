@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/specs/ipv6.h"
 
 #include "nwk_interface/protocol.h"
-#include "common_protocols/ipv6_constants.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"

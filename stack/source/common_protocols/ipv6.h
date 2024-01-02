@@ -20,7 +20,6 @@
 #define _IPV6_H
 
 #include "core/ns_buffer.h"
-#include "common_protocols/ipv6_constants.h"
 
 uint16_t ipv6_header_size_required(buffer_t *buf);
 uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit);

@@ -24,6 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/ipv6_flow_label.h"
 #include "common/endian.h"
+#include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 

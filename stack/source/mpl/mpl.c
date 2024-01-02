@@ -26,6 +26,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/seqno.h"
+#include "common/specs/ipv6.h"
 
 #include "core/timers.h"
 #include "core/ns_buffer.h"

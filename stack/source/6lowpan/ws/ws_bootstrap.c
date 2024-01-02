@@ -44,7 +44,7 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/ipv6_constants.h"
+#include "common/specs/ipv6.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

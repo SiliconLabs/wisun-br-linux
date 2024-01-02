@@ -24,6 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/events_scheduler.h"
 #include "common/endian.h"
+#include "common/specs/ipv6.h"
 
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/wsbr_mac.h"
