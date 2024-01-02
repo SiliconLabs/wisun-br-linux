@@ -38,7 +38,6 @@
 
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
-#include "common_protocols/icmpv6_prefix.h"
 
 #include "common_protocols/icmpv6.h"
 

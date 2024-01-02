@@ -20,8 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "common_protocols/icmpv6_prefix.h"
-
 #define ICMPV6_TYPE_ERROR_DESTINATION_UNREACH       1
 #define ICMPV6_TYPE_ERROR_PACKET_TOO_BIG            2
 #define ICMPV6_TYPE_ERROR_TIME_EXCEEDED             3
