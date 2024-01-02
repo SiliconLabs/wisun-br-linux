@@ -30,7 +30,6 @@ void ws_bootstrap_6lbr_mngt_ind(struct net_if *cur, const struct mcps_data_ind *
 void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *event);
 void ws_bootstrap_6lbr_state_machine(struct net_if *cur);
-void ws_bootstrap_6lbr_seconds_timer(struct net_if *cur, uint32_t seconds);
 int ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
 int ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
 void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd);

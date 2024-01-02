@@ -156,7 +156,6 @@ void ws_common_seconds_timer(int seconds)
         return;
 
     ws_bootstrap_seconds_timer(cur, seconds);
-    ws_bootstrap_6lbr_seconds_timer(cur, seconds);
 }
 
 void ws_common_fast_timer(int ticks)

@@ -496,9 +496,3 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
             tr_warn("WS SM:Invalid state %d", cur->nwk_bootstrap_state);
     }
 }
-
-void ws_bootstrap_6lbr_seconds_timer(struct net_if *cur, uint32_t seconds)
-{
-    (void)cur;
-    (void)seconds;
-}
