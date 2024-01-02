@@ -83,18 +83,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-static void ws_bootstrap_address_notification_cb(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason)
-{
-    /* No need for LL address registration */
-    if (addr->source == ADDR_SOURCE_UNKNOWN)
-        return;
-
-    // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
-    if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE &&
-        interface->bootstrap_state_machine_cnt == 0)
-            interface->bootstrap_state_machine_cnt = 10; //Re trigger state check
-}
-
 static void ws_bootstrap_event_handler(struct event_payload *event)
 {
     struct net_if *cur;
@@ -712,7 +700,6 @@ int ws_bootstrap_init(int8_t interface_id)
     cur->ws_info.neighbor_storage = neigh_info;
 
     ws_bootstrap_configuration_reset(cur);
-    addr_notification_register(ws_bootstrap_address_notification_cb);
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_accept_unknown_secured_frames(true);
 
