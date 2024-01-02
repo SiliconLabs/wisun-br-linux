@@ -26,6 +26,5 @@ struct fhss_api;
 
 struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id);
 struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id);
-struct net_if *protocol_stack_interface_info_get_wisun_mesh(void);
 
 #endif
