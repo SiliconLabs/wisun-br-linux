@@ -160,7 +160,6 @@ static void protocol_core_base_init(struct net_if *entry)
     entry->if_special_forwarding = NULL;
     entry->if_snoop = NULL;
     entry->if_map_ip_to_link_addr = NULL;
-    entry->if_map_link_addr_to_ip = NULL;
     entry->lowpan_info = 0;
     entry->if_up = NULL;
 }

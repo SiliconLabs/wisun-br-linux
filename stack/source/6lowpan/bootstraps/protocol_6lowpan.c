@@ -214,29 +214,6 @@ static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8
 
 }
 
-static bool protocol_6lowpan_map_link_addr_to_ip(struct net_if *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out)
-{
-    (void)cur;
-
-    switch (ll_type) {
-        case ADDR_802_15_4_LONG:
-            memcpy(ip_addr_out, ADDR_LINK_LOCAL_PREFIX, 8);
-            memcpy(ip_addr_out + 8, ll_addr + 2, 8);
-            ip_addr_out[8] ^= 0x02;
-            return true;
-        case ADDR_802_15_4_SHORT:
-            if (read_be16(ll_addr + 2) > 0xfffd) {
-                return false;
-            }
-            memcpy(ip_addr_out, ADDR_LINK_LOCAL_PREFIX, 8);
-            memcpy(ip_addr_out + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-            memcpy(ip_addr_out + 14, ll_addr + 2, 2);
-            return true;
-        default:
-            return false;
-    }
-}
-
 void protocol_6lowpan_configure_core(struct net_if *cur)
 {
     cur->dup_addr_detect_transmits = 0;
@@ -253,7 +230,6 @@ void protocol_6lowpan_register_handlers(struct net_if *cur)
     cur->if_llao_parse = protocol_6lowpan_llao_parse;
     cur->if_llao_write = protocol_6lowpan_llao_write;
     cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
-    cur->if_map_link_addr_to_ip = protocol_6lowpan_map_link_addr_to_ip;
 
     cur->ipv6_neighbour_cache.recv_addr_reg = true;
     cur->ipv6_neighbour_cache.recv_ns_aro = true;
