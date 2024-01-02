@@ -49,8 +49,6 @@ int ws_bootstrap_init(int8_t interface_id);
 
 void ws_bootstrap_state_machine(struct net_if *cur);
 
-int ws_bootstrap_restart(int8_t interface_id);
-
 int ws_bootstrap_restart_delayed(int8_t interface_id);
 
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur);

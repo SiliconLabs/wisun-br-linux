@@ -747,15 +747,6 @@ init_fail:
     return ret_val;
 }
 
-int ws_bootstrap_restart(int8_t interface_id)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    ws_bootstrap_event_discovery_start(cur);
-    return 0;
-}
-
 int ws_bootstrap_restart_delayed(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
