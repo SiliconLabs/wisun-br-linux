@@ -20,7 +20,6 @@
 struct event_payload {
     int8_t receiver;    /* Tasklet ID */
     int8_t sender;      /* Tasklet ID */
-    uint8_t event_type;
     uint8_t event_id;
     void *data_ptr;
     uintptr_t event_data;

@@ -59,9 +59,6 @@
 
 #define TRACE_GROUP "wspa"
 
-#define PAE_TASKLET_EVENT                      2
-#define PAE_TASKLET_TIMER                      3
-
 /* Wait for supplicant to indicate activity (e.g. to send a message) when
    authentication is ongoing */
 #define WAIT_FOR_AUTHENTICATION_TICKS          2 * 60 * 10  // 2 minutes
@@ -664,7 +661,6 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
         .sender = 0,
         .event_id = pae_auth->interface_ptr->id,
         .data_ptr = data,
-        .event_type = PAE_TASKLET_EVENT,
     };
 
     if (event_send(&event) != 0) {
@@ -676,19 +672,17 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
 
 static void ws_pae_auth_tasklet_handler(struct event_payload *event)
 {
-    if (event->event_type == PAE_TASKLET_EVENT) {
-        pae_auth_t *pae_auth = NULL;
+    pae_auth_t *pae_auth = NULL;
 
-        ns_list_foreach(pae_auth_t, entry, &pae_auth_list) {
-            if (entry->interface_ptr->id == event->event_id) {
-                pae_auth = entry;
-                break;
-            }
+    ns_list_foreach(pae_auth_t, entry, &pae_auth_list) {
+        if (entry->interface_ptr->id == event->event_id) {
+            pae_auth = entry;
+            break;
         }
+    }
 
-        if (pae_auth) {
-            kmp_service_event_if_event(pae_auth->kmp_service, event->data_ptr);
-        }
+    if (pae_auth) {
+        kmp_service_event_if_event(pae_auth->kmp_service, event->data_ptr);
     }
 }
 
