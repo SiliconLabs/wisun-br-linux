@@ -24,34 +24,18 @@
 #include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
-#include "app_wsbrd/rcp_api_legacy.h"
-#include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
-#include "common_protocols/ipv6.h"
-#include "common_protocols/icmpv6.h"
-#include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/iphc_decode/cipv6.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
+#include "6lowpan/nd/nd_router_object.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/ipv6.h"
+#include "core/ns_buffer.h"
+#include "nwk_interface/protocol.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 
-#define TRACE_GROUP_LOWPAN "6lo"
 #define TRACE_GROUP "6lo"
-
-/* Data rate for application used in Stagger calculation */
-#define STAGGER_DATARATE_FOR_APPL(n) ((n)*75/100)
-
-/* Time after network is considered stable and smaller stagger values can be given*/
-#define STAGGER_STABLE_NETWORK_TIME 3600*4
-
-/* Having to sidestep old rpl_dodag_t type for the moment */
-struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
 static bool protocol_buffer_valid(buffer_t *b, struct net_if *cur)
 {
@@ -64,12 +48,7 @@ static bool protocol_buffer_valid(buffer_t *b, struct net_if *cur)
     return false;
 }
 
-void protocol_init(void)
-{
-    ws_cfg_settings_init();
-}
-
-void protocol_6lowpan_stack(buffer_t *b)
+static void protocol_6lowpan_stack(buffer_t *b)
 {
     struct net_if *cur = b->interface;
     if (!protocol_buffer_valid(b, cur)) {
@@ -224,20 +203,6 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->send_mld = false;
 }
 
-void protocol_6lowpan_register_handlers(struct net_if *cur)
-{
-    cur->if_stack_buffer_handler = protocol_6lowpan_stack;
-    cur->if_llao_parse = protocol_6lowpan_llao_parse;
-    cur->if_llao_write = protocol_6lowpan_llao_write;
-    cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
-
-    cur->ipv6_neighbour_cache.recv_addr_reg = true;
-    cur->ipv6_neighbour_cache.recv_ns_aro = true;
-
-    /* Always send AROs, (compulsory for hosts, and "SHOULD" in RFC 6557 6.5.5
-     * for routers, as RPL doesn't deal with it) */
-    cur->ipv6_neighbour_cache.send_addr_reg = true;
-}
 
 void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
 {
@@ -250,16 +215,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 
-static void protocol_6lowpan_interface_common_init(struct net_if *cur)
-{
-    cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
-    protocol_6lowpan_register_handlers(cur);
-    ipv6_route_add(ADDR_LINK_LOCAL_PREFIX, 64, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, 0);
-    // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
-    // Interface metric will determine which interface is actually used, if we have multiple.
-    ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
-}
-
 int8_t protocol_6lowpan_up(struct net_if *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE)
@@ -270,7 +225,22 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
     cur->bootstrap_state_machine_cnt = 2;
     cur->interface_mode = INTERFACE_UP;
-    protocol_6lowpan_interface_common_init(cur);
+    cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
+    cur->if_stack_buffer_handler = protocol_6lowpan_stack;
+    cur->if_llao_parse = protocol_6lowpan_llao_parse;
+    cur->if_llao_write = protocol_6lowpan_llao_write;
+    cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
+
+    cur->ipv6_neighbour_cache.recv_addr_reg = true;
+    cur->ipv6_neighbour_cache.recv_ns_aro = true;
+    /* Always send AROs, (compulsory for hosts, and "SHOULD" in RFC 6557 6.5.5
+     * for routers, as RPL doesn't deal with it) */
+    cur->ipv6_neighbour_cache.send_addr_reg = true;
+
+    ipv6_route_add(ADDR_LINK_LOCAL_PREFIX, 64, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, 0);
+    // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
+    // Interface metric will determine which interface is actually used, if we have multiple.
+    ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 
     cur->nwk_mode = ARM_NWK_GP_IP_MODE;
     return 0;

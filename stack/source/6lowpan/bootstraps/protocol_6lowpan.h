@@ -24,4 +24,5 @@ struct net_if;
 
 int8_t protocol_6lowpan_up(struct net_if *cur);
 void protocol_6lowpan_configure_core(struct net_if *cur);
+void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64);
 #endif

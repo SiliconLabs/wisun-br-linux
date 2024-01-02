@@ -58,7 +58,6 @@ uint8_t check_power_state(uint8_t mode);
 
 #define BUFFER_DATA_FIXED_SIZE 0
 void protocol_push(buffer_t *buf);
-void protocol_init(void);
 void protocol_core_init(void);
 
 #define INTERFACE_BOOTSTRAP_DEFINED     1
@@ -235,10 +234,6 @@ struct net_if *protocol_stack_interface_info_get();
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);
-
-void protocol_6lowpan_stack(buffer_t *b);
-void protocol_6lowpan_register_handlers(struct net_if *cur);
-void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 

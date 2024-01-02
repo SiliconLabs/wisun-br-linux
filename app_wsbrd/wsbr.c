@@ -322,7 +322,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     protocol_core_init();
     address_module_init();
-    protocol_init();
+    ws_cfg_settings_init();
     addr_notification_register(net_automatic_loopback_route_update);
 
     cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
