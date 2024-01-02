@@ -16,10 +16,6 @@
 // RFC 6554 - 3. Format of the RPL Routing Header
 #define IPV6_EXTHDR_ROUTE_TYPE_RPL_SRH 3
 
-// RFC 9008 - 11.1. Option Type in RPL Option
-#define IPV6_OPT_TYPE_RPI            0x23
-#define IPV6_OPT_TYPE_RPI_DEPRECATED 0x63
-
 // RFC 6550: RPL Control Codes
 // https://www.iana.org/assignments/rpl/rpl.xhtml#control-codes
 enum {

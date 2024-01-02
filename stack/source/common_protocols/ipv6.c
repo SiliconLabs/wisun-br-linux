@@ -751,12 +751,12 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
             goto len_err;
         }
         switch (*opt_type_ptr) {
-            case IPV6_OPT_TYPE_RPI:
-            case IPV6_OPT_TYPE_RPI_DEPRECATED:
+            case IPV6_OPTION_RPI:
+            case IPV6_OPTION_RPI_DEPRECATED:
                 if (!rpl_glue_process_rpi(&g_ctxt.rpl_root, buf, opt, optlen))
                     goto drop;
                 // FIXME: hack to allow ignoring RPI from the kernel.
-                *opt_type_ptr = IPV6_OPT_TYPE_RPI;
+                *opt_type_ptr = IPV6_OPTION_RPI;
                 break;
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
