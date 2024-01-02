@@ -32,13 +32,6 @@
 
 #define TRACE_GROUP "buff"
 
-// Get module working also on 16-bit platform
-#if INT_MAX < 0xFFFF
-#define BUFFER_MAX_SIZE ((size_t)INT_MAX)
-#else
-#define BUFFER_MAX_SIZE ((size_t)0xFFFF)
-#endif
-
 volatile unsigned int buffer_count = 0;
 
 uint8_t *buffer_corrupt_check(buffer_t *buf)
@@ -89,32 +82,27 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
      * anyway be this much aligned. */
     total_size = (total_size + 3) & ~ 3;
 
-    if (total_size <= BUFFER_MAX_SIZE) {
-        // Note - as well as this alloc+init, buffers can also be "realloced"
-        // in buffer_headroom()
-        buf = malloc(sizeof(buffer_t) + total_size);
-    }
+    // Note - as well as this alloc+init, buffers can also be "realloced"
+    // in buffer_headroom()
+    buf = malloc(sizeof(buffer_t) + total_size);
+    FATAL_ON(!buf, 2);
 
-    if (buf) {
-        buffer_count++;
-        memset(buf, 0, sizeof(buffer_t));
-        buf->buf_ptr = total_size - size;
-        buf->buf_end = buf->buf_ptr;
-        buf->interface = NULL;
-        //buf->bad_channel = 0xffff;
-        //buf->bc_sending_superframe = 0xff;
-        // Socket TX always overrides this, so this is the default for non-socket buffers.
-        // Setting it to 0 would remove flow labels on internal ICMP messages without affecting sockets.
-        buf->options.flow_label = IPV6_FLOW_UNSPECIFIED;
-        buf->options.hop_limit = 255;
-        buf->options.mpl_permitted = true;
-        buf->size = total_size;
-    } else {
-        tr_error("buffer_get failed: alloc(%"PRIu32")", (uint32_t)(sizeof(buffer_t) + total_size));
-    }
-
+    buffer_count++;
+    memset(buf, 0, sizeof(buffer_t));
+    buf->buf_ptr = total_size - size;
+    buf->buf_end = buf->buf_ptr;
+    buf->interface = NULL;
+    //buf->bad_channel = 0xffff;
+    //buf->bc_sending_superframe = 0xff;
+    // Socket TX always overrides this, so this is the default for non-socket buffers.
+    // Setting it to 0 would remove flow labels on internal ICMP messages without affecting sockets.
+    buf->options.flow_label = IPV6_FLOW_UNSPECIFIED;
+    buf->options.hop_limit = 255;
+    buf->options.mpl_permitted = true;
+    buf->size = total_size;
     protocol_stats_update(STATS_BUFFER_ALLOC, 1);
-    return (buf);
+
+    return buf;
 }
 
 /**
@@ -134,35 +122,26 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         /* This buffer isn't big enough at all - allocate a new block */
         // TODO - should we be giving them extra? probably
         uint32_t new_total = (curr_len + size + 3) & ~ 3;
-        if (new_total <= BUFFER_MAX_SIZE) {
-            new_buf = malloc(sizeof(buffer_t) + new_total);
-        }
-
-        if (new_buf) {
-            // Copy the buffer_t header
-            *new_buf = *buf;
-            // Set new pointers, leaving specified headroom
-            new_buf->buf_ptr = size;
-            new_buf->buf_end = size + curr_len;
-            new_buf->size = new_total;
-            // Copy the current data
-            memcpy(buffer_data_pointer(new_buf), buffer_data_pointer(buf), curr_len);
-            protocol_stats_update(STATS_BUFFER_HEADROOM_REALLOC, 1);
-            free(buf);
-            buf = new_buf;
-        } else {
-            tr_error("HeadRoom Fail");
-            protocol_stats_update(STATS_BUFFER_HEADROOM_FAIL, 1);
-            buffer_free(buf);
-            buf = NULL;
-        }
+        new_buf = malloc(sizeof(buffer_t) + new_total);
+        FATAL_ON(!new_buf, 2);
+        // Copy the buffer_t header
+        *new_buf = *buf;
+        // Set new pointers, leaving specified headroom
+        new_buf->buf_ptr = size;
+        new_buf->buf_end = size + curr_len;
+        new_buf->size = new_total;
+        // Copy the current data
+        memcpy(buffer_data_pointer(new_buf), buffer_data_pointer(buf), curr_len);
+        protocol_stats_update(STATS_BUFFER_HEADROOM_REALLOC, 1);
+        free(buf);
+        buf = new_buf;
     } else if (buf->buf_ptr < size) {
         /* This buffer is big enough, but not enough headroom - shuffle */
         // TODO - surely better to shuffle all the way to the end in one go?
         uint8_t *orig_ptr = buffer_data_pointer(buf);
         buf->buf_ptr = size;
         buf->buf_end = size + curr_len;
-        if (curr_len != 0) {
+        if (curr_len) {
             memmove(buffer_data_pointer(buf), orig_ptr, curr_len);
             protocol_stats_update(STATS_BUFFER_HEADROOM_SHUFFLE, 1);
         }
