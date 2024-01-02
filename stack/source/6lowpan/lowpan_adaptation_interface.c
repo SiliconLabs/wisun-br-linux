@@ -53,8 +53,6 @@
 
 #define TRACE_GROUP "6lAd"
 
-typedef void (adaptation_etx_update_cb)(struct net_if *cur, buffer_t *buf, const mcps_data_cnf_t *confirm);
-
 // #define EXTRA_DEBUG_EXTRA
 #ifdef EXTRA_DEBUG_EXTRA
 #define tr_debug_extra(...) tr_debug(__VA_ARGS__)
@@ -101,7 +99,6 @@ typedef struct fragmenter_interface {
     uint16_t activeTxList_size;
     uint32_t last_rx_high_priority;
     bool fragmenter_active; /*!< Fragmenter state */
-    adaptation_etx_update_cb *etx_update_cb;
     mpx_api_t *mpx_api;
     uint16_t mpx_user_id;
     ns_list_link_t      link; /*!< List link entry */
@@ -1105,10 +1102,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     // Update adaptation layer latency for unicast packets. Given as seconds.
     if (buf->link_specific.ieee802_15_4.requestAck && buf->adaptation_timestamp) {
         protocol_stats_update(STATS_AL_TX_LATENCY, ((g_monotonic_time_100ms - buf->adaptation_timestamp) + 5) / 10);
-    }
-
-    if (interface_ptr->etx_update_cb) {
-        interface_ptr->etx_update_cb(cur, buf, confirm);
     }
 
     if (confirm->status == MLME_SUCCESS) {
