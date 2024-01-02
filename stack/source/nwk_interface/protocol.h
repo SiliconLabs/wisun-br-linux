@@ -81,10 +81,6 @@ typedef enum {
     INTERFACE_UP = 1
 } interface_mode_e;
 
-typedef enum arm_internal_event_type {
-    ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootstrap_cb_run */
-} arm_internal_event_type_e;
-
 /** Control selection of MPL Seed Identifier for packets we originate */
 typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
@@ -206,7 +202,6 @@ void nwk_interface_print_neigh_cache();
 struct net_if *protocol_stack_interface_info_get();
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
-void net_bootstrap_cb_run(uint8_t event);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 

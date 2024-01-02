@@ -56,16 +56,6 @@
 // to make sure the code is regularly exercised, let's make it 10 minutes.
 #define REACHABLE_TIME_UPDATE_SECONDS       600
 
-/** Quick monotonic time for simple timestamp comparisons; 100ms ticks.
- * This can of course wrap, so to handle this correctly comparisons must be
- * expressed like:
- *
- * "if (time_now - time_then < 200)"
- * NOT
- * "if (time_now < time_then + 200)"
- */
-static int8_t protocol_root_tasklet_ID = -1;
-
 typedef struct lowpan_core_timer_structures {
     uint8_t core_timer_ticks;
     bool core_timer_event;
@@ -77,12 +67,6 @@ protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 struct net_if protocol_interface_info;
 
 static int8_t net_interface_get_free_id(void);
-
-void protocol_root_tasklet(struct event_payload *event)
-{
-    BUG_ON(event->event_type != ARM_IN_INTERFACE_BOOTSTRAP_CB);
-    net_bootstrap_cb_run(event->event_id);
-}
 
 void icmp_fast_timer(int ticks)
 {
@@ -108,8 +92,6 @@ void update_reachable_time(int seconds)
 
 void protocol_core_init(void)
 {
-    protocol_root_tasklet_ID = event_handler_create(&protocol_root_tasklet, 0);
-
     ws_timer_start(WS_TIMER_MONOTONIC_TIME);
     ws_timer_start(WS_TIMER_MPL_SLOW);
     ws_timer_start(WS_TIMER_PAE_FAST);
@@ -289,10 +271,6 @@ void protocol_push(buffer_t *b)
         return;
     }
     buffer_free(b);
-}
-
-void net_bootstrap_cb_run(uint8_t event)
-{
 }
 
 /* XXX note that this does not perform any scope checks, so will for example match
