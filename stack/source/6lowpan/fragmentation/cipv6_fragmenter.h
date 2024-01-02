@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 struct buffer;
-int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_limit, uint16_t reassembly_timeout);
+void reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_limit, uint16_t reassembly_timeout);
 int8_t reassembly_interface_free(int8_t interface_id);
 
 void cipv6_frag_timer(int seconds);

@@ -29,6 +29,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/memutils.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -490,26 +491,13 @@ int8_t reassembly_interface_free(int8_t interface_id)
     return 0;
 }
 
-
-int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_limit, uint16_t reassembly_timeout)
+void reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_limit, uint16_t reassembly_timeout)
 {
+    reassembly_interface_t *interface_ptr = zalloc(sizeof(reassembly_interface_t));
+    reassembly_entry_t *reassemply_ptr = zalloc(sizeof(reassembly_entry_t) * reassembly_session_limit);
 
-    if (!reassembly_session_limit || !reassembly_timeout) {
-        return -2;
-    }
-
-    //Remove old interface
+    BUG_ON(!reassembly_session_limit || !reassembly_timeout);
     reassembly_interface_free(interface_id);
-
-    //Allocate new
-    reassembly_interface_t *interface_ptr = malloc(sizeof(reassembly_interface_t));
-    reassembly_entry_t *reassemply_ptr = malloc(sizeof(reassembly_entry_t) * reassembly_session_limit);
-    if (!interface_ptr || !reassemply_ptr) {
-        free(interface_ptr);
-        free(reassemply_ptr);
-        return -1;
-    }
-
     memset(interface_ptr, 0, sizeof(reassembly_interface_t));
     interface_ptr->interface_id = interface_id;
     interface_ptr->timeout = reassembly_timeout;
@@ -523,6 +511,4 @@ int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session
     }
 
     ns_list_add_to_end(&reassembly_interface_list, interface_ptr);
-
-    return 0;
 }

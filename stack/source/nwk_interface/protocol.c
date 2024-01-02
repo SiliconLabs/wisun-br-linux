@@ -222,10 +222,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
         goto interface_failure;
     }
 
-    if (reassembly_interface_init(entry->id, 8, 5) != 0) {
-        goto interface_failure;
-    }
-
+    reassembly_interface_init(entry->id, 8, 5);
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
     entry->mac_parameters.pan_id = 0xffff;
 
