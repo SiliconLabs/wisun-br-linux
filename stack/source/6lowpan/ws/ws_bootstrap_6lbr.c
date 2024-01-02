@@ -448,7 +448,6 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
     switch (cur->nwk_bootstrap_state) {
         case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
-            cur->bootstrap_state_machine_cnt = 0;
             break;
         default:
             tr_warn("WS SM:Invalid state %d", cur->nwk_bootstrap_state);

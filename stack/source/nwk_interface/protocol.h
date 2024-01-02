@@ -135,7 +135,6 @@ struct net_if {
     ns_list_link_t link;
     uint8_t configure_flags;
     uint8_t lowpan_info;
-    uint16_t bootstrap_state_machine_cnt;
     icmp_state_e nwk_bootstrap_state;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;

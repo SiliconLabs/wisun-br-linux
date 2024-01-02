@@ -153,7 +153,6 @@ static void protocol_core_base_init(struct net_if *entry)
 static void protocol_core_base_finish_init(struct net_if *entry)
 {
     entry->configure_flags = 0;
-    entry->bootstrap_state_machine_cnt = 0;
     entry->reallocate_short_address_if_duplicate = true;
     entry->icmp_tokens = 10;
     entry->ip_forwarding = true; /* Default to on for now... */
