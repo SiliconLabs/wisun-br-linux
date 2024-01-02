@@ -15,27 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef NIST_KW_H
+#define NIST_KW_H
 
-#ifndef NIST_AES_KW_
-#define NIST_AES_KW_
 #include <stdint.h>
 #include <stddef.h>
 
-/**
- * \brief NIST AES Key Wrap encode
+/*
+ * Implement Key Wrapping (KW) as defined in NIST SP 800-38F (using AES as
+ * cipher).
  *
- *  NIST AES Key Wrap encode
+ * The code is only a wrapper around mbedtls_nist_kw_wrap() and
+ * mbedtls_nist_kw_unwrap(). Parameters are described in nist_kw.h of mbedtls.
  *
- * \param key pointer to key
- * \param key_bits key length in bits
- * \param input pointer to input data
- * \param input_len input data length
- * \param output pointer to output data, storage must be at least 8 bytes longer than input_len
- *
- * \return < 0 failure
- * \return >= 0 success
- *
+ * The functions return a negative value on error or number of bytes in "output"
+ * buffer on success.
  */
-int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, const uint8_t *input, size_t input_len, uint8_t *output, size_t *output_len);
 
-#endif /* NIST_AES_KW_ */
+int nist_kw_unwrap(const uint8_t *key, size_t key_bits,
+                   const uint8_t *input, size_t input_size,
+                   uint8_t *output, size_t output_size);
+int nist_kw_wrap(const uint8_t *key, size_t key_bits,
+                 const uint8_t *input, size_t input_size,
+                 uint8_t *output, size_t output_size);
+
+#endif

@@ -27,10 +27,10 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
+#include "common/nist_kw.h"
 #include "common/ns_list.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
-#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -344,8 +344,10 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 
     if (kde) {
         if (eapol_pdu->msg.key.key_information.encrypted_key_data) {
-            size_t output_len = kde_len;
-            if (nist_aes_key_wrap(1, &ptk[KEK_INDEX], 128, kde, kde_len - 8, eapol_kde, &output_len) < 0 || output_len != kde_len) {
+            int output_len = nist_kw_wrap(&ptk[KEK_INDEX], 128,
+                                             kde, kde_len - 8,
+                                             eapol_kde, kde_len);
+            if (output_len != kde_len) {
                 free(eapol_pdu_frame);
                 return NULL;
             }
@@ -380,8 +382,10 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
 
     if (kde) {
         if (eapol_pdu->msg.key.key_information.encrypted_key_data) {
-            size_t output_len = eapol_pdu->msg.key.key_data_length;
-            if (nist_aes_key_wrap(0, &ptk[KEK_INDEX], 128, key_data, key_data_len, kde, &output_len) < 0 || output_len != (size_t) key_data_len - 8) {
+            int output_len = nist_kw_unwrap(&ptk[KEK_INDEX], 128,
+                                            key_data, key_data_len,
+                                            kde, eapol_pdu->msg.key.key_data_length);
+            if (output_len != key_data_len - 8) {
                 tr_error("Decrypt failed");
                 free(kde);
                 return NULL;
