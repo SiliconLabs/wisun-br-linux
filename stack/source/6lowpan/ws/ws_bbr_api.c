@@ -110,10 +110,6 @@ bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address)
 {
     const uint8_t *addr;
 
-    if (!cur->global_address_available)
-        //Should also check Check Bootstrap state
-        return false;
-
     addr = addr_select_with_prefix(cur, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
     if (!addr)
         return false;

@@ -147,7 +147,6 @@ struct net_if {
     uint8_t mpl_seed_id[16];
     struct mpl_domain *mpl_domain;
     lowpan_context_list_t lowpan_contexts;
-    bool global_address_available : 1;
     bool reallocate_short_address_if_duplicate : 1;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
     bool is_dhcp_relay_agent_enabled;

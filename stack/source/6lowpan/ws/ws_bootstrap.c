@@ -89,13 +89,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
     if (addr->source == ADDR_SOURCE_UNKNOWN)
         return;
 
-    if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
-        if (addr_ipv6_scope(addr->address) > IPV6_SCOPE_LINK_LOCAL) {
-            // at least ula address available inside mesh.
-            interface->global_address_available = true;
-        }
-    }
-
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
     if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE &&
         interface->bootstrap_state_machine_cnt == 0)
