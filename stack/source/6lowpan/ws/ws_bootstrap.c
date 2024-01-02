@@ -829,11 +829,6 @@ void ws_bootstrap_event_discovery_start(struct net_if *cur)
     ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, NULL);
 }
 
-void ws_bootstrap_event_routing_ready(struct net_if *cur)
-{
-    ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, NULL);
-}
-
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 {
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);

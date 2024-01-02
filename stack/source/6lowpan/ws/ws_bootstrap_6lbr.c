@@ -444,11 +444,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             // Activate IPv6 stack
             ws_bootstrap_ip_stack_activate(cur);
             addr_add_router_groups(cur);
-            // Wait for RPL start
-            ws_bootstrap_event_routing_ready(cur);
-            break;
-        case WS_ROUTING_READY:
-            tr_info("Routing ready");
             // stopped all to make sure we can enter here from any state
             ws_bootstrap_asynch_trickle_stop(cur);
 
