@@ -293,11 +293,6 @@ void protocol_push(buffer_t *b)
 
 void net_bootstrap_cb_run(uint8_t event)
 {
-    int8_t nwk_id = (int8_t) event;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
-
-    if (cur)
-        ws_bootstrap_6lbr_state_machine(cur);
 }
 
 /* XXX note that this does not perform any scope checks, so will for example match

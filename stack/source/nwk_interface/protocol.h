@@ -74,7 +74,6 @@ void protocol_core_init(void);
 #define INTERFACE_SETUP_BORDER_ROUTER_READY         11
 typedef enum icmp_state {
     ER_ACTIVE_SCAN,
-    ER_BOOTSTRAP_DONE,      // State 5 Wi-SUN
 } icmp_state_e;
 
 typedef enum {

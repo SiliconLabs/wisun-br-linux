@@ -29,7 +29,6 @@ struct mcps_data_ind_ie_list;
 void ws_bootstrap_6lbr_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ind_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 void ws_bootstrap_6lbr_init(struct net_if *cur);
-void ws_bootstrap_6lbr_state_machine(struct net_if *cur);
 int ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
 int ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
 void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd);
