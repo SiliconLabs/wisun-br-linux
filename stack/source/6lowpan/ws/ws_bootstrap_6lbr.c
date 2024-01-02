@@ -474,23 +474,10 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
             tr_debug("WS SM:Wait for startup");
             ws_bootstrap_event_discovery_start(cur);
             break;
-        case ER_ACTIVE_SCAN:
-            tr_debug("WS SM:Active Scan");
-            break;
-        case ER_SCAN:
-            tr_debug("WS SM:configuration Scan");
-            break;
-        case ER_RPL_SCAN:
-            tr_debug("WS SM:Wait RPL to contact DODAG root");
-            break;
         case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
             cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
             cur->bootstrap_state_machine_cnt = 0;
-            break;
-        case ER_RPL_NETWORK_LEAVING:
-            tr_debug("WS SM:RPL Leaving ready trigger discovery");
-            ws_bootstrap_event_discovery_start(cur);
             break;
         default:
             tr_warn("WS SM:Invalid state %d", cur->nwk_bootstrap_state);
