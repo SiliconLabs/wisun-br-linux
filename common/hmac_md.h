@@ -16,32 +16,26 @@
  * limitations under the License.
  */
 
-#ifndef HMAC_SHA1_
-#define HMAC_SHA1_
+#ifndef HMAC_MD_H
+#define HMAC_MD_H
 #include <stdint.h>
+#include <stddef.h>
 
-typedef enum {
-    ALG_HMAC_MD5,
-    ALG_HMAC_SHA1_160
-} alg_hmac_md_e;
-
-/**
- * \brief Calculate HMAC-SHA1-160 or HMAC-MD5
+/*
+ * Calculate HMAC-SHA1-160 or HMAC-MD5. It is mainly used for the hash of the
+ * authentication keys.
  *
- *  Calculate HMAC-SHA1-160 or HMAC-MD5
+ * This function is mainly a wrapper around mbedtls_md_*(). Parameters are
+ * described in mbedtls/md.h.
  *
- * \param md message digest algorithm
- * \param key pointer to key
- * \param key_len key length
- * \param data pointer to data
- * \param data_len data length
- * \param result pointer to result
- * \param result_len in bytes, maximum is 20 bytes
- *
- * \return < 0 failure
- * \return >= 0 success
- *
+ * Returns 0 on success.
  */
-int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len);
 
-#endif /* HMAC_SHA1_ */
+int hmac_md_sha1(const uint8_t *key, size_t key_len,
+                 const uint8_t *data, size_t data_len,
+                 uint8_t *result, size_t result_len);
+int hmac_md_md5(const uint8_t *key, size_t key_len,
+                const uint8_t *data, size_t data_len,
+                uint8_t *result, size_t result_len);
+
+#endif

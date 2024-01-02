@@ -23,7 +23,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/nist_kw.h"
-#include "service_libs/hmac/hmac_md.h"
+#include "common/hmac_md.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"

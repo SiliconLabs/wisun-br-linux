@@ -29,7 +29,7 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "service_libs/hmac/hmac_md.h"
+#include "common/hmac_md.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -848,7 +848,7 @@ static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot
     tr_error("FATAL: MD5 MBEDTLS_MD5_C not enabled");
 #endif
 
-    if (hmac_md_calc(ALG_HMAC_MD5, key, key_len, msg_ptr, msg_len, auth_ptr, 16) < 0) {
+    if (hmac_md_md5(key, key_len, msg_ptr, msg_len, auth_ptr, 16) < 0) {
         return -1;
     }
 
