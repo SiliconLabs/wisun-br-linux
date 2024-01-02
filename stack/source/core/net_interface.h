@@ -22,13 +22,6 @@
 struct mac_api;
 struct rcp;
 
-/** Ipv6 address type.*/
-typedef enum net_address {
-    ADDR_IPV6_GP,             /**< Node default global address. */
-    ADDR_IPV6_GP_SEC,         /**< Node secondary global address. */
-    ADDR_IPV6_LL              /**< Node default link local address. */
-} net_address_e;
-
 /**  6LoWPAN Extension modes. */
 typedef enum {
     NET_6LOWPAN_ND_WITHOUT_MLE,         /**< **UNSUPPORTED** */
