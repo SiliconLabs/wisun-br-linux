@@ -10,16 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef RPL_DEFS_H
-#define RPL_DEFS_H
-
-#include <sys/queue.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <time.h>
-
-#include "rpl.h"
+#ifndef SPECS_RPL_H
+#define SPECS_RPL_H
 
 // RFC 6554 - 3. Format of the RPL Routing Header
 #define IPV6_EXTHDR_ROUTE_TYPE_RPL_SRH 3
@@ -28,37 +20,45 @@
 #define IPV6_OPT_TYPE_RPI            0x23
 #define IPV6_OPT_TYPE_RPI_DEPRECATED 0x63
 
-// RPL Control Codes
+// RFC 6550: RPL Control Codes
 // https://www.iana.org/assignments/rpl/rpl.xhtml#control-codes
-#define RPL_CODE_DIS     0x00
-#define RPL_CODE_DIO     0x01
-#define RPL_CODE_DAO     0x02
-#define RPL_CODE_DAO_ACK 0x03
+enum {
+    RPL_CODE_DIS     = 0x00,
+    RPL_CODE_DIO     = 0x01,
+    RPL_CODE_DAO     = 0x02,
+    RPL_CODE_DAO_ACK = 0x03,
+};
 
-// Control Message Options
+// RFC 6550: RPL Control Message Options
 // https://www.iana.org/assignments/rpl/rpl.xhtml#control-message-options
-#define RPL_OPT_PAD1       0x00
-#define RPL_OPT_PADN       0x01
-#define RPL_OPT_METRICS    0x02
-#define RPL_OPT_ROUTE      0x03
-#define RPL_OPT_CONFIG     0x04
-#define RPL_OPT_TARGET     0x05
-#define RPL_OPT_TRANSIT    0x06
-#define RPL_OPT_SOLICIT    0x07
-#define RPL_OPT_PREFIX     0x08
-#define RPL_OPT_DESCRIPTOR 0x09
+enum {
+    RPL_OPT_PAD1       = 0x00,
+    RPL_OPT_PADN       = 0x01,
+    RPL_OPT_METRICS    = 0x02,
+    RPL_OPT_ROUTE      = 0x03,
+    RPL_OPT_CONFIG     = 0x04,
+    RPL_OPT_TARGET     = 0x05,
+    RPL_OPT_TRANSIT    = 0x06,
+    RPL_OPT_SOLICIT    = 0x07,
+    RPL_OPT_PREFIX     = 0x08,
+    RPL_OPT_DESCRIPTOR = 0x09,
+};
 
-// Mode of Operation
+// RFC 9008: "Mode of Operation"
 // https://www.iana.org/assignments/rpl/rpl.xhtml#mop
-#define RPL_MOP_UPWARD        0
-#define RPL_MOP_NON_STORING   1
-#define RPL_MOP_STORING       2
-#define RPL_MOP_STORING_MCAST 3
+enum {
+    RPL_MOP_UPWARD        = 0,
+    RPL_MOP_NON_STORING   = 1,
+    RPL_MOP_STORING       = 2,
+    RPL_MOP_STORING_MCAST = 3,
+};
 
-// Objective Code Point
+// RFC 6550: "Objective Code Point"
 // https://www.iana.org/assignments/rpl/rpl.xhtml#ocp
-#define RPL_OCP_OF0   0
-#define RPL_OCP_MRHOF 1
+enum {
+    RPL_OCP_OF0   = 0,
+    RPL_OCP_MRHOF = 1,
+};
 
 // RFC 6550 - Figure 14: The DIO Base Object
 #define RPL_MASK_DIO_G   0x80
@@ -104,37 +104,5 @@
 #define RPL_MASK_INSTANCE_ID_TYPE 0x80
 #define RPL_INSTANCE_ID_TYPE_GLOBAL 0
 #define RPL_INSTANCE_ID_TYPE_LOCAL  1
-
-struct rpl_opt_target {
-    uint8_t prefix_len;
-    uint8_t prefix[16];
-};
-
-struct rpl_opt_transit {
-    bool external;
-    uint8_t path_ctl;
-    uint8_t path_seq;
-    uint8_t path_lifetime;
-    uint8_t parent[16];
-};
-
-static inline uint16_t rpl_dag_rank(const struct rpl_root *root, uint16_t rank)
-{
-    //   RFC 6550 - 3.5.1.  Rank Comparison (DAGRank())
-    // The integer portion of the Rank is computed by the DAGRank() macro as
-    // follows, where floor(x) is the function that evaluates to the greatest
-    // integer less than or equal to x:
-    //   DAGRank(rank) = floor(rank/MinHopRankIncrease)
-    return rank / root->min_rank_hop_inc;
-}
-
-static inline uint16_t rpl_root_rank(struct rpl_root *root)
-{
-    //   RFC 6550 - 8.2.2.2. DODAG Roots
-    // A DODAG root MUST advertise a Rank of ROOT_RANK.
-    //   RFC 6550 - 17. RPL Constants and Variables
-    // [...] ROOT_RANK has a value of MinHopRankIncrease [...].
-    return root->min_rank_hop_inc;
-}
 
 #endif

@@ -16,7 +16,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/utils.h"
-#include "rpl_defs.h"
+#include "common/specs/rpl.h"
 #include "rpl_srh.h"
 #include "rpl.h"
 

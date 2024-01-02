@@ -25,6 +25,7 @@
 #include "common/ipv6_flow_label.h"
 #include "common/endian.h"
 #include "common/specs/icmpv6.h"
+#include "common/specs/rpl.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
@@ -34,7 +35,6 @@
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "rpl/rpl_glue.h"
-#include "rpl/rpl_defs.h"
 #include "mpl/mpl.h"
 
 #include "common_protocols/ip.h"

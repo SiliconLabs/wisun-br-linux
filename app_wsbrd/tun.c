@@ -38,7 +38,6 @@
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "stack/source/rpl/rpl_defs.h"
 
 #include "tun.h"
 #include "wsbr.h"

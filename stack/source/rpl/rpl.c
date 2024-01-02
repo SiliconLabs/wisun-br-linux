@@ -27,9 +27,22 @@
 #include "common/time_extra.h"
 #include "common/utils.h"
 #include "common/specs/icmpv6.h"
-#include "rpl_defs.h"
+#include "common/specs/rpl.h"
 #include "rpl_lollipop.h"
 #include "rpl.h"
+
+struct rpl_opt_target {
+    uint8_t prefix_len;
+    uint8_t prefix[16];
+};
+
+struct rpl_opt_transit {
+    bool external;
+    uint8_t path_ctl;
+    uint8_t path_seq;
+    uint8_t path_lifetime;
+    uint8_t parent[16];
+};
 
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
     0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a,

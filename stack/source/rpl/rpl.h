@@ -153,4 +153,23 @@ struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16
 void rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target);
 
+static inline uint16_t rpl_dag_rank(const struct rpl_root *root, uint16_t rank)
+{
+    //   RFC 6550 - 3.5.1.  Rank Comparison (DAGRank())
+    // The integer portion of the Rank is computed by the DAGRank() macro as
+    // follows, where floor(x) is the function that evaluates to the greatest
+    // integer less than or equal to x:
+    //   DAGRank(rank) = floor(rank/MinHopRankIncrease)
+    return rank / root->min_rank_hop_inc;
+}
+
+static inline uint16_t rpl_root_rank(struct rpl_root *root)
+{
+    //   RFC 6550 - 8.2.2.2. DODAG Roots
+    // A DODAG root MUST advertise a Rank of ROOT_RANK.
+    //   RFC 6550 - 17. RPL Constants and Variables
+    // [...] ROOT_RANK has a value of MinHopRankIncrease [...].
+    return root->min_rank_hop_inc;
+}
+
 #endif
