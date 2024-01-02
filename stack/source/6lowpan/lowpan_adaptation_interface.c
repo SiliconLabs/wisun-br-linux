@@ -26,6 +26,7 @@
 #include "common/ns_list.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ws.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
@@ -44,7 +45,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_llc.h"

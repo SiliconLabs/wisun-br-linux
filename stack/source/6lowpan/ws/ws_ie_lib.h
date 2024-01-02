@@ -32,52 +32,6 @@ struct ws_hopping_schedule;
 struct ws_fc_ie;
 struct ws_pom_ie;
 
-// Wi-SUN Assigned Value Registry 0v25
-//   7.1. Wi-SUN Header Information Eement Sub-IDs
-// FAN 1.0
-#define WS_WHIE_UTT   0x01 // Unicast Timing and Frame Type
-#define WS_WHIE_BT    0x02 // Broadcast Timing
-#define WS_WHIE_FC    0x03 // Flow Control
-#define WS_WHIE_RSL   0x04 // Received Signal Level
-#define WS_WHIE_MHDS  0x05 // MHDS
-#define WS_WHIE_VH    0x06 // Vendor Header
-#define WS_WHIE_EA    0x09 // EAPOL Authenticator EUI-64
-// FAN 1.1
-#define WS_WHIE_LUTT  0x0a // LFN Unicast Timing and Frame Type
-#define WS_WHIE_LBT   0x0b // LFN Broadcast Timing
-#define WS_WHIE_NR    0x0c // Node Role
-#define WS_WHIE_LUS   0x0d // LFN Unicast Schedule
-#define WS_WHIE_FLUS  0x0e // FFN for LFN Unicast Schedule
-#define WS_WHIE_LBS   0x0f // LFN Broadcast Schedule
-#define WS_WHIE_LND   0x10 // LFN Network Discovery
-#define WS_WHIE_LTO   0x11 // LFN Timing Offset
-#define WS_WHIE_PANID 0x12 // PAN Identifier
-#define WS_WHIE_LBC   0xc0 // LFN Broadcast Configuration
-
-// Wi-SUN Assigned Value Registry 0v24
-//   7.2. Wi-SUN Payload Information Eement Sub-IDs
-// FAN 1.0 short form
-#define WS_WPIE_PAN      0x04 // PAN
-#define WS_WPIE_NETNAME  0x05 // Network Name
-#define WS_WPIE_PANVER   0x06 // PAN Version
-#define WS_WPIE_GTKHASH  0x07 // GTK Hash
-// FAN 1.1 short form
-#define WS_WPIE_POM      0x08 // PHY Operating Modes
-#define WS_WPIE_LBATS    0x09 // LFN Broadcast Additional Transmit Schedule
-#define WS_WPIE_JM       0x0a // Join Metrics
-#define WS_WPIE_LFNVER   0x40 // LFN Version
-#define WS_WPIE_LGTKHASH 0x41 // LFN GTK Hash
-// FAN 1.0 long form
-#define WS_WPIE_US       0x01 // Unicast Schedule
-#define WS_WPIE_BS       0x02 // Broadcast Schedule
-#define WS_WPIE_VP       0x03 // Vendor Payload
-// FAN 1.1 long form
-#define WS_WPIE_LCP      0x04 // LFN Channel Plan
-
-// Wi-SUN Assigned Value Registry 0v24
-//   8. Join Metric IDs
-#define WS_JM_PLF 1 // PAN Load Factor
-
 /**
  * @brief ws_wp_netname_t WS nested payload network name
  */

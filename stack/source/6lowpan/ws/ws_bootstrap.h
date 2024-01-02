@@ -37,10 +37,6 @@ typedef enum {
     WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/
 } ws_parent_synch_e;
 
-
-//#include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_common_defines.h"
-
 struct rpl_instance;
 struct llc_neighbour_req;
 struct ws_stack_info;

@@ -29,6 +29,7 @@
 #include "common/endian.h"
 #include "common/events_scheduler.h"
 #include "common/version.h"
+#include "common/specs/ws.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/ieee802154.h"
 
@@ -48,13 +49,10 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 
-#include "6lowpan/ws/ws_common_defines.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bbr_api.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_ie_lib.h"

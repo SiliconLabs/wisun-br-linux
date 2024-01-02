@@ -29,6 +29,7 @@
 #include "common/rand.h"
 #include "common/time_extra.h"
 #include "common/version.h"
+#include "common/specs/ws.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "app_wsbrd/wsbr.h"

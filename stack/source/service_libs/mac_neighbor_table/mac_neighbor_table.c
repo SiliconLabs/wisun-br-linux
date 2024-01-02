@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log.h"
+#include "common/specs/ws.h"
+
 
 #include "mac_neighbor_table.h"
 

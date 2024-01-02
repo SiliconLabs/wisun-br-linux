@@ -22,10 +22,10 @@
 #include "common/log.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/specs/ws.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"

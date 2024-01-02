@@ -18,7 +18,10 @@
 
 #ifndef WS_NEIGHBOR_CLASS_H_
 #define WS_NEIGHBOR_CLASS_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
+#include "common/int24.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common_defines.h"

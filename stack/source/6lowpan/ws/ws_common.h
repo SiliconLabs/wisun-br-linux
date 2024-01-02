@@ -25,7 +25,6 @@
 
 #include "core/net_interface.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_mngt.h"
 #include "6lowpan/ws/ws_ie_custom.h"

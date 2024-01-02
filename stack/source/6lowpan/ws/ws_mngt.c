@@ -16,6 +16,7 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ws.h"
 #include "app_wsbrd/rcp_api_legacy.h"
 
 #include "stack/source/core/timers.h"
@@ -24,7 +25,6 @@
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
-#include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_mngt.h"
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
 #include "stack/source/6lowpan/ws/ws_ie_validation.h"

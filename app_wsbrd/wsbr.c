@@ -25,12 +25,12 @@
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
+#include "common/specs/ws.h"
 
 #include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
-#include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"

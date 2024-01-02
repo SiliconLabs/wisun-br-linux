@@ -32,6 +32,7 @@
 #include "common/events_scheduler.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ws.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 
@@ -55,7 +56,6 @@
 #include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"

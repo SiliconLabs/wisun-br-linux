@@ -41,12 +41,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define OPERATING_MODE_4b 0x4b  /**< 200, 1.0 */
 #define OPERATING_MODE_5  0x05  /**< 300, 0.5 */
 
-#define CHANNEL_FUNCTION_FIXED            0x00  /**< Fixed channel */
-#define CHANNEL_FUNCTION_TR51CF           0x01  /**< TR51CF */
-#define CHANNEL_FUNCTION_DH1CF            0x02  /**< Direct Hash */
-#define CHANNEL_FUNCTION_VENDOR_DEFINED   0x03  /**< vendor given channel hop schedule */
-
-
 /*
  * Wi-SUN FAN 1.1 Phy capability types.
  *

@@ -19,6 +19,7 @@
 #include "common/utils.h"
 #include "common/version.h"
 #include "common/log.h"
+#include "common/specs/ws.h"
 
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_common.h"

@@ -24,35 +24,12 @@
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h" /* gtkhash_t */
 
-// Wi-SUN Assigned Value Registry 0v24
-//   10. Wi-SUN Frame Types
-#define WS_FT_PA     0 // PAN Advert
-#define WS_FT_PAS    1 // PAN Advert Solicit
-#define WS_FT_PC     2 // PAN Config
-#define WS_FT_PCS    3 // PAN Config Solicit
-#define WS_FT_DATA   4 // Data
-#define WS_FT_ACK    5 // Ack
-#define WS_FT_EAPOL  6 // EAPOL
-// FAN 1.1
-#define WS_FT_LPA    9 // LFN PAN Advert
-#define WS_FT_LPAS  10 // LFN PAN Advert Solicit
-#define WS_FT_LPC   11 // LFN PAN Config
-#define WS_FT_LPCS  12 // LFN PAN Config Solicit
-#define WS_FT_LTS   13 // LFN Time Sync
-#define WS_FT_EXT   15 // Extended Type
-
 /* WS excluded channel Control */
 #define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
 #define WS_EXC_CHAN_CTRL_RANGE 1            /**< Excluded channels are in 1 or multiple channel range */
 #define WS_EXC_CHAN_CTRL_BITMASK 2          /**< Excluded channels are marked to bitmask which length based on configured channels */
 
 #define WS_EXCLUDED_MAX_RANGE_TO_SEND 3
-
-
-#define WS_NR_ROLE_BR       0
-#define WS_NR_ROLE_ROUTER   1
-#define WS_NR_ROLE_LFN      2
-#define WS_NR_ROLE_UNKNOWN  3
 
 #define WS_CHAN_PLAN_TAG_CURRENT 255
 
@@ -393,9 +370,6 @@ typedef struct ws_bs_ie {
  */
 
 #define WS_MPX_MAX_MTU 1576
-
-#define WS_FAN_VERSION_1_0 1
-#define WS_FAN_VERSION_1_1 2
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 

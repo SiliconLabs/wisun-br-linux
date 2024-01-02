@@ -35,7 +35,6 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 
 #include "common_protocols/ip.h"

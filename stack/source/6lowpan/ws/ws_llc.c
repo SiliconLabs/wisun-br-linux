@@ -33,6 +33,7 @@
 #include "common/utils.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ws.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
@@ -46,7 +47,6 @@
 #include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_ie_lib.h"

@@ -30,9 +30,9 @@
 #include "common/named_values.h"
 #include "common/key_value_storage.h"
 #include "common/time_extra.h"
+#include "common/specs/ws.h"
 
 #include "security/protocols/sec_prot_keys.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_pae_lib.h"
 
 #include "6lowpan/ws/ws_pae_key_storage.h"

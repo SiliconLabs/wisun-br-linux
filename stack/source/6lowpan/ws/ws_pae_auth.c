@@ -26,6 +26,7 @@
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
 #include "common/time_extra.h"
+#include "common/specs/ws.h"
 
 #include "core/ns_address.h"
 #include "core/timers.h"
@@ -47,7 +48,6 @@
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_controller.h"
