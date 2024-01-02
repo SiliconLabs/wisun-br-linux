@@ -46,8 +46,6 @@
 #define TLS_HANDSHAKE_TIMEOUT_MIN 25000
 #define TLS_HANDSHAKE_TIMEOUT_MAX 201000
 
-//#define TLS_SEC_PROT_LIB_TLS_DEBUG       // Enable mbed TLS debug traces
-
 typedef int tls_sec_prot_lib_crt_verify_cb(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 
 struct tls_security {
@@ -99,9 +97,6 @@ static int8_t tls_sec_prot_lib_subject_alternative_name_validate(mbedtls_x509_cr
 static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt);
 static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
-#endif
-#ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
-static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
 #endif
 
 #define is_server_is_set (is_server == true)
@@ -360,11 +355,6 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     mbedtls_ssl_conf_ciphersuites(&sec->conf, sec_suites);
 #endif
 
-#ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
-    mbedtls_ssl_conf_dbg(&sec->conf, tls_sec_prot_lib_debug, sec);
-    mbedtls_debug_set_threshold(5);
-#endif
-
     // Export keys callback
 #if (MBEDTLS_VERSION_MAJOR >= 3)
     mbedtls_ssl_set_export_keys_cb(&sec->ssl, tls_sec_prot_lib_ssl_export_keys, sec);
@@ -393,14 +383,6 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
      */
     return 0;
 }
-
-#ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
-static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string)
-{
-    (void) ctx;
-    tr_debug("%i %s %i %s", level, file, line, string);
-}
-#endif
 
 int8_t tls_sec_prot_lib_process(tls_security_t *sec)
 {
