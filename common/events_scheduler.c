@@ -80,7 +80,6 @@ int8_t event_send(const struct event_payload *event)
         return -1;
 
     event_tmp = malloc(sizeof(struct event_storage));
-    event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
     memcpy(&event_tmp->data, event, sizeof(struct event_payload));
     event_core_write(event_tmp);
     return 0;
@@ -106,8 +105,7 @@ bool event_scheduler_dispatch_event(void)
         WARN();
     }
     event->state = ARM_LIB_EVENT_UNQUEUED;
-    if (event->allocator == ARM_LIB_EVENT_DYNAMIC)
-        free(event);
+    free(event);
     ctxt->curr_tasklet = 0;
 
     return true;

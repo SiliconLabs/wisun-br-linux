@@ -28,11 +28,6 @@ struct event_payload {
 struct event_storage {
     struct event_payload data;
     enum {
-        ARM_LIB_EVENT_DYNAMIC,
-        ARM_LIB_EVENT_USER,
-        ARM_LIB_EVENT_TIMER,
-    } allocator;
-    enum {
         ARM_LIB_EVENT_UNQUEUED,
         ARM_LIB_EVENT_QUEUED,
         ARM_LIB_EVENT_RUNNING,
