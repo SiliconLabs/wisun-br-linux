@@ -285,7 +285,6 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
         ws_bbr_pan_id = pan_id;
         // Store to NVM and restart bootstrap
         ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
-        ws_bootstrap_restart_delayed(interface_id);
     }
     return 0;
 }

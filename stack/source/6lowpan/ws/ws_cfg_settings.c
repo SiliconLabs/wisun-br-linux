@@ -478,10 +478,6 @@ int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
     cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
     cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
 
-    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
-        ws_bootstrap_restart_delayed(cur->id);
-    }
-
     return CFG_SETTINGS_OK;
 }
 
@@ -579,10 +575,6 @@ int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
     ws_phy_cfg_t *cfg = &ws_cfg.phy;
 
     *cfg = *new_cfg;
-
-    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
-        ws_bootstrap_restart_delayed(cur->id);
-    }
 
     return CFG_SETTINGS_OK;
 }
@@ -836,10 +828,6 @@ int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags
 
     if (cfg->fhss_bc_channel_function != WS_FIXED_CHANNEL) {
         cfg->fhss_bc_fixed_channel = 0xffff;
-    }
-
-    if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
-        ws_bootstrap_restart_delayed(cur->id);
     }
 
     return CFG_SETTINGS_OK;

@@ -724,16 +724,6 @@ init_fail:
     return ret_val;
 }
 
-int ws_bootstrap_restart_delayed(int8_t interface_id)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
-    cur->bootstrap_state_machine_cnt = 3;
-    return 0;
-}
-
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
     if (version_older_than(cur->rcp->version_api, 0, 25, 1))

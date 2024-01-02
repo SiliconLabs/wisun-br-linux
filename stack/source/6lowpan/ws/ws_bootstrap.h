@@ -51,8 +51,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 
 void ws_bootstrap_state_machine(struct net_if *cur);
 
-int ws_bootstrap_restart_delayed(int8_t interface_id);
-
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur);
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);

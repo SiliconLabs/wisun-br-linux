@@ -75,7 +75,6 @@ void protocol_core_init(void);
 typedef enum icmp_state {
     ER_ACTIVE_SCAN,
     ER_BOOTSTRAP_DONE,      // State 5 Wi-SUN
-    ER_WAIT_RESTART,
 } icmp_state_e;
 
 typedef enum {

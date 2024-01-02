@@ -470,10 +470,6 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
 {
 
     switch (cur->nwk_bootstrap_state) {
-        case ER_WAIT_RESTART:
-            tr_debug("WS SM:Wait for startup");
-            ws_bootstrap_event_discovery_start(cur);
-            break;
         case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
             cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
