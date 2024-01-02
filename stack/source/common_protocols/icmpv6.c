@@ -25,6 +25,7 @@
 #include "common/iobuf.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/specs/icmpv6.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -130,7 +131,7 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
     }
 
     /* RFC 4443 processing rules e.1-2: don't send errors for ICMPv6 errors or redirects */
-    if (is_icmpv6_msg(buf) && (buf->options.type < 128 || buf->options.type == ICMPV6_TYPE_INFO_REDIRECT)) {
+    if (is_icmpv6_msg(buf) && (buf->options.type < 128 || buf->options.type == ICMPV6_TYPE_REDIRECT)) {
         return buffer_free(buf);
     }
 
@@ -408,20 +409,20 @@ drop:
 void trace_icmp(buffer_t *buf, bool is_rx)
 {
     static const struct name_value icmp_frames[] = {
-        { "na",              ICMPV6_TYPE_INFO_NA },
-        { "ns",              ICMPV6_TYPE_INFO_NS },
-        { "ra",              ICMPV6_TYPE_INFO_RA },
-        { "rs",              ICMPV6_TYPE_INFO_RS },
-        { "dac",             ICMPV6_TYPE_INFO_DAC },
-        { "dar",             ICMPV6_TYPE_INFO_DAR },
-        { "mpl",             ICMPV6_TYPE_INFO_MPL_CONTROL },
-        { "ping rpl",        ICMPV6_TYPE_INFO_ECHO_REPLY },
-        { "ping req",        ICMPV6_TYPE_INFO_ECHO_REQUEST },
-        { "mc done",         ICMPV6_TYPE_INFO_MCAST_LIST_DONE },
-        { "mc query",        ICMPV6_TYPE_INFO_MCAST_LIST_QUERY },
-        { "mc reprt",        ICMPV6_TYPE_INFO_MCAST_LIST_REPORT },
-        { "mc reprt v2",     ICMPV6_TYPE_INFO_MCAST_LIST_REPORT_V2 },
-        { "redirect",        ICMPV6_TYPE_INFO_REDIRECT },
+        { "na",              ICMPV6_TYPE_NA },
+        { "ns",              ICMPV6_TYPE_NS },
+        { "ra",              ICMPV6_TYPE_RA },
+        { "rs",              ICMPV6_TYPE_RS },
+        { "dac",             ICMPV6_TYPE_DAC },
+        { "dar",             ICMPV6_TYPE_DAR },
+        { "mpl",             ICMPV6_TYPE_MPL },
+        { "ping rpl",        ICMPV6_TYPE_ECHO_REPLY },
+        { "ping req",        ICMPV6_TYPE_ECHO_REQUEST },
+        { "mc done",         ICMPV6_TYPE_MCAST_LIST_DONE },
+        { "mc query",        ICMPV6_TYPE_MCAST_LIST_QUERY },
+        { "mc reprt",        ICMPV6_TYPE_MCAST_LIST_REPORT },
+        { "mc reprt v2",     ICMPV6_TYPE_MCAST_LIST_REPORT_V2 },
+        { "redirect",        ICMPV6_TYPE_REDIRECT },
         { "e. dest unreach", ICMPV6_TYPE_ERROR_DESTINATION_UNREACH },
         { "e. pkt too big",  ICMPV6_TYPE_ERROR_PACKET_TOO_BIG },
         { "e. timeout",      ICMPV6_TYPE_ERROR_TIME_EXCEEDED },
@@ -435,7 +436,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
 
     strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"),
             sizeof(frame_type) - strlen(frame_type) - 1);
-    if (buf->options.type == ICMPV6_TYPE_INFO_NS) {
+    if (buf->options.type == ICMPV6_TYPE_NS) {
         if (buffer_data_length(buf) > 20 &&
             icmpv6_nd_option_get(buffer_data_pointer(buf) + 20, buffer_data_length(buf) - 20,
                                  ICMPV6_OPT_ADDR_REGISTRATION, &ns_earo_buf)) {
@@ -484,7 +485,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
     trace_icmp(buf, true);
 
     switch (buf->options.type) {
-    case ICMPV6_TYPE_INFO_NS:
+    case ICMPV6_TYPE_NS:
         return icmpv6_ns_handler(buf);
 
     default:
@@ -545,7 +546,7 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
         return buf;
     }
 
-    buf->options.type = ICMPV6_TYPE_INFO_NS;
+    buf->options.type = ICMPV6_TYPE_NS;
     buf->options.code = 0;
     buf->options.hop_limit = 255;
 
@@ -676,7 +677,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     buf->options.hop_limit = 255;
 
     // Set the ICMPv6 NA type and code fields as per RFC4861
-    buf->options.type = ICMPV6_TYPE_INFO_NA;
+    buf->options.type = ICMPV6_TYPE_NA;
     buf->options.code = 0x00;
 
     flags = 0;

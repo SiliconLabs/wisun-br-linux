@@ -36,7 +36,6 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "common_protocols/ipv6.h"
-#include "common_protocols/icmpv6.h"
 #include "mpl/mpl.h"
 
 #include "nwk_interface/protocol_stats.h"

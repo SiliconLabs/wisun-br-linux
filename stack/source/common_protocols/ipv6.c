@@ -24,6 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/ipv6_flow_label.h"
 #include "common/endian.h"
+#include "common/specs/icmpv6.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
@@ -1036,9 +1037,9 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
     case IPV6_NH_IPV6:
         return false;
     case IPV6_NH_ICMPV6:
-        if (data_ptr[0] == ICMPV6_TYPE_INFO_NS)
+        if (data_ptr[0] == ICMPV6_TYPE_NS)
             return false;
-        if (data_ptr[0] == ICMPV6_TYPE_INFO_NA)
+        if (data_ptr[0] == ICMPV6_TYPE_NA)
             return false;
     default:
         return true;
@@ -1192,7 +1193,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         payload_length -= hdrlen;
     }
 
-    if (*nh_ptr == IPV6_NH_ICMPV6 && payload_length >= 4 && ptr[0] == ICMPV6_TYPE_INFO_NS) {
+    if (*nh_ptr == IPV6_NH_ICMPV6 && payload_length >= 4 && ptr[0] == ICMPV6_TYPE_NS) {
         /* Treat as ours, let NS reply */
         intercept = true;
     }

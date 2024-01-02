@@ -23,6 +23,7 @@
 #include "common/utils.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/specs/icmpv6.h"
 
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"

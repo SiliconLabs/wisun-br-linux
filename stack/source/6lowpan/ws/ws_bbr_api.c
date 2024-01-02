@@ -31,7 +31,6 @@
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
-#include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "core/net_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

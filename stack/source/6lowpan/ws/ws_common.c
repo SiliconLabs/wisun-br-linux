@@ -28,12 +28,12 @@
 #include "common/endian.h"
 #include "common/ns_list.h"
 #include "common/utils.h"
+#include "common/specs/icmpv6.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/events_scheduler.h"
 #include "6lowpan/mac/mac_common_defines.h"
 
 #include "core/net_interface.h"
-#include "common_protocols/icmpv6.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"

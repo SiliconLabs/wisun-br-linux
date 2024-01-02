@@ -34,7 +34,7 @@
 #include "common/endian.h"
 #include "common/iobuf.h"
 #include "common/netinet_in_extra.h"
-#include "common_protocols/icmpv6.h"
+#include "common/specs/icmpv6.h"
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
@@ -404,8 +404,8 @@ static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
     // RPL, see RFC 6550 and 9010
     // The rest is not supported by Wi-SUN
     if ((iv6t >= ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && iv6t <= ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM) ||
-         iv6t == ICMPV6_TYPE_INFO_ECHO_REQUEST ||
-         iv6t == ICMPV6_TYPE_INFO_ECHO_REPLY ||
+         iv6t == ICMPV6_TYPE_ECHO_REQUEST ||
+         iv6t == ICMPV6_TYPE_ECHO_REPLY ||
          iv6t == ICMPV6_TYPE_RPL)
         return true;
     else

@@ -20,34 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ICMPV6_TYPE_ERROR_DESTINATION_UNREACH       1
-#define ICMPV6_TYPE_ERROR_PACKET_TOO_BIG            2
-#define ICMPV6_TYPE_ERROR_TIME_EXCEEDED             3
-#define ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM         4
-
-#define ICMPV6_TYPE_INFO_ECHO_REQUEST               128
-#define ICMPV6_TYPE_INFO_ECHO_REPLY                 129
-#define ICMPV6_TYPE_INFO_MCAST_LIST_QUERY           130
-#define ICMPV6_TYPE_INFO_MCAST_LIST_REPORT          131
-#define ICMPV6_TYPE_INFO_MCAST_LIST_DONE            132
-#define ICMPV6_TYPE_INFO_RS                         133
-#define ICMPV6_TYPE_INFO_RA                         134
-#define ICMPV6_TYPE_INFO_NS                         135
-#define ICMPV6_TYPE_INFO_NA                         136
-#define ICMPV6_TYPE_INFO_REDIRECT                   137
-#define ICMPV6_TYPE_INFO_MCAST_LIST_REPORT_V2       143
-#define ICMPV6_TYPE_INFO_DAR                        157
-#define ICMPV6_TYPE_INFO_DAC                        158
-#define ICMPV6_TYPE_INFO_MPL_CONTROL                159
-
-#define ICMPV6_CODE_DST_UNREACH_NO_ROUTE            0
-#define ICMPV6_CODE_DST_UNREACH_ADM_PROHIB          1
-#define ICMPV6_CODE_DST_UNREACH_BEYOND_SCOPE        2
-#define ICMPV6_CODE_DST_UNREACH_ADDR_UNREACH        3
-#define ICMPV6_CODE_DST_UNREACH_PORT_UNREACH        4
-#define ICMPV6_CODE_DST_UNREACH_SRC_FAILED_POLICY   5
-#define ICMPV6_CODE_DST_UNREACH_ROUTE_REJECTED      6
-
 #define ICMPV6_CODE_TME_EXCD_HOP_LIM_EXCD           0
 #define ICMPV6_CODE_TME_EXCD_FRG_REASS_TME_EXCD     1
 
@@ -55,19 +27,6 @@
 #define ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR        1
 #define ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT        2
 #define ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR   3
-
-/* Options in ICMPv6 Neighbor Discovery Protocol (RPL has totally different options...) */
-#define ICMPV6_OPT_SRC_LL_ADDR                      1
-#define ICMPV6_OPT_TGT_LL_ADDR                      2
-#define ICMPV6_OPT_PREFIX_INFO                      3
-#define ICMPV6_OPT_REDIRECTED_HDR                   4
-#define ICMPV6_OPT_MTU                              5
-#define ICMPV6_OPT_ROUTE_INFO                       24
-#define ICMPV6_OPT_RECURSIVE_DNS_SERVER             25
-#define ICMPV6_OPT_DNS_SEARCH_LIST                  31
-#define ICMPV6_OPT_ADDR_REGISTRATION                33
-#define ICMPV6_OPT_6LOWPAN_CONTEXT                  34
-#define ICMPV6_OPT_AUTHORITATIVE_BORDER_RTR         35
 
 /* Neighbour Advertisement flags */
 #define NA_R    0x80
@@ -89,11 +48,6 @@ struct ipv6_nd_opt_earo {
     uint8_t eui64[8];
     bool present;
 };
-
-#define ARO_SUCCESS     0
-#define ARO_DUPLICATE   1
-#define ARO_FULL        2
-#define ARO_TOPOLOGICALLY_INCORRECT 8
 
 #define IPV6_ND_OPT_EARO_FLAGS_P_MASK 0b00110000
 #define IPV6_ND_OPT_EARO_FLAGS_I_MASK 0b00001100

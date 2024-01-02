@@ -26,6 +26,7 @@
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/utils.h"
+#include "common/specs/icmpv6.h"
 #include "rpl_defs.h"
 #include "rpl_lollipop.h"
 #include "rpl.h"

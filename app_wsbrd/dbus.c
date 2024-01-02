@@ -31,7 +31,6 @@
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/protocols/sec_prot_keys.h"
-#include "stack/source/common_protocols/icmpv6.h"
 
 #include "commandline_values.h"
 #include "rcp_api_legacy.h"

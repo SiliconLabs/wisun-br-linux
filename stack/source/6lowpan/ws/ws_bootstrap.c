@@ -30,6 +30,7 @@
 #include "common/time_extra.h"
 #include "common/version.h"
 #include "common/events_scheduler.h"
+#include "common/specs/icmpv6.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 

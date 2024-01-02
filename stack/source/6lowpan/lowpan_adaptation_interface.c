@@ -38,7 +38,6 @@
 #include "core/ns_error_types.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"

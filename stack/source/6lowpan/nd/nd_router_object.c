@@ -21,6 +21,7 @@
 #include <netinet/in.h>
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/specs/icmpv6.h"
 
 #include "app_wsbrd/tun.h" // FIXME
 #include "app_wsbrd/wsbr.h"
