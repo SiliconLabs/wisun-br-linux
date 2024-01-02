@@ -658,7 +658,6 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
 
     struct event_payload event = {
         .receiver = tasklet_id,
-        .sender = 0,
         .event_id = pae_auth->interface_ptr->id,
         .data_ptr = data,
     };
