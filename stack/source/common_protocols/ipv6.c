@@ -367,7 +367,7 @@ buffer_t *ipv6_down(buffer_t *buf)
 
     /* Choose a flow label if required (RFC 6437) */
     if (buf->options.flow_label == IPV6_FLOW_UNSPECIFIED) {
-        buf->options.flow_label = ipv6_flow_auto_label ? IPV6_FLOW_AUTOGENERATE : 0;
+        buf->options.flow_label = IPV6_FLOW_AUTOGENERATE;
     }
     if (buf->options.flow_label < 0) {
         buf->options.flow_label = ipv6_flow_5tuple(buf->src_sa.address, buf->dst_sa.address, buf->options.type, buf->src_sa.port, buf->dst_sa.port);
@@ -595,14 +595,10 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
 #endif
         /* DSCP copied from inner packet */
         buf->options.type = IPV6_NH_IPV6;
-        if (ipv6_flow_auto_label) {
-            /* Compute new flow label from inner src, dst, flow (RFC 6438) */
-            const uint8_t *iphdr = buffer_data_pointer(buf);
-            uint_fast24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
-            buf->options.flow_label = ipv6_flow_2tuple_flow(iphdr + IPV6_HDROFF_SRC_ADDR, iphdr + IPV6_HDROFF_DST_ADDR, flow);
-        } else {
-            buf->options.flow_label = 0;
-        }
+        /* Compute new flow label from inner src, dst, flow (RFC 6438) */
+        const uint8_t *iphdr = buffer_data_pointer(buf);
+        uint_fast24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
+        buf->options.flow_label = ipv6_flow_2tuple_flow(iphdr + IPV6_HDROFF_SRC_ADDR, iphdr + IPV6_HDROFF_DST_ADDR, flow);
         buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6);
         return buf;
     }

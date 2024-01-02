@@ -21,8 +21,6 @@
 
 #include "common_protocols/ipv6_flow.h"
 
-bool ipv6_flow_auto_label = true;
-
 /* Flow label hash computation for RFC 6347, but using algorithm 8 as
  * suggested by "Comparing Hash Function Algorithms for the IPv6 Flow Label"
  * (Anderson, Brownlee, Carpenter 2012).

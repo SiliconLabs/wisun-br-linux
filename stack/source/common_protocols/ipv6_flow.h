@@ -22,7 +22,6 @@
 #include <stdbool.h>
 #include "common/int24.h"
 
-extern bool ipv6_flow_auto_label;
 
 uint_fast24_t ipv6_flow_5tuple(const uint8_t src_addr[static 16],
                                const uint8_t dst_addr[static 16],
