@@ -36,6 +36,7 @@
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "core/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
 #include "mpl/mpl.h"
 

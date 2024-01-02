@@ -35,7 +35,7 @@
 #include "common/int24.h"
 #include "common/ns_list.h"
 
-#include "core/ns_address_internal.h"
+#include "core/netaddr_types.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 

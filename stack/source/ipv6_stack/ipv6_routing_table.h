@@ -27,7 +27,7 @@
 #include <stdbool.h>
 #include "common/ns_list.h"
 
-#include "core/ns_address_internal.h"
+#include "core/netaddr_types.h"
 
 /* Address Resolution and Neighbour Unreachablity Detection constants from
  * RFC 4861, updated by RFC 7048.

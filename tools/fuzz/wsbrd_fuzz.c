@@ -10,7 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "stack/source/core/ns_address_internal.h"
+#include "stack/source/core/netaddr_types.h"
 #include "stack/source/core/timers.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr_mac.h"

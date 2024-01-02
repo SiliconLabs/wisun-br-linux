@@ -25,6 +25,7 @@
 #include "common/ns_list.h"
 #include "common/specs/icmpv6.h"
 
+#include "core/netaddr_types.h"
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?

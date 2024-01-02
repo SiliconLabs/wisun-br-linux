@@ -31,29 +31,10 @@
 #include <stdbool.h>
 #include "common/ns_list.h"
 
+#include "netaddr_types.h"
+
 #define ADDR_MULTICAST_MAX 3
-#define ADDR_SIZE 16
 #define PAN_ID_LEN 2
-/** Address types */
-typedef enum addrtype {
-    ADDR_NONE = 0,                              /*!< No address */
-    ADDR_802_15_4_SHORT = 2,                    /*!< 16-bit PAN with 16-bit 802.15.4 address */
-    ADDR_802_15_4_LONG = 3,                     /*!< 16-bit PAN with 64-bit 802.15.4 address */
-    ADDR_IPV6 = 4,                              /*!< 128 bit IPv6 address containing both Prefix (high 64 bits) and Interface identifier (low 64 bits) */
-    //ADDR_DATA=5,                              /*!< Attribute-based data-centric query */
-    ADDR_BROADCAST = 6,                         /*!< Broadcast (inc RFC 4944 multicast) address (obsolescent) */
-    ADDR_EUI_48 = 7,                            /*!< 48-bit Extended Unique Identifier (eg Ethernet) */
-} addrtype_e;                               /*!< Address types in the stack */
-
-/** Address field */
-typedef uint8_t address_t[ADDR_SIZE];
-
-/** Address structure */
-typedef struct ns_sockaddr {
-    addrtype_e    addr_type;              /*!< Type of address */
-    address_t     address;                /*!< Source or destination address */
-    uint16_t      port;                   /*!< Source or destination port */
-} sockaddr_t;
 
 struct net_if;
 struct if_address_entry;
@@ -115,28 +96,6 @@ typedef struct if_group_entry {
 typedef NS_LIST_HEAD(if_group_entry_t, link) if_group_list_t;
 
 extern uint32_t addr_preferences_default;   // default SOCKET_IPV6_ADDR_PREFERENCES
-
-extern const uint8_t ADDR_SHORT_ADR_SUFFIC[6];                      // 0000:00ff:fe00
-extern const uint8_t ADDR_LINK_LOCAL_PREFIX[8];                     // fe80::/64
-extern const uint8_t ADDR_MULTICAST_SOLICITED[13];                  // ff02::1:ffxx:xxxx/104
-extern const uint8_t ADDR_IF_LOCAL_ALL_NODES[16];                   // ff01::1
-extern const uint8_t ADDR_IF_LOCAL_ALL_ROUTERS[16];                 // ff01::2
-extern const uint8_t ADDR_LINK_LOCAL_ALL_NODES[16];                 // ff02::1
-extern const uint8_t ADDR_LINK_LOCAL_ALL_ROUTERS[16];               // ff02::2
-extern const uint8_t ADDR_LINK_LOCAL_ALL_MLDV2_ROUTERS[16];         // ff02::16
-extern const uint8_t ADDR_LINK_LOCAL_MDNS[16];                      // ff02::fb
-extern const uint8_t ADDR_REALM_LOCAL_ALL_NODES[16];                // ff03::1
-extern const uint8_t ADDR_REALM_LOCAL_ALL_ROUTERS[16];              // ff03::2
-extern const uint8_t ADDR_SITE_LOCAL_ALL_ROUTERS[16];               // ff05::2
-extern const uint8_t ADDR_ALL_MPL_FORWARDERS[16];                   // ff03::fc
-extern const uint8_t ADDR_ALL_DHCP_RELAY_AGENTS_AND_SERVERS[16];    // ff02::1:2
-extern const uint8_t ADDR_LINK_LOCAL_ALL_RPL_NODES[16];             // ff02::1a
-extern const uint8_t ADDR_LOOPBACK[16];                             // ::1
-extern const uint8_t ADDR_UNSPECIFIED[16];                          // ::
-extern const uint8_t ADDR_6TO4[16];                                 // 2002::
-
-/* Don't bother having another 8 zero bytes for this - reuse ADDR_UNSPECIFIED */
-#define ADDR_EUI64_ZERO ADDR_UNSPECIFIED
 
 /** Functions provided by address.c */
 uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);

@@ -39,7 +39,7 @@
 
 #include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/lowpan_mtu.h"
-#include "stack/source/core/ns_address_internal.h"
+#include "stack/source/core/netaddr_types.h"
 
 #include "commandline_values.h"
 #include "wsbr.h"

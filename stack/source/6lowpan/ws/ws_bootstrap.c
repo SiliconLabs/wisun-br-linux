@@ -41,6 +41,7 @@
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "core/net_interface.h"
+#include "core/ns_address_internal.h"
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"

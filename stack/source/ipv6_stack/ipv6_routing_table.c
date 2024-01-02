@@ -42,7 +42,6 @@
 #include "common/bits.h"
 #include "common/log_legacy.h"
 
-#include "core/ns_address_internal.h"
 #include "common/specs/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"

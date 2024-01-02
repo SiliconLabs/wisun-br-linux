@@ -39,6 +39,7 @@
 #include "stack/source/6lowpan/ws/ws_test_api.h"
 #include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"
+#include "stack/source/core/netaddr_types.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/rpl/rpl_glue.h"
 #include "stack/source/rpl/rpl.h"
