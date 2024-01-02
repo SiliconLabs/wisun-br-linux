@@ -54,7 +54,6 @@ static void event_core_write(struct event_storage *event)
     struct events_scheduler *ctxt = g_event_scheduler;
 
     BUG_ON(!ctxt);
-    event->state = ARM_LIB_EVENT_QUEUED;
     ns_list_add_to_end(&ctxt->event_queue, event);
     event_scheduler_signal();
 }
@@ -99,12 +98,10 @@ bool event_scheduler_dispatch_event(void)
     ctxt->curr_tasklet = event->data.receiver;
     tasklet = event_tasklet_handler_get(ctxt->curr_tasklet);
     if (tasklet) {
-        event->state = ARM_LIB_EVENT_RUNNING;
         tasklet->func_ptr(&event->data);
     } else {
         WARN();
     }
-    event->state = ARM_LIB_EVENT_UNQUEUED;
     free(event);
     ctxt->curr_tasklet = 0;
 

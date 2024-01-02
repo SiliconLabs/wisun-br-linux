@@ -27,11 +27,6 @@ struct event_payload {
 
 struct event_storage {
     struct event_payload data;
-    enum {
-        ARM_LIB_EVENT_UNQUEUED,
-        ARM_LIB_EVENT_QUEUED,
-        ARM_LIB_EVENT_RUNNING,
-    } state;
     ns_list_link_t link;
 };
 
