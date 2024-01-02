@@ -1,3 +1,11 @@
+v1.8.1
+------
+  - Improve RPL interoperability (accept rank 0)
+  - Fix TBU ping for non neighbor nodes
+  - Fix TBU PTK lifetime configuration
+  - Fix TBU runtime key insertion
+  - Support external RADIUS server in `wsbrd-fuzz`
+
 v1.8
 ------
   - Allow neighbor Limited Function Nodes (LFNs) to subscribe to IPv6 multicast
