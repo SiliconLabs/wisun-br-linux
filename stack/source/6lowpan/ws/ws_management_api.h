@@ -500,28 +500,6 @@ int ws_management_channel_plan_set(
     uint8_t number_of_channels);// Stack can not modify this
 
 /**
- * Configure timing values for FHSS.
- *
- * Change the default configuration for Wi-SUN FHSS operation.
- *
- * Calling with fhss_uc_dwell_interval = 0, fhss_broadcast_interval = 0xffffffff,
- * fhss_bc_dwell_interval = 0 restores stack defaults
- *
- * \param interface_id Network interface ID.
- * \param fhss_uc_dwell_interval default to 250 ms.
- * \param fhss_broadcast_interval default to 800 ms.
- * \param fhss_bc_dwell_interval default to 200 ms.
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-int ws_management_fhss_timing_configure(
-    int8_t interface_id,
-    uint8_t fhss_uc_dwell_interval,
-    uint32_t fhss_broadcast_interval,
-    uint8_t fhss_bc_dwell_interval);
-
-/**
  * Configure unicast channel function.
  *
  * Change the default configuration for Wi-SUN FHSS operation.

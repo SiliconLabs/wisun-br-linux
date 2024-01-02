@@ -205,8 +205,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rail_fill_pom(ctxt);
 
-    // Note that calling ws_management_fhss_timing_configure() is redundant
-    // with the two function calls bellow.
     ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
                                                                 ctxt->config.uc_dwell_interval);
     WARN_ON(ret);
