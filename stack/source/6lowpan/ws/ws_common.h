@@ -23,7 +23,6 @@
 
 #include "common/ns_list.h"
 
-#include "core/net_interface.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_mngt.h"

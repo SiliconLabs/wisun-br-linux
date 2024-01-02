@@ -25,7 +25,6 @@
 #include "common/log_legacy.h"
 
 #include "nwk_interface/protocol_stats.h"
-#include "core/net_interface.h"
 #include "core/netaddr_types.h"
 
 #include "core/ns_buffer.h"

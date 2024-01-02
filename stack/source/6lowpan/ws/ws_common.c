@@ -33,7 +33,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/events_scheduler.h"
 
-#include "core/net_interface.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_llc.h"

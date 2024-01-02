@@ -32,7 +32,6 @@
 // Users of protocol.h can assume it includes these headers
 #include "nwk_interface/protocol_abstract.h"
 #include "core/ns_buffer.h"
-#include "core/net_interface.h"
 #include "core/ns_address_internal.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them

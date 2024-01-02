@@ -19,12 +19,19 @@
 #ifndef WS_PAE_CONTROLLER_H_
 #define WS_PAE_CONTROLLER_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/socket.h>
 
-#include "core/net_interface.h"
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_keys.h"
+
+typedef struct arm_certificate_entry {
+    const uint8_t *cert;           /**< Certificate pointer. */
+    const uint8_t *key;            /**< Key pointer. */
+    uint16_t cert_len;             /**< Certificate length. */
+    uint16_t key_len;              /**< Key length. */
+} arm_certificate_entry_s;
 
 typedef enum auth_result {
     AUTH_RESULT_OK = 0,                    // Successful
