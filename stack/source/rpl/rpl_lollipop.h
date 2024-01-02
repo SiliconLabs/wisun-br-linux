@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include "common/seqno.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 
 /*
  * RFC 6550 7.2. describes a special type of sequence number often described as

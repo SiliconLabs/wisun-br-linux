@@ -15,7 +15,7 @@
 #include "common/hif.h"
 #include "common/iobuf.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 
 #include "spinel.h"
 

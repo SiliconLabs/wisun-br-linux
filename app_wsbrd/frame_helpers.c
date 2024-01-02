@@ -15,7 +15,7 @@
 #include "common/log.h"
 #include "common/iobuf.h"
 #include "common/string_extra.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/endian.h"
 #include "common/bits.h"
 #include "common/specs/ieee802154.h"

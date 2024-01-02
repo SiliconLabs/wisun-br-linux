@@ -12,7 +12,7 @@
  */
 #include <stdint.h>
 #include "common/version.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/log.h"
 #include "common/ws_regdb.h"
 #include "common/named_values.h"

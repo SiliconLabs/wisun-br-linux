@@ -18,7 +18,7 @@
 #include "common/endian.h"
 #include "common/crc.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/os_types.h"
 #include "common/hif.h"
 

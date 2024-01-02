@@ -14,7 +14,7 @@
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/specs/rpl.h"
 #include "common/specs/ipv6.h"
 

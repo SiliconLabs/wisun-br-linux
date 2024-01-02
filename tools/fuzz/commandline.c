@@ -19,7 +19,7 @@
 #include "app_wsbrd/commandline.h"
 #include "app_wsbrd/wsbr.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 

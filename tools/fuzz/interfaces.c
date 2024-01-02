@@ -22,7 +22,7 @@
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"
 #include "common/iobuf.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/hif.h"
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"

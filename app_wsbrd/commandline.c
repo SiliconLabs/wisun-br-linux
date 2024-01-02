@@ -32,7 +32,7 @@
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
 #include "common/parsers.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/log.h"
 #include "common/netinet_in_extra.h"
 #include "common/specs/ws.h"

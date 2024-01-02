@@ -27,7 +27,7 @@ extern "C" {
 #include "app_wsbrd/libwsbrd.h"
 #include "tools/fuzz/replay.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/log.h"
 #include "common/version.h"
 }

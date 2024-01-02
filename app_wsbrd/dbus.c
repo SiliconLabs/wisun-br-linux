@@ -16,7 +16,7 @@
 #include <systemd/sd-bus.h>
 #include "app_wsbrd/tun.h"
 #include "common/named_values.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/version.h"
 #include "common/log.h"
 #include "common/specs/ws.h"

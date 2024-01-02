@@ -36,11 +36,4 @@
     __x - (__x % (y));   \
 })
 
-#define container_of(ptr, type, member) ({ \
-   const typeof(((type *)0)->member) * _mptr = (ptr);   \
-   (type *)((uintptr_t)_mptr - offsetof(type, member)); \
-})
-
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 #endif

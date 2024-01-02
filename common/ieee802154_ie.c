@@ -16,7 +16,7 @@
 #include "common/endian.h"
 #include "common/iobuf.h"
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 
 #include "ieee802154_ie.h"
 

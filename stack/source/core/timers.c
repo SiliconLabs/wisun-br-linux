@@ -10,7 +10,7 @@
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/log.h"
 
 #include "timers.h"

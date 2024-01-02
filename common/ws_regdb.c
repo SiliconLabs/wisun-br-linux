@@ -12,7 +12,7 @@
  */
 #include <stddef.h>
 
-#include "common/utils.h"
+#include "common/memutils.h"
 
 #include "ws_regdb.h"
 

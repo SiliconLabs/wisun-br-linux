@@ -22,7 +22,7 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 #include "common/rand.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
 #include "common/time_extra.h"

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/endian.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/specs/icmpv6.h"

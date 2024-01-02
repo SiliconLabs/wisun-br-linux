@@ -24,7 +24,7 @@
 #include "common/bus_cpc.h"
 #include "common/named_values.h"
 #include "common/iobuf.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 
 enum {
   MODE_TX = 1,

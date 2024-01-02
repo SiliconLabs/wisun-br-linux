@@ -13,7 +13,7 @@
 #include <mbedtls/version.h>
 #include <mbedtls/ssl.h>
 #include "common/log.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 
 #include "mbedtls_config_check.h"
 

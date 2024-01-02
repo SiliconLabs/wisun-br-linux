@@ -30,7 +30,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/time_extra.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"

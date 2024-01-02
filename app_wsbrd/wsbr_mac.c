@@ -25,7 +25,7 @@
 #include "common/spinel.h"
 #include "common/hif.h"
 #include "common/iobuf.h"
-#include "common/utils.h"
+#include "common/memutils.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
 #include "common/specs/ieee802154.h"
