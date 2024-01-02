@@ -17,6 +17,7 @@
 #include "common/log.h"
 #include "common/utils.h"
 #include "common/specs/rpl.h"
+#include "common/specs/ipv6.h"
 #include "rpl_srh.h"
 #include "rpl.h"
 
@@ -105,7 +106,7 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
 
     iobuf_push_u8(buf, nxthdr);
     iobuf_push_u8(buf, (size_no_pad + pad) / 8 - 1);
-    iobuf_push_u8(buf, IPV6_EXTHDR_ROUTE_TYPE_RPL_SRH);
+    iobuf_push_u8(buf, IPV6_ROUTING_RPL_SRH);
     iobuf_push_u8(buf, srh->seg_left);
     tmp = 0;
     tmp |= FIELD_PREP(RPL_MASK_SRH_CMPRI, cmpri);

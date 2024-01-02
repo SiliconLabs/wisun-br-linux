@@ -13,9 +13,6 @@
 #ifndef SPECS_RPL_H
 #define SPECS_RPL_H
 
-// RFC 6554 - 3. Format of the RPL Routing Header
-#define IPV6_EXTHDR_ROUTE_TYPE_RPL_SRH 3
-
 // RFC 6550: RPL Control Codes
 // https://www.iana.org/assignments/rpl/rpl.xhtml#control-codes
 enum {

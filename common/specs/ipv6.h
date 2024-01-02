@@ -90,8 +90,16 @@ enum {
 #define IPV6_OPTION_CHANGE_DOES_NOT         0x00    /* does not change en-route */
 #define IPV6_OPTION_CHANGE_MAY              0x20    /* may change en-route */
 
-/* Routing Types */
-#define IPV6_ROUTING_TYPE_RPL               3
+// RFC8200: "Routing Types"
+// See also RFC 6554, "3. Format of the RPL Routing Header"
+// https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#ipv6-parameters-3
+enum {
+    IPV6_ROUTING_SOURCE_ROUTE = 0,
+    IPV6_ROUTING_NIMROD       = 1,
+    IPV6_ROUTING_TYPE2_RH     = 2,
+    IPV6_ROUTING_RPL_SRH      = 3,
+    IPV6_ROUTING_SRH          = 4,
+};
 
 // RFC7346: "IPv6 Multicast Address Scopes".
 // https://www.iana.org/assignments/ipv6-multicast-addresses/ipv6-multicast-addresses.xhtml#ipv6-scope
