@@ -145,7 +145,6 @@ add_library(libwsbrd STATIC
     common/time_extra.c
     stack/source/6lowpan/lowpan_adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
-    stack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c
     stack/source/6lowpan/fragmentation/cipv6_fragmenter.c
     stack/source/6lowpan/iphc_decode/cipv6.c
     stack/source/6lowpan/iphc_decode/iphc_compress.c

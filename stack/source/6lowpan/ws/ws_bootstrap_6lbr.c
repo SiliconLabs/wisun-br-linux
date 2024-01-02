@@ -45,7 +45,6 @@
 #include "common_protocols/ip.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 

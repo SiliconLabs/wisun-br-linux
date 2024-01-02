@@ -250,7 +250,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *c
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 
-void protocol_6lowpan_interface_common_init(struct net_if *cur)
+static void protocol_6lowpan_interface_common_init(struct net_if *cur)
 {
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
     protocol_6lowpan_register_handlers(cur);
@@ -259,3 +259,20 @@ void protocol_6lowpan_interface_common_init(struct net_if *cur)
     // Interface metric will determine which interface is actually used, if we have multiple.
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 }
+
+int8_t protocol_6lowpan_up(struct net_if *cur)
+{
+    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE)
+        return -1;
+
+    /* Change Idle-> Active */
+    cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
+    cur->bootstrap_state_machine_cnt = 2;
+    cur->interface_mode = INTERFACE_UP;
+    protocol_6lowpan_interface_common_init(cur);
+
+    cur->nwk_mode = ARM_NWK_GP_IP_MODE;
+    return 0;
+}
+

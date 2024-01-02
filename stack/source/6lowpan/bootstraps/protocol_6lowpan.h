@@ -15,24 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * \file protocol_6lowpan.h
- *
- */
-
-#ifndef PROTOCOL_6LOWPAN_H_
-#define PROTOCOL_6LOWPAN_H_
+#ifndef PROTOCOL_6LOWPAN_H
+#define PROTOCOL_6LOWPAN_H
 #include <stdint.h>
 #include <stdbool.h>
 
 struct net_if;
-struct ns_sockaddr;
-struct rpl_domain;
-struct rpl_dodag;
-enum addrtype;
 
-void protocol_6lowpan_interface_common_init(struct net_if *cur);
+int8_t protocol_6lowpan_up(struct net_if *cur);
 void protocol_6lowpan_configure_core(struct net_if *cur);
-
-#endif /* PROTOCOL_6LOWPAN_H_ */
+#endif

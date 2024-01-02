@@ -47,7 +47,6 @@
 #include "common_protocols/ip.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_common_defines.h"
@@ -314,7 +313,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     addr_interface_set_ll64(cur, NULL);
     // Trigger discovery for bootstrap
-    ret_val = nwk_6lowpan_up(cur);
+    ret_val = protocol_6lowpan_up(cur);
     if (ret_val) {
         goto cleanup;
     }
