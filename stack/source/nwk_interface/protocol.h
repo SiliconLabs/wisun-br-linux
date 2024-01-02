@@ -72,9 +72,6 @@ void protocol_core_init(void);
 
 #define INTERFACE_SETUP_BORDER_ROUTER_MASK          11
 #define INTERFACE_SETUP_BORDER_ROUTER_READY         11
-typedef enum icmp_state {
-    ER_ACTIVE_SCAN,
-} icmp_state_e;
 
 typedef enum {
     INTERFACE_IDLE = 0,
@@ -130,7 +127,6 @@ struct net_if {
     ns_list_link_t link;
     uint8_t configure_flags;
     uint8_t lowpan_info;
-    icmp_state_e nwk_bootstrap_state;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
     multicast_mpl_seed_id_mode_e mpl_seed_id_mode;

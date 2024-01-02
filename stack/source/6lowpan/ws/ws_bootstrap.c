@@ -299,7 +299,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->lowpan_info = 0;
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
 
-    cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     cur->ws_info.network_pan_id = 0xffff;
     ws_bootstrap_asynch_trickle_stop(cur);
 }

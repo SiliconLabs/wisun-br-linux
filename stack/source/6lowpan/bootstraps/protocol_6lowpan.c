@@ -209,7 +209,6 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
         return -1;
 
     /* Change Idle-> Active */
-    cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
     cur->interface_mode = INTERFACE_UP;
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
