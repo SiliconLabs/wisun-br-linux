@@ -90,7 +90,7 @@ typedef struct radius_client_sec_prot_int {
     sec_prot_common_t             common;                       /**< Common data */
     sec_prot_t                    *radius_eap_tls_prot;         /**< Radius EAP-TLS security protocol */
     sec_prot_receive              *radius_eap_tls_send;         /**< Radius EAP-TLS security protocol send (receive from peer) */
-    sec_prot_delete               *radius_eap_tls_deleted;      /**< Radius EAP-TLS security protocol peer deleted (notify to peer that radius client deleted) */
+    sec_prot_release               *radius_eap_tls_deleted;      /**< Radius EAP-TLS security protocol peer deleted (notify to peer that radius client deleted) */
     uint8_t                       radius_eap_tls_header_size;   /**< Radius EAP-TLS header size */
     uint8_t                       new_pmk[PMK_LEN];             /**< New Pair Wise Master Key */
     uint16_t                      recv_eap_msg_len;             /**< Received EAP message length */
@@ -127,7 +127,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_shared_data_timeout(uint16_t ticks);
 static void radius_identifier_timer_value_set(uint8_t conn_num, uint8_t id_range, uint8_t value);
 static void radius_client_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
-static void radius_client_sec_prot_delete(sec_prot_t *prot);
+static void radius_client_sec_prot_release(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_receive_check(sec_prot_t *prot, const void *pdu, uint16_t size);
 static int8_t radius_client_sec_prot_init_radius_eap_tls(sec_prot_t *prot);
 static void radius_client_sec_prot_radius_eap_tls_deleted(sec_prot_t *prot);
@@ -211,7 +211,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
     prot->conn_receive = radius_client_sec_prot_receive;
     prot->receive_peer = radius_client_sec_prot_radius_eap_receive;
     prot->peer_deleted = radius_client_sec_prot_radius_eap_tls_deleted;
-    prot->delete = radius_client_sec_prot_delete;
+    prot->release = radius_client_sec_prot_release;
     prot->state_machine = radius_client_sec_prot_state_machine;
     prot->timer_timeout = radius_client_sec_prot_timer_timeout;
     prot->finished_send = radius_client_sec_prot_finished_send;
@@ -258,7 +258,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void radius_client_sec_prot_delete(sec_prot_t *prot)
+static void radius_client_sec_prot_release(sec_prot_t *prot)
 {
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 

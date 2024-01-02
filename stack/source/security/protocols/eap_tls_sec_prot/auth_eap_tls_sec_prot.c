@@ -83,7 +83,7 @@ static uint16_t auth_eap_tls_sec_prot_size(void);
 static int8_t auth_eap_tls_sec_prot_init(sec_prot_t *prot);
 
 static void auth_eap_tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
-static void auth_eap_tls_sec_prot_delete(sec_prot_t *prot);
+static void auth_eap_tls_sec_prot_release(sec_prot_t *prot);
 static int8_t auth_eap_tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 
 static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot);
@@ -93,7 +93,7 @@ static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_c
 
 static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
-static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
+static void auth_eap_tls_sec_prot_release_tls(sec_prot_t *prot);
 
 static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
 
@@ -122,7 +122,7 @@ static int8_t auth_eap_tls_sec_prot_init(sec_prot_t *prot)
     prot->create_req = auth_eap_tls_sec_prot_create_request;
     prot->create_resp = 0;
     prot->receive = auth_eap_tls_sec_prot_receive;
-    prot->delete = auth_eap_tls_sec_prot_delete;
+    prot->release = auth_eap_tls_sec_prot_release;
     prot->state_machine = auth_eap_tls_sec_prot_state_machine;
     prot->timer_timeout = auth_eap_tls_sec_prot_timer_timeout;
 
@@ -147,7 +147,7 @@ static int8_t auth_eap_tls_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void auth_eap_tls_sec_prot_delete(sec_prot_t *prot)
+static void auth_eap_tls_sec_prot_release(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     eap_tls_sec_prot_lib_message_free(&data->tls_send);
@@ -386,7 +386,7 @@ static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
     return 0;
 }
 
-static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
+static void auth_eap_tls_sec_prot_release_tls(sec_prot_t *prot)
 {
     // Triggers TLS to terminate if it is not already terminating by its own
     sec_prot_t *tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
@@ -562,7 +562,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
         case EAP_TLS_STATE_FINISHED: {
             tr_debug("EAP-TLS finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
-            auth_eap_tls_sec_prot_delete_tls(prot);
+            auth_eap_tls_sec_prot_release_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

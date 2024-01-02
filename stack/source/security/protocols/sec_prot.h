@@ -205,12 +205,12 @@ typedef int8_t sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, ui
 typedef int8_t sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e tx_status);
 
 /**
- * sec_prot_delete delete the protocol data
+ * sec_prot_release delete the protocol data
  *
  * \param prot protocol
  *
  */
-typedef void sec_prot_delete(sec_prot_t *prot);
+typedef void sec_prot_release(sec_prot_t *prot);
 
 /**
  * sec_prot_state_machine protocol state machine
@@ -380,11 +380,11 @@ struct sec_prot {
     sec_prot_conn_send            *conn_send;            /**< Protocol connection send */
     sec_prot_conn_receive         *conn_receive;         /**< Protocol connection receive */
     sec_prot_receive              *receive_peer;         /**< Protocol receive from peer (used by peer protocol for send) */
-    sec_prot_delete               *peer_deleted;         /**< Protocol peer has been deleted (notifies that peer no longer exists */
+    sec_prot_release              *peer_deleted;         /**< Protocol peer has been deleted (notifies that peer no longer exists */
 
     sec_prot_tx_status_ind        *tx_status_ind;        /**< TX status indication */
 
-    sec_prot_delete               *delete;               /**< Protocol delete */
+    sec_prot_release              *release;               /**< Protocol delete */
 
     sec_prot_state_machine_call   *state_machine_call;   /**< Call state machine */
     sec_prot_state_machine        *state_machine;        /**< Protocol state machine */

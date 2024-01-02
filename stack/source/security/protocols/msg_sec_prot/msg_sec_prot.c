@@ -52,7 +52,7 @@ typedef struct msg_sec_prot_int {
 
 static uint16_t msg_sec_prot_size(void);
 static int8_t msg_sec_prot_init(sec_prot_t *prot);
-static void msg_sec_prot_delete(sec_prot_t *prot);
+static void msg_sec_prot_release(sec_prot_t *prot);
 
 static void msg_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static void msg_sec_prot_state_machine(sec_prot_t *prot);
@@ -81,7 +81,7 @@ static uint16_t msg_sec_prot_size(void)
 static int8_t msg_sec_prot_init(sec_prot_t *prot)
 {
     prot->create_req = msg_sec_prot_create_request;
-    prot->delete = msg_sec_prot_delete;
+    prot->release = msg_sec_prot_release;
     prot->state_machine = msg_sec_prot_state_machine;
 
     msg_sec_prot_int_t *data = msg_sec_prot_get(prot);
@@ -91,7 +91,7 @@ static int8_t msg_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void msg_sec_prot_delete(sec_prot_t *prot)
+static void msg_sec_prot_release(sec_prot_t *prot)
 {
     (void) prot;
 }

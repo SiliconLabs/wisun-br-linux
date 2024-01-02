@@ -386,8 +386,8 @@ static void kmp_sec_prot_receive_disable(sec_prot_t *prot)
 
 void kmp_api_delete(kmp_api_t *kmp)
 {
-    if (kmp->sec_prot.delete) {
-        kmp->sec_prot.delete(&kmp->sec_prot);
+    if (kmp->sec_prot.release) {
+        kmp->sec_prot.release(&kmp->sec_prot);
     }
     free(kmp);
 }

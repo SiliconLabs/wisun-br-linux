@@ -72,7 +72,7 @@ typedef struct radius_eap_tls_sec_prot_int {
     sec_prot_common_t             common;                  /**< Common data */
     sec_prot_t                    *radius_client_prot;     /**< RADIUS client security protocol */
     sec_prot_receive              *radius_client_send;     /**< RADIUS client security protocol send (receive from peer) */
-    sec_prot_delete               *radius_client_deleted;  /**< RADIUS client security protocol peer deleted (notify to peer that radius EAP-TLS deleted) */
+    sec_prot_release               *radius_client_deleted;  /**< RADIUS client security protocol peer deleted (notify to peer that radius EAP-TLS deleted) */
     eapol_pdu_t                   recv_eapol_pdu;          /**< Received EAPOL PDU */
     uint16_t                      recv_eap_msg_len;        /**< Received EAP message length */
     uint8_t                       *recv_eap_msg;           /**< Received EAP message */
@@ -88,7 +88,7 @@ static uint16_t radius_eap_tls_sec_prot_size(void);
 static int8_t radius_eap_tls_sec_prot_init(sec_prot_t *prot);
 
 static void radius_eap_tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
-static void radius_eap_tls_sec_prot_delete(sec_prot_t *prot);
+static void radius_eap_tls_sec_prot_release(sec_prot_t *prot);
 static int8_t radius_eap_tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static int8_t radius_eap_tls_sec_prot_radius_client_receive(sec_prot_t *radius_client, const void *pdu, uint16_t size);
 static void radius_eap_tls_sec_prot_eap_tls_msg_free(sec_prot_t *prot);
@@ -133,7 +133,7 @@ static int8_t radius_eap_tls_sec_prot_init(sec_prot_t *prot)
     prot->receive = radius_eap_tls_sec_prot_receive;
     prot->receive_peer = radius_eap_tls_sec_prot_radius_client_receive;
     prot->peer_deleted = radius_eap_tls_sec_prot_radius_client_deleted;
-    prot->delete = radius_eap_tls_sec_prot_delete;
+    prot->release = radius_eap_tls_sec_prot_release;
     prot->state_machine = radius_eap_tls_sec_prot_state_machine;
     prot->timer_timeout = radius_eap_tls_sec_prot_timer_timeout;
     prot->receive_peer_hdr_size += EAPOL_BASE_LENGTH; // 4 bytes of EAPOL data
@@ -153,7 +153,7 @@ static int8_t radius_eap_tls_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void radius_eap_tls_sec_prot_delete(sec_prot_t *prot)
+static void radius_eap_tls_sec_prot_release(sec_prot_t *prot)
 {
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
 

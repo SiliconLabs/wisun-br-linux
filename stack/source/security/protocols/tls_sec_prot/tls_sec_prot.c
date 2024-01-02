@@ -87,7 +87,7 @@ static uint16_t tls_sec_prot_size(void);
 static int8_t server_tls_sec_prot_init(sec_prot_t *prot);
 
 static void tls_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
-static void tls_sec_prot_delete(sec_prot_t *prot);
+static void tls_sec_prot_release(sec_prot_t *prot);
 static int8_t tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void tls_sec_prot_finished_send(sec_prot_t *prot);
 
@@ -143,7 +143,7 @@ static int8_t server_tls_sec_prot_init(sec_prot_t *prot)
     prot->create_req = NULL;
     prot->create_resp = tls_sec_prot_create_response;
     prot->receive = tls_sec_prot_receive;
-    prot->delete = tls_sec_prot_delete;
+    prot->release = tls_sec_prot_release;
     prot->state_machine = server_tls_sec_prot_state_machine;
     prot->timer_timeout = tls_sec_prot_timer_timeout;
     prot->finished_send = tls_sec_prot_finished_send;
@@ -170,7 +170,7 @@ static int8_t server_tls_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void tls_sec_prot_delete(sec_prot_t *prot)
+static void tls_sec_prot_release(sec_prot_t *prot)
 {
     tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
     eap_tls_sec_prot_lib_message_free(&data->tls_send);

@@ -67,7 +67,7 @@ static uint16_t auth_gkh_sec_prot_size(void);
 static int8_t auth_gkh_sec_prot_init(sec_prot_t *prot);
 
 static void auth_gkh_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
-static void auth_gkh_sec_prot_delete(sec_prot_t *prot);
+static void auth_gkh_sec_prot_release(sec_prot_t *prot);
 static int8_t auth_gkh_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static gkh_sec_prot_msg_e auth_gkh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, sec_prot_keys_t *sec_keys);
 static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot);
@@ -102,7 +102,7 @@ static int8_t auth_gkh_sec_prot_init(sec_prot_t *prot)
     prot->create_req = auth_gkh_sec_prot_create_request;
     prot->create_resp = 0;
     prot->receive = auth_gkh_sec_prot_receive;
-    prot->delete = auth_gkh_sec_prot_delete;
+    prot->release = auth_gkh_sec_prot_release;
     prot->state_machine = auth_gkh_sec_prot_state_machine;
     prot->timer_timeout = auth_gkh_sec_prot_timer_timeout;
 
@@ -113,7 +113,7 @@ static int8_t auth_gkh_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void auth_gkh_sec_prot_delete(sec_prot_t *prot)
+static void auth_gkh_sec_prot_release(sec_prot_t *prot)
 {
     // No op at the moment
     (void) prot;

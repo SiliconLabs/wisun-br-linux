@@ -59,7 +59,7 @@ static uint16_t key_sec_prot_size(void);
 static int8_t auth_key_sec_prot_init(sec_prot_t *prot);
 
 static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
-static void key_sec_prot_delete(sec_prot_t *prot);
+static void key_sec_prot_release(sec_prot_t *prot);
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void key_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 
@@ -93,7 +93,7 @@ static int8_t auth_key_sec_prot_init(sec_prot_t *prot)
 {
     prot->create_resp = key_sec_prot_create_response;
     prot->receive = key_sec_prot_receive;
-    prot->delete = key_sec_prot_delete;
+    prot->release = key_sec_prot_release;
     prot->state_machine = auth_key_sec_prot_state_machine;
     prot->timer_timeout = key_sec_prot_timer_timeout;
 
@@ -104,7 +104,7 @@ static int8_t auth_key_sec_prot_init(sec_prot_t *prot)
     return 0;
 }
 
-static void key_sec_prot_delete(sec_prot_t *prot)
+static void key_sec_prot_release(sec_prot_t *prot)
 {
     (void) prot;
 }
