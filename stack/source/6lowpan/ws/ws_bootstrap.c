@@ -334,6 +334,7 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 
     addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC);
+    ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
     memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
 
     // Zero uptime counters

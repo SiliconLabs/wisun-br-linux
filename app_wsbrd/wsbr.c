@@ -304,15 +304,6 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
         tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->config.tun_dev);
 }
 
-static void net_automatic_loopback_route_update(struct net_if *interface, const if_address_entry_t *addr, if_address_callback_e reason)
-{
-    if (addr_is_ipv6_link_local(addr->address))
-        return;
-    /* TODO: When/if we have a real loopback interface, these routes would use it instead of interface->id */
-    if (reason == ADDR_CALLBACK_DAD_COMPLETE)
-        ipv6_route_add(addr->address, 128, interface->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
-}
-
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
     struct net_if *cur;
@@ -322,7 +313,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     protocol_core_init();
     address_module_init();
     ws_cfg_settings_init();
-    addr_notification_register(net_automatic_loopback_route_update);
 
     cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
     BUG_ON(!cur);
