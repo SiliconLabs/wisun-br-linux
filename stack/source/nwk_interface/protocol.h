@@ -43,7 +43,6 @@ struct mac_neighbor_table;
 struct mac_api;
 struct eth_mac_api;
 struct arm_device_driver_list;
-struct mlme_security;
 struct load_balance_api;
 struct red_info;
 enum addrtype;

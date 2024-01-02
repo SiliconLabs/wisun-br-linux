@@ -44,7 +44,6 @@
 #include "nwk_interface/protocol.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
-#include "6lowpan/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_common.h"

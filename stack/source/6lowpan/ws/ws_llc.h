@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
-#include "6lowpan/mac/mac_common_defines.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 
 #include "6lowpan/ws/ws_neighbor_class.h"
 
@@ -30,7 +30,6 @@ struct net_if;
 struct mcps_data_ind;
 struct mcps_data_ind_ie_list;
 struct ws_pan_information;
-struct mlme_security;
 struct ws_hopping_schedule;
 struct ws_neighbor_class_entry;
 struct mac_neighbor_table_entry;

@@ -844,7 +844,7 @@ struct mlme_comm_status {
     unsigned DstAddrMode: 2;
     uint8_t DstAddr[8];
     uint8_t status;
-    mlme_security_t Key;
+    struct mlme_security Key;
 };
 
 static void rcp_legacy_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)

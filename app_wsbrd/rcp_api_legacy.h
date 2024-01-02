@@ -16,8 +16,6 @@
 #include <stdbool.h>
 #include <sys/uio.h>
 
-#include "6lowpan/mac/mac_common_defines.h"
-
 #define HIF_FHSS_TYPE_FFN_UC 0x00
 #define HIF_FHSS_TYPE_FFN_BC 0x01
 #define HIF_FHSS_TYPE_LFN_UC 0x02
@@ -89,6 +87,11 @@ typedef enum mac_data_priority {
     MAC_DATA_EXPEDITE_FORWARD = 3   /**< Expedite forward level give highest priority */
 } mac_data_priority_e;
 
+struct mlme_security {
+    unsigned SecurityLevel: 3;      /**< Security level */
+    uint8_t KeyIndex;               /**< Key index */
+};
+
 // Used by rcp_legacy_tx_req_legacy()
 // See IEEE standard 802.15.4-2006 (table 41) for more details
 typedef struct mcps_data_req {
@@ -105,7 +108,7 @@ typedef struct mcps_data_req {
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
     bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
-    mlme_security_t Key;            /**< Security key */
+    struct mlme_security Key;       /**< Security key */
     uint8_t priority;               /**< See mac_data_priority_e */
     uint8_t phy_id;
     uint8_t fhss_type;              /**< FHSS policy to send that frame */
@@ -201,7 +204,7 @@ typedef struct mcps_data_ind {
     int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
     uint64_t timestamp;         /**< The time, in symbols, at which the data were received */
     uint8_t DSN;                /**< Data sequence number */
-    mlme_security_t Key;        /**< Security key */
+    struct mlme_security Key;   /**< Security key */
     uint16_t msduLength;        /**< Data unit length */
     const uint8_t *msdu_ptr;    /**< Data unit */
 } mcps_data_ind_t;
