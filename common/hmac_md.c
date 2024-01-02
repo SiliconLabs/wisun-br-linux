@@ -33,7 +33,6 @@ static int hmac_md_calc(mbedtls_md_type_t md_type,
     const mbedtls_md_info_t *md_info;
     mbedtls_md_context_t ctx;
     uint8_t result_value[20];
-    uint16_t payload_len;
     int ret;
 
     BUG_ON(result_len > 20);
@@ -45,9 +44,6 @@ static int hmac_md_calc(mbedtls_md_type_t md_type,
     ret = mbedtls_md_hmac_starts(&ctx, key, key_len);
     if (ret)
         goto error;
-    payload_len = read_be16(&data[2]);
-    if (data_len > payload_len)
-        data_len = payload_len + 4;
     ret = mbedtls_md_hmac_update(&ctx, data, data_len);
     if (ret)
         goto error;
@@ -64,6 +60,21 @@ error:
     return -EINVAL;
 }
 
+int hmac_md_tlv_calc(mbedtls_md_type_t md_type,
+                     const uint8_t *key, size_t key_len,
+                     const uint8_t *data, size_t max_data_len,
+                     uint8_t *result, size_t result_len)
+{
+    uint16_t payload_len;
+
+    if (max_data_len < 4)
+        return -EINVAL;
+    payload_len = read_be16(&data[2]);
+    if (max_data_len < payload_len + 4)
+        return -EINVAL;
+    return hmac_md_calc(md_type, key, key_len, data, payload_len + 4, result, result_len);
+}
+
 int hmac_md_sha1(const uint8_t *key, size_t key_len,
                  const uint8_t *data, size_t data_len,
                  uint8_t *result, size_t result_len)
@@ -78,3 +89,16 @@ int hmac_md_md5(const uint8_t *key, size_t key_len,
     return hmac_md_calc(MBEDTLS_MD_MD5, key, key_len, data, data_len, result, result_len);
 }
 
+int hmac_md_tlv_sha1(const uint8_t *key, size_t key_len,
+                     const uint8_t *data, size_t max_data_len,
+                     uint8_t *result, size_t result_len)
+{
+    return hmac_md_tlv_calc(MBEDTLS_MD_SHA1, key, key_len, data, max_data_len, result, result_len);
+}
+
+int hmac_md_tlv_md5(const uint8_t *key, size_t key_len,
+                    const uint8_t *data, size_t max_data_len,
+                    uint8_t *result, size_t result_len)
+{
+    return hmac_md_tlv_calc(MBEDTLS_MD_MD5, key, key_len, data, max_data_len, result, result_len);
+}

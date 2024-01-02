@@ -311,7 +311,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 
     if (eapol_pdu->msg.key.key_information.key_mic) {
         uint8_t mic[EAPOL_KEY_MIC_LEN];
-        if (hmac_md_sha1(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
+        if (hmac_md_tlv_sha1(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
             free(eapol_pdu_frame);
             return NULL;
         }
@@ -362,7 +362,7 @@ int8_t sec_prot_lib_mic_validate(uint8_t *ptk, const uint8_t *mic, uint8_t *pdu,
     eapol_write_key_packet_mic(pdu, 0);
 
     uint8_t calc_mic[EAPOL_KEY_MIC_LEN];
-    if (hmac_md_sha1(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
+    if (hmac_md_tlv_sha1(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
         tr_error("MIC invalid");
         return -1;
     }
