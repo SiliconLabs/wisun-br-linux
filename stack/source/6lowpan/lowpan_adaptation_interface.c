@@ -25,6 +25,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/version.h"
+#include "common/memutils.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/specs/ip.h"
@@ -343,34 +344,20 @@ static void lowpan_list_free(fragmenter_tx_list_t *list, bool fragment_buf_free)
     }
 }
 
-
-int8_t lowpan_adaptation_interface_init(int8_t interface_id)
+void lowpan_adaptation_interface_init(int8_t interface_id)
 {
-    //Remove old interface
+    fragmenter_interface_t *interface_ptr = zalloc(sizeof(fragmenter_interface_t));
+
     lowpan_adaptation_interface_free(interface_id);
 
-    //Allocate new
-    fragmenter_interface_t *interface_ptr = malloc(sizeof(fragmenter_interface_t));
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    memset(interface_ptr, 0, sizeof(fragmenter_interface_t));
     interface_ptr->interface_id = interface_id;
-    interface_ptr->fragment_indirect_tx_buffer = NULL;
-    interface_ptr->mtu_size = 0;
     interface_ptr->msduHandle = rand_get_8bit();
     interface_ptr->local_frag_tag = rand_get_16bit();
 
     ns_list_init(&interface_ptr->directTxQueue);
     ns_list_init(&interface_ptr->activeUnicastList);
-    interface_ptr->activeTxList_size = 0;
-    interface_ptr->directTxQueue_size = 0;
-    interface_ptr->directTxQueue_level = 0;
 
     ns_list_add_to_end(&fragmenter_interface_list, interface_ptr);
-
-    return 0;
 }
 
 int8_t lowpan_adaptation_interface_free(int8_t interface_id)

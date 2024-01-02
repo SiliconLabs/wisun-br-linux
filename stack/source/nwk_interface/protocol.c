@@ -214,14 +214,9 @@ static struct net_if *protocol_interface_class_allocate()
 static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu, const char *name)
 {
     struct net_if *entry = protocol_interface_class_allocate();
-    if (!entry) {
-        return NULL;
-    }
 
-    if (lowpan_adaptation_interface_init(entry->id) != 0) {
-        goto interface_failure;
-    }
-
+    BUG_ON(!entry);
+    lowpan_adaptation_interface_init(entry->id);
     reassembly_interface_init(entry->id, 8, 5);
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
     entry->mac_parameters.pan_id = 0xffff;
@@ -234,12 +229,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
 
     protocol_core_base_finish_init(entry);
     return entry;
-
-interface_failure:
-    lowpan_adaptation_interface_free(entry->id);
-    reassembly_interface_free(entry->id);
-    entry = NULL;
-    return NULL;
 }
 
 void nwk_interface_print_neigh_cache()
