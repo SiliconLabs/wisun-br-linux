@@ -51,9 +51,4 @@ typedef struct arm_certificate_entry {
     uint16_t key_len;              /**< Key length. */
 } arm_certificate_entry_s;
 
-/** Event library type. */
-typedef enum arm_library_event_type_e {
-    ARM_LIB_TASKLET_INIT_EVENT = 0, /**< Tasklet init occurs always when generating a tasklet. */
-} arm_library_event_type_e;
-
 #endif

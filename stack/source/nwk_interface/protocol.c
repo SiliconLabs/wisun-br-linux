@@ -119,7 +119,7 @@ void update_reachable_time(int seconds)
 
 void protocol_core_init(void)
 {
-    protocol_root_tasklet_ID = event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
+    protocol_root_tasklet_ID = event_handler_create(&protocol_root_tasklet, 0);
 
     ws_timer_start(WS_TIMER_MONOTONIC_TIME);
     ws_timer_start(WS_TIMER_MPL_SLOW);
