@@ -127,6 +127,7 @@ add_library(libwsbrd STATIC
     common/endian.c
     common/rand.c
     common/named_values.c
+    common/fnv_hash.c
     common/hmac_md.c
     common/nist_kw.c
     common/parsers.c
@@ -210,7 +211,6 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/sec_prot_lib.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    stack/source/service_libs/fnv_hash/fnv_hash.c
     stack/source/service_libs/ieee_802_11/ieee_802_11.c
     stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     stack/source/service_libs/random_early_detection/random_early_detection.c

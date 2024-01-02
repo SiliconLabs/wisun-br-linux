@@ -15,18 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef FNV_HASH_H_
-#define FNV_HASH_H_
+#ifndef FNV_HASH_H
+#define FNV_HASH_H
 
 #include <stdint.h>
+#include <stddef.h>
 
-#if 0 /* Not currently needed */
-uint32_t fnv_hash_1a_32_block(const uint8_t *data, uint16_t len);
-uint32_t fnv_hash_1a_32_block_update(uint32_t hash, const uint8_t *data, uint16_t len);
-#endif
+/*
+ * Implement FNV (Fowler/Noll/Vo) hash algorithm[1]. This implementation is
+ * tuned to calculate IPv6 flow identifiers:
+ *    - it only implements FNV-1a 32bits
+ *    - it reverse data before adding them to the hash
+ *
+ * [1]: https://www.ietf.org/id/draft-eastlake-fnv-20.html
+ */
 
-uint32_t fnv_hash_1a_32_reverse_block(const uint8_t *data, uint16_t len);
-uint32_t fnv_hash_1a_32_reverse_block_update(uint32_t hash, const uint8_t *data, uint16_t len);
+uint32_t fnv_hash_reverse_32_init(const uint8_t *data, size_t len);
+uint32_t fnv_hash_reverse_32_update(const uint8_t *data, size_t len, uint32_t hash);
 
 #endif

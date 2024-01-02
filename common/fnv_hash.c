@@ -16,34 +16,19 @@
  * limitations under the License.
  */
 
-#include "service_libs/fnv_hash/fnv_hash.h"
+#include "fnv_hash.h"
 
-#if 0
-uint32_t fnv_hash_1a_32_block(const uint8_t *data, uint16_t len)
-{
-    return fnv_hash_1a_32_block_update(UINT32_C(0x811c9dc5), data, len);
-}
-
-uint32_t fnv_hash_1a_32_block_update(uint32_t hash, const uint8_t *data, uint16_t len)
-{
-    for (; len; --len) {
-        hash ^= *data++;
-        hash *= UINT32_C(0x01000193);
-    }
-    return hash;
-}
-#endif
-
-uint32_t fnv_hash_1a_32_reverse_block(const uint8_t *data, uint16_t len)
-{
-    return fnv_hash_1a_32_reverse_block_update(UINT32_C(0x811c9dc5), data, len);
-}
-
-uint32_t fnv_hash_1a_32_reverse_block_update(uint32_t hash, const uint8_t *data, uint16_t len)
+uint32_t fnv_hash_reverse_32_update(const uint8_t *data, size_t len, uint32_t hash)
 {
     for (data += len; len; --len) {
         hash ^= *--data;
-        hash *= UINT32_C(0x01000193);
+        hash *= 0x01000193;
     }
     return hash;
 }
+
+uint32_t fnv_hash_reverse_32_init(const uint8_t *data, size_t len)
+{
+    return fnv_hash_reverse_32_update(data, len, UINT32_C(0x811c9dc5));
+}
+

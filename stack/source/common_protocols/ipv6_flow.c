@@ -17,7 +17,7 @@
  */
 
 #include "common/rand.h"
-#include "service_libs/fnv_hash/fnv_hash.h"
+#include "common/fnv_hash.h"
 
 #include "common_protocols/ipv6_flow.h"
 
@@ -52,9 +52,9 @@ uint_fast24_t ipv6_flow_5tuple(const uint8_t src_addr[static 16],
      * the "reverse" function on the IP addresses, and we use the same reverse
      * for the other 3 tuple members to re-use the code.
      */
-    hash = fnv_hash_1a_32_reverse_block(src_addr, 16);
-    hash = fnv_hash_1a_32_reverse_block_update(hash, dst_addr, 16);
-    hash = fnv_hash_1a_32_reverse_block_update(hash, bytes, sizeof bytes);
+    hash = fnv_hash_reverse_32_init(src_addr, 16);
+    hash = fnv_hash_reverse_32_update(dst_addr, 16, hash);
+    hash = fnv_hash_reverse_32_update(bytes, sizeof(bytes), hash);
 
     return fold_32_to_flow(hash);
 }
@@ -71,9 +71,9 @@ uint_fast24_t ipv6_flow_2tuple_flow(const uint8_t src_addr[static 16],
     flow &= 0xFFFFF;
     const uint8_t bytes[] = { flow >> 16, flow >> 8, flow };
 
-    hash = fnv_hash_1a_32_reverse_block(bytes, sizeof bytes);
-    hash = fnv_hash_1a_32_reverse_block_update(hash, src_addr, 16);
-    hash = fnv_hash_1a_32_reverse_block_update(hash, dst_addr, 16);
+    hash = fnv_hash_reverse_32_init(bytes, sizeof(bytes));
+    hash = fnv_hash_reverse_32_update(src_addr, 16, hash);
+    hash = fnv_hash_reverse_32_update(dst_addr, 16, hash);
 
     return fold_32_to_flow(hash);
 }
