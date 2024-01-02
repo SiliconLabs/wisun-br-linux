@@ -15,13 +15,14 @@
 #include <termios.h>
 #include <sys/file.h>
 
-#include "endian.h"
-#include "crc.h"
-#include "log.h"
-#include "utils.h"
-#include "os_types.h"
+#include "common/endian.h"
+#include "common/crc.h"
+#include "common/log.h"
+#include "common/utils.h"
+#include "common/os_types.h"
+#include "common/hif.h"
+
 #include "bus_uart.h"
-#include "hif.h"
 
 int uart_open(const char *device, int bitrate, bool hardflow)
 {

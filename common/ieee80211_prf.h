@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef IEEE80211_PRF_H
 #define IEEE80211_PRF_H
 #include <stdint.h>

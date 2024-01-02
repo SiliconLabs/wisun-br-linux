@@ -12,7 +12,6 @@
  */
 #ifndef NETINET_IN_EXTRA_H
 #define NETINET_IN_EXTRA_H
-
 #include <netinet/in.h>
 
 /*

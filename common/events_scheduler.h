@@ -14,6 +14,7 @@
 #define EVENTS_SCHEDULER_H
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "common/ns_list.h"
 
 struct event_payload {

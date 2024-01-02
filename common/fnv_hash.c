@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "fnv_hash.h"
 
 uint32_t fnv_hash_reverse_32_update(const uint8_t *data, size_t len, uint32_t hash)

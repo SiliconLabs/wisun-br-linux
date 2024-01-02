@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <mbedtls/nist_kw.h>
+
 #include "nist_kw.h"
 
 int nist_kw_core(bool is_wrap, const uint8_t *key, size_t key_bits,

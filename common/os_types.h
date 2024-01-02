@@ -12,15 +12,14 @@
  */
 #ifndef COMMON_OS_TYPES_H
 #define COMMON_OS_TYPES_H
-
 #include <stdint.h>
 #include <stdbool.h>
+
 #ifdef HAVE_LIBCPC
 #include <sl_cpc.h>
 #endif
 
 struct slist;
-
 
 struct retransmission_frame {
     uint8_t frame[2048];

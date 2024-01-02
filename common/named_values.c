@@ -10,7 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "log.h"
+#include "common/log.h"
+
 #include "named_values.h"
 
 const char *val_to_str(int val, const struct name_value table[], const char *def)

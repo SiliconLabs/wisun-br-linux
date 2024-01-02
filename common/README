@@ -1,0 +1,10 @@
+
+Files in this directory are considered as self-contained. They obey to these
+rules:
+  - They only include system headers or headers from common/
+  - The tree of dependencies is acyclic
+  - Each .c file has a unique .h file with the same name (.h files can exists
+    without associated .c file)
+  - They provide a well defined interface
+  - Each .h file starts with a functionnal description of the component
+  - They comply with the coding style of the project

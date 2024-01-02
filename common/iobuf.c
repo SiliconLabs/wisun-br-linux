@@ -10,12 +10,13 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
 #include <stdlib.h>
 #include <string.h>
+
 #include "common/endian.h"
 #include "common/utils.h"
 #include "common/log.h"
+
 #include "iobuf.h"
 
 static void iobuf_enlarge_buffer(struct iobuf_write *buf, size_t new_data_size) {

@@ -15,8 +15,10 @@
 #include <string.h>
 #include <errno.h>
 #include <netdb.h>
+
+#include "common/log.h"
+
 #include "parsers.h"
-#include "log.h"
 
 static int set_bitmask(uint8_t *out, int size, int shift)
 {

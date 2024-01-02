@@ -12,7 +12,6 @@
  */
 #ifndef COMMON_UTILS_H
 #define COMMON_UTILS_H
-
 #include <stddef.h>
 
 #define MIN(x, y) ({ \

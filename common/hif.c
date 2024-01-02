@@ -17,6 +17,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/utils.h"
+
 #include "hif.h"
 
 void hif_push_bool(struct iobuf_write *buf, bool val)

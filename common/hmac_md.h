@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef HMAC_MD_H
 #define HMAC_MD_H
 #include <stdint.h>

@@ -14,8 +14,9 @@
 
 #include "common/os_types.h"
 #include "common/log.h"
-#include "common/bus_cpc.h"
 #include "common/hif.h"
+
+#include "bus_cpc.h"
 
 static void cpc_reset_callback(void)
 {

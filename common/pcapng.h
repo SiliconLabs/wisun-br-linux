@@ -12,14 +12,15 @@
  */
 #ifndef PCAPNG_H
 #define PCAPNG_H
-
-// The pcapng format is specified in draft-tuexen-opsawg-pcapng
-// https://datatracker.ietf.org/doc/html/draft-tuexen-opsawg-pcapng-05
-// Only features required by the Wi-SUN TBU are implemented.
-
 #include <stdint.h>
 #include <alloca.h>
 #include <time.h>
+
+/*
+ * The pcapng format is specified in draft-tuexen-opsawg-pcapng
+ * https://datatracker.ietf.org/doc/html/draft-tuexen-opsawg-pcapng-05
+ * Only features required by the Wi-SUN TBU are implemented.
+ */
 
 // Link types defined in draft-richardson-opsawg-pcaplinktype
 // https://datatracker.ietf.org/doc/html/draft-richardson-opsawg-pcaplinktype-00

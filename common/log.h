@@ -12,7 +12,6 @@
  */
 #ifndef COMMON_LOG_H
 #define COMMON_LOG_H
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -21,7 +20,7 @@
 #include <signal.h>
 #include <time.h>
 
-#include "backtrace_show.h"
+#include "common/backtrace_show.h"
 
 /*
  * Use BUG() and BUG_ON() in the same ways than assert(). Consider this

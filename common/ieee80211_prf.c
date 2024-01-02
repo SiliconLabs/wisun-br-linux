@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
+
 #include "common/log_legacy.h"
 #include "common/hmac_md.h"
 

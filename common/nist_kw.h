@@ -17,7 +17,6 @@
  */
 #ifndef NIST_KW_H
 #define NIST_KW_H
-
 #include <stdint.h>
 #include <stddef.h>
 

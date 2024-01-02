@@ -12,7 +12,6 @@
  */
 #ifndef BUS_UART_H
 #define BUS_UART_H
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

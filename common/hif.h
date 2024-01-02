@@ -14,6 +14,7 @@
 #define SPINEL_BUFFER_H
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 struct iobuf_read;
 struct iobuf_write;

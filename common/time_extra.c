@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
 #include <time.h>
 
 time_t time_current(clockid_t clockid)

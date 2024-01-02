@@ -12,7 +12,6 @@
  */
 #ifndef SEQNO_H
 #define SEQNO_H
-
 #include <stdint.h>
 
 /*

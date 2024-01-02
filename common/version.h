@@ -12,7 +12,6 @@
  */
 #ifndef COMMON_VERSION_H
 #define COMMON_VERSION_H
-
 #include <stdint.h>
 #include <stdbool.h>
 

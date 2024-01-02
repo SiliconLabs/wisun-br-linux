@@ -15,17 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * trickle.h
- *
- * Implement a generic RFC 6206 Trickle Algorithm
- */
-
 #ifndef TRICKLE_H_
 #define TRICKLE_H_
-
 #include <stdint.h>
 #include <stdbool.h>
+
+/*
+ * Implement a generic RFC 6206 Trickle Algorithm
+ */
 
 /* Trickle time is in arbitrary ticks - users can choose appropriate size
  * per algorithm implementation.

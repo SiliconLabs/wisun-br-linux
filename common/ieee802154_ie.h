@@ -12,7 +12,6 @@
  */
 #ifndef IEEE802154_IE_H
 #define IEEE802154_IE_H
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

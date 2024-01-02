@@ -12,7 +12,6 @@
  */
 #ifndef SYS_QUEUE_EXTRA_H
 #define SYS_QUEUE_EXTRA_H
-
 #include <sys/queue.h>
 #include <stddef.h>
 

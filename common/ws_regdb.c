@@ -11,7 +11,9 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <stddef.h>
-#include "utils.h"
+
+#include "common/utils.h"
+
 #include "ws_regdb.h"
 
 const struct phy_params phy_params_table[] = {

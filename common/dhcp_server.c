@@ -14,11 +14,12 @@
 #include <netinet/in.h>
 #include <net/if.h>
 #include <errno.h>
+
 #include "common/log.h"
+#include "common/iobuf.h"
 #include "common/named_values.h"
 
 #include "dhcp_server.h"
-#include "iobuf.h"
 
 // Messages types (RFC3315, section 5.3)
 #define DHCPV6_MSG_SOLICIT      1

@@ -12,7 +12,6 @@
  */
 #ifndef WS_REGDB_H
 #define WS_REGDB_H
-
 #include <stdint.h>
 #include <stdbool.h>
 

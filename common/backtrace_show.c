@@ -13,6 +13,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <backtrace.h>
 
 #ifdef HAVE_LIBDL

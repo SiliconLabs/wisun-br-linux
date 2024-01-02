@@ -12,7 +12,6 @@
  */
 #ifndef COMMON_CRC_H
 #define COMMON_CRC_H
-
 #include <stdbool.h>
 #include <stdint.h>
 

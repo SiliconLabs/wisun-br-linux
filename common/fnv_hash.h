@@ -17,7 +17,6 @@
  */
 #ifndef FNV_HASH_H
 #define FNV_HASH_H
-
 #include <stdint.h>
 #include <stddef.h>
 

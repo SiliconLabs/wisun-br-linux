@@ -10,10 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
 #ifndef TIME_EXTRA_H
 #define TIME_EXTRA_H
-
 #include <time.h>
 
 time_t time_current(clockid_t clockid);

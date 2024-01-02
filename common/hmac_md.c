@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <string.h>
 #include <stdint.h>
 #include <errno.h>
 #include <mbedtls/md.h>
+
 #include "common/endian.h"
 #include "common/log.h"
 

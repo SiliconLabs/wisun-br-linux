@@ -16,6 +16,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/utils.h"
+
 #include "spinel.h"
 
 const char *spinel_cmd_str(int cmd)

@@ -17,7 +17,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "bits.h"
+#include "common/bits.h"
+
 #include "log.h"
 
 FILE *g_trace_stream = NULL;

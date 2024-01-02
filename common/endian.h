@@ -13,7 +13,8 @@
 #ifndef COMMON_ENDIAN_H
 #define COMMON_ENDIAN_H
 #include <stdint.h>
-#include "int24.h"
+
+#include "common/int24.h"
 
 /*
  * Convert native numbers to/from little/big endian. These functions are only

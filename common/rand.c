@@ -18,7 +18,7 @@
 #include <limits.h>
 #include <sys/random.h>
 
-#include "log.h"
+#include "common/log.h"
 
 #include "rand.h"
 

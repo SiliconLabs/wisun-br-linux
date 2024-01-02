@@ -12,7 +12,6 @@
  */
 #ifndef COMMON_INT24_H
 #define COMMON_INT24_H
-
 #include <stdint.h>
 
 /* Try to mimic 24bits numbers. These types are used in several Wi-SUN IEs. So,

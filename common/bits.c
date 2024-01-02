@@ -12,6 +12,7 @@
  */
 #include <stdint.h>
 #include <string.h>
+
 #include "bits.h"
 
 void *bitfill(void *dst, bool val, size_t start, size_t end)

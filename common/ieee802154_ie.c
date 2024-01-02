@@ -17,6 +17,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/utils.h"
+
 #include "ieee802154_ie.h"
 
 static inline int ieee802154_ie_push(struct iobuf_write *buf, bool type, uint8_t id, uint16_t id_mask)

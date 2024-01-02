@@ -17,6 +17,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <glob.h>
+
 #include "common/log.h"
 
 #include "key_value_storage.h"
