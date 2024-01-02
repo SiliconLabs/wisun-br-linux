@@ -627,7 +627,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     }
 
     memset(entry, 0, sizeof * entry);
-    entry->cb = NULL;
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
     entry->source = source;
@@ -667,9 +666,6 @@ void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_call
 {
     ns_list_foreach(addr_notification_t, n, &addr_notifications) {
         n->fn(interface, addr, reason);
-    }
-    if (addr->cb) {
-        addr->cb(interface, addr, reason);
     }
 }
 
@@ -729,7 +725,7 @@ bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in)
     return true;
 }
 
-int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
+int addr_interface_set_ll64(struct net_if *cur)
 {
     int ret_val = -1;
     if_address_entry_t *address_entry = NULL;
@@ -741,7 +737,6 @@ int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;
-        address_entry->cb = cb;
         addr_cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
     }
     return ret_val;

@@ -313,7 +313,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     ws_bootstrap_ll_address_validate(cur);
 
-    addr_interface_set_ll64(cur, NULL);
+    addr_interface_set_ll64(cur);
     // Trigger discovery for bootstrap
     ret_val = protocol_6lowpan_up(cur);
     if (ret_val) {

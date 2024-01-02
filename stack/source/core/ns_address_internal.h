@@ -67,7 +67,6 @@ typedef enum if_address_callback {
     ADDR_CALLBACK_REFRESHED,    // valid lifetime updated (up or down, aside from usual expiry)
 } if_address_callback_e;
 
-typedef void if_address_callback_fn(struct net_if *interface, struct if_address_entry *addr, if_address_callback_e reason);
 typedef void if_address_notification_fn(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason);
 
 typedef struct if_address_entry {
@@ -77,7 +76,6 @@ typedef struct if_address_entry {
     bool temporary: 1;          // RFC 4941 temporary address
     bool group_added: 1;        // Solicited-Node group added
     if_address_source_e source; //
-    if_address_callback_fn *cb; // Address protocol callback function
     void *data;                 // Address protocol data
     ns_list_link_t link;
 } if_address_entry_t;
@@ -138,7 +136,7 @@ bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
 
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len);
 
-int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb);
+int addr_interface_set_ll64(struct net_if *cur);
 
 /* address_type 0 means "any" address - we return short by preference */
 /* address_type 1 means long address - we ignore short addresses */
