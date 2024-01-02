@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef _COMMON_PROTOCOLS_IP_H
-#define _COMMON_PROTOCOLS_IP_H
+#ifndef SPECS_IP_H
+#define SPECS_IP_H
 
 /* Traffic class octet defines */
 #define IP_TCLASS_DSCP_MASK     0xFC
@@ -55,4 +54,4 @@
 #define IP_ECN_ECT_0        2 // ECN-Capable Transport(0)
 #define IP_ECN_CE           3 // Congestion Experienced
 
-#endif /* _COMMON_PROTOCOLS_IP_H */
+#endif

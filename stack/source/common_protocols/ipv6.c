@@ -27,6 +27,7 @@
 #include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
+#include "common/specs/ip.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
@@ -38,7 +39,6 @@
 #include "rpl/rpl_glue.h"
 #include "mpl/mpl.h"
 
-#include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
 

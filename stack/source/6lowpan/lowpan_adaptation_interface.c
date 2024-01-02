@@ -27,6 +27,7 @@
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
+#include "common/specs/ip.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
@@ -40,7 +41,6 @@
 #include "core/ns_error_types.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "common_protocols/ip.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"

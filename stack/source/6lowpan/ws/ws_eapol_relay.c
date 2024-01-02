@@ -28,7 +28,6 @@
 #include "common/specs/ipv6.h"
 
 #include "nwk_interface/protocol.h"
-#include "common_protocols/ip.h"
 #include "core/ns_address.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"

@@ -28,10 +28,10 @@
 #include "common/endian.h"
 #include "common/events_scheduler.h"
 #include "common/sys_queue_extra.h"
+#include "common/specs/ip.h"
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
-#include "common_protocols/ip.h"
 #include "core/net_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

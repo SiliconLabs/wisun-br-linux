@@ -27,6 +27,7 @@
 #include "common/endian.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
+#include "common/specs/ip.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -37,7 +38,6 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/ws/ws_common.h"
 
-#include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
 
 #include "common_protocols/icmpv6.h"

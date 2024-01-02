@@ -32,6 +32,7 @@
 #include "common/specs/ws.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ip.h"
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
@@ -43,7 +44,6 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
 #include "core/net_interface.h"
-#include "common_protocols/ip.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
