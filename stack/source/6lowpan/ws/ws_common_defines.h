@@ -22,7 +22,6 @@
 #include <stdbool.h>
 #include "common/bits.h"
 #include "common/int24.h"
-#include "security/protocols/sec_prot.h" /* gtkhash_t */
 
 /* WS excluded channel Control */
 #define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
@@ -245,7 +244,7 @@ typedef struct ws_lfnver_ie {
 typedef struct ws_lgtkhash_ie {
     unsigned active_lgtk_index: 2; /**< Indicate Active LGTK index 0-2 */
     uint8_t valid_hashs;           /**< Valid entries */
-    gtkhash_t gtkhashs[4];         /**< A generic struct to handle GTKs */
+    uint8_t gtkhashs[8][4];        /**< A generic struct to handle GTKs */
 } ws_lgtkhash_ie_t;
 
 typedef struct ws_lbats_ie {

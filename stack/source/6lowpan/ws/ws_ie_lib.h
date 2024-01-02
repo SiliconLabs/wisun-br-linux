@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/int24.h"
+#include "security/protocols/sec_prot.h"
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct iobuf_write;
