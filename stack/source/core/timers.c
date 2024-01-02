@@ -48,7 +48,6 @@ struct ws_timer g_timers[] = {
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),
-    timer_entry(6LOWPAN_BOOTSTRAP,      nwk_bootstrap_timer,                        100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
     timer_entry(LPA,                    ws_mngt_lpa_timer_cb,                       0,                       false),
     timer_entry(LTS,                    ws_mngt_lts_timer_cb,                       0,                       true),

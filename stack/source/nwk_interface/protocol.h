@@ -212,7 +212,6 @@ void net_bootstrap_cb_run(uint8_t event);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 
-void nwk_bootstrap_timer(int ticks);
 void icmp_fast_timer(int ticks);
 void update_reachable_time(int seconds);
 

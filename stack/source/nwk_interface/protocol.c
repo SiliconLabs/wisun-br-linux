@@ -84,17 +84,6 @@ void protocol_root_tasklet(struct event_payload *event)
     net_bootstrap_cb_run(event->event_id);
 }
 
-void nwk_bootstrap_timer(int ticks)
-{
-    struct net_if *cur = protocol_stack_interface_info_get();
-
-    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
-    if (cur->bootstrap_state_machine_cnt && cur->bootstrap_state_machine_cnt-- == 1)
-        net_bootstrap_cb_run(cur->id);
-}
-
 void icmp_fast_timer(int ticks)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -137,7 +126,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_SLOW);
     ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_FAST);
     ws_timer_start(WS_TIMER_6LOWPAN_CONTEXT);
-    ws_timer_start(WS_TIMER_6LOWPAN_BOOTSTRAP);
     ws_timer_start(WS_TIMER_6LOWPAN_REACHABLE_TIME);
     ws_timer_start(WS_TIMER_WS_COMMON_FAST);
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
