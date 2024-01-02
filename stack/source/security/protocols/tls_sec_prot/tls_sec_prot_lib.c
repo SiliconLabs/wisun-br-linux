@@ -99,9 +99,6 @@ static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, m
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 #endif
 
-#define is_server_is_set (is_server == true)
-#define is_server_is_not_set (is_server == false)
-
 int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 {
     const char *pers = "ws_tls";
@@ -291,16 +288,16 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     }
 
 #if (MBEDTLS_VERSION_MAJOR < 3)
-    if (is_server_is_not_set) {
+    if (!is_server) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_server_verify;
     }
-    if (is_server_is_set) {
+    if (is_server) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_idevid_ldevid_verify;
     }
 #endif
 
     if ((mbedtls_ssl_config_defaults(&sec->conf,
-                                     is_server_is_set ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT,
+                                     is_server ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT,
                                      MBEDTLS_SSL_TRANSPORT_STREAM, 0)) != 0) {
         tr_error("config defaults fail");
         return -1;
