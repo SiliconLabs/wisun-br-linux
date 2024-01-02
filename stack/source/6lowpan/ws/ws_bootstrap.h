@@ -26,7 +26,6 @@
 
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
-    WS_DISCOVERY_START,      /**< discovery start*/
 } ws_bootstrap_event_type_e;
 
 typedef enum {
