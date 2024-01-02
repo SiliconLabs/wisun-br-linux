@@ -473,7 +473,7 @@ def put_config_border_router_gtks():
                     i = j
             if i < 0:
                 return
-            keys_cur = getattr(wsbrd.dbus(), key_name)
+            keys_cur = getattr(wsbrd.dbus(), f'{key_name}s')
             if keys_cur[i] != bytes(16):
                 return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: key already installed')
             if keys_cur[(i + key_count - 1) % key_count] == bytes(16):
