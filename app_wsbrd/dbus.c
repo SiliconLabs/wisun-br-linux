@@ -43,12 +43,16 @@
 
 static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
-    int ret;
+    struct wsbr_ctxt *ctxt = userdata;
     uint8_t mode;
+    int ret;
 
     ret = sd_bus_message_read(m, "y", &mode);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
+
+    if (!version_older_than(ctxt->rcp.version_api, 2, 0, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
 
     if (mode == 0)
         rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);

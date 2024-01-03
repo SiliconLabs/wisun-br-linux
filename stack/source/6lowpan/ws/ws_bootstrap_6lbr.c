@@ -389,7 +389,8 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_6lbr_fhss_configure(cur);
     ws_bootstrap_set_domain_rf_config(cur);
     ws_bootstrap_fhss_activate(cur);
-    rcp_legacy_set_fhss_hop_count(0);
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_fhss_hop_count(0);
 
     ws_bootstrap_6lbr_print_config(cur);
     INFO("");

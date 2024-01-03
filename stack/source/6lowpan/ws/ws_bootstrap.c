@@ -169,9 +169,11 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    rcp_legacy_allocate_fhss(&cur->ws_info.fhss_conf);
-    rcp_legacy_register_fhss();
-    rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_allocate_fhss(&cur->ws_info.fhss_conf);
+        rcp_legacy_register_fhss();
+        rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+    }
     return 0;
 }
 
