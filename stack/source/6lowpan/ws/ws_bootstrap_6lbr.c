@@ -333,7 +333,8 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
 
 void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
-    rcp_legacy_reset_stack();
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        rcp_legacy_reset_stack();
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
     //Clear Pending Key Index State
