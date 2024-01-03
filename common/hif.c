@@ -108,6 +108,12 @@ void hif_push_u16(struct iobuf_write *buf, uint16_t val)
     TRACE(TR_HIF_EXTRA, "hif tx:      u16: %u", val);
 }
 
+void hif_push_u24(struct iobuf_write *buf, uint24_t val)
+{
+    iobuf_push_le24(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      u24: %u", val);
+}
+
 void hif_push_i16(struct iobuf_write *buf, int16_t val)
 {
     iobuf_push_le16(buf, (uint16_t)val);
@@ -259,6 +265,15 @@ void hif_pop_fixed_u16_array(struct iobuf_read *buf, uint16_t *val, int num)
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:  u16[%2d]: %s", num,
             tr_bytes(iobuf_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+}
+
+uint24_t hif_pop_u24(struct iobuf_read *buf)
+{
+    uint24_t val = iobuf_pop_le24(buf);
+
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      u24: %u", val);
+    return val;
 }
 
 uint32_t hif_pop_u32(struct iobuf_read *buf)

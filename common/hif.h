@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "common/int24.h"
+
 struct iobuf_read;
 struct iobuf_write;
 
@@ -70,6 +72,7 @@ void hif_push_bool(struct iobuf_write *buf, bool val);
 void hif_push_uint(struct iobuf_write *buf, unsigned int val);
 void hif_push_u8(struct iobuf_write *buf, uint8_t val);
 void hif_push_u16(struct iobuf_write *buf, uint16_t val);
+void hif_push_u24(struct iobuf_write *buf, uint24_t val);
 void hif_push_u32(struct iobuf_write *buf, uint32_t val);
 void hif_push_u64(struct iobuf_write *buf, uint64_t val);
 void hif_push_i8(struct iobuf_write *buf, int8_t val);
@@ -86,6 +89,7 @@ bool hif_pop_bool(struct iobuf_read *buf);
 unsigned int hif_pop_uint(struct iobuf_read *buf);
 uint8_t  hif_pop_u8(struct iobuf_read *buf);
 uint16_t hif_pop_u16(struct iobuf_read *buf);
+uint24_t hif_pop_u24(struct iobuf_read *buf);
 uint32_t hif_pop_u32(struct iobuf_read *buf);
 uint64_t hif_pop_u64(struct iobuf_read *buf);
 int8_t   hif_pop_i8(struct iobuf_read *buf);
