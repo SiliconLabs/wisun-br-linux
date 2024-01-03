@@ -18,6 +18,7 @@
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/spinel.h"
+#include "common/string_extra.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
 #include "rcp_api.h"
@@ -211,6 +212,40 @@ void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
         rcp_legacy_set_edfe_mode(reg != HIF_REG_ARIB);
     } else {
         __rcp_set_radio_regulation(rcp, reg);
+    }
+}
+
+static void __rcp_set_sec_key(struct rcp *rcp,
+                              uint8_t key_index,
+                              const uint8_t key[16],
+                              uint32_t frame_counter)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_SEC_KEY);
+    hif_push_u8(&buf, key_index);
+    hif_push_fixed_u8_array(&buf, key ? : (uint8_t[16]){ }, 16);
+    hif_push_u32(&buf, frame_counter);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_sec_key(struct rcp *rcp,
+                     uint8_t key_index,
+                     const uint8_t key[16],
+                     uint32_t frame_counter)
+{
+    const uint8_t lookup_data[9] = {
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, key_index
+    };
+
+    BUG_ON(key_index < 1 || key_index > 7);
+    if (version_older_than(rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_set_key(key_index - 1, lookup_data, key);
+        if (key && !memzcmp(key, 16))
+            rcp_legacy_set_frame_counter(key_index - 1, frame_counter);
+    } else {
+        __rcp_set_sec_key(rcp, key_index, key, frame_counter);
     }
 }
 

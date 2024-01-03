@@ -420,21 +420,13 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     const uint8_t key[16],
                                     uint32_t frame_counter)
 {
-    uint8_t lookup_data[9] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, key_index };
-    uint8_t key_slot;
-
     BUG_ON(key_index < 1 || key_index > 7);
-    key_slot = key_index - 1;
     // Firmware API < 0.15 crashes if slots > 3 are accessed
-    if (!cur->ws_info.enable_lfn && key_slot > 3)
+    if (!cur->ws_info.enable_lfn && key_index > 4)
         return;
-    if (key) {
-        rcp_legacy_set_key(key_slot, lookup_data, key);
-        rcp_legacy_set_frame_counter(key_slot, frame_counter);
+    rcp_set_sec_key(cur->rcp, key_index, key, frame_counter);
+    if (key)
         dbus_emit_keys_change(&g_ctxt);
-    } else {
-        rcp_legacy_set_key(key_slot, NULL, NULL);
-    }
 }
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)

@@ -68,4 +68,9 @@ void rcp_req_radio_list(struct rcp *rcp);
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 
+void rcp_set_sec_key(struct rcp *rcp,
+                     uint8_t key_index,
+                     const uint8_t key[16],
+                     uint32_t frame_counter);
+
 #endif
