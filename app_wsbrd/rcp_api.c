@@ -16,6 +16,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/spinel.h"
 #include "common/version.h"
 #include "rcp_api.h"
 
@@ -54,9 +55,12 @@ void rcp_rx(struct rcp *rcp)
     if (!buf.data_size)
         return;
     cmd = hif_pop_u8(&buf);
-    TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(cmd),
-          tr_bytes(iobuf_ptr(&buf), iobuf_remaining_size(&buf),
-                   NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    if (cmd == 0xff)
+        spinel_trace(buf.data, buf.data_size, "hif rx: ");
+    else
+        TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(cmd),
+              tr_bytes(iobuf_ptr(&buf), iobuf_remaining_size(&buf),
+                       NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
     for (int i = 0; i < ARRAY_SIZE(rcp_cmd_table); i++)
         if (rcp_cmd_table[i].cmd == cmd)
             return rcp_cmd_table[i].fn(rcp, &buf);
