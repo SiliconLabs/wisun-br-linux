@@ -24,9 +24,6 @@
  * Calculate HMAC-SHA1-160 or HMAC-MD5. It is mainly used for the hash of the
  * authentication keys.
  *
- * The hmac_md_tlv_* variants expect to get TLV data as input. The length is
- * automatically retrieved from the bytes 2-3 of the payload.
- *
  * This function is mainly a wrapper around mbedtls_md_*(). Parameters are
  * described in mbedtls/md.h.
  *
@@ -39,12 +36,5 @@ int hmac_md_sha1(const uint8_t *key, size_t key_len,
 int hmac_md_md5(const uint8_t *key, size_t key_len,
                 const uint8_t *data, size_t data_len,
                 uint8_t *result, size_t result_len);
-
-int hmac_md_tlv_sha1(const uint8_t *key, size_t key_len,
-                     const uint8_t *data, size_t max_data_len,
-                     uint8_t *result, size_t result_len);
-int hmac_md_tlv_md5(const uint8_t *key, size_t key_len,
-                    const uint8_t *data, size_t max_data_len,
-                    uint8_t *result, size_t result_len);
 
 #endif
