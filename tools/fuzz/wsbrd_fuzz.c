@@ -41,6 +41,7 @@ struct fuzz_ctxt g_fuzz_ctxt = {
         { -1, -1 },
         { -1, -1 },
         { -1, -1 },
+        { -1, -1 },
     },
     .capture_fd      = -1,
     .capture_init_fd = -1,
