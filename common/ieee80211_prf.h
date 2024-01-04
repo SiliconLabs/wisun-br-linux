@@ -29,7 +29,7 @@
  */
 
 int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
-                  const uint8_t *input, size_t input_len,
+                  const uint8_t *data, size_t data_len,
                   uint8_t *result, size_t result_size);
 
 #endif

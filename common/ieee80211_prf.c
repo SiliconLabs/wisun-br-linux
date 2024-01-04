@@ -21,34 +21,33 @@
 
 #include "common/log_legacy.h"
 #include "common/hmac_md.h"
+#include "common/mathutils.h"
 
 #include "ieee80211_prf.h"
 
 int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
-                  const uint8_t *input, size_t input_len,
+                  const uint8_t *data, size_t data_len,
                   uint8_t *result, size_t result_size)
 {
-    int num_bits = result_size * 8;
-    int buffer_len = strlen(label) + 1 + input_len + 1;
-    uint8_t buffer[buffer_len];
-    int res_len = 160 / 8 * (num_bits + 159) / 160;
-    uint8_t res_raw[res_len];
-    uint8_t *res_ptr = res_raw;
-    int ret;
-    int i;
+    // Original algorithm works on block of 160 bits. This implementation refers
+    // to 20 bytes instead.
+    int input_len = strlen(label) + 1 + data_len + 1;
+    int output_len = roundup(result_size, 20);
+    uint8_t input[input_len];
+    uint8_t output[output_len];
+    int ret, i;
 
-    BUG_ON(result_size > res_len);
-    strcpy((char *)buffer, label);                        // A
-    buffer[strlen(label) + 1] = 0;                        // Y
-    memcpy(buffer + strlen(label) + 1, input, input_len); // B
-    for (i = 0; i < (num_bits + 159) / 160; i++) {
-        buffer[strlen(label) + 1 + input_len] = i;        // X
-        ret = hmac_md_sha1(key, key_len, buffer, buffer_len, res_ptr, 20);
+    BUG_ON(result_size > output_len);
+    strcpy((char *)input, label);                      // A
+    input[strlen(label) + 1] = 0;                      // Y
+    memcpy(input + strlen(label) + 1, data, data_len); // B
+    for (i = 0; i < output_len / 20; i++) {
+        input[strlen(label) + 1 + data_len] = i;       // X
+        ret = hmac_md_sha1(key, key_len, input, input_len, output + i * 20, 20);
         if (ret < 0)
             return ret;
-        res_ptr += 160 / 8;
     }
 
-    memcpy(result, res_raw, result_size);
+    memcpy(result, output, result_size);
     return 0;
 }
