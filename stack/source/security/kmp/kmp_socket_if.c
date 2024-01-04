@@ -281,6 +281,7 @@ void kmp_socket_if_pae_socket_cb(int fd)
             free(pdu);
             return;
         }
+        data_len -= SOCKET_IF_HEADER_SIZE;
     }
 
     kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, data_len, connection_num);
