@@ -50,6 +50,7 @@ static struct {
     { IF_EAPOL_RELAY,    ws_bbr_eapol_auth_relay_get_socket_fd, -1 },
     { IF_BR_EAPOL_RELAY, ws_bbr_eapol_relay_get_socket_fd,      -1 },
     { IF_PAE_AUTH,       kmp_socket_if_get_pae_socket_fd,       -1 },
+    { IF_RADIUS,         kmp_socket_if_get_radius_sockfd,       -1 },
     { IF_RPL,            fuzz_rpl_get_socket_fd,                -1 },
 };
 static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries for capture/replay");

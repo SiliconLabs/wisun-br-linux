@@ -14,7 +14,7 @@
 #define FUZZ_INTERFACES_H
 #include <stdint.h>
 
-#define IF_SOCKET_COUNT 5
+#define IF_SOCKET_COUNT 6
 
 struct wsbr_ctxt;
 struct fuzz_ctxt;
@@ -26,6 +26,7 @@ enum {
     IF_EAPOL_RELAY,
     IF_BR_EAPOL_RELAY,
     IF_PAE_AUTH,
+    IF_RADIUS,
     IF_RPL,
 };
 
