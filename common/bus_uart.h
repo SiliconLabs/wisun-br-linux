@@ -19,6 +19,10 @@
 struct os_ctxt;
 
 int uart_open(const char *device, int bitrate, bool hardflow);
+
+int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
+int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+
 int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
 int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 void uart_legacy_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter);

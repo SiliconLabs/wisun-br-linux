@@ -15,6 +15,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define CRC_INIT_HCS      0xffff
+#define CRC_INIT_FCS      0xc6c6
 #define CRC_INIT_LEGACY   0xffff
 #define CRC_XOROUT_LEGACY 0xffff
 

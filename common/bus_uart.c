@@ -14,8 +14,11 @@
 #include <unistd.h>
 #include <termios.h>
 #include <sys/file.h>
+#include <sys/uio.h>
 
+#include "common/bits.h"
 #include "common/endian.h"
+#include "common/iobuf.h"
 #include "common/crc.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -95,6 +98,74 @@ static void uart_read(struct os_ctxt *ctxt)
           tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
                    size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
     ctxt->uart_rx_buf_len += size;
+}
+
+#define UART_HDR_LEN_MASK 0x07ff
+
+int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+{
+    uint8_t hdr[4], fcs[2];
+    const struct iovec iov[] = {
+        { .iov_base = hdr,         .iov_len = sizeof(hdr) },
+        { .iov_base = (void *)buf, .iov_len = buf_len     },
+        { .iov_base = fcs,         .iov_len = sizeof(fcs) },
+    };
+    ssize_t ret;
+
+    BUG_ON(buf_len > FIELD_MAX(UART_HDR_LEN_MASK));
+    write_le16(hdr,     buf_len);
+    write_le16(hdr + 2, crc16(CRC_INIT_HCS, hdr, 2));
+    write_le16(fcs,     crc16(CRC_INIT_FCS, buf, buf_len));
+
+    ret = writev(ctxt->data_fd, iov, ARRAY_SIZE(iov));
+    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
+    if (ret != sizeof(hdr) + buf_len + sizeof(fcs))
+        FATAL(2 ,"%s: write: Short write", __func__);
+
+    TRACE(TR_BUS, "bus tx: %s %s %02x %02x (%zd bytes)",
+          tr_bytes(hdr, sizeof(hdr), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR),
+          tr_bytes(buf, buf_len,     NULL, 128, DELIM_SPACE | ELLIPSIS_STAR),
+          fcs[0], fcs[1], sizeof(hdr) + buf_len + sizeof(fcs));
+
+    return ret;
+}
+
+int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+{
+    struct iobuf_read iobuf = { };
+    const uint8_t *hdr;
+    uint16_t len, fcs;
+
+    if (!ctxt->uart_data_ready)
+        uart_read(ctxt);
+    ctxt->uart_data_ready = false;
+    iobuf.data      = ctxt->uart_rx_buf;
+    iobuf.data_size = ctxt->uart_rx_buf_len;
+    hdr = iobuf_pop_data_ptr(&iobuf, 4);
+    if (iobuf.err)
+        return 0;
+    if (!crc_check(CRC_INIT_HCS, hdr, 2, read_le16(hdr + 2))) {
+        memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + 1, ctxt->uart_rx_buf_len - 1);
+        ctxt->uart_rx_buf_len -= 1;
+        ctxt->uart_data_ready = true;
+        return 0;
+    }
+    len = FIELD_GET(UART_HDR_LEN_MASK, read_le16(hdr));
+    BUG_ON(buf_len < len);
+    iobuf_pop_data(&iobuf, buf, len);
+    fcs = iobuf_pop_le16(&iobuf);
+    if (iobuf.err)
+        return 0; // Frame not fully received
+    ctxt->uart_data_ready = true;
+    if (!crc_check(CRC_INIT_FCS, buf, len, fcs)) {
+        memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + 1, ctxt->uart_rx_buf_len - 1);
+        ctxt->uart_rx_buf_len -= 1;
+        TRACE(TR_DROP, "drop %-9s: bad fcs", "uart");
+        return 0;
+    }
+    memmove(ctxt->uart_rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+    ctxt->uart_rx_buf_len = iobuf_remaining_size(&iobuf);
+    return len;
 }
 
 static int uart_legacy_tx_append(uint8_t *buf, uint8_t byte)
