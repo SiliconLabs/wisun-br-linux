@@ -440,13 +440,13 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    ws_neigh->mac_data.lifetime = ws_neigh->mac_data.link_lifetime;
+                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.link_lifetime);
                 ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp,
                                             ws_neigh->mac_data.mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    ws_neigh->mac_data.lifetime = ws_neigh->mac_data.link_lifetime;
+                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.link_lifetime);
                 ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                              confirm->timestamp, ws_neigh->mac_data.mac64);
             }
