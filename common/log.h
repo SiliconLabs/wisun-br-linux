@@ -108,6 +108,7 @@ enum {
 #define STR_MAX_LEN_IPV4_NET     19
 #define STR_MAX_LEN_EUI64        24
 #define STR_MAX_LEN_EUI48        18
+#define STR_MAX_LEN_DATE         29
 
 enum str_bytes_options {
     DELIM_SPACE     = 0x001, // Add space between each bytes
@@ -132,6 +133,7 @@ char *str_ipv6(const uint8_t in[16], char out[STR_MAX_LEN_IPV6]);
 char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[STR_MAX_LEN_IPV4_NET]);
 char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[STR_MAX_LEN_IPV6_NET]);
 char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
+char *str_date(time_t tstamp, char out[STR_MAX_LEN_DATE]);
 
 const char *tr_key(const uint8_t in[], int in_len);
 const char *tr_eui48(const uint8_t in[6]);

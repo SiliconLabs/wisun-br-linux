@@ -149,6 +149,15 @@ char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MA
     return out;
 }
 
+char *str_date(time_t tstamp, char out[STR_MAX_LEN_DATE])
+{
+    struct tm *tm;
+
+    tm = localtime(&tstamp);
+    strftime(out, STR_MAX_LEN_DATE, "%c %Z", tm);
+    return out;
+}
+
 static __thread char trace_buffer[256];
 static __thread int trace_idx = 0;
 /*
