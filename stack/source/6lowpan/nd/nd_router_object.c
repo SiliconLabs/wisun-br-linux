@@ -60,13 +60,10 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
         }
     } else {
-        /* Um, no - can't transmit response if we remove NCE now! */
-        //ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache, neigh);
-        neigh->type = IP_NEIGHBOUR_TENTATIVE;
-        neigh->lifetime = 2;
+        // Both ws_neighbor and ipv6_neighbor entries will be released by garbage collectors
+        neigh->lifetime = 0;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
