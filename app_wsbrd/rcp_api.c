@@ -12,12 +12,14 @@
  */
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api_legacy.h"
+#include "common/bits.h"
 #include "common/hif.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/spinel.h"
 #include "common/version.h"
+#include "common/ws_regdb.h"
 #include "rcp_api.h"
 
 uint8_t rcp_rx_buf[4096];
@@ -110,13 +112,64 @@ void rcp_req_radio_list(struct rcp *rcp)
         __rcp_req_radio_list(rcp);
 }
 
+#define HIF_MASK_RADIO_LIST_GROUP 0x0001
+#define HIF_MASK_RADIO_LIST_MCS   0x01fe
+
+static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
+{
+    const struct phy_params *phy_params;
+    bool group_bit, group_bit_prev, list_end;
+    int phy_mode_group = 0;
+    uint8_t entry_size;
+    uint16_t flags;
+    int offset;
+    int i = 0;
+
+    BUG_ON(rcp->init_state & RCP_HAS_RF_CONFIG_LIST);
+    entry_size = hif_pop_u8(buf);
+    BUG_ON(entry_size < 2 + 1 + 4 + 4 + 2);
+    list_end   = hif_pop_bool(buf);
+    if (rcp->rail_config_list)
+        while (rcp->rail_config_list[i].chan0_freq)
+            i++;
+    group_bit_prev = true;
+    while (iobuf_remaining_size(buf)) {
+        rcp->rail_config_list = reallocarray(rcp->rail_config_list, i + 2, sizeof(struct rcp_rail_config));
+        offset = buf->cnt;
+        flags = hif_pop_u16(buf);
+        rcp->rail_config_list[i].index = i;
+        rcp->rail_config_list[i].rail_phy_mode_id = hif_pop_u8(buf);
+        rcp->rail_config_list[i].chan0_freq       = hif_pop_u32(buf);
+        rcp->rail_config_list[i].chan_spacing     = hif_pop_u32(buf);
+        rcp->rail_config_list[i].chan_count       = hif_pop_u16(buf);
+        if (buf->cnt - offset < entry_size)
+            hif_pop_fixed_u8_array(buf, NULL, entry_size - (buf->cnt - offset));
+        phy_params = ws_regdb_phy_params(rcp->rail_config_list[i].rail_phy_mode_id, 0);
+        if (phy_params && phy_params->modulation == MODULATION_OFDM &&
+            FIELD_GET(HIF_MASK_RADIO_LIST_MCS, flags) != 0x00ff)
+            BUG("unsupported OFDM PHY with MCS support not 0-7");
+        group_bit = FIELD_GET(HIF_MASK_RADIO_LIST_GROUP, flags);
+        BUG_ON(i == 0 && group_bit);
+        if (group_bit && !group_bit_prev)
+            rcp->rail_config_list[i - 1].phy_mode_group = ++phy_mode_group;
+        rcp->rail_config_list[i].phy_mode_group = group_bit ? phy_mode_group : 0;
+        group_bit_prev = group_bit;
+        i++;
+    }
+    memset(&rcp->rail_config_list[i], 0, sizeof(struct rcp_rail_config));
+    BUG_ON(buf->err || iobuf_remaining_size(buf));
+    if (list_end)
+        rcp->init_state |= RCP_HAS_RF_CONFIG_LIST;
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
 } rcp_cmd_table[] = {
-    { HIF_CMD_IND_RESET, rcp_ind_reset  },
-    { HIF_CMD_IND_FATAL, rcp_ind_fatal  },
-    { 0xff,              rcp_ind_legacy },
+    { HIF_CMD_IND_RESET,      rcp_ind_reset      },
+    { HIF_CMD_IND_FATAL,      rcp_ind_fatal      },
+    { HIF_CMD_CNF_RADIO_LIST, rcp_cnf_radio_list },
+    { 0xff,                   rcp_ind_legacy     },
 };
 
 void rcp_rx(struct rcp *rcp)

@@ -23,6 +23,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/specs/ieee802154.h"
+#include "common/ws_regdb.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
