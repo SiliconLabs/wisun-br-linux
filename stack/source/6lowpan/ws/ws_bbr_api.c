@@ -192,16 +192,10 @@ void ws_bbr_init(struct net_if *interface)
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
 }
 
-uint16_t ws_bbr_bsi_generate(struct net_if *interface)
+uint16_t ws_bbr_bsi_generate(void)
 {
-    (void) interface;
-    //Give current one
-    uint16_t bsi = ws_bbr_fhss_bsi;
-    //Update value for next round
-    ws_bbr_fhss_bsi++;
-    //Store To NVN
     ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
-    return bsi;
+    return ws_bbr_fhss_bsi;
 }
 
 uint16_t ws_bbr_pan_id_get(struct net_if *interface)
