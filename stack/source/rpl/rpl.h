@@ -100,7 +100,7 @@ struct rpl_root {
     uint8_t dodag_version_number;
     uint8_t dodag_pref;
     uint8_t min_rank_hop_inc;
-    uint8_t  lifetime_default;
+    uint32_t lifetime_s;
     uint16_t lifetime_unit_s;
     uint8_t dtsn; // DAO Trigger Sequence Number
     uint8_t pcs;  // Path Control Size

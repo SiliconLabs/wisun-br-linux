@@ -102,7 +102,7 @@ struct wsbr_ctxt g_ctxt = {
     .rpl_root.dio_i_doublings  = 1,
     .rpl_root.dio_redundancy   = 0,
     .rpl_root.lifetime_unit_s  = 1200,
-    .rpl_root.lifetime_default = 6,
+    .rpl_root.lifetime_s = 1200 * 6,
     .rpl_root.min_rank_hop_inc = 128,
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     .rpl_root.pcs              = 7,

@@ -185,7 +185,8 @@ static void rpl_opt_push_config(struct iobuf_write *buf, struct rpl_root *root)
     // function.
     iobuf_push_be16(buf, RPL_OCP_MRHOF);
     iobuf_push_u8(buf, 0); // Reserved
-    iobuf_push_u8(buf, root->lifetime_default);
+    // See wsbr.c
+    iobuf_push_u8(buf, root->lifetime_s / root->lifetime_unit_s); // Default Lifetime
     iobuf_push_be16(buf, root->lifetime_unit_s);
     rpl_opt_fill(buf, offset);
 }
@@ -644,8 +645,9 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     BUG_ON(!root->min_rank_hop_inc);
     BUG_ON(!memzcmp(root->dodag_id, 16));
     BUG_ON(root->pcs > 7);
-    BUG_ON(!root->lifetime_default);
+    BUG_ON(!root->lifetime_s);
     BUG_ON(!root->lifetime_unit_s);
+    BUG_ON(root->lifetime_s % root->lifetime_unit_s);
     //   Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     // The RPLInstanceID MUST be of the global form.
     BUG_ON(FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, root->instance_id) != RPL_INSTANCE_ID_TYPE_GLOBAL);
