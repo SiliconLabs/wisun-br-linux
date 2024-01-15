@@ -18,4 +18,15 @@ time_t time_current(clockid_t clockid);
 
 time_t time_get_elapsed(clockid_t clockid, time_t start);
 
+/*
+ * We rely on monotonic clock everywhere. However, monotonic timestamps do
+ * not survive to reboots. So timestamp stored on the disk must use realtime
+ * timestamps.
+ * This function computes the rough delta between monotonic and realtime. It
+ * should be used to write/read timestamps to/from the disk:
+ * - Add returned value to a monotonic timestamp to get a realtime date
+ * - Substract returned value from a realtime date to get a monotonic timestamp
+ */
+time_t time_get_storage_offset(void);
+
 #endif /* TIME_EXTRA_H */

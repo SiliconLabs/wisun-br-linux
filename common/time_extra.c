@@ -27,3 +27,12 @@ time_t time_get_elapsed(clockid_t clockid, time_t start)
     clock_gettime(clockid, &tp);
     return tp.tv_sec - start;
 }
+
+time_t time_get_storage_offset(void)
+{
+    struct timespec tp_realtime, tp_monotonic;
+
+    clock_gettime(CLOCK_REALTIME, &tp_realtime);
+    clock_gettime(CLOCK_MONOTONIC, &tp_monotonic);
+    return tp_realtime.tv_sec - tp_monotonic.tv_sec;
+}
