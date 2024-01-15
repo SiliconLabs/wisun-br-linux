@@ -104,6 +104,7 @@ struct rpl_root {
     uint16_t lifetime_unit_s;
     uint8_t dtsn; // DAO Trigger Sequence Number
     uint8_t pcs;  // Path Control Size
+    bool    rpi_ignorable;
 
     void (*route_add)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);
     void (*route_del)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);

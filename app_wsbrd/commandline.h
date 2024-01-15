@@ -90,6 +90,7 @@ struct wsbrd_conf {
     bool enable_lfn;
     bool enable_ffn10;
     bool rpl_compat;
+    bool rpl_rpi_ignorable;
     unsigned int ws_join_metrics;
 
     uint8_t ws_allowed_mac_addresses[10][8];

@@ -167,11 +167,7 @@ static void rpl_opt_push_config(struct iobuf_write *buf, struct rpl_root *root)
     // The Authentication Enabled flag MUST be set to 0.
     bitfield |= FIELD_PREP(RPL_MASK_OPT_CONFIG_A, 0);
     bitfield |= FIELD_PREP(RPL_MASK_OPT_CONFIG_PCS, root->pcs);
-    // Wi-SUN does not reference RFC 9008 so we assume that the RPI type used
-    // is 0x63 as defined in RFC 6553. However this means that the option needs
-    // to be removed by the LFN parent otherwise the packet will be dropped by
-    // the LFN.
-    bitfield |= FIELD_PREP(RPL_MASK_OPT_CONFIG_RPI, 0);
+    bitfield |= FIELD_PREP(RPL_MASK_OPT_CONFIG_RPI, root->rpi_ignorable);
     iobuf_push_u8(buf, bitfield);
     iobuf_push_u8(buf, root->dio_i_doublings);
     iobuf_push_u8(buf, root->dio_i_min);

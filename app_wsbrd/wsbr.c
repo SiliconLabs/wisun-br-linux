@@ -341,6 +341,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
     ctxt->rpl_root.compat = ctxt->config.rpl_compat;
+    ctxt->rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
     if (ctxt->config.ws_size == NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == NETWORK_SIZE_CERTIFICATE) {
         ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
