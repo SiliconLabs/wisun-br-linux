@@ -582,7 +582,7 @@ int wsbr_main(int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     rcp_legacy_noop();
-    rcp_legacy_reset();
+    rcp_req_reset(&ctxt->rcp, false);
     wsbr_rcp_init(ctxt);
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);

@@ -59,4 +59,6 @@ extern uint8_t rcp_rx_buf[4096];
 
 void rcp_rx(struct rcp *rcp);
 
+void rcp_req_reset(struct rcp *rcp, bool bootload);
+
 #endif
