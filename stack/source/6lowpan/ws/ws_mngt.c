@@ -183,6 +183,8 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
                                    &net_if->ws_info.mngt.trickle_params);
 
     ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
+        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
@@ -213,6 +215,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
                                &net_if->ws_info.mngt.trickle_params);
 
     ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
+        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
