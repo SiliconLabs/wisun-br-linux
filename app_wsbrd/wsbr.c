@@ -450,7 +450,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
             rcp_rx(&ctxt->rcp);
     } else {
-        rcp_legacy_get_rf_config_list();
+        rcp_req_radio_list(&ctxt->rcp);
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(&ctxt->rcp);
     }

@@ -93,6 +93,23 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
         __rcp_set_host_api(rcp, host_api_version);
 }
 
+static void __rcp_req_radio_list(struct rcp *rcp)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_REQ_RADIO_LIST);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_req_radio_list(struct rcp *rcp)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0))
+        rcp_legacy_get_rf_config_list();
+    else
+        __rcp_req_radio_list(rcp);
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
