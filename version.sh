@@ -16,18 +16,19 @@ cat << EOF > $VERSION_FILE.tmp
 /*
  * wsbrd API versions:
  *
+ * 2.0.0
+ * - Complete API change
  * 0.2.0
  * - Pop the retry_per_rate array and the successful phy mode id
  *   in SPINEL_CMD_PROP_IS/SPINEL_PROP_STREAM_STATUS that were
  *   used to send the data, necessary for mode switch fallback
- *
  * 0.1.0
  * - Pop ACK request, frame pending, and PAN ID suppression in
  *   PROP_IS/STREAM_RAW, for MAC frame reconstruction
  */
 
 const char *version_daemon_str = "${GIT_LABEL}";
-uint32_t version_daemon_api = VERSION(0, 2, 0);
+uint32_t version_daemon_api = VERSION(2, 0, 0);
 
 const char *version_hwsim_str = "hwsim-${GIT_LABEL}";
 uint32_t version_hwsim = VERSION(0, 0, 0);

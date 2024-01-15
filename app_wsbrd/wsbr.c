@@ -443,6 +443,9 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         FATAL(1, "pcap_file requires RCP API >= 0.16.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
+
+    rcp_set_host_api(&ctxt->rcp, version_daemon_api);
+
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
         while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
             rcp_rx(&ctxt->rcp);

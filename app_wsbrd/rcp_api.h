@@ -60,5 +60,6 @@ extern uint8_t rcp_rx_buf[4096];
 void rcp_rx(struct rcp *rcp);
 
 void rcp_req_reset(struct rcp *rcp, bool bootload);
+void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version);
 
 #endif
