@@ -1065,10 +1065,10 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
         return;
 
     aro.status = ARO_SUCCESS;
-    aro.lifetime = ws_neigh->mac_data.link_lifetime / 60;
+    aro.lifetime = ws_neigh->mac_data.lifetime / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.link_lifetime);
+    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

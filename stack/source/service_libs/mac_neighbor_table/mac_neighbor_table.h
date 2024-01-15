@@ -28,8 +28,8 @@ typedef struct mac_neighbor_table_entry {
     uint8_t         index;                  /*!< Unique Neighbour index */
     bool            in_use;                 /*!< True if the entry is in use */
     uint8_t         mac64[8];               /*!< MAC64 */
-    uint32_t        lifetime;               /*!< Life time in seconds which goes down */
-    uint32_t        link_lifetime;          /*!< Configured link timeout*/
+    uint32_t        expiration_s;
+    uint32_t        lifetime;             /*!< Life time in seconds */
     uint8_t         ms_phy_mode_id;         /*!< PhyModeId selected for Mode Switch with this neighbor */
     uint8_t         ms_mode;                /*!< Mode switch mode */
     uint32_t        ms_tx_count;            /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
@@ -48,7 +48,7 @@ void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint
  */
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_entry);
 
-void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, uint32_t link_lifetime);
+void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, uint32_t lifetime);
 
 
 #endif

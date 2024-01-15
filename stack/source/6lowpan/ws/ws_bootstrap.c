@@ -324,7 +324,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
             // We have already shorter link entry found this cannot replace it
             continue;
 
-        if (neigh_table[i].mac_data.link_lifetime > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME && neigh_table[i].mac_data.link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
+        if (neigh_table[i].mac_data.lifetime > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME && neigh_table[i].mac_data.lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
             //Do not permit to remove configured temp life time
             continue;
 

@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/time_extra.h"
 #include "common/log.h"
 #include "common/specs/ws.h"
 
@@ -31,7 +32,7 @@ void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint
     entry->in_use = true;
     memcpy(entry->mac64, mac64, 8);
     entry->lifetime = lifetime;
-    entry->link_lifetime = lifetime;
+    entry->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
 }
 
@@ -40,14 +41,14 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
     if (neighbor_entry->trusted_device)
         return;
 
-    neighbor_entry->lifetime = neighbor_entry->link_lifetime;
+    neighbor_entry->expiration_s = time_current(CLOCK_MONOTONIC) + neighbor_entry->lifetime;
     neighbor_entry->trusted_device = true;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neighbor_entry->mac64), neighbor_entry->lifetime);
 }
 
 void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, uint32_t link_lifetime)
 {
-    neighbor->link_lifetime = link_lifetime;
     neighbor->lifetime = link_lifetime;
+    neighbor->expiration_s = time_current(CLOCK_MONOTONIC) + link_lifetime;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
 }

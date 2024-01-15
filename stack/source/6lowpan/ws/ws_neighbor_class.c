@@ -132,14 +132,8 @@ void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_up
         if (!neigh_table[i].mac_data.in_use)
             continue;
 
-        if (neigh_table[i].mac_data.lifetime > time_update) {
-            if (neigh_table[i].mac_data.lifetime == 0xffffffff && neigh_table[i].mac_data.link_lifetime == 0xffffffff)
-                continue; //Infinite Lifetime too not touch
-
-            neigh_table[i].mac_data.lifetime -= time_update;
-        } else {
+        if (time_current(CLOCK_MONOTONIC) >= neigh_table[i].mac_data.expiration_s)
             class_data->remove_cb(neigh_table[i].mac_data.mac64);
-        }
     }
 }
 
