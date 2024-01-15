@@ -40,12 +40,14 @@
 #include <netinet/in.h>
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/memutils.h"
 #include "common/log_legacy.h"
 
 #include "common/specs/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "nwk_interface/protocol.h"
+#include "common/time_extra.h"
 
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "nwk_interface/protocol_abstract.h"
@@ -196,22 +198,10 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     // plus another 8 for the EUI-64 of registration (RFC 6775). Note that in
     // the protocols, the link-layer address and EUI-64 are distinct. The
     // neighbour may be using a short link-layer address, not its EUI-64.
-    entry = malloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + (cache->recv_addr_reg ? 8 : 0));
-    if (!entry) {
-        tr_warn("No mem!");
-        return NULL;
-    }
-
+    entry = zalloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + (cache->recv_addr_reg ? 8 : 0));
     memcpy(entry->ip_address, address, 16);
-    entry->state = IP_NEIGHBOUR_NEW;
-    entry->type = IP_NEIGHBOUR_GARBAGE_COLLECTIBLE;
-    entry->timer = 0;
-    entry->lifetime = 0;
-    entry->retrans_count = 0;
-    entry->ll_type = ADDR_NONE;
     if (cache->recv_addr_reg)
         memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
-
     ns_list_add_to_start(&cache->list, entry);
     TRACE(TR_NEIGH_IPV6, "IPv6 neighbor add %s / %s",
           tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
@@ -224,6 +214,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     /* Reset the GC life, if it's a GC entry */
     if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
         entry->lifetime = NCACHE_GC_AGE;
+        entry->expiration_s = time_current(CLOCK_MONOTONIC) + NCACHE_GC_AGE;
     }
 
     /* Move it to the front of the list */
@@ -379,7 +370,7 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
         if (entry->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
             continue;
 
-        if (!entry->lifetime)
+        if (time_current(CLOCK_MONOTONIC) >= entry->expiration_s)
             ipv6_neighbour_entry_remove(cache, entry);
     }
 }
@@ -389,16 +380,9 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
     ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->lifetime == 0 || cur->lifetime == 0xffffffff) {
+        if (cur->lifetime && cur->expiration_s &&
+            time_current(CLOCK_MONOTONIC) < cur->expiration_s)
             continue;
-        }
-
-        if (cur->lifetime > seconds) {
-            cur->lifetime -= seconds;
-            continue;
-        }
-
-        cur->lifetime = 0;
 
         /* Lifetime expired */
         switch (cur->type) {

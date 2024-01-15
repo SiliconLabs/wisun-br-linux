@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include "common/time_extra.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/specs/icmpv6.h"
@@ -52,6 +53,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
         neigh->lifetime = aro->lifetime * UINT32_C(60);
+        neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {

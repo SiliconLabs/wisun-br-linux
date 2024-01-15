@@ -25,6 +25,7 @@
 #define IPV6_ROUTING_TABLE_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 #include "common/ns_list.h"
 
 #include "core/netaddr_types.h"
@@ -96,7 +97,8 @@ typedef struct ipv6_neighbour {
     ip_neighbour_cache_type_e       type;
     addrtype_e                      ll_type;
     uint32_t                        timer;                      /* 100ms ticks */
-    uint32_t                        lifetime;                   /* seconds */
+    uint32_t                        lifetime;                 /* lifetime in seconds */
+    time_t                          expiration_s;
     ns_list_link_t                  link;                       /*!< List link */
     uint8_t                         ll_address[];
 } ipv6_neighbour_t;
