@@ -144,6 +144,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
 bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address);
 void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_e ll_type, const uint8_t *ll_address);
 bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
+ipv6_neighbour_t *ipv6_neighbour_lookup_gua_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/);
 ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_e ll_type, const uint8_t *ll_address);
 void ipv6_neighbour_cache_fast_timer(int ticks);

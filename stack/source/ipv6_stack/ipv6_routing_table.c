@@ -274,6 +274,17 @@ bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const
     return false;
 }
 
+ipv6_neighbour_t *ipv6_neighbour_lookup_gua_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
+{
+    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list)
+        if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE &&
+            !memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8) &&
+            !IN6_IS_ADDR_MULTICAST(cur->ip_address) &&
+            !IN6_IS_ADDR_LINKLOCAL(cur->ip_address))
+            return cur;
+    return NULL;
+}
+
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_e state)
 {
     switch (state) {

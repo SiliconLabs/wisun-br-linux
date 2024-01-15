@@ -359,6 +359,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
 {
     struct ws_neighbor_class_entry *ws_neigh;
+    struct ipv6_neighbour *ipv6_neighbor;
 
     ws_bootstrap_neighbor_table_clean(net_if);
 
@@ -374,6 +375,12 @@ struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if,
         return NULL;
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
+
+    ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, eui64);
+    if (ipv6_neighbor) {
+        mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
+        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ipv6_neighbor->lifetime_s);
+    }
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return ws_neigh;
 }
