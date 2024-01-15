@@ -27,13 +27,13 @@
 
 #include "mac_neighbor_table.h"
 
-void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint8_t *mac64, uint32_t lifetime)
+void mac_neighbor_table_entry_init(mac_neighbor_table_entry_t *entry, const uint8_t *mac64, uint32_t lifetime_s)
 {
     entry->in_use = true;
     memcpy(entry->mac64, mac64, 8);
-    entry->lifetime = lifetime;
-    entry->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime);
+    entry->lifetime_s = lifetime_s;
+    entry->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(entry->mac64), entry->lifetime_s);
 }
 
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_entry)
@@ -41,14 +41,14 @@ void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_entry_t *neighbor_en
     if (neighbor_entry->trusted_device)
         return;
 
-    neighbor_entry->expiration_s = time_current(CLOCK_MONOTONIC) + neighbor_entry->lifetime;
+    neighbor_entry->expiration_s = time_current(CLOCK_MONOTONIC) + neighbor_entry->lifetime_s;
     neighbor_entry->trusted_device = true;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neighbor_entry->mac64), neighbor_entry->lifetime);
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neighbor_entry->mac64), neighbor_entry->lifetime_s);
 }
 
-void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, uint32_t link_lifetime)
+void mac_neighbor_table_refresh_neighbor(mac_neighbor_table_entry_t *neighbor, uint32_t lifetime_s)
 {
-    neighbor->lifetime = link_lifetime;
-    neighbor->expiration_s = time_current(CLOCK_MONOTONIC) + link_lifetime;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime);
+    neighbor->lifetime_s = lifetime_s;
+    neighbor->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neighbor->mac64), neighbor->lifetime_s);
 }

@@ -173,7 +173,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 {
     struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, eui64);
     ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
-    uint32_t link_lifetime = (aro_timeout * 60) + 1;
+    uint32_t lifetime_s = (aro_timeout * 60) + 1;
     uint8_t child_count = 0;
 
     if (!ws_neigh)
@@ -186,7 +186,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, link_lifetime);
+        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, lifetime_s);
         return ARO_SUCCESS;
     }
 
@@ -202,7 +202,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_FULL;
     }
 
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, link_lifetime);
+    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, lifetime_s);
     tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);

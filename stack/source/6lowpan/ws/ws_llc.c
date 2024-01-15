@@ -436,17 +436,17 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_NO_DATA:
             if (!ws_neigh)
                 break;
-            if (ws_neigh->mac_data.lifetime == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
+            if (ws_neigh->mac_data.lifetime_s == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime);
+                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
                 ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp,
                                             ws_neigh->mac_data.mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime);
+                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
                 ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                              confirm->timestamp, ws_neigh->mac_data.mac64);
             }
@@ -741,10 +741,10 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
 
     if (data->Key.SecurityLevel)
         mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
-    if (ws_neigh->mac_data.lifetime == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
+    if (ws_neigh->mac_data.lifetime_s == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
         mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
     else
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime);
+        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
     if (has_pom)
         ws_neigh->pom_ie = ie_pom;
 
