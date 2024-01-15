@@ -56,27 +56,6 @@
  * - IANA: https://www.iana.org/assignments/rpl/rpl.xhtml
  */
 
-// RFC 6550 - 17. RPL Constants and Variables
-#define RPL_DEFAULT_INSTANCE                  0
-#define RPL_DEFAULT_PATH_CONTROL_SIZE         0
-#define RPL_DEFAULT_DIO_INTERVAL_MIN          3 // min interval 8ms
-#define RPL_DEFAULT_DIO_INTERVAL_DOUBLINGS   20 // max interval 2.3h with default Imin
-#define RPL_DEFAULT_DIO_REDUNDANCY_CONSTANT  10
-#define RPL_DEFAULT_MIN_HOP_RANK_INCREASE   256
-
-// Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
-#define WS_DEFAULT_DCO_LIFETIME_UNIT            1200 // 20min
-#define WS_DEFAULT_DCO_LIFETIME                    6 // 2h with default unit
-#define WS_DEFAULT_SMALL_DIO_INTERVAL_DOUBLINGS    2 // max interval 131s with default large Imin
-#define WS_DEFAULT_SMALL_DIO_INTERVAL_MIN         15 // min interval 32s
-#define WS_DEFAULT_LARGE_DIO_INTERVAL_DOUBLINGS    1 // max interval 18min with default small Imin
-#define WS_DEFAULT_LARGE_DIO_INTERVAL_MIN         19 // min interval 9min
-#define WS_DEFAULT_DIO_REDUNDANCY_CONSTANT         0
-#define WS_DEFAULT_MIN_HOP_RANK_INCREASE         128
-
-// Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
-#define WS_PATH_CONTROL_SIZE 7
-
 /*
  * Different structures are used between parsing and storing because some data
  * contained in the transit information option (TIO) make more sense when

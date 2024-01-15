@@ -96,15 +96,19 @@ struct wsbr_ctxt g_ctxt = {
     .pcapng_fd = -1,
     .dhcp_server.fd = -1,
     .rpl_root.sockfd = -1,
-    .rpl_root.dio_i_min        = WS_DEFAULT_LARGE_DIO_INTERVAL_MIN,
-    .rpl_root.dio_i_doublings  = WS_DEFAULT_LARGE_DIO_INTERVAL_DOUBLINGS,
-    .rpl_root.dio_redundancy   = WS_DEFAULT_DIO_REDUNDANCY_CONSTANT,
-    .rpl_root.lifetime_unit_s  = WS_DEFAULT_DCO_LIFETIME_UNIT,
-    .rpl_root.lifetime_default = WS_DEFAULT_DCO_LIFETIME,
-    .rpl_root.min_rank_hop_inc = WS_DEFAULT_MIN_HOP_RANK_INCREASE,
-    .rpl_root.pcs              = WS_PATH_CONTROL_SIZE,
+
+    // Defined by Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
+    .rpl_root.dio_i_min        = 19,
+    .rpl_root.dio_i_doublings  = 1,
+    .rpl_root.dio_redundancy   = 0,
+    .rpl_root.lifetime_unit_s  = 1200,
+    .rpl_root.lifetime_default = 6,
+    .rpl_root.min_rank_hop_inc = 128,
+    // Defined by Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
+    .rpl_root.pcs              = 7,
+
     .rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
-    .rpl_root.instance_id      = RPL_DEFAULT_INSTANCE,
+    .rpl_root.instance_id      = 0,
     .rpl_root.route_add = rpl_glue_route_add,
     .rpl_root.route_del = rpl_glue_route_del,
 
@@ -339,8 +343,8 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ctxt->rpl_root.compat = ctxt->config.rpl_compat;
     if (ctxt->config.ws_size == NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == NETWORK_SIZE_CERTIFICATE) {
-        ctxt->rpl_root.dio_i_min       = WS_DEFAULT_SMALL_DIO_INTERVAL_MIN;
-        ctxt->rpl_root.dio_i_doublings = WS_DEFAULT_SMALL_DIO_INTERVAL_DOUBLINGS;
+        ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
+        ctxt->rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(cur);
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
