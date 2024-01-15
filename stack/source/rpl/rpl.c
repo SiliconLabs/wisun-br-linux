@@ -421,7 +421,7 @@ static void rpl_transit_update(struct rpl_root *root,
         if (!(opt_transit->path_ctl & (1 << (7 - i))))
             continue;
         if (memzcmp(target->transits + i, sizeof(struct rpl_transit)) &&
-            memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)))
+            memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)) && !root->compat)
             WARN("%s: overwrite", __func__);
         target->transits[i] = transit;
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
