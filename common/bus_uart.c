@@ -82,6 +82,21 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
+static void uart_read(struct os_ctxt *ctxt)
+{
+    ssize_t size;
+
+    size = read(ctxt->data_fd,
+                ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
+                sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
+    FATAL_ON(size < 0, 2, "%s: read: %m", __func__);
+    FATAL_ON(!size, 2, "%s: read: Empty read", __func__);
+    TRACE(TR_BUS, "bus rx: %s (%zd bytes)",
+          tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
+                   size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
+    ctxt->uart_rx_buf_len += size;
+}
+
 static int uart_legacy_tx_append(uint8_t *buf, uint8_t byte)
 {
     if (byte == 0x7D || byte == 0x7E) {
@@ -140,18 +155,10 @@ int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 {
     int frame_start, frame_len;
-    int ret, i;
+    int i;
 
-    if (!ctxt->uart_next_frame_ready) {
-        ret = read(ctxt->data_fd,
-                   ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
-                   sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
-        FATAL_ON(ret < 0, 2, "%s: read: %m", __func__);
-        FATAL_ON(!ret, 2, "%s: read: Empty read", __func__);
-        TRACE(TR_BUS, "bus rx: %s (%d bytes)",
-               tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
-        ctxt->uart_rx_buf_len += ret;
-    }
+    if (!ctxt->uart_next_frame_ready)
+        uart_read(ctxt);
 
     i = 0;
     while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
