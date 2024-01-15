@@ -375,35 +375,12 @@ void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
 
 static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
 {
-    uint_fast16_t gc_count = 0;
-    ns_list_foreach_safe(ipv6_neighbour_t, entry, &cache->list) {
-        if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-            gc_count++;
-        }
-    }
-
-    if (gc_count <= NCACHE_MAX_LONG_TERM) {
-        return;
-    }
-
-    /* Removal strategy - to stay below MAX_SHORT_TERM, we will chuck any STALE entries */
-    /* To stay below MAX_LONG_TERM, we will chuck old STALE entries */
     ns_list_foreach_reverse_safe(ipv6_neighbour_t, entry, &cache->list) {
-        /* Expiration of non-GC entries handled in slow timer routine */
-        if (entry->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
+        if (entry->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
             continue;
-        }
 
-        if (entry->state != IP_NEIGHBOUR_STALE && entry->state != IP_NEIGHBOUR_UNREACHABLE) {
-            continue;
-        }
-
-        if (entry->lifetime == 0 || gc_count > NCACHE_MAX_SHORT_TERM) {
+        if (!entry->lifetime)
             ipv6_neighbour_entry_remove(cache, entry);
-            if (--gc_count <= NCACHE_MAX_LONG_TERM) {
-                break;
-            }
-        }
     }
 }
 
