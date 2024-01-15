@@ -1084,14 +1084,3 @@ int8_t ws_cfg_settings_set(struct net_if *cur, ws_cfg_t *new_cfg)
 
     return ret_value;
 }
-
-uint32_t ws_cfg_neighbour_temporary_lifetime_get(uint8_t role)
-{
-    if (role == WS_NR_ROLE_ROUTER) {
-        return WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    } else if (role == WS_NR_ROLE_LFN) {
-        return WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME;
-    } else {
-        BUG();
-    }
-}

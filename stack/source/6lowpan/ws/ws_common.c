@@ -216,7 +216,7 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
     if (!ws_neigh)
         return false;
 
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
+    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return true;
 }
 

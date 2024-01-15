@@ -80,10 +80,7 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *
         return NULL;
 
     neigh_entry->node_role = role;
-    if (role == WS_NR_ROLE_LFN)
-        mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME);
-    else
-        mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
+    mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return neigh_entry;
 }
 

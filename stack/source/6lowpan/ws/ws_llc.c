@@ -436,7 +436,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_NO_DATA:
             if (!ws_neigh)
                 break;
-            if (ws_neigh->mac_data.lifetime_s == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
+            if (ws_neigh->mac_data.lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
@@ -741,7 +741,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
 
     if (data->Key.SecurityLevel)
         mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
-    if (ws_neigh->mac_data.lifetime_s == ws_cfg_neighbour_temporary_lifetime_get(ws_neigh->node_role))
+    if (ws_neigh->mac_data.lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
         mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
     else
         mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
