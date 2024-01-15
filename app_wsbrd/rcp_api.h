@@ -22,6 +22,7 @@ struct mcps_data_cnf_ie_list;
 struct mcps_data_ind;
 struct mcps_data_ind_ie_list;
 struct os_ctxt;
+struct phy_rf_channel_configuration;
 struct wsbr_ctxt;
 
 struct rcp_rail_config {
@@ -63,5 +64,6 @@ void rcp_req_reset(struct rcp *rcp, bool bootload);
 void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version);
 
 void rcp_req_radio_list(struct rcp *rcp);
+void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
 
 #endif

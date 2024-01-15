@@ -162,6 +162,33 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
         rcp->init_state |= RCP_HAS_RF_CONFIG_LIST;
 }
 
+static void __rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, bool enable_ms)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_RADIO);
+    hif_push_u8(&buf, radioconf_index);
+    hif_push_u8(&buf, ofdm_mcs);
+    hif_push_bool(&buf, enable_ms);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+
+    rcp->init_state |= RCP_HAS_RF_CONFIG;
+}
+
+void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config)
+{
+    if (version_older_than(rcp->version_api, 0, 25, 1))
+        rcp_legacy_set_rf_config_legacy(rf_config);
+    else if (version_older_than(rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_rf_config(rf_config);
+    else
+        __rcp_set_radio(rcp,
+                        rf_config->rcp_config_index,
+                        rf_config->ofdm_mcs,
+                        rf_config->use_phy_op_modes);
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);

@@ -669,10 +669,7 @@ init_fail:
 
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
-    if (version_older_than(cur->rcp->version_api, 0, 25, 1))
-        rcp_legacy_set_rf_config_legacy(&rf_configs);
-    else
-        rcp_legacy_set_rf_config(&rf_configs);
+    rcp_set_radio(cur->rcp, &rf_configs);
     if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
         rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
         rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels,
