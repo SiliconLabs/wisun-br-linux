@@ -87,9 +87,9 @@ struct wsbrd_conf {
     int  bc_interval;
     int  lfn_bc_interval;
     int  lfn_bc_sync_period;
-    int  enable_lfn;
-    int  enable_ffn10;
-    int  rpl_compat;
+    bool enable_lfn;
+    bool enable_ffn10;
+    bool rpl_compat;
     unsigned int ws_join_metrics;
 
     uint8_t ws_allowed_mac_addresses[10][8];
@@ -108,4 +108,3 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream));
 
 #endif
-
