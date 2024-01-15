@@ -203,7 +203,6 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     }
 
     memcpy(entry->ip_address, address, 16);
-    entry->from_redirect = false;
     entry->state = IP_NEIGHBOUR_NEW;
     entry->type = IP_NEIGHBOUR_GARBAGE_COLLECTIBLE;
     entry->timer = 0;
@@ -254,11 +253,6 @@ bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_t
 static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
     uint8_t ll_len = addr_len_from_type(ll_type);
-
-    /* Any new address info clears the "redirected" flag - redirect itself
-     * sets it again after this is called.
-     */
-    entry->from_redirect = false;
 
     if (ll_type != entry->ll_type || memcmp(entry->ll_address, ll_address, ll_len)) {
         entry->ll_type = ll_type;
@@ -497,15 +491,8 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
                 ipv6_interface_resolve_send_ns(cache, cur, true, 0);
                 break;
             case IP_NEIGHBOUR_PROBE:
-                if (cur->retrans_count >= MARK_UNREACHABLE - 1) {
-                    if (cur->from_redirect) {
-                        ipv6_destination_cache_forget_neighbour(cur);
-                        ipv6_neighbour_entry_remove(cache, cur);
-                        break;
-                    } else {
-                        ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_UNREACHABLE);
-                    }
-                }
+                if (cur->retrans_count >= MARK_UNREACHABLE - 1)
+                    ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_UNREACHABLE);
             /* fall through */
             case IP_NEIGHBOUR_UNREACHABLE:
                 if (cur->retrans_count < 0xFF) {
