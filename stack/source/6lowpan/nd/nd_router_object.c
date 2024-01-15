@@ -29,8 +29,8 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_llc.h"
+#include "ipv6_stack/ipv6_neigh_storage.h"
+#include "6lowpan/ws/ws_neighbor_class.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
@@ -72,6 +72,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, aro->lifetime);
         }
     }
+    ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
 }
 
 void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)

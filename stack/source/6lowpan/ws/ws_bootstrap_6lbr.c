@@ -41,6 +41,7 @@
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
+#include "ipv6_stack/ipv6_neigh_storage.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -439,5 +440,10 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_asynch_trickle_stop(cur);
 
     ws_bootstrap_advertise_start(cur);
+    ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
+    // Sending async frames to trigger trickle timers of devices in our range.
+    // Doing so allows to get back to an operational network faster.
+    ws_bootstrap_pan_advert(cur);
+    ws_bootstrap_pan_config(cur);
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 }

@@ -182,6 +182,7 @@ add_library(libwsbrd STATIC
     stack/source/core/timers.c
     stack/source/core/ns_address_internal.c
     stack/source/core/ns_buffer.c
+    stack/source/ipv6_stack/ipv6_neigh_storage.c
     stack/source/ipv6_stack/ipv6_routing_table.c
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol.c

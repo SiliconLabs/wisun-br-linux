@@ -539,6 +539,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 int wsbr_main(int argc, char *argv[])
 {
     static const char *files[] = {
+        "neighbor-*:*:*:*:*:*:*:*",
         "keys-*:*:*:*:*:*:*:*",
         "network-keys",
         "br-info",

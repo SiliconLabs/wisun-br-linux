@@ -775,7 +775,7 @@ void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
 }
 
-static void ws_bootstrap_pan_advert(struct net_if *cur)
+void ws_bootstrap_pan_advert(struct net_if *cur)
 {
     const struct ws_hopping_schedule *schedule = &cur->ws_info.hopping_schedule;
     struct ws_llc_mngt_req req = {
@@ -808,7 +808,7 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
     ws_llc_asynch_request(cur, &req);
 }
 
-static void ws_bootstrap_pan_config(struct net_if *cur)
+void ws_bootstrap_pan_config(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PC,
