@@ -62,11 +62,27 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
     rcp->init_state |= RCP_HAS_HWADDR;
 }
 
+static void rcp_ind_fatal(struct rcp *rcp, struct iobuf_read *buf)
+{
+    const char *msg;
+    uint8_t err;
+
+    err = hif_pop_u8(buf);
+    msg = hif_pop_str(buf);
+    BUG_ON(buf->err);
+
+    if (msg)
+        FATAL(3, "rcp error 0x%02x: %s", err, msg);
+    else
+        FATAL(3, "rcp error 0x%02x", err);
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
 } rcp_cmd_table[] = {
     { HIF_CMD_IND_RESET, rcp_ind_reset  },
+    { HIF_CMD_IND_FATAL, rcp_ind_fatal  },
     { 0xff,              rcp_ind_legacy },
 };
 
