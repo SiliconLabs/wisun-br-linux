@@ -85,8 +85,8 @@
  */
 
 struct rpl_transit {
-    uint8_t path_lifetime;
-    uint8_t parent[16];
+    uint32_t path_lifetime_s;
+    uint8_t  parent[16];
 };
 
 struct rpl_target {

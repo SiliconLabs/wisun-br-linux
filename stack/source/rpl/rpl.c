@@ -381,7 +381,7 @@ static void rpl_transit_update(struct rpl_root *root,
 
     BUG_ON(opt_target->prefix_len != 128);
     memcpy(transit.parent, opt_transit->parent, 16);
-    transit.path_lifetime = opt_transit->path_lifetime;
+    transit.path_lifetime_s = opt_transit->path_lifetime * root->lifetime_unit_s;
 
     target = rpl_target_get(root, opt_target->prefix);
     if (!target) {
@@ -689,7 +689,7 @@ void rpl_timer(int ticks)
         for (uint8_t i = 0; i < root->pcs + 1; i++) {
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
                 continue;
-            if (elapsed > target->transits[i].path_lifetime * root->lifetime_unit_s) {
+            if (elapsed > target->transits[i].path_lifetime_s) {
                 memset(target->transits + i, 0, sizeof(struct rpl_transit));
                 TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
                       tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
