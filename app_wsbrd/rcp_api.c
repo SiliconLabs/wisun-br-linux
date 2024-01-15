@@ -53,11 +53,31 @@ void rcp_req_reset(struct rcp *rcp, bool bootload)
     }
 }
 
+static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
+{
+    const char *version_label;
+
+    FATAL_ON(rcp->init_state & RCP_HAS_RESET, 3, "unsupported RCP reset");
+
+    rcp->version_api = hif_pop_u32(buf);
+    rcp->version_fw  = hif_pop_u32(buf);
+    version_label    = hif_pop_str(buf);
+    hif_pop_fixed_u8_array(buf, rcp->eui64, 8);
+    BUG_ON(buf->err);
+
+    BUG_ON(version_older_than(rcp->version_api, 2, 0, 0));
+    rcp->version_label = strdup(version_label);
+    BUG_ON(!rcp->version_label);
+    rcp->init_state |= RCP_HAS_RESET;
+    rcp->init_state |= RCP_HAS_HWADDR;
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
 } rcp_cmd_table[] = {
-    { 0xff, rcp_ind_legacy },
+    { HIF_CMD_IND_RESET, rcp_ind_reset  },
+    { 0xff,              rcp_ind_legacy },
 };
 
 void rcp_rx(struct rcp *rcp)
