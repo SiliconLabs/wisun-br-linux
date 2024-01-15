@@ -97,7 +97,7 @@ typedef struct ipv6_neighbour {
     ip_neighbour_cache_type_e       type;
     addrtype_e                      ll_type;
     uint32_t                        timer;                      /* 100ms ticks */
-    uint32_t                        lifetime;                 /* lifetime in seconds */
+    uint32_t                        lifetime_s;
     time_t                          expiration_s;
     ns_list_link_t                  link;                       /*!< List link */
     uint8_t                         ll_address[];

@@ -213,7 +213,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
 {
     /* Reset the GC life, if it's a GC entry */
     if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-        entry->lifetime = NCACHE_GC_AGE;
+        entry->lifetime_s = NCACHE_GC_AGE;
         entry->expiration_s = time_current(CLOCK_MONOTONIC) + NCACHE_GC_AGE;
     }
 
@@ -358,9 +358,9 @@ void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
         tr_debug("IP Addr: %s", tr_ipv6(cur->ip_address));
         tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, tr_key(cur->ll_address, addr_len_from_type(cur->ll_type)));
         if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8))
-            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, tr_eui64(ipv6_neighbour_eui64(cache, cur)));
+            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime_s, tr_eui64(ipv6_neighbour_eui64(cache, cur)));
         else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
-            tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime);
+            tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime_s);
     }
 }
 
@@ -380,7 +380,7 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
     ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->lifetime && cur->expiration_s &&
+        if (cur->lifetime_s && cur->expiration_s &&
             time_current(CLOCK_MONOTONIC) < cur->expiration_s)
             continue;
 

@@ -52,18 +52,18 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
-        neigh->lifetime = aro->lifetime * UINT32_C(60);
-        neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime;
+        neigh->lifetime_s = aro->lifetime * UINT32_C(60);
+        neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
+            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime_s - 2, 32);
             tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
             tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
         }
     } else {
         // Both ws_neighbor and ipv6_neighbor entries will be released by garbage collectors
-        neigh->lifetime = 0;
+        neigh->lifetime_s = 0;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
             target = rpl_target_get(root, neigh->ip_address);
@@ -242,7 +242,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
 
     if (neigh->type != IP_NEIGHBOUR_REGISTERED) {
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
-        neigh->lifetime = TENTATIVE_NCE_LIFETIME;
+        neigh->lifetime_s = TENTATIVE_NCE_LIFETIME;
     }
 
     /* Set the LL address, ensure it's marked STALE */
