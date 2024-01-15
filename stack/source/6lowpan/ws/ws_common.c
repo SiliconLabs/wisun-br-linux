@@ -173,7 +173,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 {
     struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, eui64);
     ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
-    uint32_t lifetime_s = (aro_timeout * 60) + 1;
+    uint32_t lifetime_s = aro_timeout * 60;
     uint8_t child_count = 0;
 
     if (!ws_neigh)
