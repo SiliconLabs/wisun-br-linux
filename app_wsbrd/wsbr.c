@@ -429,7 +429,7 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
     memcpy(ctxt->dhcp_leases[i].ipv6, ipv6, 16);
 }
 
-static void wsbr_rcp_legacy_init(struct wsbr_ctxt *ctxt)
+static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
     struct pollfd fds = { .fd = ctxt->os_ctxt->data_fd, .events = POLLIN };
@@ -583,7 +583,7 @@ int wsbr_main(int argc, char *argv[])
 
     rcp_legacy_noop();
     rcp_legacy_reset();
-    wsbr_rcp_legacy_init(ctxt);
+    wsbr_rcp_init(ctxt);
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);
     wsbr_network_init(ctxt);
