@@ -43,6 +43,7 @@
 #include "stack/source/core/netaddr_types.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/rpl/rpl_glue.h"
+#include "stack/source/rpl/rpl_storage.h"
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/rpl/rpl_lollipop.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
@@ -340,8 +341,11 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
 
     memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
+    rpl_storage_load(&ctxt->rpl_root);
     ctxt->rpl_root.compat = ctxt->config.rpl_compat;
     ctxt->rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
+    if (ctxt->rpl_root.instance_id || memcmp(ctxt->rpl_root.dodag_id, ipv6, 16))
+        FATAL(1, "RPL storage out-of-date (see -D)");
     if (ctxt->config.ws_size == NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == NETWORK_SIZE_CERTIFICATE) {
         ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
@@ -548,6 +552,7 @@ int wsbr_main(int argc, char *argv[])
         "keys-*:*:*:*:*:*:*:*",
         "network-keys",
         "br-info",
+        "rpl-*",
         NULL,
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;

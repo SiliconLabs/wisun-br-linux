@@ -37,6 +37,9 @@
  * Additionally rpl_timer() must be setup as a timer callback with the timer ID
  * WS_TIMER_RPL in order to run the trickle algorithm for DIO packets.
  *
+ * Some information are stored to disk using rpl_storage.h. They can be restored on
+ * reboot by calling rpl_storage_load() before rpl_start().
+ *
  * Known limitations:
  * - The RPL Packet Information (RPI) option is never inserted in IPv6 packets.
  * - Packets with a RPI error are always dropped instead of allowing one fault.
@@ -130,6 +133,7 @@ void rpl_dodag_version_inc(struct rpl_root *root);
 void rpl_dtsn_inc(struct rpl_root *root);
 
 struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16]);
+struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16]);
 void rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target);
 

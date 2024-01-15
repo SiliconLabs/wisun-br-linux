@@ -29,6 +29,7 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 #include "rpl_lollipop.h"
+#include "rpl_storage.h"
 #include "rpl.h"
 
 struct rpl_opt_target {
@@ -71,7 +72,7 @@ struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16
     return NULL;
 }
 
-static struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16])
+struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16])
 {
     struct rpl_target *target = calloc(1, sizeof(struct rpl_target));
 
@@ -87,6 +88,7 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
     TRACE(TR_RPL, "rpl: target  remove prefix=%s", tr_ipv6_prefix(target->prefix, 128));
     SLIST_REMOVE(&root->targets, target, rpl_target, link);
     root->route_del(root, target->prefix, 128);
+    rpl_storage_del_target(root, target);
     free(target);
 }
 
@@ -375,6 +377,7 @@ static void rpl_transit_update(struct rpl_root *root,
     bool path_ctl_desync, path_ctl_old;
     struct rpl_transit transit;
     struct rpl_target *target;
+    bool nvm_store = false;
 
     BUG_ON(opt_target->prefix_len != 128);
     memcpy(transit.parent, opt_transit->parent, 16);
@@ -387,6 +390,7 @@ static void rpl_transit_update(struct rpl_root *root,
         target->external = opt_transit->external;
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+        nvm_store = true;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
@@ -394,6 +398,7 @@ static void rpl_transit_update(struct rpl_root *root,
     if (root->compat) {
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+        nvm_store = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
     } else {
@@ -409,6 +414,7 @@ static void rpl_transit_update(struct rpl_root *root,
             memset(target->transits, 0, sizeof(target->transits));
             target->path_seq = opt_transit->path_seq;
             target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+            nvm_store = true;
             TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
                   tr_ipv6_prefix(target->prefix, 128), target->path_seq);
         }
@@ -424,9 +430,12 @@ static void rpl_transit_update(struct rpl_root *root,
             memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)) && !root->compat)
             WARN("%s: overwrite", __func__);
         target->transits[i] = transit;
+        nvm_store = true;
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
+    if (nvm_store)
+        rpl_storage_store_target(root, target);
 }
 
 static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
@@ -519,6 +528,7 @@ void rpl_recv_srh_err(struct rpl_root *root,
         .data = pkt,
     };
     struct rpl_target *target;
+    bool nvm_store = false;
     const uint8_t *dst;
 
     //   RFC 6550 - 11.2.2.3. DAO Inconsistency Detection and Recovery
@@ -549,10 +559,13 @@ void rpl_recv_srh_err(struct rpl_root *root,
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!memcmp(target->transits[i].parent, src, 16)) {
             memset(target->transits + i, 0, sizeof(struct rpl_transit));
+            nvm_store = true;
             TRACE(TR_RPL, "rpl: transit remove target=%s parent=%s path-ctl-bit=%u",
                   tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
+    if (nvm_store)
+        rpl_storage_store_target(root, target);
 }
 
 static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t size,
@@ -649,7 +662,6 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     BUG_ON(FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, root->instance_id) != RPL_INSTANCE_ID_TYPE_GLOBAL);
     BUG_ON(!root->route_add || !root->route_del);
 
-    SLIST_INIT(&root->targets);
     root->sockfd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(root->sockfd < 0, 2, "%s: socket: %m", __func__);
     err = setsockopt(root->sockfd, IPPROTO_IPV6, IPV6_RECVPKTINFO, (int[1]){ true }, sizeof(int));
@@ -667,6 +679,8 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     rpl_dio_trickle_params(root, &dio_trickle_params);
     trickle_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
     ws_timer_start(WS_TIMER_RPL);
+
+    rpl_storage_store_config(root);
 }
 
 void rpl_timer(int ticks)
