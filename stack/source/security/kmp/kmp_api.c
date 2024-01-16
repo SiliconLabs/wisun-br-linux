@@ -267,17 +267,10 @@ static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size,
         return -1;
     }
 
-    int8_t result = -1;
+    if (msg_if_entry->send)
+        return msg_if_entry->send(kmp->service, prot->msg_if_instance_id, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier, conn_number, flags);
 
-    if (msg_if_entry->send) {
-        result = msg_if_entry->send(kmp->service, prot->msg_if_instance_id, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier, conn_number, flags);
-    }
-
-    if (result < 0) {
-        free(pdu);
-    }
-
-    return result;
+    return -1;
 }
 
 static void kmp_sec_prot_timer_start(sec_prot_t *prot)

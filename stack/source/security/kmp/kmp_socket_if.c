@@ -227,8 +227,6 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         return 0;
     }
 
-    free(pdu);
-
     return 0;
 }
 
