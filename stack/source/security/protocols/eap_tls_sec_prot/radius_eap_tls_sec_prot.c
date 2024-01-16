@@ -300,6 +300,9 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
         eap_body_len--;
         if (eap_type == EAP_TLS && eap_len >= 5) {
             tls_ptr = eap_pdu;
+        } else {
+            TRACE(TR_DROP, "drop %-9s: unsupported type %d", "eap", eap_type);
+            return -1;
         }
     }
 
