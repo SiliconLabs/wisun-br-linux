@@ -369,5 +369,3 @@ static int8_t auth_gkh_sec_prot_mic_validate(sec_prot_t *prot)
     gkh_sec_prot_int_t *data = gkh_sec_prot_get(prot);
     return sec_prot_lib_mic_validate(prot->sec_keys->ptk, data->recv_eapol_pdu.msg.key.key_mic, data->recv_pdu, data->recv_size);
 }
-
-

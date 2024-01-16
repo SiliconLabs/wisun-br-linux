@@ -576,5 +576,3 @@ static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot)
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     data->eap_id_seq++;
 }
-
-

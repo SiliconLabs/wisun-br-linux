@@ -141,5 +141,3 @@ static void msg_sec_prot_state_machine(sec_prot_t *prot)
             break;
     }
 }
-
-

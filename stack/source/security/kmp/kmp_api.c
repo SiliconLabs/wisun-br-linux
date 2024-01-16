@@ -711,5 +711,3 @@ int8_t kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_i
     service->event_send = send;
     return 0;
 }
-
-
