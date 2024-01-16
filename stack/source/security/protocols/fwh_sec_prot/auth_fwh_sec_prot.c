@@ -211,8 +211,8 @@ static fwh_sec_prot_msg_e auth_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, 
 static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_e msg, bool retry)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
-
     uint16_t kde_len = 0;
+    int8_t ret;
 
     switch (msg) {
         case FWH_MESSAGE_1:
@@ -326,23 +326,20 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
           tr_eui64(sec_prot_remote_eui_64_addr_get(prot)),
           retry ? " (retry)" : "");
 
-    if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
-        return -1;
-    }
-
-    return 0;
+    ret = prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size);
+    free(eapol_pdu_frame);
+    return ret;
 }
 
 static int8_t auth_fwh_sec_prot_auth_completed_send(sec_prot_t *prot)
 {
     uint8_t *eapol_pdu_frame = malloc(prot->header_size);
+    int8_t ret;
 
     // Send zero length message to relay which requests LLC to remove EAPOL temporary entry based on EUI-64
-    if (prot->send(prot, eapol_pdu_frame, prot->header_size) < 0) {
-        return -1;
-    }
-
-    return 0;
+    ret = prot->send(prot, eapol_pdu_frame, prot->header_size);
+    free(eapol_pdu_frame);
+    return ret;
 }
 
 static void auth_fwh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)

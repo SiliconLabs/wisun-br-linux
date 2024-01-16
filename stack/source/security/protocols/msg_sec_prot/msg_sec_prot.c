@@ -106,15 +106,14 @@ static void msg_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_k
 static int8_t msg_sec_prot_auth_rejected_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys)
 {
     (void) sec_keys;
+    int8_t ret;
 
     uint8_t *eapol_pdu_frame = malloc(prot->header_size);
 
     // Send zero length message to relay which requests LLC to remove EAPOL temporary entry based on EUI-64
-    if (prot->send(prot, eapol_pdu_frame, prot->header_size) < 0) {
-        return -1;
-    }
-
-    return 0;
+    ret = prot->send(prot, eapol_pdu_frame, prot->header_size);
+    free(eapol_pdu_frame);
+    return ret;
 }
 
 static void msg_sec_prot_state_machine(sec_prot_t *prot)
