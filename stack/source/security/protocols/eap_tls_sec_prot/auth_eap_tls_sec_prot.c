@@ -251,6 +251,7 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
 static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state, bool retry)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
+    int8_t ret;
 
     uint8_t flags = 0xff;
     // EAP-TLS flags field is always present during TLS exchange
@@ -281,11 +282,9 @@ static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_c
           tr_eui64(sec_prot_remote_eui_64_addr_get(prot)),
           retry ? "(retry)" : "");
 
-    if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
-        return -1;
-    }
-
-    return 0;
+    ret = prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size);
+    free(eapol_decoded_data);
+    return ret;
 }
 
 static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
