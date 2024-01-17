@@ -431,21 +431,6 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
 
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
-    static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
-    struct pollfd fds = { .fd = ctxt->os_ctxt->data_fd, .events = POLLIN };
-    int ret, i;
-
-    i = 0;
-    do {
-        ret = poll(&fds, 1, timeout_values[i] * 1000);
-        if (ret < 0)
-            FATAL(2, "poll: %m");
-        if (ret == 0)
-            WARN("still waiting for RCP");
-        if (i + 1 < ARRAY_SIZE(timeout_values))
-            i++;
-    } while (ret < 1);
-
     ctxt->os_ctxt->uart_init_phase = true;
     while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         rcp_rx(&ctxt->rcp);
@@ -568,21 +553,38 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.pcap_file[0])
         wsbr_pcapng_init(ctxt);
     if (ctxt->config.uart_dev[0]) {
-        ctxt->rcp.device_tx = wsbr_uart_legacy_tx;
-        ctxt->rcp.device_rx = uart_legacy_rx;
-        ctxt->rcp.on_crc_error = uart_legacy_handle_crc_error;
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
+        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+        ctxt->rcp.device_tx = wsbr_uart_legacy_tx;
+        rcp_legacy_noop();
+        rcp_legacy_reset();
+        ctxt->rcp.device_tx = uart_tx;
+        rcp_req_reset(&ctxt->rcp, false);
+        if (uart_detect_v2(ctxt->os_ctxt, 30)) {
+            ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
+            ctxt->rcp.device_tx    = uart_tx;
+            ctxt->rcp.device_rx    = uart_rx;
+        } else {
+            WARN("assuming RCP API < 2.0.0");
+            ctxt->rcp.device_tx    = wsbr_uart_legacy_tx;
+            ctxt->rcp.device_rx    = uart_legacy_rx;
+            ctxt->rcp.on_crc_error = uart_legacy_handle_crc_error;
+            rcp_legacy_noop();
+        }
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;
         ctxt->rcp.device_rx = cpc_rx;
         ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
+        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+        ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->os_ctxt);
+        if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
+            rcp_legacy_reset();
+        else
+            rcp_req_reset(&ctxt->rcp, false);
     } else {
         BUG();
     }
-    ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
-    rcp_legacy_noop();
-    rcp_req_reset(&ctxt->rcp, false);
     wsbr_rcp_init(ctxt);
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);

@@ -12,6 +12,7 @@
  */
 #ifndef BUS_CPC_H
 #define BUS_CPC_H
+#include <stdint.h>
 #include "common/log.h"
 
 struct os_ctxt;
@@ -21,6 +22,7 @@ struct os_ctxt;
 int cpc_open(struct os_ctxt *ctxt, const char *instance_name, bool verbose);
 int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len);
 int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
+uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt);
 
 #else
 
@@ -37,6 +39,11 @@ static inline int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf
 static inline int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     return -1;
+}
+
+static inline uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt)
+{
+    return 0;
 }
 
 #endif

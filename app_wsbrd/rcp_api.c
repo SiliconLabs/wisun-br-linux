@@ -33,7 +33,7 @@ static void rcp_tx(struct rcp *rcp, struct iobuf_write *buf)
     rcp->device_tx(ctxt->os_ctxt, buf->data, buf->len);
 }
 
-static void __rcp_req_reset(struct rcp *rcp, bool bootload)
+void rcp_req_reset(struct rcp *rcp, bool bootload)
 {
     struct iobuf_write buf = { };
 
@@ -41,16 +41,6 @@ static void __rcp_req_reset(struct rcp *rcp, bool bootload)
     hif_push_bool(&buf, bootload);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_req_reset(struct rcp *rcp, bool bootload)
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        BUG_ON(bootload);
-        rcp_legacy_reset();
-    } else {
-        __rcp_req_reset(rcp, bootload);
-    }
 }
 
 static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)

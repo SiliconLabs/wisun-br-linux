@@ -11,6 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 #include <termios.h>
 #include <sys/file.h>
@@ -238,6 +239,8 @@ size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
     frame_len = i - frame_start + 1;
+    if (ctxt->uart_init_phase && i >= ctxt->uart_rx_buf_len)
+        ctxt->uart_data_ready = false;
     BUG_ON(ctxt->uart_data_ready && i >= ctxt->uart_rx_buf_len);
     if (i >= ctxt->uart_rx_buf_len)
         return 0;
@@ -353,4 +356,33 @@ void uart_legacy_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t f
     }
     WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): one or several packets lost",
          irq_err_counter, frame_len, header, crc);
+}
+
+bool uart_detect_v2(struct os_ctxt *ctxt, int n)
+{
+    struct pollfd pfd = {
+        .fd = ctxt->trig_fd,
+        .events = POLLIN,
+    };
+    int ret;
+
+    ctxt->uart_data_ready = true;
+
+    ret = poll(&pfd, 1, 5000);
+    FATAL_ON(ret < 0, 2, "%s poll : %m", __func__);
+    WARN_ON(!ret, "RCP is not responding");
+
+    while (1) {
+        ret = poll(&pfd, 1, -1);
+        FATAL_ON(ret < 0, 2, "%s poll : %m", __func__);
+
+        uart_read(ctxt);
+
+        for (int i = 0; i < ctxt->uart_rx_buf_len - 4; i++)
+            if (crc_check(CRC_INIT_HCS, ctxt->uart_rx_buf + i, 2,
+                          read_le16(ctxt->uart_rx_buf + i + 2)))
+                return true;
+        if (ctxt->uart_rx_buf_len >= n)
+            return false;
+    }
 }

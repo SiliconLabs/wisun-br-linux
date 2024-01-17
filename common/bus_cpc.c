@@ -15,6 +15,10 @@
 #include "common/os_types.h"
 #include "common/log.h"
 #include "common/hif.h"
+#include "common/version.h"
+
+// FIXME: This is global to avoid a conditional definition as a member of os_ctxt.
+static cpc_handle_t g_cpc_handle;
 
 #include "bus_cpc.h"
 
@@ -25,12 +29,11 @@ static void cpc_reset_callback(void)
 
 int cpc_open(struct os_ctxt *ctxt, const char *cpc_instance, bool verbose)
 {
-    cpc_handle_t cpc_handle;
     int ret, fd;
 
-    ret = cpc_init(&cpc_handle, cpc_instance, verbose, cpc_reset_callback);
+    ret = cpc_init(&g_cpc_handle, cpc_instance, verbose, cpc_reset_callback);
     FATAL_ON(ret, 2, "cpc_init: %m");
-    fd = cpc_open_endpoint(cpc_handle, &ctxt->cpc_ep, SL_CPC_ENDPOINT_WISUN, 1);
+    fd = cpc_open_endpoint(g_cpc_handle, &ctxt->cpc_ep, SL_CPC_ENDPOINT_WISUN, 1);
     FATAL_ON(fd < 0, 2, "cpc_open_endpoint: %m");
     // ret = cpc_set_endpoint_option(ctxt->cpc_ep, CPC_OPTION_BLOCKING, (void *)true, sizeof(bool));
     // FATAL_ON(ret, 2, "cpc_set_endpoint_option: %m");
@@ -57,4 +60,20 @@ int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
         tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
+}
+
+uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt)
+{
+    uint8_t major, patch;
+    const char *str;
+    uint16_t minor;
+    int ret;
+
+    str = cpc_get_secondary_app_version(g_cpc_handle);
+    BUG_ON(!str);
+    if (!strcmp(str, "UNDEFINED"))
+        return VERSION(0, 0, 0);
+    ret = sscanf(str, "%hhu.%hu.%hhu", &major, &minor, &patch);
+    BUG_ON(ret == EOF);
+    return VERSION(major, minor, patch);
 }
