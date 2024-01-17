@@ -401,13 +401,12 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, k
  * \param size pdu size
  * \param tx_identifier TX identifier
  * \param conn_number connection number (0 for default)
- * \param flags flags
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags);
+typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number);
 
 /**
  * kmp_service_msg_if_register registers message interface

@@ -268,7 +268,7 @@ static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size,
     }
 
     if (msg_if_entry->send)
-        return msg_if_entry->send(kmp->service, prot->msg_if_instance_id, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier, conn_number, flags);
+        return msg_if_entry->send(kmp->service, prot->msg_if_instance_id, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier, conn_number);
 
     return -1;
 }

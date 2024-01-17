@@ -57,7 +57,7 @@ typedef struct kmp_socket_if {
     struct sockaddr_storage remote_sockaddr;          /**< Remote socket address (can be INET4 or INET6) */
 } kmp_socket_if_t;
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags);
+static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num);
 
 static kmp_socket_if_t *g_kmp_socket_if_instances[KMP_INSTANCE_NUMBER];
 
@@ -177,7 +177,7 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
     return 0;
 }
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags)
+static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num)
 {
     (void) tx_identifier;
     (void) connection_num;

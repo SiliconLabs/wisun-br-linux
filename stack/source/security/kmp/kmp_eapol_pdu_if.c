@@ -49,7 +49,7 @@ typedef struct kmp_eapol_pdu_if {
 
 static NS_LIST_DEFINE(kmp_eapol_pdu_if_list, kmp_eapol_pdu_if_t, link);
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags);
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number);
 static int8_t kmp_eapol_pdu_if_tx_status(struct net_if *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
 
 int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interface_ptr)
@@ -82,13 +82,13 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interfac
     return 0;
 }
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags)
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number)
 {
     (void) instance_id; // Only one instance of eapol interface possible
     (void) conn_number; // Only one connection of eapol interface possible
 
     // No flags supported
-    if (!service || !addr || !pdu || flags) {
+    if (!service || !addr || !pdu) {
         return -1;
     }
 
