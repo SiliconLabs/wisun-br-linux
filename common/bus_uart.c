@@ -303,7 +303,7 @@ int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     frame_len = uart_legacy_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
+    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_init_phase);
     return frame_len;
 }
 

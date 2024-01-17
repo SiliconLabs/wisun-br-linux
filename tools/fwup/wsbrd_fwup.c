@@ -170,7 +170,7 @@ static void handle_rcp_legacy_reset(struct os_ctxt *ctxt)
     uint8_t buffer[4096] = { };
     struct iobuf_read rx_buf = { };
 
-    ctxt->uart_inhibit_crc_warning = true;
+    ctxt->uart_init_phase = true;
     rx_buf.data = buffer;
     rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
     if (!rx_buf.data_size) {

@@ -446,10 +446,10 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
             i++;
     } while (ret < 1);
 
-    ctxt->os_ctxt->uart_inhibit_crc_warning = true;
+    ctxt->os_ctxt->uart_init_phase = true;
     while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         rcp_rx(&ctxt->rcp);
-    ctxt->os_ctxt->uart_inhibit_crc_warning = false;
+    ctxt->os_ctxt->uart_init_phase = false;
 
     if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.enable_lfn)
         FATAL(1, "enable_lfn requires RCP API >= 0.15.0");

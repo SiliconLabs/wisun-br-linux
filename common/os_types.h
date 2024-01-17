@@ -36,7 +36,7 @@ struct os_ctxt {
     bool    uart_data_ready;
     int     uart_rx_buf_len;
     uint8_t uart_rx_buf[2048];
-    bool    uart_inhibit_crc_warning;
+    bool    uart_init_phase;
 #ifdef HAVE_LIBCPC
     cpc_endpoint_t cpc_ep;
 #endif
