@@ -246,7 +246,7 @@ void rcp_legacy_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
                       uint8_t *mac64, uint32_t frame_counter);
 void rcp_legacy_enable_mac_filter(bool forward_unknown);
 void rcp_legacy_disable_mac_filter(void);
-void rcp_legacy_add_mac_filter_entry(uint8_t mac64[8], bool forward);
+void rcp_legacy_add_mac_filter_entry(const uint8_t mac64[8], bool forward);
 void rcp_legacy_clear_mac_filters(void);
 
 void rcp_legacy_tx_req_legacy(const struct mcps_data_req *tx_req,

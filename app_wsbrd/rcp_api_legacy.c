@@ -511,7 +511,7 @@ void rcp_legacy_disable_mac_filter()
     iobuf_free(&buf);
 }
 
-void rcp_legacy_add_mac_filter_entry(uint8_t mac64[8], bool forward)
+void rcp_legacy_add_mac_filter_entry(const uint8_t mac64[8], bool forward)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };

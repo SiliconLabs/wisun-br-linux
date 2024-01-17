@@ -557,6 +557,33 @@ static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
     iobuf_free(&buf);
 }
 
+static void __rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_FILTER_SRC64);
+    hif_push_bool(&buf, allow);
+    hif_push_u8(&buf, count);
+    while (count--)
+        hif_push_fixed_u8_array(&buf, *eui64++, 8);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
+{
+    if (version_older_than(rcp->version_api, 0, 3, 0))
+        FATAL(1, "allowed_mac64/denied_mac64 requires RCP API >= 0.3.0");
+    if (version_older_than(rcp->version_api, 2, 0, 0)) {
+        rcp_legacy_enable_mac_filter(!allow);
+        rcp_legacy_clear_mac_filters();
+        while (count--)
+            rcp_legacy_add_mac_filter_entry(*eui64++, allow);
+    } else {
+        __rcp_set_filter_src64(rcp, eui64, count, allow);
+    }
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);

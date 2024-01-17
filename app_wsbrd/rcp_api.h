@@ -86,4 +86,9 @@ void rcp_set_sec_key(struct rcp *rcp,
                      const uint8_t key[16],
                      uint32_t frame_counter);
 
+void rcp_set_filter_src64(struct rcp *rcp,
+                          const uint8_t eui64[][8],
+                          uint8_t count,
+                          bool allow);
+
 #endif
