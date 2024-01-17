@@ -226,7 +226,7 @@ static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, 
     };
 
     do {
-        if (!ctxt->uart_next_frame_ready) {
+        if (!ctxt->uart_data_ready) {
             ret = poll(&pollfd, 1, 5000); // response time of ping should below 5 second
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -234,7 +234,7 @@ static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, 
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || ctxt->uart_next_frame_ready) {
+        if (pollfd.revents & POLLIN || ctxt->uart_data_ready) {
             if (cmdline->cpc_instance[0])
                 len = cpc_rx(ctxt, buf, buf_len);
             else

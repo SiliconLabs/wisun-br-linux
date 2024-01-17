@@ -502,7 +502,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     uint64_t val;
     int ret;
 
-    if (ctxt->os_ctxt->uart_next_frame_ready)
+    if (ctxt->os_ctxt->uart_data_ready)
         ret = poll(fds, POLLFD_COUNT, 0);
     else
         ret = poll(fds, POLLFD_COUNT, -1);
@@ -531,7 +531,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     }
     if (fds[POLLFD_RCP].revents & POLLIN ||
         fds[POLLFD_RCP].revents & POLLERR ||
-        ctxt->os_ctxt->uart_next_frame_ready)
+        ctxt->os_ctxt->uart_data_ready)
         rcp_legacy_rx(ctxt);
     if (fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);

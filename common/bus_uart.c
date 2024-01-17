@@ -157,7 +157,7 @@ size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     int frame_start, frame_len;
     int i;
 
-    if (!ctxt->uart_next_frame_ready)
+    if (!ctxt->uart_data_ready)
         uart_read(ctxt);
 
     i = 0;
@@ -167,7 +167,7 @@ size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
     frame_len = i - frame_start + 1;
-    BUG_ON(ctxt->uart_next_frame_ready && i >= ctxt->uart_rx_buf_len);
+    BUG_ON(ctxt->uart_data_ready && i >= ctxt->uart_rx_buf_len);
     if (i >= ctxt->uart_rx_buf_len)
         return 0;
 
@@ -180,10 +180,10 @@ size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     ctxt->uart_rx_buf_len -= i;
 
     i = 0;
-    ctxt->uart_next_frame_ready = false;
+    ctxt->uart_data_ready = false;
     while (i < ctxt->uart_rx_buf_len) {
         if (ctxt->uart_rx_buf[i] == 0x7E) {
-            ctxt->uart_next_frame_ready = true;
+            ctxt->uart_data_ready = true;
             break;
         }
         i++;

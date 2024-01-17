@@ -106,7 +106,7 @@ static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len)
     };
 
     do {
-        if (!ctxt->uart_next_frame_ready) {
+        if (!ctxt->uart_data_ready) {
             ret = poll(&pollfd, 1, 5000);
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -114,7 +114,7 @@ static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len)
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || ctxt->uart_next_frame_ready)
+        if (pollfd.revents & POLLIN || ctxt->uart_data_ready)
             len = uart_legacy_rx(ctxt, buf, buf_len);
     } while (!len);
     return len;

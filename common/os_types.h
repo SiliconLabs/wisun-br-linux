@@ -33,7 +33,7 @@ struct os_ctxt {
     int     spi_recv_window;
     int     spinel_tid;
     int     spinel_iid;
-    bool    uart_next_frame_ready;
+    bool    uart_data_ready;
     int     uart_rx_buf_len;
     uint8_t uart_rx_buf[2048];
     bool    uart_inhibit_crc_warning;
