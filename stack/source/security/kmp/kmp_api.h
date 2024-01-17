@@ -64,9 +64,6 @@ typedef enum {
     KMP_TX_ERR_UNSPEC = -2,                // Other reason
 } kmp_tx_status_e;
 
-// On message interface send, do not deallocate pdu buffer
-#define MSG_IF_SEND_FLAG_NO_DEALLOC        0x01
-
 typedef void kmp_sec_keys_t;
 typedef struct sec_prot sec_prot_t;
 typedef struct kmp_api kmp_api_t;

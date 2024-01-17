@@ -222,11 +222,6 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         return -1;
     }
 
-    // Deallocate unless flags deny it
-    if (flags & MSG_IF_SEND_FLAG_NO_DEALLOC) {
-        return 0;
-    }
-
     return 0;
 }
 
