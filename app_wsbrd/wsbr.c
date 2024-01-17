@@ -448,7 +448,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     ctxt->os_ctxt->uart_inhibit_crc_warning = true;
     while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
-        rcp_legacy_rx(ctxt);
+        rcp_rx(&ctxt->rcp);
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
     if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.enable_lfn)
@@ -459,11 +459,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
         while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
-            rcp_legacy_rx(ctxt);
+            rcp_rx(&ctxt->rcp);
     } else {
         rcp_legacy_get_rf_config_list();
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
-            rcp_legacy_rx(ctxt);
+            rcp_rx(&ctxt->rcp);
     }
     if (ctxt->config.list_rf_configs) {
         rail_print_config_list(ctxt);
@@ -532,7 +532,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_RCP].revents & POLLIN ||
         fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->os_ctxt->uart_data_ready)
-        rcp_legacy_rx(ctxt);
+        rcp_rx(&ctxt->rcp);
     if (fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);
 }

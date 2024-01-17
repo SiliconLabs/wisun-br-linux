@@ -19,6 +19,46 @@
 struct iobuf_read;
 struct iobuf_write;
 
+enum {
+    HIF_CMD_REQ_NOP                  = 0x01,
+    HIF_CMD_IND_NOP                  = 0x02,
+    HIF_CMD_REQ_RESET                = 0x03,
+    HIF_CMD_IND_RESET                = 0x04,
+    HIF_CMD_IND_FATAL                = 0x05,
+    HIF_CMD_SET_HOST_API             = 0x06,
+    HIF_CMD_REQ_DATA_TX              = 0x10,
+    HIF_CMD_REQ_DATA_TX_ABORT        = 0x11,
+    HIF_CMD_CNF_DATA_TX              = 0x12,
+    HIF_CMD_IND_DATA_RX              = 0x13,
+    HIF_CMD_REQ_RADIO_ENABLE         = 0x20,
+    HIF_CMD_REQ_RADIO_LIST           = 0x21,
+    HIF_CMD_CNF_RADIO_LIST           = 0x22,
+    HIF_CMD_SET_RADIO                = 0x23,
+    HIF_CMD_SET_RADIO_REGULATION     = 0x24,
+    HIF_CMD_SET_RADIO_TX_POWER       = 0x25,
+    HIF_CMD_SET_FHSS_UC              = 0x30,
+    HIF_CMD_SET_FHSS_FFN_BC          = 0x31,
+    HIF_CMD_SET_FHSS_LFN_BC          = 0x32,
+    HIF_CMD_SET_FHSS_ASYNC           = 0x33,
+    HIF_CMD_SET_SEC_KEY              = 0x40,
+    HIF_CMD_SET_SEC_FRAME_COUNTER_TX = 0x41,
+    HIF_CMD_SET_SEC_FRAME_COUNTER_RX = 0x42,
+    HIF_CMD_REQ_FILTER_CONFIGURE     = 0x50,
+    HIF_CMD_SET_FILTER_MIN_RSSI      = 0x58,
+    HIF_CMD_SET_FILTER_DST64         = 0x59,
+    HIF_CMD_SET_FILTER_DST16         = 0x5a,
+    HIF_CMD_SET_FILTER_PANID         = 0x5b,
+    HIF_CMD_SET_FILTER_SRC64         = 0x5c,
+    HIF_CMD_SET_FILTER_SRC16         = 0x5d,
+    HIF_CMD_IND_CRC_ERROR            = 0xe0,
+    HIF_CMD_REQ_PING                 = 0xe1,
+    HIF_CMD_CNF_PING                 = 0xe2,
+    HIF_CMD_IND_REPLAY_TIMER         = 0xf0,
+    HIF_CMD_IND_REPLAY_SOCKET        = 0xf1,
+};
+
+const char *hif_cmd_str(uint8_t cmd);
+
 void hif_push_bool(struct iobuf_write *buf, bool val);
 void hif_push_uint(struct iobuf_write *buf, unsigned int val);
 void hif_push_u8(struct iobuf_write *buf, uint8_t val);

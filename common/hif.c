@@ -14,11 +14,58 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "common/named_values.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/mathutils.h"
 
 #include "hif.h"
+
+#define ENTRY(name) { #name, HIF_CMD_##name }
+static const struct name_value hif_cmd_names[] = {
+    ENTRY(REQ_NOP),
+    ENTRY(IND_NOP),
+    ENTRY(REQ_RESET),
+    ENTRY(IND_RESET),
+    ENTRY(IND_FATAL),
+    ENTRY(SET_HOST_API),
+    ENTRY(REQ_DATA_TX),
+    ENTRY(REQ_DATA_TX_ABORT),
+    ENTRY(CNF_DATA_TX),
+    ENTRY(IND_DATA_RX),
+    ENTRY(REQ_RADIO_ENABLE),
+    ENTRY(REQ_RADIO_LIST),
+    ENTRY(CNF_RADIO_LIST),
+    ENTRY(SET_RADIO),
+    ENTRY(SET_RADIO_REGULATION),
+    ENTRY(SET_RADIO_TX_POWER),
+    ENTRY(SET_FHSS_UC),
+    ENTRY(SET_FHSS_FFN_BC),
+    ENTRY(SET_FHSS_LFN_BC),
+    ENTRY(SET_FHSS_ASYNC),
+    ENTRY(SET_SEC_KEY),
+    ENTRY(SET_SEC_FRAME_COUNTER_TX),
+    ENTRY(SET_SEC_FRAME_COUNTER_RX),
+    ENTRY(REQ_FILTER_CONFIGURE),
+    ENTRY(SET_FILTER_MIN_RSSI),
+    ENTRY(SET_FILTER_DST64),
+    ENTRY(SET_FILTER_DST16),
+    ENTRY(SET_FILTER_PANID),
+    ENTRY(SET_FILTER_SRC64),
+    ENTRY(SET_FILTER_SRC16),
+    ENTRY(IND_CRC_ERROR),
+    ENTRY(REQ_PING),
+    ENTRY(CNF_PING),
+    ENTRY(IND_REPLAY_TIMER),
+    ENTRY(IND_REPLAY_SOCKET),
+    { 0 }
+};
+#undef ENTRY
+
+const char *hif_cmd_str(uint8_t cmd)
+{
+    return val_to_str(cmd, hif_cmd_names, "UNKNOWN");
+}
 
 void hif_push_bool(struct iobuf_write *buf, bool val)
 {

@@ -15,6 +15,7 @@
 
 #include "common/version.h"
 #include "common/iobuf.h"
+#include "common/memutils.h"
 #include "common/mathutils.h"
 #include "common/endian.h"
 #include "common/spinel.h"
@@ -961,25 +962,17 @@ static bool rcp_legacy_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
     return true;
 }
 
-void rcp_legacy_rx(struct wsbr_ctxt *ctxt)
+void rcp_ind_legacy(struct rcp *rcp, struct iobuf_read *buf)
 {
-    static uint8_t rx_buf[4096];
-    struct iobuf_read buf = {
-        .data = rx_buf,
-    };
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     uint32_t cmd, prop;
     int i;
 
-    buf.data_size = ctxt->rcp.device_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
-    if (!buf.data_size)
-        return;
-    spinel_trace_rx(&buf);
-    hif_pop_u8(&buf); /* packet header */
-    cmd = hif_pop_uint(&buf);
+    cmd = hif_pop_uint(buf);
     if (cmd != SPINEL_CMD_PROP_IS) {
         prop = (uint32_t)-1;
     } else {
-        prop = hif_pop_uint(&buf);
+        prop = hif_pop_uint(buf);
         if (!rcp_legacy_init_state_is_valid(ctxt, prop)) {
             WARN("ignoring unexpected boot-up sequence");
             return;
@@ -987,6 +980,18 @@ void rcp_legacy_rx(struct wsbr_ctxt *ctxt)
     }
     for (i = 0; rcp_legacy_rx_cmds[i].cmd != (uint32_t)-1; i++)
         if (rcp_legacy_rx_cmds[i].cmd == cmd && rcp_legacy_rx_cmds[i].prop == prop)
-            return rcp_legacy_rx_cmds[i].fn(ctxt, prop, &buf);
+            return rcp_legacy_rx_cmds[i].fn(ctxt, prop, buf);
     ERROR("%s: command %04x/%04x not implemented", __func__, cmd, prop);
+}
+
+void rcp_legacy_rx(struct wsbr_ctxt *ctxt)
+{
+    struct iobuf_read buf = { .data = rcp_rx_buf };
+
+    buf.data_size = ctxt->rcp.device_rx(ctxt->os_ctxt, rcp_rx_buf, sizeof(rcp_rx_buf));
+    if (!buf.data_size)
+        return;
+    spinel_trace_rx(&buf);
+    hif_pop_u8(&buf); /* packet header */
+    rcp_ind_legacy(&ctxt->rcp, &buf);
 }

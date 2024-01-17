@@ -33,6 +33,7 @@ struct iobuf_read;
 struct wsbr_ctxt;
 struct os_ctxt;
 struct net_if;
+struct rcp;
 
 #define RCP_HAS_RESET          0x0001
 #define RCP_HAS_HWADDR         0x0002
@@ -278,6 +279,9 @@ void rcp_legacy_set_edfe_mode(bool enable);
 // Low-layer function to access the RCP
 void rcp_legacy_rx(struct wsbr_ctxt *ctxt);
 void rcp_legacy_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
+
+// Intermediate development step to parse legacy API from the new API
+void rcp_ind_legacy(struct rcp *rcp, struct iobuf_read *buf);
 
 // Only used by the fuzzer
 struct rcp_legacy_rcp_legacy_rx_cmds {

@@ -114,6 +114,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/frame_helpers.c
     app_wsbrd/rail_config.c
     app_wsbrd/rcp_api_legacy.c
+    app_wsbrd/rcp_api.c
     app_wsbrd/timers.c
     app_wsbrd/tun.c
     app_wsbrd/commandline.c
@@ -289,6 +290,7 @@ add_executable(wsbrd-fwup
     common/spinel.c
     common/iobuf.c
     common/endian.c
+    common/named_values.c
 )
 target_include_directories(wsbrd-fwup PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS wsbrd-fwup RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

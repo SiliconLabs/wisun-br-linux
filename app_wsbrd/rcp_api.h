@@ -54,4 +54,9 @@ struct rcp {
     struct rcp_rail_config *rail_config_list;
 };
 
+// Share rx buffer with legacy implementation to not allocate twice
+extern uint8_t rcp_rx_buf[4096];
+
+void rcp_rx(struct rcp *rcp);
+
 #endif
