@@ -318,7 +318,7 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
           eap_msg_trace[*eap_code - 1],
           tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
-    if (prot->conn_send(prot, data->recv_eap_msg, eapol_pdu_size + prot->header_size, 0, SEC_PROT_SEND_FLAG_NO_DEALLOC) < 0) {
+    if (prot->conn_send(prot, data->recv_eap_msg, eapol_pdu_size + prot->header_size, 0) < 0) {
         return -1;
     }
     data->recv_eap_msg_len = eapol_pdu_size + prot->header_size;
@@ -334,7 +334,7 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_retry(sec_prot_t *prot)
         return -1;
     }
 
-    if (prot->conn_send(prot, data->recv_eap_msg, data->recv_eap_msg_len, 0, SEC_PROT_SEND_FLAG_NO_DEALLOC) < 0) {
+    if (prot->conn_send(prot, data->recv_eap_msg, data->recv_eap_msg_len, 0) < 0) {
         return -1;
     }
 

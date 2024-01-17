@@ -65,9 +65,6 @@ typedef enum {
     SEC_PROT_TX_ERR_UNSPEC = -2,              // Other reason
 } sec_prot_tx_status_e;
 
-// On security protocol send, do not deallocate pdu buffer
-#define SEC_PROT_SEND_FLAG_NO_DEALLOC         0x01
-
 /**
  * An alias to make cast and function declarations easier
  */
@@ -190,7 +187,7 @@ typedef int8_t sec_prot_conn_receive(sec_prot_t *prot, const void *pdu, uint16_t
  * \return >= 0 success
  *
  */
-typedef int8_t sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number, uint8_t flags);
+typedef int8_t sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
 
 /**
  * sec_prot_tx_status_ind tx status indication

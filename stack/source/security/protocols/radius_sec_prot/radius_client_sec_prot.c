@@ -741,7 +741,7 @@ static int8_t radius_client_sec_prot_radius_msg_send(sec_prot_t *prot)
         return -1;
     }
 
-    if (prot->conn_send(prot, data->send_radius_msg, data->send_radius_msg_len, data->radius_id_conn_num, SEC_PROT_SEND_FLAG_NO_DEALLOC) < 0) {
+    if (prot->conn_send(prot, data->send_radius_msg, data->send_radius_msg_len, data->radius_id_conn_num) < 0) {
         return -1;
     }
 

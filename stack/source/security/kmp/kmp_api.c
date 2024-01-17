@@ -102,7 +102,7 @@ static void kmp_api_sec_prot_create_indication(sec_prot_t *prot);
 static bool kmp_api_sec_prot_finished_indication(sec_prot_t *prot, sec_prot_result_e result, sec_prot_keys_t *sec_keys);
 static void kmp_api_sec_prot_finished(sec_prot_t *prot);
 static int8_t kmp_sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size);
-static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number, uint8_t flags);
+static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
 static void kmp_sec_prot_timer_start(sec_prot_t *prot);
 static void kmp_sec_prot_timer_stop(sec_prot_t *prot);
 static int8_t kmp_sec_prot_shared_comp_add(sec_prot_t *prot, shared_comp_data_t *data);
@@ -247,10 +247,10 @@ static void kmp_api_sec_prot_finished(sec_prot_t *prot)
 
 static int8_t kmp_sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size)
 {
-    return kmp_sec_prot_conn_send(prot, pdu, size, 0, 0);
+    return kmp_sec_prot_conn_send(prot, pdu, size, 0);
 }
 
-static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number, uint8_t flags)
+static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number)
 {
     kmp_api_t *kmp = kmp_api_get_from_prot(prot);
 
