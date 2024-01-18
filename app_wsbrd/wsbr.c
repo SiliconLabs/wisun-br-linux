@@ -321,7 +321,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     address_module_init();
     ws_cfg_settings_init();
 
-    cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
+    cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu);
     BUG_ON(!cur);
     protocol_6lowpan_configure_core(cur);
     BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);

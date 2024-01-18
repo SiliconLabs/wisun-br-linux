@@ -118,7 +118,6 @@ struct rpl_domain;
 struct net_if {
     int8_t id;
     uint8_t zone_index[16];
-    const char *interface_name;
     ns_list_link_t link;
     uint8_t configure_flags;
     uint8_t lowpan_info;
@@ -190,7 +189,7 @@ void nwk_interface_print_neigh_cache();
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
 struct net_if *protocol_stack_interface_info_get();
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name);
+struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 

@@ -154,7 +154,6 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     entry->pmtu_lifetime = 10 * 60; // RFC 1981 default - 10 minutes
     ns_list_link_init(entry, link);
     entry->if_stack_buffer_handler = NULL;
-    entry->interface_name = 0;
     ns_list_init(&entry->lowpan_contexts);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
@@ -176,7 +175,7 @@ static struct net_if *protocol_interface_class_allocate()
     return entry;
 }
 
-static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu, const char *name)
+static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu)
 {
     struct net_if *entry = protocol_interface_class_allocate();
 
@@ -190,7 +189,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
     entry->mac_parameters.mtu = mtu;
 
     entry->rcp = rcp;
-    entry->interface_name = name;
 
     protocol_core_base_finish_init(entry);
     return entry;
@@ -236,9 +234,9 @@ static int8_t net_interface_get_free_id(void)
     return -1;
 }
 
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name)
+struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
 {
-    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(rcp, mtu, name);
+    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(rcp, mtu);
 
     if (new_entry) {
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
