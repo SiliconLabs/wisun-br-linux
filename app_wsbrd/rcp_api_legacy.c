@@ -817,7 +817,7 @@ static void rcp_legacy_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, s
         return;
 
     ERROR_ON(index >= (GTK_NUM + LGTK_NUM), "invalid (l)gtk index");
-    ctxt->rcp.on_rx_frame_counter(ctxt->rcp_if_id, index, value);
+    ctxt->rcp.on_rx_frame_counter(ctxt->net_if.id, index, value);
 }
 
 enum mlme_primitive {
@@ -904,7 +904,7 @@ static void rcp_legacy_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
         TRACE(TR_DROP, "drop %-9s: unsupported key ID mode", "15.4");
         return;
     }
-    ctxt->rcp.on_rx_ind(ctxt->rcp_if_id, &req, &ie_ext);
+    ctxt->rcp.on_rx_ind(ctxt->net_if.id, &req, &ie_ext);
 }
 
 static void rcp_legacy_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -926,7 +926,7 @@ static void rcp_legacy_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp.on_tx_cnf(ctxt->rcp_if_id, &req, &conf_req);
+    ctxt->rcp.on_tx_cnf(ctxt->net_if.id, &req, &conf_req);
 }
 
 // Some debug tools (fuzzers) may deflect this struct. So keep it public.

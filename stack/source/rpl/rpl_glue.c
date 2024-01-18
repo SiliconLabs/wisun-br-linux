@@ -32,7 +32,7 @@ void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t pre
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, rpl_root);
 
     ipv6_route_add_with_info(prefix, prefix_len, // prefix
-                             ctxt->rcp_if_id,    // interface id
+                             ctxt->net_if.id,    // interface id
                              NULL,               // next hop
                              ROUTE_RPL_DAO_SR,   // source
                              (void *)root,       // info
@@ -46,7 +46,7 @@ void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t pre
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, rpl_root);
 
     ipv6_route_delete_with_info(prefix, prefix_len, // prefix
-                                ctxt->rcp_if_id,    // interface id
+                                ctxt->net_if.id,    // interface id
                                 NULL,               // next hop
                                 ROUTE_RPL_DAO_SR,   // source
                                 (void *)root,       // info

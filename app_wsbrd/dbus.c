@@ -83,11 +83,11 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
     if (phy_mode_id > 0)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 1, phy_mode_id, eui64); // mode switch enabled
+        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, 1, phy_mode_id, eui64); // mode switch enabled
     else if (phy_mode_id == -1)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, -1, 0, eui64); // mode switch disabled
+        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, -1, 0, eui64); // mode switch disabled
     else if (phy_mode_id == 0)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 0, 0, eui64); // mode switch back to default
+        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, 0, 0, eui64); // mode switch back to default
 
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
@@ -241,7 +241,7 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
         return sd_bus_error_set_errno(ret_error, -ret);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_bbr_node_keys_remove(ctxt->rcp_if_id, eui64);
+    ret = ws_bbr_node_keys_remove(ctxt->net_if.id, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);
@@ -270,10 +270,10 @@ static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_erro
     else if (len != GTK_LEN)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, false, gtk);
+    ret = ws_bbr_node_access_revoke_start(ctxt->net_if.id, false, gtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, true, lgtk);
+    ret = ws_bbr_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
@@ -295,7 +295,7 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
     if (len != GTK_LEN)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ws_pae_auth_gtk_install(ctxt->rcp_if_id, gtk, is_lgtk);
+    ws_pae_auth_gtk_install(ctxt->net_if.id, gtk, is_lgtk);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -562,8 +562,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     supp_entry_t *supp;
     uint8_t ipv6[16];
 
-    len_pae = ws_pae_auth_supp_list(ctxt->rcp_if_id, eui64_pae, sizeof(eui64_pae));
-    len_rpl = ws_bbr_routing_table_get(ctxt->rcp_if_id, table, ARRAY_SIZE(table));
+    len_pae = ws_pae_auth_supp_list(ctxt->net_if.id, eui64_pae, sizeof(eui64_pae));
+    len_rpl = ws_bbr_routing_table_get(ctxt->net_if.id, table, ARRAY_SIZE(table));
     if (len_rpl < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
 
@@ -730,10 +730,10 @@ static const sd_bus_vtable dbus_vtable[] = {
                         offsetof(struct wsbr_ctxt, config.ws_chan_plan_id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("WisunPanId", "q", dbus_get_ws_pan_id,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if.id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("WisunFanVersion", "y", dbus_get_fan_version,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if.id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_VTABLE_END
 };

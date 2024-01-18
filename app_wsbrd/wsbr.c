@@ -191,16 +191,16 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
 
-    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
+    ret = ws_management_node_init(ctxt->net_if.id, ctxt->config.ws_domain,
                                   ctxt->config.ws_name);
     WARN_ON(ret);
 
-    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->config.ws_domain,
+    ret = ws_management_regulatory_domain_set(ctxt->net_if.id, ctxt->config.ws_domain,
                                               ctxt->config.ws_class, ctxt->config.ws_mode,
                                               ctxt->config.ws_phy_mode_id, ctxt->config.ws_chan_plan_id);
     WARN_ON(ret);
     if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF)
-        ret = ws_management_channel_plan_set(ctxt->rcp_if_id,
+        ret = ws_management_channel_plan_set(ctxt->net_if.id,
                                              CHANNEL_FUNCTION_DH1CF,
                                              CHANNEL_FUNCTION_DH1CF,
                                              ctxt->config.ws_chan0_freq,
@@ -210,27 +210,27 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rail_fill_pom(ctxt);
 
-    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
+    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->net_if.id, channel_function, fixed_channel,
                                                                 ctxt->config.uc_dwell_interval);
     WARN_ON(ret);
-    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
+    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->net_if.id, channel_function, fixed_channel,
                                                                   ctxt->config.bc_dwell_interval, ctxt->config.bc_interval);
     WARN_ON(ret);
-    ret = ws_management_fhss_lfn_configure(ctxt->rcp_if_id, ctxt->config.lfn_bc_interval, ctxt->config.lfn_bc_sync_period);
+    ret = ws_management_fhss_lfn_configure(ctxt->net_if.id, ctxt->config.lfn_bc_interval, ctxt->config.lfn_bc_sync_period);
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     WARN_ON(ret);
     if (fixed_channel == 0xFFFF) {
-        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->config.ws_allowed_channels);
+        ret = ws_management_channel_mask_set(ctxt->net_if.id, ctxt->config.ws_allowed_channels);
         WARN_ON(ret);
     }
 
     if (ctxt->config.ws_pan_id >= 0)
-        ws_bbr_pan_configuration_set(ctxt->rcp_if_id, ctxt->config.ws_pan_id);
+        ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
 
     // Note that calls to ws_management_timing_parameters_set() and
     // is done by the function below.
-    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->config.ws_size);
+    ret = ws_management_network_size_set(ctxt->net_if.id, ctxt->config.ws_size);
     WARN_ON(ret);
 
     // FIXME: no ws_management_xxx() setter
@@ -256,7 +256,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         }
     }
     if (gtk_force) {
-        ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
+        ret = ws_test_gtk_set(ctxt->net_if.id, gtks);
         WARN_ON(ret);
     }
 
@@ -267,7 +267,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         }
     }
     if (lgtk_force) {
-        ret = ws_test_lgtk_set(ctxt->rcp_if_id, lgtks);
+        ret = ws_test_lgtk_set(ctxt->net_if.id, lgtks);
         WARN_ON(ret);
     }
 
@@ -318,8 +318,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     protocol_init(&ctxt->net_if, &ctxt->rcp, ctxt->config.lowpan_mtu);
     protocol_6lowpan_configure_core(&ctxt->net_if);
     BUG_ON(ctxt->net_if.lowpan_info & INTERFACE_NWK_ACTIVE);
-    ctxt->rcp_if_id = ctxt->net_if.id;
-    ret = ws_bootstrap_init(ctxt->rcp_if_id);
+    ret = ws_bootstrap_init(ctxt->net_if.id);
     BUG_ON(ret);
 
     wsbr_configure_ws(ctxt);
@@ -348,10 +347,10 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
 
     if (strlen(ctxt->config.radius_secret) != 0)
-        if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
+        if (ws_bbr_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
             WARN("ws_bbr_radius_shared_secret_set");
     if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
-        if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
+        if (ws_bbr_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
             WARN("ws_bbr_radius_address_set");
     // Artificially add wsbrd to the DHCP lease list
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);

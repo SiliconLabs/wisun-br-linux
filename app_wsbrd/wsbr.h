@@ -46,7 +46,6 @@ struct wsbr_ctxt {
     int  sock_mcast;
 
     struct rcp rcp;
-    int  rcp_if_id;
 
     int spinel_tid;
     int spinel_iid;
