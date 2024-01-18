@@ -313,19 +313,16 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
-    struct net_if *cur;
     uint8_t ipv6[16];
     int ret;
 
     protocol_core_init();
     address_module_init();
     ws_cfg_settings_init();
-
-    cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu);
-    BUG_ON(!cur);
-    protocol_6lowpan_configure_core(cur);
-    BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
-    ctxt->rcp_if_id = cur->id;
+    protocol_init(&ctxt->net_if, &ctxt->rcp, ctxt->config.lowpan_mtu);
+    protocol_6lowpan_configure_core(&ctxt->net_if);
+    BUG_ON(ctxt->net_if.lowpan_info & INTERFACE_NWK_ACTIVE);
+    ctxt->rcp_if_id = ctxt->net_if.id;
     ret = ws_bootstrap_init(ctxt->rcp_if_id);
     BUG_ON(ret);
 
@@ -333,7 +330,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ret = tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
     FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->config.tun_dev);
 
-    ret = ws_bootstrap_up(cur, ipv6);
+    ret = ws_bootstrap_up(&ctxt->net_if, ipv6);
     BUG_ON(ret);
 
     wsbr_check_link_local_addr(ctxt);
@@ -351,7 +348,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
         ctxt->rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
-    rpl_glue_init(cur);
+    rpl_glue_init(&ctxt->net_if);
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
 
     if (strlen(ctxt->config.radius_secret) != 0)

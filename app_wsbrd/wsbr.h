@@ -24,6 +24,7 @@ typedef struct sd_bus sd_bus;
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "stack/source/rpl/rpl.h"
+#include "stack/source/nwk_interface/protocol.h"
 #include "rcp_api_legacy.h"
 
 #include "commandline.h"
@@ -36,6 +37,7 @@ struct wsbr_ctxt {
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;
     struct rpl_root rpl_root;
+    struct net_if net_if;
     sd_bus *dbus;
 
     int timerfd;

@@ -48,9 +48,6 @@
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
-// maximum value of nwk_interface_id_e is 1
-struct net_if protocol_interface_info;
-
 void icmp_fast_timer(int ticks)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -104,10 +101,8 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
+void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
 {
-    struct net_if *entry = &protocol_interface_info;
-
     memset(entry, 0, sizeof(struct net_if));
     /* We assume for now zone indexes for interface, link and realm all equal interface id */
     entry->id = 1;
@@ -153,7 +148,6 @@ struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu
     entry->iid_eui64[0] ^= 2;
     entry->iid_slaac[0] ^= 2;
     ns_list_add_to_start(&protocol_interface_info_list, entry);
-    return entry;
 }
 
 void nwk_interface_print_neigh_cache()

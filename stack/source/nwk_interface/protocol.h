@@ -140,7 +140,7 @@ void nwk_interface_print_neigh_cache();
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
 struct net_if *protocol_stack_interface_info_get();
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu);
+void protocol_init(struct net_if *net_if, struct rcp *rcp, int mtu);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 void icmp_fast_timer(int ticks);
