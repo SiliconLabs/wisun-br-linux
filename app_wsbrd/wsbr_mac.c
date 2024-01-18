@@ -23,6 +23,7 @@
 #include "common/parsers.h"
 #include "common/pcapng.h"
 #include "common/spinel.h"
+#include "common/bits.h"
 #include "common/hif.h"
 #include "common/iobuf.h"
 #include "common/memutils.h"

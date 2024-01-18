@@ -22,6 +22,7 @@
 #include "common/time_extra.h"
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/bits.h"
 #include "common/specs/icmpv6.h"
 
 #include "app_wsbrd/tun.h" // FIXME

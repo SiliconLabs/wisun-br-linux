@@ -20,6 +20,7 @@
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
 #include "common/log.h"
+#include "common/bits.h"
 #include "common/mathutils.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"

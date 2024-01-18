@@ -23,6 +23,7 @@
 #include "common/mathutils.h"
 #include "common/rand.h"
 #include "common/log.h"
+#include "common/bits.h"
 #include "common/specs/ws.h"
 
 #include "6lowpan/ws/ws_bootstrap.h"

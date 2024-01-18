@@ -20,7 +20,6 @@
 #define WS_COMMON_DEFINES_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "common/bits.h"
 #include "common/int24.h"
 
 /* WS excluded channel Control */
