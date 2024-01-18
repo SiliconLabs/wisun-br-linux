@@ -173,7 +173,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8
     /* ZigBee IP and Thread both also have link-local addresses based on short MAC (LL16) */
     /* Our old IP stack assumed all addresses were based on MAC; this is available as an option */
     if (addr_is_ipv6_link_local(ip_addr)) {
-        if (memcmp(&ip_addr[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
+        if (memcmp(&ip_addr[8], ADDR_SHORT_ADDR_SUFFIX, 6) == 0) {
             *ll_type = ADDR_802_15_4_SHORT;
             memcpy(&ll_addr[2], &ip_addr[14], 2);
         } else {

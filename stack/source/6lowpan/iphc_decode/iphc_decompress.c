@@ -304,7 +304,7 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
             *in_ptr += 8;
             break;
         case HC_DST_ADR_16_BIT:
-            memcpy(addr + 8, ADDR_SHORT_ADR_SUFFIC, 6);
+            memcpy(addr + 8, ADDR_SHORT_ADDR_SUFFIX, 6);
             addr[14] = (*in_ptr)[0];
             addr[15] = (*in_ptr)[1];
             *in_ptr += 2;

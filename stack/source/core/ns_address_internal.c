@@ -482,8 +482,8 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[s
         }
 
         /* A tie-breaker: Prefer 6LoWPAN short address (or the opposite) */
-        bool short_SA = SA->prefix_len == 64 && memcmp(SA->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0;
-        bool short_SB = SB->prefix_len == 64 && memcmp(SB->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0;
+        bool short_SA = SA->prefix_len == 64 && memcmp(SA->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0;
+        bool short_SB = SB->prefix_len == 64 && memcmp(SB->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0;
         if (short_SA != short_SB) {
             bool prefer_short = (addr_preferences & SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
 
@@ -571,8 +571,8 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
         /* (Rule 8: Use longest matching prefix - doesn't apply) */
 
         /* A tie-breaker: Prefer 6LoWPAN short address (or the opposite) */
-        bool short_SA = SA->prefix_len == 64 && memcmp(SA->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0;
-        bool short_SB = SB->prefix_len == 64 && memcmp(SB->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0;
+        bool short_SA = SA->prefix_len == 64 && memcmp(SA->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0;
+        bool short_SB = SB->prefix_len == 64 && memcmp(SB->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0;
         if (short_SA != short_SB) {
             bool prefer_short = (addr_preferences & SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
 
@@ -669,7 +669,7 @@ bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in)
             break;
         case ADDR_BROADCAST:
         case ADDR_802_15_4_SHORT:
-            memcpy(iid_out, ADDR_SHORT_ADR_SUFFIC, 6);
+            memcpy(iid_out, ADDR_SHORT_ADDR_SUFFIX, 6);
             iid_out[6] = addr_in->address[2];
             iid_out[7] = addr_in->address[3];
             break;
@@ -712,7 +712,7 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
 
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (addr_is_ipv6_link_local(e->address)) {
-            if (memcmp(e->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
+            if (memcmp(e->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0) {
                 short_addr = e->address;
             } else {
                 long_addr = e->address;

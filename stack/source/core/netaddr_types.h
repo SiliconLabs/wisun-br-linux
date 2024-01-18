@@ -40,7 +40,7 @@ typedef struct ns_sockaddr {
 } sockaddr_t;
 
 static const uint8_t ADDR_LINK_LOCAL_PREFIX[8]         = { 0xfe, 0x80 };
-static const uint8_t ADDR_SHORT_ADR_SUFFIC[6]          = { 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00};
+static const uint8_t ADDR_SHORT_ADDR_SUFFIX[6]         = { 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00};
 
 static const uint8_t ADDR_MULTICAST_SOLICITED[13]      = { 0xff, 0x02, [11] = 0x01, 0xff};
 static const uint8_t ADDR_IF_LOCAL_ALL_NODES[16]       = { 0xff, 0x01, [15] = 0x01 };

@@ -75,7 +75,7 @@ static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_
     /* covered by context, in which case template already hold the correct */
     /* context bytes */
     if (ctx_len < 112) {
-        memcpy(template + 8, ADDR_SHORT_ADR_SUFFIC, 6);
+        memcpy(template + 8, ADDR_SHORT_ADDR_SUFFIX, 6);
         if (ctx_len > 64) {
             bitcpy(template + 8, ctx_prefix + 8, ctx_len - 64);
         }
