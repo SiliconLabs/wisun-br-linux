@@ -22,11 +22,14 @@
  * This file contains all the utility functions that can be used to
  * check, manipulate etc. addresses.
  */
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <arpa/inet.h>
 #include "common/endian.h"
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/string_extra.h"
@@ -183,13 +186,19 @@ void address_module_init(void)
     //mac_reset_short_address();
 }
 
-static int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label)
+static int_fast8_t addr_policy_table_add_entry(const char *_netmask, uint8_t precedence, uint8_t label)
 {
-    addr_policy_table_entry_t *entry = malloc(sizeof(addr_policy_table_entry_t));
-    if (!entry) {
-        return -1;
-    }
-    bitcpy(entry->prefix, prefix, len);
+    addr_policy_table_entry_t *entry = zalloc(sizeof(addr_policy_table_entry_t));
+    char *netmask = strdupa(_netmask);
+    char *ptr = strchrnul(netmask, '/');
+    uint8_t len = strtol(ptr + 1, NULL, 10);
+    struct in6_addr prefix;
+
+    BUG_ON(!*ptr);
+    *ptr = '\x00';
+    inet_pton(AF_INET6, netmask, &prefix);
+
+    memcpy(entry->prefix, prefix.s6_addr, sizeof(entry->prefix));
     entry->prefix_len = len;
     entry->precedence = precedence;
     entry->label = label;
@@ -200,7 +209,7 @@ static int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t le
         if (before->prefix_len > len) {
             continue;
         }
-        if (before->prefix_len == len && !bitcmp(before->prefix, prefix, len)) {
+        if (before->prefix_len == len && !bitcmp(before->prefix, entry->prefix, len)) {
             free(entry);
             return -2;
         }
@@ -231,26 +240,16 @@ static void addr_policy_table_reset(void)
         free(entry);
     }
 
-    /* Default policy table from RFC 6724 */
-    addr_policy_table_add_entry(ADDR_LOOPBACK,                         128, 50, 0);
-    addr_policy_table_add_entry(NULL,                                    0, 40, 1);
-    addr_policy_table_add_entry(ADDR_IPV4_MAPPED_PREFIX,                96, 35,  4);
-    addr_policy_table_add_entry((const uint8_t[]) {
-        0x20, 0x02
-    },       16, 30,  2);
-    addr_policy_table_add_entry((const uint8_t[]) {
-        0x20, 0x01, 0, 0
-    }, 32,  5,  5);
-    addr_policy_table_add_entry((const uint8_t[]) {
-        0xfc
-    },              7,  3, 13);
-    addr_policy_table_add_entry(ADDR_IPV4_COMPATIBLE,                   96,  1,  3);
-    addr_policy_table_add_entry((const uint8_t[]) {
-        0xfe, 0xc0
-    },       10,  1, 11);
-    addr_policy_table_add_entry((const uint8_t[]) {
-        0x3f, 0xfe
-    },       16,  1, 12);
+    /* Default policy table from RFC 6724 section 10.7 */
+    addr_policy_table_add_entry("::1/128",       50,  0);
+    addr_policy_table_add_entry("::/0",          40,  1);
+    addr_policy_table_add_entry("::ffff:0:0/96", 35,  4);
+    addr_policy_table_add_entry("2002::/16",     30,  2);
+    addr_policy_table_add_entry("2001::/32",      5,  5);
+    addr_policy_table_add_entry("fc00::/7",       3, 13);
+    addr_policy_table_add_entry("::/96",          1,  3);
+    addr_policy_table_add_entry("fec0::/10",      1, 11);
+    addr_policy_table_add_entry("3ffe::/16",      1, 12);
     //addr_policy_table_print();
 }
 
