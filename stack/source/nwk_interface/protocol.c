@@ -51,8 +51,6 @@ protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 // maximum value of nwk_interface_id_e is 1
 struct net_if protocol_interface_info;
 
-static int8_t net_interface_get_free_id(void);
-
 void icmp_fast_timer(int ticks)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -109,14 +107,13 @@ void protocol_core_init(void)
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
 {
     struct net_if *entry = &protocol_interface_info;
-    int id = net_interface_get_free_id();
 
     memset(entry, 0, sizeof(struct net_if));
     /* We assume for now zone indexes for interface, link and realm all equal interface id */
-    entry->id = id;
-    entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
-    entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
-    entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
+    entry->id = 1;
+    entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = entry->id;
+    entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = entry->id;
+    entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = entry->id;
 
     lowpan_adaptation_interface_init(entry->id);
     reassembly_interface_init(entry->id, 8, 5);
@@ -172,31 +169,6 @@ struct net_if *protocol_stack_interface_info_get()
         return cur;
 
     return NULL;
-}
-
-static int8_t net_interface_get_free_id(void)
-{
-    uint_fast8_t id; // Must be unsigned for loop test to work...
-
-    for (id = 1; id <= INT8_MAX; id++) {
-        bool in_use = false;
-        /* interface index == default zone index for link, interface and realm, so
-         * ensure selected ID is not in use for any of those scopes */
-        ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-            if (cur->id == (int8_t) id ||
-                    cur->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] == id ||
-                    cur->zone_index[IPV6_SCOPE_LINK_LOCAL] == id ||
-                    cur->zone_index[IPV6_SCOPE_REALM_LOCAL] == id) {
-                in_use = true;
-                break;
-            }
-        }
-        if (!in_use) {
-            return id;
-        }
-    }
-
-    return -1;
 }
 
 void protocol_push(buffer_t *b)
