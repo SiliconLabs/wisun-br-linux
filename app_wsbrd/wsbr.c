@@ -325,7 +325,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     BUG_ON(!cur);
     protocol_6lowpan_configure_core(cur);
     BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
-    BUG_ON(cur->interface_mode == INTERFACE_UP);
     ctxt->rcp_if_id = cur->id;
     ret = ws_bootstrap_init(ctxt->rcp_if_id);
     BUG_ON(ret);

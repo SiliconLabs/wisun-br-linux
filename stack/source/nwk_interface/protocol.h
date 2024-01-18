@@ -73,11 +73,6 @@ void protocol_core_init(void);
 #define INTERFACE_SETUP_BORDER_ROUTER_MASK          11
 #define INTERFACE_SETUP_BORDER_ROUTER_READY         11
 
-typedef enum {
-    INTERFACE_IDLE = 0,
-    INTERFACE_UP = 1
-} interface_mode_e;
-
 /** Control selection of MPL Seed Identifier for packets we originate */
 typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
@@ -167,7 +162,6 @@ struct net_if {
     /* Link Layer Part */
     uint8_t mac[8]; // MAC address (EUI-64 for LoWPAN, EUI-48 for Ethernet)
 
-    interface_mode_e interface_mode;
     ipv6_interface_info_t ipv6_configure;
     struct red_info *random_early_detection;
     struct red_info *llc_random_early_detection;
