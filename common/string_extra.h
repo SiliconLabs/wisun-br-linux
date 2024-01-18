@@ -42,4 +42,17 @@ static inline void *memrcpy(void *dst, const void *src, size_t size)
     return dst;
 }
 
+static inline void memswap(void *buf1, void *buf2, size_t size)
+{
+    uint8_t *a = buf1;
+    uint8_t *b = buf2;
+    uint8_t tmp;
+
+    for (int i = 0; i < size; i++) {
+        tmp = a[i];
+        a[i] = b[i];
+        b[i] = tmp;
+    }
+}
+
 #endif

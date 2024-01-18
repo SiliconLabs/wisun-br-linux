@@ -113,8 +113,6 @@ bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
 bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
 bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
 
-void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len);
-
 int addr_interface_set_ll64(struct net_if *cur);
 
 /* address_type 0 means "any" address - we return short by preference */

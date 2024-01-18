@@ -19,6 +19,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "common/log.h"
+#include "common/string_extra.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/named_values.h"

@@ -616,15 +616,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
     return entry;
 }
 
-void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
-{
-    while (len--) {
-        uint8_t t = *a;
-        *a++ = *b;
-        *b++ = t;
-    }
-}
-
 /* Optimised for quick discard of mismatching addresses (eg in a cache lookup):
  * searches BACKWARDS, as last bytes are most likely to differ.
  */
