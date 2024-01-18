@@ -211,18 +211,6 @@ static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
     return 0;
 }
 
-static void ws_bootstrap_ll_address_validate(struct net_if *cur)
-{
-    BUG_ON(!cur->rcp);
-    BUG_ON(!memzcmp(cur->rcp->eui64, 8));
-    memcpy(cur->mac, cur->rcp->eui64, 8);
-    memcpy(cur->iid_eui64, cur->rcp->eui64, 8);
-    memcpy(cur->iid_slaac, cur->rcp->eui64, 8);
-    /* RFC4291 2.5.1: invert the "u" bit */
-    cur->iid_eui64[0] ^= 2;
-    cur->iid_slaac[0] ^= 2;
-}
-
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
 {
     (void)cur;
@@ -258,8 +246,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         return -3;
     }
     ws_bbr_init(cur);
-
-    ws_bootstrap_ll_address_validate(cur);
 
     addr_interface_set_ll64(cur);
     // Trigger discovery for bootstrap

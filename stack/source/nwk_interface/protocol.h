@@ -85,8 +85,6 @@ struct net_if {
     bool is_dhcp_relay_agent_enabled;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
-    uint8_t iid_eui64[8]; // IID based on EUI-64 - used for link-local address
-    uint8_t iid_slaac[8]; // IID to use for SLAAC addresses - may or may not be same as iid_eui64
     uint16_t max_link_mtu;
     bool pan_advert_running: 1;
     bool pan_config_running: 1;
@@ -109,8 +107,9 @@ struct net_if {
     uint8_t dup_addr_detect_transmits;
     uint16_t pmtu_lifetime;             // s
 
-    /* Link Layer Part */
-    uint8_t mac[8]; // MAC address (EUI-64 for LoWPAN, EUI-48 for Ethernet)
+    uint8_t mac[8];
+    uint8_t iid_eui64[8];
+    uint8_t iid_slaac[8];
 
     ipv6_interface_info_t ipv6_configure;
     struct red_info *random_early_detection;

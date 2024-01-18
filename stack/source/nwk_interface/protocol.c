@@ -101,6 +101,17 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
+static void protocol_set_eui64(struct net_if *cur, uint8_t eui64[8])
+{
+    BUG_ON(!memzcmp(eui64, 8));
+    memcpy(cur->mac, eui64, 8);
+    memcpy(cur->iid_eui64, eui64, 8);
+    memcpy(cur->iid_slaac, eui64, 8);
+    /* RFC4291 2.5.1: invert the "u" bit */
+    cur->iid_eui64[0] ^= 2;
+    cur->iid_slaac[0] ^= 2;
+}
+
 void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
 {
     memset(entry, 0, sizeof(struct net_if));
@@ -142,11 +153,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     ns_list_init(&entry->ip_groups);
     ns_list_init(&entry->ipv6_neighbour_cache.list);
     ipv6_neighbour_cache_init(&entry->ipv6_neighbour_cache, entry->id);
-    memcpy(entry->iid_eui64, rcp->eui64, 8);
-    memcpy(entry->iid_slaac, rcp->eui64, 8);
-    /* RFC4291 2.5.1: invert the "u" bit */
-    entry->iid_eui64[0] ^= 2;
-    entry->iid_slaac[0] ^= 2;
+    protocol_set_eui64(entry, rcp->eui64);
     ns_list_add_to_start(&protocol_interface_info_list, entry);
 }
 
