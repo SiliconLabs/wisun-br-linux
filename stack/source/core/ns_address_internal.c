@@ -34,6 +34,7 @@
 #include "common/bits.h"
 #include "common/string_extra.h"
 #include "common/log_legacy.h"
+#include "common/string_extra.h"
 
 #include "common/specs/ipv6.h"
 

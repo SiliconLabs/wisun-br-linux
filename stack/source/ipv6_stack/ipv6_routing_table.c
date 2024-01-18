@@ -42,6 +42,7 @@
 #include "common/bits.h"
 #include "common/memutils.h"
 #include "common/log_legacy.h"
+#include "common/string_extra.h"
 
 #include "common/specs/ipv6.h"
 #include "common_protocols/icmpv6.h"
@@ -370,7 +371,7 @@ void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
     ns_list_foreach(const ipv6_neighbour_t, cur, &cache->list) {
         tr_debug("IP Addr: %s", tr_ipv6(cur->ip_address));
         tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, tr_key(cur->ll_address, addr_len_from_type(cur->ll_type)));
-        if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8))
+        if (cache->recv_addr_reg && memzcmp(ipv6_neighbour_eui64(cache, cur), 8))
             tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime_s, tr_eui64(ipv6_neighbour_eui64(cache, cur)));
         else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
             tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime_s);

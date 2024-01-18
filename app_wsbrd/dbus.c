@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 #include "app_wsbrd/tun.h"
+#include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/memutils.h"
 #include "common/version.h"
@@ -495,7 +496,7 @@ static int dbus_message_append_node(
         dbus_message_open_info(m, property, "ipv6", "aay");
         ret = sd_bus_message_open_container(m, 'a', "ay");
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        for (; memcmp(*ipv6, ADDR_UNSPECIFIED, 16); ipv6++) {
+        for (; memzcmp(*ipv6, 16); ipv6++) {
             ret = sd_bus_message_append_array(m, 'y', *ipv6, 16);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
         }
@@ -588,7 +589,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     for (int i = 0; i < len_pae; i++) {
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
         memcpy(node_ipv6[0] + 8, eui64_pae[i], 8);
-        memcpy(node_ipv6[1], ADDR_UNSPECIFIED, 16);
+        memset(node_ipv6[1], 0, 16);
         parent = NULL;
         ucast_addr = dhcp_eui64_to_ipv6(ctxt, eui64_pae[i]);
         if (ucast_addr) {

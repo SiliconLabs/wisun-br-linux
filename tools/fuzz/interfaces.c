@@ -204,7 +204,7 @@ ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
 
     size = __real_recv(sockfd, buf, len, flags);
     if (g_fuzz_ctxt.capture_fd >= 0)
-        fuzz_capture_socket(sockfd, ADDR_UNSPECIFIED, ADDR_UNSPECIFIED, 0, buf, size);
+        fuzz_capture_socket(sockfd, (const uint8_t[16]) { }, (const uint8_t[16]) { }, 0, buf, size);
 
     return size;
 }
@@ -213,7 +213,7 @@ ssize_t __real_recvfrom(int sockfd, void *buf, size_t len, int flags, struct soc
 ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_sa, socklen_t *addrlen)
 {
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)src_sa;
-    const uint8_t *src_addr = ADDR_UNSPECIFIED;
+    const uint8_t *src_addr = (uint8_t[16]) { };
     uint16_t src_port = 0;
     ssize_t size;
     int i;
@@ -237,7 +237,7 @@ ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct soc
             src_addr = src_ipv6->sin6_addr.s6_addr;
             src_port = ntohs(src_ipv6->sin6_port);
         }
-        fuzz_capture_socket(sockfd, src_addr, ADDR_UNSPECIFIED, src_port, buf, size);
+        fuzz_capture_socket(sockfd, src_addr, (const uint8_t[16]) { }, src_port, buf, size);
     }
 
     return size;
@@ -247,8 +247,8 @@ ssize_t __real_recvmsg(int sockfd, struct msghdr *msg, int flags);
 ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
 {
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)msg->msg_name;
-    const uint8_t *src_addr = ADDR_UNSPECIFIED;
-    const uint8_t *dst_addr = ADDR_UNSPECIFIED;
+    const uint8_t *src_addr = (const uint8_t[16]) { };
+    const uint8_t *dst_addr = (const uint8_t[16]) { };
     struct in6_pktinfo pktinfo = { };
     uint16_t src_port = 0;
     struct cmsghdr *cmsg;

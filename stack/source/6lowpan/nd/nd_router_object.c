@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -222,7 +223,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         switch (neigh->type) {
             case IP_NEIGHBOUR_TENTATIVE:
                 /* Is zero EUI-64 still possible? */
-                if (memcmp(nce_eui64, na_earo->eui64, 8) && memcmp(nce_eui64, ADDR_EUI64_ZERO, 8)) {
+                if (memcmp(nce_eui64, na_earo->eui64, 8) && memzcmp(nce_eui64, 8)) {
                     /* Have a Tentative NCE with different EUI-64 - ignore NS; two
                      * people trying to register at once. One should retry.
                      */

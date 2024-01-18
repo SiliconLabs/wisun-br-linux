@@ -36,6 +36,7 @@
 #include "common/log.h"
 #include "common/netinet_in_extra.h"
 #include "common/specs/ws.h"
+#include "common/string_extra.h"
 
 #include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/lowpan_mtu.h"
@@ -798,9 +799,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
     if (config->ws_lgtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
-    if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && config->tun_autoconf)
+    if (!memzcmp(config->ipv6_prefix, 16) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
-    if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && !config->tun_autoconf)
+    if (memzcmp(config->ipv6_prefix, 16) && !config->tun_autoconf)
         FATAL(1, "\"ipv6_prefix\" is only available when \"tun_autoconf\" is set");
     for (int i = 0; config->ws_phy_op_modes[i]; i++)
         if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&

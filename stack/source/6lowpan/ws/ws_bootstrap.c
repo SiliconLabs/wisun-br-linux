@@ -28,6 +28,7 @@
 #include "common/endian.h"
 #include "common/mathutils.h"
 #include "common/time_extra.h"
+#include "common/string_extra.h"
 #include "common/version.h"
 #include "common/events_scheduler.h"
 #include "common/specs/icmpv6.h"
@@ -213,7 +214,7 @@ static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
 static void ws_bootstrap_ll_address_validate(struct net_if *cur)
 {
     BUG_ON(!cur->rcp);
-    BUG_ON(memcmp(cur->rcp->eui64, ADDR_UNSPECIFIED, 8) == 0);
+    BUG_ON(!memzcmp(cur->rcp->eui64, 8));
     memcpy(cur->mac, cur->rcp->eui64, 8);
     memcpy(cur->iid_eui64, cur->rcp->eui64, 8);
     memcpy(cur->iid_slaac, cur->rcp->eui64, 8);
