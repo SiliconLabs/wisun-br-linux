@@ -106,7 +106,7 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
-static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu)
+struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
 {
     struct net_if *entry = &protocol_interface_info;
     int id = net_interface_get_free_id();
@@ -149,6 +149,13 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
     ns_list_init(&entry->ipv6_neighbour_cache.list);
+    ipv6_neighbour_cache_init(&entry->ipv6_neighbour_cache, entry->id);
+    memcpy(entry->iid_eui64, rcp->eui64, 8);
+    memcpy(entry->iid_slaac, rcp->eui64, 8);
+    /* RFC4291 2.5.1: invert the "u" bit */
+    entry->iid_eui64[0] ^= 2;
+    entry->iid_slaac[0] ^= 2;
+    ns_list_add_to_start(&protocol_interface_info_list, entry);
     return entry;
 }
 
@@ -190,23 +197,6 @@ static int8_t net_interface_get_free_id(void)
     }
 
     return -1;
-}
-
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
-{
-    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(rcp, mtu);
-
-    if (new_entry) {
-        ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
-        memcpy(new_entry->iid_eui64, rcp->eui64, 8);
-        memcpy(new_entry->iid_slaac, rcp->eui64, 8);
-        /* RFC4291 2.5.1: invert the "u" bit */
-        new_entry->iid_eui64[0] ^= 2;
-        new_entry->iid_slaac[0] ^= 2;
-        ns_list_add_to_start(&protocol_interface_info_list, new_entry);
-        return new_entry;
-    }
-    return NULL;
 }
 
 void protocol_push(buffer_t *b)
