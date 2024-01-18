@@ -158,11 +158,10 @@ void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
                        "Lgaks", NULL);
 }
 
-static int dbus_get_transient_keys(sd_bus_message *reply, void *userdata,
+static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
                                    sd_bus_error *ret_error, bool is_lfn)
 {
-    int interface_id = *(int *)userdata;
-    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(interface_id, is_lfn);
+    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
     const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
     int ret;
 
@@ -183,33 +182,31 @@ static int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_transient_keys(reply, userdata, ret_error, false);
+    return dbus_get_transient_keys(reply, (struct net_if *)userdata, ret_error, false);
 }
 
 static int dbus_get_lgtks(sd_bus *bus, const char *path, const char *interface,
                           const char *property, sd_bus_message *reply,
                           void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_transient_keys(reply, userdata, ret_error, true);
+    return dbus_get_transient_keys(reply, (struct net_if *)userdata, ret_error, true);
 }
 
-static int dbus_get_aes_keys(sd_bus_message *reply, void *userdata,
+static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
                              sd_bus_error *ret_error, bool is_lfn)
 {
-    int interface_id = *(int *)userdata;
-    struct net_if *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
-    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(interface_id, is_lfn);
+    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
     const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
     uint8_t gak[16];
     int ret;
 
-    if (!gtks || !interface_ptr || !interface_ptr->ws_info.cfg)
+    if (!gtks || !net_if->ws_info.cfg)
         return sd_bus_error_set_errno(ret_error, EBADR);
     ret = sd_bus_message_open_container(reply, 'a', "ay");
     WARN_ON(ret < 0, "%s", strerror(-ret));
     for (int i = 0; i < key_cnt; i++) {
         // GAK is SHA256 of network name concatened with GTK
-        ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, interface_ptr->ws_info.cfg->gen.network_name);
+        ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, net_if->ws_info.cfg->gen.network_name);
         ret = sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
         WARN_ON(ret < 0, "%s", strerror(-ret));
     }
@@ -222,14 +219,14 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_aes_keys(reply, userdata, ret_error, false);
+    return dbus_get_aes_keys(reply, (struct net_if *)userdata, ret_error, false);
 }
 
 static int dbus_get_lgaks(sd_bus *bus, const char *path, const char *interface,
                           const char *property, sd_bus_message *reply,
                           void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_aes_keys(reply, userdata, ret_error, true);
+    return dbus_get_aes_keys(reply, (struct net_if *)userdata, ret_error, true);
 }
 
 static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -695,16 +692,16 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("IeCustomInsert",      "yyayay", NULL, dbus_ie_custom_insert,      0),
         SD_BUS_METHOD("IeCustomClear",       NULL,     NULL, dbus_ie_custom_clear,       0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Gaks", "aay", dbus_get_gaks,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Lgtks", "aay", dbus_get_lgtks,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Lgaks", "aay", dbus_get_lgaks,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes, 0,
                         SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
