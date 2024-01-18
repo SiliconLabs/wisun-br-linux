@@ -214,36 +214,6 @@ int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage
  */
 int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
 
-/**
- * \brief A function to set DNS query results to border router
- *
- * Border router distributes these query results in DHCP Solicit responses to
- * all the devices joining to the Wi-SUN mesh network.
- *
- * Border router keeps these forever, but if application does not update these in regular interval
- * The address might stop working. So periodic keep alive is required.
- *
- * These cached query results will become available in the Wi-SUN interface.
- *
- * This function can be called multiple times.
- * if domain name matches a existing entry address is updated.
- * If domain name is set to NULL entire list is cleared
- * if address is set to NULL the Domain name is removed from the list.
- *
- * \param interface_id Network interface ID.
- * \param address The address of the DNS query result.
- * \param domain_name_ptr Domain name matching the address
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-
-void ws_bbr_internal_dhcp_server_start(int8_t interface_id, uint8_t *global_id);
-
-int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr);
-
-int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_modes, uint8_t phy_op_mode_number);
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
 
 void ws_bbr_pan_version_increase(struct net_if *cur);
