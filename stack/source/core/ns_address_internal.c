@@ -29,6 +29,7 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/string_extra.h"
 #include "common/log_legacy.h"
 
 #include "common/specs/ipv6.h"
@@ -124,6 +125,21 @@ bool addr_is_ipv6_link_local(const uint8_t addr[static 16])
     return addr[0] == 0xfe && (addr[1] & 0xc0) == 0x80;
 }
 
+bool addr_is_ipv6_unspecified(const uint8_t addr[16])
+{
+    return !memzcmp(addr, 16);
+}
+
+bool addr_is_ipv6_loopback(const uint8_t addr[16])
+{
+    return !memcmp(addr, ADDR_LOOPBACK, 16);
+}
+
+bool addr_is_ipv6_multicast(const uint8_t addr[16])
+{
+    return addr[0] == 0xFF;
+}
+
 /* Site-local addresses deprecated, but still processed by RFC 6724 address selection */
 static bool addr_is_ipv6_site_local(const uint8_t addr[static 16])
 {
@@ -136,7 +152,7 @@ static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
 }
 
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
-uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16])
+uint8_t addr_ipv6_scope(const uint8_t addr[static 16])
 {
     if (addr_is_ipv6_multicast(addr)) {
         return addr_ipv6_multicast_scope(addr);
@@ -154,6 +170,11 @@ uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16])
         return IPV6_SCOPE_GLOBAL;
     }
     return IPV6_SCOPE_GLOBAL;
+}
+
+uint8_t addr_ipv6_multicast_scope(const uint8_t addr[16])
+{
+    return addr[1] & 0x0F;
 }
 
 void address_module_init(void)

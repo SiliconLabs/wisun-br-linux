@@ -103,12 +103,12 @@ bool addr_am_group_member_on_interface(const struct net_if *interface, const uin
 
 void addr_add_router_groups(struct net_if *interface);
 
-#define addr_is_ipv6_unspecified(addr) (memcmp(addr, ADDR_UNSPECIFIED, 16) == 0)
-#define addr_is_ipv6_loopback(addr) (memcmp(addr, ADDR_LOOPBACK, 16) == 0)
+bool addr_is_ipv6_unspecified(const uint8_t addr[16]);
+bool addr_is_ipv6_loopback(const uint8_t addr[16]);
 bool addr_is_ipv6_link_local(const uint8_t addr[static 16]);
-#define addr_is_ipv6_multicast(addr) (*(addr) == 0xFF)
-uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16]);
-#define addr_ipv6_multicast_scope(addr) ((addr)[1] & 0x0F)
+bool addr_is_ipv6_multicast(const uint8_t addr[16]);
+uint8_t addr_ipv6_scope(const uint8_t addr[static 16]);
+uint8_t addr_ipv6_multicast_scope(const uint8_t addr[16]);
 bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
 bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
 bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
