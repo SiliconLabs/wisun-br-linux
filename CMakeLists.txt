@@ -354,7 +354,6 @@ if(COMPILE_DEVTOOLS)
     target_include_directories(wshwping PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/source/
-        stack/
     )
     if(LIBCPC_FOUND)
         target_compile_definitions(wshwping PRIVATE HAVE_LIBCPC)
@@ -388,7 +387,6 @@ if(COMPILE_DEVTOOLS)
         )
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
-            stack/
             stack/source/
             ${NS3_INCLUDE_DIRECTORIES}
         )
