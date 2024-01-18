@@ -36,7 +36,6 @@
 #include "common/ns_list.h"
 
 #include "core/netaddr_types.h"
-#include "nwk_interface/protocol_abstract.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 #ifndef BUFFERS_MAX
@@ -183,21 +182,11 @@ typedef struct buffer {
     uint16_t            buf_end;                /*!< End pointer in the buffer */
     uint16_t            size;                   /*!< Buffer size */
     uint16_t            offset;                 /*!< Offset indicator (used in some upward paths) */
-    //uint16_t            queue_timer;
-    uint16_t            payload_length;         /*!< Socket payload length */
-    uint8_t             IPHC_NH;
     bool                ip_routed_up: 1;
     uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
-    //uint8_t             bc_sending_superframe;  /*FHSS uses this randomly chosen superframe to send this packet (if broadcast)*/
-    //uint8_t             fhss_channel_retries_left;
-    //uint8_t             ip_transmission_prev_seq;  /*!< XXX: this stores the data packet seq. number, which is needed for re-transmission. */
-    //uint16_t            bad_channel;
-    void                *session_ptr;
     buffer_priority_e   priority;
     buffer_link_info_t  link_specific;
     uint16_t            mpl_option_data_offset;
-    uint8_t             trickle_data_len;
-    uint8_t             trickle_data_field[4];
     buffer_options_t    options;                /*!< Additional signal info etc */
     buffer_routing_info_t *route;               /* A pointer last to try to get neat alignment for data */
     uint8_t             buf[];                  /*!< Trailing buffer data */

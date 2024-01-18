@@ -443,7 +443,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     buf_6lowpan->interface = &ctxt->net_if;
     buffer_data_add(buf_6lowpan, iobuf.data, iobuf.data_size);
 
-    buf_6lowpan->payload_length    = iobuf_pop_be16(&iobuf);
+    iobuf_pop_be16(&iobuf); /* Payload length */
     nxthdr                         = iobuf_pop_u8(&iobuf);
     buf_6lowpan->options.hop_limit = iobuf_pop_u8(&iobuf);
     buf_6lowpan->src_sa.addr_type = ADDR_IPV6;
