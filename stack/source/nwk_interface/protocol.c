@@ -106,16 +106,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
-static void protocol_core_base_init(struct net_if *entry)
-{
-    entry->if_ns_transmit = NULL;
-    entry->if_common_forwarding_out_cb = NULL;
-    entry->if_special_forwarding = NULL;
-    entry->if_snoop = NULL;
-    entry->if_map_ip_to_link_addr = NULL;
-    entry->lowpan_info = 0;
-}
-
 static void protocol_core_base_finish_init(struct net_if *entry)
 {
     entry->configure_flags = 0;
@@ -155,7 +145,6 @@ static struct net_if *protocol_interface_class_allocate()
     entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
     entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
     entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
-    protocol_core_base_init(entry);
     return entry;
 }
 
