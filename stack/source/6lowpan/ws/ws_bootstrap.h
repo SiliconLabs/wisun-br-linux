@@ -24,12 +24,6 @@
 #include "6lowpan/ws/ws_common.h"
 #include "nwk_interface/protocol.h"
 
-typedef enum {
-    WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
-    WS_PARENT_HARD_SYNCH,      /**< Synch FHSS with latest synch information*/
-    WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/
-} ws_parent_synch_e;
-
 struct rpl_instance;
 struct ws_stack_info;
 struct ws_llc_mngt_req;
