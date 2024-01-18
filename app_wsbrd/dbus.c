@@ -99,13 +99,9 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     const uint8_t *ipv6;
     size_t len;
     int ret;
-
-    if (!cur)
-        return sd_bus_error_set_errno(ret_error, EFAULT);
 
     ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (ret < 0)
@@ -116,7 +112,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
     ret = wsbr_tun_join_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, errno);
-    addr_add_group(cur, ipv6);
+    addr_add_group(&ctxt->net_if, ipv6);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -124,13 +120,9 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     const uint8_t *ipv6;
     size_t len;
     int ret;
-
-    if (!cur)
-        return sd_bus_error_set_errno(ret_error, EFAULT);
 
     ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (ret < 0)
@@ -141,7 +133,7 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, errno);
-    addr_remove_group(cur, ipv6);
+    addr_remove_group(&ctxt->net_if, ipv6);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -314,10 +306,9 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
 static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
 
-    ws_ie_custom_clear(&net_if->ws_info.ie_custom_list);
-    ws_bbr_pan_version_increase(net_if);
+    ws_ie_custom_clear(&ctxt->net_if.ws_info.ie_custom_list);
+    ws_bbr_pan_version_increase(&ctxt->net_if);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -325,7 +316,6 @@ static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error 
 static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     const uint8_t *frame_type_list;
     uint16_t frame_type_mask;
     size_t frame_type_count;
@@ -357,11 +347,11 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
         }
         frame_type_mask |= 1 << frame_type_list[i];
     }
-    ret = ws_ie_custom_update(&net_if->ws_info.ie_custom_list, ie_type, ie_id,
+    ret = ws_ie_custom_update(&ctxt->net_if.ws_info.ie_custom_list, ie_type, ie_id,
                               content, content_len, frame_type_mask);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    ws_bbr_pan_version_increase(net_if);
+    ws_bbr_pan_version_increase(&ctxt->net_if);
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
@@ -530,20 +520,18 @@ static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16
 static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
                                                                const uint8_t eui64[8])
 {
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     ws_neighbor_temp_class_t *neighbor_ws_tmp;
 
-    neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(net_if, eui64);
+    neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(&ctxt->net_if, eui64);
     if (neighbor_ws_tmp) {
         neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
         return &neighbor_ws_tmp->neigh_info_list;
     }
-    return ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
+    return ws_neighbor_class_entry_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
 {
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     struct ws_neighbor_class_entry neigh = {
         .rssi    = INT_MAX,
         .rsl_in  = RSL_UNITITIALIZED,
@@ -554,10 +542,10 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
 
     tun_addr_get_link_local(ctxt->config.tun_dev, ipv6_addrs[0]);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6_addrs[1]);
-    while (net_if->ws_info.hopping_schedule.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
+    while (ctxt->net_if.ws_info.hopping_schedule.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
         neigh.pom_ie.phy_op_mode_number++;
     memcpy(neigh.pom_ie.phy_op_mode_id,
-           net_if->ws_info.hopping_schedule.phy_op_modes,
+           ctxt->net_if.ws_info.hopping_schedule.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
     dbus_message_append_node(m, property, ctxt->rcp.eui64, NULL,
                              ipv6_addrs, true, false, &neigh);

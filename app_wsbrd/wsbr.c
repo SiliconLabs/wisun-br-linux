@@ -160,7 +160,6 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 
 static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     ws_sec_timer_cfg_t cfg;
     int ret;
 
@@ -175,14 +174,13 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     cfg.lgtk_new_act_time = ctxt->config.ws_lgtk_new_activation_time;
     cfg.lgtk_new_install_req = ctxt->config.ws_lgtk_new_install_required;
     cfg.lfn_revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
-    ret = ws_cfg_sec_timer_set(cur, &cfg, 0x00);
+    ret = ws_cfg_sec_timer_set(&ctxt->net_if, &cfg, 0x00);
     return ret;
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
     uint8_t *gtks[4] = { };
@@ -191,7 +189,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     bool lgtk_force = false;
 
     // FIXME: no ws_management_xxx() setter
-    cur->ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
+    ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
                                   ctxt->config.ws_name);
@@ -236,9 +234,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
 
     // FIXME: no ws_management_xxx() setter
-    cur->ws_info.pan_information.version = ctxt->config.ws_fan_version;
-    cur->ws_info.enable_lfn   = ctxt->config.enable_lfn;
-    cur->ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
+    ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
+    ctxt->net_if.ws_info.enable_lfn   = ctxt->config.enable_lfn;
+    ctxt->net_if.ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 
     rcp_legacy_set_tx_power(ctxt->config.tx_power);
 
@@ -278,7 +276,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (ctxt->config.ws_regional_regulation) {
         FATAL_ON(version_older_than(ctxt->rcp.version_api, 0, 6, 0), 2,
                  "this device does not support regional regulation");
-        cur->ws_info.regulation = ctxt->config.ws_regional_regulation;
+        ctxt->net_if.ws_info.regulation = ctxt->config.ws_regional_regulation;
         rcp_legacy_set_regional_regulation(ctxt->config.ws_regional_regulation);
     }
 
@@ -294,7 +292,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 {
-    struct net_if *interface;
     uint8_t addr_ws0[16];
     uint8_t addr_tun[16];
     int ret;
@@ -303,8 +300,7 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
     ret = tun_addr_get_link_local(ctxt->config.tun_dev, addr_tun);
     FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->config.tun_dev);
 
-    interface = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    addr_interface_get_ll_address(interface, addr_ws0, 0);
+    addr_interface_get_ll_address(&ctxt->net_if, addr_ws0, 0);
 
     cmp = memcmp(addr_ws0, addr_tun, 16);
     FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
@@ -554,7 +550,6 @@ int wsbr_main(int argc, char *argv[])
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
-    struct net_if *cur;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
@@ -591,18 +586,12 @@ int wsbr_main(int argc, char *argv[])
     rcp_legacy_reset();
     wsbr_rcp_legacy_init(ctxt);
     wsbr_tun_init(ctxt);
-
     wsbr_common_timer_init(ctxt);
-
     wsbr_network_init(ctxt);
-
     dbus_register(ctxt);
     if (ctxt->config.user[0] && ctxt->config.group[0])
         drop_privileges(&ctxt->config);
-
-    cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    ws_bootstrap_6lbr_init(cur);
-
+    ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt, fds);
 
     while (true)

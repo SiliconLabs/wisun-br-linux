@@ -414,7 +414,6 @@ static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
 
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     uint8_t buf[1504]; // Max ethernet frame size + TUN header
     struct iobuf_read iobuf = { .data = buf };
     uint8_t ip_version, nxthdr;
@@ -441,7 +440,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     buf_6lowpan = buffer_get_minimal(iobuf.data_size);
     if (!buf_6lowpan)
         FATAL(1,"could not allocate tun buffer_t");
-    buf_6lowpan->interface = cur;
+    buf_6lowpan->interface = &ctxt->net_if;
     buffer_data_add(buf_6lowpan, iobuf.data, iobuf.data_size);
 
     buf_6lowpan->payload_length    = iobuf_pop_be16(&iobuf);
@@ -453,7 +452,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     iobuf_pop_data(&iobuf, buf_6lowpan->dst_sa.address, 16);
 
     if (addr_is_ipv6_multicast(buf_6lowpan->dst_sa.address)) {
-        if(!addr_am_group_member_on_interface(cur, buf_6lowpan->dst_sa.address)) {
+        if(!addr_am_group_member_on_interface(&ctxt->net_if, buf_6lowpan->dst_sa.address)) {
             TRACE(TR_DROP, "drop %-9s: unsupported dst=%s", "tun", tr_ipv6(buf_6lowpan->dst_sa.address));
             buffer_free(buf_6lowpan);
             return;
