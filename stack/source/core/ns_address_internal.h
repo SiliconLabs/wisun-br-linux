@@ -87,31 +87,31 @@ extern uint32_t addr_preferences_default;   // default SOCKET_IPV6_ADDR_PREFEREN
 uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 
 void address_module_init(void);
-struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source);
+struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len, if_address_source_e source);
 
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
-const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[static 16], uint32_t addr_preferences);
+const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[16], uint32_t addr_preferences);
 const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences);
 int8_t addr_interface_select_source(struct net_if *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences);
-bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16]);
+bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[16]);
 
-struct if_group_entry *addr_add_group(struct net_if *interface, const uint8_t group[static 16]);
-void addr_remove_group(struct net_if *interface, const uint8_t group[static 16]);
-bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16]);
+struct if_group_entry *addr_add_group(struct net_if *interface, const uint8_t group[16]);
+void addr_remove_group(struct net_if *interface, const uint8_t group[16]);
+bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[16]);
 
 void addr_add_router_groups(struct net_if *interface);
 
 bool addr_is_ipv6_unspecified(const uint8_t addr[16]);
 bool addr_is_ipv6_loopback(const uint8_t addr[16]);
-bool addr_is_ipv6_link_local(const uint8_t addr[static 16]);
+bool addr_is_ipv6_link_local(const uint8_t addr[16]);
 bool addr_is_ipv6_multicast(const uint8_t addr[16]);
-uint8_t addr_ipv6_scope(const uint8_t addr[static 16]);
+uint8_t addr_ipv6_scope(const uint8_t addr[16]);
 uint8_t addr_ipv6_multicast_scope(const uint8_t addr[16]);
-bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
-bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
-bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
+bool addr_ipv6_equal(const uint8_t a[16], const uint8_t b[16]);
+bool addr_iid_matches_eui64(const uint8_t iid[8], const uint8_t eui64[8]);
+bool addr_iid_from_outer(uint8_t iid_out[8], const sockaddr_t *addr_in);
 
 int addr_interface_set_ll64(struct net_if *cur);
 

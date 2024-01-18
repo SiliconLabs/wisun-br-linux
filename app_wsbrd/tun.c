@@ -99,12 +99,12 @@ static int tun_addr_get(const char *if_name, uint8_t ip[16],
     return -2;
 }
 
-int tun_addr_get_link_local(const char *if_name, uint8_t ip[static 16])
+int tun_addr_get_link_local(const char *if_name, uint8_t ip[16])
 {
     return tun_addr_get(if_name, ip, false, true);
 }
 
-int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16])
+int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[16])
 {
     return tun_addr_get(if_name, ip, true, false);
 }
@@ -211,7 +211,7 @@ ret_free_sock:
     nl_socket_free(sock);
 }
 
-static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8], bool register_proxy_ndp)
+static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[8], const uint8_t hw_mac_addr[8], bool register_proxy_ndp)
 {
     int err = 0;
     char ipv6_addr_str[128] = { };
@@ -242,7 +242,7 @@ static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_p
     rtnl_addr_put(ipv6_addr);
 }
 
-static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf, bool register_proxy_ndp)
+static int wsbr_tun_open(char *devname, const uint8_t hw_mac[8], uint8_t ipv6_prefix[16], bool tun_autoconf, bool register_proxy_ndp)
 {
     struct rtnl_link *link;
     struct nl_sock *sock;

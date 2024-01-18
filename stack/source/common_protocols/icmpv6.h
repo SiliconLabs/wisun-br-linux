@@ -65,7 +65,7 @@ struct buffer *icmpv6_error(struct buffer *buf, struct net_if *cur, uint8_t type
 
 struct net_if;
 
-struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr,
+struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr,
                                bool unicast, bool unspecified_source, const struct ipv6_nd_opt_earo *aro);
 struct buffer *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required,
                                const uint8_t target[16], const struct ipv6_nd_opt_earo *earo,

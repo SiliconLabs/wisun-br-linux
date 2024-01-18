@@ -649,8 +649,8 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
  */
 
 buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required,
-                          const uint8_t target[static 16], const struct ipv6_nd_opt_earo *earo,
-                          const uint8_t src_addr[static 16])
+                          const uint8_t target[16], const struct ipv6_nd_opt_earo *earo,
+                          const uint8_t src_addr[16])
 {
     uint8_t *ptr;
     uint8_t flags;

@@ -129,8 +129,8 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
     g_fuzz_ctxt.tun_lla[8] ^= 2;
 }
 
-int __real_tun_addr_get_global_unicast(char* if_name, uint8_t ip[static 16]);
-int __wrap_tun_addr_get_global_unicast(char* if_name, uint8_t ip[static 16])
+int __real_tun_addr_get_global_unicast(char* if_name, uint8_t ip[16]);
+int __wrap_tun_addr_get_global_unicast(char* if_name, uint8_t ip[16])
 {
     if (g_fuzz_ctxt.replay_count) {
         memcpy(ip, g_fuzz_ctxt.tun_gua, 16);
@@ -140,8 +140,8 @@ int __wrap_tun_addr_get_global_unicast(char* if_name, uint8_t ip[static 16])
     }
 }
 
-int __real_tun_addr_get_link_local(char* if_name, uint8_t ip[static 16]);
-int __wrap_tun_addr_get_link_local(char* if_name, uint8_t ip[static 16])
+int __real_tun_addr_get_link_local(char* if_name, uint8_t ip[16]);
+int __wrap_tun_addr_get_link_local(char* if_name, uint8_t ip[16])
 {
     if (g_fuzz_ctxt.replay_count) {
         memcpy(ip, g_fuzz_ctxt.tun_lla, 16);

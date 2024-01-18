@@ -280,7 +280,7 @@ buffer_t *buffer_clone(buffer_t *buf)
     return result_ptr;
 }
 
-static uint16_t ip_fcf_v(uint_fast8_t count, const struct iovec vec[static count])
+static uint16_t ip_fcf_v(uint_fast8_t count, const struct iovec vec[count])
 {
     uint_fast32_t acc32 = 0;
     bool odd = false;
@@ -313,10 +313,10 @@ static uint16_t ip_fcf_v(uint_fast8_t count, const struct iovec vec[static count
     return ~sum16;
 }
 
-static uint16_t ipv6_fcf(const uint8_t src_address[static 16],
-                         const uint8_t dest_address[static 16],
+static uint16_t ipv6_fcf(const uint8_t src_address[16],
+                         const uint8_t dest_address[16],
                          uint16_t data_length,
-                         const uint8_t data_ptr[static data_length],
+                         const uint8_t data_ptr[data_length],
                          uint8_t next_protocol)
 {
     // Use gather vector to lay out IPv6 pseudo-header (RFC 2460) and data

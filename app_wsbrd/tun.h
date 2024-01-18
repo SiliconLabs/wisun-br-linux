@@ -20,8 +20,8 @@ struct net_if;
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);
-int tun_addr_get_link_local(const char *if_name, uint8_t ip[static 16]);
-int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16]);
+int tun_addr_get_link_local(const char *if_name, uint8_t ip[16]);
+int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[16]);
 int wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16]);
 int wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16]);
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len);

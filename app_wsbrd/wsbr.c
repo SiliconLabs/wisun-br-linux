@@ -124,7 +124,7 @@ struct os_ctxt g_os_ctxt = {
     .data_fd = -1,
 };
 
-static int get_fixed_channel(uint8_t bitmask[static 32])
+static int get_fixed_channel(uint8_t bitmask[32])
 {
     int val = -1;
 

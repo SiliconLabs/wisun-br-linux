@@ -55,9 +55,9 @@ static NS_LIST_DEFINE(addr_policy_table, addr_policy_table_entry_t, link);
 uint32_t addr_preferences_default = SOCKET_IPV6_PREFER_SRC_TMP | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
 
 static void addr_policy_table_reset(void);
-static struct if_group_entry *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16]);
+static struct if_group_entry *addr_get_group_entry(const struct net_if *interface, const uint8_t group[16]);
 
-static bool addr_am_implicit_group_member(const uint8_t group[static 16])
+static bool addr_am_implicit_group_member(const uint8_t group[16])
 {
     static const uint8_t *const implicit_groups[] = {
         ADDR_LINK_LOCAL_ALL_NODES,
@@ -124,7 +124,7 @@ uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type)
 
 }
 
-bool addr_is_ipv6_link_local(const uint8_t addr[static 16])
+bool addr_is_ipv6_link_local(const uint8_t addr[16])
 {
     return addr[0] == 0xfe && (addr[1] & 0xc0) == 0x80;
 }
@@ -145,18 +145,18 @@ bool addr_is_ipv6_multicast(const uint8_t addr[16])
 }
 
 /* Site-local addresses deprecated, but still processed by RFC 6724 address selection */
-static bool addr_is_ipv6_site_local(const uint8_t addr[static 16])
+static bool addr_is_ipv6_site_local(const uint8_t addr[16])
 {
     return addr[0] == 0xfe && (addr[1] & 0xc0) == 0xc0;
 }
 
-static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
+static bool addr_is_ipv4_mapped(const uint8_t addr[16])
 {
     return memcmp(addr, ADDR_IPV4_MAPPED_PREFIX, 12) == 0;
 }
 
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
-uint8_t addr_ipv6_scope(const uint8_t addr[static 16])
+uint8_t addr_ipv6_scope(const uint8_t addr[16])
 {
     if (addr_is_ipv6_multicast(addr)) {
         return addr_ipv6_multicast_scope(addr);
@@ -254,7 +254,7 @@ static void addr_policy_table_reset(void)
     //addr_policy_table_print();
 }
 
-static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[static 16])
+static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[16])
 {
     ns_list_foreach(const addr_policy_table_entry_t, entry, &addr_policy_table) {
         if (!bitcmp(entry->prefix, addr, entry->prefix_len)) {
@@ -267,7 +267,7 @@ static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[stati
 }
 
 /* RFC 6724 CommonPrefixLen(S, D) */
-static uint_fast8_t addr_common_prefix_len(const uint8_t src[static 16], uint_fast8_t src_prefix_len, const uint8_t dst[static 16])
+static uint_fast8_t addr_common_prefix_len(const uint8_t src[16], uint_fast8_t src_prefix_len, const uint8_t dst[16])
 {
     uint_fast8_t i = 0;
 
@@ -279,7 +279,7 @@ static uint_fast8_t addr_common_prefix_len(const uint8_t src[static 16], uint_fa
     return i;
 }
 
-static if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16])
+static if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[16])
 {
     ns_list_foreach(if_address_entry_t, entry, &interface->ip_addresses) {
         if (addr_ipv6_equal(entry->address, addr)) {
@@ -290,14 +290,14 @@ static if_address_entry_t *addr_get_entry(const struct net_if *interface, const 
     return NULL;
 }
 
-bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16])
+bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);
 
     return entry;
 }
 
-if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[static 16])
+if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);
     if (entry) {
@@ -334,7 +334,7 @@ static void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *
 }
 
 /* This does reference count */
-void addr_remove_group(struct net_if *interface, const uint8_t group[static 16])
+void addr_remove_group(struct net_if *interface, const uint8_t group[16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);
     if (entry) {
@@ -346,7 +346,7 @@ void addr_remove_group(struct net_if *interface, const uint8_t group[static 16])
     }
 }
 
-static if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16])
+static if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[16])
 {
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
         if (addr_ipv6_equal(entry->group, group)) {
@@ -390,13 +390,13 @@ void addr_add_router_groups(struct net_if *interface)
     addr_add_group(interface, ADDR_SITE_LOCAL_ALL_ROUTERS);
 }
 
-bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16])
+bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[16])
 {
     return addr_am_implicit_group_member(group) || addr_get_group_entry(interface, group);
 }
 
 /* RFC 6724 Default source address selection */
-const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[static 16], uint32_t addr_preferences)
+const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[16], uint32_t addr_preferences)
 {
     /* Let's call existing preferred address "SA" and new candidate "SB", to
      * make it look like a bit like RFC 6724
@@ -610,7 +610,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len, if_address_source_e source)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -640,7 +640,7 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16
 /* Optimised for quick discard of mismatching addresses (eg in a cache lookup):
  * searches BACKWARDS, as last bytes are most likely to differ.
  */
-bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16])
+bool addr_ipv6_equal(const uint8_t a[16], const uint8_t b[16])
 {
     for (int_fast8_t n = 15; n >= 0; n--) {
         if (a[n] != b[n]) {
@@ -650,7 +650,7 @@ bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16])
     return true;
 }
 
-bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8])
+bool addr_iid_matches_eui64(const uint8_t iid[8], const uint8_t eui64[8])
 {
     for (int_fast8_t n = 7; n >= 1; n--) {
         if (iid[n] != eui64[n]) {
@@ -661,7 +661,7 @@ bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[sta
 }
 
 /* Turn an address (either MAC or IP) into a base IP address for context compression */
-bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in)
+bool addr_iid_from_outer(uint8_t iid_out[8], const sockaddr_t *addr_in)
 {
     switch (addr_in->addr_type) {
         case ADDR_802_15_4_LONG:
