@@ -47,22 +47,13 @@ static const uint8_t ADDR_IF_LOCAL_ALL_NODES[16]       = { 0xff, 0x01, [15] = 0x
 static const uint8_t ADDR_IF_LOCAL_ALL_ROUTERS[16]     = { 0xff, 0x01, [15] = 0x02 };
 static const uint8_t ADDR_LINK_LOCAL_ALL_NODES[16]     = { 0xff, 0x02, [15] = 0x01 };
 static const uint8_t ADDR_LINK_LOCAL_ALL_ROUTERS[16]   = { 0xff, 0x02, [15] = 0x02 };
-static const uint8_t ADDR_LINK_LOCAL_ALL_MLDV2_ROUTERS[16] = { 0xff, 0x02, [15] = 0x16 };
-static const uint8_t ADDR_LINK_LOCAL_MDNS[16]          = { 0xff, 0x02, [15] = 0xfb };
 static const uint8_t ADDR_REALM_LOCAL_ALL_NODES[16]    = { 0xff, 0x03, [15] = 0x01 };
 static const uint8_t ADDR_REALM_LOCAL_ALL_ROUTERS[16]  = { 0xff, 0x03, [15] = 0x02 };
 static const uint8_t ADDR_SITE_LOCAL_ALL_ROUTERS[16]   = { 0xff, 0x05, [15] = 0x02 };
 static const uint8_t ADDR_ALL_MPL_FORWARDERS[16]       = { 0xff, 0x03, [15] = 0xfc };
-static const uint8_t ADDR_ALL_DHCP_RELAY_AGENTS_AND_SERVERS[16] = { 0xff, 0x02, [13] = 0x01, 0x00, 0x02 };
 static const uint8_t ADDR_LINK_LOCAL_ALL_RPL_NODES[16] = { 0xff, 0x02, [15] = 0x1a };
-
 static const uint8_t ADDR_IPV4_MAPPED_PREFIX[12]       = { [10] = 0xff, 0xff };
 static const uint8_t ADDR_LOOPBACK[16]                 = { [15] = 1 };
-static const uint8_t ADDR_6TO4[16]                     = { 0x20, 0x02 }; /*Can be used as global address*/
-
-#define ADDR_IPV4_COMPATIBLE                    ADDR_LOOPBACK /* First 96 bits match...*/
-
-#define ADDR_MULTICAST_LINK_PREFIX              ADDR_LINK_LOCAL_ALL_NODES /* ff02::xx */
-#define ADDR_MULTICAST_REALM_PREFIX             ADDR_ALL_MPL_FORWARDERS /* ff03::xx */
+static const uint8_t ADDR_6TO4[16]                     = { 0x20, 0x02 };
 
 #endif
