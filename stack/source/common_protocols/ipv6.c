@@ -858,9 +858,8 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
         }
     }
 
-    if (!cur->ip_forwarding ||
-            addr_is_ipv6_loopback(buf->dst_sa.address) ||
-            addr_is_ipv6_unspecified(buf->src_sa.address)) {
+    if (addr_is_ipv6_loopback(buf->dst_sa.address) ||
+        addr_is_ipv6_unspecified(buf->src_sa.address)) {
         protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
@@ -983,10 +982,8 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct
         goto no_forward;
     }
 
-    if (!cur->ip_multicast_forwarding ||
-            addr_is_ipv6_unspecified(buf->src_sa.address)) {
+    if (addr_is_ipv6_unspecified(buf->src_sa.address))
         goto no_forward;
-    }
 
     /* MPL does its own thing - we do not perform any "native" forwarding */
     if (buf->options.ip_extflags & IPEXT_HBH_MPL) {

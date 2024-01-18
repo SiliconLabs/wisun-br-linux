@@ -62,10 +62,6 @@ typedef struct arm_15_4_mac_parameters {
     uint16_t pan_id;
 } arm_15_4_mac_parameters_t;
 
-typedef struct ipv6_interface_info {
-    uint8_t     static_prefix64[8];
-} ipv6_interface_info_t;
-
 struct net_if {
     int8_t id;
     uint8_t zone_index[16];
@@ -80,38 +76,21 @@ struct net_if {
     uint8_t mpl_seed_id[16];
     struct mpl_domain *mpl_domain;
     lowpan_context_list_t lowpan_contexts;
-    bool reallocate_short_address_if_duplicate : 1;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
-    bool is_dhcp_relay_agent_enabled;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
-    uint16_t max_link_mtu;
     bool pan_advert_running: 1;
     bool pan_config_running: 1;
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
     uint16_t reachable_time_ttl;        // s
     uint32_t base_reachable_time;       // ms
-    bool recv_ra_routes : 1;
-    bool recv_ra_prefixes: 1;
-    bool send_mld: 1;
     bool mpl_seed: 1;
-    /* RFC 4861 Router Variables */
-    bool ip_forwarding : 1;
-    bool ip_multicast_forwarding : 1;
-    bool adv_send_advertisements : 1;
-    uint8_t rtr_adv_flags;
-    uint16_t min_rtr_adv_interval;      // 100ms ticks
-    uint16_t max_rtr_adv_interval;      // 100ms ticks
-    /* RFC 4862 Node Configuration */
-    uint8_t dup_addr_detect_transmits;
-    uint16_t pmtu_lifetime;             // s
 
     uint8_t mac[8];
     uint8_t iid_eui64[8];
     uint8_t iid_slaac[8];
 
-    ipv6_interface_info_t ipv6_configure;
     struct red_info *random_early_detection;
     struct red_info *llc_random_early_detection;
     struct red_info *llc_eapol_random_early_detection;

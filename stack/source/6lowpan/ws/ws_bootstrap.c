@@ -265,7 +265,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     addr_add(cur, ipv6_address, 64, ADDR_SOURCE_STATIC);
     ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
-    memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
 
     // Zero uptime counters
     cur->ws_info.uptime = 0;
@@ -639,7 +638,7 @@ int ws_bootstrap_init(int8_t interface_id)
         goto init_fail;
     }
 
-    cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = WS_MPX_MAX_MTU;
+    cur->ipv6_neighbour_cache.link_mtu = WS_MPX_MAX_MTU;
 
     cur->ws_info.neighbor_storage = neigh_info;
 

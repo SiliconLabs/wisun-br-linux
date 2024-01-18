@@ -129,25 +129,15 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->mac_parameters.mtu = mtu;
     entry->rcp = rcp;
     entry->configure_flags = 0;
-    entry->reallocate_short_address_if_duplicate = true;
     entry->icmp_tokens = 10;
-    entry->ip_forwarding = true;
-    entry->ip_multicast_forwarding = true;
-    entry->recv_ra_routes = true;
-    entry->recv_ra_prefixes = true;
-    entry->send_mld = true;
     entry->mpl_seed = false;
     entry->mpl_data_trickle_params = rfc7731_default_data_message_trickle_params;
     entry->mpl_seed_set_entry_lifetime = RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME;
     entry->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     protocol_stack_interface_set_reachable_time(entry, 30000);
-    entry->dup_addr_detect_transmits = 1;
     entry->ipv6_neighbour_cache.link_mtu = IPV6_MIN_LINK_MTU;
-    entry->max_link_mtu = IPV6_MIN_LINK_MTU;
-    entry->pmtu_lifetime = 10 * 60; // RFC 1981 default - 10 minutes
     ns_list_link_init(entry, link);
-    entry->if_stack_buffer_handler = NULL;
     ns_list_init(&entry->lowpan_contexts);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);

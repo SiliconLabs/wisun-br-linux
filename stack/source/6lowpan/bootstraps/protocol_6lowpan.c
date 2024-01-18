@@ -195,12 +195,9 @@ static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8
 
 void protocol_6lowpan_configure_core(struct net_if *cur)
 {
-    cur->dup_addr_detect_transmits = 0;
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
     cur->ipv6_neighbour_cache.send_nud_probes = true;
-    cur->max_link_mtu = LOWPAN_MAX_MTU;
-    cur->send_mld = false;
 }
 
 int8_t protocol_6lowpan_up(struct net_if *cur)
