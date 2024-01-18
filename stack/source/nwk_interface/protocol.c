@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
-#include "common/log_legacy.h"
 #include "common/events_scheduler.h"
 #include "common/endian.h"
 #include "common/string_extra.h"
@@ -41,26 +40,11 @@
 #include "mpl/mpl.h"
 
 #include "nwk_interface/protocol_stats.h"
-
 #include "nwk_interface/protocol.h"
-
-
-#define TRACE_GROUP_CORE "core"
-
-#define TRACE_GROUP "core"
-
-#ifndef SEC_LIB_X_100MS_COUNTER
-#define SEC_LIB_X_100MS_COUNTER 1 //Default scaller is 100ms tick
-#endif
 
 // RFC 4861 says we only have to reroll ReachableTime every couple of hours, but
 // to make sure the code is regularly exercised, let's make it 10 minutes.
 #define REACHABLE_TIME_UPDATE_SECONDS       600
-
-typedef struct lowpan_core_timer_structures {
-    uint8_t core_timer_ticks;
-    bool core_timer_event;
-} lowpan_core_timer_structures_s;
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
@@ -251,18 +235,11 @@ struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu
     return NULL;
 }
 
-/**
- * \brief Push Buffer to Protocol Core.
- *
- * \param buf pointer to buffer. NULL is accepted and ignored.
- */
 void protocol_push(buffer_t *b)
 {
-    /* Ignore NULL */
     if (!b)
         return;
 
-    // Call the actual handler
     struct net_if *cur = b->interface;
     if (cur && cur->if_stack_buffer_handler) {
         cur->if_stack_buffer_handler(b);
