@@ -39,7 +39,7 @@
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/core/netaddr_types.h"
-
+#include "stack/source/core/ns_buffer.h"
 #include "tun.h"
 #include "wsbr.h"
 

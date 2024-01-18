@@ -32,6 +32,7 @@
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
+#include "core/ns_buffer.h"
 #include "core/ns_address_internal.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

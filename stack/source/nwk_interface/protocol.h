@@ -15,65 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- * \file protocol.h
- * \brief Protocol support functions.
- *
- *  Protocol core support functions.
- *
- */
-
 #ifndef _NS_PROTOCOL_H
 #define _NS_PROTOCOL_H
-
 #include "common/trickle.h"
+#include "common/ns_list.h"
 
-// Users of protocol.h can assume it includes these headers
 #include "nwk_interface/protocol_abstract.h"
-#include "core/ns_buffer.h"
 #include "core/ns_address_internal.h"
-
-// Headers below this are implementation details - users of protocol.h shouldn't rely on them
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "6lowpan/ws/ws_common.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
-struct mac_neighbor_table;
-struct mac_api;
-struct eth_mac_api;
-struct arm_device_driver_list;
-struct load_balance_api;
-struct red_info;
-enum addrtype;
+typedef struct buffer buffer_t;
 
-#define SLEEP_MODE_REQ      0x80
-#define SLEEP_PERIOD_ACTIVE 0x40
-#define ICMP_ACTIVE         0x08
-
-void set_power_state(uint8_t mode);
-void clear_power_state(uint8_t mode);
-uint8_t check_power_state(uint8_t mode);
-
-#define BUFFER_DATA_FIXED_SIZE 0
 void protocol_push(buffer_t *buf);
 void protocol_core_init(void);
 
 #define INTERFACE_BOOTSTRAP_DEFINED     1
 #define INTERFACE_SECURITY_DEFINED      2
-#define INTERFACE_NETWORK_DRIVER_SETUP_DEFINED      4
-#define INTERFACE_ND_BORDER_ROUTER_DEFINED      8
-
 
 #define INTERFACE_SETUP_MASK        3
 #define INTERFACE_SETUP_READY       3
-#define INTERFACE_SETUP_NETWORK_DRIVER_MASK         5
-#define INTERFACE_SETUP_NETWORK_DRIVER_READY        5
 
-#define INTERFACE_SETUP_BORDER_ROUTER_MASK          11
-#define INTERFACE_SETUP_BORDER_ROUTER_READY         11
+#define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
+#define INTERFACE_NWK_ACTIVE                             8
+#define INTERFACE_NWK_ROUTER_DEVICE                     16
+#define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
 
-/** Control selection of MPL Seed Identifier for packets we originate */
 typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
     MULTICAST_MPL_SEED_ID_MAC_SHORT = -1,               /** Use short MAC address if available (eg IEEE 802.15.4 interface's macShortAddress (16-bit)), else full MAC */
@@ -86,16 +54,6 @@ typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_128_BIT = 16,                 /** Use a manually-specified 128-bit ID */
 } multicast_mpl_seed_id_mode_e;
 
-#define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
-#define INTERFACE_NWK_ACTIVE                            8
-#define INTERFACE_NWK_ROUTER_DEVICE                     16
-#define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
-
-typedef struct mac_cordinator {
-    unsigned cord_adr_mode: 2;
-    uint8_t mac_mlme_coord_address[8];
-} mac_cordinator_s;
-
 typedef struct arm_15_4_mac_parameters {
     uint16_t mtu;
     /* Security API USE */
@@ -104,16 +62,9 @@ typedef struct arm_15_4_mac_parameters {
     uint16_t pan_id;
 } arm_15_4_mac_parameters_t;
 
-typedef void mac_poll_fail_cb(int8_t nwk_interface_id_e);
-
 typedef struct ipv6_interface_info {
     uint8_t     static_prefix64[8];
 } ipv6_interface_info_t;
-
-struct thread_info;
-struct ws_info;
-struct auth_info;
-struct rpl_domain;
 
 struct net_if {
     int8_t id;
@@ -192,8 +143,7 @@ struct net_if *protocol_stack_interface_info_get();
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
-
 void icmp_fast_timer(int ticks);
 void update_reachable_time(int seconds);
 
-#endif /* _NS_PROTOCOL_H */
+#endif
