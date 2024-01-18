@@ -106,13 +106,30 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
-static void protocol_core_base_finish_init(struct net_if *entry)
+static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu)
 {
+    struct net_if *entry = &protocol_interface_info;
+    int id = net_interface_get_free_id();
+
+    memset(entry, 0, sizeof(struct net_if));
+    /* We assume for now zone indexes for interface, link and realm all equal interface id */
+    entry->id = id;
+    entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
+    entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
+    entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
+
+    lowpan_adaptation_interface_init(entry->id);
+    reassembly_interface_init(entry->id, 8, 5);
+    memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
+    entry->mac_parameters.pan_id = 0xffff;
+    entry->mac_parameters.mac_default_ffn_key_index = 0;
+    entry->mac_parameters.mtu = mtu;
+    entry->rcp = rcp;
     entry->configure_flags = 0;
     entry->reallocate_short_address_if_duplicate = true;
     entry->icmp_tokens = 10;
-    entry->ip_forwarding = true; /* Default to on for now... */
-    entry->ip_multicast_forwarding = true; /* Default to on for now... */
+    entry->ip_forwarding = true;
+    entry->ip_multicast_forwarding = true;
     entry->recv_ra_routes = true;
     entry->recv_ra_prefixes = true;
     entry->send_mld = true;
@@ -132,38 +149,6 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
     ns_list_init(&entry->ipv6_neighbour_cache.list);
-}
-
-static struct net_if *protocol_interface_class_allocate()
-{
-    struct net_if *entry = &protocol_interface_info;
-    int id = net_interface_get_free_id();
-
-    memset(entry, 0, sizeof(struct net_if));
-    /* We assume for now zone indexes for interface, link and realm all equal interface id */
-    entry->id = id;
-    entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
-    entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
-    entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
-    return entry;
-}
-
-static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu)
-{
-    struct net_if *entry = protocol_interface_class_allocate();
-
-    BUG_ON(!entry);
-    lowpan_adaptation_interface_init(entry->id);
-    reassembly_interface_init(entry->id, 8, 5);
-    memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
-    entry->mac_parameters.pan_id = 0xffff;
-
-    entry->mac_parameters.mac_default_ffn_key_index = 0;
-    entry->mac_parameters.mtu = mtu;
-
-    entry->rcp = rcp;
-
-    protocol_core_base_finish_init(entry);
     return entry;
 }
 
