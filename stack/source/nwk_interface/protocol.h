@@ -197,7 +197,6 @@ void nwk_interface_print_neigh_cache();
 
 struct net_if *protocol_stack_interface_info_get();
 struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name);
-uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 

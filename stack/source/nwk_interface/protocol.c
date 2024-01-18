@@ -80,6 +80,14 @@ void icmp_fast_timer(int ticks)
     }
 }
 
+static uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
+{
+    cur->base_reachable_time = base_reachable_time;
+    cur->reachable_time_ttl = REACHABLE_TIME_UPDATE_SECONDS;
+
+    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(base_reachable_time, 0x4000, 0xBFFF);
+}
+
 void update_reachable_time(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -113,15 +121,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_WS_COMMON_FAST);
     ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
-
-uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
-{
-    cur->base_reachable_time = base_reachable_time;
-    cur->reachable_time_ttl = REACHABLE_TIME_UPDATE_SECONDS;
-
-    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(base_reachable_time, 0x4000, 0xBFFF);
-}
-
 
 static void protocol_core_base_init(struct net_if *entry)
 {
