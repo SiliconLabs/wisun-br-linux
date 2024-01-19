@@ -101,9 +101,10 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
         __rcp_set_host_api(rcp, host_api_version);
 }
 
-#define HIF_MASK_FHSS_TYPE    0x0007
-#define HIF_MASK_FHSS_DEFAULT 0x0010
-#define HIF_MASK_MODE_SWITCH  0x0020
+#define HIF_MASK_FHSS_TYPE      0x0007
+#define HIF_MASK_FHSS_DEFAULT   0x0010
+#define HIF_MASK_MODE_SWITCH    0x0020
+#define HIF_MASK_FRAME_COUNTERS 0x1fc0
 
 static void __rcp_req_data_tx(struct rcp *rcp,
                               const uint8_t *frame, int frame_len,
@@ -176,6 +177,14 @@ static void __rcp_req_data_tx(struct rcp *rcp,
         }
         default:
             BUG();
+        }
+    }
+    if (neigh) {
+        for (uint8_t i = 0; i < ARRAY_SIZE(neigh->frame_counter_min); i++) {
+            if (neigh->frame_counter_min[i] != UINT32_MAX) {
+                bitfield |= FIELD_PREP(HIF_MASK_FRAME_COUNTERS, 1u << i);
+                hif_push_u32(&buf, neigh->frame_counter_min[i]);
+            }
         }
     }
     if (rate_list) {
