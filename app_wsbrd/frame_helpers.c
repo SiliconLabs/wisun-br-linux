@@ -190,8 +190,8 @@ static int wsbr_data_sec_parse(struct iobuf_read *iobuf, struct mlme_security *s
     if (FIELD_GET(IEEE802154_SECURITY_ASN_IN_NONCE, scf))
         TRACE(TR_IGNORE, "ignore %-9s: ASN in nonce", "15.4");
 
-    iobuf_pop_le32(iobuf); // TODO: store frame counter
-    sec->KeyIndex = iobuf_pop_u8(iobuf);
+    sec->frame_counter = iobuf_pop_le32(iobuf);
+    sec->KeyIndex      = iobuf_pop_u8(iobuf);
 
     if (iobuf_remaining_size(iobuf) < 8) {
         TRACE(TR_DROP, "drop %-9s: missing MIC-64", "15.4");

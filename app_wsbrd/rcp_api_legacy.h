@@ -86,6 +86,7 @@ typedef enum mac_data_priority {
 struct mlme_security {
     unsigned SecurityLevel: 3;      /**< Security level */
     uint8_t KeyIndex;               /**< Key index */
+    uint32_t frame_counter;
 };
 
 // Used by rcp_legacy_tx_req_legacy()
