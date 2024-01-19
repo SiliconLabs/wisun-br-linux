@@ -36,4 +36,12 @@
     __x - (__x % (y));   \
 })
 
+// 32bit addition with saturation
+static inline uint32_t add32sat(uint32_t a, uint32_t b)
+{
+    uint32_t sum = a + b;
+
+    return sum < a ? UINT32_MAX : sum;
+}
+
 #endif
