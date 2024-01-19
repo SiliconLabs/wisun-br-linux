@@ -426,8 +426,12 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
     if (!cur->ws_info.enable_lfn && key_index > 4)
         return;
     rcp_set_sec_key(cur->rcp, key_index, key, frame_counter);
-    if (key)
+    if (key) {
         dbus_emit_keys_change(&g_ctxt);
+        cur->ws_info.key_index_mask |= 1u << key_index;
+    } else {
+        cur->ws_info.key_index_mask &= ~(1u << key_index);
+    }
 }
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)

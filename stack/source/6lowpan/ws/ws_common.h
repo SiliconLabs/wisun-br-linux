@@ -99,6 +99,7 @@ typedef struct ws_info {
     struct ws_ie_custom_list ie_custom_list;
     bool enable_lfn;
     bool enable_ffn10;
+    unsigned int key_index_mask;  // Bitmask of installed key indices
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
