@@ -418,7 +418,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
                                 const struct mcps_data_cnf *confirm,
-                                const mcps_data_cnf_ie_list_t *confirm_data,
+                                const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neighbor_class_entry *ws_neigh)
 {
     const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
@@ -473,7 +473,8 @@ static bool tx_confirm_extensive(struct ws_neighbor_class_entry *ws_neigh, time_
     return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
 
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data)
+void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
+                           const struct mcps_data_rx_ie_list *conf_data)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neighbor_class_entry *ws_neigh = NULL;
@@ -549,7 +550,9 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
 
 }
 
-static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_data_ind_ie_list_t *ie_ext, mpx_msg_t *mpx_frame)
+static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base,
+                                           const struct mcps_data_rx_ie_list *ie_ext,
+                                           mpx_msg_t *mpx_frame)
 {
     struct iobuf_read ie_buf;
     struct mpx_user *mpx_usr;
@@ -580,7 +583,7 @@ static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_dat
 }
 
 static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
-                                const mcps_data_ind_ie_list_t *ie_ext)
+                                const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     struct ws_neighbor_class_entry *ws_neigh;
@@ -672,7 +675,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 }
 
 static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
-                                const mcps_data_ind_ie_list_t *ie_ext)
+                                const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     struct ws_neighbor_class_entry *ws_neigh;
@@ -774,7 +777,8 @@ static struct ws_neighbor_class_entry *ws_llc_eapol_neighbor_get(llc_data_base_t
     return ws_neigh;
 }
 
-static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
+static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neighbor_class_entry *ws_neigh = NULL;
@@ -820,7 +824,8 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
+static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neighbor_class_entry *ws_neigh = NULL;
@@ -872,10 +877,11 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext, uint8_t frame_type)
+static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+                            const struct mcps_data_rx_ie_list *ie_ext, uint8_t frame_type)
 {
     struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
-    struct mcps_data_ind_ie_list ie_list;
+    struct mcps_data_rx_ie_list ie_list;
     struct iobuf_read ie_buf;
 
     if (!base || !base->mngt_ind)
@@ -937,7 +943,8 @@ static void ws_trace_llc_mac_req(const mcps_data_req_t *data, const llc_message_
         TRACE(trace_domain, "tx-15.4 %-9s dst:%s", type_str, tr_eui64(data->DstAddr));
 }
 
-static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
+static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data,
+                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     const char *type_str;
     ws_lutt_ie_t ws_lutt;
@@ -981,7 +988,8 @@ static inline bool ws_is_frame_mngt(uint8_t frame_type)
 }
 
 /** WS LLC MAC data extension indication  */
-void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext)
+void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
+                              const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     bool has_utt, has_lutt;

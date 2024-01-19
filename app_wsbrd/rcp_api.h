@@ -19,9 +19,8 @@
 
 // TODO: drop legacy structures
 struct mcps_data_cnf;
-struct mcps_data_cnf_ie_list;
 struct mcps_data_ind;
-struct mcps_data_ind_ie_list;
+struct mcps_data_rx_ie_list;
 struct os_ctxt;
 struct phy_rf_channel_configuration;
 struct wsbr_ctxt;
@@ -40,8 +39,8 @@ struct rcp {
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
     void (*on_reset)(struct wsbr_ctxt *ctxt);
-    void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_cnf *conf, const struct mcps_data_cnf_ie_list *payload);
-    void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_ind_ie_list *payload);
+    void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_cnf *conf, const struct mcps_data_rx_ie_list *payload);
+    void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_rx_ie_list *payload);
     void (*on_rx_err)(uint8_t src[8], uint8_t status);
     void (*on_crc_error)(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter);
     void (*on_rx_frame_counter)(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);

@@ -96,7 +96,8 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
     wsbr_pcapng_write_start(ctxt);
 }
 
-void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ind_ie_list_t *ie)
+void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind,
+                             struct mcps_data_rx_ie_list *ie)
 {
     uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     struct iobuf_write buf = { };

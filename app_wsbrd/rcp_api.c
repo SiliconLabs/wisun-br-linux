@@ -102,7 +102,7 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
-    struct mcps_data_ind_ie_list ind_ie;
+    struct mcps_data_rx_ie_list ind_ie;
     struct mcps_data_ind ind;
     const uint8_t *frame;
     size_t frame_len;

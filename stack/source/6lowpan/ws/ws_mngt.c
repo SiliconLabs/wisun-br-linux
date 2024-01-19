@@ -32,7 +32,7 @@
 #include "stack/source/nwk_interface/protocol.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
-static bool ws_mngt_ie_utt_validate(const struct mcps_data_ind_ie_list *ie_ext,
+static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,
                                     uint8_t frame_type)
 {
@@ -45,7 +45,7 @@ static bool ws_mngt_ie_utt_validate(const struct mcps_data_ind_ie_list *ie_ext,
 }
 
 static bool ws_mngt_ie_us_validate(struct net_if *net_if,
-                                   const struct mcps_data_ind_ie_list *ie_ext,
+                                   const struct mcps_data_rx_ie_list *ie_ext,
                                    struct ws_us_ie *ie_us,
                                    uint8_t frame_type)
 {
@@ -58,7 +58,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
 }
 
 static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
-                                        const struct mcps_data_ind_ie_list *ie_ext,
+                                        const struct mcps_data_rx_ie_list *ie_ext,
                                         uint8_t frame_type)
 {
     ws_wp_netname_t ie_netname;
@@ -73,7 +73,7 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
 
 static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
-                                  const struct mcps_data_ind_ie_list *ie_ext)
+                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     ws_pom_ie_t ie_pom;
@@ -87,7 +87,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
-                        const struct mcps_data_ind_ie_list *ie_ext)
+                        const struct mcps_data_rx_ie_list *ie_ext)
 {
     ws_pan_information_t pan_information;
     ws_utt_ie_t ie_utt;
@@ -119,7 +119,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
 
 void ws_mngt_pas_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
-                         const struct mcps_data_ind_ie_list *ie_ext)
+                         const struct mcps_data_rx_ie_list *ie_ext)
 {
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
@@ -138,7 +138,7 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
 
 void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
-                        const struct mcps_data_ind_ie_list *ie_ext)
+                        const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neighbor_class_entry *ws_neigh;
     uint16_t ws_pan_version;
@@ -193,7 +193,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
 
 void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
-                         const struct mcps_data_ind_ie_list *ie_ext)
+                         const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neighbor_class_entry *ws_neigh;
     ws_utt_ie_t ie_utt;
@@ -267,7 +267,7 @@ static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd
 
 void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
-                          const struct mcps_data_ind_ie_list *ie_ext)
+                          const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neighbor_class_entry *ws_neigh;
     struct ws_lutt_ie ie_lutt;
@@ -375,7 +375,7 @@ void ws_mngt_lpc_pae_cb(struct net_if *net_if)
 
 void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
-                          const struct mcps_data_ind_ie_list *ie_ext)
+                          const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neighbor_class_entry *ws_neigh;
     struct ws_lutt_ie ie_lutt;

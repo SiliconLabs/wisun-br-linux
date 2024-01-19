@@ -112,7 +112,7 @@ static const struct {
 
 int wsbr_data_ind_rebuild(uint8_t frame[],
                          const struct mcps_data_ind *ind,
-                         const struct mcps_data_ind_ie_list *ie)
+                         const struct mcps_data_rx_ie_list *ie)
 {
     uint8_t *start = frame;
     uint16_t fcf;
@@ -201,7 +201,7 @@ static int wsbr_data_sec_parse(struct iobuf_read *iobuf, struct mlme_security *s
     return 0;
 }
 
-static int wsbr_data_ie_parse(struct iobuf_read *iobuf, struct mcps_data_ind_ie_list *ie)
+static int wsbr_data_ie_parse(struct iobuf_read *iobuf, struct mcps_data_rx_ie_list *ie)
 {
     struct iobuf_read iobuf_ie;
     int ret_ht1, ret_pt;
@@ -244,7 +244,7 @@ static int wsbr_data_ie_parse(struct iobuf_read *iobuf, struct mcps_data_ind_ie_
 int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
                         const uint8_t *frame, size_t frame_len,
                         struct mcps_data_ind *ind,
-                        struct mcps_data_ind_ie_list *ie)
+                        struct mcps_data_rx_ie_list *ie)
 {
     struct iobuf_read iobuf = {
         .data_size = frame_len,

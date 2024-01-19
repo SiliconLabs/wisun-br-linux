@@ -30,7 +30,7 @@
  * - LFN Time Sync (LTS)
  */
 
-struct mcps_data_ind_ie_list;
+struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
 struct net_if;
 
@@ -45,22 +45,22 @@ struct ws_mngt {
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
-                        const struct mcps_data_ind_ie_list *ie_ext);
+                        const struct mcps_data_rx_ie_list *ie_ext);
 void ws_mngt_pas_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
-                         const struct mcps_data_ind_ie_list *ie_ext);
+                         const struct mcps_data_rx_ie_list *ie_ext);
 void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
-                        const struct mcps_data_ind_ie_list *ie_ext);
+                        const struct mcps_data_rx_ie_list *ie_ext);
 void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
-                         const struct mcps_data_ind_ie_list *ie_ext);
+                         const struct mcps_data_rx_ie_list *ie_ext);
 void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
-                          const struct mcps_data_ind_ie_list *ie_ext);
+                          const struct mcps_data_rx_ie_list *ie_ext);
 void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
-                          const struct mcps_data_ind_ie_list *ie_ext);
+                          const struct mcps_data_rx_ie_list *ie_ext);
 
 void ws_mngt_lpa_timer_cb(int ticks);
 void ws_mngt_lts_timer_cb(int ticks);

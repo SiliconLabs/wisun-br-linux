@@ -28,7 +28,7 @@
 typedef enum mac_data_priority mac_data_priority_e;
 struct net_if;
 struct mcps_data_ind;
-struct mcps_data_ind_ie_list;
+struct mcps_data_rx_ie_list;
 struct ws_pan_information;
 struct ws_hopping_schedule;
 struct ws_neighbor_class_entry;
@@ -98,7 +98,7 @@ typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
 
 typedef void ws_mngt_ind(struct net_if *interface,
                          const struct mcps_data_ind *data,
-                         const struct mcps_data_ind_ie_list *ie_ext,
+                         const struct mcps_data_rx_ie_list *ie_ext,
                          uint8_t frame_type);
 
 /**
@@ -162,11 +162,11 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 const char *tr_ws_frame(uint8_t frame_type);
 
 typedef struct mcps_data_cnf         mcps_data_cnf_t;
-typedef struct mcps_data_cnf_ie_list mcps_data_cnf_ie_list_t;
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data, const mcps_data_cnf_ie_list_t *conf_data);
+void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
+                           const struct mcps_data_rx_ie_list *conf_data);
 
 typedef struct mcps_data_ind         mcps_data_ind_t;
-typedef struct mcps_data_ind_ie_list mcps_data_ind_ie_list_t;
-void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, const mcps_data_ind_ie_list_t *ie_ext);
+void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
+                              const struct mcps_data_rx_ie_list *ie_ext);
 
 #endif

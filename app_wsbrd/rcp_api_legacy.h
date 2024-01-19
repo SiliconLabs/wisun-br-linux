@@ -119,7 +119,7 @@ typedef struct mcps_data_req {
 
 // Used by rcp_legacy_tx_req_legacy()
 // Structure for IEEE 802.15.4-2015 MCPS data extension to Request
-// FIXME: Mostly the same than mcps_data_ind_ie_list and mcps_data_cnf_ie_list
+// FIXME: Mostly the same than mcps_data_rx_ie_list
 typedef struct mcps_data_req_ie_list {
     struct iovec *headerIeVectorList;    /**< Header IE element list */
     struct iovec *payloadIeVectorList;   /**< Payload IE element list */
@@ -181,15 +181,6 @@ typedef struct mcps_data_cnf {
     uint8_t success_phy_mode_id; /**< PhyModeId used to transmit the frame correctly. Only valide if status is MAC_TX_DONE */
 } mcps_data_cnf_t;
 
-// Used by on_tx_cnf()
-// FIXME: Mostly the same than mcps_data_ind_ie_list and mcps_data_req_ie_list
-typedef struct mcps_data_cnf_ie_list {
-    const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
-    const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
-    uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
-    uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
-} mcps_data_cnf_ie_list_t;
-
 // Used by on_rx_ind()
 // See IEEE standard 802.15.4-2006 (table 43) for more details
 typedef struct mcps_data_ind {
@@ -212,15 +203,14 @@ typedef struct mcps_data_ind {
     const uint8_t *msdu_ptr;    /**< Data unit */
 } mcps_data_ind_t;
 
-// Used by on_rx_ind()
-// Structure for IEEE 802.15.4-2015 MCPS data extension to Indication
-// FIXME: Mostly the same than mcps_data_cnf_ie_list and mcps_data_req_ie_list
-typedef struct mcps_data_ind_ie_list {
+// Used by on_rx_ind() and on_tx_cnf()
+// FIXME: Mostly the same than mcps_data_req_ie_list
+struct mcps_data_rx_ie_list {
     const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
     const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
-} mcps_data_ind_ie_list_t;
+};
 
 void rcp_legacy_noop(void);
 void rcp_legacy_reset(void);

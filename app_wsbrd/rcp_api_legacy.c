@@ -873,7 +873,7 @@ static void rcp_legacy_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
 {
     uint8_t key_id_mode;
     mcps_data_ind_t req = { };
-    mcps_data_ind_ie_list_t ie_ext = { };
+    struct mcps_data_rx_ie_list ie_ext = { };
 
     req.msduLength             = hif_pop_data_ptr(buf, &req.msdu_ptr);
     req.SrcAddrMode            = hif_pop_u8(buf);
@@ -912,8 +912,8 @@ static void rcp_legacy_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
 
 static void rcp_legacy_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
+    struct mcps_data_rx_ie_list conf_req = { };
     mcps_data_cnf_t req = { };
-    mcps_data_cnf_ie_list_t conf_req = { };
 
     req.status      = hif_pop_u8(buf);
     req.msduHandle  = hif_pop_u8(buf);
