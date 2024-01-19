@@ -341,7 +341,6 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
         .data = frame,
     };
     uint8_t src_addr_mode, dst_addr_mode;
-    struct mlme_security sec;
     bool pan_id_cmpr;
     uint16_t fcf;
     int ret, i;
@@ -399,11 +398,11 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
     }
 
     if (FIELD_GET(IEEE802154_FCF_SECURITY_ENABLED, fcf)) {
-        ret = wsbr_data_sec_parse(&iobuf, &sec);
+        ret = wsbr_data_sec_parse(&iobuf, &cnf->sec);
         if (ret < 0)
             return ret;
     } else {
-        memset(&sec, 0, sizeof(sec));
+        memset(&cnf->sec, 0, sizeof(cnf->sec));
     }
 
     if (FIELD_GET(IEEE802154_FCF_IE_PRESENT, fcf)) {
