@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <netinet/in.h>
 #include "stack/source/core/netaddr_types.h"
 #include "stack/source/core/timers.h"
 #include "app_wsbrd/libwsbrd.h"
@@ -131,7 +132,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
         }
     } else if (fd == g_ctxt.tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
-        fuzz_capture_interface(ctxt, IF_TUN, (const uint8_t[16]) { }, (const uint8_t[16]) { }, 0, buf, size);
+        fuzz_capture_interface(ctxt, IF_TUN, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
     } else if (fd == g_ctxt.os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
         g_ctxt.os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
