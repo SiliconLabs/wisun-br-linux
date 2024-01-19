@@ -81,6 +81,7 @@ typedef struct ws_neighbor_class_entry {
     struct ws_pom_ie pom_ie;
     bool offset_adjusted;                                  /*!< For LTO */
     uint8_t node_role;
+    uint32_t frame_counter_min[7];
 } ws_neighbor_class_entry_t;
 
 typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
@@ -197,7 +198,10 @@ bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t
 
 int ws_neighbor_class_lfn_count(ws_neighbor_class_t *class_data);
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, const uint8_t *mac64, uint8_t role);
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data,
+                                                           const uint8_t mac64[8],
+                                                           uint8_t role,
+                                                           unsigned int key_index_mask);
 
 void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update);
 

@@ -352,7 +352,9 @@ struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if,
 
     ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!ws_neigh) {
-        ws_neigh = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage, eui64, role);
+        ws_neigh = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage,
+                                                   eui64, role,
+                                                   net_if->ws_info.key_index_mask);
         if (ws_neigh)
             rcp_legacy_set_neighbor(ws_neigh->mac_data.index, mac_helper_panid_get(net_if), 0,
                                     ws_neigh->mac_data.mac64, 0);
@@ -421,6 +423,8 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     const uint8_t key[16],
                                     uint32_t frame_counter)
 {
+    struct ws_neighbor_class_entry *neigh_list = cur->ws_info.neighbor_storage.neigh_info_list;
+
     BUG_ON(key_index < 1 || key_index > 7);
     // Firmware API < 0.15 crashes if slots > 3 are accessed
     if (!cur->ws_info.enable_lfn && key_index > 4)
@@ -432,6 +436,8 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
     } else {
         cur->ws_info.key_index_mask &= ~(1u << key_index);
     }
+    for (int i = 0; i < cur->ws_info.neighbor_storage.list_size; i++)
+        neigh_list[i].frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;
 }
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)

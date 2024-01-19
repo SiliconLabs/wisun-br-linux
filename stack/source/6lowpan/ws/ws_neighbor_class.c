@@ -65,7 +65,10 @@ void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data)
     class_data->list_size = 0;
 }
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data, const uint8_t *mac64, uint8_t role)
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data,
+                                                           const uint8_t mac64[8],
+                                                           uint8_t role,
+                                                           unsigned int key_index_mask)
 {
     ws_neighbor_class_entry_t *neigh_table = class_data->neigh_info_list;
     ws_neighbor_class_entry_t *neigh_entry = NULL;
@@ -81,6 +84,9 @@ ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *
         return NULL;
 
     neigh_entry->node_role = role;
+    for (uint8_t key_index = 1; key_index <= 7; key_index++)
+        if (!(key_index_mask & (1u << key_index)))
+            neigh_entry->frame_counter_min[key_index - 1] = UINT32_MAX;
     mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return neigh_entry;
 }

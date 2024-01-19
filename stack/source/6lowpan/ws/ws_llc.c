@@ -30,6 +30,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/time_extra.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
@@ -498,8 +499,15 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
 
-    if (ws_neigh)
+    if (ws_neigh) {
+        if (data->sec.SecurityLevel) {
+            BUG_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7);
+            if (ws_neigh->frame_counter_min[data->sec.KeyIndex - 1] <= data->sec.frame_counter)
+                ws_neigh->frame_counter_min[data->sec.KeyIndex - 1] = add32sat(data->sec.frame_counter, 1);
+        }
+
         ws_llc_rate_handle_tx_conf(base, data, &ws_neigh->mac_data);
+    }
 
     if (msg->eapol_temporary && (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA)) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
@@ -997,6 +1005,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
                               const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
+    struct ws_neighbor_class_entry *neigh;
     bool has_utt, has_lutt;
     ws_lutt_ie_t ie_lutt;
     ws_utt_ie_t ie_utt;
@@ -1022,6 +1031,13 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
     if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 25, 0)) {
         TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.25.0", tr_ws_frame(frame_type));
         return;
+    }
+
+    neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    if (neigh && data->Key.SecurityLevel) {
+        BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
+        if (neigh->frame_counter_min[data->Key.KeyIndex - 1] <= data->Key.frame_counter)
+            neigh->frame_counter_min[data->Key.KeyIndex - 1] = add32sat(data->Key.frame_counter, 1);
     }
 
     if (ws_is_frame_mngt(frame_type)) {
