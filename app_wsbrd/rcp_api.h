@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "common/hif.h"
 
 // TODO: drop legacy structures
 struct mcps_data_cnf;
@@ -65,5 +66,6 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version);
 
 void rcp_req_radio_list(struct rcp *rcp);
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
+void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 
 #endif

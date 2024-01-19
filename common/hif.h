@@ -57,6 +57,13 @@ enum {
     HIF_CMD_IND_REPLAY_SOCKET        = 0xf1,
 };
 
+enum hif_reg {
+    HIF_REG_NONE = 0,
+    HIF_REG_FCC  = 1,
+    HIF_REG_ARIB = 2,
+    HIF_REG_ETSI = 3,
+};
+
 const char *hif_cmd_str(uint8_t cmd);
 
 void hif_push_bool(struct iobuf_write *buf, bool val);

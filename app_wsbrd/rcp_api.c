@@ -189,6 +189,31 @@ void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *r
                         rf_config->use_phy_op_modes);
 }
 
+static void __rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_SET_RADIO_REGULATION);
+    hif_push_u8(&buf, reg);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0)) {
+        if (reg == HIF_REG_ARIB)
+            rcp_legacy_set_regional_regulation(REG_REGIONAL_ARIB);
+        else if (reg == HIF_REG_NONE)
+            rcp_legacy_set_regional_regulation(REG_REGIONAL_NONE);
+        else
+            rcp_legacy_set_regional_regulation(REG_REGIONAL_UNDEF);
+        rcp_legacy_set_edfe_mode(reg != HIF_REG_ARIB);
+    } else {
+        __rcp_set_radio_regulation(rcp, reg);
+    }
+}
+
 static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);

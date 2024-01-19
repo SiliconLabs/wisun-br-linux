@@ -275,9 +275,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     if (ctxt->config.ws_regional_regulation) {
         FATAL_ON(version_older_than(ctxt->rcp.version_api, 0, 6, 0), 2,
-                 "this device does not support regional regulation");
+                 "regional_regulation requires RCP API >= 0.6.0");
         ctxt->net_if.ws_info.regulation = ctxt->config.ws_regional_regulation;
-        rcp_legacy_set_regional_regulation(ctxt->config.ws_regional_regulation);
+        rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
 
     if (!version_older_than(ctxt->rcp.version_api, 0, 17, 0))
