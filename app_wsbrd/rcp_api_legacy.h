@@ -292,7 +292,6 @@ void rcp_legacy_disable_mac_filter(void);
 void rcp_legacy_add_mac_filter_entry(uint8_t mac64[8], bool forward);
 void rcp_legacy_clear_mac_filters(void);
 
-void rcp_legacy_abort_edfe(void);
 void rcp_legacy_tx_req_legacy(const struct mcps_data_req *tx_req,
                        const struct iovec *header_ie,
                        const struct iovec *payload_ie,

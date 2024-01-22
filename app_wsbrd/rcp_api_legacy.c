@@ -528,11 +528,6 @@ void rcp_legacy_clear_mac_filters()
     iobuf_free(&buf);
 }
 
-void rcp_legacy_abort_edfe()
-{
-    rcp_legacy_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);
-}
-
 void rcp_legacy_tx_req_legacy(const struct mcps_data_req *tx_req,
                        const struct iovec *header_ie,
                        const struct iovec *payload_ie,
