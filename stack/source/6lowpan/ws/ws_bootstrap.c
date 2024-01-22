@@ -78,7 +78,8 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
 {
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
-    rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
+    if (version_older_than(interface->rcp->version_api, 2, 0, 0))
+        rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->mac64);
     if (!ws_neighbor_class_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
@@ -355,7 +356,7 @@ struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if,
         ws_neigh = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage,
                                                    eui64, role,
                                                    net_if->ws_info.key_index_mask);
-        if (ws_neigh)
+        if (ws_neigh && version_older_than(net_if->rcp->version_api, 2, 0, 0))
             rcp_legacy_set_neighbor(ws_neigh->mac_data.index, mac_helper_panid_get(net_if), 0,
                                     ws_neigh->mac_data.mac64, 0);
     }
