@@ -108,7 +108,8 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 static void __rcp_req_data_tx(struct rcp *rcp,
                               const uint8_t *frame, int frame_len,
                               uint8_t handle, uint8_t fhss_type,
-                              const struct ws_neighbor_class_entry *neigh)
+                              const struct ws_neighbor_class_entry *neigh,
+                              const struct hif_rate_info rate_list[4])
 {
     struct iobuf_write buf = { };
     int bitfield_offset;
@@ -177,7 +178,14 @@ static void __rcp_req_data_tx(struct rcp *rcp,
             BUG();
         }
     }
-    // TODO: mode switch
+    if (rate_list) {
+        bitfield |= HIF_MASK_MODE_SWITCH;
+        for (int i = 0; i < 4; i++) {
+            hif_push_u8(&buf, rate_list[i].phy_mode_id);
+            hif_push_u8(&buf, rate_list[i].tx_attempts);
+            hif_push_i8(&buf, rate_list[i].tx_power_dbm);
+        }
+    }
     write_le16(buf.data + bitfield_offset, bitfield);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
@@ -186,13 +194,15 @@ static void __rcp_req_data_tx(struct rcp *rcp,
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
-                     const struct ws_neighbor_class_entry *neigh)
+                     const struct ws_neighbor_class_entry *neigh,
+                     const struct hif_rate_info rate_list[4])
 {
     if (version_older_than(rcp->version_api, 2, 0, 0))
         rcp_legacy_tx_req(frame, frame_len, neigh, handle, fhss_type,
-                          false, MAC_DATA_MEDIUM_PRIORITY, 0);
+                          false, MAC_DATA_MEDIUM_PRIORITY,
+                          rate_list ? rate_list[0].phy_mode_id : 0);
     else
-        __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh);
+        __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh, rate_list);
 }
 
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)

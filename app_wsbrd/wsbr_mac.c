@@ -68,6 +68,13 @@ void wsbr_data_req_ext(struct net_if *cur,
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
     };
+    struct hif_rate_info rate_list[4] = {
+        {
+            .phy_mode_id  = data->phy_id,
+            .tx_attempts  = 20,
+            .tx_power_dbm = INT8_MAX,
+        },
+    };
     struct iobuf_write frame = { };
 
     BUG_ON(data->TxAckReq && data->fhss_type == HIF_FHSS_TYPE_ASYNC);
@@ -106,7 +113,8 @@ void wsbr_data_req_ext(struct net_if *cur,
         BUG_ON(data->ExtendedFrameExchange);
         BUG_ON(data->phy_id);
         rcp_req_data_tx(cur->rcp, frame.data, frame.len,
-                        data->msduHandle,  data->fhss_type, neighbor_ws);
+                        data->msduHandle,  data->fhss_type, neighbor_ws,
+                        data->phy_id ? rate_list : NULL);
         iobuf_free(&frame);
     }
 

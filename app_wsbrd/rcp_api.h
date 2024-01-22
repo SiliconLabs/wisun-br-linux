@@ -68,7 +68,8 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version);
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
-                     const struct ws_neighbor_class_entry *neighbor_ws);
+                     const struct ws_neighbor_class_entry *neighbor_ws,
+                     const struct hif_rate_info rate_list[4]);
 
 // TODO: split into rcp_req_radio_enable() and rcp_set_filter_pan_id()
 void rcp_req_radio_enable(struct rcp *rcp, uint16_t pan_id);

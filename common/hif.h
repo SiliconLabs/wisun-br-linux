@@ -75,6 +75,12 @@ enum hif_fhss_type {
     HIF_FHSS_TYPE_LFN_PA = 0x06,
 };
 
+struct hif_rate_info {
+    uint8_t phy_mode_id;
+    uint8_t tx_attempts;
+    int8_t  tx_power_dbm;
+};
+
 const char *hif_cmd_str(uint8_t cmd);
 
 void hif_push_bool(struct iobuf_write *buf, bool val);
