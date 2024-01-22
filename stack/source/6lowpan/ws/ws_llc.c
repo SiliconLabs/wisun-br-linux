@@ -1042,7 +1042,8 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
     }
 
     neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
-    if (neigh && data->Key.SecurityLevel) {
+    if (neigh && data->Key.SecurityLevel &&
+        !version_older_than(net_if->rcp->version_api, 2, 0, 0)) {
         BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
         if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
             neigh->frame_counter_min[data->Key.KeyIndex - 1] == UINT32_MAX) {
