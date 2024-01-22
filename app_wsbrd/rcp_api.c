@@ -73,16 +73,16 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
 static void rcp_ind_fatal(struct rcp *rcp, struct iobuf_read *buf)
 {
     const char *msg;
-    uint8_t err;
+    uint16_t err;
 
-    err = hif_pop_u8(buf);
+    err = hif_pop_u16(buf);
     msg = hif_pop_str(buf);
     BUG_ON(buf->err);
 
     if (msg)
-        FATAL(3, "rcp error 0x%02x: %s", err, msg);
+        FATAL(3, "rcp error %s: %s", hif_fatal_str(err), msg);
     else
-        FATAL(3, "rcp error 0x%02x", err);
+        FATAL(3, "rcp error %s", hif_fatal_str(err));
 }
 
 static void __rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)

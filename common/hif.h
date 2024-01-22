@@ -54,6 +54,29 @@ enum {
     HIF_CMD_IND_REPLAY_SOCKET        = 0xf1,
 };
 
+enum hif_fatal_code {
+    HIF_EBUG                 = 0x0000,
+    HIF_ECRC                 = 0x0001,
+    HIF_EHIF                 = 0x0002,
+    HIF_ENOBTL               = 0x0003,
+    HIF_ENORF                = 0x0004,
+    HIF_EINVAL               = 0x1000,
+    HIF_EINVAL_HOSTAPI       = 0x1001,
+    HIF_EINVAL_PHY           = 0x1002,
+    HIF_EINVAL_TXPOW         = 0x1003,
+    HIF_EINVAL_REG           = 0x1004,
+    HIF_EINVAL_FHSS          = 0x1005,
+    HIF_EINVAL_FHSS_TYPE     = 0x1006,
+    HIF_EINVAL_CHAN_MASK     = 0x1007,
+    HIF_EINVAL_CHAN_FUNC     = 0x1008,
+    HIF_EINVAL_ASYNC_TXLEN   = 0x1009,
+    HIF_EINVAL_HANDLE        = 0x100a,
+    HIF_EINVAL_KEY_INDEX     = 0x100b,
+    HIF_EINVAL_FRAME_LEN     = 0x100c,
+    HIF_ENOTSUP              = 0x2000,
+    HIF_ENOTSUP_FHSS_DEFAULT = 0x2001,
+};
+
 enum hif_data_status {
     HIF_ESUCCESS  = 0x00, // Success (no error)
     HIF_ENOMEM    = 0x01, // Not enough memory available
@@ -85,6 +108,7 @@ struct hif_rate_info {
 };
 
 const char *hif_cmd_str(uint8_t cmd);
+const char *hif_fatal_str(uint16_t code);
 
 void hif_push_bool(struct iobuf_write *buf, bool val);
 void hif_push_uint(struct iobuf_write *buf, unsigned int val);
