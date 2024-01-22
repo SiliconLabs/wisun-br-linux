@@ -214,6 +214,20 @@ void rcp_req_data_tx(struct rcp *rcp,
         __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh, rate_list);
 }
 
+static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
+{
+    switch (status) {
+    case HIF_ESUCCESS:  return MLME_SUCCESS;
+    case HIF_ENOMEM:    return MLME_TRANSACTION_OVERFLOW;
+    case HIF_ECCA:      return MLME_BUSY_CHAN;
+    case HIF_ENOACK:    return MLME_TX_NO_ACK;
+    case HIF_ETIMEDOUT: return MLME_TRANSACTION_EXPIRED;
+    default:
+        WARN("unknown status 0x%02x", status);
+        return MLME_INVALID_PARAMETER; // arbitrary
+    }
+}
+
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
@@ -224,7 +238,7 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
     int ret;
 
     cnf.msduHandle    = hif_pop_u8(buf);
-    cnf.status        = hif_pop_u8(buf);
+    cnf.status        = rcp_data_status_hif2mlme(hif_pop_u8(buf));
     frame_len         = hif_pop_data_ptr(buf, &frame);
     cnf.timestamp     = hif_pop_u64(buf);
     hif_pop_u8(buf);  // TODO: LQI

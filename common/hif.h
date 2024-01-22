@@ -54,6 +54,14 @@ enum {
     HIF_CMD_IND_REPLAY_SOCKET        = 0xf1,
 };
 
+enum hif_data_status {
+    HIF_ESUCCESS  = 0x00, // Success (no error)
+    HIF_ENOMEM    = 0x01, // Not enough memory available
+    HIF_ECCA      = 0x02, // Channel access failure
+    HIF_ENOACK    = 0x03, // No valid ACK received
+    HIF_ETIMEDOUT = 0x04, // Buffer lifetime expired on RCP
+};
+
 enum hif_reg {
     HIF_REG_NONE = 0,
     HIF_REG_FCC  = 1,
