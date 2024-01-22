@@ -140,7 +140,6 @@ typedef struct llc_data_base {
 
     uint8_t                         mac_handle_base;                /**< Mac handle id base this will be updated by 1 after use */
     uint8_t                         llc_message_list_size;          /**< llc_message_list list size */
-    uint16_t                        edfe_rx_wait_timer;
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
 
     llc_message_list_t              llc_message_list;               /**< Active Message list */
@@ -1963,30 +1962,6 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
     }
 
     return 0;
-}
-
-void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base || !base->edfe_rx_wait_timer) {
-        return;
-    }
-
-    if (ticks > 0xffff / 100) {
-        ticks = 0xffff;
-    } else if (ticks == 0) {
-        ticks = 1;
-    } else {
-        ticks *= 100;
-    }
-
-    if (base->edfe_rx_wait_timer > ticks) {
-        base->edfe_rx_wait_timer -= ticks;
-    } else {
-        base->edfe_rx_wait_timer = 0;
-        tr_debug("EDFE Data Wait Timeout");
-        rcp_legacy_abort_edfe();
-    }
 }
 
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)

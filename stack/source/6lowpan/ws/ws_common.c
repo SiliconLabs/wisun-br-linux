@@ -166,7 +166,6 @@ void ws_common_fast_timer(int ticks)
         return;
 
     ws_bootstrap_trickle_timer(cur, ticks);
-    ws_llc_fast_timer(cur, ticks);
 }
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
