@@ -482,6 +482,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neighbor_class_entry *ws_neigh = NULL;
     struct ws_neighbor_temp_class *neighbor_tmp;
+    struct mcps_data_cnf data_cpy = *data;
     struct llc_data_base *base;
     struct llc_message *msg;
     time_t tx_confirm_duration;
@@ -489,27 +490,34 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     base = ws_llc_discover_by_interface(net_if);
     if (!base)
         return;
-    msg = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
+    msg = llc_message_discover_by_mac_handle(data_cpy.msduHandle, &base->llc_message_list);
     if (!msg)
         return;
 
-    if (msg->security.SecurityLevel && data->frame_counter)
-        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data->frame_counter);
+    if (msg->security.SecurityLevel && data_cpy.frame_counter)
+        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data_cpy.frame_counter);
 
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
 
     if (ws_neigh) {
-        if (data->sec.SecurityLevel) {
+        if (data_cpy.sec.SecurityLevel) {
             BUG_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7);
-            if (ws_neigh->frame_counter_min[data->sec.KeyIndex - 1] <= data->sec.frame_counter)
-                ws_neigh->frame_counter_min[data->sec.KeyIndex - 1] = add32sat(data->sec.frame_counter, 1);
+            if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
+                ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
+                data_cpy.status = MLME_COUNTER_ERROR;
+                TRACE(TR_TX_ABORT, "tx-abort %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
+                      "15.4", data_cpy.sec.KeyIndex, data_cpy.sec.frame_counter,
+                      ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1]);
+            } else {
+                ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] = add32sat(data_cpy.sec.frame_counter, 1);
+            }
         }
 
         ws_llc_rate_handle_tx_conf(base, data, &ws_neigh->mac_data);
     }
 
-    if (msg->eapol_temporary && (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA)) {
+    if (msg->eapol_temporary && (data_cpy.status == MLME_SUCCESS || data_cpy.status == MLME_NO_DATA)) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
             neighbor_tmp->eapol_temp_info.eapol_timeout = net_if->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
@@ -521,12 +529,12 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     case WS_FT_DATA:
         if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
             WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
-        ws_llc_data_confirm(base, msg, data, conf_data, ws_neigh);
+        ws_llc_data_confirm(base, msg, &data_cpy, conf_data, ws_neigh);
         break;
     case WS_FT_EAPOL:
         if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
             WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
-        ws_llc_eapol_confirm(base, msg, data);
+        ws_llc_eapol_confirm(base, msg, &data_cpy);
         break;
     case WS_FT_PA:
     case WS_FT_PAS:
@@ -1036,8 +1044,14 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
     neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (neigh && data->Key.SecurityLevel) {
         BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
-        if (neigh->frame_counter_min[data->Key.KeyIndex - 1] <= data->Key.frame_counter)
-            neigh->frame_counter_min[data->Key.KeyIndex - 1] = add32sat(data->Key.frame_counter, 1);
+        if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
+            neigh->frame_counter_min[data->Key.KeyIndex - 1] == UINT32_MAX) {
+            TRACE(TR_DROP, "drop %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
+                  "15.4", data->Key.KeyIndex, data->Key.frame_counter,
+                  neigh->frame_counter_min[data->Key.KeyIndex - 1]);
+            return;
+        }
+        neigh->frame_counter_min[data->Key.KeyIndex - 1] = add32sat(data->Key.frame_counter, 1);
     }
 
     if (ws_is_frame_mngt(frame_type)) {
