@@ -1163,9 +1163,17 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     buf->src_sa.addr_type = (addrtype_e)data_ind->SrcAddrMode;
     ptr = write_be16(buf->src_sa.address, data_ind->SrcPANId);
     memcpy(ptr, data_ind->SrcAddr, 8);
-    buf->dst_sa.addr_type = (addrtype_e)data_ind->DstAddrMode;
     ptr = write_be16(buf->dst_sa.address, data_ind->DstPANId);
-    memcpy(ptr, data_ind->DstAddr, 8);
+    // HACK: nanostack uses 0xffff as a broadcast address instead of supporting
+    // no address like Wi-SUN. Short address support should be dropped
+    // altogether.
+    if (data_ind->DstAddrMode != MAC_ADDR_MODE_NONE) {
+        memcpy(ptr, data_ind->DstAddr, 8);
+        buf->dst_sa.addr_type = data_ind->DstAddrMode;
+    } else {
+        memset(ptr, 0xff, 8);
+        buf->dst_sa.addr_type = ADDR_802_15_4_SHORT;
+    }
     //Set Link specific stuff to seperately
     buf->link_specific.ieee802_15_4.srcPanId = data_ind->SrcPANId;
     buf->link_specific.ieee802_15_4.dstPanId = data_ind->DstPANId;
