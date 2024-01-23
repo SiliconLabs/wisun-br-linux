@@ -154,8 +154,8 @@ graph is refreshed.
 |------------------|---------|--------------------------------------------------------------------------|
 |`is_border_router`|`b`      |Deprecated. Use `node_role` instead.                                      |
 |`node_role`       |`y`      |Semantics from Wi-SUN (`0`: BR, `1`: FFN-FAN1.1, `2`: LFN, none: FFN-FAN1.0)|
-|`ipv6`            |`aay`    |Array of IPv6 addresses (usually link-local and GUA)                      |
-|`parent`          |`ay`     |EUI-64 of the preferred parent                                            |
+|`ipv6`            |`aay`    |Deprecated (Does not survive reboot). Array of IPv6 addresses (usually link-local and GUA)|
+|`parent`          |`ay`     |Deprecated (Does not survive reboot). EUI-64 of the preferred parent      |
 |`is_authenticated`|`b`      |                                                                          |
 |`is_neighbor`     |`b`      |Only nodes that use direct unicast traffic to the border router are listed|
 |`rssi`            |`i`      |Received Signal Strength Indication (RSSI) of the last packet received in dBm (neighbor only)|
