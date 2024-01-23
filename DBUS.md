@@ -164,6 +164,18 @@ graph is refreshed.
 |`pom`             |`ay`     |List of PhyModeIds for mode switch advertised in POM-IE (neighbor only)   |
 |`mdr_cmd_capable` |`b`      |MAC mode switch support advertised in POM-IE (neighbor only)              |
 
+### `RoutingGraph` (`a(aybaay)`)
+
+Returns an array of the nodes connected to the Wi-SUN network based on routing
+information from both RPL and IPv6 neighbor discovery. Each entry in the array
+represents a node. A D-Bus signal is emitted whenever the routing graph is
+refreshed. Each entry is a structure:
+
+- `ay`: Nodes's IPv6
+- `b`: Whether the node an LFN or not.
+- `aay`: An array of IPv6 addresses of the node's parents. Entries are sorted
+  in the node's preferred order.
+
 ### `Gtks` and `Gaks` (`aay`)
 
 Returns a list of the four Group Transient (or Temporal) Keys (GTKs) or Group

@@ -12,6 +12,7 @@
  */
 #include <errno.h>
 #include <limits.h>
+#include <sys/queue.h>
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 #include "app_wsbrd/tun.h"
@@ -21,6 +22,8 @@
 #include "common/version.h"
 #include "common/log.h"
 #include "common/specs/ws.h"
+#include "common/ns_list.h"
+#include "common/mathutils.h"
 
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
@@ -33,6 +36,7 @@
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/protocols/sec_prot_keys.h"
+#include "stack/source/ipv6_stack/ipv6_routing_table.h"
 
 #include "commandline_values.h"
 #include "rcp_api_legacy.h"
@@ -626,6 +630,58 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
+static void dbus_message_append_rpl_target(sd_bus_message *reply, struct rpl_target *target, uint8_t pcs)
+{
+    sd_bus_message_open_container(reply, 'r', "aybaay");
+    sd_bus_message_append_array(reply, 'y', target->prefix, 16);
+    sd_bus_message_append(reply, "b", target->external);
+    sd_bus_message_open_container(reply, 'a', "ay");
+    for (uint8_t i = 0; i < pcs + 1; i++) {
+        if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
+            continue;
+        sd_bus_message_append_array(reply, 'y', target->transits[i].parent, 16);
+    }
+    sd_bus_message_close_container(reply);
+    sd_bus_message_close_container(reply);
+}
+
+static void dbus_message_append_ipv6_neigh(sd_bus_message *reply, struct ipv6_neighbour *ipv6_neigh, struct rpl_root *root)
+{
+    struct rpl_target target = { };
+
+    memcpy(target.prefix, ipv6_neigh->ip_address, 16);
+    target.external = true;
+    memcpy(target.transits[0].parent, root->dodag_id, 16);
+    dbus_message_append_rpl_target(reply, &target, root->pcs);
+}
+
+int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
+                       const char *property, sd_bus_message *reply,
+                       void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    struct rpl_target *target;
+
+    sd_bus_message_open_container(reply, 'a', "(aybaay)");
+
+    SLIST_FOREACH(target, &ctxt->rpl_root.targets, link)
+        dbus_message_append_rpl_target(reply, target, ctxt->rpl_root.pcs);
+
+    // Since LFN are not routed by RPL, rank 1 LFNs are not RPL targets.
+    // This hack allows to expose rank 1 LFNs and relies on their ipv6 address
+    // registration.
+    ns_list_foreach(struct ipv6_neighbour, ipv6_neigh, &ctxt->net_if.ipv6_neighbour_cache.list) {
+        if (IN6_IS_ADDR_MULTICAST(ipv6_neigh->ip_address) || IN6_IS_ADDR_LINKLOCAL(ipv6_neigh->ip_address))
+            continue;
+        if (rpl_target_get(&ctxt->rpl_root, ipv6_neigh->ip_address))
+            continue;
+        dbus_message_append_ipv6_neigh(reply, ipv6_neigh, &ctxt->rpl_root);
+    }
+
+    sd_bus_message_close_container(reply);
+    return 0;
+}
+
 int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
                         const char *property, sd_bus_message *reply,
                         void *userdata, sd_bus_error *ret_error)
@@ -728,6 +784,8 @@ static const sd_bus_vtable dbus_vtable[] = {
                         offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes, 0,
+                        SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
+        SD_BUS_PROPERTY("RoutingGraph", "a(aybaay)", dbus_get_routing_graph, 0,
                         SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, rcp.eui64),
