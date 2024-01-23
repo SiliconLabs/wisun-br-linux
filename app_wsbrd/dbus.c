@@ -49,11 +49,8 @@ static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_err
 {
     struct wsbr_ctxt *ctxt = userdata;
     uint8_t mode;
-    int ret;
 
-    ret = sd_bus_message_read(m, "y", &mode);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read(m, "y", &mode);
 
     if (!version_older_than(ctxt->rcp.version_api, 2, 0, 0))
         return sd_bus_error_set_errno(ret_error, ENOTSUP);
@@ -77,13 +74,8 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
     size_t eui64_len;
     int phy_mode_id;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-
-    ret = sd_bus_message_read_basic(m, 'i', &phy_mode_id);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
+    sd_bus_message_read_basic(m, 'i', &phy_mode_id);
 
     if (eui64_len == 0)
         eui64 = NULL;
@@ -111,9 +103,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
     size_t len;
     int ret;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
@@ -132,13 +122,11 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     size_t len;
     int ret;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
+    ret = wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, errno);
     addr_remove_group(&ctxt->net_if, ipv6);
@@ -171,18 +159,13 @@ static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
 {
     sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
     const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
-    int ret;
 
     if (!gtks)
         return sd_bus_error_set_errno(ret_error, EBADR);
-    ret = sd_bus_message_open_container(reply, 'a', "ay");
-    WARN_ON(ret < 0, "%s", strerror(-ret));
-    for (int i = 0; i < key_cnt; i++) {
-        ret = sd_bus_message_append_array(reply, 'y', gtks->gtk[i].key, ARRAY_SIZE(gtks->gtk[i].key));
-        WARN_ON(ret < 0, "%s", strerror(-ret));
-    }
-    ret = sd_bus_message_close_container(reply);
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_open_container(reply, 'a', "ay");
+    for (int i = 0; i < key_cnt; i++)
+        sd_bus_message_append_array(reply, 'y', gtks->gtk[i].key, ARRAY_SIZE(gtks->gtk[i].key));
+    sd_bus_message_close_container(reply);
     return 0;
 }
 
@@ -206,20 +189,16 @@ static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
     sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
     const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
     uint8_t gak[16];
-    int ret;
 
     if (!gtks || !net_if->ws_info.cfg)
         return sd_bus_error_set_errno(ret_error, EBADR);
-    ret = sd_bus_message_open_container(reply, 'a', "ay");
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < key_cnt; i++) {
         // GAK is SHA256 of network name concatened with GTK
         ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, net_if->ws_info.cfg->gen.network_name);
-        ret = sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
-        WARN_ON(ret < 0, "%s", strerror(-ret));
+        sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
     }
-    ret = sd_bus_message_close_container(reply);
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_close_container(reply);
     return 0;
 }
 
@@ -244,9 +223,7 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
     uint8_t *eui64;
     int ret;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     ret = ws_bbr_node_keys_remove(ctxt->net_if.id, eui64);
@@ -263,16 +240,12 @@ static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_erro
     size_t len;
     int ret;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
     if (!len)
         gtk = NULL;
     else if (len != GTK_LEN)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
     if (!len)
         lgtk = NULL;
     else if (len != GTK_LEN)
@@ -295,11 +268,8 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
     struct wsbr_ctxt *ctxt = userdata;
     const uint8_t *gtk;
     size_t len;
-    int ret;
 
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
     if (len != GTK_LEN)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
@@ -329,15 +299,9 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
     size_t content_len;
     int ret;
 
-    ret = sd_bus_message_read(m, "yy", &ie_type, &ie_id);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&content, &content_len);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-    ret = sd_bus_message_read_array(m, 'y', (const void **)&frame_type_list, &frame_type_count);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_message_read(m, "yy", &ie_type, &ie_id);
+    sd_bus_message_read_array(m, 'y', (const void **)&content, &content_len);
+    sd_bus_message_read_array(m, 'y', (const void **)&frame_type_list, &frame_type_count);
 
     frame_type_mask = 0;
     for (size_t i = 0; i < frame_type_count; i++) {
@@ -406,29 +370,18 @@ void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt)
                        "RoutingGraph", NULL);
 }
 
-static int dbus_message_open_info(sd_bus_message *m, const char *property,
+static void dbus_message_open_info(sd_bus_message *m, const char *property,
                                   const char *name, const char *type)
 {
-    int ret;
-
-    ret = sd_bus_message_open_container(m, 'e', "sv");
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_append(m, "s", name);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_open_container(m, 'v', type);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    return ret;
+    sd_bus_message_open_container(m, 'e', "sv");
+    sd_bus_message_append(m, "s", name);
+    sd_bus_message_open_container(m, 'v', type);
 }
 
-static int dbus_message_close_info(sd_bus_message *m, const char *property)
+static void dbus_message_close_info(sd_bus_message *m, const char *property)
 {
-    int ret;
-
-    ret = sd_bus_message_close_container(m);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_close_container(m);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    return ret;
+    sd_bus_message_close_container(m);
+    sd_bus_message_close_container(m);
 }
 
 static int dbus_message_append_node(
@@ -441,95 +394,75 @@ static int dbus_message_append_node(
     supp_entry_t *supp,
     const struct ws_neighbor_class_entry *neighbor)
 {
-    int ret, val;
+    int val;
 
-    ret = sd_bus_message_open_container(m, 'r', "aya{sv}");
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_append_array(m, 'y', self, 8);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_open_container(m, 'a', "{sv}");
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    sd_bus_message_open_container(m, 'r', "aya{sv}");
+    sd_bus_message_append_array(m, 'y', self, 8);
+    sd_bus_message_open_container(m, 'a', "{sv}");
     {
         if (is_br) {
             dbus_message_open_info(m, property, "is_border_router", "b");
-            ret = sd_bus_message_append(m, "b", true);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append(m, "b", true);
             dbus_message_close_info(m, property);
             // TODO: deprecate is_border_router
             dbus_message_open_info(m, property, "node_role", "y");
-            ret = sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
             dbus_message_close_info(m, property);
         } else if (supp) {
             dbus_message_open_info(m, property, "is_authenticated", "b");
             val = true;
-            ret = sd_bus_message_append(m, "b", val);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append(m, "b", val);
             dbus_message_close_info(m, property);
             if (ws_common_is_valid_nr(supp->sec_keys.node_role)) {
                 dbus_message_open_info(m, property, "node_role", "y");
-                ret = sd_bus_message_append(m, "y", supp->sec_keys.node_role);
-                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                sd_bus_message_append(m, "y", supp->sec_keys.node_role);
                 dbus_message_close_info(m, property);
             }
         }
         if (parent) {
             dbus_message_open_info(m, property, "parent", "ay");
-            ret = sd_bus_message_append_array(m, 'y', parent, 8);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append_array(m, 'y', parent, 8);
             dbus_message_close_info(m, property);
         }
         if (neighbor) {
             dbus_message_open_info(m, property, "is_neighbor", "b");
-            ret = sd_bus_message_append(m, "b", true);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append(m, "b", true);
             dbus_message_close_info(m, property);
             if (neighbor->rssi != INT_MAX) {
                 dbus_message_open_info(m, property, "rssi", "i");
-                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
-                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
                 dbus_message_close_info(m, property);
             }
             if (neighbor->rsl_in != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl", "i");
-                ret = sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_in_get(neighbor));
-                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_in_get(neighbor));
                 dbus_message_close_info(m, property);
             }
             if (neighbor->rsl_out != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl_adv", "i");
-                ret = sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_out_get(neighbor));
-                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_out_get(neighbor));
                 dbus_message_close_info(m, property);
             }
             dbus_message_open_info(m, property, "pom", "ay");
-            ret = sd_bus_message_append_array(m, 'y',
+            sd_bus_message_append_array(m, 'y',
                                                 neighbor->pom_ie.phy_op_mode_id,
                                                 neighbor->pom_ie.phy_op_mode_number);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
 
             dbus_message_open_info(m, property, "mdr_cmd_capable", "b");
-            ret = sd_bus_message_append(m, "b", neighbor->pom_ie.mdr_command_capable);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            sd_bus_message_append(m, "b", neighbor->pom_ie.mdr_command_capable);
             dbus_message_close_info(m, property);
         }
         dbus_message_open_info(m, property, "ipv6", "aay");
-        ret = sd_bus_message_open_container(m, 'a', "ay");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        for (; memzcmp(*ipv6, 16); ipv6++) {
-            ret = sd_bus_message_append_array(m, 'y', *ipv6, 16);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        }
-        ret = sd_bus_message_close_container(m);
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        sd_bus_message_open_container(m, 'a', "ay");
+        for (; memzcmp(*ipv6, 16); ipv6++)
+            sd_bus_message_append_array(m, 'y', *ipv6, 16);
+        sd_bus_message_close_container(m);
         dbus_message_close_info(m, property);
     }
-    ret = sd_bus_message_close_container(m);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    ret = sd_bus_message_close_container(m);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    return ret;
+    sd_bus_message_close_container(m);
+    sd_bus_message_close_container(m);
+    return 0;
 }
 
 static uint8_t *dhcp_eui64_to_ipv6(struct wsbr_ctxt *ctxt, const uint8_t eui64[8])
@@ -591,7 +524,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     uint8_t node_ipv6[3][16] = { 0 };
     bbr_route_info_t table[4096];
     uint8_t *parent, *ucast_addr;
-    int len_pae, len_rpl, ret, j;
+    int len_pae, len_rpl, j;
     uint8_t eui64_pae[4096][8];
     supp_entry_t *supp;
     uint8_t ipv6[16];
@@ -601,8 +534,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     if (len_rpl < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
 
-    ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     dbus_message_append_node_br(reply, property, ctxt);
 
     for (int i = 0; i < len_pae; i++) {
@@ -633,8 +565,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
         if (supp)
             free(supp);
     }
-    ret = sd_bus_message_close_container(reply);
-    WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
+    sd_bus_message_close_container(reply);
     return 0;
 }
 
@@ -695,10 +626,8 @@ int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
                         void *userdata, sd_bus_error *ret_error)
 {
     uint8_t *hw_addr = userdata;
-    int ret;
 
-    ret = sd_bus_message_append_array(reply, 'y', hw_addr, 8);
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_append_array(reply, 'y', hw_addr, 8);
     return 0;
 }
 
@@ -707,12 +636,10 @@ int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
                        void *userdata, sd_bus_error *ret_error)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
-    int ret;
 
     if (!net_if)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = sd_bus_message_append(reply, "q", net_if->ws_info.network_pan_id);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    sd_bus_message_append(reply, "q", net_if->ws_info.network_pan_id);
     return 0;
 }
 
@@ -722,10 +649,8 @@ int dbus_get_fan_version(sd_bus *bus, const char *path, const char *interface,
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
     uint8_t fan_version = net_if->ws_info.pan_information.version;
-    int ret;
 
-    ret = sd_bus_message_append_basic(reply, 'y', &fan_version);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    sd_bus_message_append_basic(reply, 'y', &fan_version);
     return 0;
 }
 
@@ -734,10 +659,8 @@ int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
                         void *userdata, sd_bus_error *ret_error)
 {
     int *domain = userdata;
-    int ret;
 
-    ret = sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains, "[unknown]"));
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains, "[unknown]"));
     return 0;
 }
 
@@ -746,10 +669,8 @@ int wsbrd_get_ws_size(sd_bus *bus, const char *path, const char *interface,
                         void *userdata, sd_bus_error *ret_error)
 {
     int *size = userdata;
-    int ret;
 
-    ret = sd_bus_message_append(reply, "s", val_to_str(*size, valid_ws_size, NULL));
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    sd_bus_message_append(reply, "s", val_to_str(*size, valid_ws_size, NULL));
     return 0;
 }
 
@@ -758,10 +679,8 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
                void *userdata, sd_bus_error *ret_error)
 {
     char *val = userdata;
-    int ret;
 
-    ret = sd_bus_message_append(reply, "s", val);
-    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    sd_bus_message_append(reply, "s", val);
     return 0;
 }
 
