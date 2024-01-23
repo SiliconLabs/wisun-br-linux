@@ -129,6 +129,11 @@ Increments the RPL Destination Advertisement Trigger Sequence Number (DTSN).
 This increment will force all nodes to send a DAO and therefore update all
 downward routes of the DODAG. See section 9 of [`RFC 6550`][7] for more details.
 
+### `IncrementRplDodagVersionNumber`
+
+Increments the RPL DODAG Version Number. This increment will form a new version
+of the DODAG. See section 8.2.2.1 of [`RFC 6550`][7] for more details.
+
 [7]: https://datatracker.ietf.org/doc/html/rfc6550
 
 ## Properties
