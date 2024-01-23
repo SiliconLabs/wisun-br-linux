@@ -398,6 +398,14 @@ void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
                        "Nodes", NULL);
 }
 
+void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt)
+{
+    sd_bus_emit_properties_changed(ctxt->dbus,
+                       "/com/silabs/Wisun/BorderRouter",
+                       "com.silabs.Wisun.BorderRouter",
+                       "RoutingGraph", NULL);
+}
+
 static int dbus_message_open_info(sd_bus_message *m, const char *property,
                                   const char *name, const char *type)
 {
