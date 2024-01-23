@@ -368,6 +368,15 @@ static int dbus_install_lgtk(sd_bus_message *m, void *userdata, sd_bus_error *re
     return dbus_install_group_key(m, userdata, ret_error, true);
 }
 
+int dbus_increment_rpl_dtsn(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+
+    rpl_dtsn_inc(&ctxt->rpl_root);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
 void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
 {
     sd_bus_emit_properties_changed(ctxt->dbus,
@@ -695,6 +704,7 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("InstallLgtk",         "ay",     NULL, dbus_install_lgtk,          0),
         SD_BUS_METHOD("IeCustomInsert",      "yyayay", NULL, dbus_ie_custom_insert,      0),
         SD_BUS_METHOD("IeCustomClear",       NULL,     NULL, dbus_ie_custom_clear,       0),
+        SD_BUS_METHOD("IncrementRplDtsn",    NULL,     NULL, dbus_increment_rpl_dtsn,    0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

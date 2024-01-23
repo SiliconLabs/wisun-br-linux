@@ -123,6 +123,14 @@ Example:
 Remove all custom IEs inserted using `IeCustomInsert`, and increment the PAN
 version.
 
+### `IncrementRplDtsn`
+
+Increments the RPL Destination Advertisement Trigger Sequence Number (DTSN).
+This increment will force all nodes to send a DAO and therefore update all
+downward routes of the DODAG. See section 9 of [`RFC 6550`][7] for more details.
+
+[7]: https://datatracker.ietf.org/doc/html/rfc6550
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)
