@@ -664,8 +664,8 @@ static void dbus_message_append_ipv6_neigh(sd_bus_message *reply, struct ipv6_ne
 }
 
 int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
-                       const char *property, sd_bus_message *reply,
-                       void *userdata, sd_bus_error *ret_error)
+                           const char *property, sd_bus_message *reply,
+                           void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
     struct rpl_target *target;

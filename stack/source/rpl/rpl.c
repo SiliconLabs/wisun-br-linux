@@ -92,6 +92,7 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
     rpl_storage_del_target(root, target);
     free(target);
     dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
+    dbus_emit_routing_graph_change(container_of(root, struct wsbr_ctxt, rpl_root));
 }
 
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target)
@@ -439,6 +440,7 @@ static void rpl_transit_update(struct rpl_root *root,
     if (nvm_store) {
         rpl_storage_store_target(root, target);
         dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
+        dbus_emit_routing_graph_change(container_of(root, struct wsbr_ctxt, rpl_root));
     }
 }
 
@@ -571,6 +573,7 @@ void rpl_recv_srh_err(struct rpl_root *root,
     if (nvm_store) {
         rpl_storage_store_target(root, target);
         dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
+        dbus_emit_routing_graph_change(container_of(root, struct wsbr_ctxt, rpl_root));
     }
 }
 
