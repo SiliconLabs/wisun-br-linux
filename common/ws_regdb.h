@@ -51,13 +51,6 @@ enum {
 
 enum {
     // These values are part of the RCP API.
-    REG_REGIONAL_NONE = 0,
-    REG_REGIONAL_ARIB = 1,
-    REG_REGIONAL_UNDEF,
-};
-
-enum {
-    // These values are part of the RCP API.
     MODULATION_INDEX_0_5 = 0,
     MODULATION_INDEX_1_0 = 1,
     MODULATION_INDEX_UNDEF

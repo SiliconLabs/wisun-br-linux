@@ -284,7 +284,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     // Wi-SUN FAN 1.1v06 6.3.4.1.1.2 forbids EDFE when operating in Japan.
     // Aggregate this restriction with the ARIB regulation for simplicity.
     if (!version_older_than(ctxt->rcp.version_api, 0, 26, 0) &&
-        ctxt->config.ws_regional_regulation == REG_REGIONAL_ARIB)
+        ctxt->config.ws_regional_regulation == HIF_REG_ARIB)
         rcp_legacy_set_edfe_mode(false);
 }
 

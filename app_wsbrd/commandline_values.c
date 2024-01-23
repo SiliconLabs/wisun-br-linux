@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/hif.h"
 #include "common/log.h"
 #include "common/ws_regdb.h"
 #include "common/specs/ws.h"
@@ -126,7 +127,7 @@ const struct name_value valid_booleans[] = {
 };
 
 const struct name_value valid_ws_regional_regulations[] = {
-    { "none", REG_REGIONAL_NONE },
-    { "arib", REG_REGIONAL_ARIB },
+    { "none", HIF_REG_NONE },
+    { "arib", HIF_REG_ARIB },
     { NULL },
 };

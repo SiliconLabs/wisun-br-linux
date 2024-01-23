@@ -404,6 +404,13 @@ static void __rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
     iobuf_free(&buf);
 }
 
+enum {
+    // These values are part of the legacy RCP API.
+    REG_REGIONAL_NONE = 0,
+    REG_REGIONAL_ARIB = 1,
+    REG_REGIONAL_UNDEF,
+};
+
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
 {
     if (version_older_than(rcp->version_api, 2, 0, 0)) {
