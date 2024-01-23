@@ -17,6 +17,7 @@
 
 #include "stack/source/core/timers.h"
 #include "app_wsbrd/wsbr.h" // FIXME
+#include "app_wsbrd/dbus.h"
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -90,6 +91,7 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
     root->route_del(root, target->prefix, 128);
     rpl_storage_del_target(root, target);
     free(target);
+    dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
 }
 
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target)
@@ -434,8 +436,10 @@ static void rpl_transit_update(struct rpl_root *root,
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if (nvm_store)
+    if (nvm_store) {
         rpl_storage_store_target(root, target);
+        dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
+    }
 }
 
 static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
@@ -564,8 +568,10 @@ void rpl_recv_srh_err(struct rpl_root *root,
                   tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
-    if (nvm_store)
+    if (nvm_store) {
         rpl_storage_store_target(root, target);
+        dbus_emit_nodes_change(container_of(root, struct wsbr_ctxt, rpl_root));
+    }
 }
 
 static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t size,
