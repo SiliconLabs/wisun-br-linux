@@ -162,7 +162,7 @@ static void handle_btl_run(struct os_ctxt *ctxt)
     write(ctxt->data_fd, &btl_run, sizeof(uint8_t));
 }
 
-static void handle_rcp_legacy_reset(struct os_ctxt *ctxt)
+static void handle_rcp_reset(struct os_ctxt *ctxt)
 {
     int cmd;
     const char *version_fw_str;
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
     ctxt.trig_fd = ctxt.data_fd;
     FATAL_ON(ctxt.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
     handle_btl_run(&ctxt);
-    handle_rcp_legacy_reset(&ctxt);
+    handle_rcp_reset(&ctxt);
     close(ctxt.data_fd);
 
     return 0;
