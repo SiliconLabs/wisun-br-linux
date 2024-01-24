@@ -133,6 +133,11 @@ static void send_btl_update(struct os_ctxt *ctxt)
     hif_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
     uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
+
+    hif_push_u8(&tx_buf, HIF_CMD_REQ_RESET);
+    hif_push_bool(&tx_buf, true);
+    uart_tx(ctxt, tx_buf.data, tx_buf.len);
+    iobuf_free(&tx_buf);
 }
 
 static void handle_btl_update(struct os_ctxt *ctxt)
