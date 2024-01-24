@@ -125,6 +125,11 @@ static void send_btl_update(struct os_ctxt *ctxt)
     struct iobuf_write tx_buf = { };
 
     hif_push_u8(&tx_buf, 0);
+    hif_push_uint(&tx_buf, SPINEL_CMD_NOOP);
+    uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
+    iobuf_free(&tx_buf);
+
+    hif_push_u8(&tx_buf, 0);
     hif_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
     uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
