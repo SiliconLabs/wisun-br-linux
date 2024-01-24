@@ -17,6 +17,7 @@
 #include <getopt.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <termios.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
@@ -97,7 +98,8 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
     FATAL_ON(ret, 1, "%s does not exists", cmd->gbl_file_path);
 }
 
-static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len)
+static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len,
+                        int (*rx)(struct os_ctxt *ctxt, void *buf, unsigned int buf_len))
 {
     int len, ret;
     struct pollfd pollfd = {
@@ -115,7 +117,7 @@ static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len)
         }
 
         if (pollfd.revents & POLLIN || ctxt->uart_data_ready)
-            len = uart_legacy_rx(ctxt, buf, buf_len);
+            len = rx(ctxt, buf, buf_len);
     } while (!len);
     return len;
 }
@@ -154,7 +156,7 @@ static void handle_btl_update(struct os_ctxt *ctxt)
     if (ret < 0)
         FATAL(2, "poll: %m");
     if (!ret)
-        FATAL(1, "poll: SPINEL_CMD_BOOTLOADER_UPDATE is not implemented on this RCP");
+        FATAL(1, "failed to start bootloader");
     ret = read(ctxt->data_fd, btl_rx_buf, sizeof(btl_rx_buf));
     if (!memmem(btl_rx_buf, ret, btl_str, strlen(btl_str)))
         FATAL(1, "cannot get bootloader banner");
@@ -165,9 +167,12 @@ static void handle_btl_update(struct os_ctxt *ctxt)
 static void handle_btl_run(struct os_ctxt *ctxt)
 {
     char btl_run = '2';
+    int ret;
 
     // wait for the Gecko Bootloader banner
     usleep(500000);
+    ret = tcflush(ctxt->data_fd, TCIFLUSH);
+    FATAL_ON(ret < 0, 2, "tcflush: %m");
     // option '2' to run
     write(ctxt->data_fd, &btl_run, sizeof(uint8_t));
 }
@@ -179,28 +184,40 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
     uint32_t rcp_version_api, rcp_version_fw;
     uint8_t buffer[4096] = { };
     struct iobuf_read rx_buf = { };
+    bool is_v2;
 
     ctxt->uart_init_phase = true;
+    is_v2 = uart_detect_v2(ctxt, 30);
     rx_buf.data = buffer;
-    rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
+    rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer),
+                                 is_v2 ? uart_rx : uart_legacy_rx);
     if (!rx_buf.data_size) {
         INFO("No RCP version received");
         return;
     }
 
-    hif_pop_u8(&rx_buf);
-    cmd = hif_pop_uint(&rx_buf);
-    if (cmd == SPINEL_CMD_NOOP) {
-        rx_buf.cnt = 0;
-        rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
+    if (is_v2) {
+        cmd = hif_pop_u8(&rx_buf);
+        if (cmd != HIF_CMD_IND_RESET)
+            FATAL(1, "unexpected firmware boot sequence");
+        rcp_version_api = hif_pop_u32(&rx_buf);
+        rcp_version_fw  = hif_pop_u32(&rx_buf);
+        version_fw_str  = hif_pop_str(&rx_buf);
+    } else {
         hif_pop_u8(&rx_buf);
         cmd = hif_pop_uint(&rx_buf);
+        if (cmd == SPINEL_CMD_NOOP) {
+            rx_buf.cnt = 0;
+            rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer), uart_legacy_rx);
+            hif_pop_u8(&rx_buf);
+            cmd = hif_pop_uint(&rx_buf);
+        }
+        if (cmd != SPINEL_CMD_RESET)
+            FATAL(1, "unexpected firmware boot sequence");
+        rcp_version_api = hif_pop_u32(&rx_buf);
+        rcp_version_fw = hif_pop_u32(&rx_buf);
+        version_fw_str = hif_pop_str(&rx_buf);
     }
-    if (cmd != SPINEL_CMD_RESET)
-        FATAL(1, "unexpected firmware boot sequence");
-    rcp_version_api = hif_pop_u32(&rx_buf);
-    rcp_version_fw = hif_pop_u32(&rx_buf);
-    version_fw_str = hif_pop_str(&rx_buf);
 
     INFO("Updated to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
          FIELD_GET(0xFF000000, rcp_version_fw),
