@@ -584,7 +584,7 @@ int ws_neigh_lfn_count(ws_neigh_table_t *table)
     return cnt;
 }
 
-void ws_neigh_trusted_neighbor(struct ws_neigh *neigh)
+void ws_neigh_trust(struct ws_neigh *neigh)
 {
     if (neigh->trusted_device)
         return;

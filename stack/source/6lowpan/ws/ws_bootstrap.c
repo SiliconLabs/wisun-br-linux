@@ -367,7 +367,7 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
 
     ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, eui64);
     if (ipv6_neighbor) {
-        ws_neigh_trusted_neighbor(ws_neigh);
+        ws_neigh_trust(ws_neigh);
         ws_neigh_refresh_neighbor(ws_neigh, ipv6_neighbor->lifetime_s);
     }
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);

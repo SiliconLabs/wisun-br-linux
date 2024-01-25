@@ -681,7 +681,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
         if (data->Key.SecurityLevel)
-            ws_neigh_trusted_neighbor(ws_neigh);
+            ws_neigh_trust(ws_neigh);
         if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
             ws_neigh->pom_ie = ie_pom;
     }
@@ -761,7 +761,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
     if (data->Key.SecurityLevel)
-        ws_neigh_trusted_neighbor(ws_neigh);
+        ws_neigh_trust(ws_neigh);
     if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
         ws_neigh_refresh_neighbor(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
     else
