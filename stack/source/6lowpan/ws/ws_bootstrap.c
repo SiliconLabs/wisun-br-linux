@@ -664,7 +664,7 @@ int ws_bootstrap_init(int8_t interface_id)
 init_fail:
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
     ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    ws_neigh_dealloc(&neigh_info);
+    ws_neigh_table_free(&neigh_info);
     ws_llc_delete(cur);
     ws_eapol_pdu_delete(cur);
     ws_pae_controller_delete(cur);

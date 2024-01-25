@@ -58,7 +58,7 @@ bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neig
 }
 
 
-void ws_neigh_dealloc(ws_neigh_table_t *table)
+void ws_neigh_table_free(ws_neigh_table_t *table)
 {
     free(table->neigh_info_list);
     table->neigh_info_list = NULL;
