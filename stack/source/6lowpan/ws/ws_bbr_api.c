@@ -205,36 +205,6 @@ uint16_t ws_bbr_pan_id_get(struct net_if *interface)
     return ws_bbr_pan_id;
 }
 
-/* Public APIs
- *
- */
-
-int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!info_ptr) {
-        return -1;
-    }
-    if (!cur) {
-        tr_warn("bbr not started");
-        return -1;
-    }
-    // Zero the structure
-    memset(info_ptr, 0, sizeof(bbr_information_t));
-
-    ipv6_route_t *next_hop = ipv6_route_choose_next_hop(ADDR_6TO4, interface_id);
-    if (next_hop) {
-        memcpy(info_ptr->gateway, next_hop->info.next_hop_addr, 16);
-    }
-
-    info_ptr->devices_in_network = ws_bbr_pan_size(cur);
-    info_ptr->timestamp = g_monotonic_time_100ms; // TODO switch to second timer
-    // consider DTSN included It can also be added for getting device information
-    // Consider own device API to get DTSN, DHCP lifetime values
-    return 0;
-}
-
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
     struct rpl_root *root = &g_ctxt.rpl_root;

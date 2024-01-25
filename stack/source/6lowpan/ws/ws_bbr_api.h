@@ -36,18 +36,6 @@ extern uint16_t test_pan_size_override;
 struct net_if;
 
 /**
- * \brief Struct ws_statistics Border router dynamic information.
- */
-typedef struct bbr_information {
-    /** Timestamp of the the device. Can be used as version number*/
-    uint64_t timestamp;
-    /** Default route Link Local address of north bound router*/
-    uint8_t gateway[16];
-    /** Amount of devices in the network. */
-    uint16_t devices_in_network;
-} bbr_information_t;
-
-/**
  * \brief Struct route_info is parent child relation structure.
  */
 typedef struct bbr_route_info {
@@ -56,18 +44,6 @@ typedef struct bbr_route_info {
     /** IID of parent*/
     uint8_t parent[8];
 } bbr_route_info_t;
-
-/**
- * Get border router information
- *
- * \param interface_id interface ID of the Wi-SUN network
- * \param info_ptr Structure given to stack where information is stored
- *
- * \return 0 on success
- * \return <0 in case of errors
- *
- */
-int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr);
 
 /**
  * Routing table get
