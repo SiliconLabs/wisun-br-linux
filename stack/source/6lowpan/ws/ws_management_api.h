@@ -283,40 +283,6 @@ int ws_management_fhss_unicast_channel_function_configure(
     uint8_t dwell_interval);
 
 /**
- * Get unicast channel function.
- *
- * \param interface_id Network interface ID.
- * \param channel_function Unicast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel.
- * \param dwell_interval Used dwell interval when channel function is TR51 or DH1.
- *
- * \return 0, OK.
- * \return <0 fail.
- */
-int ws_management_fhss_unicast_channel_function_get(
-    int8_t interface_id,
-    uint8_t *channel_function,
-    uint16_t *fixed_channel,
-    uint8_t *dwell_interval);
-
-/**
- * Validate unicast channel function.
- *
- * \param interface_id Network interface ID.
- * \param channel_function Unicast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel.
- * \param dwell_interval Used dwell interval when channel function is TR51 or DH1.
- *
- * \return 0, OK.
- * \return <0 fail.
- */
-int ws_management_fhss_unicast_channel_function_validate(
-    int8_t interface_id,
-    uint8_t channel_function,
-    uint16_t fixed_channel,
-    uint8_t dwell_interval);
-
-/**
  * Configure broadcast channel function.
  *
  * Change the default configuration for Wi-SUN FHSS operation.

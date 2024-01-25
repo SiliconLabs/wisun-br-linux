@@ -377,59 +377,6 @@ int ws_management_fhss_unicast_channel_function_configure(
     return 0;
 }
 
-int ws_management_fhss_unicast_channel_function_get(
-    int8_t interface_id,
-    uint8_t *channel_function,
-    uint16_t *fixed_channel,
-    uint8_t *dwell_interval)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-    if (!channel_function || !fixed_channel || !dwell_interval) {
-        return -2;
-    }
-
-    ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg) < 0) {
-        return -2;
-    }
-
-    *dwell_interval = cfg.fhss_uc_dwell_interval;
-    *channel_function = cfg.fhss_uc_channel_function;
-    *fixed_channel = cfg.fhss_uc_fixed_channel;
-
-    return 0;
-}
-
-int ws_management_fhss_unicast_channel_function_validate(
-    int8_t interface_id,
-    uint8_t channel_function,
-    uint16_t fixed_channel,
-    uint8_t dwell_interval)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-
-    ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg) < 0) {
-        return -2;
-    }
-
-    cfg.fhss_uc_dwell_interval = dwell_interval;
-    cfg.fhss_uc_channel_function = channel_function;
-    cfg.fhss_uc_fixed_channel = fixed_channel;
-
-    if (ws_cfg_fhss_validate(&cfg) < 0) {
-        return -4;
-    }
-
-    return 0;
-}
-
 int ws_management_fhss_broadcast_channel_function_configure(
     int8_t interface_id,
     uint8_t channel_function,
