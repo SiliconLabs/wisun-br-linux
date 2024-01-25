@@ -190,9 +190,6 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
 
-static bool test_skip_first_init_response = false;
-static uint8_t test_drop_data_message = 0;
-
 static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui64[8])
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, eui64);
@@ -201,24 +198,6 @@ static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui6
         return ws_neigh->node_role;
     else
         return WS_NR_ROLE_UNKNOWN;
-}
-
-int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    test_skip_first_init_response = skip;
-    return 0;
-}
-
-int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    test_drop_data_message = number_of_dropped_frames;
-    return 0;
 }
 
 /** Discover Message by message handle id */
