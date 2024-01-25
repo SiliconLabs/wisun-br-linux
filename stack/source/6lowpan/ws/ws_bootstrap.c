@@ -79,7 +79,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_nei
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     if (version_older_than(interface->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
-    ws_neigh_entry_remove(&interface->ws_info.neighbor_storage, neighbor->mac64);
+    ws_neigh_del(&interface->ws_info.neighbor_storage, neighbor->mac64);
     if (!ws_neigh_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
 }

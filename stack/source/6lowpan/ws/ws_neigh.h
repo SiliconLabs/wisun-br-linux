@@ -110,7 +110,7 @@ void ws_neigh_dealloc(ws_neigh_table_t *table);
 
 ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
 
-void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64);
+void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64);
 
 // Unicast Timing update
 void ws_neigh_ut_update(ws_neigh_t *neighbor, uint24_t ufsi,

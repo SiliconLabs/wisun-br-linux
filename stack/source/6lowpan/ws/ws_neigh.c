@@ -109,7 +109,7 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
     return NULL;
 }
 
-void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64)
+void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
 {
     ws_neigh_t *entry = ws_neigh_get(table, mac64);
     uint8_t index;
