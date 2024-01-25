@@ -436,12 +436,12 @@ static int dbus_message_append_node(
             }
             if (!isnan(neighbor->rsl_in_dbm)) {
                 dbus_message_open_info(m, property, "rsl", "i");
-                sd_bus_message_append(m, "i", ws_neigh_rsl_in_get(neighbor));
+                sd_bus_message_append(m, "i", (int)neighbor->rsl_in_dbm);
                 dbus_message_close_info(m, property);
             }
             if (!isnan(neighbor->rsl_out_dbm)) {
                 dbus_message_open_info(m, property, "rsl_adv", "i");
-                sd_bus_message_append(m, "i", ws_neigh_rsl_out_get(neighbor));
+                sd_bus_message_append(m, "i", (int)neighbor->rsl_out_dbm);
                 dbus_message_close_info(m, property);
             }
             dbus_message_open_info(m, property, "pom", "ay");

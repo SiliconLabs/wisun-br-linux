@@ -137,13 +137,6 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 // Node Role update (LFN only)
 void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie);
 
-/**
- * Helper macros to read RSL values from neighbor class.
- *
- */
-#define ws_neigh_rsl_in_get(neigh) ((int)neigh->rsl_in_dbm)
-#define ws_neigh_rsl_out_get(neigh) ((int)neigh->rsl_out_dbm)
-
 void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard);
 
 void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm);
