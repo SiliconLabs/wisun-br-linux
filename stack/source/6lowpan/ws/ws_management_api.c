@@ -182,51 +182,6 @@ int ws_management_network_size_set(
     return 0;
 }
 
-int ws_management_network_size_get(
-    int8_t interface_id,
-    uint8_t *network_size)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-    if (!network_size) {
-        return -2;
-    }
-
-    ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg) < 0) {
-        return -3;
-    }
-
-    *network_size = cfg.network_size;
-
-    return 0;
-}
-
-int ws_management_network_size_validate(
-    int8_t interface_id,
-    uint8_t network_size)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-
-    ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg) < 0) {
-        return -3;
-    }
-
-    cfg.network_size = network_size;
-
-    if (ws_cfg_network_size_validate(&cfg) < 0) {
-        return -4;
-    }
-
-    return 0;
-}
-
 int ws_management_channel_mask_set(
     int8_t interface_id,
     uint8_t channel_mask[32])

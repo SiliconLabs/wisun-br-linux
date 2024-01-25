@@ -166,34 +166,6 @@ int ws_management_network_size_set(
     uint8_t network_size);
 
 /**
- * Get timing parameters related to network size.
- *
- * \param interface_id Network interface ID.
- * \param network_size Network size in hundreds of devices, certificate or automatic.
- *                     See NETWORK_SIZE_ definition.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_network_size_get(
-    int8_t interface_id,
-    uint8_t *network_size);
-
-/**
- * Validate timing parameters related to network size.
- *
- * \param interface_id Network interface ID.
- * \param network_size Network size in hundreds of devices, certificate or automatic.
- *                     See NETWORK_SIZE_ definition.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_network_size_validate(
-    int8_t interface_id,
-    uint8_t network_size);
-
-/**
  * Set channel mask for FHSS operation.
  *
  * Default value: all channels are allowed.
