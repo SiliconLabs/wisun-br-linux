@@ -177,6 +177,6 @@ uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
 
 void ws_neigh_trust(struct ws_neigh *neigh);
 
-void ws_neigh_refresh_neighbor(struct ws_neigh *neigh, uint32_t lifetime_s);
+void ws_neigh_refresh(struct ws_neigh *neigh, uint32_t lifetime_s);
 
 #endif

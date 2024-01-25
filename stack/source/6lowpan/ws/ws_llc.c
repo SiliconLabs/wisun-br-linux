@@ -441,12 +441,12 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
+                    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
+                    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                     confirm->timestamp, ws_neigh->mac64);
             }
@@ -763,9 +763,9 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (data->Key.SecurityLevel)
         ws_neigh_trust(ws_neigh);
     if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-        ws_neigh_refresh_neighbor(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
+        ws_neigh_refresh(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
     else
-        ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
+        ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
     if (has_pom)
         ws_neigh->pom_ie = ie_pom;
 

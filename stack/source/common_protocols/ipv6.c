@@ -1064,7 +1064,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     aro.lifetime = ws_neigh->lifetime_s / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
+    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

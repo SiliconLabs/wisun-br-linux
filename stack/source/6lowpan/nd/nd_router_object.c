@@ -70,7 +70,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
-            ws_neigh_refresh_neighbor(ws_neigh, aro->lifetime);
+            ws_neigh_refresh(ws_neigh, aro->lifetime);
         }
     }
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));

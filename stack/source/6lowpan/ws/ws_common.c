@@ -174,7 +174,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        ws_neigh_refresh_neighbor(ws_neigh, lifetime_s);
+        ws_neigh_refresh(ws_neigh, lifetime_s);
         return ARO_SUCCESS;
     }
 
@@ -190,7 +190,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_FULL;
     }
 
-    ws_neigh_refresh_neighbor(ws_neigh, lifetime_s);
+    ws_neigh_refresh(ws_neigh, lifetime_s);
     tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
@@ -204,7 +204,7 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
     if (!ws_neigh)
         return false;
 
-    ws_neigh_refresh_neighbor(ws_neigh, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
+    ws_neigh_refresh(ws_neigh, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return true;
 }
 

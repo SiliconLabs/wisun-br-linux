@@ -594,7 +594,7 @@ void ws_neigh_trust(struct ws_neigh *neigh)
     TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
 }
 
-void ws_neigh_refresh_neighbor(struct ws_neigh *neigh, uint32_t lifetime_s)
+void ws_neigh_refresh(struct ws_neigh *neigh, uint32_t lifetime_s)
 {
     neigh->lifetime_s = lifetime_s;
     neigh->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
