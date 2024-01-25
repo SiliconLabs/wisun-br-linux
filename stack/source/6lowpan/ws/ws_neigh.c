@@ -24,9 +24,7 @@
 #include "common/rand.h"
 #include "common/log.h"
 #include "common/bits.h"
-#include "common/specs/ws.h"
 
-#include "6lowpan/ws/ws_bootstrap.h"
 #include "nwk_interface/protocol.h"
 #include "app_wsbrd/wsbr.h"
 
