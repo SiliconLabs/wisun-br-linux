@@ -80,8 +80,8 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
     if (version_older_than(interface->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
-    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->mac64);
-    if (!ws_neighbor_class_lfn_count(&interface->ws_info.neighbor_storage))
+    ws_neigh_entry_remove(&interface->ws_info.neighbor_storage, neighbor->mac64);
+    if (!ws_neigh_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
 }
 
@@ -294,7 +294,7 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 // TODO: in wsbrd 2.0, this function must disappear.
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
-    uint8_t neigh_count = ws_neighbor_class_get_neigh_count(&interface->ws_info.neighbor_storage);
+    uint8_t neigh_count = ws_neigh_get_neigh_count(&interface->ws_info.neighbor_storage);
     ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
     time_t current_time_stamp = time_current(CLOCK_MONOTONIC);
     ws_neighbor_class_entry_t *oldest_neigh = NULL;
@@ -351,11 +351,11 @@ struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if,
 
     ws_bootstrap_neighbor_table_clean(net_if);
 
-    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, eui64);
+    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!ws_neigh) {
-        ws_neigh = ws_neighbor_class_entry_get_new(&net_if->ws_info.neighbor_storage,
-                                                   eui64, role,
-                                                   net_if->ws_info.key_index_mask);
+        ws_neigh = ws_neigh_entry_get_new(&net_if->ws_info.neighbor_storage,
+                                          eui64, role,
+                                          net_if->ws_info.key_index_mask);
         if (ws_neigh && version_older_than(net_if->rcp->version_api, 2, 0, 0))
             rcp_legacy_set_neighbor(ws_neigh->mac_data.index, mac_helper_panid_get(net_if), 0,
                                     ws_neigh->mac_data.mac64, 0);
@@ -389,7 +389,7 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
-    struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac64);
+    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, mac64);
 
     BUG_ON(!ws_neigh);
 
@@ -579,7 +579,7 @@ int ws_bootstrap_init(int8_t interface_id)
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_frame_counter_per_key(true);
 
-    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
+    if (!ws_neigh_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
         goto init_fail;
     }
@@ -665,7 +665,7 @@ int ws_bootstrap_init(int8_t interface_id)
 init_fail:
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
     ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    ws_neighbor_class_dealloc(&neigh_info);
+    ws_neigh_dealloc(&neigh_info);
     ws_llc_delete(cur);
     ws_eapol_pdu_delete(cur);
     ws_pae_controller_delete(cur);

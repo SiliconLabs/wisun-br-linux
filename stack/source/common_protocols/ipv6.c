@@ -1016,7 +1016,7 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
     if (!ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address) &&
         memcmp(buf->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16))
         return;
-    if (!ws_neighbor_class_lfn_count(&buf->interface->ws_info.neighbor_storage))
+    if (!ws_neigh_lfn_count(&buf->interface->ws_info.neighbor_storage))
         return;
 
     clone = buffer_clone(buf);
@@ -1057,7 +1057,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     if (memcmp(ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, ipv6_neighbour), eui64, 8))
         return;
 
-    ws_neigh = ws_neighbor_class_entry_get(&buf->interface->ws_info.neighbor_storage, eui64);
+    ws_neigh = ws_neigh_entry_get(&buf->interface->ws_info.neighbor_storage, eui64);
     if (!ws_neigh)
         return;
 

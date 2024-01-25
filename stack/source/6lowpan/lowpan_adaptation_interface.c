@@ -628,7 +628,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->dst_sa.address[3] = 0xff;
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
-        ws_neigh = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
+        ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
 
         //Validate neighbour
         if (!ws_neigh || !ws_neigh->mac_data.trusted_device)
@@ -663,7 +663,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     //Set Messages
     dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
-        ws_neigh = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, dataReq->DstAddr);
+        ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, dataReq->DstAddr);
 
         if ((ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
@@ -867,7 +867,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
     if (buf->options.lfn_multicast) {
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     } else {
-        ws_neigh = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
+        ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
 
         if (!ws_neigh)
             return true;

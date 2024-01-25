@@ -75,7 +75,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     ws_pom_ie_t ie_pom;
 
     if (!ws_neigh)
@@ -182,13 +182,13 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                    &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-    ws_neighbor_class_us_update(net_if, ws_neigh, &ie_us.chan_plan,ie_us.dwell_interval, data->SrcAddr);
+    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neigh_us_update(net_if, ws_neigh, &ie_us.chan_plan,ie_us.dwell_interval, data->SrcAddr);
 }
 
 void ws_mngt_pcs_analyze(struct net_if *net_if,
@@ -214,13 +214,13 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neighbor_class_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-    ws_neighbor_class_us_update(net_if, ws_neigh, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
+    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neigh_us_update(net_if, ws_neigh, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
 }
 
 static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
@@ -318,14 +318,14 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     // [...] an FFN MUST ignore the LPAS if [...]
     // The receive signal-level-above-sensitivity for the LPAS falls below the
     // LND-IE Response Threshold.
-    rsl = ws_neighbor_class_rsl_from_dbm_calculate(data->signal_dbm);
+    rsl = ws_neigh_rsl_from_dbm_calculate(data->signal_dbm);
     if (rsl < (DEVICE_MIN_SENS + ie_lnd.response_threshold)) {
         TRACE(TR_DROP, "drop %-9s: RSL below LND-IE response threshold", tr_ws_frame(WS_FT_LPAS));
         return;
     }
 
     add_neighbor = false;
-    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
 
     if (!ws_neigh) {
         add_neighbor = true;
@@ -342,12 +342,12 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         }
     }
 
-    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
-    ws_neighbor_class_lus_update(net_if, ws_neigh, &ie_lcp.chan_plan, ie_lus.listen_interval);
-    ws_neighbor_class_lnd_update(ws_neigh, &ie_lnd, data->timestamp);
+    ws_neigh_lus_update(net_if, ws_neigh, &ie_lcp.chan_plan, ie_lus.listen_interval);
+    ws_neigh_lnd_update(ws_neigh, &ie_lnd, data->timestamp);
 
-    ws_neighbor_class_nr_update(ws_neigh, &ie_nr);
+    ws_neigh_nr_update(ws_neigh, &ie_nr);
 
     ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
 }
@@ -369,7 +369,7 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
 
 void ws_mngt_lpc_pae_cb(struct net_if *net_if)
 {
-    if (ws_neighbor_class_lfn_count(&net_if->ws_info.neighbor_storage))
+    if (ws_neigh_lfn_count(&net_if->ws_info.neighbor_storage))
         ws_mngt_lpc_send(net_if, NULL);
 }
 
@@ -405,16 +405,16 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
             return;
     }
 
-    ws_neigh = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
         return;
     }
 
-    ws_neighbor_class_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->timestamp, data->SrcAddr);
     if (has_lus)
-        ws_neighbor_class_lus_update(net_if, ws_neigh,
+        ws_neigh_lus_update(net_if, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
                                      ie_lus.listen_interval);
 

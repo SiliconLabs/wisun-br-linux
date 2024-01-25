@@ -96,46 +96,46 @@ typedef struct ws_neighbor_class {
 } ws_neighbor_class_t;
 
 
-bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
+bool ws_neigh_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
 
-void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data);
+void ws_neigh_dealloc(ws_neighbor_class_t *class_data);
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64);
+ws_neighbor_class_entry_t *ws_neigh_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64);
 
-uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry);
+uint8_t ws_neigh_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry);
 
-void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64);
+void ws_neigh_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64);
 
 // Unicast Timing update
-void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
-                                 uint64_t tstamp_us, const uint8_t eui64[8]);
+void ws_neigh_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
+                        uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Unicast timing update
-void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
-                                  uint16_t slot_number, uint24_t interval_offset,
-                                  uint64_t tstamp_us, const uint8_t eui64[8]);
+void ws_neigh_lut_update(ws_neighbor_class_entry_t *neighbor,
+                         uint16_t slot_number, uint24_t interval_offset,
+                         uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Network Discovery update
-void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
+void ws_neigh_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
-void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
-                                 const struct ws_generic_channel_info *chan_info,
-                                 uint8_t dwell_interval, const uint8_t eui64[8]);
+void ws_neigh_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
+                        const struct ws_generic_channel_info *chan_info,
+                        uint8_t dwell_interval, const uint8_t eui64[8]);
 // LFN Unicast Schedule update
-void ws_neighbor_class_lus_update(const struct net_if *net_if,
-                                  ws_neighbor_class_entry_t *ws_neighbor,
-                                  const struct ws_generic_channel_info *chan_info,
-                                  uint24_t listen_interval_ms);
+void ws_neigh_lus_update(const struct net_if *net_if,
+                         ws_neighbor_class_entry_t *ws_neighbor,
+                         const struct ws_generic_channel_info *chan_info,
+                         uint24_t listen_interval_ms);
 
-uint24_t ws_neighbor_class_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
-                uint24_t uc_interval_min, uint24_t uc_interval_max);
+uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
+                                             uint24_t uc_interval_min, uint24_t uc_interval_max);
 
-uint24_t ws_neighbor_class_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
+uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
 
 // Node Role update (LFN only)
-void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t *nr_ie);
+void ws_neigh_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t *nr_ie);
 
 /**
- * ws_neighbor_class_rsl_from_dbm_calculate
+ * ws_neigh_rsl_from_dbm_calculate
  *
  * Calculates rsl value from dbm heard.
  * This provides a range of -174 (0) to +80 (254) dBm.
@@ -143,31 +143,31 @@ void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t
  * \param dbm_heard; dbm heard from the neighbor
  *
  */
-uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard);
+uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard);
 
 /**
  * Helper macros to read RSL values from neighbor class.
  *
  */
-#define ws_neighbor_class_rsl_in_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
-#define ws_neighbor_class_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_out >> WS_RSL_SCALING)
+#define ws_neigh_rsl_in_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
+#define ws_neigh_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_out >> WS_RSL_SCALING)
 
-void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard);
+void ws_neigh_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard);
 
-void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor, uint8_t rsl_reported);
+void ws_neigh_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor, uint8_t rsl_reported);
 
-bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor,
-                                                       uint8_t mac_dsn, uint64_t rx_timestamp);
+bool ws_neigh_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor,
+                                              uint8_t mac_dsn, uint64_t rx_timestamp);
 
-int ws_neighbor_class_lfn_count(ws_neighbor_class_t *class_data);
+int ws_neigh_lfn_count(ws_neighbor_class_t *class_data);
 
-ws_neighbor_class_entry_t *ws_neighbor_class_entry_get_new(ws_neighbor_class_t *class_data,
-                                                           const uint8_t mac64[8],
-                                                           uint8_t role,
-                                                           unsigned int key_index_mask);
+ws_neighbor_class_entry_t *ws_neigh_entry_get_new(ws_neighbor_class_t *class_data,
+                                                  const uint8_t mac64[8],
+                                                  uint8_t role,
+                                                  unsigned int key_index_mask);
 
-void ws_neighbor_class_refresh(struct ws_neighbor_class *class_data, int time_update);
+void ws_neigh_refresh(struct ws_neighbor_class *class_data, int time_update);
 
-uint8_t ws_neighbor_class_get_neigh_count(ws_neighbor_class_t *class_data);
+uint8_t ws_neigh_get_neigh_count(ws_neighbor_class_t *class_data);
 
 #endif

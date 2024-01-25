@@ -435,12 +435,12 @@ static int dbus_message_append_node(
             }
             if (neighbor->rsl_in != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl", "i");
-                sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_in_get(neighbor));
+                sd_bus_message_append(m, "i", -174 + ws_neigh_rsl_in_get(neighbor));
                 dbus_message_close_info(m, property);
             }
             if (neighbor->rsl_out != RSL_UNITITIALIZED) {
                 dbus_message_open_info(m, property, "rsl_adv", "i");
-                sd_bus_message_append(m, "i", -174 + ws_neighbor_class_rsl_out_get(neighbor));
+                sd_bus_message_append(m, "i", -174 + ws_neigh_rsl_out_get(neighbor));
                 dbus_message_close_info(m, property);
             }
             dbus_message_open_info(m, property, "pom", "ay");
@@ -491,7 +491,7 @@ static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt 
         neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
         return &neighbor_ws_tmp->neigh_info_list;
     }
-    return ws_neighbor_class_entry_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
+    return ws_neigh_entry_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
