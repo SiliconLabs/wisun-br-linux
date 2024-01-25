@@ -235,11 +235,6 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
     return 0;
 }
 
-void ws_bbr_eapol_auth_relay_socket_cb(int fd)
-{
-    ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(fd);
-}
-
 int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)
 {
     return ws_pae_controller_radius_address_set(interface_id, address);
