@@ -350,8 +350,8 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         if (ws_bbr_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
             WARN("ws_bbr_radius_shared_secret_set");
     if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
-        if (ws_bbr_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
-            WARN("ws_bbr_radius_address_set");
+        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
+            WARN("ws_pae_controller_radius_address_set");
     // Artificially add wsbrd to the DHCP lease list
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }

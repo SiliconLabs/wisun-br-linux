@@ -235,11 +235,6 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
     return 0;
 }
 
-int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)
-{
-    return ws_pae_controller_radius_address_set(interface_id, address);
-}
-
 int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
 {
     return ws_pae_controller_radius_shared_secret_set(interface_id, shared_secret_len, shared_secret);

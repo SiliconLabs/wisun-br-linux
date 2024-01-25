@@ -93,24 +93,6 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
 
 /**
- * Set RADIUS server IPv6 address
- *
- * Function sets external RADIUS server IPv6 address to Border Router. Setting the
- * address enables external RADIUS server interface on Border Router. To disable external
- * RADIUS server interface, call the function with remote address set to NULL. The RADIUS
- * shared secret must be set before address is set using ws_bbr_radius_shared_secret_set()
- * call.
- *
- * \param interface_id Network interface ID.
- * \param address Pointer to IPv6 address or NULL to disable RADIUS. Address is in binary format (16 bytes).
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address);
-
-/**
  * Set RADIUS shared secret
  *
  * Function sets RADIUS shared secret to Border Router. Shared secret may be an
