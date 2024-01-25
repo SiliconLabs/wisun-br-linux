@@ -1328,20 +1328,6 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_l
     return ws_pae_auth_node_access_revoke_start(controller->interface_ptr, is_lgtk, new_gtk);
 }
 
-int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled)
-{
-    pae_controller_config.ext_cert_valid_enabled = enabled;
-
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    sec_prot_certs_ext_certificate_validation_set(&controller->certs, enabled);
-
-    return 0;
-}
-
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);

@@ -285,18 +285,6 @@ int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64);
 int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[GTK_LEN]);
 
 /**
- * ws_pae_controller_ext_certificate_validation_set enable or disable extended certificate validation
- *
- * \param interface_ptr interface
- * \param enabled       true to enable extended validation, false to disable
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled);
-
-/**
  * ws_pae_controller_gtk_hash_ptr_get get pointer to GTK hash storage
  *
  * \param interface_ptr interface
