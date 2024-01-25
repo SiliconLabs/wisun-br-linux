@@ -30,8 +30,6 @@
 #include <stdint.h>
 #include "common/int24.h"
 
-typedef struct fhss_timer fhss_timer_t;
-
 #define OPERATING_MODE_1a 0x1a  /**< 50, 0,5 */
 #define OPERATING_MODE_1b 0x1b  /**< 50, 1.0 */
 #define OPERATING_MODE_2a 0x2a  /**< 100, 0,5 */
@@ -40,17 +38,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define OPERATING_MODE_4a 0x4a  /**< 200, 0.5 */
 #define OPERATING_MODE_4b 0x4b  /**< 200, 1.0 */
 #define OPERATING_MODE_5  0x05  /**< 300, 0.5 */
-
-/*
- * Wi-SUN FAN 1.1 Phy capability types.
- *
- */
-#define WS_PHY_TYPE_ID_FSK 0            /**< FSK phy type */
-#define WS_PHY_TYPE_ID_FSK_FEC 1        /**< FSK with FEC phy type */
-#define WS_PHY_TYPE_ID_OFDM1 2          /**< OFDM1 phy type */
-#define WS_PHY_TYPE_ID_OFDM2 3          /**< OFDM2 phy type */
-#define WS_PHY_TYPE_ID_OFDM3 4          /**< OFDM3 phy type */
-#define WS_PHY_TYPE_ID_OFDM4 5          /**< OFDM4 phy type */
 
 /*
  *  Network Size definitions are device amount in hundreds of devices.
@@ -63,48 +50,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define NETWORK_SIZE_LARGE          0x0F    /**< 800 - 1500 device networks are large */
 #define NETWORK_SIZE_XLARGE         0x19    /**< 2500+ devices */
 #define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
-
-/**
- * \brief Neighbor type to differentiate the Role of the neighbor.
- */
-
-typedef enum {
-    WS_OTHER = 0,            /**< temporary or soon to be removed neighbor*/
-    WS_PRIMARY_PARENT,       /**< Primary parent used for upward packets and used from Border router downwards*/
-    WS_SECONDARY_PARENT,     /**< Secondary parent reported to border router and might be used as alternate route*/
-    WS_CANDIDATE_PARENT,     /**< Candidate neighbor that is considered as parent if there is problem with active parents*/
-    WS_CHILD                 /**< Child with registered address*/
-} ws_management_neighbor_type_e;
-
-
-/** Temporary API change flag. this will be removed when new version of API is implemented on applications
- *
- */
-#define WS_MANAGEMENT_API_VER_2 /**< Management API version */
-
-/**
- * Deprecated!
- * Configure PHY mode ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
- *
- * \param interface_id Network interface ID.
- * \param phy_mode_id PHY mode ID. Default 255 (not used).
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-#define ws_management_phy_mode_id_set(interface_id, phy_mode_id) ws_management_domain_configuration_set(interface_id, 0, phy_mode_id, 0)
-
-/**
- * Deprecated!
- * Configure Channel plan ID of Wi-SUN stack as defined by Wi-SUN FAN 1.1.
- *
- * \param interface_id Network interface ID.
- * \param channel_plan_id Channel plan ID. Default 255 (not used).
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-#define ws_management_channel_plan_id_set(interface_id, channel_plan_id) ws_management_domain_configuration_set(interface_id, 0, 0, channel_plan_id)
 
 /**
  * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
