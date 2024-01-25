@@ -48,22 +48,12 @@ struct socket;
 #define SOCKET_IPV6_PREFER_SRC_6LOWPAN_LONG     0x01000000 /**< Prefer 6LoWPAN long address. */
 ///@}
 
-typedef enum if_address_source {
-    ADDR_SOURCE_UNKNOWN,
-    ADDR_SOURCE_SLAAC,
-    ADDR_SOURCE_DHCP,
-    ADDR_SOURCE_STATIC,
-    ADDR_SOURCE_THREAD_ALOC,
-    ADDR_SOURCE_THREAD_DOMAIN
-} if_address_source_e;
-
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
     bool temporary: 1;          // RFC 4941 temporary address
     bool group_added: 1;        // Solicited-Node group added
-    if_address_source_e source; //
     void *data;                 // Address protocol data
     ns_list_link_t link;
 } if_address_entry_t;
@@ -87,7 +77,7 @@ extern uint32_t addr_preferences_default;   // default SOCKET_IPV6_ADDR_PREFEREN
 uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 
 void address_module_init(void);
-struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len, if_address_source_e source);
+struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len);
 
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);

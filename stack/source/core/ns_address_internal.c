@@ -610,7 +610,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len, if_address_source_e source)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -624,7 +624,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint
     memset(entry, 0, sizeof * entry);
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
-    entry->source = source;
     entry->group_added = false;
     if (addr_add_solicited_node_group(cur, entry->address))
         entry->group_added = true;
@@ -692,7 +691,7 @@ int addr_interface_set_ll64(struct net_if *cur)
     memcpy(temp_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(temp_ll64 + 8, cur->iid_eui64, 8);
 
-    address_entry = addr_add(cur, temp_ll64, 64, ADDR_SOURCE_UNKNOWN);
+    address_entry = addr_add(cur, temp_ll64, 64);
     if (address_entry) {
         tr_debug("LL64 Register OK!");
         ret_val = 0;
