@@ -392,7 +392,7 @@ static int dbus_message_append_node(
     const uint8_t ipv6[][16],
     bool is_br,
     supp_entry_t *supp,
-    const struct ws_neighbor_class_entry *neighbor)
+    const struct ws_neigh *neighbor)
 {
     int val;
 
@@ -481,7 +481,7 @@ static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16
     return NULL;
 }
 
-static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
+static const ws_neigh_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
                                                                const uint8_t eui64[8])
 {
     ws_neighbor_temp_class_t *neighbor_ws_tmp;
@@ -496,7 +496,7 @@ static const ws_neighbor_class_entry_t *dbus_get_neighbor_info(struct wsbr_ctxt 
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
 {
-    struct ws_neighbor_class_entry neigh = {
+    struct ws_neigh neigh = {
         .rssi    = INT_MAX,
         .rsl_in  = RSL_UNITITIALIZED,
         .rsl_out = RSL_UNITITIALIZED,
@@ -519,7 +519,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
-    const struct ws_neighbor_class_entry *neighbor_info;
+    const struct ws_neigh *neighbor_info;
     struct wsbr_ctxt *ctxt = userdata;
     uint8_t node_ipv6[3][16] = { 0 };
     bbr_route_info_t table[4096];

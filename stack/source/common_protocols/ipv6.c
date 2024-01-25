@@ -1048,7 +1048,7 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
 {
     ipv6_neighbour_t *ipv6_neighbour = ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->src_sa.address);
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     struct ipv6_nd_opt_earo aro;
 
     if (!ipv6_neighbour || ipv6_neighbour->type != IP_NEIGHBOUR_REGISTERED)

@@ -615,7 +615,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
 
 buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffer_t *buf)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
 
     //Validate is link known and set indirect, datareq and security key id mode
     if (buf->dst_sa.addr_type == ADDR_NONE) {
@@ -646,7 +646,7 @@ tx_error_handler:
 
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
 
     memset(dataReq, 0, sizeof(mcps_data_req_t));
     //Check do we need fragmentation
@@ -861,7 +861,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
     int lfn_bc_interval_s = cur->ws_info.cfg->fhss.lfn_bc_interval / 1000;
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
     if (buf->options.lfn_multicast) {

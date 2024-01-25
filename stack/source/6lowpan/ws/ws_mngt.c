@@ -75,7 +75,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     ws_pom_ie_t ie_pom;
 
     if (!ws_neigh)
@@ -140,7 +140,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     uint16_t ws_pan_version;
     ws_utt_ie_t ie_utt;
     ws_bt_ie_t ie_bt;
@@ -195,7 +195,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
@@ -269,7 +269,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct ws_lnd_ie ie_lnd;
@@ -377,7 +377,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct ws_lcp_ie ie_lcp;

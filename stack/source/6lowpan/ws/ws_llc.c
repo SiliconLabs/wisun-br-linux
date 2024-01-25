@@ -195,7 +195,7 @@ static uint8_t test_drop_data_message = 0;
 
 static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui64[8])
 {
-    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&interface->ws_info.neighbor_storage, eui64);
+    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&interface->ws_info.neighbor_storage, eui64);
 
     if (ws_neigh)
         return ws_neigh->node_role;
@@ -422,7 +422,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
                                 const struct mcps_data_cnf *confirm,
                                 const struct mcps_data_rx_ie_list *confirm_data,
-                                struct ws_neighbor_class_entry *ws_neigh)
+                                struct ws_neigh *ws_neigh)
 {
     const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
     struct mcps_data_cnf mpx_confirm;
@@ -466,7 +466,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     }
 }
 
-static bool tx_confirm_extensive(struct ws_neighbor_class_entry *ws_neigh, time_t tx_confirm_duration)
+static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_duration)
 {
     if (!ws_neigh)
         return false;
@@ -480,7 +480,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
                            const struct mcps_data_rx_ie_list *conf_data)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
-    struct ws_neighbor_class_entry *ws_neigh = NULL;
+    struct ws_neigh *ws_neigh = NULL;
     struct ws_neighbor_temp_class *neighbor_tmp;
     struct mcps_data_cnf data_cpy = *data;
     struct llc_data_base *base;
@@ -607,7 +607,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     mcps_data_ind_t data_ind = *data;
     bool has_us, has_bs, has_pom;
     struct ws_utt_ie ie_utt;
@@ -699,7 +699,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     mcps_data_ind_t data_ind = *data;
     bool has_lus, has_lcp, has_pom;
     struct ws_lutt_ie ie_lutt;
@@ -776,9 +776,9 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static struct ws_neighbor_class_entry *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data)
+static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data)
 {
-    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&base->interface_ptr->ws_info.neighbor_storage,
+    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&base->interface_ptr->ws_info.neighbor_storage,
                                                                            data->SrcAddr);
     ws_neighbor_temp_class_t *tmp;
 
@@ -802,7 +802,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
-    struct ws_neighbor_class_entry *ws_neigh = NULL;
+    struct ws_neigh *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
@@ -849,7 +849,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
-    struct ws_neighbor_class_entry *ws_neigh = NULL;
+    struct ws_neigh *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
@@ -1013,7 +1013,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
                               const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
-    struct ws_neighbor_class_entry *neigh;
+    struct ws_neigh *neigh;
     bool has_utt, has_lutt;
     ws_lutt_ie_t ie_lutt;
     ws_utt_ie_t ie_utt;
@@ -1151,7 +1151,7 @@ static uint8_t ws_llc_find_phy_mode_id(const uint8_t phy_mode_id_list[],
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
     struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     uint8_t ms_phy_mode_id = 0;
 
     if (!data->TxAckReq || data->msduLength < 500)
@@ -1177,7 +1177,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     int node_role;
     int ie_offset;
     uint24_t adjusted_offset_ms = 0;
@@ -1632,7 +1632,7 @@ ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, 
 static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const uint8_t *mac64)
 {
     //Clear Old data
-    memset(&entry->neigh_info_list, 0, sizeof(ws_neighbor_class_entry_t));
+    memset(&entry->neigh_info_list, 0, sizeof(ws_neigh_t));
     entry->neigh_info_list.rsl_in = RSL_UNITITIALIZED;
     entry->neigh_info_list.rsl_out = RSL_UNITITIALIZED;
     memcpy(entry->mac64, mac64, 8);
@@ -1946,7 +1946,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
     struct ws_hopping_schedule *schedule = &llc->interface_ptr->ws_info.hopping_schedule;
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     uint8_t peer_phy_mode_id;
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -2045,7 +2045,7 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
                                        uint8_t mac_sequency, uint64_t rx_timestamp)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     struct ws_neighbor_temp_class *tmp_neigh;
 
     if (!base)

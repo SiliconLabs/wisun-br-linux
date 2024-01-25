@@ -50,7 +50,7 @@
 #include "dbus.h"
 #include "commandline_values.h"
 
-struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
+struct ws_neigh *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
 {
     ws_neighbor_temp_class_t *neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(cur, eui64);
 
@@ -63,8 +63,8 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
-    struct ws_neighbor_class_entry neighbor_ws_dummy = { 0 };
-    struct ws_neighbor_class_entry *neighbor_ws;
+    struct ws_neigh neighbor_ws_dummy = { 0 };
+    struct ws_neigh *neighbor_ws;
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
     };

@@ -31,7 +31,7 @@ struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
 struct ws_pan_information;
 struct ws_hopping_schedule;
-struct ws_neighbor_class_entry;
+struct ws_neigh;
 struct mac_neighbor_table_entry;
 struct ws_neighbor_temp_class;
 struct mpx_api;
@@ -86,7 +86,7 @@ typedef struct eapol_temporary_info {
  * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
  */
 typedef struct ws_neighbor_temp_class {
-    struct ws_neighbor_class_entry neigh_info_list;  /*!< Allocated hopping info array*/
+    struct ws_neigh neigh_info_list;  /*!< Allocated hopping info array*/
     eapol_temporary_info_t eapol_temp_info;
     uint8_t mac64[8];
     uint8_t mpduLinkQuality;

@@ -41,7 +41,7 @@
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
     const uint8_t *eui64 = ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh);
-    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&cur_interface->ws_info.neighbor_storage, eui64);
+    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&cur_interface->ws_info.neighbor_storage, eui64);
     struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target;
 

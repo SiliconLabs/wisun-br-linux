@@ -109,7 +109,7 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 static void __rcp_req_data_tx(struct rcp *rcp,
                               const uint8_t *frame, int frame_len,
                               uint8_t handle, uint8_t fhss_type,
-                              const struct ws_neighbor_class_entry *neigh,
+                              const struct ws_neigh *neigh,
                               const struct hif_rate_info rate_list[4])
 {
     struct iobuf_write buf = { };
@@ -203,7 +203,7 @@ static void __rcp_req_data_tx(struct rcp *rcp,
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
-                     const struct ws_neighbor_class_entry *neigh,
+                     const struct ws_neigh *neigh,
                      const struct hif_rate_info rate_list[4])
 {
     if (version_older_than(rcp->version_api, 2, 0, 0))

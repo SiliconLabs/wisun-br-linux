@@ -51,7 +51,7 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
 
 // Bootstrap state machine state Functions
-struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role);
+struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 
 

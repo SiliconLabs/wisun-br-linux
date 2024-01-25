@@ -295,9 +295,9 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
     uint8_t neigh_count = ws_neigh_get_neigh_count(&interface->ws_info.neighbor_storage);
-    ws_neighbor_class_entry_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
+    ws_neigh_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
     time_t current_time_stamp = time_current(CLOCK_MONOTONIC);
-    ws_neighbor_class_entry_t *oldest_neigh = NULL;
+    ws_neigh_t *oldest_neigh = NULL;
 
     if (neigh_count < interface->ws_info.neighbor_storage.list_size)
         return;
@@ -344,9 +344,9 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     }
 }
 
-struct ws_neighbor_class_entry *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
+struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
 {
-    struct ws_neighbor_class_entry *ws_neigh;
+    struct ws_neigh *ws_neigh;
     struct ipv6_neighbour *ipv6_neighbor;
 
     ws_bootstrap_neighbor_table_clean(net_if);
@@ -389,7 +389,7 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
-    struct ws_neighbor_class_entry *ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, mac64);
+    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, mac64);
 
     BUG_ON(!ws_neigh);
 
@@ -424,7 +424,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     const uint8_t key[16],
                                     uint32_t frame_counter)
 {
-    struct ws_neighbor_class_entry *neigh_list = cur->ws_info.neighbor_storage.neigh_info_list;
+    struct ws_neigh *neigh_list = cur->ws_info.neighbor_storage.neigh_info_list;
 
     BUG_ON(key_index < 1 || key_index > 7);
     // Firmware API < 0.15 crashes if slots > 3 are accessed
