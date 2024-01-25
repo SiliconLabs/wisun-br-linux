@@ -109,14 +109,6 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
     return NULL;
 }
 
-uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *table, ws_neigh_t *entry)
-{
-    if (!table->neigh_info_list) {
-        return 0xff;
-    }
-    return entry - table->neigh_info_list;
-}
-
 void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64)
 {
     ws_neigh_t *entry = ws_neigh_get(table, mac64);
