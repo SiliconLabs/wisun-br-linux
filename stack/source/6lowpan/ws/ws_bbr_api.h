@@ -92,7 +92,6 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
  */
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
 
-int ws_bbr_eapol_auth_relay_get_socket_fd();
 void ws_bbr_eapol_relay_socket_cb(int fd);
 void ws_bbr_eapol_auth_relay_socket_cb(int fd);
 
