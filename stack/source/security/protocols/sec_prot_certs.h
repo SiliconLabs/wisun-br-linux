@@ -199,15 +199,6 @@ void sec_prot_certs_chain_list_add(cert_chain_list_t *cert_chain_list, cert_chai
 void sec_prot_certs_chain_list_delete(cert_chain_list_t *chain_list);
 
 /**
- * sec_prot_certs_chain_list_entry_delete deletes entry from certificate chain list
- *
- * \param cert_chain_list certificate chain entry list
- * \param entry deleted certificate chain entry
- *
- */
-void sec_prot_certs_chain_list_entry_delete(cert_chain_list_t *chain_list, cert_chain_entry_t *entry);
-
-/**
  * sec_prot_certs_chain_list_entry_find finds entry from certificate chain list
  *
  * \param cert_chain_list certificate chain entry list

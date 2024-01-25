@@ -178,12 +178,6 @@ void sec_prot_certs_chain_list_delete(cert_chain_list_t *chain_list)
     }
 }
 
-void sec_prot_certs_chain_list_entry_delete(cert_chain_list_t *chain_list, cert_chain_entry_t *entry)
-{
-    ns_list_remove(chain_list, entry);
-    sec_prot_certs_chain_entry_delete(entry);
-}
-
 cert_chain_entry_t *sec_prot_certs_chain_list_entry_find(cert_chain_list_t *chain_list, cert_chain_entry_t *entry)
 {
     ns_list_foreach(cert_chain_entry_t, list_entry, chain_list) {
