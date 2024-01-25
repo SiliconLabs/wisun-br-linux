@@ -525,7 +525,7 @@ void ws_neigh_lus_update(const struct net_if *net_if,
 //
 // Smoothing Factor 0 < S < 1
 // EWMA (0) = X(0).
-void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard)
+void ws_neigh_rsl_in_dbm_update(ws_neigh_t *neigh, int dbm_heard)
 {
     // EWMA (0) = X(0).
     if (isnan(neigh->rsl_in_dbm)) {
@@ -539,7 +539,7 @@ void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard)
     neigh->rssi = dbm_heard;
 }
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm)
+void ws_neigh_rsl_out_dbm_update(ws_neigh_t *neigh, int advertised_dbm)
 {
     // EWMA (0) = X(0).
     if (isnan(neigh->rsl_out_dbm)) {

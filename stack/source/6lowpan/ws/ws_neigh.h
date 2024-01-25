@@ -137,9 +137,9 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 // Node Role update (LFN only)
 void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie);
 
-void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard);
+void ws_neigh_rsl_in_dbm_update(ws_neigh_t *neigh, int dbm_heard);
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm);
+void ws_neigh_rsl_out_dbm_update(ws_neigh_t *neigh, int advertised_dbm);
 
 bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
 

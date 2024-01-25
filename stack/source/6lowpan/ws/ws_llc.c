@@ -452,7 +452,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                                     confirm->timestamp, ws_neigh->mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
-                ws_neigh_rsl_out_calculate(ws_neigh, ie_rsl);
+                ws_neigh_rsl_out_dbm_update(ws_neigh, ie_rsl);
             break;
         }
     }
@@ -679,7 +679,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             ws_neigh->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
+        ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
@@ -759,7 +759,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
         ws_neigh->unicast_data_rx = true;
 
     // Calculate RSL for all UDATA packets heard
-    ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
+    ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
 
     if (data->Key.SecurityLevel)
         ws_neigh_trust(ws_neigh);
