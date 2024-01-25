@@ -504,7 +504,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_RPL].revents & POLLIN)
         rpl_recv(&ctxt->rpl_root);
     if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
-        ws_bbr_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
+        ws_bootstrap_6lbr_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
         ws_bbr_eapol_auth_relay_socket_cb(fds[POLLFD_EAPOL_RELAY].fd);
     if (fds[POLLFD_PAE_AUTH].revents & POLLIN)
