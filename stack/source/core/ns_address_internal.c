@@ -559,22 +559,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 #undef PREFER_SA
 #undef PREFER_SB
 
-void notify_user_if_ready()
-{
-    bool had_global_address;
-
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        had_global_address = false;
-        ns_list_foreach(if_address_entry_t, entry, &cur->ip_addresses) {
-            if (!addr_is_ipv6_link_local(entry->address))
-                had_global_address = true;
-        }
-        if (!had_global_address)
-            return;
-    }
-    INFO("Wi-SUN Border Router is ready");
-}
-
 if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len)
 {
     if (addr_get_entry(cur, address)) {
@@ -593,8 +577,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint
     tr_info("Address added to IF %d: %s", cur->id, tr_ipv6(address));
 
     ns_list_add_to_end(&cur->ip_addresses, entry);
-    notify_user_if_ready();
-
     return entry;
 }
 

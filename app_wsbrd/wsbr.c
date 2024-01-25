@@ -598,6 +598,8 @@ int wsbr_main(int argc, char *argv[])
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt, fds);
 
+    INFO("Wi-SUN Border Router is ready");
+
     while (true)
         wsbr_poll(ctxt, fds);
 
