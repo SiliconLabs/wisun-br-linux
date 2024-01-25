@@ -158,9 +158,6 @@ typedef enum {
 int8_t ws_cfg_settings_init(void);
 int8_t ws_cfg_settings_default_set(void);
 int8_t ws_cfg_settings_interface_set(struct net_if *cur);
-int8_t ws_cfg_settings_get(ws_cfg_t *cfg);
-int8_t ws_cfg_settings_validate(struct ws_cfg *new_cfg);
-int8_t ws_cfg_settings_set(struct net_if *cur, ws_cfg_t *new_cfg);
 
 cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur);
 
