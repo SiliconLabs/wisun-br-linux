@@ -204,20 +204,6 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
 int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
- * ws_pae_controller_key_lifetime_update update key lifetime
- *
- * \param interface_id interface identifier
- * \param gtk_lifetime GTK lifetime
- * \param pmk_lifetime PMK lifetime
- * \param ptk_lifetime PTK lifetime
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_key_lifetime_update(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
-
-/**
  * ws_pae_controller_gtk_time_settings_update update GTK time settings
  *
  * \param interface_id interface identifier
