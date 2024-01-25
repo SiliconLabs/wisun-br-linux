@@ -49,8 +49,8 @@ bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neig
 
     for (uint8_t i = 0; i < list_size; i++) {
         memset(list_ptr, 0, sizeof(ws_neigh_t));
-        list_ptr->rsl_in = NAN;
-        list_ptr->rsl_out = NAN;
+        list_ptr->rsl_in_dbm = NAN;
+        list_ptr->rsl_out_dbm = NAN;
         list_ptr->index = i;
         list_ptr++;
     }
@@ -118,8 +118,8 @@ void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         index = neigh->index;
         memset(neigh, 0, sizeof(ws_neigh_t));
-        neigh->rsl_in = NAN;
-        neigh->rsl_out = NAN;
+        neigh->rsl_in_dbm = NAN;
+        neigh->rsl_out_dbm = NAN;
         neigh->index = index;
     }
 }
@@ -538,28 +538,28 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
 void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
 {
     // EWMA (0) = X(0).
-    if (isnan(neigh->rsl_in)) {
-        neigh->rsl_in = dbm_heard;
+    if (isnan(neigh->rsl_in_dbm)) {
+        neigh->rsl_in_dbm = dbm_heard;
         return;
     }
 
     // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
     // RSL_EWMA_SF = 1/8
-    neigh->rsl_in = (dbm_heard + 7 * neigh->rsl_in) / 8;
+    neigh->rsl_in_dbm = (dbm_heard + 7 * neigh->rsl_in_dbm) / 8;
     neigh->rssi = dbm_heard;
 }
 
 void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm)
 {
     // EWMA (0) = X(0).
-    if (isnan(neigh->rsl_out)) {
-        neigh->rsl_out = advertised_dbm;
+    if (isnan(neigh->rsl_out_dbm)) {
+        neigh->rsl_out_dbm = advertised_dbm;
         return;
     }
 
     // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
     // RSL_EWMA_SF = 1/8
-    neigh->rsl_out = (advertised_dbm + 7 * neigh->rsl_out) / 8;
+    neigh->rsl_out_dbm = (advertised_dbm + 7 * neigh->rsl_out_dbm) / 8;
 }
 
 

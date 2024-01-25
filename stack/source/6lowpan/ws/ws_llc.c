@@ -1632,8 +1632,8 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
 {
     //Clear Old data
     memset(&entry->neigh_info_list, 0, sizeof(ws_neigh_t));
-    entry->neigh_info_list.rsl_in = NAN;
-    entry->neigh_info_list.rsl_out = NAN;
+    entry->neigh_info_list.rsl_in_dbm = NAN;
+    entry->neigh_info_list.rsl_out_dbm = NAN;
     memcpy(entry->mac64, mac64, 8);
     entry->eapol_temp_info.eapol_rx_relay_filter = 0;
 }
