@@ -74,7 +74,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     ws_pom_ie_t ie_pom;
 
     if (!ws_neigh)
@@ -181,7 +181,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                    &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
@@ -213,7 +213,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
@@ -324,7 +324,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     }
 
     add_neighbor = false;
-    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
 
     if (!ws_neigh) {
         add_neighbor = true;
@@ -404,7 +404,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
             return;
     }
 
-    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
         return;

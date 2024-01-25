@@ -108,7 +108,7 @@ bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, neighbor_entry_r
 
 void ws_neigh_dealloc(ws_neigh_table_t *table);
 
-ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *table, const uint8_t *mac64);
+ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
 
 uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *table, ws_neigh_t *entry);
 

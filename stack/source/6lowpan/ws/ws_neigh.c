@@ -95,7 +95,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     return neigh_entry;
 }
 
-ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *table, const uint8_t *mac64)
+ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
 {
     ws_neigh_t *neigh_table = table->neigh_info_list;
 
@@ -119,7 +119,7 @@ uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *table, ws_neigh_t *entry)
 
 void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64)
 {
-    ws_neigh_t *entry = ws_neigh_entry_get(table, mac64);
+    ws_neigh_t *entry = ws_neigh_get(table, mac64);
     uint8_t index;
 
     if (entry) {

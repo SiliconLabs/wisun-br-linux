@@ -491,7 +491,7 @@ static const ws_neigh_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
         neighbor_ws_tmp->neigh_info_list.rssi = neighbor_ws_tmp->signal_dbm;
         return &neighbor_ws_tmp->neigh_info_list;
     }
-    return ws_neigh_entry_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
+    return ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)

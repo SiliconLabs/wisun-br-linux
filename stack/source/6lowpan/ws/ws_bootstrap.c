@@ -350,7 +350,7 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
 
     ws_bootstrap_neighbor_table_clean(net_if);
 
-    ws_neigh = ws_neigh_entry_get(&net_if->ws_info.neighbor_storage, eui64);
+    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!ws_neigh) {
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
                                           eui64, role,
@@ -388,7 +388,7 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
-    struct ws_neigh *ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, mac64);
+    struct ws_neigh *ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, mac64);
 
     BUG_ON(!ws_neigh);
 

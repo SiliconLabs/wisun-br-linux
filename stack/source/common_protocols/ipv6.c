@@ -1056,7 +1056,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     if (memcmp(ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, ipv6_neighbour), eui64, 8))
         return;
 
-    ws_neigh = ws_neigh_entry_get(&buf->interface->ws_info.neighbor_storage, eui64);
+    ws_neigh = ws_neigh_get(&buf->interface->ws_info.neighbor_storage, eui64);
     if (!ws_neigh)
         return;
 

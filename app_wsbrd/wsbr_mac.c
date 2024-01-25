@@ -56,7 +56,7 @@ struct ws_neigh *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
 
     if (neighbor_ws_tmp)
         return &neighbor_ws_tmp->neigh_info_list;
-    return ws_neigh_entry_get(&cur->ws_info.neighbor_storage, eui64);
+    return ws_neigh_get(&cur->ws_info.neighbor_storage, eui64);
 }
 
 void wsbr_data_req_ext(struct net_if *cur,
