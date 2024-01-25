@@ -161,8 +161,7 @@ void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard);
 
 void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported);
 
-bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *neigh,
-                                              uint8_t mac_dsn, uint64_t rx_timestamp);
+bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
 
 int ws_neigh_lfn_count(ws_neigh_table_t *table);
 

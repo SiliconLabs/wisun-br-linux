@@ -663,7 +663,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     if (ws_neigh) {
         if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed &&
-            !ws_neigh_neighbor_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
+            !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
             tr_info("Drop duplicate message");
             return;
         }
@@ -740,7 +740,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     }
 
     if (!data->DstAddrMode && !data->DSN_suppressed &&
-        !ws_neigh_neighbor_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
+        !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
@@ -2055,7 +2055,7 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
         ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, joiner_eui64);
         if (!ws_neigh)
             return false;
-        return ws_neigh_neighbor_duplicate_packet_check(ws_neigh, mac_sequency, rx_timestamp);
+        return ws_neigh_duplicate_packet_check(ws_neigh, mac_sequency, rx_timestamp);
     }
 
     if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter && tmp_neigh->eapol_temp_info.last_rx_mac_sequency == mac_sequency)
