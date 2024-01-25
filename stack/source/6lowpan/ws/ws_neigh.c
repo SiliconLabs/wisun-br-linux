@@ -525,25 +525,6 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
     return dbm_heard + 174;
 }
 
-static void ws_neigh_parent_set_analyze(ws_neigh_t *neigh)
-{
-    if (neigh->rsl_in == RSL_UNITITIALIZED ||
-            neigh->rsl_out == RSL_UNITITIALIZED) {
-        neigh->candidate_parent = false;
-        return;
-    }
-
-    if (ws_neigh_rsl_in_get(neigh) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS) &&
-            ws_neigh_rsl_out_get(neigh) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
-        neigh->candidate_parent = false;
-    }
-
-    if (ws_neigh_rsl_in_get(neigh) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-            ws_neigh_rsl_out_get(neigh) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
-        neigh->candidate_parent = true;
-    }
-}
-
 void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
 {
     uint8_t rsl = ws_neigh_rsl_from_dbm_calculate(dbm_heard);
@@ -552,7 +533,6 @@ void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
     }
     neigh->rsl_in = neigh->rsl_in + rsl - (neigh->rsl_in >> WS_RSL_SCALING);
     neigh->rssi = dbm_heard;
-    ws_neigh_parent_set_analyze(neigh);
     return;
 }
 
@@ -562,7 +542,6 @@ void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported)
         neigh->rsl_out = rsl_reported << WS_RSL_SCALING;
     }
     neigh->rsl_out = neigh->rsl_out + rsl_reported - (neigh->rsl_out >> WS_RSL_SCALING);
-    ws_neigh_parent_set_analyze(neigh);
     return;
 }
 
