@@ -167,16 +167,3 @@ void protocol_push(buffer_t *b)
     }
     buffer_free(b);
 }
-
-/* XXX note that this does not perform any scope checks, so will for example match
- * link local addresses on any interface - you may want addr_interface_address_compare */
-int8_t protocol_interface_address_compare(const uint8_t *addr)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        if (addr_is_assigned_to_interface(cur, addr)) {
-            return 0;
-        }
-    }
-
-    return -1;
-}

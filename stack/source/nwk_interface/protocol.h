@@ -116,7 +116,6 @@ extern protocol_interface_list_t protocol_interface_info_list;
 struct net_if *protocol_stack_interface_info_get();
 void protocol_init(struct net_if *net_if, struct rcp *rcp, int mtu);
 
-int8_t protocol_interface_address_compare(const uint8_t *addr);
 void icmp_fast_timer(int ticks);
 void update_reachable_time(int seconds);
 
