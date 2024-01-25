@@ -38,7 +38,6 @@
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_management_api.h"
-#include "stack/source/6lowpan/ws/ws_test_api.h"
 #include "stack/source/6lowpan/ws/ws_eapol_relay.h"
 #include "stack/source/6lowpan/ws/ws_eapol_auth_relay.h"
 #include "stack/source/core/timers.h"
@@ -259,7 +258,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         }
     }
     if (gtk_force) {
-        ret = ws_test_gtk_set(ctxt->net_if.id, gtks);
+        ret = ws_pae_controller_gtk_update(ctxt->net_if.id, gtks);
         WARN_ON(ret);
     }
 
@@ -270,7 +269,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         }
     }
     if (lgtk_force) {
-        ret = ws_test_lgtk_set(ctxt->net_if.id, lgtks);
+        ret = ws_pae_controller_lgtk_update(ctxt->net_if.id, lgtks);
         WARN_ON(ret);
     }
 
