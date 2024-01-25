@@ -71,28 +71,28 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                          unsigned int key_index_mask)
 {
     ws_neigh_t *neigh_table = table->neigh_info_list;
-    ws_neigh_t *neigh_entry = NULL;
+    ws_neigh_t *neigh = NULL;
 
     for (uint8_t i = 0; i < table->list_size; i++) {
         if (!neigh_table[i].in_use) {
-            neigh_entry = &neigh_table[i];
+            neigh = &neigh_table[i];
             break;
         }
     }
 
-    if (!neigh_entry)
+    if (!neigh)
         return NULL;
 
-    neigh_entry->node_role = role;
+    neigh->node_role = role;
     for (uint8_t key_index = 1; key_index <= 7; key_index++)
         if (!(key_index_mask & (1u << key_index)))
-            neigh_entry->frame_counter_min[key_index - 1] = UINT32_MAX;
-    neigh_entry->in_use = true;
-    memcpy(neigh_entry->mac64, mac64, 8);
-    neigh_entry->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    neigh_entry->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh_entry->mac64), neigh_entry->lifetime_s);
-    return neigh_entry;
+            neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
+    neigh->in_use = true;
+    memcpy(neigh->mac64, mac64, 8);
+    neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
+    return neigh;
 }
 
 ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
@@ -111,16 +111,16 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
 
 void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
 {
-    ws_neigh_t *entry = ws_neigh_get(table, mac64);
+    ws_neigh_t *neigh = ws_neigh_get(table, mac64);
     uint8_t index;
 
-    if (entry) {
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime_s);
-        index = entry->index;
-        memset(entry, 0, sizeof(ws_neigh_t));
-        entry->rsl_in = RSL_UNITITIALIZED;
-        entry->rsl_out = RSL_UNITITIALIZED;
-        entry->index = index;
+    if (neigh) {
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
+        index = neigh->index;
+        memset(neigh, 0, sizeof(ws_neigh_t));
+        neigh->rsl_in = RSL_UNITITIALIZED;
+        neigh->rsl_out = RSL_UNITITIALIZED;
+        neigh->index = index;
     }
 }
 
@@ -149,32 +149,32 @@ uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
     return count;
 }
 
-static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *ws_neighbor, uint24_t ufsi,
+static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
                                           uint64_t timestamp, const uint8_t address[8])
 {
-    if (ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us && ws_neighbor->fhss_data.ffn.ufsi) {
+    if (neigh->fhss_data.ffn.utt_rx_tstamp_us && neigh->fhss_data.ffn.ufsi) {
         // No UFSI on fixed channel
-        if (ws_neighbor->fhss_data.uc_chan_func == WS_FIXED_CHANNEL) {
+        if (neigh->fhss_data.uc_chan_func == WS_FIXED_CHANNEL) {
             return;
         }
         double seq_length = 0x10000;
-        if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
-            seq_length = ws_neighbor->fhss_data.uc_chan_count;
+        if (neigh->fhss_data.uc_chan_func == WS_TR51CF) {
+            seq_length = neigh->fhss_data.uc_chan_count;
         }
-        double ufsi_prev_tmp = ws_neighbor->fhss_data.ffn.ufsi;
+        double ufsi_prev_tmp = neigh->fhss_data.ffn.ufsi;
         double ufsi_cur_tmp = ufsi;
-        if (ws_neighbor->fhss_data.uc_chan_func == WS_DH1CF) {
+        if (neigh->fhss_data.uc_chan_func == WS_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
             }
         }
         // Convert 24-bit UFSI to real time before drift calculation
-        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
-        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
-        uint64_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
+        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
+        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
+        uint64_t time_since_last_ufsi_us = timestamp - neigh->fhss_data.ffn.utt_rx_tstamp_us;
 
-        if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
-            uint32_t full_uc_schedule_ms = ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms * ws_neighbor->fhss_data.uc_chan_count;
+        if (neigh->fhss_data.uc_chan_func == WS_TR51CF) {
+            uint32_t full_uc_schedule_ms = neigh->fhss_data.ffn.uc_dwell_interval_ms * neigh->fhss_data.uc_chan_count;
             uint32_t temp_ms;
 
             if (!full_uc_schedule_ms)
@@ -189,7 +189,7 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *ws_neighbor, uint24_t ufsi
         double ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
         if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
             // add ufsi sequence length
-            ufsi_diff_ms += seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms;
+            ufsi_diff_ms += seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms;
 
         double ufsi_drift_ms = time_since_last_ufsi_us / 1000.f - ufsi_diff_ms;
         // Since resolution of the RCP timer is 1µs, a window 10 million times
@@ -204,44 +204,44 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *ws_neighbor, uint24_t ufsi
     }
 }
 
-void ws_neigh_ut_update(ws_neigh_t *neighbor, uint24_t ufsi,
+void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8])
 {
-    ws_neigh_calculate_ufsi_drift(neighbor, ufsi, tstamp_us, eui64);
+    ws_neigh_calculate_ufsi_drift(neigh, ufsi, tstamp_us, eui64);
 
-    if (neighbor->fhss_data.ffn.utt_rx_tstamp_us == tstamp_us &&
-        neighbor->fhss_data.ffn.ufsi             == ufsi)
+    if (neigh->fhss_data.ffn.utt_rx_tstamp_us == tstamp_us &&
+        neigh->fhss_data.ffn.ufsi             == ufsi)
         return; // Save an update
 
-    neighbor->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
-    neighbor->fhss_data.ffn.ufsi             = ufsi;
-    neighbor->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
+    neigh->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
+    neigh->fhss_data.ffn.ufsi             = ufsi;
+    neigh->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_legacy_set_fhss_neighbor(eui64, &neighbor->fhss_data);
+        rcp_legacy_set_fhss_neighbor(eui64, &neigh->fhss_data);
 }
 
-void ws_neigh_lut_update(ws_neigh_t *neighbor,
+void ws_neigh_lut_update(ws_neigh_t *neigh,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8])
 {
-    neighbor->fhss_data.lfn.lutt_rx_tstamp_us     = tstamp_us;
-    neighbor->fhss_data.lfn.uc_slot_number        = slot_number;
-    neighbor->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
+    neigh->fhss_data.lfn.lutt_rx_tstamp_us     = tstamp_us;
+    neigh->fhss_data.lfn.uc_slot_number        = slot_number;
+    neigh->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
 }
 
-void ws_neigh_lnd_update(ws_neigh_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
+void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
 {
-    neighbor->fhss_data.lfn.lpa_response_delay_ms = ie_lnd->response_delay;
-    neighbor->fhss_data.lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
-    neighbor->fhss_data.lfn.lpa_slot_count        = ie_lnd->discovery_slots;
-    neighbor->fhss_data.lfn.lpa_slot_first        = ie_lnd->discovery_first_slot;
-    neighbor->fhss_data.lfn.lnd_rx_tstamp_us      = tstamp_us;
+    neigh->fhss_data.lfn.lpa_response_delay_ms = ie_lnd->response_delay;
+    neigh->fhss_data.lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
+    neigh->fhss_data.lfn.lpa_slot_count        = ie_lnd->discovery_slots;
+    neigh->fhss_data.lfn.lpa_slot_first        = ie_lnd->discovery_first_slot;
+    neigh->fhss_data.lfn.lnd_rx_tstamp_us      = tstamp_us;
 }
 
-void ws_neigh_nr_update(ws_neigh_t *neighbor, ws_nr_ie_t *nr_ie)
+void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie)
 {
-    neighbor->fhss_data.lfn.uc_interval_min_ms = nr_ie->listen_interval_min;
-    neighbor->fhss_data.lfn.uc_interval_max_ms = nr_ie->listen_interval_max;
+    neigh->fhss_data.lfn.uc_interval_min_ms = nr_ie->listen_interval_min;
+    neigh->fhss_data.lfn.uc_interval_max_ms = nr_ie->listen_interval_max;
 }
 
 static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info,
@@ -330,21 +330,21 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
     }
 }
 
-void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *ws_neighbor,
+void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
-    ws_neighbor->fhss_data.uc_chan_func = chan_info->channel_function;
+    neigh->fhss_data.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
-        ws_neighbor->fhss_data.uc_chan_count = 1;
+        neigh->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        neigh->fhss_data.uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(net_if, &ws_neighbor->fhss_data.uc_channel_list, chan_info,
-                                  &ws_neighbor->fhss_data.uc_chan_count);
+        ws_neigh_set_chan_list(net_if, &neigh->fhss_data.uc_channel_list, chan_info,
+                                  &neigh->fhss_data.uc_chan_count);
     }
-    ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
+    neigh->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_legacy_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
+        rcp_legacy_set_fhss_neighbor(eui64, &neigh->fhss_data);
 }
 
 // Compute the divisors of val closest to q_ref, possibly including 1 and val
@@ -476,31 +476,31 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 }
 
 void ws_neigh_lus_update(const struct net_if *net_if,
-                         ws_neigh_t *ws_neighbor,
+                         ws_neigh_t *neigh,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms)
 {
     uint24_t adjusted_listening_interval;
 
-    if (ws_neighbor->fhss_data.lfn.uc_listen_interval_ms != listen_interval_ms) {
+    if (neigh->fhss_data.lfn.uc_listen_interval_ms != listen_interval_ms) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(net_if->ws_info.fhss_conf.lfn_bc_interval,
-                                                                                        ws_neighbor->fhss_data.lfn.uc_listen_interval_ms,
-                                                                                        ws_neighbor->fhss_data.lfn.uc_interval_min_ms,
-                                                                                        ws_neighbor->fhss_data.lfn.uc_interval_max_ms);
+                                                                          neigh->fhss_data.lfn.uc_listen_interval_ms,
+                                                                          neigh->fhss_data.lfn.uc_interval_min_ms,
+                                                                          neigh->fhss_data.lfn.uc_interval_max_ms);
         if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
-            ws_neighbor->offset_adjusted = false;
+            neigh->offset_adjusted = false;
     }
 
-    ws_neighbor->fhss_data.lfn.uc_listen_interval_ms = listen_interval_ms;
+    neigh->fhss_data.lfn.uc_listen_interval_ms = listen_interval_ms;
     if (!chan_info)
         return; // Support chan plan tag 255 (reuse previous schedule)
-    ws_neighbor->fhss_data.uc_chan_func = chan_info->channel_function;
+    neigh->fhss_data.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
-        ws_neighbor->fhss_data.uc_chan_count = 1;
+        neigh->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        neigh->fhss_data.uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(net_if, &ws_neighbor->fhss_data.uc_channel_list, chan_info,
-                                  &ws_neighbor->fhss_data.uc_chan_count);
+        ws_neigh_set_chan_list(net_if, &neigh->fhss_data.uc_channel_list, chan_info,
+                               &neigh->fhss_data.uc_chan_count);
     }
 }
 
@@ -514,63 +514,63 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
     return dbm_heard + 174;
 }
 
-static void ws_neigh_parent_set_analyze(ws_neigh_t *ws_neighbor)
+static void ws_neigh_parent_set_analyze(ws_neigh_t *neigh)
 {
-    if (ws_neighbor->rsl_in == RSL_UNITITIALIZED ||
-            ws_neighbor->rsl_out == RSL_UNITITIALIZED) {
-        ws_neighbor->candidate_parent = false;
+    if (neigh->rsl_in == RSL_UNITITIALIZED ||
+            neigh->rsl_out == RSL_UNITITIALIZED) {
+        neigh->candidate_parent = false;
         return;
     }
 
-    if (ws_neigh_rsl_in_get(ws_neighbor) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS) &&
-            ws_neigh_rsl_out_get(ws_neighbor) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
-        ws_neighbor->candidate_parent = false;
+    if (ws_neigh_rsl_in_get(neigh) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS) &&
+            ws_neigh_rsl_out_get(neigh) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
+        neigh->candidate_parent = false;
     }
 
-    if (ws_neigh_rsl_in_get(ws_neighbor) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-            ws_neigh_rsl_out_get(ws_neighbor) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
-        ws_neighbor->candidate_parent = true;
+    if (ws_neigh_rsl_in_get(neigh) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
+            ws_neigh_rsl_out_get(neigh) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
+        neigh->candidate_parent = true;
     }
 }
 
-void ws_neigh_rsl_in_calculate(ws_neigh_t *ws_neighbor, int8_t dbm_heard)
+void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
 {
     uint8_t rsl = ws_neigh_rsl_from_dbm_calculate(dbm_heard);
-    if (ws_neighbor->rsl_in == RSL_UNITITIALIZED) {
-        ws_neighbor->rsl_in = rsl << WS_RSL_SCALING;
+    if (neigh->rsl_in == RSL_UNITITIALIZED) {
+        neigh->rsl_in = rsl << WS_RSL_SCALING;
     }
-    ws_neighbor->rsl_in = ws_neighbor->rsl_in + rsl - (ws_neighbor->rsl_in >> WS_RSL_SCALING);
-    ws_neighbor->rssi = dbm_heard;
-    ws_neigh_parent_set_analyze(ws_neighbor);
+    neigh->rsl_in = neigh->rsl_in + rsl - (neigh->rsl_in >> WS_RSL_SCALING);
+    neigh->rssi = dbm_heard;
+    ws_neigh_parent_set_analyze(neigh);
     return;
 }
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *ws_neighbor, uint8_t rsl_reported)
+void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported)
 {
-    if (ws_neighbor->rsl_out == RSL_UNITITIALIZED) {
-        ws_neighbor->rsl_out = rsl_reported << WS_RSL_SCALING;
+    if (neigh->rsl_out == RSL_UNITITIALIZED) {
+        neigh->rsl_out = rsl_reported << WS_RSL_SCALING;
     }
-    ws_neighbor->rsl_out = ws_neighbor->rsl_out + rsl_reported - (ws_neighbor->rsl_out >> WS_RSL_SCALING);
-    ws_neigh_parent_set_analyze(ws_neighbor);
+    neigh->rsl_out = neigh->rsl_out + rsl_reported - (neigh->rsl_out >> WS_RSL_SCALING);
+    ws_neigh_parent_set_analyze(neigh);
     return;
 }
 
 
-bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
+bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *neigh,
                                               uint8_t mac_dsn, uint64_t rx_timestamp)
 {
-    if (ws_neighbor->last_DSN != mac_dsn) {
+    if (neigh->last_DSN != mac_dsn) {
         // New packet always accepted
-        ws_neighbor->last_DSN = mac_dsn;
+        neigh->last_DSN = mac_dsn;
         return true;
     }
 
-    if (!ws_neighbor->unicast_data_rx) {
+    if (!neigh->unicast_data_rx) {
         // No unicast info stored always accepted
         return true;
     }
 
-    rx_timestamp -= ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
+    rx_timestamp -= neigh->fhss_data.ffn.utt_rx_tstamp_us;
     rx_timestamp /= 1000000; //Convert to s
 
     //Compare only when last rx timestamp is less than 5 seconds

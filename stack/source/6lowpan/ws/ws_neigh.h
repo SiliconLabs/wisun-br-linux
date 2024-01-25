@@ -113,22 +113,22 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
 void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64);
 
 // Unicast Timing update
-void ws_neigh_ut_update(ws_neigh_t *neighbor, uint24_t ufsi,
+void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Unicast timing update
-void ws_neigh_lut_update(ws_neigh_t *neighbor,
+void ws_neigh_lut_update(ws_neigh_t *neigh,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Network Discovery update
-void ws_neigh_lnd_update(ws_neigh_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
+void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
-void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *ws_neighbor,
+void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8]);
 // LFN Unicast Schedule update
 void ws_neigh_lus_update(const struct net_if *net_if,
-                         ws_neigh_t *ws_neighbor,
+                         ws_neigh_t *neigh,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms);
 
@@ -138,7 +138,7 @@ uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_i
 uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
 
 // Node Role update (LFN only)
-void ws_neigh_nr_update(ws_neigh_t *neighbor, ws_nr_ie_t *nr_ie);
+void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie);
 
 /**
  * ws_neigh_rsl_from_dbm_calculate
@@ -155,14 +155,14 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard);
  * Helper macros to read RSL values from neighbor class.
  *
  */
-#define ws_neigh_rsl_in_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
-#define ws_neigh_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_out >> WS_RSL_SCALING)
+#define ws_neigh_rsl_in_get(neigh) (neigh->rsl_in >> WS_RSL_SCALING)
+#define ws_neigh_rsl_out_get(neigh) (neigh->rsl_out >> WS_RSL_SCALING)
 
-void ws_neigh_rsl_in_calculate(ws_neigh_t *ws_neighbor, int8_t dbm_heard);
+void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard);
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *ws_neighbor, uint8_t rsl_reported);
+void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported);
 
-bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
+bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *neigh,
                                               uint8_t mac_dsn, uint64_t rx_timestamp);
 
 int ws_neigh_lfn_count(ws_neigh_table_t *table);
