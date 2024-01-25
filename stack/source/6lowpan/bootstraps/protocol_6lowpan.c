@@ -22,7 +22,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/iphc_decode/cipv6.h"
@@ -225,4 +224,3 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
     return 0;
 }
-

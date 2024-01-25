@@ -32,7 +32,6 @@ struct mcps_data_rx_ie_list;
 struct ws_pan_information;
 struct ws_hopping_schedule;
 struct ws_neigh;
-struct mac_neighbor_table_entry;
 struct ws_neighbor_temp_class;
 struct mpx_api;
 

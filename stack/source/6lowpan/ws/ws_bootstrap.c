@@ -34,7 +34,6 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 
 #include "app_wsbrd/dbus.h"
@@ -74,7 +73,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
+static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_neigh *neighbor)
 {
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
@@ -305,19 +304,19 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     WARN("neighbor table full");
 
     for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
-        if (!neigh_table[i].mac_data.in_use)
+        if (!neigh_table[i].in_use)
             continue;
 
-        if (oldest_neigh && oldest_neigh->mac_data.lifetime_s < neigh_table[i].mac_data.lifetime_s)
+        if (oldest_neigh && oldest_neigh->lifetime_s < neigh_table[i].lifetime_s)
             // We have already shorter link entry found this cannot replace it
             continue;
 
-        if (neigh_table[i].mac_data.lifetime_s > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
+        if (neigh_table[i].lifetime_s > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
             //Do not permit to remove configured temp life time
             continue;
 
-        if (neigh_table[i].mac_data.trusted_device)
-            if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac_data.mac64))
+        if (neigh_table[i].trusted_device)
+            if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac64))
                 // We have registered entry so we have been selected as parent
                 continue;
 
@@ -339,8 +338,8 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     }
 
     if (oldest_neigh) {
-        tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac_data.mac64));
-        ws_bootstrap_neighbor_del(oldest_neigh->mac_data.mac64);
+        tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac64));
+        ws_bootstrap_neighbor_del(oldest_neigh->mac64);
     }
 }
 
@@ -357,8 +356,8 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
                                           eui64, role,
                                           net_if->ws_info.key_index_mask);
         if (ws_neigh && version_older_than(net_if->rcp->version_api, 2, 0, 0))
-            rcp_legacy_set_neighbor(ws_neigh->mac_data.index, mac_helper_panid_get(net_if), 0,
-                                    ws_neigh->mac_data.mac64, 0);
+            rcp_legacy_set_neighbor(ws_neigh->index, mac_helper_panid_get(net_if), 0,
+                                    ws_neigh->mac64, 0);
     }
 
     if (!ws_neigh)
@@ -368,8 +367,8 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
 
     ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, eui64);
     if (ipv6_neighbor) {
-        mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ipv6_neighbor->lifetime_s);
+        ws_neigh_trusted_neighbor(ws_neigh);
+        ws_neigh_refresh_neighbor(ws_neigh, ipv6_neighbor->lifetime_s);
     }
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return ws_neigh;
@@ -403,7 +402,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     }
 
     ws_neighbor_entry_remove_long_link_address_from_neighcache(cur, mac64);
-    ws_bootstrap_neighbor_delete(cur, &ws_neigh->mac_data);
+    ws_bootstrap_neighbor_delete(cur, ws_neigh);
     ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 }
 

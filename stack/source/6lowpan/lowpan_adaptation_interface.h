@@ -26,7 +26,6 @@ struct mcps_data_cnf;
 struct mcps_data_ind;
 struct buffer;
 struct mpx_api;
-struct mac_neighbor_table_entry;
 enum buffer_priority;
 typedef enum addrtype addrtype_e;
 

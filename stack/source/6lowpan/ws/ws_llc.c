@@ -36,7 +36,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -185,7 +184,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct mac_neighbor_table_entry *neighbor);
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
 
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
@@ -438,19 +437,18 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case MLME_NO_DATA:
             if (!ws_neigh)
                 break;
-            if (ws_neigh->mac_data.lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
+            if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (success)
-                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
-                ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp,
-                                            ws_neigh->mac_data.mac64);
+                    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
+                ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (success)
-                    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
+                    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                             confirm->timestamp, ws_neigh->mac_data.mac64);
+                                    confirm->timestamp, ws_neigh->mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
                 ws_neigh_rsl_out_calculate(ws_neigh, ie_rsl);
@@ -514,7 +512,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
             }
         }
 
-        ws_llc_rate_handle_tx_conf(base, data, &ws_neigh->mac_data);
+        ws_llc_rate_handle_tx_conf(base, data, ws_neigh);
     }
 
     if (msg->eapol_temporary && (data_cpy.status == MLME_SUCCESS || data_cpy.status == MLME_NO_DATA)) {
@@ -651,7 +649,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
     } else if (ws_neigh->node_role != WS_NR_ROLE_ROUTER) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(ws_neigh->mac_data.mac64);
+        ws_bootstrap_neighbor_del(ws_neigh->mac64);
         add_neighbor = true;
     }
     if (add_neighbor) {
@@ -683,7 +681,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
         if (data->Key.SecurityLevel)
-            mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
+            ws_neigh_trusted_neighbor(ws_neigh);
         if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
             ws_neigh->pom_ie = ie_pom;
     }
@@ -763,11 +761,11 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_rsl_in_calculate(ws_neigh, data->signal_dbm);
 
     if (data->Key.SecurityLevel)
-        mac_neighbor_table_trusted_neighbor(&ws_neigh->mac_data);
-    if (ws_neigh->mac_data.lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOR_LINK_TIMEOUT);
+        ws_neigh_trusted_neighbor(ws_neigh);
+    if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
+        ws_neigh_refresh_neighbor(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
     else
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
+        ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
     if (has_pom)
         ws_neigh->pom_ie = ie_pom;
 
@@ -1160,9 +1158,9 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
     ws_neigh = ws_neigh_entry_get(&base->interface_ptr->ws_info.neighbor_storage, data->DstAddr);
     if (!ws_neigh)
         return 0;
-    switch (ws_neigh->mac_data.ms_mode) {
+    switch (ws_neigh->ms_mode) {
     case SL_WISUN_MODE_SWITCH_ENABLED:
-        ms_phy_mode_id = ws_neigh->mac_data.ms_phy_mode_id;
+        ms_phy_mode_id = ws_neigh->ms_phy_mode_id;
         break;
     case SL_WISUN_MODE_SWITCH_DEFAULT:
         if (schedule->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
@@ -1582,7 +1580,7 @@ static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t
 #define MS_FALLBACK_MIN_SAMPLE 50
 #define MS_FALLBACK_MAX_SAMPLE 1000
 // Mode Switch rate management function
-static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct mac_neighbor_table_entry *neighbor)
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor)
 {
     struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
     uint8_t i;
@@ -1995,16 +1993,16 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
                                                            phy_mode_id);
                 if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
                     return -4;
-                ws_neigh->mac_data.ms_phy_mode_id = phy_mode_id;
+                ws_neigh->ms_phy_mode_id = phy_mode_id;
             } else {
-                ws_neigh->mac_data.ms_phy_mode_id = 0;
+                ws_neigh->ms_phy_mode_id = 0;
             }
 
-            ws_neigh->mac_data.ms_mode = mode;
+            ws_neigh->ms_mode = mode;
 
             // Reset counters
-            ws_neigh->mac_data.ms_tx_count = 0;
-            ws_neigh->mac_data.ms_retries_count = 0;
+            ws_neigh->ms_tx_count = 0;
+            ws_neigh->ms_retries_count = 0;
         }
     }
 

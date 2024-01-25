@@ -30,7 +30,6 @@
 #include "common/specs/ws.h"
 #include "common/specs/ip.h"
 
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "common/events_scheduler.h"
 
@@ -631,7 +630,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         ws_neigh = ws_neigh_entry_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
 
         //Validate neighbour
-        if (!ws_neigh || !ws_neigh->mac_data.trusted_device)
+        if (!ws_neigh || !ws_neigh->trusted_device)
             goto tx_error_handler;
         buf->link_specific.ieee802_15_4.requestAck = true;
     }

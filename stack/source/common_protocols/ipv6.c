@@ -29,7 +29,6 @@
 #include "common/specs/rpl.h"
 #include "common/specs/ip.h"
 
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_llc.h"
@@ -1062,10 +1061,10 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
         return;
 
     aro.status = ARO_SUCCESS;
-    aro.lifetime = ws_neigh->mac_data.lifetime_s / 60;
+    aro.lifetime = ws_neigh->lifetime_s / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro);
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, ws_neigh->mac_data.lifetime_s);
+    ws_neigh_refresh_neighbor(ws_neigh, ws_neigh->lifetime_s);
 }
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)

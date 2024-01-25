@@ -30,7 +30,6 @@
 #include "common/mathutils.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ws.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "common/events_scheduler.h"
 
 #include "6lowpan/mac/mpx_api.h"
@@ -185,14 +184,14 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, lifetime_s);
+        ws_neigh_refresh_neighbor(ws_neigh, lifetime_s);
         return ARO_SUCCESS;
     }
 
     for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
-        if (!neigh_table[i].mac_data.in_use)
+        if (!neigh_table[i].in_use)
             continue;
-        if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac_data.mac64))
+        if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac64))
             child_count++;
     }
 
@@ -201,7 +200,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_FULL;
     }
 
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, lifetime_s);
+    ws_neigh_refresh_neighbor(ws_neigh, lifetime_s);
     tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
@@ -215,7 +214,7 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
     if (!ws_neigh)
         return false;
 
-    mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
+    ws_neigh_refresh_neighbor(ws_neigh, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return true;
 }
 

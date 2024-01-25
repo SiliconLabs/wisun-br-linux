@@ -214,7 +214,6 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/sec_prot_lib.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
 )
 target_include_directories(libwsbrd PRIVATE

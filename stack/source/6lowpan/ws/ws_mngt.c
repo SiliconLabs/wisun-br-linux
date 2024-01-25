@@ -30,7 +30,6 @@
 #include "stack/source/6lowpan/ws/ws_ie_validation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,
@@ -331,7 +330,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         add_neighbor = true;
     } else if (ws_neigh->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(ws_neigh->mac_data.mac64);
+        ws_bootstrap_neighbor_del(ws_neigh->mac64);
         add_neighbor = true;
     }
     if (add_neighbor) {

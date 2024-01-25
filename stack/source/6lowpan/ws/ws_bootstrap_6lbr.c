@@ -34,7 +34,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ip.h"
 
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
 

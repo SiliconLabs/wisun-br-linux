@@ -51,7 +51,7 @@ bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, neighbor_entry_r
         memset(list_ptr, 0, sizeof(ws_neigh_t));
         list_ptr->rsl_in = RSL_UNITITIALIZED;
         list_ptr->rsl_out = RSL_UNITITIALIZED;
-        list_ptr->mac_data.index = i;
+        list_ptr->index = i;
         list_ptr++;
     }
     return true;
@@ -74,7 +74,7 @@ ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
     ws_neigh_t *neigh_entry = NULL;
 
     for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].mac_data.in_use) {
+        if (!neigh_table[i].in_use) {
             neigh_entry = &neigh_table[i];
             break;
         }
@@ -87,7 +87,7 @@ ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
     for (uint8_t key_index = 1; key_index <= 7; key_index++)
         if (!(key_index_mask & (1u << key_index)))
             neigh_entry->frame_counter_min[key_index - 1] = UINT32_MAX;
-    mac_neighbor_table_entry_init(&neigh_entry->mac_data, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
+    ws_neigh_init(neigh_entry, mac64, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
     return neigh_entry;
 }
 
@@ -96,9 +96,9 @@ ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *table, const uint8_t *mac64)
     ws_neigh_t *neigh_table = table->neigh_info_list;
 
     for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].mac_data.in_use)
+        if (!neigh_table[i].in_use)
             continue;
-        if (!memcmp(neigh_table[i].mac_data.mac64, mac64, 8))
+        if (!memcmp(neigh_table[i].mac64, mac64, 8))
             return &neigh_table[i];
     }
 
@@ -119,12 +119,12 @@ void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64)
     uint8_t index;
 
     if (entry) {
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac_data.mac64), entry->mac_data.lifetime_s);
-        index = entry->mac_data.index;
+        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(entry->mac64), entry->lifetime_s);
+        index = entry->index;
         memset(entry, 0, sizeof(ws_neigh_t));
         entry->rsl_in = RSL_UNITITIALIZED;
         entry->rsl_out = RSL_UNITITIALIZED;
-        entry->mac_data.index = index;
+        entry->index = index;
     }
 }
 
@@ -133,11 +133,11 @@ void ws_neigh_refresh(struct ws_neigh_table *table, int time_update)
     ws_neigh_t *neigh_table = table->neigh_info_list;
 
     for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].mac_data.in_use)
+        if (!neigh_table[i].in_use)
             continue;
 
-        if (time_current(CLOCK_MONOTONIC) >= neigh_table[i].mac_data.expiration_s)
-            table->remove_cb(neigh_table[i].mac_data.mac64);
+        if (time_current(CLOCK_MONOTONIC) >= neigh_table[i].expiration_s)
+            table->remove_cb(neigh_table[i].mac64);
     }
 }
 
@@ -147,7 +147,7 @@ uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
     uint8_t count = 0;
 
     for (uint8_t i = 0; i < table->list_size; i++)
-        if (neigh_table[i].mac_data.in_use)
+        if (neigh_table[i].in_use)
             count++;
 
     return count;
@@ -596,4 +596,30 @@ int ws_neigh_lfn_count(ws_neigh_table_t *table)
             cnt++;
 
     return cnt;
+}
+
+void ws_neigh_init(struct ws_neigh *neigh, const uint8_t *mac64, uint32_t lifetime_s)
+{
+    neigh->in_use = true;
+    memcpy(neigh->mac64, mac64, 8);
+    neigh->lifetime_s = lifetime_s;
+    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
+}
+
+void ws_neigh_trusted_neighbor(struct ws_neigh *neigh)
+{
+    if (neigh->trusted_device)
+        return;
+
+    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
+    neigh->trusted_device = true;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
+}
+
+void ws_neigh_refresh_neighbor(struct ws_neigh *neigh, uint32_t lifetime_s)
+{
+    neigh->lifetime_s = lifetime_s;
+    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
 }

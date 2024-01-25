@@ -34,7 +34,6 @@
 #include "ipv6_stack/ipv6_neigh_storage.h"
 #include "6lowpan/ws/ws_neigh.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 
@@ -71,7 +70,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
             target = rpl_target_get(root, neigh->ip_address);
             if (target)
                 rpl_target_del(root, target);
-            mac_neighbor_table_refresh_neighbor(&ws_neigh->mac_data, aro->lifetime);
+            ws_neigh_refresh_neighbor(ws_neigh, aro->lifetime);
         }
     }
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));

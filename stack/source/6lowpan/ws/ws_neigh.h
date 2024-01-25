@@ -23,7 +23,6 @@
 #include <time.h>
 #include "common/int24.h"
 
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct net_if;
@@ -68,7 +67,6 @@ struct fhss_ws_neighbor_timing_info {
 
 typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
-    struct mac_neighbor_table_entry mac_data;
     uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
@@ -82,6 +80,16 @@ typedef struct ws_neigh {
     bool offset_adjusted;                                  /*!< For LTO */
     uint8_t node_role;
     uint32_t frame_counter_min[7];
+    uint8_t index;                                         /*!< Unique Neighbour index */
+    bool in_use;                                           /*!< True if the entry is in use */
+    uint8_t mac64[8];                                      /*!< MAC64 */
+    uint32_t expiration_s;
+    uint32_t lifetime_s;                                   /*!< Life time in seconds */
+    uint8_t ms_phy_mode_id;                                /*!< PhyModeId selected for Mode Switch with this neighbor */
+    uint8_t ms_mode;                                       /*!< Mode switch mode */
+    uint32_t ms_tx_count;                                  /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
+    uint32_t ms_retries_count;                             /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
+    bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
 } ws_neigh_t;
 
 typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
@@ -169,5 +177,11 @@ ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
 void ws_neigh_refresh(struct ws_neigh_table *table, int time_update);
 
 uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
+
+void ws_neigh_init(struct ws_neigh *neigh, const uint8_t *mac64, uint32_t lifetime_s);
+
+void ws_neigh_trusted_neighbor(struct ws_neigh *neigh);
+
+void ws_neigh_refresh_neighbor(struct ws_neigh *neigh, uint32_t lifetime_s);
 
 #endif
