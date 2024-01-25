@@ -104,40 +104,6 @@ int ws_management_regulatory_domain_set(
     uint8_t channel_plan_id);
 
 /**
- * Get regulatory domain of Wi-SUN stack.
- *
- * \param interface_id Network interface ID.
- * \param regulatory_domain FHSS regulatory domain.
- * \param operating_class FHSS operating class.
- * \param operating_mode FHSS phy operating mode.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_regulatory_domain_get(
-    int8_t interface_id,
-    uint8_t *regulatory_domain,
-    uint8_t *operating_class,
-    uint8_t *operating_mode);
-
-/**
- * Validate regulatory domain of Wi-SUN stack.
- *
- * \param interface_id Network interface ID.
- * \param regulatory_domain FHSS regulatory domain.
- * \param operating_class FHSS operating class.
- * \param operating_mode FHSS phy operating mode.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_regulatory_domain_validate(
-    int8_t interface_id,
-    uint8_t regulatory_domain,
-    uint8_t operating_class,
-    uint8_t operating_mode);
-
-/**
  * Set timing parameters related to network size.
  *
  * timing parameters follows the specification example from Wi-SUN specification

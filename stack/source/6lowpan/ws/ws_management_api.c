@@ -105,59 +105,6 @@ int ws_management_regulatory_domain_set(
     return 0;
 }
 
-int ws_management_regulatory_domain_get(
-    int8_t interface_id,
-    uint8_t *regulatory_domain,
-    uint8_t *operating_class,
-    uint8_t *operating_mode)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-    if (!regulatory_domain || !operating_class || !operating_mode) {
-        return -2;
-    }
-
-    ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg) < 0) {
-        return -3;
-    }
-
-    *regulatory_domain = cfg.regulatory_domain;
-    *operating_class = cfg.operating_class;
-    *operating_mode = cfg.operating_mode;
-
-    return 0;
-}
-
-int ws_management_regulatory_domain_validate(
-    int8_t interface_id,
-    uint8_t regulatory_domain,
-    uint8_t operating_class,
-    uint8_t operating_mode)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-
-    ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg) < 0) {
-        return -3;
-    }
-
-    cfg.regulatory_domain = regulatory_domain;
-    cfg.operating_class = operating_class;
-    cfg.operating_mode = operating_mode;
-
-    if (ws_cfg_phy_validate(&cfg) < 0) {
-        return -4;
-    }
-
-    return 0;
-}
-
 int ws_management_network_size_set(
     int8_t interface_id,
     uint8_t network_size)
