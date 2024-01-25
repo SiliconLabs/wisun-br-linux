@@ -141,15 +141,6 @@ int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert
 int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *cert);
 
 /**
- * ws_pae_controller_trusted_certificates_remove removes trusted certificates
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_trusted_certificates_remove(void);
-
-/**
  * ws_pae_controller_radius_address_set set radius address
  *
  * \param interface_id interface identifier

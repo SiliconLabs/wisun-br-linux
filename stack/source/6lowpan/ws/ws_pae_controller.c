@@ -1063,15 +1063,6 @@ int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *
     return ret;
 }
 
-int8_t ws_pae_controller_trusted_certificates_remove(void)
-{
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        sec_prot_certs_chain_list_delete(&entry->certs.trusted_cert_chain_list);
-    }
-
-    return 0;
-}
-
 sec_radius_cfg_t *ws_pae_controller_radius_config_get(void)
 {
     if (pae_controller_config.radius_cfg != NULL) {
