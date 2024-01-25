@@ -96,37 +96,12 @@ typedef struct ws_neighbor_class {
 } ws_neighbor_class_t;
 
 
-/**
- * ws_neighbor_class_alloc a function for allocate giving list size
- *
- * \param class_data pointer to structure which will be initialized by this function
- * \param list_size define list size
- *
- * \return true Allocate Ok
- * \return false Allocate Fail
- *
- */
 bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
 
-/**
- * ws_neighbor_class_dealloc a function for free allocated neighbor hopping info
- *
- * \param class_data pointer to structure which will be initialized by this function
- *
- */
 void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data);
 
 ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64);
 
-/**
- * ws_neighbor_class_entry_t a function for search hopping info for giving neighbor attribute index
- *
- * \param class_data pointer to structure which will be initialized by this function
- * \param entry which attribute index is counted.
- *
- * \return Attribute index of entry
- *
- */
 uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_neighbor_class_entry_t *entry);
 
 void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64);
@@ -165,32 +140,20 @@ void ws_neighbor_class_nr_update(ws_neighbor_class_entry_t *neighbor, ws_nr_ie_t
  * Calculates rsl value from dbm heard.
  * This provides a range of -174 (0) to +80 (254) dBm.
  *
- * \param dbm_heard; dbm heard from the neighbour
+ * \param dbm_heard; dbm heard from the neighbor
  *
  */
 uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard);
 
-/** Helper macros to read RSL values from neighbour class.
+/**
+ * Helper macros to read RSL values from neighbor class.
  *
  */
 #define ws_neighbor_class_rsl_in_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
 #define ws_neighbor_class_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_out >> WS_RSL_SCALING)
 
-/**
- * ws_neighbor_class_neighbor_broadcast_schedule_set a function for update neighbor broadcast shedule information
- *
- * \param ws_neighbor pointer to neighbor
- * \param dbm_heard; dbm heard from the neighbour
- *
- */
 void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard);
-/**
- * ws_neighbor_class_neighbor_broadcast_schedule_set a function for update neighbor broadcast shedule information
- *
- * \param ws_neighbor pointer to neighbor
- * \param rsl_reported; rsl value reported by neighbour in packet from RSL-IE
- *
- */
+
 void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor, uint8_t rsl_reported);
 
 bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor,
