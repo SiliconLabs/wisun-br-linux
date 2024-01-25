@@ -92,25 +92,6 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
  */
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
 
-/**
- * Set RADIUS shared secret
- *
- * Function sets RADIUS shared secret to Border Router. Shared secret may be an
- * ASCII string. Check the format and length constraints for the shared secret from
- * the documentation of RADIUS server you are connecting to. Nanostack will not
- * make copy of the shared secret, therefore address and data must remain permanently
- * valid.
- *
- * \param interface_id Network interface ID.
- * \param shared_secret_len The length of the shared secret in bytes.
- * \param shared_secret Pointer to shared secret. Can be 8-bit ASCII string or byte array. Is not NUL terminated.
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret);
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
 
 void ws_bbr_pan_version_increase(struct net_if *cur);
