@@ -209,32 +209,6 @@ int ws_management_channel_mask_set(
     uint8_t channel_mask[32]);
 
 /**
- * Get channel mask for FHSS operation.
- *
- * \param interface_id Network interface ID.
- * \param channel_mask set bits matching the channel 1 to allow channel 0 to disallow.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_channel_mask_get(
-    int8_t interface_id,
-    uint8_t *channel_mask);
-
-/**
- * Validate channel mask for FHSS operation.
- *
- * \param interface_id Network interface ID.
- * \param channel_mask set bits matching the channel 1 to allow channel 0 to disallow.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_channel_mask_validate(
-    int8_t interface_id,
-    uint32_t channel_mask[8]);
-
-/**
  * Configure Application defined channel plan.
  *
  * Change the application defined channel plan.
