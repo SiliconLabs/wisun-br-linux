@@ -203,8 +203,12 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
 
     for (int i = 0; i < cmdline->payload_size; i++)
         payload_buf[i] = i % 0x10;
-    hif_push_u8(&tx_buf, get_spinel_hdr(ctxt));
-    hif_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
+    if (cmdline->uart_legacy) {
+        hif_push_u8(&tx_buf, get_spinel_hdr(ctxt));
+        hif_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
+    } else {
+        hif_push_u8(&tx_buf, HIF_CMD_REQ_PING);
+    }
     hif_push_u16(&tx_buf, counter);
     if (cmdline->mode & MODE_TX)
         hif_push_u16(&tx_buf, cmdline->payload_size);
@@ -267,19 +271,28 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
         WARN("poll: no answer from RCP on ping %d", counter);
         return counter + 1;
     }
-    spinel_trace(rx_buf.data, rx_buf.data_size, "hif rx: ");
+    if (cmdline->uart_legacy)
+        spinel_trace(rx_buf.data, rx_buf.data_size, "hif rx: ");
+    val = hif_pop_u8(&rx_buf); // Either RCPv2 command or SPINEL header
+    if (!cmdline->uart_legacy)
+        TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(val),
+              tr_bytes(iobuf_ptr(&rx_buf), iobuf_remaining_size(&rx_buf),
+                       NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 
-    hif_pop_u8(&rx_buf);
-
-    val = hif_pop_uint(&rx_buf);
-    if (val != SPINEL_CMD_RCP_PING) {
-        if (val == SPINEL_CMD_PROP_IS && hif_pop_uint(&rx_buf) == SPINEL_PROP_WS_RCP_CRC_ERR) {
-            WARN("RCP complains it received a CRC error");
-            return counter + 1;
-        } else {
-            WARN("received %02x instead of %02x", val, SPINEL_CMD_RCP_PING);
-            return counter;
+    if (cmdline->uart_legacy) {
+        val = hif_pop_uint(&rx_buf);
+        if (val != SPINEL_CMD_RCP_PING) {
+            if (val == SPINEL_CMD_PROP_IS && hif_pop_uint(&rx_buf) == SPINEL_PROP_WS_RCP_CRC_ERR) {
+                WARN("RCP complains it received a CRC error");
+                return counter + 1;
+            } else {
+                WARN("received %02x instead of %02x", val, SPINEL_CMD_RCP_PING);
+                return counter;
+            }
         }
+    } else if (val != HIF_CMD_CNF_PING) {
+        WARN("received %02x instead of %02x", val, HIF_CMD_CNF_PING);
+        return counter;
     }
 
     val = hif_pop_u16(&rx_buf);
@@ -287,11 +300,15 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
         WARN("sent ping request %d and received reply %d", counter, val);
     counter = val;
 
-    val = hif_pop_u16(&rx_buf);
-    if (val != 0)
-        WARN("reply size from RCP was not 0");
+    if (cmdline->uart_legacy) {
+        val = hif_pop_u16(&rx_buf);
+        if (val != 0)
+            WARN("reply size from RCP was not 0");
+        val = hif_pop_raw_ptr(&rx_buf, &payload);
+    } else {
+        val = hif_pop_data_ptr(&rx_buf, &payload);
+    }
 
-    val = hif_pop_raw_ptr(&rx_buf, &payload);
     if (cmdline->mode & MODE_TX)
         expected_payload = cmdline->payload_size;
     else
