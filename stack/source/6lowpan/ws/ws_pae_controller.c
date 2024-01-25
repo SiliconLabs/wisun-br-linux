@@ -1063,30 +1063,6 @@ int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *
     return ret;
 }
 
-int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_s *cert)
-{
-    if (!cert) {
-        return -1;
-    }
-
-    int8_t ret = -1;
-
-    cert_chain_entry_t *trusted_cert = sec_prot_certs_chain_entry_create();
-    sec_prot_certs_cert_set(trusted_cert, 0, (uint8_t *) cert->cert, cert->cert_len);
-
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        cert_chain_entry_t *removed_cert = sec_prot_certs_chain_list_entry_find(&entry->certs.trusted_cert_chain_list, trusted_cert);
-        if (removed_cert) {
-            sec_prot_certs_chain_list_entry_delete(&entry->certs.trusted_cert_chain_list, removed_cert);
-            ret = 0;
-        }
-    }
-
-    sec_prot_certs_chain_entry_delete(trusted_cert);
-
-    return ret;
-}
-
 int8_t ws_pae_controller_trusted_certificates_remove(void)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
