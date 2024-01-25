@@ -31,7 +31,6 @@
 #include "common/specs/ip.h"
 
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
 #include "mpl/mpl.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -124,11 +123,6 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
 
     if (cur == NULL) {
         cur = buf->interface;
-    }
-
-    /* Any ICMPv6 error in response to an UP packet implies an RX drop... */
-    if ((buf->info & B_DIR_MASK) == B_DIR_UP) {
-        protocol_stats_update(STATS_IP_RX_DROP, 1);
     }
 
     /* RFC 4443 processing rules e.1-2: don't send errors for ICMPv6 errors or redirects */
@@ -477,7 +471,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
     if (buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6)) {
         TRACE(TR_DROP, "drop %-9s: invalid checksum", "icmpv6");
-        protocol_stats_update(STATS_IP_CKSUM_ERROR, 1);
         return buffer_free(buf);
     }
 

@@ -24,7 +24,6 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 
@@ -177,6 +176,5 @@ buffer_t *lowpan_up(buffer_t *buf)
     return buf;
 
 drop:
-    protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }

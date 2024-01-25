@@ -32,7 +32,6 @@
 #include "common/memutils.h"
 
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
@@ -392,7 +391,6 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
          */
         if (fragment_first < hole_first || fragment_last > hole_last) {
             tr_error("Frag overlap: hole %"PRIuFAST16"-%"PRIuFAST16", frag %"PRIu16"-%"PRIu16, hole_first, hole_last, fragment_first, fragment_last);
-            protocol_stats_update(STATS_FRAG_RX_ERROR, 1);
             /* Forget previous data by marking as "all hole" */
             frag_ptr->offset = 0xffff;
             create_hole(frag_ptr->buf, hole_off = hole_first = 0, hole_last = datagram_size - 1, prev_ptr = &frag_ptr->offset);
@@ -449,7 +447,6 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     return buf;
 
 reassembly_error:
-    protocol_stats_update(STATS_FRAG_RX_ERROR, 1);
     return buffer_free(buf);
 }
 
@@ -459,7 +456,6 @@ static void reassembly_entry_timer_update(reassembly_interface_t *interface_ptr,
         if (reassembly_entry->ttl > seconds) {
             reassembly_entry->ttl -= seconds;
         } else {
-            protocol_stats_update(STATS_FRAG_RX_ERROR, 1);
             tr_debug("Reassembly TO: src %s size %u",
                      trace_sockaddr(&reassembly_entry->buf->src_sa, true),
                      reassembly_entry->size);

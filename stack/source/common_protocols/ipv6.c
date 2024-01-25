@@ -33,7 +33,6 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "core/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
@@ -524,7 +523,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
 
     /* Note ipv6_buffer_route can change interface */
     if (!ipv6_buffer_route(buf)) {
-        protocol_stats_update(STATS_IP_NO_ROUTE, 1);
         tr_info("ipv6_forwarding route fail");
         return icmpv6_error(buf, NULL, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
     }
@@ -713,7 +711,6 @@ static buffer_t *ipv6_tunnel_exit(buffer_t *buf, uint8_t *payload)
     return buf;
 
 drop:
-    protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }
 
@@ -777,7 +774,6 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
                 }
                 /* falling to */
 drop:
-                protocol_stats_update(STATS_IP_RX_DROP, 1);
                 return buffer_free(buf);
 
 len_err:
@@ -795,7 +791,6 @@ static buffer_t *ipv6_handle_routing_header(buffer_t *buf, struct net_if *cur, u
 {
     if (buf->options.ll_security_bypass_rx) {
         tr_warn("Routing header: Security check fail");
-        protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
 
@@ -845,7 +840,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
         tr_warn("IP Forward: Security check fail dst %s", tr_ipv6(buf->dst_sa.address));
-        protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
 
@@ -859,7 +853,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
 
     if (addr_is_ipv6_loopback(buf->dst_sa.address) ||
         addr_is_ipv6_unspecified(buf->src_sa.address)) {
-        protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
 
@@ -875,11 +868,9 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
     /* Note ipv6_buffer_route can change interface  */
     buffer_routing_info_t *routing = ipv6_buffer_route(buf);
 
-    if (!routing) {
-        protocol_stats_update(STATS_IP_NO_ROUTE, 1);
-        // If we can't route inside the network, let's try outside !
+    // If we can't route inside the network, let's try outside !
+    if (!routing)
         return ipv6_tun_up(buf);
-    }
 
     struct net_if *out_interface;
     out_interface = buf->interface;
@@ -1302,6 +1293,5 @@ upper_layer:
     return buf;
 
 drop:
-    protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }

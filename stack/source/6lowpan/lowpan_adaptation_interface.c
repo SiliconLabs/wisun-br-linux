@@ -42,7 +42,6 @@
 #include "core/ns_address_internal.h"
 #include "core/ns_error_types.h"
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_stats.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -179,7 +178,6 @@ static struct net_if *lowpan_adaptation_network_interface_discover(const mpx_api
 static void lowpan_adaptation_tx_queue_level_update(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     random_early_detection_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
-    protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
 
     if (interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level + ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE ||
             interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level - ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE) {
@@ -959,7 +957,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
                 buffer_free(dropped);
-                protocol_stats_update(STATS_AL_TX_CONGESTION_DROP, 1);
             }
         }
         lowpan_adaptation_tx_queue_write(cur, interface_ptr, buf);
@@ -999,16 +996,8 @@ tx_error_handler:
 
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
 {
-    if (!tx_ptr->fragmented_data) {
-        if (tx_ptr->buf->ip_routed_up) {
-            protocol_stats_update(STATS_IP_ROUTE_UP, buffer_data_length(tx_ptr->buf));
-        } else {
-            protocol_stats_update(STATS_IP_TX_COUNT, buffer_data_length(tx_ptr->buf));
-        }
+    if (!tx_ptr->fragmented_data)
         return true;
-    }
-
-
 
     //Update data pointer by last packet length
     buffer_data_strip_header(tx_ptr->buf, tx_ptr->frag_len);
@@ -1023,15 +1012,9 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
     tx_ptr->frag_len = buffer_data_length(tx_ptr->buf);
 
 
-    if (tx_ptr->frag_len == 0) {
-        //Release current data
-        if (tx_ptr->buf->ip_routed_up) {
-            protocol_stats_update(STATS_IP_ROUTE_UP, tx_ptr->orig_size);
-        } else {
-            protocol_stats_update(STATS_IP_TX_COUNT, tx_ptr->orig_size);
-        }
+    //Release current data
+    if (tx_ptr->frag_len == 0)
         return true;
-    }
 
     //Continue Process
 
@@ -1087,11 +1070,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         return -1;
     }
     buffer_t *buf = tx_ptr->buf;
-
-    // Update adaptation layer latency for unicast packets. Given as seconds.
-    if (buf->link_specific.ieee802_15_4.requestAck && buf->adaptation_timestamp) {
-        protocol_stats_update(STATS_AL_TX_LATENCY, ((g_monotonic_time_100ms - buf->adaptation_timestamp) + 5) / 10);
-    }
 
     if (confirm->status == MLME_SUCCESS) {
         //Check is there more packets

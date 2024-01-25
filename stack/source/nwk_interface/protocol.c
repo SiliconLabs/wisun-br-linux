@@ -39,7 +39,6 @@
 #include "common_protocols/ipv6.h"
 #include "mpl/mpl.h"
 
-#include "nwk_interface/protocol_stats.h"
 #include "nwk_interface/protocol.h"
 
 // RFC 4861 says we only have to reroll ReachableTime every couple of hours, but

@@ -24,7 +24,6 @@
 #include <sys/socket.h>
 #include "common/log_legacy.h"
 
-#include "nwk_interface/protocol_stats.h"
 #include "core/netaddr_types.h"
 
 #include "core/ns_buffer.h"
@@ -99,7 +98,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
     buf->options.hop_limit = 255;
     buf->options.mpl_permitted = true;
     buf->size = total_size;
-    protocol_stats_update(STATS_BUFFER_ALLOC, 1);
 
     return buf;
 }
@@ -131,7 +129,6 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         new_buf->size = new_total;
         // Copy the current data
         memcpy(buffer_data_pointer(new_buf), buffer_data_pointer(buf), curr_len);
-        protocol_stats_update(STATS_BUFFER_HEADROOM_REALLOC, 1);
         free(buf);
         buf = new_buf;
     } else if (buf->buf_ptr < size) {
@@ -140,10 +137,8 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         uint8_t *orig_ptr = buffer_data_pointer(buf);
         buf->buf_ptr = size;
         buf->buf_end = size + curr_len;
-        if (curr_len) {
+        if (curr_len)
             memmove(buffer_data_pointer(buf), orig_ptr, curr_len);
-            protocol_stats_update(STATS_BUFFER_HEADROOM_SHUFFLE, 1);
-        }
     }
     buffer_corrupt_check(buf);
     return buf;
