@@ -506,7 +506,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
         ws_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
-        ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(fds[POLLFD_EAPOL_RELAY].fd);
+        ws_eapol_auth_relay_socket_cb(fds[POLLFD_EAPOL_RELAY].fd);
     if (fds[POLLFD_PAE_AUTH].revents & POLLIN)
         kmp_socket_if_pae_socket_cb(fds[POLLFD_PAE_AUTH].fd);
     if (fds[POLLFD_RADIUS].revents & POLLIN)
