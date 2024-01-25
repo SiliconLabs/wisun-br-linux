@@ -114,28 +114,6 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64);
 int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[16]);
 
 /**
- * Extended certificate validation
- */
-#define BBR_CRT_EXT_VALID_NONE    0x00 /**< Do not make extended validations */
-#define BBR_CRT_EXT_VALID_WISUN   0x01 /**< Validate Wi-SUN specific fields */
-
-/**
- * Sets extended certificate validation setting
- *
- * Sets extended certificate validation setting on border router. Function can be used
- * to set which fields on client certificate are validated.
- *
- * \param interface_id Network interface ID
- * \param validation Extended Certificate validation setting
- *          BBR_CRT_EXT_VALID_NONE   Do not make extended validations
- *          BBR_CRT_EXT_VALID_WISUN  Validate Wi-SUN specific fields
- *
- * \return 0 Validation setting was set
- * \return <0 Setting set failed
- */
-int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation);
-
-/**
  * Sets PAN configuration
  *
  * Sets PAN configuration parameters.

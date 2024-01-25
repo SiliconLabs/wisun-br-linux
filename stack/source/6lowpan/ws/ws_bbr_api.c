@@ -235,15 +235,6 @@ int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t n
     return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk, new_gtk);
 }
 
-int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation)
-{
-    bool enabled = false;
-    if (validation & BBR_CRT_EXT_VALID_WISUN) {
-        enabled = true;
-    }
-    return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
-}
-
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {
     if (ws_bbr_pan_id != pan_id) {
