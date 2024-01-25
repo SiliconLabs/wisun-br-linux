@@ -54,7 +54,7 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

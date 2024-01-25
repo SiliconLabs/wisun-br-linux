@@ -30,7 +30,7 @@
 #include "nwk_interface/protocol.h"
 #include "app_wsbrd/wsbr.h"
 
-#include "ws_neighbor_class.h"
+#include "ws_neigh.h"
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 

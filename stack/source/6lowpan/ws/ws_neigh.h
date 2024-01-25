@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef WS_NEIGHBOR_CLASS_H_
-#define WS_NEIGHBOR_CLASS_H_
+#ifndef WS_NEIGH_H
+#define WS_NEIGH_H
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>

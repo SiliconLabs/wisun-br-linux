@@ -66,7 +66,7 @@
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_management_api.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_stats.h"
 

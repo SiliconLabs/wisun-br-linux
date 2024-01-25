@@ -32,7 +32,7 @@
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "ipv6_stack/ipv6_neigh_storage.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_neigh.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

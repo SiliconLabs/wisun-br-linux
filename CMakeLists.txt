@@ -169,7 +169,7 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_management_api.c
     stack/source/6lowpan/ws/ws_mngt.c
     stack/source/6lowpan/ws/ws_mpx_header.c
-    stack/source/6lowpan/ws/ws_neighbor_class.c
+    stack/source/6lowpan/ws/ws_neigh.c
     stack/source/6lowpan/ws/ws_pae_auth.c
     stack/source/6lowpan/ws/ws_pae_controller.c
     stack/source/6lowpan/ws/ws_pae_key_storage.c

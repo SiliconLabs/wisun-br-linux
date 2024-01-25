@@ -24,7 +24,7 @@
 #include "common/ns_list.h"
 
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_mngt.h"
 #include "6lowpan/ws/ws_ie_custom.h"
 

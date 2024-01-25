@@ -26,7 +26,7 @@
 #include "common/ws_regdb.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "security/protocols/sec_prot_keys.h"
 
