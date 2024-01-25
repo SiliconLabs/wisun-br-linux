@@ -18,6 +18,7 @@
 #include "stack/source/core/netaddr_types.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
+#include "stack/source/6lowpan/ws/ws_eapol_relay.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"
@@ -48,7 +49,7 @@ static struct {
 } s_sockets[] = {
     { IF_DHCP_SERVER,    fuzz_dhcp_get_socket_id,               -1 },
     { IF_EAPOL_RELAY,    ws_bbr_eapol_auth_relay_get_socket_fd, -1 },
-    { IF_BR_EAPOL_RELAY, ws_bbr_eapol_relay_get_socket_fd,      -1 },
+    { IF_BR_EAPOL_RELAY, ws_eapol_relay_get_socket_fd,          -1 },
     { IF_PAE_AUTH,       kmp_socket_if_get_pae_socket_fd,       -1 },
     { IF_RADIUS,         kmp_socket_if_get_radius_sockfd,       -1 },
     { IF_RPL,            fuzz_rpl_get_socket_fd,                -1 },

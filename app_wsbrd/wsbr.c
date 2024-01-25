@@ -39,6 +39,7 @@
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/ws/ws_test_api.h"
+#include "stack/source/6lowpan/ws/ws_eapol_relay.h"
 #include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/core/netaddr_types.h"
@@ -474,7 +475,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_DHCP_SERVER].events = POLLIN;
     fds[POLLFD_RPL].fd = ctxt->rpl_root.sockfd;
     fds[POLLFD_RPL].events = POLLIN;
-    fds[POLLFD_BR_EAPOL_RELAY].fd = ws_bbr_eapol_relay_get_socket_fd();
+    fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
     fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
     fds[POLLFD_EAPOL_RELAY].fd = ws_bbr_eapol_auth_relay_get_socket_fd();
     fds[POLLFD_EAPOL_RELAY].events = POLLIN;
