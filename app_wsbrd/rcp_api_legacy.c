@@ -607,9 +607,9 @@ void rcp_legacy_tx_req_legacy(const struct mcps_data_req *tx_req,
 #define HIF_FHSS_RESERVED1      0x0008
 // Values for this mask are the same than Wi-SUN: WS_FIXED_CHANNEL, WS_DH1CF and WS_TR51CF
 #define HIF_FHSS_CHAN_FUNC_MASK   0x0030
-#define   HIF_FHSS_CHAN_FUNC_FIXED   WS_FIXED_CHANNEL  // 0x00
-#define   HIF_FHSS_CHAN_FUNC_TR51    WS_TR51CF         // 0x01
-#define   HIF_FHSS_CHAN_FUNC_DH1     WS_DH1CF          // 0x02
+#define   HIF_FHSS_CHAN_FUNC_FIXED   CHANNEL_FUNCTION_FIXED  // 0x00
+#define   HIF_FHSS_CHAN_FUNC_TR51    CHANNEL_FUNCTION_TR51CF         // 0x01
+#define   HIF_FHSS_CHAN_FUNC_DH1     CHANNEL_FUNCTION_DH1CF          // 0x02
 #define   HIF_FHSS_CHAN_FUNC_AUTO    0x03
 #define HIF_FHSS_RESERVED2        0x0040
 #define HIF_FHSS_EDFE_MASK        0x0080
@@ -672,12 +672,12 @@ void rcp_legacy_tx_req(const uint8_t *frame, int frame_len,
     }
     if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
         switch (neighbor_ws->fhss_data.uc_chan_func) {
-        case WS_FIXED_CHANNEL:
-            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_FIXED_CHANNEL);
+        case CHANNEL_FUNCTION_FIXED:
+            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, CHANNEL_FUNCTION_FIXED);
             hif_push_u16(&buf, neighbor_ws->fhss_data.uc_chan_fixed);
             break;
-        case WS_DH1CF:
-            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_DH1CF);
+        case CHANNEL_FUNCTION_DH1CF:
+            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, CHANNEL_FUNCTION_DH1CF);
             len = roundup(neighbor_ws->fhss_data.uc_chan_count, 8) / 8;
             hif_push_u8(&buf, len);
             hif_push_fixed_u8_array(&buf, neighbor_ws->fhss_data.uc_channel_list.channel_mask, len);

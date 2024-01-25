@@ -744,8 +744,8 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     cfg->fhss_uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
     cfg->fhss_bc_interval = WS_FHSS_BC_INTERVAL;
     cfg->fhss_bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
-    cfg->fhss_uc_channel_function = WS_DH1CF;
-    cfg->fhss_bc_channel_function = WS_DH1CF;
+    cfg->fhss_uc_channel_function = CHANNEL_FUNCTION_DH1CF;
+    cfg->fhss_bc_channel_function = CHANNEL_FUNCTION_DH1CF;
     cfg->lfn_bc_interval = 60000; // 1min
     cfg->lfn_bc_sync_period = 5;
     bitfill(cfg->fhss_channel_mask, true, 0, 255);
@@ -781,10 +781,10 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
             return CFG_SETTINGS_ERROR_FHSS_CONF;
         }
 
-        if (cfg->fhss_uc_channel_function != WS_FIXED_CHANNEL &&
-                cfg->fhss_uc_channel_function != WS_VENDOR_DEF_CF &&
-                cfg->fhss_uc_channel_function != WS_DH1CF &&
-                cfg->fhss_uc_channel_function != WS_TR51CF) {
+        if (cfg->fhss_uc_channel_function != CHANNEL_FUNCTION_FIXED &&
+                cfg->fhss_uc_channel_function != CHANNEL_FUNCTION_VENDOR_DEFINED &&
+                cfg->fhss_uc_channel_function != CHANNEL_FUNCTION_DH1CF &&
+                cfg->fhss_uc_channel_function != CHANNEL_FUNCTION_TR51CF) {
             return CFG_SETTINGS_ERROR_FHSS_CONF;
         }
 
@@ -811,21 +811,21 @@ int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags
 
     *cfg = *new_cfg;
 
-    if (cfg->fhss_uc_channel_function == WS_FIXED_CHANNEL && cfg->fhss_uc_fixed_channel == 0xffff) {
+    if (cfg->fhss_uc_channel_function == CHANNEL_FUNCTION_FIXED && cfg->fhss_uc_fixed_channel == 0xffff) {
         cfg->fhss_uc_fixed_channel = 0;
         tr_warn("UC fixed channel not configured. Set to 0");
     }
 
-    if (cfg->fhss_uc_channel_function != WS_FIXED_CHANNEL) {
+    if (cfg->fhss_uc_channel_function != CHANNEL_FUNCTION_FIXED) {
         cfg->fhss_uc_fixed_channel = 0xffff;
     }
 
-    if (cfg->fhss_bc_channel_function == WS_FIXED_CHANNEL && cfg->fhss_bc_fixed_channel == 0xffff) {
+    if (cfg->fhss_bc_channel_function == CHANNEL_FUNCTION_FIXED && cfg->fhss_bc_fixed_channel == 0xffff) {
         cfg->fhss_bc_fixed_channel = 0;
         tr_warn("BC fixed channel not configured. Set to 0");
     }
 
-    if (cfg->fhss_bc_channel_function != WS_FIXED_CHANNEL) {
+    if (cfg->fhss_bc_channel_function != CHANNEL_FUNCTION_FIXED) {
         cfg->fhss_bc_fixed_channel = 0xffff;
     }
 

@@ -181,7 +181,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
-    uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
+    uint8_t channel_function = (fixed_channel == 0xFFFF) ? CHANNEL_FUNCTION_DH1CF : CHANNEL_FUNCTION_FIXED;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
     uint8_t *lgtks[3] = { };

@@ -165,10 +165,10 @@ static void __rcp_req_data_tx(struct rcp *rcp,
     if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
         hif_push_u8(&buf, neigh->fhss_data.uc_chan_func);
         switch (neigh->fhss_data.uc_chan_func) {
-        case WS_FIXED_CHANNEL:
+        case CHANNEL_FUNCTION_FIXED:
             hif_push_u16(&buf, neigh->fhss_data.uc_chan_fixed);
             break;
-        case WS_DH1CF: {
+        case CHANNEL_FUNCTION_DH1CF: {
             uint8_t chan_mask_len = roundup(neigh->fhss_data.uc_chan_count, 8) / 8;
 
             hif_push_u8(&buf, chan_mask_len);
@@ -452,10 +452,10 @@ static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuratio
     hif_push_u8(&buf, cfg->fhss_uc_dwell_interval);
     hif_push_u8(&buf, cfg->ws_uc_channel_function);
     switch (cfg->ws_uc_channel_function) {
-    case WS_FIXED_CHANNEL:
+    case CHANNEL_FUNCTION_FIXED:
         hif_push_u16(&buf, cfg->unicast_fixed_channel);
         break;
-    case WS_DH1CF:
+    case CHANNEL_FUNCTION_DH1CF:
         hif_push_u8(&buf, sizeof(cfg->unicast_channel_mask));
         hif_push_fixed_u8_array(&buf, cfg->unicast_channel_mask, sizeof(cfg->unicast_channel_mask));
         break;
@@ -477,10 +477,10 @@ static void __rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configur
     hif_push_u8(&buf,  cfg->fhss_bc_dwell_interval);
     hif_push_u8(&buf,  cfg->ws_bc_channel_function);
     switch (cfg->ws_bc_channel_function) {
-    case WS_FIXED_CHANNEL:
+    case CHANNEL_FUNCTION_FIXED:
         hif_push_u16(&buf, cfg->broadcast_fixed_channel);
         break;
-    case WS_DH1CF:
+    case CHANNEL_FUNCTION_DH1CF:
         hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
         hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
         break;
@@ -502,10 +502,10 @@ static void __rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configur
     hif_push_u16(&buf, cfg->bsi);
     hif_push_u8(&buf,  cfg->ws_bc_channel_function);
     switch (cfg->ws_bc_channel_function) {
-    case WS_FIXED_CHANNEL:
+    case CHANNEL_FUNCTION_FIXED:
         hif_push_u16(&buf, cfg->broadcast_fixed_channel);
         break;
-    case WS_DH1CF:
+    case CHANNEL_FUNCTION_DH1CF:
         hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
         hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
         break;

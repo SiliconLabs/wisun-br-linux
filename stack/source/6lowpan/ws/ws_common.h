@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "common/specs/ws.h"
 #include "common/ns_list.h"
 
 #include "6lowpan/ws/ws_config.h"
@@ -45,27 +46,13 @@ typedef struct ws_bsi_block {
 } ws_bsi_block_t;
 
 /**
- * @brief WS channel functions.
- */
-typedef enum {
-    /** Fixed channel. */
-    WS_FIXED_CHANNEL,
-    /** TR51 channel function. */
-    WS_TR51CF,
-    /** Direct Hash channel function. */
-    WS_DH1CF,
-    /** Vendor Defined channel function. */
-    WS_VENDOR_DEF_CF
-} fhss_ws_channel_functions_e;
-
-/**
  * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
  */
 typedef struct fhss_ws_configuration {
     /** WS unicast channel function. */
-    fhss_ws_channel_functions_e ws_uc_channel_function;
+    enum ws_channel_functions ws_uc_channel_function;
     /** WS broadcast channel function. */
-    fhss_ws_channel_functions_e ws_bc_channel_function;
+    enum ws_channel_functions ws_bc_channel_function;
     /** Broadcast schedule identifier. */
     uint16_t bsi;
     /** Unicast dwell interval. Range: 15-250 milliseconds. */

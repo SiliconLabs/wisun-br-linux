@@ -154,16 +154,16 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
 {
     if (neigh->fhss_data.ffn.utt_rx_tstamp_us && neigh->fhss_data.ffn.ufsi) {
         // No UFSI on fixed channel
-        if (neigh->fhss_data.uc_chan_func == WS_FIXED_CHANNEL) {
+        if (neigh->fhss_data.uc_chan_func == CHANNEL_FUNCTION_FIXED) {
             return;
         }
         double seq_length = 0x10000;
-        if (neigh->fhss_data.uc_chan_func == WS_TR51CF) {
+        if (neigh->fhss_data.uc_chan_func == CHANNEL_FUNCTION_TR51CF) {
             seq_length = neigh->fhss_data.uc_chan_count;
         }
         double ufsi_prev_tmp = neigh->fhss_data.ffn.ufsi;
         double ufsi_cur_tmp = ufsi;
-        if (neigh->fhss_data.uc_chan_func == WS_DH1CF) {
+        if (neigh->fhss_data.uc_chan_func == CHANNEL_FUNCTION_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
             }
@@ -173,7 +173,7 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
         double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
         uint64_t time_since_last_ufsi_us = timestamp - neigh->fhss_data.ffn.utt_rx_tstamp_us;
 
-        if (neigh->fhss_data.uc_chan_func == WS_TR51CF) {
+        if (neigh->fhss_data.uc_chan_func == CHANNEL_FUNCTION_TR51CF) {
             uint32_t full_uc_schedule_ms = neigh->fhss_data.ffn.uc_dwell_interval_ms * neigh->fhss_data.uc_chan_count;
             uint32_t temp_ms;
 
@@ -346,7 +346,7 @@ void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
     neigh->fhss_data.uc_chan_func = chan_info->channel_function;
-    if (chan_info->channel_function == WS_FIXED_CHANNEL) {
+    if (chan_info->channel_function == CHANNEL_FUNCTION_FIXED) {
         neigh->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
         neigh->fhss_data.uc_chan_count = 1;
     } else {
@@ -506,7 +506,7 @@ void ws_neigh_lus_update(const struct net_if *net_if,
     if (!chan_info)
         return; // Support chan plan tag 255 (reuse previous schedule)
     neigh->fhss_data.uc_chan_func = chan_info->channel_function;
-    if (chan_info->channel_function == WS_FIXED_CHANNEL) {
+    if (chan_info->channel_function == CHANNEL_FUNCTION_FIXED) {
         neigh->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
         neigh->fhss_data.uc_chan_count = 1;
     } else {

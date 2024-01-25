@@ -55,9 +55,9 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
     }
 
     switch (chan_info->channel_function) {
-    case WS_FIXED_CHANNEL:
-    case WS_TR51CF:
-    case WS_DH1CF:
+    case CHANNEL_FUNCTION_FIXED:
+    case CHANNEL_FUNCTION_TR51CF:
+    case CHANNEL_FUNCTION_DH1CF:
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: %s channel function unsupported", "15.4", ie_str);
