@@ -65,10 +65,10 @@ void ws_neigh_dealloc(ws_neigh_table_t *table)
     table->list_size = 0;
 }
 
-ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
-                                   const uint8_t mac64[8],
-                                   uint8_t role,
-                                   unsigned int key_index_mask)
+ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
+                         const uint8_t mac64[8],
+                         uint8_t role,
+                         unsigned int key_index_mask)
 {
     ws_neigh_t *neigh_table = table->neigh_info_list;
     ws_neigh_t *neigh_entry = NULL;

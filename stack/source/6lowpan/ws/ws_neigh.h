@@ -169,10 +169,10 @@ bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
 
 int ws_neigh_lfn_count(ws_neigh_table_t *table);
 
-ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
-                                   const uint8_t mac64[8],
-                                   uint8_t role,
-                                   unsigned int key_index_mask);
+ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
+                             const uint8_t mac64[8],
+                             uint8_t role,
+                             unsigned int key_index_mask);
 
 void ws_neigh_refresh(struct ws_neigh_table *table, int time_update);
 
