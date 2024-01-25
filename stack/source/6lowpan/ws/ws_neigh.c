@@ -34,18 +34,18 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neigh_alloc(ws_neigh_table_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
+bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
 {
     ws_neigh_t *list_ptr;
 
-    class_data->neigh_info_list = malloc(sizeof(ws_neigh_t) * list_size);
+    table->neigh_info_list = malloc(sizeof(ws_neigh_t) * list_size);
 
-    if (!class_data->neigh_info_list)
+    if (!table->neigh_info_list)
         return false;
 
-    class_data->list_size = list_size;
-    class_data->remove_cb = remove_cb;
-    list_ptr = class_data->neigh_info_list;
+    table->list_size = list_size;
+    table->remove_cb = remove_cb;
+    list_ptr = table->neigh_info_list;
 
     for (uint8_t i = 0; i < list_size; i++) {
         memset(list_ptr, 0, sizeof(ws_neigh_t));
@@ -58,22 +58,22 @@ bool ws_neigh_alloc(ws_neigh_table_t *class_data, uint8_t list_size, neighbor_en
 }
 
 
-void ws_neigh_dealloc(ws_neigh_table_t *class_data)
+void ws_neigh_dealloc(ws_neigh_table_t *table)
 {
-    free(class_data->neigh_info_list);
-    class_data->neigh_info_list = NULL;
-    class_data->list_size = 0;
+    free(table->neigh_info_list);
+    table->neigh_info_list = NULL;
+    table->list_size = 0;
 }
 
-ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *class_data,
+ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *table,
                                    const uint8_t mac64[8],
                                    uint8_t role,
                                    unsigned int key_index_mask)
 {
-    ws_neigh_t *neigh_table = class_data->neigh_info_list;
+    ws_neigh_t *neigh_table = table->neigh_info_list;
     ws_neigh_t *neigh_entry = NULL;
 
-    for (uint8_t i = 0; i < class_data->list_size; i++) {
+    for (uint8_t i = 0; i < table->list_size; i++) {
         if (!neigh_table[i].mac_data.in_use) {
             neigh_entry = &neigh_table[i];
             break;
@@ -91,11 +91,11 @@ ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *class_data,
     return neigh_entry;
 }
 
-ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *class_data, const uint8_t *mac64)
+ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *table, const uint8_t *mac64)
 {
-    ws_neigh_t *neigh_table = class_data->neigh_info_list;
+    ws_neigh_t *neigh_table = table->neigh_info_list;
 
-    for (uint8_t i = 0; i < class_data->list_size; i++) {
+    for (uint8_t i = 0; i < table->list_size; i++) {
         if (!neigh_table[i].mac_data.in_use)
             continue;
         if (!memcmp(neigh_table[i].mac_data.mac64, mac64, 8))
@@ -105,17 +105,17 @@ ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *class_data, const uint8_t *mac6
     return NULL;
 }
 
-uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *class_data, ws_neigh_t *entry)
+uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *table, ws_neigh_t *entry)
 {
-    if (!class_data->neigh_info_list) {
+    if (!table->neigh_info_list) {
         return 0xff;
     }
-    return entry - class_data->neigh_info_list;
+    return entry - table->neigh_info_list;
 }
 
-void ws_neigh_entry_remove(ws_neigh_table_t *class_data, const uint8_t *mac64)
+void ws_neigh_entry_remove(ws_neigh_table_t *table, const uint8_t *mac64)
 {
-    ws_neigh_t *entry = ws_neigh_entry_get(class_data, mac64);
+    ws_neigh_t *entry = ws_neigh_entry_get(table, mac64);
     uint8_t index;
 
     if (entry) {
@@ -128,25 +128,25 @@ void ws_neigh_entry_remove(ws_neigh_table_t *class_data, const uint8_t *mac64)
     }
 }
 
-void ws_neigh_refresh(struct ws_neigh_table *class_data, int time_update)
+void ws_neigh_refresh(struct ws_neigh_table *table, int time_update)
 {
-    ws_neigh_t *neigh_table = class_data->neigh_info_list;
+    ws_neigh_t *neigh_table = table->neigh_info_list;
 
-    for (uint8_t i = 0; i < class_data->list_size; i++) {
+    for (uint8_t i = 0; i < table->list_size; i++) {
         if (!neigh_table[i].mac_data.in_use)
             continue;
 
         if (time_current(CLOCK_MONOTONIC) >= neigh_table[i].mac_data.expiration_s)
-            class_data->remove_cb(neigh_table[i].mac_data.mac64);
+            table->remove_cb(neigh_table[i].mac_data.mac64);
     }
 }
 
-uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *class_data)
+uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
 {
-    ws_neigh_t *neigh_table = class_data->neigh_info_list;
+    ws_neigh_t *neigh_table = table->neigh_info_list;
     uint8_t count = 0;
 
-    for (uint8_t i = 0; i < class_data->list_size; i++)
+    for (uint8_t i = 0; i < table->list_size; i++)
         if (neigh_table[i].mac_data.in_use)
             count++;
 
@@ -586,12 +586,12 @@ bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
     return true;
 }
 
-int ws_neigh_lfn_count(ws_neigh_table_t *class_data)
+int ws_neigh_lfn_count(ws_neigh_table_t *table)
 {
-    ws_neigh_t *neigh_table = class_data->neigh_info_list;
+    ws_neigh_t *neigh_table = table->neigh_info_list;
     int cnt = 0;
 
-    for (uint8_t i = 0; i < class_data->list_size; i++)
+    for (uint8_t i = 0; i < table->list_size; i++)
         if (neigh_table[i].node_role == WS_NR_ROLE_LFN)
             cnt++;
 
