@@ -578,7 +578,7 @@ int ws_bootstrap_init(int8_t interface_id)
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_frame_counter_per_key(true);
 
-    if (!ws_neigh_alloc(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
+    if (!ws_neigh_table_allocate(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
         goto init_fail;
     }

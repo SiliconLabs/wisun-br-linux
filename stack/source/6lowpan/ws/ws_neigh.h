@@ -103,7 +103,7 @@ typedef struct ws_neigh_table {
 } ws_neigh_table_t;
 
 
-bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb);
+bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb);
 
 void ws_neigh_dealloc(ws_neigh_table_t *table);
 
