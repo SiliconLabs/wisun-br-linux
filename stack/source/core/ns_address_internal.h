@@ -52,7 +52,6 @@ typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
-    bool temporary: 1;          // RFC 4941 temporary address
     bool group_added: 1;        // Solicited-Node group added
     void *data;                 // Address protocol data
     ns_list_link_t link;

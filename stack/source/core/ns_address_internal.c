@@ -462,17 +462,6 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[1
             PREFER_SB;
         }
 
-        /* Rule 7: Prefer temporary addresses (or the opposite) */
-        if (SA->temporary != SB->temporary) {
-            bool prefer_public = (addr_preferences & SOCKET_IPV6_PREFER_SRC_PUBLIC);
-
-            if (SA->temporary != prefer_public) {
-                PREFER_SA;
-            } else {
-                PREFER_SB;
-            }
-        }
-
         /* Rule 8: Use longest matching prefix */
         uint_fast8_t common_SA = addr_common_prefix_len(SA->address, SA->prefix_len, dest);
         uint_fast8_t common_SB = addr_common_prefix_len(SB->address, SB->prefix_len, dest);
@@ -556,17 +545,6 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
             PREFER_SA;
         } else if (policy_SB->precedence > policy_SA->precedence) {
             PREFER_SB;
-        }
-
-        /* Rule 7: Prefer temporary addresses (or the opposite) */
-        if (SA->temporary != SB->temporary) {
-            bool prefer_public = (addr_preferences & SOCKET_IPV6_PREFER_SRC_PUBLIC);
-
-            if (SA->temporary != prefer_public) {
-                PREFER_SA;
-            } else {
-                PREFER_SB;
-            }
         }
 
         /* (Rule 8: Use longest matching prefix - doesn't apply) */
