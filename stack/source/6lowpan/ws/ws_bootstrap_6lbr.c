@@ -115,11 +115,6 @@ static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
     }
 }
 
-void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd)
-{
-    ws_eapol_relay_socket_cb(fd);
-}
-
 void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
 {
     ws_eapol_auth_relay_socket_cb(fd);
