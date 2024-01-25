@@ -277,17 +277,6 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
     }
 }
 
-static uint16_t ws_neigh_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class,
-                                             uint8_t channel_plan_id)
-{
-    const struct chan_params *params;
-
-    params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
-    if (!params)
-        return 0;
-    return params->chan_count;
-}
-
 static void ws_neigh_set_chan_list(const struct net_if *net_if,
                                    struct ws_channel_mask *chan_list,
                                    const struct ws_generic_channel_info *chan_info,
