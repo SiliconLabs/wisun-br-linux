@@ -172,7 +172,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                              uint8_t role,
                              unsigned int key_index_mask);
 
-void ws_neigh_refresh(struct ws_neigh_table *table, int time_update);
+void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);
 
 uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
 

@@ -124,7 +124,7 @@ void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
     }
 }
 
-void ws_neigh_refresh(struct ws_neigh_table *table, int time_update)
+void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 {
     ws_neigh_t *neigh_table = table->neigh_info_list;
 
