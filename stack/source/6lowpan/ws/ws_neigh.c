@@ -34,7 +34,7 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
+bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb)
 {
     ws_neigh_t *list_ptr;
 

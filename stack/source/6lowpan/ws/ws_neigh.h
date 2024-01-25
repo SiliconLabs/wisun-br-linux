@@ -92,7 +92,7 @@ typedef struct ws_neigh {
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
 } ws_neigh_t;
 
-typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
+typedef void ws_neigh_remove_notify(const uint8_t *mac64);
 
 /**
  * Neighbor hopping info data base
@@ -100,11 +100,11 @@ typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
 typedef struct ws_neigh_table {
     ws_neigh_t *neigh_info_list;           /*!< Allocated hopping info array*/
     uint8_t list_size;                                    /*!< List size*/
-    neighbor_entry_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
+    ws_neigh_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
 } ws_neigh_table_t;
 
 
-bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
+bool ws_neigh_alloc(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb);
 
 void ws_neigh_dealloc(ws_neigh_table_t *table);
 
