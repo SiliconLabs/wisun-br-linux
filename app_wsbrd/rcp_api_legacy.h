@@ -191,7 +191,7 @@ typedef struct mcps_data_ind {
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */
     uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
-    int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
+    int signal_dbm;             /**< This extension for normal IEEE 802.15.4 Data indication */
     uint64_t timestamp;         /**< The time, in symbols, at which the data were received */
     uint8_t DSN;                /**< Data sequence number */
     struct mlme_security Key;   /**< Security key */

@@ -138,24 +138,13 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie);
 
 /**
- * ws_neigh_rsl_from_dbm_calculate
- *
- * Calculates rsl value from dbm heard.
- * This provides a range of -174 (0) to +80 (254) dBm.
- *
- * \param dbm_heard; dbm heard from the neighbor
- *
- */
-uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard);
-
-/**
  * Helper macros to read RSL values from neighbor class.
  *
  */
 #define ws_neigh_rsl_in_get(neigh) ((int)neigh->rsl_in_dbm)
 #define ws_neigh_rsl_out_get(neigh) ((int)neigh->rsl_out_dbm)
 
-void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard);
+void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard);
 
 void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm);
 

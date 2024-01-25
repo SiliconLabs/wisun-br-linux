@@ -48,9 +48,7 @@
 
 #define TRACE_GROUP "wscm"
 
-// estimated sensitivity -93 dbm converted to Wi-SUN RSL range
-// This provides a range of -174 (0) to +80 (254) dBm
-uint8_t DEVICE_MIN_SENS = 174 - 93;
+int DEVICE_MIN_SENS = -93;
 
 int8_t ws_common_generate_channel_list(const struct net_if *cur,
                                        uint8_t *channel_mask,

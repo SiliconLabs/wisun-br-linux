@@ -515,16 +515,6 @@ void ws_neigh_lus_update(const struct net_if *net_if,
     }
 }
 
-uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
-{
-    /* RSL MUST be calculated as the received signal level relative to standard
-     * thermal noise (290oK) at 1 Hz bandwidth or 174 dBm.
-     * This provides a range of -174 (0) to +80 (254) dBm.
-     */
-
-    return dbm_heard + 174;
-}
-
 // Wi-SUN FAN 1.1v07 - 3.1 Definitions
 // Exponentially Weighted Moving Average (EWMA).
 //
@@ -535,7 +525,7 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
 //
 // Smoothing Factor 0 < S < 1
 // EWMA (0) = X(0).
-void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
+void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int dbm_heard)
 {
     // EWMA (0) = X(0).
     if (isnan(neigh->rsl_in_dbm)) {

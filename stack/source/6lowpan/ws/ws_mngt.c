@@ -275,7 +275,6 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     struct ws_lcp_ie ie_lcp;
     struct ws_nr_ie ie_nr;
     bool add_neighbor;
-    uint8_t rsl;
 
     if (g_timers[WS_TIMER_LPA].timeout) {
         TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
@@ -317,8 +316,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     // [...] an FFN MUST ignore the LPAS if [...]
     // The receive signal-level-above-sensitivity for the LPAS falls below the
     // LND-IE Response Threshold.
-    rsl = ws_neigh_rsl_from_dbm_calculate(data->signal_dbm);
-    if (rsl < (DEVICE_MIN_SENS + ie_lnd.response_threshold)) {
+    if (data->signal_dbm < (DEVICE_MIN_SENS + ie_lnd.response_threshold)) {
         TRACE(TR_DROP, "drop %-9s: RSL below LND-IE response threshold", tr_ws_frame(WS_FT_LPAS));
         return;
     }

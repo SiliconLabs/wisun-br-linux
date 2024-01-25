@@ -766,9 +766,7 @@ static void rcp_legacy_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, str
 
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    // FIXME: remove this hack
-    // from -174dBm to + 80dBm, so add + 174 to real sensitivity
-    DEVICE_MIN_SENS = 174 + val;
+    DEVICE_MIN_SENS = val;
 }
 
 static void rcp_legacy_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)

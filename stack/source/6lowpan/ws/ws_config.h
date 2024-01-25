@@ -49,7 +49,7 @@
  *
  * Default value for us is -93
  */
-extern uint8_t DEVICE_MIN_SENS;
+extern int DEVICE_MIN_SENS;
 
 /* Candidate parent Threshold
  */
