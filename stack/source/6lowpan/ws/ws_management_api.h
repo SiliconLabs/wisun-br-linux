@@ -52,44 +52,6 @@
 #define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
 /**
- * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
- */
-typedef struct ws_statistics {
-    /** Asynch TX counter */
-    uint32_t asynch_tx_count;
-    /** Asynch RX counter */
-    uint32_t asynch_rx_count;
-
-    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
-    uint32_t sent_PAS;
-    /** Amount of Wi-SUN Pan Advertisement Message sent*/
-    uint32_t sent_PA;
-    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
-    uint32_t sent_PCS;
-    /** Amount of Wi-SUN Pan Configuration Message sent*/
-    uint32_t sent_PC;
-
-    /** Amount of Wi-SUN Pan Advertisement Solicit Message sent*/
-    uint32_t recv_PAS;
-    /** Amount of Wi-SUN Pan Advertisement Message sent*/
-    uint32_t recv_PA;
-    /** Amount of Wi-SUN Pan Configuration Solicit Message sent*/
-    uint32_t recv_PCS;
-    /** Amount of Wi-SUN Pan Configuration Message sent*/
-    uint32_t recv_PC;
-
-    /** New Neighbours found */
-    uint32_t Neighbour_add;
-    /** New Neighbours Removed */
-    uint32_t Neighbour_remove;
-    /** New Child added */
-    uint32_t Child_add;
-    /** Child lost */
-    uint32_t child_remove;
-
-} ws_statistics_t;
-
-/**
  * Initialize Wi-SUN stack.
  *
  * Generates the default configuration for Wi-SUN operation
@@ -566,29 +528,5 @@ int ws_management_fhss_broadcast_channel_function_validate(
 int ws_management_fhss_lfn_configure(int8_t if_id,
                                      uint24_t lfn_bc_interval,
                                      uint8_t lfn_bc_sync_period);
-
-/**
- * Start collecting Wi-SUN statistics.
- *
- * \param interface_id Network interface ID.
- * \param stats_ptr Pointer to stored statistics.
- *
- * \return 0 Success.
- * \return <0 Failure.
- */
-int ws_statistics_start(
-    int8_t interface_id,
-    ws_statistics_t *stats_ptr);
-
-/**
- * Stop collecting Wi-SUN statistics.
- *
- * \param interface_id Network interface ID.
- *
- * \return 0 Success.
- * \return <0 Failure.
- */
-int ws_statistics_stop(
-    int8_t interface_id);
 
 #endif

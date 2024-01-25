@@ -41,7 +41,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 
 #include "6lowpan/ws/ws_common.h"
@@ -191,7 +190,6 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
     ws_neigh_refresh(ws_neigh, lifetime_s);
     tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
 
-    ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
     return ARO_SUCCESS;
 }
 

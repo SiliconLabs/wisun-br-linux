@@ -67,7 +67,6 @@
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_stats.h"
 
 #include "6lowpan/ws/ws_bootstrap.h"
 
@@ -370,7 +369,6 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
         ws_neigh_trust(ws_neigh);
         ws_neigh_refresh(ws_neigh, ipv6_neighbor->lifetime_s);
     }
-    ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return ws_neigh;
 }
 
@@ -393,17 +391,8 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     BUG_ON(!ws_neigh);
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
-
-    //TODO State machine check here
-
-    if (ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, mac64)) {
-        // Child entry deleted
-        ws_stats_update(cur, STATS_WS_CHILD_REMOVE, 1);
-    }
-
     ws_neighbor_entry_remove_long_link_address_from_neighcache(cur, mac64);
     ws_bootstrap_neighbor_delete(cur, ws_neigh);
-    ws_stats_update(cur, STATS_WS_NEIGHBOUR_REMOVE, 1);
 }
 
 static void ws_bootstrap_pan_version_increment(struct net_if *cur)
@@ -793,7 +782,6 @@ void ws_bootstrap_pan_advert(struct net_if *cur)
     }
     cur->ws_info.pan_information.routing_cost = 0;
 
-    ws_stats_update(cur, STATS_WS_ASYNCH_TX_PA, 1);
     ws_llc_asynch_request(cur, &req);
 }
 
@@ -820,7 +808,6 @@ void ws_bootstrap_pan_config(struct net_if *cur)
         req.security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
     }
 
-    ws_stats_update(cur, STATS_WS_ASYNCH_TX_PC, 1);
     ws_llc_asynch_request(cur, &req);
 }
 
