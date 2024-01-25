@@ -15,6 +15,7 @@
 #include <sys/queue.h>
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
+#include <math.h>
 #include "app_wsbrd/tun.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
@@ -433,14 +434,14 @@ static int dbus_message_append_node(
                 sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
                 dbus_message_close_info(m, property);
             }
-            if (neighbor->rsl_in != RSL_UNITITIALIZED) {
+            if (!isnan(neighbor->rsl_in)) {
                 dbus_message_open_info(m, property, "rsl", "i");
-                sd_bus_message_append(m, "i", -174 + ws_neigh_rsl_in_get(neighbor));
+                sd_bus_message_append(m, "i", ws_neigh_rsl_in_get(neighbor));
                 dbus_message_close_info(m, property);
             }
-            if (neighbor->rsl_out != RSL_UNITITIALIZED) {
+            if (!isnan(neighbor->rsl_out)) {
                 dbus_message_open_info(m, property, "rsl_adv", "i");
-                sd_bus_message_append(m, "i", -174 + ws_neigh_rsl_out_get(neighbor));
+                sd_bus_message_append(m, "i", ws_neigh_rsl_out_get(neighbor));
                 dbus_message_close_info(m, property);
             }
             dbus_message_open_info(m, property, "pom", "ay");
@@ -498,8 +499,8 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
 {
     struct ws_neigh neigh = {
         .rssi    = INT_MAX,
-        .rsl_in  = RSL_UNITITIALIZED,
-        .rsl_out = RSL_UNITITIALIZED,
+        .rsl_in  = NAN,
+        .rsl_out = NAN,
         .pom_ie.mdr_command_capable = !version_older_than(ctxt->rcp.version_api, 0, 26, 0),
     };
     uint8_t ipv6_addrs[3][16] = { 0 };

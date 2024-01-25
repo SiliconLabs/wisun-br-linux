@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#include <math.h>
+
 #include "common/time_extra.h"
 #include "common/ws_regdb.h"
 #include "common/version.h"
@@ -47,8 +49,8 @@ bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neig
 
     for (uint8_t i = 0; i < list_size; i++) {
         memset(list_ptr, 0, sizeof(ws_neigh_t));
-        list_ptr->rsl_in = RSL_UNITITIALIZED;
-        list_ptr->rsl_out = RSL_UNITITIALIZED;
+        list_ptr->rsl_in = NAN;
+        list_ptr->rsl_out = NAN;
         list_ptr->index = i;
         list_ptr++;
     }
@@ -116,8 +118,8 @@ void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         index = neigh->index;
         memset(neigh, 0, sizeof(ws_neigh_t));
-        neigh->rsl_in = RSL_UNITITIALIZED;
-        neigh->rsl_out = RSL_UNITITIALIZED;
+        neigh->rsl_in = NAN;
+        neigh->rsl_out = NAN;
         neigh->index = index;
     }
 }
@@ -523,24 +525,41 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard)
     return dbm_heard + 174;
 }
 
+// Wi-SUN FAN 1.1v07 - 3.1 Definitions
+// Exponentially Weighted Moving Average (EWMA).
+//
+// Given a sequence of values X (t=0, 1, 2, 3, …), EWMA(t) is
+// defined as S(X(t)) + (1-S)(EWMA(t-1)).
+//
+// … where …
+//
+// Smoothing Factor 0 < S < 1
+// EWMA (0) = X(0).
 void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard)
 {
-    uint8_t rsl = ws_neigh_rsl_from_dbm_calculate(dbm_heard);
-    if (neigh->rsl_in == RSL_UNITITIALIZED) {
-        neigh->rsl_in = rsl << WS_RSL_SCALING;
+    // EWMA (0) = X(0).
+    if (isnan(neigh->rsl_in)) {
+        neigh->rsl_in = dbm_heard;
+        return;
     }
-    neigh->rsl_in = neigh->rsl_in + rsl - (neigh->rsl_in >> WS_RSL_SCALING);
+
+    // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
+    // RSL_EWMA_SF = 1/8
+    neigh->rsl_in = (dbm_heard + 7 * neigh->rsl_in) / 8;
     neigh->rssi = dbm_heard;
-    return;
 }
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported)
+void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm)
 {
-    if (neigh->rsl_out == RSL_UNITITIALIZED) {
-        neigh->rsl_out = rsl_reported << WS_RSL_SCALING;
+    // EWMA (0) = X(0).
+    if (isnan(neigh->rsl_out)) {
+        neigh->rsl_out = advertised_dbm;
+        return;
     }
-    neigh->rsl_out = neigh->rsl_out + rsl_reported - (neigh->rsl_out >> WS_RSL_SCALING);
-    return;
+
+    // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
+    // RSL_EWMA_SF = 1/8
+    neigh->rsl_out = (advertised_dbm + 7 * neigh->rsl_out) / 8;
 }
 
 

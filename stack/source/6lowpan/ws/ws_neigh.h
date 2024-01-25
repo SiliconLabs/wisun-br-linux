@@ -67,8 +67,8 @@ struct fhss_ws_neighbor_timing_info {
 
 typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
-    uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
-    uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
+    float rsl_in;                                          /*!< RSL EWMA heard from neighbour*/
+    float rsl_out;                                         /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
     uint8_t last_DSN;
     int rssi;
@@ -154,12 +154,12 @@ uint8_t ws_neigh_rsl_from_dbm_calculate(int8_t dbm_heard);
  * Helper macros to read RSL values from neighbor class.
  *
  */
-#define ws_neigh_rsl_in_get(neigh) (neigh->rsl_in >> WS_RSL_SCALING)
-#define ws_neigh_rsl_out_get(neigh) (neigh->rsl_out >> WS_RSL_SCALING)
+#define ws_neigh_rsl_in_get(neigh) ((int)neigh->rsl_in)
+#define ws_neigh_rsl_out_get(neigh) ((int)neigh->rsl_out)
 
 void ws_neigh_rsl_in_calculate(ws_neigh_t *neigh, int8_t dbm_heard);
 
-void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, uint8_t rsl_reported);
+void ws_neigh_rsl_out_calculate(ws_neigh_t *neigh, int advertised_dbm);
 
 bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
 

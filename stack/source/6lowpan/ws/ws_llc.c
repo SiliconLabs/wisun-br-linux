@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <math.h>
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/endian.h"
@@ -428,7 +429,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
     struct ws_utt_ie ie_utt;
-    int8_t ie_rsl;
+    int ie_rsl;
 
     if (msg->ack_requested) {
         switch (confirm->status) {
@@ -1631,8 +1632,8 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
 {
     //Clear Old data
     memset(&entry->neigh_info_list, 0, sizeof(ws_neigh_t));
-    entry->neigh_info_list.rsl_in = RSL_UNITITIALIZED;
-    entry->neigh_info_list.rsl_out = RSL_UNITITIALIZED;
+    entry->neigh_info_list.rsl_in = NAN;
+    entry->neigh_info_list.rsl_out = NAN;
     memcpy(entry->mac64, mac64, 8);
     entry->eapol_temp_info.eapol_rx_relay_filter = 0;
 }

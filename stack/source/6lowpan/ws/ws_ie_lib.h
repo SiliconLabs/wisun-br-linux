@@ -66,7 +66,7 @@ void   ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
 bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
 bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
-bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl);
+bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int *rsl);
 bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t eui64[8]);
 /*Wi-SUN FAN 1.1 */
 bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie);

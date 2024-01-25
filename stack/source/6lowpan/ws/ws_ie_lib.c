@@ -68,6 +68,9 @@
 #define WS_WPIE_JM_METRIC_ID_MASK  0b00111111
 #define WS_WPIE_JM_METRIC_LEN_MASK 0b11000000
 
+// Wi-SUN FAN 1.1v07 - 6.2.3.1.6.1 Link Metrics
+#define WS_RSL_NORMALIZE_OFFSET 174
+
 static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
 {
     int offset;
@@ -582,12 +585,15 @@ bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
     return !ie_buf.err;
 }
 
-bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl)
+bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int *rsl)
 {
     struct iobuf_read ie_buf;
 
     ws_wh_find_subid(data, length, WS_WHIE_RSL, &ie_buf);
-    *rsl = iobuf_pop_u8(&ie_buf);
+    // Wi-SUN FAN 1.1v07 - 6.3.2.3.1.4 Received Signal Level Information Element
+    // The RSL field MUST be set to the 8 bit unsigned value (units of dB)
+    // calculated as specified in section 6.2.3.1.6.1.
+    *rsl = iobuf_pop_u8(&ie_buf) - WS_RSL_NORMALIZE_OFFSET;
     return !ie_buf.err;
 }
 
