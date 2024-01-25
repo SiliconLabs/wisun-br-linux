@@ -125,8 +125,6 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur, uint8_t *channe
 
 int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule);
 
-uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
-
 int8_t ws_common_allocate_and_init(struct net_if *cur);
 
 void ws_common_seconds_timer(int seconds);

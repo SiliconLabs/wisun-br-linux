@@ -114,16 +114,6 @@ int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedul
     return 0;
 }
 
-uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
-{
-    const struct chan_params *params;
-
-    params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
-    if (!params)
-        return 0;
-    return params->chan_count;
-}
-
 int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
     memset(&cur->ws_info, 0, sizeof(ws_info_t));

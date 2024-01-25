@@ -277,6 +277,17 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
     }
 }
 
+static uint16_t ws_neigh_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class,
+                                             uint8_t channel_plan_id)
+{
+    const struct chan_params *params;
+
+    params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
+    if (!params)
+        return 0;
+    return params->chan_count;
+}
+
 static void ws_neigh_set_chan_list(const struct net_if *net_if,
                                    struct ws_channel_mask *chan_list,
                                    const struct ws_generic_channel_info *_chan_info,
@@ -291,7 +302,7 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
     case 0:
         reg_domain = chan_info.plan.zero.regulatory_domain;
         op_class   = chan_info.plan.zero.operating_class;
-        *chan_cnt = ws_common_channel_number_calc(reg_domain, op_class, 0);
+        *chan_cnt = ws_neigh_channel_number_calc(reg_domain, op_class, 0);
         break;
     case 1:
         *chan_cnt = chan_info.plan.one.number_of_channel;
@@ -299,7 +310,7 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
     case 2:
         reg_domain   = chan_info.plan.two.regulatory_domain;
         chan_plan_id = chan_info.plan.two.channel_plan_id;
-        *chan_cnt = ws_common_channel_number_calc(reg_domain, 0, chan_plan_id);
+        *chan_cnt = ws_neigh_channel_number_calc(reg_domain, 0, chan_plan_id);
         break;
     default:
         BUG("unsupported channel plan: %d", chan_info.channel_plan);
