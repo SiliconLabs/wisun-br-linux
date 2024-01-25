@@ -41,10 +41,6 @@
 
 #define PAN_VERSION_XLARGE_NETWORK_TIMEOUT 120*60
 
-/* Smoothing factor for RSL calculation 1/8
- */
-#define WS_RSL_SCALING      3
-
 /* Device min sensitivity. This value is dynamically configured and depends on radio
  *
  * Default value for us is -93
