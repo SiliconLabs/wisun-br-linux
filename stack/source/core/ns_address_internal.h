@@ -51,9 +51,6 @@ struct socket;
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
     uint8_t prefix_len;         // length of prefix part
-    uint8_t count;              // general count field - used by DAD, then can be used by protocol
-    bool group_added: 1;        // Solicited-Node group added
-    void *data;                 // Address protocol data
     ns_list_link_t link;
 } if_address_entry_t;
 
@@ -62,8 +59,6 @@ typedef NS_LIST_HEAD(if_address_entry_t, link) if_address_list_t;
 /* Groups we are a member of on an interface */
 typedef struct if_group_entry {
     uint8_t group[16];
-    bool mld_last_reporter: 1;
-    uint16_t mld_timer;         // Or used by MLD alternative, eg Thread registration
     uint16_t ref_count;
     ns_list_link_t link;
 } if_group_entry_t;

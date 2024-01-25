@@ -602,9 +602,6 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint
     memset(entry, 0, sizeof * entry);
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
-    entry->group_added = false;
-    if (addr_add_solicited_node_group(cur, entry->address))
-        entry->group_added = true;
 
     tr_info("Address added to IF %d: %s", cur->id, tr_ipv6(address));
 
