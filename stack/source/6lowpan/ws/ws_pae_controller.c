@@ -1040,16 +1040,6 @@ int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert
     return ret;
 }
 
-int8_t ws_pae_controller_own_certificates_remove(void)
-{
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        sec_prot_certs_chain_entry_init(&entry->certs.own_cert_chain);
-        entry->certs.own_cert_chain_len = 0;
-    }
-
-    return 0;
-}
-
 int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *cert)
 {
     if (!cert) {

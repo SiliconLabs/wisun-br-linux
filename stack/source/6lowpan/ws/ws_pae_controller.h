@@ -130,15 +130,6 @@ int8_t ws_pae_controller_delete(struct net_if *interface_ptr);
 int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert);
 
 /**
- * ws_pae_controller_own_certificates_remove removes own certificates
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_own_certificates_remove(void);
-
-/**
  * ws_pae_controller_trusted_certificate_add add trusted certificate
  *
  * \param cert trusted certificate
