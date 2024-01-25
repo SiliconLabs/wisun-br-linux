@@ -217,11 +217,11 @@ void rcp_req_data_tx(struct rcp *rcp,
 static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
 {
     switch (status) {
-    case HIF_ESUCCESS:  return MLME_SUCCESS;
-    case HIF_ENOMEM:    return MLME_TRANSACTION_OVERFLOW;
-    case HIF_ECCA:      return MLME_BUSY_CHAN;
-    case HIF_ENOACK:    return MLME_TX_NO_ACK;
-    case HIF_ETIMEDOUT: return MLME_TRANSACTION_EXPIRED;
+    case HIF_STATUS_SUCCESS:  return MLME_SUCCESS;
+    case HIF_STATUS_NOMEM:    return MLME_TRANSACTION_OVERFLOW;
+    case HIF_STATUS_CCA:      return MLME_BUSY_CHAN;
+    case HIF_STATUS_NOACK:    return MLME_TX_NO_ACK;
+    case HIF_STATUS_TIMEDOUT: return MLME_TRANSACTION_EXPIRED;
     default:
         WARN("unknown status 0x%02x", status);
         return MLME_INVALID_PARAMETER; // arbitrary
