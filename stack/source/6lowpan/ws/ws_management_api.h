@@ -341,44 +341,6 @@ int ws_management_fhss_broadcast_channel_function_configure(
     uint8_t dwell_interval,
     uint32_t broadcast_interval);
 
-/**
- * Get broadcast channel function.
- *
- * \param interface_id Network interface ID.
- * \param channel_function Broadcast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel.
- * \param dwell_interval Broadcast channel dwell interval.
- * \param broadcast_interval Broadcast interval.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_fhss_broadcast_channel_function_get(
-    int8_t interface_id,
-    uint8_t *channel_function,
-    uint16_t *fixed_channel,
-    uint8_t *dwell_interval,
-    uint32_t *broadcast_interval);
-
-/**
- * Validate broadcast channel function.
- *
- * \param interface_id Network interface ID.
- * \param channel_function Broadcast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel.
- * \param dwell_interval Broadcast channel dwell interval.
- * \param broadcast_interval Broadcast interval.
- *
- * \return 0, OK.
- * \return <0 Fail.
- */
-int ws_management_fhss_broadcast_channel_function_validate(
-    int8_t interface_id,
-    uint8_t channel_function,
-    uint16_t fixed_channel,
-    uint8_t dwell_interval,
-    uint32_t broadcast_interval);
-
 int ws_management_fhss_lfn_configure(int8_t if_id,
                                      uint24_t lfn_bc_interval,
                                      uint8_t lfn_bc_sync_period);
