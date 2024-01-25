@@ -204,21 +204,6 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
 int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
- * ws_pae_controller_gtk_time_settings_update update GTK time settings
- *
- * \param interface_id interface identifier
- * \param revocat_lifetime_reduct revocation lifetime reduction
- * \param new_activation_time new activation time
- * \param new_install_req new install required
- * \param max_mismatch max mismatch time
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_gtk_time_settings_update(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
-
-/**
  * ws_pae_controller_node_keys_remove remove node's keys
  *
  * \param interface_id interface identifier
