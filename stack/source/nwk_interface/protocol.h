@@ -113,10 +113,6 @@ typedef NS_LIST_HEAD(struct net_if, link) protocol_interface_list_t;
 
 extern protocol_interface_list_t protocol_interface_info_list;
 
-void nwk_interface_print_neigh_cache();
-
-//void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
-
 struct net_if *protocol_stack_interface_info_get();
 void protocol_init(struct net_if *net_if, struct rcp *rcp, int mtu);
 

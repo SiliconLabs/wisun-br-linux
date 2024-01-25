@@ -147,13 +147,6 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     ns_list_add_to_start(&protocol_interface_info_list, entry);
 }
 
-void nwk_interface_print_neigh_cache()
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache);
-    }
-}
-
 struct net_if *protocol_stack_interface_info_get()
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
