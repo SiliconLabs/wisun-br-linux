@@ -357,19 +357,6 @@ static if_group_entry_t *addr_get_group_entry(const struct net_if *interface, co
     return NULL;
 }
 
-static void addr_generate_solicited_node_group(uint8_t group[static 16], const uint8_t addr[static 16])
-{
-    memcpy(group, ADDR_MULTICAST_SOLICITED, 13);
-    memcpy(group + 13, addr + 13, 3);
-}
-
-static if_group_entry_t *addr_add_solicited_node_group(struct net_if *interface, const uint8_t address[static 16])
-{
-    uint8_t group[16];
-    addr_generate_solicited_node_group(group, address);
-    return addr_add_group(interface, group);
-}
-
 void addr_add_router_groups(struct net_if *interface)
 {
     /* The standard IPv6 ones, but not "Realm-Local-All-Routers"
