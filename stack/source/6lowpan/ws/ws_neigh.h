@@ -27,8 +27,6 @@
 
 struct net_if;
 
-#define RSL_UNITITIALIZED 0x7fff
-
 struct ws_channel_mask {
     uint16_t channel_count;                     // Active channels at mask
     uint8_t channel_mask[32];                   // Supported channels
