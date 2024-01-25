@@ -225,11 +225,6 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
     return cnt;
 }
 
-int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[GTK_LEN])
-{
-    return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk, new_gtk);
-}
-
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {
     if (ws_bbr_pan_id != pan_id) {

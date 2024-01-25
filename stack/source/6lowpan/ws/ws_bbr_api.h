@@ -80,22 +80,6 @@ typedef struct bbr_route_info {
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len);
 
 /**
- * Start revocation of node's access
- *
- * Starts revocation of node's access procedure on border router. Before
- * the call to this function, authentication service must be configured to
- * reject authentication attempts of the removed nodes (e.g. certificates
- * of the nodes are revoked). Also the keys for the nodes must be removed
- * from the border router.
- *
- * \param interface_id Network interface ID.
- *
- * \return 0, Revocation started OK.
- * \return <0 Revocation start failed.
- */
-int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[16]);
-
-/**
  * Sets PAN configuration
  *
  * Sets PAN configuration parameters.

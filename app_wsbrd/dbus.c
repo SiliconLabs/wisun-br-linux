@@ -252,10 +252,10 @@ static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_erro
     else if (len != GTK_LEN)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = ws_bbr_node_access_revoke_start(ctxt->net_if.id, false, gtk);
+    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, false, gtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_bbr_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
+    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
