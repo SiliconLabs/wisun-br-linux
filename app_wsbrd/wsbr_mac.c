@@ -87,7 +87,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     BUG_ON(ie_ext->headerIovLength > 1);
 
     if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0)) {
-        if (cur->ws_info.fhss_conf.ws_uc_channel_function == CHANNEL_FUNCTION_FIXED) {
+        if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_CHAN_FUNC_FIXED) {
             async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
             bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
         } else {

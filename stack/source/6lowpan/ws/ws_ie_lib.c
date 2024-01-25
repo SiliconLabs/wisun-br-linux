@@ -96,10 +96,10 @@ static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_sched
     const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
 
     switch (chan_func) {
-    case CHANNEL_FUNCTION_FIXED:
+    case WS_CHAN_FUNC_FIXED:
         return 2;
-    case CHANNEL_FUNCTION_DH1CF:
-    case CHANNEL_FUNCTION_TR51CF:
+    case WS_CHAN_FUNC_DH1CF:
+    case WS_CHAN_FUNC_TR51CF:
         return 0;
     default:
         BUG("Unsupported channel function: %d", chan_func);
@@ -332,11 +332,11 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hoppi
     const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
 
     switch (chan_func) {
-    case CHANNEL_FUNCTION_FIXED:
+    case WS_CHAN_FUNC_FIXED:
         iobuf_push_le16(buf, unicast ? hopping_schedule->uc_fixed_channel : hopping_schedule->bc_fixed_channel);
         break;
-    case CHANNEL_FUNCTION_DH1CF:
-    case CHANNEL_FUNCTION_TR51CF:
+    case WS_CHAN_FUNC_DH1CF:
+    case WS_CHAN_FUNC_TR51CF:
         break;
     default:
         BUG("Unsupported channel function: %d", chan_func);

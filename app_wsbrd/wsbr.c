@@ -181,7 +181,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
-    uint8_t channel_function = (fixed_channel == 0xFFFF) ? CHANNEL_FUNCTION_DH1CF : CHANNEL_FUNCTION_FIXED;
+    uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
     uint8_t *lgtks[3] = { };
@@ -200,8 +200,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
     if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF)
         ret = ws_management_channel_plan_set(ctxt->net_if.id,
-                                             CHANNEL_FUNCTION_DH1CF,
-                                             CHANNEL_FUNCTION_DH1CF,
+                                             WS_CHAN_FUNC_DH1CF,
+                                             WS_CHAN_FUNC_DH1CF,
                                              ctxt->config.ws_chan0_freq,
                                              ctxt->config.ws_chan_spacing,
                                              ctxt->config.ws_chan_count);
