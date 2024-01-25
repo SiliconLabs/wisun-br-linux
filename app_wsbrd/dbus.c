@@ -227,7 +227,7 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
     sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_bbr_node_keys_remove(ctxt->net_if.id, eui64);
+    ret = ws_pae_controller_node_keys_remove(ctxt->net_if.id, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);

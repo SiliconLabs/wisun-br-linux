@@ -80,24 +80,6 @@ typedef struct bbr_route_info {
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len);
 
 /**
- * Remove node's keys from border router
- *
- * Removes node's keys from border router i.e. Pairwise Master Key (PMK)
- * and Pairwise Transient Key (PTK). This function is used on revocation of
- * node's access procedure after authentication service is configured
- * to reject authentication attempts of the node (e.g. node's certificate is
- * revoked). Sub sequential calls to function can be used to remove several
- * nodes from border router.
- *
- * \param interface_id Network interface ID.
- * \param eui64 EUI-64 of revoked node
- *
- * \return 0, Node's keys has been removed
- * \return <0 Node's key remove has failed (e.g. unknown address)
- */
-int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64);
-
-/**
  * Start revocation of node's access
  *
  * Starts revocation of node's access procedure on border router. Before
