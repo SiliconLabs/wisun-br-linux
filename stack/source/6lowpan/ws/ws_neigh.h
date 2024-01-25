@@ -89,22 +89,22 @@ typedef void neighbor_entry_remove_notify(const uint8_t *mac64);
 /**
  * Neighbor hopping info data base
  */
-typedef struct ws_neighbor_class {
+typedef struct ws_neigh_table {
     ws_neigh_t *neigh_info_list;           /*!< Allocated hopping info array*/
     uint8_t list_size;                                    /*!< List size*/
     neighbor_entry_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
-} ws_neighbor_class_t;
+} ws_neigh_table_t;
 
 
-bool ws_neigh_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
+bool ws_neigh_alloc(ws_neigh_table_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb);
 
-void ws_neigh_dealloc(ws_neighbor_class_t *class_data);
+void ws_neigh_dealloc(ws_neigh_table_t *class_data);
 
-ws_neigh_t *ws_neigh_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64);
+ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *class_data, const uint8_t *mac64);
 
-uint8_t ws_neigh_entry_index_get(ws_neighbor_class_t *class_data, ws_neigh_t *entry);
+uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *class_data, ws_neigh_t *entry);
 
-void ws_neigh_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64);
+void ws_neigh_entry_remove(ws_neigh_table_t *class_data, const uint8_t *mac64);
 
 // Unicast Timing update
 void ws_neigh_ut_update(ws_neigh_t *neighbor, uint24_t ufsi,
@@ -159,15 +159,15 @@ void ws_neigh_rsl_out_calculate(ws_neigh_t *ws_neighbor, uint8_t rsl_reported);
 bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
                                               uint8_t mac_dsn, uint64_t rx_timestamp);
 
-int ws_neigh_lfn_count(ws_neighbor_class_t *class_data);
+int ws_neigh_lfn_count(ws_neigh_table_t *class_data);
 
-ws_neigh_t *ws_neigh_entry_get_new(ws_neighbor_class_t *class_data,
+ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *class_data,
                                    const uint8_t mac64[8],
                                    uint8_t role,
                                    unsigned int key_index_mask);
 
-void ws_neigh_refresh(struct ws_neighbor_class *class_data, int time_update);
+void ws_neigh_refresh(struct ws_neigh_table *class_data, int time_update);
 
-uint8_t ws_neigh_get_neigh_count(ws_neighbor_class_t *class_data);
+uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *class_data);
 
 #endif

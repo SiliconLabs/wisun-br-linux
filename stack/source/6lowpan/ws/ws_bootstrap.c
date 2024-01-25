@@ -565,7 +565,7 @@ congestion_get_end:
 int ws_bootstrap_init(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    ws_neighbor_class_t neigh_info;
+    ws_neigh_table_t neigh_info;
     uint32_t neighbors_table_size;
     int ret_val = 0;
 

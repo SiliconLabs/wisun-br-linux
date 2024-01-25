@@ -34,7 +34,7 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neigh_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
+bool ws_neigh_alloc(ws_neigh_table_t *class_data, uint8_t list_size, neighbor_entry_remove_notify *remove_cb)
 {
     ws_neigh_t *list_ptr;
 
@@ -58,14 +58,14 @@ bool ws_neigh_alloc(ws_neighbor_class_t *class_data, uint8_t list_size, neighbor
 }
 
 
-void ws_neigh_dealloc(ws_neighbor_class_t *class_data)
+void ws_neigh_dealloc(ws_neigh_table_t *class_data)
 {
     free(class_data->neigh_info_list);
     class_data->neigh_info_list = NULL;
     class_data->list_size = 0;
 }
 
-ws_neigh_t *ws_neigh_entry_get_new(ws_neighbor_class_t *class_data,
+ws_neigh_t *ws_neigh_entry_get_new(ws_neigh_table_t *class_data,
                                    const uint8_t mac64[8],
                                    uint8_t role,
                                    unsigned int key_index_mask)
@@ -91,7 +91,7 @@ ws_neigh_t *ws_neigh_entry_get_new(ws_neighbor_class_t *class_data,
     return neigh_entry;
 }
 
-ws_neigh_t *ws_neigh_entry_get(ws_neighbor_class_t *class_data, const uint8_t *mac64)
+ws_neigh_t *ws_neigh_entry_get(ws_neigh_table_t *class_data, const uint8_t *mac64)
 {
     ws_neigh_t *neigh_table = class_data->neigh_info_list;
 
@@ -105,7 +105,7 @@ ws_neigh_t *ws_neigh_entry_get(ws_neighbor_class_t *class_data, const uint8_t *m
     return NULL;
 }
 
-uint8_t ws_neigh_entry_index_get(ws_neighbor_class_t *class_data, ws_neigh_t *entry)
+uint8_t ws_neigh_entry_index_get(ws_neigh_table_t *class_data, ws_neigh_t *entry)
 {
     if (!class_data->neigh_info_list) {
         return 0xff;
@@ -113,7 +113,7 @@ uint8_t ws_neigh_entry_index_get(ws_neighbor_class_t *class_data, ws_neigh_t *en
     return entry - class_data->neigh_info_list;
 }
 
-void ws_neigh_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64)
+void ws_neigh_entry_remove(ws_neigh_table_t *class_data, const uint8_t *mac64)
 {
     ws_neigh_t *entry = ws_neigh_entry_get(class_data, mac64);
     uint8_t index;
@@ -128,7 +128,7 @@ void ws_neigh_entry_remove(ws_neighbor_class_t *class_data, const uint8_t *mac64
     }
 }
 
-void ws_neigh_refresh(struct ws_neighbor_class *class_data, int time_update)
+void ws_neigh_refresh(struct ws_neigh_table *class_data, int time_update)
 {
     ws_neigh_t *neigh_table = class_data->neigh_info_list;
 
@@ -141,7 +141,7 @@ void ws_neigh_refresh(struct ws_neighbor_class *class_data, int time_update)
     }
 }
 
-uint8_t ws_neigh_get_neigh_count(ws_neighbor_class_t *class_data)
+uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *class_data)
 {
     ws_neigh_t *neigh_table = class_data->neigh_info_list;
     uint8_t count = 0;
@@ -586,7 +586,7 @@ bool ws_neigh_neighbor_duplicate_packet_check(ws_neigh_t *ws_neighbor,
     return true;
 }
 
-int ws_neigh_lfn_count(ws_neighbor_class_t *class_data)
+int ws_neigh_lfn_count(ws_neigh_table_t *class_data)
 {
     ws_neigh_t *neigh_table = class_data->neigh_info_list;
     int cnt = 0;
