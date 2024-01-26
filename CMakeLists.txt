@@ -322,6 +322,7 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=tun_addr_get_global_unicast
         -Wl,--wrap=tun_addr_get_link_local
         -Wl,--wrap=wsbr_common_timer_init
+        -Wl,--wrap=clock_gettime
         -Wl,--wrap=read
         -Wl,--wrap=write
         -Wl,--wrap=recv

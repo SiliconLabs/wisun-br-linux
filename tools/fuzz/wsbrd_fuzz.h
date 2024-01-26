@@ -37,6 +37,7 @@ struct fuzz_ctxt {
     uint8_t tun_lla[16];
     int socket_pipe_count;
     int socket_pipes[IF_SOCKET_COUNT][2];
+    time_t replay_time_ms;
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;
