@@ -159,7 +159,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
 
 mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table_t *table_class, const uint8_t *mac64, uint8_t role)
 {
-    mac_neighbor_table_entry_t *entry;
+    mac_neighbor_table_entry_t *entry = NULL;
 
     ns_list_foreach(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list)
         if (!cur->in_use) {
