@@ -3,6 +3,7 @@
 
 #include "app_wsbrd/timers.h"
 #include "app_wsbrd/wsbr.h"
+#include "stack/source/core/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
 #include "common/os_types.h"
@@ -21,11 +22,24 @@ void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
     }
 }
 
+int __real_clock_gettime(clockid_t clockid, struct timespec *tp);
+int __wrap_clock_gettime(clockid_t clockid, struct timespec *tp)
+{
+    if (!g_fuzz_ctxt.replay_count)
+        return __real_clock_gettime(clockid, tp);
+    if (tp) {
+        tp->tv_sec  = g_fuzz_ctxt.replay_time_ms / 1000;
+        tp->tv_nsec = (g_fuzz_ctxt.replay_time_ms % 1000) * 1000000;
+    }
+    return 0;
+}
+
 void fuzz_trigger_timer()
 {
     uint64_t val = 1;
     int ret;
 
+    g_fuzz_ctxt.replay_time_ms += WS_TIMER_GLOBAL_PERIOD_MS;
     ret = __real_write(g_ctxt.timerfd, &val, 8);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
