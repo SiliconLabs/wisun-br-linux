@@ -53,6 +53,7 @@ void rcp_req_reset(struct rcp *rcp, bool bootload)
 
 static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
 {
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     const char *version_label;
 
     FATAL_ON(rcp->init_state & RCP_HAS_RESET, 3, "unsupported RCP reset");
@@ -68,6 +69,9 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
     BUG_ON(!rcp->version_label);
     rcp->init_state |= RCP_HAS_RESET;
     rcp->init_state |= RCP_HAS_HWADDR;
+
+    if (rcp->on_reset)
+        rcp->on_reset(ctxt);
 }
 
 static void rcp_ind_fatal(struct rcp *rcp, struct iobuf_read *buf)

@@ -376,11 +376,15 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
     int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
 
-    if (ctxt->rcp.init_state & RCP_HAS_HWADDR) {
-        if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
-            FATAL(3, "unsupported radio configuration (check --list-rf-config)");
-        else
-            FATAL(3, "MAC layer has been reset. Operation not supported");
+    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0)) {
+        if (ctxt->rcp.init_state & RCP_HAS_HWADDR) {
+            if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
+                FATAL(3, "unsupported radio configuration (check --list-rf-config)");
+            else
+                FATAL(3, "unsupported RCP reset");
+        }
+    } else if (ctxt->rcp.init_state & RCP_HAS_RF_CONFIG) {
+        FATAL(3, "unsupported RCP reset");
     }
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
           FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
@@ -391,7 +395,8 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
           FIELD_GET(0x000000FF, ctxt->rcp.version_api));
     if (version_older_than(ctxt->rcp.version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
-    if (ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
+    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0) &&
+        ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
         FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
               min_device_description_table_size);
     if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))

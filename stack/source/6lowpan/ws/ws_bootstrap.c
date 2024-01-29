@@ -556,7 +556,10 @@ int ws_bootstrap_init(int8_t interface_id)
 
     neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
-    neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
+    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
+        neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
+    else
+        neighbors_table_size = UINT8_MAX;
 
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_frame_counter_per_key(true);
