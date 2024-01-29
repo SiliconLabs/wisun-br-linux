@@ -89,6 +89,8 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
         ret = ws_bbr_set_mode_switch(ctxt->net_if.id, -1, 0, eui64); // mode switch disabled
     else if (phy_mode_id == 0)
         ret = ws_bbr_set_mode_switch(ctxt->net_if.id, 0, 0, eui64); // mode switch back to default
+    else
+        ret = -EINVAL;
 
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
