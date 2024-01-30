@@ -11,25 +11,30 @@
 
 ssize_t __real_write(int fd, const void *buf, size_t count);
 
-void __real_wsbr_common_timer_init(struct wsbr_ctxt *ctxt);
-void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
+void __real_wsbr_common_timer_init(struct wsbr_ctxt *wsbrd);
+void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *wsbrd)
 {
-    if (g_fuzz_ctxt.replay_count) {
-        ctxt->timerfd = eventfd(0, EFD_NONBLOCK);
-        FATAL_ON(ctxt->timerfd < 0, 2, "eventfd: %m");
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    BUG_ON(ctxt->wsbrd != wsbrd);
+    if (ctxt->replay_count) {
+        wsbrd->timerfd = eventfd(0, EFD_NONBLOCK);
+        FATAL_ON(wsbrd->timerfd < 0, 2, "eventfd: %m");
     } else {
-        __real_wsbr_common_timer_init(ctxt);
+        __real_wsbr_common_timer_init(wsbrd);
     }
 }
 
 int __real_clock_gettime(clockid_t clockid, struct timespec *tp);
 int __wrap_clock_gettime(clockid_t clockid, struct timespec *tp)
 {
-    if (!g_fuzz_ctxt.replay_count)
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (!ctxt->replay_count)
         return __real_clock_gettime(clockid, tp);
     if (tp) {
-        tp->tv_sec  = g_fuzz_ctxt.replay_time_ms / 1000;
-        tp->tv_nsec = (g_fuzz_ctxt.replay_time_ms % 1000) * 1000000;
+        tp->tv_sec  = ctxt->replay_time_ms / 1000;
+        tp->tv_nsec = (ctxt->replay_time_ms % 1000) * 1000000;
     }
     return 0;
 }
@@ -46,20 +51,25 @@ void fuzz_trigger_timer()
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
-void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+void fuzz_spinel_replay_timers(struct wsbr_ctxt *wsbrd, uint32_t prop, struct iobuf_read *buf)
 {
-    FATAL_ON(!fuzz_is_main_loop(ctxt), 1, "timer command received during RCP init");
-    FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
-    g_fuzz_ctxt.timer_counter = hif_pop_u16(buf);
-    if (g_fuzz_ctxt.timer_counter)
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    BUG_ON(ctxt->wsbrd != wsbrd);
+    FATAL_ON(!fuzz_is_main_loop(wsbrd), 1, "timer command received during RCP init");
+    FATAL_ON(!ctxt->replay_count, 1, "timer command received while replay is disabled");
+    ctxt->timer_counter = hif_pop_u16(buf);
+    if (ctxt->timer_counter)
         fuzz_trigger_timer();
 }
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);
 int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 {
-    if (g_fuzz_ctxt.replay_count)
-        return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (ctxt->replay_count)
+        return ctxt->replay_fds[ctxt->replay_i++];
     else
         return __real_uart_open(device, bitrate, hardflow);
 }

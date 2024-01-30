@@ -20,9 +20,10 @@
 ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
     static bool init = false;
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     uint8_t *buf8 = (uint8_t *) buf;
 
-    if (!g_fuzz_ctxt.rand_predictable)
+    if (!ctxt->rand_predictable)
         return fuzz_real_getrandom(buf, buflen, flags);
 
     if (!init) {
@@ -33,7 +34,7 @@ ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
     // In most of the cases, when the stack ask for an array of random uint8_t,
     // it is initializing a key or seed for cryptographic material. In this
     // case, returning very predictible data simplify frames replay
-    if (g_fuzz_ctxt.fuzzing_enabled && buflen > 8) {
+    if (ctxt->fuzzing_enabled && buflen > 8) {
         for (size_t i = 0; i < buflen; i++)
             buf8[i] = i + 1;
     } else {
@@ -49,10 +50,12 @@ ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 time_t __real_time(time_t *tloc);
 time_t __wrap_time(time_t *tloc)
 {
-    if (!g_fuzz_ctxt.rand_predictable)
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (!ctxt->rand_predictable)
         return __real_time(tloc);
 
     if (tloc)
-        *tloc = g_fuzz_ctxt.mbedtls_time;
-    return g_fuzz_ctxt.mbedtls_time;
+        *tloc = ctxt->mbedtls_time;
+    return ctxt->mbedtls_time;
 }
