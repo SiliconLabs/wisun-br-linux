@@ -266,7 +266,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     addr_add(cur, ipv6_address, 64);
     ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
 
-    cur->ws_info.authentication_time = 0;
     cur->ws_info.connected_time = 0;
 
     return 0;
