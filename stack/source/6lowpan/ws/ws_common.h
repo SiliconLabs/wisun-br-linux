@@ -82,7 +82,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    uint32_t uptime;                       /**< Seconds after interface has been started */
     uint32_t authentication_time;          /**< When the last authentication was performed */
     uint32_t connected_time;               /**< Time we have been connected to network */
     uint16_t network_pan_id;
