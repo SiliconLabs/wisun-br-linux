@@ -40,11 +40,6 @@ typedef struct ws_pending_key_index {
     uint8_t index;
 } ws_pending_key_index_t;
 
-typedef struct ws_bsi_block {
-    uint32_t block_time;
-    uint16_t old_bsi;
-} ws_bsi_block_t;
-
 /**
  * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
  */
@@ -87,7 +82,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint32_t pan_timeout_timer;            /**< routers will fallback to previous state after this */
     uint32_t uptime;                       /**< Seconds after interface has been started */
