@@ -93,7 +93,7 @@ int __wrap_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     if (!frame_len)
         return 0;
     fuzz_capture_timers(fuzz_ctxt);
-    fuzz_capture(fuzz_ctxt, frame, frame_len);
+    fuzz_capture_raw(fuzz_ctxt, frame, frame_len);
     frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_init_phase);
     return frame_len;
 }

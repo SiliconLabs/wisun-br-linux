@@ -24,7 +24,7 @@
 #include "interfaces.h"
 #include "capture.h"
 
-void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
+void fuzz_capture_raw(struct fuzz_ctxt *ctxt, const void *data, size_t size)
 {
     int ret;
     int fd;
@@ -45,7 +45,7 @@ static void fuzz_capture_spinel(struct fuzz_ctxt *ctxt, struct iobuf_write *buf)
     size_t frame_len;
 
     frame_len = uart_legacy_encode_hdlc(frame, buf->data, buf->data_size, crc);
-    fuzz_capture(ctxt, frame, frame_len);
+    fuzz_capture_raw(ctxt, frame, frame_len);
     free(frame);
 }
 
