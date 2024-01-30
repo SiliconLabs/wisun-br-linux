@@ -289,7 +289,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     if (cur->ws_info.pan_information.jm.plf == UINT8_MAX)
         cur->ws_info.pan_information.jm.mask &= ~(1 << WS_JM_PLF);
     cur->ws_info.pan_information.routing_cost = 0;
-    cur->ws_info.pan_information.use_parent_bs = true;
     // initialize for FAN 1.1 defaults
     if (cur->ws_info.enable_lfn &&
         !cur->ws_info.pan_information.lfn_version_set) {

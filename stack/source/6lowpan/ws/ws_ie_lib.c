@@ -832,7 +832,8 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
     pan_configuration->pan_size     = iobuf_pop_le16(&ie_buf);
     pan_configuration->routing_cost = iobuf_pop_le16(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    pan_configuration->use_parent_bs      = FIELD_GET(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, tmp8);
+    if (!FIELD_GET(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, tmp8))
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported local BS-IE", "15.4");
     if (!FIELD_GET(WS_WPIE_PAN_ROUTING_METHOD_MASK, tmp8))
         TRACE(TR_IGNORE, "ignore %-9s: unsupported routing method", "15.4");
     pan_configuration->version            = FIELD_GET(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  tmp8);
