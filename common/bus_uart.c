@@ -101,8 +101,6 @@ static void uart_read(struct os_ctxt *ctxt)
     ctxt->uart_rx_buf_len += size;
 }
 
-#define UART_HDR_LEN_MASK 0x07ff
-
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint8_t hdr[4], fcs[2];

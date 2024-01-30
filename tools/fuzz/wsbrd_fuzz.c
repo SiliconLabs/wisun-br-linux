@@ -76,6 +76,25 @@ void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
 }
 
+int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
+int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+{
+    struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
+    int ret;
+
+    if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
+        return 0;
+
+    ret = __real_uart_rx(ctxt, buf, buf_len);
+
+    if (fuzz_ctxt->capture_fd >= 0 && ret > 0) {
+        fuzz_capture_timers(fuzz_ctxt);
+        fuzz_capture_uart(fuzz_ctxt, buf, ret);
+    }
+
+    return ret;
+}
+
 int __real_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
 int __wrap_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {

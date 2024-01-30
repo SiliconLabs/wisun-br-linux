@@ -18,6 +18,8 @@
 
 struct os_ctxt;
 
+#define UART_HDR_LEN_MASK 0x07ff
+
 int uart_open(const char *device, int bitrate, bool hardflow);
 
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
