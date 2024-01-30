@@ -35,6 +35,7 @@
 #include "interfaces.h"
 
 struct fuzz_ctxt g_fuzz_ctxt = {
+    .wsbrd = &g_ctxt,
     .mbedtls_time = 1700000000, // Tue Nov 14 23:13:20 CET 2023
     .socket_pipes = {
         { -1, -1 },
@@ -63,13 +64,15 @@ bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
 void __real_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream));
 void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream))
 {
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
     __real_parse_commandline(config, argc, argv, print_help);
 
-    if (g_fuzz_ctxt.fuzzing_enabled)
-        g_ctxt.config.storage_delete = true;
-    if (g_fuzz_ctxt.capture_fd >= 0 || g_fuzz_ctxt.replay_count) {
-        WARN_ON(!g_ctxt.config.storage_delete, "storage_delete set to false while using capture/replay");
-        WARN_ON(!g_ctxt.config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
+    if (ctxt->fuzzing_enabled)
+        ctxt->wsbrd->config.storage_delete = true;
+    if (ctxt->capture_fd >= 0 || ctxt->replay_count) {
+        WARN_ON(!ctxt->wsbrd->config.storage_delete, "storage_delete set to false while using capture/replay");
+        WARN_ON(!ctxt->wsbrd->config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
     }
 }
 
@@ -122,21 +125,21 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     ssize_t size = __real_read(fd, buf, count);
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
-    if (fd == g_ctxt.timerfd) {
-        if (g_fuzz_ctxt.capture_fd >= 0) {
-            g_fuzz_ctxt.timer_counter++;
-        } else if (g_fuzz_ctxt.replay_count) {
-            g_fuzz_ctxt.timer_counter--;
-            if (g_fuzz_ctxt.timer_counter)
+    if (fd == ctxt->wsbrd->timerfd) {
+        if (ctxt->capture_fd >= 0) {
+            ctxt->timer_counter++;
+        } else if (ctxt->replay_count) {
+            ctxt->timer_counter--;
+            if (ctxt->timer_counter)
                 fuzz_trigger_timer();
         }
-    } else if (fd == g_ctxt.tun_fd && ctxt->capture_fd >= 0) {
+    } else if (fd == ctxt->wsbrd->tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
         fuzz_capture_interface(ctxt, IF_TUN, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
-    } else if (fd == g_ctxt.os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
+    } else if (fd == ctxt->wsbrd->os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
-        g_ctxt.os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
-        return __real_read(g_ctxt.os_ctxt->data_fd, buf, count);
+        ctxt->wsbrd->os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
+        return __real_read(ctxt->wsbrd->os_ctxt->data_fd, buf, count);
     }
 
     return size;

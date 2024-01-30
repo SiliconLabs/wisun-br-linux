@@ -21,6 +21,8 @@
 struct wsbr_ctxt;
 
 struct fuzz_ctxt {
+    struct wsbr_ctxt *wsbrd; // Avoids accessing g_ctxt directly
+
     bool fuzzing_enabled;
     bool rand_predictable;
     time_t mbedtls_time;

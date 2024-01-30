@@ -36,18 +36,19 @@ int __wrap_clock_gettime(clockid_t clockid, struct timespec *tp)
 
 void fuzz_trigger_timer()
 {
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     uint64_t val = 1;
     int ret;
 
-    g_fuzz_ctxt.replay_time_ms += WS_TIMER_GLOBAL_PERIOD_MS;
-    ret = __real_write(g_ctxt.timerfd, &val, 8);
+    ctxt->replay_time_ms += WS_TIMER_GLOBAL_PERIOD_MS;
+    ret = __real_write(ctxt->wsbrd->timerfd, &val, 8);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
 void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "timer command received during RCP init");
+    FATAL_ON(!fuzz_is_main_loop(ctxt), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
     g_fuzz_ctxt.timer_counter = hif_pop_u16(buf);
     if (g_fuzz_ctxt.timer_counter)
@@ -65,10 +66,12 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 
 ssize_t __wrap_write(int fd, const void *buf, size_t count)
 {
-    if (fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_count)
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (fd == ctxt->wsbrd->os_ctxt->data_fd && ctxt->replay_count)
         return count;
 
-    if (fd == g_ctxt.tun_fd && g_fuzz_ctxt.replay_count)
+    if (fd == ctxt->wsbrd->tun_fd && ctxt->replay_count)
         return count;
 
     return __real_write(fd, buf, count);
