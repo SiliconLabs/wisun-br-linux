@@ -95,20 +95,11 @@ typedef struct ws_neighbor_temp_class {
 
 typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
 
-typedef void ws_mngt_ind(struct net_if *interface,
-                         const struct mcps_data_ind *data,
-                         const struct mcps_data_rx_ie_list *ie_ext,
-                         uint8_t frame_type);
+typedef void ws_llc_mngt_ind_cb(struct net_if *net_if, const struct mcps_data_ind *data, const struct mcps_data_rx_ie_list *ie, uint8_t frame_type);
+typedef void ws_llc_mngt_cnf_cb(struct net_if *net_if, uint8_t frame_type);
 
-/**
- * @brief ws_asynch_confirm ws asynch data confirmation to asynch message request
- * @param api The API which handled the response
- * @param data MCPS-DATA.confirm specific values
- * @param user_id MPX user ID
- */
-typedef void ws_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
-
-int8_t ws_llc_create(struct net_if *interface, ws_mngt_ind *mngt_ind_cb, ws_asynch_confirm *asynch_cnf_cb);
+int8_t ws_llc_create(struct net_if *interface,
+                     ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf);
 
 /**
  * @brief ws_llc_reset Reset ws LLC parametrs and clean messages

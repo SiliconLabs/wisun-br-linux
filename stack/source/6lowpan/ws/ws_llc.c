@@ -149,8 +149,8 @@ typedef struct llc_data_base {
     llc_ie_params_t                 ie_params;                      /**< LLC IE header and Payload data configuration */
     temp_entriest_t                 temp_entries;
 
-    ws_mngt_ind                     *mngt_ind; // indication callback for Wi-SUN management frames (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS)
-    ws_asynch_confirm               *asynch_confirm;                /**< LLC Asynch data confirmation call back configured by user */
+    ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
+    ws_llc_mngt_cnf_cb              *mngt_cnf;                      /* Called when RCP confirms transmission of a Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) */
     struct iobuf_write              ws_enhanced_response_elements;
     struct iovec                    ws_header_vector;
     bool                            high_priority_mode;
@@ -518,7 +518,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     case WS_FT_PAS:
     case WS_FT_PC:
     case WS_FT_PCS:
-        base->asynch_confirm(net_if, msg->message_type);
+        base->mngt_cnf(net_if, msg->message_type);
         break;
     }
 
@@ -1642,7 +1642,8 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
     return entry;
 }
 
-int8_t ws_llc_create(struct net_if *interface, ws_mngt_ind *mngt_ind_cb, ws_asynch_confirm *asynch_cnf_cb)
+int8_t ws_llc_create(struct net_if *interface,
+                     ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
@@ -1657,8 +1658,8 @@ int8_t ws_llc_create(struct net_if *interface, ws_mngt_ind *mngt_ind_cb, ws_asyn
     }
 
     base->interface_ptr = interface;
-    base->mngt_ind = mngt_ind_cb;
-    base->asynch_confirm = asynch_cnf_cb;
+    base->mngt_ind = mngt_ind;
+    base->mngt_cnf = mngt_cnf;
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(&base->temp_entries);
@@ -1821,8 +1822,8 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     //Allocate LLC message pointer
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
-        if (base->asynch_confirm) {
-            base->asynch_confirm(interface, request->frame_type);
+        if (base->mngt_cnf) {
+            base->mngt_cnf(interface, request->frame_type);
         }
         return 0;
     }
