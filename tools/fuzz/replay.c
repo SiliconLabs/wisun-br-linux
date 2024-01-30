@@ -50,16 +50,23 @@ void fuzz_trigger_timer(struct fuzz_ctxt *ctxt)
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
-void fuzz_spinel_replay_timers(struct wsbr_ctxt *wsbrd, uint32_t prop, struct iobuf_read *buf)
+static void fuzz_replay_timers(struct fuzz_ctxt *ctxt, struct iobuf_read *buf)
 {
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-
-    BUG_ON(ctxt->wsbrd != wsbrd);
-    FATAL_ON(!fuzz_is_main_loop(wsbrd), 1, "timer command received during RCP init");
+    FATAL_ON(!fuzz_is_main_loop(ctxt->wsbrd), 1, "timer command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "timer command received while replay is disabled");
     ctxt->timer_counter = hif_pop_u16(buf);
     if (ctxt->timer_counter)
         fuzz_trigger_timer(ctxt);
+}
+
+void fuzz_ind_replay_timers(struct rcp *rcp, struct iobuf_read *buf)
+{
+    fuzz_replay_timers(&g_fuzz_ctxt, buf);
+}
+
+void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    fuzz_replay_timers(&g_fuzz_ctxt, buf);
 }
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);
