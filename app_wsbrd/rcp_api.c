@@ -214,6 +214,24 @@ void rcp_req_data_tx(struct rcp *rcp,
         __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh, rate_list);
 }
 
+static void __rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
+{
+    struct iobuf_write buf = { };
+
+    hif_push_u8(&buf, HIF_CMD_REQ_DATA_TX_ABORT);
+    hif_push_u8(&buf, handle);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
+{
+    if (version_older_than(rcp->version_api, 2, 0, 0))
+        rcp_legacy_tx_drop(handle);
+    else
+        __rcp_req_data_tx_abort(rcp, handle);
+}
+
 static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
 {
     switch (status) {

@@ -1460,7 +1460,7 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, uint8_t msduH
 
     if (version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
         return MLME_UNSUPPORTED_ATTRIBUTE;
-    rcp_legacy_tx_drop(message->msg_handle);
+    rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
     if (message->message_type == WS_FT_EAPOL) {
         ws_llc_mac_eapol_clear(base);
     }
@@ -1498,7 +1498,7 @@ static void ws_llc_clean(llc_data_base_t *base)
             ws_llc_mac_eapol_clear(base);
         }
         if (!version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
-            rcp_legacy_tx_drop(message->msg_handle);
+            rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
         llc_message_free(message, base);
     }
 
