@@ -641,7 +641,6 @@ static const struct {
     { HIF_CMD_CNF_DATA_TX,    rcp_cnf_data_tx    },
     { HIF_CMD_IND_DATA_RX,    rcp_ind_data_rx    },
     { HIF_CMD_CNF_RADIO_LIST, rcp_cnf_radio_list },
-    { 0xff,                   rcp_ind_legacy     },
 };
 
 void rcp_rx(struct rcp *rcp)

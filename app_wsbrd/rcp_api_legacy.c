@@ -42,12 +42,7 @@ uint8_t rcp_legacy_get_spinel_hdr()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
 
-    // As an intermediate development step for developping the new RCP API,
-    // place a special command ID 0xff in the SPINEL header to indicate a legacy
-    // command to the new API.
-    if (!version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-        return 0xff;
-
+    BUG_ON(!version_older_than(ctxt->rcp.version_api, 2, 0, 0));
     ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
     if (!ctxt->spinel_tid)
         ctxt->spinel_tid = 1;
