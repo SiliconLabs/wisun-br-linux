@@ -150,7 +150,7 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         ipv6_neigh->expiration_s = ipv6_neighbors[i].expiration_s;
         // ll_address is a combination of PAN_ID and EUI-64
         ll_addr.addr_type = ADDR_802_15_4_LONG;
-        write_be16(ll_addr.address, cur->mac_parameters.pan_id);
+        write_be16(ll_addr.address, cur->ws_info.pan_information.pan_id);
         memcpy(ll_addr.address + PAN_ID_LEN, eui64, 8);
         // the neighbor state is set to stale
         ipv6_neighbour_entry_update_unsolicited(cache, ipv6_neigh, ll_addr.addr_type, ll_addr.address);

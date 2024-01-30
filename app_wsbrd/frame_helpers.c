@@ -242,10 +242,9 @@ static int wsbr_data_ie_parse(struct iobuf_read *iobuf, struct mcps_data_rx_ie_l
     return 0;
 }
 
-int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
-                        const uint8_t *frame, size_t frame_len,
+int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
                         struct mcps_data_ind *ind,
-                        struct mcps_data_rx_ie_list *ie)
+                        struct mcps_data_rx_ie_list *ie, uint16_t pan_id)
 {
     struct iobuf_read iobuf = {
         .data_size = frame_len,
@@ -286,7 +285,7 @@ int wsbr_data_ind_parse(const struct arm_15_4_mac_parameters *mac,
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
         ind->DstPANId = iobuf_pop_le16(&iobuf);
     else
-        ind->DstPANId = mac->pan_id;
+        ind->DstPANId = pan_id;
 
     if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
         write_be64(ind->DstAddr, iobuf_pop_le64(&iobuf));
@@ -424,9 +423,9 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
 
 void wsbr_data_req_rebuild(struct iobuf_write *frame,
                            const struct rcp *rcp,
-                           const struct arm_15_4_mac_parameters *mac,
                            const struct mcps_data_req *req,
-                           const struct mcps_data_req_ie_list *ie)
+                           const struct mcps_data_req_ie_list *ie,
+                           uint16_t pan_id)
 {
     uint8_t tmp[8];
     uint16_t fcf;
@@ -466,7 +465,7 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     }
 
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
-        iobuf_push_le16(frame, mac->pan_id);
+        iobuf_push_le16(frame, pan_id);
     if (req->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
         memrcpy(tmp, rcp->eui64, 8);
         iobuf_push_data(frame, tmp, 8);

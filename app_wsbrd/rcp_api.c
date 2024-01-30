@@ -292,7 +292,7 @@ static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
     hif_pop_u16(buf); // TODO: RX channel
     BUG_ON(buf->err);
 
-    ret = wsbr_data_ind_parse(&ctxt->net_if.mac_parameters, frame, frame_len, &ind, &ind_ie);
+    ret = wsbr_data_ind_parse(frame, frame_len, &ind, &ind_ie, ctxt->net_if.ws_info.pan_information.pan_id);
     if (ret < 0)
         return;
     ctxt->rcp.on_rx_ind(ctxt->net_if.id, &ind, &ind_ie);

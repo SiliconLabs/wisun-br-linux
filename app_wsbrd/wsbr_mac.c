@@ -109,7 +109,7 @@ void wsbr_data_req_ext(struct net_if *cur,
             // confirmation error.
             neighbor_ws = &neighbor_ws_dummy;
         }
-        wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
+        wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
         BUG_ON(data->ExtendedFrameExchange);
         BUG_ON(data->phy_id);
         rcp_req_data_tx(cur->rcp, frame.data, frame.len,

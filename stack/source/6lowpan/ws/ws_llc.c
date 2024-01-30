@@ -539,7 +539,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
         return NULL;
     }
 
-    pan_id = base->interface_ptr->mac_parameters.pan_id;
+    pan_id = base->interface_ptr->ws_info.pan_information.pan_id;
     if (pan_id != 0xffff && data->SrcPANId != pan_id) {
         TRACE(TR_DROP, "drop %-9s: invalid source PAN ID", tr_ws_frame(frame_type));
         return NULL;

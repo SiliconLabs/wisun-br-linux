@@ -147,7 +147,7 @@ static uint8_t protocol_6lowpan_llao_write(struct net_if *cur, uint8_t *opt_out,
 /* Parse, and return actual size, or 0 if error */
 static uint8_t protocol_6lowpan_llao_parse(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out)
 {
-    write_be16(ll_addr_out->address + 0, cur->mac_parameters.pan_id);
+    write_be16(ll_addr_out->address + 0, cur->ws_info.pan_information.pan_id);
 
     switch (opt_in[1]) {
         case 1:
@@ -183,7 +183,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8
     }
 
     if (*ll_type != ADDR_NONE) {
-        write_be16(&ll_addr[0], cur->mac_parameters.pan_id);
+        write_be16(&ll_addr[0], cur->ws_info.pan_information.pan_id);
         *ll_addr_out = ll_addr;
         return true;
     } else {

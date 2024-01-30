@@ -39,7 +39,7 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
 {
     uint16_t panId = 0xffff;
     if (interface) {
-        panId = interface->mac_parameters.pan_id;
+        panId = interface->ws_info.pan_information.pan_id;
     }
     return panId;
 }
@@ -62,7 +62,7 @@ bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
 
     BUG_ON(ptr->addr_type == ADDR_802_15_4_SHORT);
     //Set First PANID
-    normal = mac_helper_write_16bit(interface->mac_parameters.pan_id, ptr->address);
+    normal = mac_helper_write_16bit(interface->ws_info.pan_information.pan_id, ptr->address);
     ptr->addr_type = ADDR_802_15_4_LONG;
     memcpy(&ptr->address[2], interface->mac, 8);
     return normal;

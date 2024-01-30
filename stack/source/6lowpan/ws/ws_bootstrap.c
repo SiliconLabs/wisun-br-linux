@@ -370,7 +370,7 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
 {
     uint8_t temp_ll[10];
     uint8_t *ptr = temp_ll;
-    ptr = write_be16(ptr, cur->mac_parameters.pan_id);
+    ptr = write_be16(ptr, cur->ws_info.pan_information.pan_id);
     memcpy(ptr, mac64, 8);
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_LONG, temp_ll);
@@ -716,8 +716,7 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_security(true);
-    cur->mac_parameters.pan_id = cur->ws_info.pan_information.pan_id;
-    rcp_req_radio_enable(cur->rcp, cur->mac_parameters.pan_id);
+    rcp_req_radio_enable(cur->rcp, cur->ws_info.pan_information.pan_id);
     return;
 }
 

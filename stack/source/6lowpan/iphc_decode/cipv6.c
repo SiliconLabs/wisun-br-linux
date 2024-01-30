@@ -58,7 +58,7 @@ buffer_t *lowpan_down(buffer_t *buf)
     /* We have IP next hop - figure out the MAC address */
     if (addr_is_ipv6_multicast(next_hop)) {
         buf->dst_sa.addr_type = ADDR_BROADCAST;
-        write_be16(buf->dst_sa.address, cur->mac_parameters.pan_id);
+        write_be16(buf->dst_sa.address, cur->ws_info.pan_information.pan_id);
         buf->dst_sa.address[2] = 0x80 | (next_hop[14] & 0x1f);
         buf->dst_sa.address[3] = next_hop[15];
         stable_only = true;
@@ -136,7 +136,7 @@ buffer_t *lowpan_up(buffer_t *buf)
     /* If our PAN ID is set to 0xffff (eg during beacon scan), the MAC will be
      * receiving all packets to all PANs. "Mute" 6LoWPAN reception in this state.
      */
-    if (cur->mac_parameters.pan_id == 0xffff) {
+    if (cur->ws_info.pan_information.pan_id == 0xffff) {
         goto drop;
     }
 
