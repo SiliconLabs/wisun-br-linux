@@ -39,9 +39,8 @@ int __wrap_clock_gettime(clockid_t clockid, struct timespec *tp)
     return 0;
 }
 
-void fuzz_trigger_timer()
+void fuzz_trigger_timer(struct fuzz_ctxt *ctxt)
 {
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     uint64_t val = 1;
     int ret;
 
@@ -60,7 +59,7 @@ void fuzz_spinel_replay_timers(struct wsbr_ctxt *wsbrd, uint32_t prop, struct io
     FATAL_ON(!ctxt->replay_count, 1, "timer command received while replay is disabled");
     ctxt->timer_counter = hif_pop_u16(buf);
     if (ctxt->timer_counter)
-        fuzz_trigger_timer();
+        fuzz_trigger_timer(ctxt);
 }
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);

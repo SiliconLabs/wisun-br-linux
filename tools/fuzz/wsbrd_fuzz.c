@@ -131,7 +131,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
         } else if (ctxt->replay_count) {
             ctxt->timer_counter--;
             if (ctxt->timer_counter)
-                fuzz_trigger_timer();
+                fuzz_trigger_timer(ctxt);
         }
     } else if (fd == ctxt->wsbrd->tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
