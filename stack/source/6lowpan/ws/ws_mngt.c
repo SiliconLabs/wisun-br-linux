@@ -532,16 +532,14 @@ void ws_mngt_pc_send(struct net_if *cur)
 
 void ws_mngt_async_trickle_start(struct net_if *cur)
 {
-    cur->ws_info.mngt.trickle_pa_running = true;
     trickle_start(&cur->ws_info.mngt.trickle_pa, "ADV", &cur->ws_info.mngt.trickle_params);
-    cur->ws_info.mngt.trickle_pc_running = true;
     trickle_start(&cur->ws_info.mngt.trickle_pc, "CFG", &cur->ws_info.mngt.trickle_params);
 }
 
 void ws_mngt_async_trickle_stop(struct net_if *cur)
 {
-    cur->ws_info.mngt.trickle_pa_running = false;
-    cur->ws_info.mngt.trickle_pc_running = false;
+    trickle_stop(&cur->ws_info.mngt.trickle_pa);
+    trickle_stop(&cur->ws_info.mngt.trickle_pc);
 }
 
 void ws_mngt_async_trickle_reset_pc(struct net_if *cur)
@@ -551,11 +549,9 @@ void ws_mngt_async_trickle_reset_pc(struct net_if *cur)
 
 void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks)
 {
-    if (cur->ws_info.mngt.trickle_pa_running &&
-        trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks))
+    if (trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks))
         ws_mngt_pa_send(cur);
-    if (cur->ws_info.mngt.trickle_pc_running &&
-        trickle_timer(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params, ticks))
+    if (trickle_timer(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params, ticks))
         ws_mngt_pc_send(cur);
 }
 

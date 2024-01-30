@@ -25,8 +25,6 @@ struct ws_mngt {
     trickle_params_t trickle_params;
     trickle_t trickle_pa;
     trickle_t trickle_pc;
-    bool trickle_pa_running: 1;
-    bool trickle_pc_running: 1;
     uint8_t lpa_dst[8];
 };
 
