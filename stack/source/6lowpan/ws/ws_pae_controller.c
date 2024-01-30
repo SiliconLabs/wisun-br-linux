@@ -95,7 +95,6 @@ typedef struct pae_controller {
     struct net_if *interface_ptr;                  /**< List link entry */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set;  /**< Send key index set callback */
-    ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read;  /**< Frame counter read callback */
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
     ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
     ws_pae_controller_nw_info_updated *nw_info_updated;              /**< Network information updated callback */
@@ -123,7 +122,6 @@ static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
-static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
@@ -198,7 +196,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
-                                     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
                                      ws_pae_controller_nw_info_updated *nw_info_updated,
@@ -215,7 +212,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
 
     controller->nw_key_set = nw_key_set;
     controller->nw_send_key_index_set = nw_send_key_index_set;
-    controller->nw_frame_counter_read = nw_frame_counter_read;
     controller->pan_ver_increment = pan_ver_increment;
     controller->lpan_ver_increment = lpan_ver_increment;
     controller->nw_info_updated = nw_info_updated;
@@ -672,7 +668,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->lgtks.key_index_set = false;
     controller->gtks.gtk_index = -1;
     controller->lgtks.gtk_index = -1;
-    controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
     ws_pae_controller_frame_counter_reset(&controller->lgtks.frame_counters);
@@ -1363,26 +1358,6 @@ void ws_pae_controller_slow_timer(int seconds)
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
         if (entry->pae_slow_timer) {
             entry->pae_slow_timer(seconds);
-        }
-        ws_pae_controller_frame_counter_timer(seconds, entry);
-    }
-}
-
-static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry)
-{
-    if (entry->frame_cnt_store_timer > seconds) {
-        entry->frame_cnt_store_timer -= seconds;
-        return;
-    }
-
-    entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-
-    for (int i = 0; i < GTK_NUM; i++) {
-        if (entry->gtks.gtks.gtk[i].set) {
-            entry->nw_frame_counter_read(entry->interface_ptr, i);
-        }
-        if (i < LGTK_NUM && entry->lgtks.gtks.gtk[i].set) {
-            entry->nw_frame_counter_read(entry->interface_ptr, i + GTK_NUM);
         }
     }
 }

@@ -434,10 +434,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         cur->mac_parameters.mac_default_lfn_key_index = index + 1;
 }
 
-static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
-{
-}
-
 static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
 {
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
@@ -573,7 +569,6 @@ int ws_bootstrap_init(int8_t interface_id)
     if (ws_pae_controller_cb_register(cur,
                                       ws_bootstrap_nw_key_set,
                                       ws_bootstrap_nw_key_index_set,
-                                      ws_bootstrap_nw_frame_counter_read,
                                       ws_bootstrap_pan_version_increment,
                                       ws_bootstrap_lfn_version_increment,
                                       ws_bootstrap_nw_info_updated,

@@ -99,7 +99,6 @@ extern int DEVICE_MIN_SENS;
 /*
  * MAC frame counter NVM storing configuration
  */
-#define FRAME_COUNTER_STORE_INTERVAL        60          // Time interval (on seconds) between checking if frame counter storing is needed
 #define FRAME_COUNTER_INCREMENT             1000000     // How much frame counter is incremented on start up
 
 /*

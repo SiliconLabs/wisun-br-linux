@@ -263,15 +263,6 @@ typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
 typedef void ws_pae_controller_nw_send_key_index_set(struct net_if *interface_ptr, uint8_t index);
 
 /**
- * ws_pae_controller_nw_frame_counter_read network frame counter read callback
- *
- * \param interface_ptr interface
- * \param slot slot
- *
- */
-typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint8_t slot);
-
-/**
  * ws_pae_controller_pan_ver_increment PAN version increment callback
  *
  * \param interface_ptr interface
@@ -308,7 +299,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  * \param next_target authentication next target callback
  * \param nw_key_set network key set callback
  * \param nw_send_key_index_set network send key index set callback
- * \param nw_frame_counter_read network frame counter read callback
  * \param pan_ver_increment PAN version increment callback
  * \param nw_info_updated network information updated callback
  * \param congestion_get congestion get callback
@@ -320,7 +310,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
-                                     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
                                      ws_pae_controller_nw_info_updated *nw_info_updated,
