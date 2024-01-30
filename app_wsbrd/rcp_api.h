@@ -92,4 +92,11 @@ void rcp_set_filter_src64(struct rcp *rcp,
                           uint8_t count,
                           bool allow);
 
+// Exported for wsbrd-fuzz
+struct rcp_cmd {
+    uint8_t cmd;
+    void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
+};
+extern struct rcp_cmd rcp_cmd_table[];
+
 #endif

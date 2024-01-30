@@ -641,16 +641,16 @@ void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t cou
     }
 }
 
-static const struct {
-    uint8_t cmd;
-    void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
-} rcp_cmd_table[] = {
-    { HIF_CMD_IND_NOP,        rcp_ind_nop        },
-    { HIF_CMD_IND_RESET,      rcp_ind_reset      },
-    { HIF_CMD_IND_FATAL,      rcp_ind_fatal      },
-    { HIF_CMD_CNF_DATA_TX,    rcp_cnf_data_tx    },
-    { HIF_CMD_IND_DATA_RX,    rcp_ind_data_rx    },
-    { HIF_CMD_CNF_RADIO_LIST, rcp_cnf_radio_list },
+struct rcp_cmd rcp_cmd_table[] = {
+    { HIF_CMD_IND_NOP,           rcp_ind_nop        },
+    { HIF_CMD_IND_RESET,         rcp_ind_reset      },
+    { HIF_CMD_IND_FATAL,         rcp_ind_fatal      },
+    { HIF_CMD_CNF_DATA_TX,       rcp_cnf_data_tx    },
+    { HIF_CMD_IND_DATA_RX,       rcp_ind_data_rx    },
+    { HIF_CMD_CNF_RADIO_LIST,    rcp_cnf_radio_list },
+    { HIF_CMD_IND_REPLAY_TIMER,  rcp_ind_nop        },
+    { HIF_CMD_IND_REPLAY_SOCKET, rcp_ind_nop        },
+    { 0 }
 };
 
 void rcp_rx(struct rcp *rcp)
