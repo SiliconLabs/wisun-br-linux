@@ -178,6 +178,8 @@ int wsbr_fuzz_main(int argc, char *argv[])
     for (struct rcp_cmd *cmd = rcp_cmd_table; cmd->fn; cmd++) {
         if (cmd->cmd == HIF_CMD_IND_REPLAY_TIMER)
             cmd->fn = fuzz_ind_replay_timers;
+        if (cmd->cmd == HIF_CMD_IND_REPLAY_SOCKET)
+            cmd->fn = fuzz_ind_replay_socket;
     }
     argc = fuzz_parse_commandline(ctxt, argv);
     return wsbr_main(argc, argv);

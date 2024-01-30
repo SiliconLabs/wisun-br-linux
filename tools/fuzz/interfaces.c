@@ -57,10 +57,9 @@ static struct {
 };
 static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries for capture/replay");
 
-void fuzz_spinel_replay_interface(struct wsbr_ctxt *wsbrd, uint32_t prop, struct iobuf_read *buf)
+static void fuzz_replay_interface(struct fuzz_ctxt *ctxt, struct iobuf_read *buf)
 {
     static bool init = false;
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     uint8_t src_addr[16];
     uint8_t dst_addr[16];
     const uint8_t *data;
@@ -70,8 +69,7 @@ void fuzz_spinel_replay_interface(struct wsbr_ctxt *wsbrd, uint32_t prop, struct
     int ret, i;
     int fd = -1;
 
-    BUG_ON(ctxt->wsbrd != wsbrd);
-    FATAL_ON(!fuzz_is_main_loop(wsbrd), 1, "interface command received during RCP init");
+    FATAL_ON(!fuzz_is_main_loop(ctxt->wsbrd), 1, "interface command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "interface command received while replay is disabled");
 
     if (!init) {
@@ -109,6 +107,16 @@ void fuzz_spinel_replay_interface(struct wsbr_ctxt *wsbrd, uint32_t prop, struct
     ret = write(fd, data, size);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < size, 2, "%s: write: Short write", __func__);
+}
+
+void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf)
+{
+    fuzz_replay_interface(&g_fuzz_ctxt, buf);
+}
+
+void fuzz_spinel_replay_interface(struct wsbr_ctxt *wsbrd, uint32_t prop, struct iobuf_read *buf)
+{
+    fuzz_replay_interface(&g_fuzz_ctxt, buf);
 }
 
 void __real_wsbr_tun_init(struct wsbr_ctxt *wsbrd);
