@@ -40,32 +40,10 @@
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
 
 #include "commandline_values.h"
-#include "rcp_api_legacy.h"
 #include "wsbr.h"
 #include "tun.h"
 
 #include "dbus.h"
-
-static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
-{
-    struct wsbr_ctxt *ctxt = userdata;
-    uint8_t mode;
-
-    sd_bus_message_read(m, "y", &mode);
-
-    if (!version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-        return sd_bus_error_set_errno(ret_error, ENOTSUP);
-
-    if (mode == 0)
-        rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
-    else if (mode == 1)
-        rcp_legacy_set_tx_allowance_level(WS_TX_SLOT, WS_TX_SLOT);
-    else
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_reply_method_return(m, NULL);
-
-    return 0;
-}
 
 int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
@@ -702,7 +680,6 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("JoinMulticastGroup",  "ay",     NULL, dbus_join_multicast_group,  0),
         SD_BUS_METHOD("LeaveMulticastGroup", "ay",     NULL, dbus_leave_multicast_group, 0),
         SD_BUS_METHOD("SetModeSwitch",       "ayi",    NULL, dbus_set_mode_switch,       0),
-        SD_BUS_METHOD("SetSlotAlgorithm",    "y",      NULL, dbus_set_slot_algorithm,    SD_BUS_VTABLE_DEPRECATED),
         SD_BUS_METHOD("RevokePairwiseKeys",  "ay",     NULL, dbus_revoke_pairwise_keys,  0),
         SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, dbus_revoke_group_keys,     0),
         SD_BUS_METHOD("InstallGtk",          "ay",     NULL, dbus_install_gtk,           0),
