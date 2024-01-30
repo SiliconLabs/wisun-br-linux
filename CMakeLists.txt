@@ -326,6 +326,7 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=clock_gettime
         -Wl,--wrap=read
         -Wl,--wrap=write
+        -Wl,--wrap=writev
         -Wl,--wrap=recv
         -Wl,--wrap=recvfrom
         -Wl,--wrap=recvmsg
