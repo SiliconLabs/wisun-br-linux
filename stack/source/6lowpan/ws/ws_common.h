@@ -82,7 +82,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint32_t pan_timeout_timer;            /**< routers will fallback to previous state after this */
     uint32_t uptime;                       /**< Seconds after interface has been started */
     uint32_t authentication_time;          /**< When the last authentication was performed */
