@@ -117,7 +117,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur)
 
     cur->ws_info.pan_information.pan_id = 0xffff;
     cur->ws_info.pan_information.use_parent_bs = true;
-    cur->ws_info.pan_information.rpl_routing_method = true;
     cur->ws_info.pan_information.pan_version_set = false;
     cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
     cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
