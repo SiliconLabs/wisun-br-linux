@@ -87,7 +87,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    int8_t weakest_received_rssi; // Weakest received signal (dBm)
     ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint32_t pan_timeout_timer;            /**< routers will fallback to previous state after this */

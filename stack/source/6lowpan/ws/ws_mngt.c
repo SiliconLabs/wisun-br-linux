@@ -421,11 +421,6 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
 void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
                  const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type)
 {
-    // Store weakest heard packet RSSI
-    if (cur->ws_info.weakest_received_rssi > data->signal_dbm) {
-        cur->ws_info.weakest_received_rssi = data->signal_dbm;
-    }
-
     if (data->SrcAddrMode != MAC_ADDR_MODE_64_BIT) {
         // Not from long address
         return;
