@@ -82,7 +82,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    uint32_t connected_time;               /**< Time we have been connected to network */
     uint16_t network_pan_id;
     bool configuration_learned: 1;
     ws_pending_key_index_t pending_key_index_info;
