@@ -399,7 +399,7 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
-static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     struct iobuf_write buf = { };
 
@@ -422,7 +422,7 @@ static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuratio
     iobuf_free(&buf);
 }
 
-static void __rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     struct iobuf_write buf = { };
 
@@ -447,7 +447,7 @@ static void __rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configur
     iobuf_free(&buf);
 }
 
-static void __rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     struct iobuf_write buf = { };
 
@@ -472,7 +472,7 @@ static void __rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configur
     iobuf_free(&buf);
 }
 
-static void __rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     struct iobuf_write buf = { };
 
@@ -482,14 +482,6 @@ static void __rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configura
     hif_push_fixed_u8_array(&buf, cfg->domain_channel_mask, sizeof(cfg->domain_channel_mask));
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_set_fhss(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
-{
-    __rcp_set_fhss_uc(rcp, cfg);
-    __rcp_set_fhss_ffn_bc(rcp, cfg);
-    __rcp_set_fhss_lfn_bc(rcp, cfg);
-    __rcp_set_fhss_async(rcp, cfg);
 }
 
 void rcp_set_sec_key(struct rcp *rcp,

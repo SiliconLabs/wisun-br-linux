@@ -77,7 +77,10 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                                                                                          cur->ws_info.hopping_schedule.number_of_channels,
                                                                                          cur->ws_info.fhss_conf.domain_channel_mask);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    rcp_set_fhss(cur->rcp, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_lfn_bc(cur->rcp, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_async(cur->rcp, &cur->ws_info.fhss_conf);
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;
