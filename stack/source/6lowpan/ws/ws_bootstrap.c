@@ -619,12 +619,6 @@ init_fail:
     return ret_val;
 }
 
-static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
-{
-    rcp_set_radio(cur->rcp, &rf_configs);
-    return 0;
-}
-
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
     const struct chan_params *chan_params;
@@ -663,7 +657,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     }
 
     hopping_schedule->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
-    ws_bootstrap_set_rf_config(cur, rf_config);
+    rcp_set_radio(cur->rcp, &rf_config);
     return 0;
 }
 
