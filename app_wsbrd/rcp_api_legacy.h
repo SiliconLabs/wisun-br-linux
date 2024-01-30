@@ -270,12 +270,12 @@ void rcp_legacy_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
 void rcp_ind_legacy(struct rcp *rcp, struct iobuf_read *buf);
 
 // Only used by the fuzzer
-struct rcp_legacy_rcp_legacy_rx_cmds {
+struct rcp_legacy_rx_cmd {
     uint32_t cmd;
     uint32_t prop;
     void (*fn)(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
 };
-extern struct rcp_legacy_rcp_legacy_rx_cmds rcp_legacy_rx_cmds[];
+extern struct rcp_legacy_rx_cmd rcp_legacy_rx_cmds[];
 uint8_t rcp_legacy_get_spinel_hdr(void);
 
 #endif

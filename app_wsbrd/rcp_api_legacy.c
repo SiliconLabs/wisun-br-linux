@@ -926,7 +926,7 @@ static void rcp_legacy_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobu
 }
 
 // Some debug tools (fuzzers) may deflect this struct. So keep it public.
-struct rcp_legacy_rcp_legacy_rx_cmds rcp_legacy_rx_cmds[] = {
+struct rcp_legacy_rx_cmd rcp_legacy_rx_cmds[] = {
     { SPINEL_CMD_NOOP,             (uint32_t)-1,                         rcp_legacy_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_MCPS_DROP,             rcp_legacy_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_STREAM_STATUS,            rcp_legacy_tx_cnf },
