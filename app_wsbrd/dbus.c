@@ -642,7 +642,7 @@ int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
 
     if (!net_if)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_message_append(reply, "q", net_if->ws_info.network_pan_id);
+    sd_bus_message_append(reply, "q", net_if->ws_info.pan_information.pan_id);
     return 0;
 }
 

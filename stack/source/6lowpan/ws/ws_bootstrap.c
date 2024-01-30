@@ -279,7 +279,7 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->lowpan_info = 0;
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
 
-    cur->ws_info.network_pan_id = 0xffff;
+    cur->ws_info.pan_information.pan_id = 0xffff;
     ws_mngt_async_trickle_stop(cur);
 }
 
@@ -465,8 +465,8 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
     }
 
     // If PAN ID has not been set, set it
-    if (cur->ws_info.network_pan_id == 0xffff) {
-        cur->ws_info.network_pan_id = pan_id;
+    if (cur->ws_info.pan_information.pan_id == 0xffff) {
+        cur->ws_info.pan_information.pan_id = pan_id;
         // Sets PAN version
         cur->ws_info.pan_information.pan_version = pan_version;
         cur->ws_info.pan_information.pan_version_set = true;
@@ -716,7 +716,7 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     if (version_older_than(cur->rcp->version_api, 2, 0, 0))
         rcp_legacy_set_security(true);
-    cur->mac_parameters.pan_id = cur->ws_info.network_pan_id;
+    cur->mac_parameters.pan_id = cur->ws_info.pan_information.pan_id;
     rcp_req_radio_enable(cur->rcp, cur->mac_parameters.pan_id);
     return;
 }

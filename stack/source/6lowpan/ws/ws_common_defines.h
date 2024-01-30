@@ -41,6 +41,7 @@ struct ws_jm { // Join metrics
  * @brief ws_pan_information_t PAN information
  */
 typedef struct ws_pan_information {
+    uint16_t pan_id;
     uint16_t pan_size;          /**< Number devices connected to Border Router. */
     struct ws_jm jm;
     uint16_t routing_cost;      /**< ETX to border Router. */

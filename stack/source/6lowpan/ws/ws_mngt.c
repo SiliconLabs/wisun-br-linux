@@ -104,7 +104,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PA))
         return;
 
-    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PA));
         return;
     }
@@ -170,7 +170,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         return;
     }
 
-    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PC));
         return;
     }
@@ -205,7 +205,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
         return;
 
-    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PCS));
         return;
     }

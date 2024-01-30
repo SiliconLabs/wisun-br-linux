@@ -267,17 +267,17 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_packet_congestion_init(cur);
 
     // Clear Old information from stack
-    cur->ws_info.network_pan_id = 0xffff;
+    cur->ws_info.pan_information.pan_id = 0xffff;
     cur->ws_info.pan_information.pan_version_set = false;
     ws_bootstrap_ip_stack_reset(cur);
     ws_pae_controller_auth_init(cur);
 
     uint16_t pan_id = ws_bbr_pan_id_get(cur);
     if (pan_id != 0xffff) {
-        cur->ws_info.network_pan_id = pan_id;
+        cur->ws_info.pan_information.pan_id = pan_id;
     } else {
-        if (cur->ws_info.network_pan_id == 0xffff) {
-            cur->ws_info.network_pan_id = rand_get_random_in_range(0, 0xfffd);
+        if (cur->ws_info.pan_information.pan_id == 0xffff) {
+            cur->ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffd);
         }
     }
     if (!cur->ws_info.pan_information.pan_version_set) {
@@ -327,7 +327,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     // Set PAN ID and network name to controller
     ws_pae_controller_network_name_set(cur, cur->ws_info.cfg->gen.network_name);
-    ws_pae_controller_pan_id_set(cur, cur->ws_info.network_pan_id);
+    ws_pae_controller_pan_id_set(cur, cur->ws_info.pan_information.pan_id);
 
     // Set backbone IP address get callback
     ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);

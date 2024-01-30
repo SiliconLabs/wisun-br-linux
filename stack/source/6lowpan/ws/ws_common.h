@@ -82,7 +82,6 @@ typedef struct ws_info {
     bool enable_lfn;
     bool enable_ffn10;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    uint16_t network_pan_id;
     ws_pending_key_index_t pending_key_index_info;
     struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information pan_information;
