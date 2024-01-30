@@ -13,6 +13,7 @@
 #include "common/string_extra.h"
 #include "common/specs/ieee802154.h"
 
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "frame_helpers.h"
 #include "wsbr.h"
 

@@ -24,7 +24,6 @@
 #include "common/specs/ieee802154.h"
 
 #include "app_wsbrd/wsbr_mac.h"
-#include "app_wsbrd/rcp_api_legacy.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 

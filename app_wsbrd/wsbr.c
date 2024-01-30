@@ -59,7 +59,7 @@
 #include "libwsbrd.h"
 #include "wsbr.h"
 #include "timers.h"
-#include "rcp_api_legacy.h"
+#include "rcp_api.h"
 #include "rail_config.h"
 #include "dbus.h"
 #include "tun.h"

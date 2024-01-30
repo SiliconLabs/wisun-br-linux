@@ -27,7 +27,6 @@
 #include "common/string_extra.h"
 #include "common/specs/ipv6.h"
 
-#include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "core/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

@@ -28,6 +28,7 @@
 #include "common/bits.h"
 
 #include "nwk_interface/protocol.h"
+#include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/wsbr.h"
 
 #include "ws_neigh.h"

@@ -26,7 +26,7 @@ typedef struct sd_bus sd_bus;
 #include "common/events_scheduler.h"
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "rcp_api_legacy.h"
+#include "rcp_api.h"
 
 #include "commandline.h"
 

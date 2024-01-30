@@ -42,7 +42,7 @@
 #include "frame_helpers.h"
 #include "version.h"
 #include "wsbr.h"
-#include "rcp_api_legacy.h"
+#include "rcp_api.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"

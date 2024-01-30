@@ -17,7 +17,6 @@
 #include "common/trickle.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
-#include "app_wsbrd/rcp_api_legacy.h"
 
 #include "stack/source/core/timers.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
