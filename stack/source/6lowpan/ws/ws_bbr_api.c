@@ -128,7 +128,7 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     pan_version_timer = 0;
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
-    ws_bootstrap_configuration_trickle_reset(cur);
+    ws_mngt_async_trickle_reset_pc(cur);
 
     // Indicate new pan version to PAE controller
     ws_pae_controller_pan_version_set(cur, cur->ws_info.pan_information.pan_version);
@@ -142,7 +142,7 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     tr_debug("Border router LFN version number update");
     cur->ws_info.pan_information.lfn_version++;
     // Inconsistent for border router to make information distribute faster
-    ws_bootstrap_configuration_trickle_reset(cur);
+    ws_mngt_async_trickle_reset_pc(cur);
 
     // Indicate new lfn version to PAE controller
     ws_pae_controller_lfn_version_set(cur, cur->ws_info.pan_information.lfn_version);

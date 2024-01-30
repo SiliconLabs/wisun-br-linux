@@ -46,6 +46,14 @@ void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
 
 void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message);
 
+void ws_mngt_pa_send(struct net_if *cur);
+void ws_mngt_pc_send(struct net_if *cur);
+
+void ws_mngt_async_trickle_start(struct net_if *cur);
+void ws_mngt_async_trickle_stop(struct net_if *cur);
+void ws_mngt_async_trickle_reset_pc(struct net_if *cur);
+void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks);
+
 void ws_mngt_lpa_timer_cb(int ticks);
 void ws_mngt_lts_timer_cb(int ticks);
 

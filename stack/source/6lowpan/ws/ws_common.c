@@ -151,7 +151,7 @@ void ws_common_fast_timer(int ticks)
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
 
-    ws_bootstrap_trickle_timer(cur, ticks);
+    ws_mngt_async_trickle_timer_cb(cur, ticks);
 }
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)

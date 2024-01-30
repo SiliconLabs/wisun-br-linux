@@ -286,7 +286,7 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
 
     cur->ws_info.network_pan_id = 0xffff;
-    ws_bootstrap_asynch_trickle_stop(cur);
+    ws_mngt_async_trickle_stop(cur);
 }
 
 // TODO: in wsbrd 2.0, this function must disappear.
@@ -739,99 +739,6 @@ void ws_bootstrap_ip_stack_activate(struct net_if *cur)
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     ws_bootstrap_ip_stack_reset(cur);
 }
-
-void ws_bootstrap_advertise_start(struct net_if *cur)
-{
-    cur->ws_info.mngt.trickle_pa_running = true;
-    trickle_start(&cur->ws_info.mngt.trickle_pa, "ADV", &cur->ws_info.mngt.trickle_params);
-    cur->ws_info.mngt.trickle_pc_running = true;
-    trickle_start(&cur->ws_info.mngt.trickle_pc, "CFG", &cur->ws_info.mngt.trickle_params);
-}
-
-void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
-{
-    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
-}
-
-void ws_bootstrap_pan_advert(struct net_if *cur)
-{
-    const struct ws_hopping_schedule *schedule = &cur->ws_info.hopping_schedule;
-    struct ws_llc_mngt_req req = {
-        .frame_type = WS_FT_PA,
-        .wh_ies.utt     = true,
-        .wp_ies.us      = true,
-        .wp_ies.pan     = true,
-        .wp_ies.netname = true,
-        .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
-        .wp_ies.jm      = cur->ws_info.pan_information.jm.mask,
-    };
-    uint8_t plf;
-
-    // FIXME: we would like to compute these in ws_llc before including the
-    // relevant IEs, but it is inconvenient since we are still supporting
-    // FFNs for simulation.
-    // Border routers write the NW size
-    cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
-    if (cur->ws_info.pan_information.jm.mask & (1 << WS_JM_PLF)) {
-        plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size,
-                                    cur->ws_info.cfg->gen.network_size);
-        if (plf != cur->ws_info.pan_information.jm.plf) {
-            cur->ws_info.pan_information.jm.plf = plf;
-            cur->ws_info.pan_information.jm.version++;
-        }
-    }
-    cur->ws_info.pan_information.routing_cost = 0;
-
-    ws_llc_asynch_request(cur, &req);
-}
-
-void ws_bootstrap_pan_config(struct net_if *cur)
-{
-    struct ws_llc_mngt_req req = {
-        .frame_type = WS_FT_PC,
-        .wh_ies.utt      = true,
-        .wh_ies.bt       = true,
-        .wh_ies.lbc      = cur->ws_info.pan_information.lfn_version_set,
-        .wp_ies.us       = true,
-        .wp_ies.bs       = true,
-        .wp_ies.panver   = true,
-        .wp_ies.gtkhash  = true,
-        .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
-        .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
-        .security.SecurityLevel = SEC_ENC_MIC64,
-    };
-
-    if (cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
-        req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
-        cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
-    } else {
-        req.security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
-    }
-
-    ws_llc_asynch_request(cur, &req);
-}
-
-void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
-{
-    if (cur->ws_info.mngt.trickle_pa_running &&
-            trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks)) {
-        // send PAN advertisement
-        ws_bootstrap_pan_advert(cur);
-    }
-    if (cur->ws_info.mngt.trickle_pc_running) {
-        if (trickle_timer(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params, ticks)) {
-            // send PAN Configuration
-            ws_bootstrap_pan_config(cur);
-        }
-    }
-}
-
-void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
-{
-    cur->ws_info.mngt.trickle_pa_running = false;
-    cur->ws_info.mngt.trickle_pc_running = false;
-}
-
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
 {

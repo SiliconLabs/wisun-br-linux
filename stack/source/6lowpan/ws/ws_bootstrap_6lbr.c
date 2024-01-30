@@ -262,7 +262,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ipv6_destination_cache_clean(cur->id);
 
     // All trickle timers stopped to allow entry from any state
-    ws_bootstrap_asynch_trickle_stop(cur);
+    ws_mngt_async_trickle_stop(cur);
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
 
@@ -349,19 +349,19 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
         rcp_legacy_set_max_be(WS_MAC_MAX_BE);
     }
     // Advertisements stopped during the RPL scan
-    ws_bootstrap_asynch_trickle_stop(cur);
+    ws_mngt_async_trickle_stop(cur);
     // Activate RPL
     // Activate IPv6 stack
     ws_bootstrap_ip_stack_activate(cur);
     addr_add_router_groups(cur);
     // stopped all to make sure we can enter here from any state
-    ws_bootstrap_asynch_trickle_stop(cur);
+    ws_mngt_async_trickle_stop(cur);
 
-    ws_bootstrap_advertise_start(cur);
+    ws_mngt_async_trickle_start(cur);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
     // Sending async frames to trigger trickle timers of devices in our range.
     // Doing so allows to get back to an operational network faster.
-    ws_bootstrap_pan_advert(cur);
-    ws_bootstrap_pan_config(cur);
+    ws_mngt_pa_send(cur);
+    ws_mngt_pc_send(cur);
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 }

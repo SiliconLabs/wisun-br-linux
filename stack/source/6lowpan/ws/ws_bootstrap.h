@@ -35,22 +35,8 @@ int ws_bootstrap_init(int8_t interface_id);
 
 int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 
-void ws_bootstrap_state_machine(struct net_if *cur);
-
-void ws_bootstrap_configuration_trickle_reset(struct net_if *cur);
-
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
-void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
-
-/*
- * Functions shared with different bootstrap modes
- */
-
-/*State machine transactions*/
-void ws_bootstrap_event_discovery_start(struct net_if *cur);
-
-// Bootstrap state machine state Functions
 struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 
@@ -68,10 +54,5 @@ void ws_bootstrap_ip_stack_reset(struct net_if *cur);
 void ws_bootstrap_ip_stack_activate(struct net_if *cur);
 
 void ws_bootstrap_packet_congestion_init(struct net_if *cur);
-
-void ws_bootstrap_asynch_trickle_stop(struct net_if *cur);
-void ws_bootstrap_advertise_start(struct net_if *cur);
-void ws_bootstrap_pan_advert(struct net_if *cur);
-void ws_bootstrap_pan_config(struct net_if *cur);
 
 #endif
