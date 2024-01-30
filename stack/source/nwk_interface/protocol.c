@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/events_scheduler.h"

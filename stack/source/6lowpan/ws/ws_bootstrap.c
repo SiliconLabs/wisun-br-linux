@@ -575,7 +575,7 @@ int ws_bootstrap_init(int8_t interface_id)
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
-    ws_llc_create(cur, &ws_bootstrap_6lbr_mngt_ind, &ws_bootstrap_6lbr_asynch_confirm);
+    ws_llc_create(cur, &ws_mngt_ind, &ws_mngt_cnf);
 
     mpx_api_t *mpx_api = ws_llc_mpx_api_get(cur);
     if (!mpx_api) {

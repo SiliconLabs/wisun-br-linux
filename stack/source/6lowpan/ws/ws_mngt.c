@@ -418,6 +418,60 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
     ws_mngt_lpc_send(net_if, data->SrcAddr);
 }
 
+void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
+                 const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type)
+{
+    // Store weakest heard packet RSSI
+    if (cur->ws_info.weakest_received_rssi > data->signal_dbm) {
+        cur->ws_info.weakest_received_rssi = data->signal_dbm;
+    }
+
+    if (data->SrcAddrMode != MAC_ADDR_MODE_64_BIT) {
+        // Not from long address
+        return;
+    }
+    //Handle Message's
+    switch (message_type) {
+        case WS_FT_PA:
+            ws_mngt_pa_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_PAS:
+            ws_mngt_pas_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_PC:
+            ws_mngt_pc_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_PCS:
+            ws_mngt_pcs_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_LPAS:
+            ws_mngt_lpas_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_LPCS:
+            ws_mngt_lpcs_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_LPA:
+        case WS_FT_LPC:
+            WARN("LFN messages are not yet supported");
+        default:
+            // Unknown message do not process
+            break;
+    }
+}
+
+void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message)
+{
+    if (asynch_message == WS_FT_PA)
+        interface->pan_advert_running = false;
+    else if (asynch_message == WS_FT_PC)
+        interface->pan_config_running = false;
+    if (asynch_message == WS_FT_PC && interface->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
+        interface->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
+        /* Deprecated: Unused by the RCP. */
+        interface->mac_parameters.mac_default_ffn_key_index = interface->ws_info.pending_key_index_info.index + 1;
+    }
+}
+
 static void ws_mngt_lts_send(struct net_if *net_if)
 {
     struct ws_llc_mngt_req req = {

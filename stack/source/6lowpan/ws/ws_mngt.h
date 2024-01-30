@@ -17,19 +17,6 @@
 #include <stdint.h>
 #include "common/trickle.h"
 
-/*
- * Processing of Wi-SUN management frames
- * - PAN Advertisement (PA)
- * - PAN Advertisement Solicit (PAS)
- * - PAN Configuration (PC)
- * - PAN Configuration Solicit (PCS)
- * - LFN PAN Advertisement (LPA)
- * - LFN PAN Advertisement Solicit (LPAS)
- * - LFN PAN Configuration (LPC)
- * - LFN PAN Configuration Solicit (LPCS)
- * - LFN Time Sync (LTS)
- */
-
 struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
 struct net_if;
@@ -43,24 +30,21 @@ struct ws_mngt {
     uint8_t lpa_dst[8];
 };
 
-void ws_mngt_pa_analyze(struct net_if *net_if,
-                        const struct mcps_data_ind *data,
-                        const struct mcps_data_rx_ie_list *ie_ext);
-void ws_mngt_pas_analyze(struct net_if *net_if,
-                         const struct mcps_data_ind *data,
-                         const struct mcps_data_rx_ie_list *ie_ext);
-void ws_mngt_pc_analyze(struct net_if *net_if,
-                        const struct mcps_data_ind *data,
-                        const struct mcps_data_rx_ie_list *ie_ext);
-void ws_mngt_pcs_analyze(struct net_if *net_if,
-                         const struct mcps_data_ind *data,
-                         const struct mcps_data_rx_ie_list *ie_ext);
-void ws_mngt_lpas_analyze(struct net_if *net_if,
-                          const struct mcps_data_ind *data,
-                          const struct mcps_data_rx_ie_list *ie_ext);
-void ws_mngt_lpcs_analyze(struct net_if *net_if,
-                          const struct mcps_data_ind *data,
-                          const struct mcps_data_rx_ie_list *ie_ext);
+/* Processing of Wi-SUN management frames
+ *   - PAN Advertisement (PA)
+ *   - PAN Advertisement Solicit (PAS)
+ *   - PAN Configuration (PC)
+ *   - PAN Configuration Solicit (PCS)
+ *   - LFN PAN Advertisement (LPA)
+ *   - LFN PAN Advertisement Solicit (LPAS)
+ *   - LFN PAN Configuration (LPC)
+ *   - LFN PAN Configuration Solicit (LPCS)
+ *   - LFN Time Sync (LTS)
+ */
+void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
+                 const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type);
+
+void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message);
 
 void ws_mngt_lpa_timer_cb(int ticks);
 void ws_mngt_lts_timer_cb(int ticks);
