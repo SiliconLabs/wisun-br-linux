@@ -657,7 +657,10 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     }
 
     hopping_schedule->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
-    rcp_set_radio(cur->rcp, &rf_config);
+    rcp_set_radio(cur->rcp,
+                  rf_config.rcp_config_index,
+                  rf_config.ofdm_mcs,
+                  rf_config.use_phy_op_modes);
     return 0;
 }
 
