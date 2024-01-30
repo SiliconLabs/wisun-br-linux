@@ -837,10 +837,9 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
     if (!FIELD_GET(WS_WPIE_PAN_ROUTING_METHOD_MASK, tmp8))
         TRACE(TR_IGNORE, "ignore %-9s: unsupported routing method", "15.4");
     pan_configuration->version            = FIELD_GET(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  tmp8);
-    if (pan_configuration->version > WS_FAN_VERSION_1_0)
-        pan_configuration->lfn_window_style = FIELD_GET(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, tmp8);
-    else
-        pan_configuration->lfn_window_style = false;
+    if (pan_configuration->version > WS_FAN_VERSION_1_0 &&
+        FIELD_GET(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, tmp8))
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported LFN window style", "15.4");
     return !ie_buf.err;
 }
 

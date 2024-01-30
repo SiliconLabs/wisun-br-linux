@@ -49,7 +49,6 @@ typedef struct ws_pan_information {
     uint16_t lfn_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */
     bool pan_version_set: 1;    /**< 1 PAN version is set. */
     bool lfn_version_set: 1;   /**< 1 LFN PAN version is set. */
-    bool lfn_window_style: 1;   /**< 1 FFN management trasmission. */
     unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 
