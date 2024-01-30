@@ -41,6 +41,11 @@ static void rcp_tx(struct rcp *rcp, struct iobuf_write *buf)
     rcp->device_tx(ctxt->os_ctxt, buf->data, buf->len);
 }
 
+static void rcp_ind_nop(struct rcp *rcp, struct iobuf_read *buf)
+{
+    BUG_ON(buf->err);
+}
+
 void rcp_req_reset(struct rcp *rcp, bool bootload)
 {
     struct iobuf_write buf = { };
@@ -640,6 +645,7 @@ static const struct {
     uint8_t cmd;
     void (*fn)(struct rcp *rcp, struct iobuf_read *buf);
 } rcp_cmd_table[] = {
+    { HIF_CMD_IND_NOP,        rcp_ind_nop        },
     { HIF_CMD_IND_RESET,      rcp_ind_reset      },
     { HIF_CMD_IND_FATAL,      rcp_ind_fatal      },
     { HIF_CMD_CNF_DATA_TX,    rcp_cnf_data_tx    },
