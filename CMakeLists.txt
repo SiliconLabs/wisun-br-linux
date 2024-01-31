@@ -404,6 +404,12 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=__tr_printf
             -Wl,--wrap=getrandom
             -Wl,--wrap=time
+            # For --capture
+            -Wl,--wrap=uart_legacy_rx
+            -Wl,--wrap=read
+            -Wl,--wrap=recv
+            -Wl,--wrap=recvfrom
+            -Wl,--wrap=recvmsg
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
