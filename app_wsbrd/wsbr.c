@@ -513,6 +513,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
         rcp_rx(&ctxt->rcp);
     if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);
+    if (ctxt->fds[POLLFD_PCAP].revents & POLLERR)
+        wsbr_pcapng_closed(ctxt);
 }
 
 int wsbr_main(int argc, char *argv[])

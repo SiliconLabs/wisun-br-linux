@@ -16,6 +16,17 @@
 #include "frame_helpers.h"
 #include "wsbr.h"
 
+void wsbr_pcapng_closed(struct wsbr_ctxt *ctxt)
+{
+    int ret;
+
+    WARN("stopped pcapng capture");
+    ret = close(ctxt->pcapng_fd);
+    FATAL_ON(ret < 0, 2, "close pcapng: %m");
+    ctxt->pcapng_fd = -1;
+    ctxt->fds[POLLFD_PCAP].fd = -1;
+}
+
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt);
 
 static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct iobuf_write *buf)
@@ -28,23 +39,17 @@ static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct iobuf_write *
         if (ctxt->pcapng_fd < 0)
             return;
         WARN("restarted pcapng capture");
+        ctxt->fds[POLLFD_PCAP].fd = ctxt->pcapng_fd;
         wsbr_pcapng_write_start(ctxt);
     }
 
     ret = write(ctxt->pcapng_fd, buf->data, buf->len);
     if (ret >= 0)
         return;
-    if (ctxt->pcapng_type != S_IFIFO)
+    if (ctxt->pcapng_type == S_IFIFO && errno == EAGAIN)
+        WARN("pcapng fifo full");
+    else
         FATAL(2, "write pcapng: %m");
-    if (errno == EAGAIN)
-        return;
-    if (errno != EPIPE)
-        FATAL(2, "write pcapng: %m");
-
-    WARN("stopped pcapng capture");
-    ret = close(ctxt->pcapng_fd);
-    FATAL_ON(ret < 0, 2, "close pcapng: %m");
-    ctxt->pcapng_fd = -1;
 }
 
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt)
@@ -93,6 +98,7 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
         FATAL_ON(ctxt->pcapng_fd < 0, 2, "open %s: %m", ctxt->config.pcap_file);
     }
 
+    ctxt->fds[POLLFD_PCAP].fd = ctxt->pcapng_fd;
     wsbr_pcapng_write_start(ctxt);
 }
 
