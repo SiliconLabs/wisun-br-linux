@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <poll.h>
 #ifdef HAVE_LIBSYSTEMD
 #  include <systemd/sd-bus.h>
 #else
@@ -31,7 +32,23 @@ typedef struct sd_bus sd_bus;
 
 struct iobuf_read;
 
+enum {
+    POLLFD_TUN,
+    POLLFD_RCP,
+    POLLFD_DBUS,
+    POLLFD_EVENT,
+    POLLFD_TIMER,
+    POLLFD_DHCP_SERVER,
+    POLLFD_RPL,
+    POLLFD_BR_EAPOL_RELAY,
+    POLLFD_EAPOL_RELAY,
+    POLLFD_PAE_AUTH,
+    POLLFD_RADIUS,
+    POLLFD_COUNT,
+};
+
 struct wsbr_ctxt {
+    struct pollfd fds[POLLFD_COUNT];
     struct os_ctxt *os_ctxt;
     struct events_scheduler scheduler;
     struct wsbrd_conf config;

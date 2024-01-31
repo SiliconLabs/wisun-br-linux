@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <poll.h>
 #include <unistd.h>
 #include <signal.h>
 #include "common/bus_uart.h"
@@ -67,21 +66,6 @@
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
 static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status);
-
-enum {
-    POLLFD_TUN,
-    POLLFD_RCP,
-    POLLFD_DBUS,
-    POLLFD_EVENT,
-    POLLFD_TIMER,
-    POLLFD_DHCP_SERVER,
-    POLLFD_RPL,
-    POLLFD_BR_EAPOL_RELAY,
-    POLLFD_EAPOL_RELAY,
-    POLLFD_PAE_AUTH,
-    POLLFD_RADIUS,
-    POLLFD_COUNT,
-};
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
@@ -465,69 +449,69 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     }
 }
 
-static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
+static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
 {
-    fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
-    fds[POLLFD_DBUS].events = POLLIN;
-    fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
-    fds[POLLFD_RCP].events = POLLIN;
-    fds[POLLFD_TUN].fd = ctxt->tun_fd;
-    fds[POLLFD_TUN].events = POLLIN;
-    fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
-    fds[POLLFD_EVENT].events = POLLIN;
-    fds[POLLFD_TIMER].fd = ctxt->timerfd;
-    fds[POLLFD_TIMER].events = POLLIN;
-    fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
-    fds[POLLFD_DHCP_SERVER].events = POLLIN;
-    fds[POLLFD_RPL].fd = ctxt->rpl_root.sockfd;
-    fds[POLLFD_RPL].events = POLLIN;
-    fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
-    fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
-    fds[POLLFD_EAPOL_RELAY].fd = ws_eapol_auth_relay_get_socket_fd();
-    fds[POLLFD_EAPOL_RELAY].events = POLLIN;
-    fds[POLLFD_PAE_AUTH].fd = kmp_socket_if_get_pae_socket_fd();
-    fds[POLLFD_PAE_AUTH].events = POLLIN;
-    fds[POLLFD_RADIUS].fd = kmp_socket_if_get_radius_sockfd();
-    fds[POLLFD_RADIUS].events = POLLIN;
+    ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
+    ctxt->fds[POLLFD_DBUS].events = POLLIN;
+    ctxt->fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
+    ctxt->fds[POLLFD_RCP].events = POLLIN;
+    ctxt->fds[POLLFD_TUN].fd = ctxt->tun_fd;
+    ctxt->fds[POLLFD_TUN].events = POLLIN;
+    ctxt->fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
+    ctxt->fds[POLLFD_EVENT].events = POLLIN;
+    ctxt->fds[POLLFD_TIMER].fd = ctxt->timerfd;
+    ctxt->fds[POLLFD_TIMER].events = POLLIN;
+    ctxt->fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
+    ctxt->fds[POLLFD_DHCP_SERVER].events = POLLIN;
+    ctxt->fds[POLLFD_RPL].fd = ctxt->rpl_root.sockfd;
+    ctxt->fds[POLLFD_RPL].events = POLLIN;
+    ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
+    ctxt->fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
+    ctxt->fds[POLLFD_EAPOL_RELAY].fd = ws_eapol_auth_relay_get_socket_fd();
+    ctxt->fds[POLLFD_EAPOL_RELAY].events = POLLIN;
+    ctxt->fds[POLLFD_PAE_AUTH].fd = kmp_socket_if_get_pae_socket_fd();
+    ctxt->fds[POLLFD_PAE_AUTH].events = POLLIN;
+    ctxt->fds[POLLFD_RADIUS].fd = kmp_socket_if_get_radius_sockfd();
+    ctxt->fds[POLLFD_RADIUS].events = POLLIN;
 }
 
-static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
+static void wsbr_poll(struct wsbr_ctxt *ctxt)
 {
     uint64_t val;
     int ret;
 
     if (ctxt->os_ctxt->uart_data_ready)
-        ret = poll(fds, POLLFD_COUNT, 0);
+        ret = poll(ctxt->fds, POLLFD_COUNT, 0);
     else
-        ret = poll(fds, POLLFD_COUNT, -1);
+        ret = poll(ctxt->fds, POLLFD_COUNT, -1);
     FATAL_ON(ret < 0, 2, "poll: %m");
 
-    if (fds[POLLFD_DBUS].revents & POLLIN)
+    if (ctxt->fds[POLLFD_DBUS].revents & POLLIN)
         dbus_process(ctxt);
-    if (fds[POLLFD_DHCP_SERVER].revents & POLLIN)
+    if (ctxt->fds[POLLFD_DHCP_SERVER].revents & POLLIN)
         dhcp_recv(&ctxt->dhcp_server);
-    if (fds[POLLFD_RPL].revents & POLLIN)
+    if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
         rpl_recv(&ctxt->rpl_root);
-    if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
-        ws_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
-    if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
-        ws_eapol_auth_relay_socket_cb(fds[POLLFD_EAPOL_RELAY].fd);
-    if (fds[POLLFD_PAE_AUTH].revents & POLLIN)
-        kmp_socket_if_pae_socket_cb(fds[POLLFD_PAE_AUTH].fd);
-    if (fds[POLLFD_RADIUS].revents & POLLIN)
-        kmp_socket_if_radius_socket_cb(fds[POLLFD_RADIUS].fd);
-    if (fds[POLLFD_TUN].revents & POLLIN)
+    if (ctxt->fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
+        ws_eapol_relay_socket_cb(ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd);
+    if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
+        ws_eapol_auth_relay_socket_cb(ctxt->fds[POLLFD_EAPOL_RELAY].fd);
+    if (ctxt->fds[POLLFD_PAE_AUTH].revents & POLLIN)
+        kmp_socket_if_pae_socket_cb(ctxt->fds[POLLFD_PAE_AUTH].fd);
+    if (ctxt->fds[POLLFD_RADIUS].revents & POLLIN)
+        kmp_socket_if_radius_socket_cb(ctxt->fds[POLLFD_RADIUS].fd);
+    if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
-    if (fds[POLLFD_EVENT].revents & POLLIN) {
+    if (ctxt->fds[POLLFD_EVENT].revents & POLLIN) {
         read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
         event_scheduler_run_until_idle();
     }
-    if (fds[POLLFD_RCP].revents & POLLIN ||
-        fds[POLLFD_RCP].revents & POLLERR ||
+    if (ctxt->fds[POLLFD_RCP].revents & POLLIN ||
+        ctxt->fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->os_ctxt->uart_data_ready)
         rcp_rx(&ctxt->rcp);
-    if (fds[POLLFD_TIMER].revents & POLLIN)
+    if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);
 }
 
@@ -542,7 +526,6 @@ int wsbr_main(int argc, char *argv[])
         NULL,
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct pollfd fds[POLLFD_COUNT];
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
@@ -602,12 +585,12 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.user[0] && ctxt->config.group[0])
         drop_privileges(&ctxt->config);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
-    wsbr_fds_init(ctxt, fds);
+    wsbr_fds_init(ctxt);
 
     INFO("Wi-SUN Border Router is ready");
 
     while (true)
-        wsbr_poll(ctxt, fds);
+        wsbr_poll(ctxt);
 
     return 0;
 }
