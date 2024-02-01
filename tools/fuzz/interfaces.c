@@ -166,7 +166,6 @@ void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt)
     int j;
 
     for (int i = 0; i < IF_SOCKET_COUNT; i++) {
-        BUG_ON(ctxt->socket_pipes[i][0] < 0, "uninitialized replay pipe");
         for (j = 0; j < IF_SOCKET_COUNT; j++) {
             if (ctxt->socket_pipes[i][0] == s_sockets[j].get_capture_fd()) {
                 s_sockets[j].replay_write_fd = ctxt->socket_pipes[i][1];
