@@ -1,3 +1,14 @@
+v1.9
+------
+  - Support RCP API version 2.0.
+  - Improve reboot behavior:
+    * Save and restore RPL routes.
+    * Save and restore IPv6 neighbor cache.
+    * Introduce D-Bus property `RoutingGraph` and deprecate `ipv6` and `parent`
+      fields in `Nodes`.
+    * Introduce D-Bus methods to increase RPL counters.
+  - Internal cleanup.
+
 v1.8.2
 ------
   - Fix crash on full neighbor table.
