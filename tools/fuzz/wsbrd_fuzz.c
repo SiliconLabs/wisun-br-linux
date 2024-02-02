@@ -96,28 +96,6 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     return ret;
 }
 
-int __real_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
-int __wrap_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
-{
-    struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
-    uint8_t frame[4096];
-    size_t frame_len;
-
-    if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
-        return 0;
-
-    if (fuzz_ctxt->capture_fd < 0)
-        return __real_uart_legacy_rx(ctxt, buf, buf_len);
-
-    frame_len = uart_legacy_rx_hdlc(ctxt, frame, sizeof(frame));
-    if (!frame_len)
-        return 0;
-    fuzz_capture_timers(fuzz_ctxt);
-    fuzz_capture_raw(fuzz_ctxt, frame, frame_len);
-    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_init_phase);
-    return frame_len;
-}
-
 bool __real_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc);
 bool __wrap_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc)
 {
@@ -168,14 +146,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
 int wsbr_fuzz_main(int argc, char *argv[])
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    int i;
 
-    for (i = 0; rcp_legacy_rx_cmds[i].cmd != (uint32_t)-1; i++) {
-        if (rcp_legacy_rx_cmds[i].cmd == SPINEL_CMD_REPLAY_TIMERS)
-            rcp_legacy_rx_cmds[i].fn = fuzz_spinel_replay_timers;
-        if (rcp_legacy_rx_cmds[i].cmd == SPINEL_CMD_REPLAY_INTERFACE)
-            rcp_legacy_rx_cmds[i].fn = fuzz_spinel_replay_interface;
-    }
     for (struct rcp_cmd *cmd = rcp_cmd_table; cmd->fn; cmd++) {
         if (cmd->cmd == HIF_CMD_IND_REPLAY_TIMER)
             cmd->fn = fuzz_ind_replay_timers;

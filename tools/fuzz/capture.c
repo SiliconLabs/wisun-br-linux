@@ -28,20 +28,6 @@
 #include "interfaces.h"
 #include "capture.h"
 
-void fuzz_capture_raw(struct fuzz_ctxt *ctxt, const void *data, size_t size)
-{
-    int ret;
-    int fd;
-
-    if (ctxt->capture_init_fd >= 0 && !fuzz_is_main_loop(ctxt->wsbrd))
-        fd = ctxt->capture_init_fd;
-    else
-        fd = ctxt->capture_fd;
-    ret = write(fd, data, size);
-    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
-    FATAL_ON(ret < size, 2, "%s: write: Short write", __func__);
-}
-
 void fuzz_capture_uart(struct fuzz_ctxt *ctxt, const void *buf, size_t buf_len)
 {
     uint8_t hdr[4], fcs[2];
@@ -69,17 +55,6 @@ void fuzz_capture_uart(struct fuzz_ctxt *ctxt, const void *buf, size_t buf_len)
         FATAL(2 ,"%s: write: Short write", __func__);
 }
 
-static void fuzz_capture_spinel(struct fuzz_ctxt *ctxt, struct iobuf_write *buf)
-{
-    uint16_t crc = crc16(CRC_INIT_LEGACY, buf->data, buf->data_size) ^ CRC_XOROUT_LEGACY;
-    uint8_t *frame = malloc(buf->data_size * 2 + 3);
-    size_t frame_len;
-
-    frame_len = uart_legacy_encode_hdlc(frame, buf->data, buf->data_size, crc);
-    fuzz_capture_raw(ctxt, frame, frame_len);
-    free(frame);
-}
-
 void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -87,16 +62,9 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
     if (!ctxt->timer_counter)
         return;
 
-    if (version_older_than(g_ctxt.rcp.version_api, 2, 0, 0)) {
-        hif_push_u8(&buf, rcp_legacy_get_spinel_hdr());
-        hif_push_uint(&buf, SPINEL_CMD_REPLAY_TIMERS);
-        hif_push_u16(&buf, ctxt->timer_counter);
-        fuzz_capture_spinel(ctxt, &buf);
-    } else {
-        hif_push_u8(&buf, HIF_CMD_IND_REPLAY_TIMER);
-        hif_push_u16(&buf, ctxt->timer_counter);
-        fuzz_capture_uart(ctxt, buf.data, buf.len);
-    }
+    hif_push_u8(&buf, HIF_CMD_IND_REPLAY_TIMER);
+    hif_push_u16(&buf, ctxt->timer_counter);
+    fuzz_capture_uart(ctxt, buf.data, buf.len);
     iobuf_free(&buf);
     ctxt->timer_counter = 0;
 }
@@ -107,23 +75,12 @@ void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
 {
     struct iobuf_write buf = { };
 
-    if (version_older_than(g_ctxt.rcp.version_api, 2, 0, 0)) {
-        hif_push_u8(&buf, rcp_legacy_get_spinel_hdr());
-        hif_push_uint(&buf, SPINEL_CMD_REPLAY_INTERFACE);
-        hif_push_u8(&buf, interface);
-        hif_push_fixed_u8_array(&buf, src_addr, 16);
-        hif_push_fixed_u8_array(&buf, dst_addr, 16);
-        hif_push_u16(&buf, src_port);
-        hif_push_data(&buf, data, size);
-        fuzz_capture_spinel(ctxt, &buf);
-    } else {
-        hif_push_u8(&buf, HIF_CMD_IND_REPLAY_SOCKET);
-        hif_push_u8(&buf, interface);
-        hif_push_fixed_u8_array(&buf, src_addr, 16);
-        hif_push_fixed_u8_array(&buf, dst_addr, 16);
-        hif_push_u16(&buf, src_port);
-        hif_push_data(&buf, data, size);
-        fuzz_capture_uart(ctxt, buf.data, buf.len);
-    }
+    hif_push_u8(&buf, HIF_CMD_IND_REPLAY_SOCKET);
+    hif_push_u8(&buf, interface);
+    hif_push_fixed_u8_array(&buf, src_addr, 16);
+    hif_push_fixed_u8_array(&buf, dst_addr, 16);
+    hif_push_u16(&buf, src_port);
+    hif_push_data(&buf, data, size);
+    fuzz_capture_uart(ctxt, buf.data, buf.len);
     iobuf_free(&buf);
 }

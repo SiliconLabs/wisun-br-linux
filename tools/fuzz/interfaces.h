@@ -32,7 +32,6 @@ enum {
 };
 
 void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf);
-void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
 void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt);
 
 #endif

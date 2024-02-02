@@ -125,8 +125,3 @@ void fuzz_ind_replay_timers(struct rcp *rcp, struct iobuf_read *buf)
 {
     BUG();
 }
-
-void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
-{
-    BUG();
-}

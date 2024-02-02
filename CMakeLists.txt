@@ -316,7 +316,6 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=print_help_br
         -Wl,--wrap=uart_open
         -Wl,--wrap=uart_rx
-        -Wl,--wrap=uart_legacy_rx
         -Wl,--wrap=crc_check
         -Wl,--wrap=spinel_prop_is_valid
         -Wl,--wrap=wsbr_tun_init
@@ -408,7 +407,6 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=time
             # For --capture
             -Wl,--wrap=uart_rx
-            -Wl,--wrap=uart_legacy_rx
             -Wl,--wrap=read
             -Wl,--wrap=recv
             -Wl,--wrap=recvfrom
