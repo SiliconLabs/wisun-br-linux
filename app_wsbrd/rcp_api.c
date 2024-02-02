@@ -279,20 +279,13 @@ static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
     ctxt->rcp.on_rx_ind(ctxt->net_if.id, &ind, &ind_ie);
 }
 
-static void __rcp_req_radio_enable(struct rcp *rcp)
+void rcp_req_radio_enable(struct rcp *rcp)
 {
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_REQ_RADIO_ENABLE);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id);
-void rcp_req_radio_enable(struct rcp *rcp, uint16_t pan_id)
-{
-    __rcp_set_filter_pan_id(rcp, pan_id);
-    __rcp_req_radio_enable(rcp);
 }
 
 void rcp_req_radio_list(struct rcp *rcp)
@@ -499,7 +492,7 @@ void rcp_set_sec_key(struct rcp *rcp,
     iobuf_free(&buf);
 }
 
-static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
+void rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
 {
     struct iobuf_write buf = { };
 

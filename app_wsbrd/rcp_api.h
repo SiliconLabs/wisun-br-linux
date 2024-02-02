@@ -72,8 +72,7 @@ void rcp_req_data_tx(struct rcp *rcp,
                      const struct hif_rate_info rate_list[4]);
 void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle);
 
-// TODO: split into rcp_req_radio_enable() and rcp_set_filter_pan_id()
-void rcp_req_radio_enable(struct rcp *rcp, uint16_t pan_id);
+void rcp_req_radio_enable(struct rcp *rcp);
 void rcp_req_radio_list(struct rcp *rcp);
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config);
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
@@ -89,6 +88,7 @@ void rcp_set_sec_key(struct rcp *rcp,
                      const uint8_t key[16],
                      uint32_t frame_counter);
 
+void rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id);
 void rcp_set_filter_src64(struct rcp *rcp,
                           const uint8_t eui64[][8],
                           uint8_t count,
