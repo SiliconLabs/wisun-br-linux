@@ -97,6 +97,7 @@ enum hif_reg {
     HIF_REG_FCC  = 1,
     HIF_REG_ARIB = 2,
     HIF_REG_ETSI = 3,
+    HIF_REG_WPC  = 5,
 };
 
 enum hif_fhss_type {

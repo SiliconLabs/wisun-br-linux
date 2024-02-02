@@ -781,6 +781,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("Japanese regulation domain used without ARIB regional regulation");
     if (config->ws_domain != REG_DOMAIN_JP && config->ws_regional_regulation == HIF_REG_ARIB)
         FATAL(1, "ARIB is only supported with Japanese regulation domain");
+    if (config->ws_domain == REG_DOMAIN_IN && config->ws_regional_regulation != HIF_REG_WPC)
+        WARN("domain = IN used without regional_regulation = wpc");
     phy_params = ws_regdb_phy_params(config->ws_phy_mode_id, config->ws_mode);
     if (config->ws_regional_regulation == HIF_REG_ARIB && phy_params && phy_params->fec)
         FATAL(1, "ARIB is not supported with FSK FEC");

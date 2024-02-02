@@ -129,5 +129,6 @@ const struct name_value valid_booleans[] = {
 const struct name_value valid_ws_regional_regulations[] = {
     { "none", HIF_REG_NONE },
     { "arib", HIF_REG_ARIB },
+    { "wpc",  HIF_REG_WPC  },
     { NULL },
 };
