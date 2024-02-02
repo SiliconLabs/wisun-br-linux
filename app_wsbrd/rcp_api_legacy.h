@@ -33,35 +33,6 @@ struct rcp;
 #define RCP_HAS_RF_CONFIG_LIST 0x0004
 #define RCP_HAS_RF_CONFIG      0x0008
 
-typedef enum {
-    IEEE_802_15_4_2011 = 0,    /**<IEEE 802.15.4-2011*/
-    IEEE_802_15_4G_2012 = 1,   /**<IEEE 802.15.4g-2012*/
-} phy_802_15_4_mode_e;
-
-typedef enum {
-    WS_TX_SLOT, // Allow transmitting only on TX slots.
-    WS_TX_AND_RX_SLOT, // Allow transmitting only on TX and RX slots.
-} fhss_ws_tx_allow_level_e;
-
-enum channel_page {
-    CHANNEL_PAGE_0 = 0,     ///< Page 0
-    CHANNEL_PAGE_1 = 1,     ///< Page 1
-    CHANNEL_PAGE_2 = 2,     ///< Page 2
-    CHANNEL_PAGE_3 = 3,     ///< Page 3
-    CHANNEL_PAGE_4 = 4,     ///< Page 4
-    CHANNEL_PAGE_5 = 5,     ///< Page 5
-    CHANNEL_PAGE_6 = 6,     ///< Page 6
-    CHANNEL_PAGE_9 = 9,     ///< Page 9
-    CHANNEL_PAGE_10 = 10,   ///< Page 10
-    CHANNEL_PAGE_UNDEFINED  ///< Undefined
-};
-
-struct channel_list {
-    enum channel_page channel_page;    /**< Channel page */
-    uint8_t channel_mask[32];       /**< Channel mask. Each bit defining one channel */
-    uint16_t next_channel_number;   /**< Next channel to use in the list */
-};
-
 typedef struct phy_rf_channel_configuration {
     uint32_t channel_0_center_frequency;
     uint32_t channel_spacing;
@@ -207,75 +178,5 @@ struct mcps_data_rx_ie_list {
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
 };
-
-void rcp_legacy_noop(void);
-void rcp_legacy_reset(void);
-void rcp_legacy_reset_stack(void);
-void rcp_legacy_start(uint16_t panid, bool coordinator);
-void rcp_legacy_allocate_fhss(const struct fhss_ws_configuration *timing_info);
-void rcp_legacy_register_fhss(void);
-void rcp_legacy_get_hw_addr(void);
-void rcp_legacy_get_rx_sensitivity(void);
-void rcp_legacy_get_rf_config_list(void);
-void rcp_legacy_set_rf_config_legacy(const struct phy_rf_channel_configuration *config);
-void rcp_legacy_set_rf_config(const struct phy_rf_channel_configuration *config);
-void rcp_legacy_set_regional_regulation(uint32_t val);
-void rcp_legacy_set_802154_mode(phy_802_15_4_mode_e val);
-void rcp_legacy_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
-                           uint8_t high_limit, uint8_t low_limit);
-void rcp_legacy_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
-                          uint16_t blacklist_min_ms, uint16_t blacklist_max_ms);
-void rcp_legacy_set_max_mac_retry(uint8_t val);
-void rcp_legacy_set_max_csma_backoffs(uint8_t val);
-void rcp_legacy_set_min_be(uint8_t val);
-void rcp_legacy_set_max_be(uint8_t val);
-void rcp_legacy_set_max_async_duration(uint32_t val);
-void rcp_legacy_set_tx_power(int8_t val);
-void rcp_legacy_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
-void rcp_legacy_set_fhss_neighbor(const uint8_t neigh[8],
-                           const struct fhss_ws_neighbor_timing_info *timing_info);
-void rcp_legacy_drop_fhss_neighbor(const uint8_t eui64[8]);
-void rcp_legacy_set_fhss_hop_count(int hop_count);
-void rcp_legacy_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
-                                fhss_ws_tx_allow_level_e expedited_forwarding);
-void rcp_legacy_set_security(bool enable);
-void rcp_legacy_set_accept_unknown_secured_frames(bool enable);
-void rcp_legacy_set_frame_counter_per_key(bool enable);
-void rcp_legacy_set_frame_counter(int slot, uint32_t val);
-void rcp_legacy_get_frame_counter(int slot);
-void rcp_legacy_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
-void rcp_legacy_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
-                      uint8_t *mac64, uint32_t frame_counter);
-void rcp_legacy_enable_mac_filter(bool forward_unknown);
-void rcp_legacy_disable_mac_filter(void);
-void rcp_legacy_add_mac_filter_entry(const uint8_t mac64[8], bool forward);
-void rcp_legacy_clear_mac_filters(void);
-
-void rcp_legacy_tx_req_legacy(const struct mcps_data_req *tx_req,
-                       const struct iovec *header_ie,
-                       const struct iovec *payload_ie,
-                       const struct iovec *mpx_ie,
-                       const struct channel_list *channel_list);
-void rcp_legacy_tx_req(const uint8_t *frame, int frame_len,
-                const struct ws_neigh *neighbor_ws,
-                uint8_t handle, uint8_t fhss_type, bool is_edfe, uint8_t priority, uint8_t phy_id);
-void rcp_legacy_tx_drop(uint8_t handle);
-void rcp_legacy_set_edfe_mode(bool enable);
-
-// Low-layer function to access the RCP
-void rcp_legacy_rx(struct wsbr_ctxt *ctxt);
-void rcp_legacy_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
-
-// Intermediate development step to parse legacy API from the new API
-void rcp_ind_legacy(struct rcp *rcp, struct iobuf_read *buf);
-
-// Only used by the fuzzer
-struct rcp_legacy_rx_cmd {
-    uint32_t cmd;
-    uint32_t prop;
-    void (*fn)(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
-};
-extern struct rcp_legacy_rx_cmd rcp_legacy_rx_cmds[];
-uint8_t rcp_legacy_get_spinel_hdr(void);
 
 #endif
