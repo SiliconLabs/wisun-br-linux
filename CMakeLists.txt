@@ -144,6 +144,7 @@ add_library(libwsbrd STATIC
     common/ieee802154_ie.c
     common/ieee80211_prf.c
     common/time_extra.c
+    common/random_early_detection.c
     stack/source/6lowpan/lowpan_adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
     stack/source/6lowpan/fragmentation/cipv6_fragmenter.c
@@ -211,7 +212,6 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/sec_prot_lib.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     stack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    stack/source/service_libs/random_early_detection/random_early_detection.c
 )
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

@@ -30,7 +30,7 @@
 #include "common/specs/ws.h"
 #include "common/specs/ip.h"
 
-#include "service_libs/random_early_detection/random_early_detection.h"
+#include "common/random_early_detection.h"
 #include "common/events_scheduler.h"
 
 #include "app_wsbrd/wsbr.h"

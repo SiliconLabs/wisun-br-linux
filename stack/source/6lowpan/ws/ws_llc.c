@@ -36,7 +36,7 @@
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
-#include "service_libs/random_early_detection/random_early_detection.h"
+#include "common/random_early_detection.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"

@@ -33,8 +33,8 @@
 #include "common/specs/ipv6.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ip.h"
+#include "common/random_early_detection.h"
 
-#include "service_libs/random_early_detection/random_early_detection.h"
 #include "6lowpan/ws/ws_management_api.h"
 
 #include "app_wsbrd/rcp_api_legacy.h"
