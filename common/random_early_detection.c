@@ -30,33 +30,33 @@
 #define RED_PROB_SCALE_MAX (RED_PROB_SCALE * 100)
 #define RED_RANDOM_PROB_MAX (RED_PROB_SCALE_MAX - 1)
 
-struct red_info *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
+struct red_config *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
                               uint8_t drop_max_p, uint16_t weight)
 {
-    struct red_info *red_info = zalloc(sizeof(struct red_info));
+    struct red_config *red_config = zalloc(sizeof(struct red_config));
 
     BUG_ON(weight == 0 || weight > 256);
     BUG_ON(drop_max_p == 0 || drop_max_p > 100);
     BUG_ON(threshold_max <= threshold_min);
 
-    red_info->parameters.drop_max_probability = drop_max_p;
-    red_info->parameters.threshold_max = threshold_max;
-    red_info->parameters.threshold_min = threshold_min;
-    red_info->parameters.weight = weight;
-    return red_info;
+    red_config->drop_max_probability = drop_max_p;
+    red_config->threshold_max = threshold_max;
+    red_config->threshold_min = threshold_min;
+    red_config->weight = weight;
+    return red_config;
 }
 
-void red_free(struct red_info *red_info)
+void red_free(struct red_config *red_config)
 {
-    free(red_info);
+    free(red_config);
 }
 
-uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len)
+uint16_t red_aq_calc(struct red_config *red_config, uint16_t sample_len)
 {
     uint32_t average_sum;
 
-    if (red_info->parameters.weight == RED_AVERAGE_WEIGHT_DISABLED || red_info->average_queue_size == 0) {
-        red_info->average_queue_size = sample_len * 256;
+    if (red_config->weight == RED_AVERAGE_WEIGHT_DISABLED || red_config->average_queue_size == 0) {
+        red_config->average_queue_size = sample_len * 256;
         return sample_len;
     }
 
@@ -64,55 +64,55 @@ uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len)
     // Now Sample is scaled by 256 which is not loosing so much tail at average
 
     // Weight Last Average part (1-weight) * average_queue with scaled 256
-    average_sum = ((256 - red_info->parameters.weight) * red_info->average_queue_size) / 256;
+    average_sum = ((256 - red_config->weight) * red_config->average_queue_size) / 256;
     // Add new weighted sample lenght (weight*sample_len)
-    average_sum += (red_info->parameters.weight * sample_len);
+    average_sum += (red_config->weight * sample_len);
 
     // If sum is ODD add 1 this will help to not stuck like 1,99 average to -> 2
     if (average_sum & 1)
         average_sum++;
 
     // Store new average
-    red_info->average_queue_size = average_sum;
+    red_config->average_queue_size = average_sum;
     // Return always same format scaled than inn
-    return red_aq_get(red_info);
+    return red_aq_get(red_config);
 }
 
-uint16_t red_aq_get(struct red_info *red_info)
+uint16_t red_aq_get(struct red_config *red_config)
 {
-    return red_info->average_queue_size / 256;
+    return red_config->average_queue_size / 256;
 }
 
-bool red_congestion_check(struct red_info *red_info)
+bool red_congestion_check(struct red_config *red_config)
 {
-    uint16_t sample_len = red_aq_get(red_info);
+    uint16_t sample_len = red_aq_get(red_config);
     uint32_t tmp_probability;
     uint32_t probability;
 
-    if (sample_len <= red_info->parameters.threshold_min) {
-        red_info->count = 0;
+    if (sample_len <= red_config->threshold_min) {
+        red_config->count = 0;
         return false;
     }
-    if (sample_len > red_info->parameters.threshold_max) {
-        red_info->count = 0;
+    if (sample_len > red_config->threshold_max) {
+        red_config->count = 0;
         return true;
     }
 
     // Calculate probability for packet drop
     // tmp_probability = drop_max_probability *(AQ - threshold_min) / (threshold_max - threshold_min);
-    tmp_probability = (uint32_t)red_info->parameters.drop_max_probability * RED_PROB_SCALE *
-                                (sample_len  - red_info->parameters.threshold_min) /
-                                (red_info->parameters.threshold_max - red_info->parameters.threshold_min);
+    tmp_probability = (uint32_t)red_config->drop_max_probability * RED_PROB_SCALE *
+                                (sample_len  - red_config->threshold_min) /
+                                (red_config->threshold_max - red_config->threshold_min);
 
     // Next probability = tmp_probability / (1 - count*tmp_probability)
     // This will increase probability and
 
     // Calculate first divider part
-    probability = red_info->count * tmp_probability;
+    probability = red_config->count * tmp_probability;
 
     // Check that divider it is not >= 0
     if (probability >= RED_PROB_SCALE_MAX) {
-        red_info->count = 0;
+        red_config->count = 0;
         return true;
     }
 
@@ -120,11 +120,11 @@ bool red_congestion_check(struct red_info *red_info)
     probability = (tmp_probability * RED_PROB_SCALE_MAX) / (RED_PROB_SCALE_MAX - probability);
     if (probability > rand_get_random_in_range(0, RED_RANDOM_PROB_MAX)) {
         // Drop packet
-        red_info->count = 0;
+        red_config->count = 0;
         return true;
     }
 
     // Increment count next round check
-    red_info->count++;
+    red_config->count++;
     return false;
 }

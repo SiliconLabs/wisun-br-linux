@@ -27,11 +27,8 @@ struct red_config {
     uint16_t threshold_min;         /*< Threshold Min value which start possibility start drop a packet */
     uint16_t threshold_max;         /*< Threshold Max this value give max Probability for configured value over that every new packet will be dropped*/
     uint8_t drop_max_probability;   /*< Max probability for drop packet between threshold_min and threshold_max threshold */
-};
 
-struct red_info {
-    struct red_config parameters;   /*< Random Early detetction parameters for queue avarge and packet drop */
-    uint32_t average_queue_size;              /*< Average queue size Scaled by 256 1.0 is 256 */
+    uint32_t average_queue_size;    /*< Average queue size Scaled by 256 1.0 is 256 */
     uint16_t count;                 /*< Missed Packet drop's. This value is incremented when average queue is over min threshold and packet is not dropped */
 };
 
@@ -87,7 +84,7 @@ struct red_info {
  * \param weight accepted values 256-1, 256 is 1.0 weight which mean that new queue size overwrite old. 128 is 0.5 which gives 0.5 from old + 0.5 from new.
  * \return Pointer for allocated structure, NULL if memory allocation fail
  */
-struct red_info *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
+struct red_config *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
                             uint8_t drop_max_probability, uint16_t weight);
 
 /**
@@ -96,7 +93,7 @@ struct red_info *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
  *
  * \param red_info pointer to data
  */
-void red_free(struct red_info *red_info);
+void red_free(struct red_config *red_info);
 
 /**
  * \brief Random early detection drop function
@@ -106,7 +103,7 @@ void red_free(struct red_info *red_info);
  * \return true Drop packet
  * \return false Packet can be added to queue
  */
-bool red_congestion_check(struct red_info *red_info);
+bool red_congestion_check(struct red_config *red_info);
 
 /**
  * \brief Random early detection Average queue calculate
@@ -118,7 +115,7 @@ bool red_congestion_check(struct red_info *red_info);
  *
  * \return New average
  */
-uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len);
+uint16_t red_aq_calc(struct red_config *red_info, uint16_t sample_len);
 
 /**
  * \brief Read Random early detection Average queue size
@@ -129,6 +126,6 @@ uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len);
  *
  * \return Current average
  */
-uint16_t red_aq_get(struct red_info *red_info);
+uint16_t red_aq_get(struct red_config *red_info);
 
 #endif

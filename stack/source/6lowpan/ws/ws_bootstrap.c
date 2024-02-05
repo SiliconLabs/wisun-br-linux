@@ -485,7 +485,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     bool return_value = false;
-    static struct red_info *red_info = NULL;
+    static struct red_config *red_config = NULL;
     uint16_t adaptation_average = 0;
     uint16_t llc_average = 0;
     uint16_t llc_eapol_average = 0;
@@ -524,19 +524,19 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
         goto congestion_get_end;
     }
 
-    if (red_info == NULL) {
-        red_info = red_allocate(
+    if (red_config == NULL) {
+        red_config = red_allocate(
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
                        100, RED_AVERAGE_WEIGHT_DISABLED);
     }
-    if (red_info == NULL) {
+    if (red_config == NULL) {
         goto congestion_get_end;
     }
 
     // Check drop probability
-    average_sum = red_aq_calc(red_info, average_sum);
-    return_value = red_congestion_check(red_info);
+    average_sum = red_aq_calc(red_config, average_sum);
+    return_value = red_congestion_check(red_config);
 
 congestion_get_end:
     tr_info("Active supplicant limit, active: %i max: %i summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", active_supp, active_max, average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
