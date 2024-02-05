@@ -392,7 +392,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     if (msg) {
         ns_list_remove(&base->temp_entries.llc_eap_pending_list, msg);
         base->temp_entries.llc_eap_pending_list_size--;
-        red_aq_calc(base->interface_ptr->llc_eapol_random_early_detection,
+        red_aq_calc(&base->interface_ptr->llc_eapol_random_early_detection,
                     base->temp_entries.llc_eap_pending_list_size);
         ws_llc_mpx_eapol_send(base, msg);
     }
@@ -1385,7 +1385,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
         //Move to pending list
         ns_list_add_to_end(&base->temp_entries.llc_eap_pending_list, message);
         base->temp_entries.llc_eap_pending_list_size++;
-        red_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries.llc_eap_pending_list_size);
+        red_aq_calc(&base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries.llc_eap_pending_list_size);
     } else {
         ws_llc_mpx_eapol_send(base, message);
     }

@@ -480,7 +480,7 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)
 {
-    if (cur == NULL || cur->llc_eapol_random_early_detection == NULL) {
+    if (cur == NULL) {
         return false;
     }
 
@@ -509,7 +509,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     // Read the values for adaptation and LLC queues
     adaptation_average = red_aq_get(&cur->random_early_detection);
     llc_average = red_aq_get(&cur->llc_random_early_detection);
-    llc_eapol_average  = red_aq_get(cur->llc_eapol_random_early_detection);
+    llc_eapol_average  = red_aq_get(&cur->llc_eapol_random_early_detection);
     // Calculate combined average
     average_sum = adaptation_average + llc_average + llc_eapol_average;
 
