@@ -30,22 +30,6 @@
 #define RED_PROB_SCALE_MAX (RED_PROB_SCALE * 100)
 #define RED_RANDOM_PROB_MAX (RED_PROB_SCALE_MAX - 1)
 
-struct red_config *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
-                              uint8_t drop_max_p, uint16_t weight)
-{
-    struct red_config *red_config = zalloc(sizeof(struct red_config));
-
-    BUG_ON(weight == 0 || weight > 256);
-    BUG_ON(drop_max_p == 0 || drop_max_p > 100);
-    BUG_ON(threshold_max <= threshold_min);
-
-    red_config->drop_max_probability = drop_max_p;
-    red_config->threshold_max = threshold_max;
-    red_config->threshold_min = threshold_min;
-    red_config->weight = weight;
-    return red_config;
-}
-
 void red_init(struct red_config *red_config)
 {
     BUG_ON(red_config->weight == 0 || red_config->weight > 256);
