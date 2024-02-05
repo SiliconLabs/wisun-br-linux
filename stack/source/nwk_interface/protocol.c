@@ -114,7 +114,6 @@ static void protocol_set_eui64(struct net_if *cur, uint8_t eui64[8])
 
 void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
 {
-    memset(entry, 0, sizeof(struct net_if));
     /* We assume for now zone indexes for interface, link and realm all equal interface id */
     entry->id = 1;
     entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = entry->id;
