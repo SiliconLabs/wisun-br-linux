@@ -19,6 +19,12 @@
 #ifndef RANDOM_EARLY_DETECTION_H
 #define RANDOM_EARLY_DETECTION_H
 
+/**
+ * This mechanism is described on Wikipedia[1].
+ *
+ * [1]: https://en.wikipedia.org/wiki/Random_early_detection
+*/
+
 #include <stdint.h>
 #include <stdbool.h>
 
