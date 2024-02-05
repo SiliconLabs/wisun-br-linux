@@ -99,6 +99,11 @@ struct wsbr_ctxt g_ctxt = {
     .rpl_root.route_add = rpl_glue_route_add,
     .rpl_root.route_del = rpl_glue_route_del,
 
+    .net_if.llc_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
+    .net_if.llc_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
+    .net_if.llc_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
+    .net_if.llc_random_early_detection.drop_max_probability = 100,
+
     .os_ctxt = &g_os_ctxt,
 };
 

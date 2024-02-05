@@ -94,16 +94,7 @@ static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(struct net_if *interface_pt
 
 static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
 {
-    red_free(cur->llc_random_early_detection);
-    cur->llc_random_early_detection = NULL;
-
-    if (cur->llc_random_early_detection == NULL) {
-        cur->llc_random_early_detection = red_allocate(
-                                              cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
-                                              cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
-                                              100, RED_AVERAGE_WEIGHT_EIGHTH);
-    }
-
+    red_init(&cur->llc_random_early_detection);
     red_free(cur->llc_eapol_random_early_detection);
     cur->llc_eapol_random_early_detection = NULL;
 
