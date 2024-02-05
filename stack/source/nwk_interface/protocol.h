@@ -94,6 +94,7 @@ struct net_if {
     struct red_config random_early_detection;
     struct red_config llc_random_early_detection;
     struct red_config llc_eapol_random_early_detection;
+    struct red_config pae_random_early_detection;
     struct ws_info ws_info;
 
     struct rcp *rcp;

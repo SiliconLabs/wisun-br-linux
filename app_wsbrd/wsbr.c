@@ -109,6 +109,11 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.llc_eapol_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
     .net_if.llc_eapol_random_early_detection.drop_max_probability = 100,
 
+    .net_if.pae_random_early_detection.weight = RED_AVERAGE_WEIGHT_DISABLED,
+    .net_if.pae_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
+    .net_if.pae_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
+    .net_if.pae_random_early_detection.drop_max_probability = 100,
+
     .os_ctxt = &g_os_ctxt,
 };
 

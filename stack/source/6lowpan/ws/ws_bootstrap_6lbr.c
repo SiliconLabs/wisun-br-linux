@@ -96,6 +96,7 @@ static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
 {
     red_init(&cur->llc_random_early_detection);
     red_init(&cur->llc_eapol_random_early_detection);
+    red_init(&cur->pae_random_early_detection);
 }
 
 static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
