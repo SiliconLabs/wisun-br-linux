@@ -731,7 +731,7 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
 }
 
 //Calculate max_packet queue size
-static uint16_t ws_bootstrap_define_congestin_max_threshold(uint32_t heap_total_size, uint16_t packet_size, uint16_t packet_per_seconds, uint32_t max_delay, uint16_t min_packet_queue_size, uint16_t max_packet_queue_size)
+static uint16_t ws_bootstrap_define_congestion_max_threshold(uint32_t heap_total_size, uint16_t packet_size, uint16_t packet_per_seconds, uint32_t max_delay, uint16_t min_packet_queue_size, uint16_t max_packet_queue_size)
 {
     uint32_t max_packet_count = 0;
     if (heap_total_size) {
@@ -775,7 +775,7 @@ static uint16_t ws_bootstrap_packet_per_seconds(struct net_if *cur, uint16_t pac
 void ws_bootstrap_packet_congestion_init(struct net_if *cur)
 {
     uint16_t packet_per_seconds = ws_bootstrap_packet_per_seconds(cur, WS_CONGESTION_PACKET_SIZE);
-    uint16_t max_th = ws_bootstrap_define_congestin_max_threshold(UINT32_MAX,
+    uint16_t max_th = ws_bootstrap_define_congestion_max_threshold(UINT32_MAX,
                                                                   WS_CONGESTION_PACKET_SIZE,
                                                                   packet_per_seconds,
                                                                   WS_CONGESTION_QUEUE_DELAY,
