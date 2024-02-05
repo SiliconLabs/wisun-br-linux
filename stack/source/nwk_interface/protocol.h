@@ -17,6 +17,7 @@
  */
 #ifndef _NS_PROTOCOL_H
 #define _NS_PROTOCOL_H
+#include "common/random_early_detection.h"
 #include "common/trickle.h"
 #include "common/ns_list.h"
 
@@ -90,7 +91,7 @@ struct net_if {
     uint8_t iid_eui64[8];
     uint8_t iid_slaac[8];
 
-    struct red_config *random_early_detection;
+    struct red_config random_early_detection;
     struct red_config *llc_random_early_detection;
     struct red_config *llc_eapol_random_early_detection;
     struct ws_info ws_info;

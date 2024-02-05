@@ -480,7 +480,7 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)
 {
-    if (cur == NULL || cur->random_early_detection == NULL || cur->llc_random_early_detection == NULL || cur->llc_eapol_random_early_detection == NULL) {
+    if (cur == NULL || cur->llc_random_early_detection == NULL || cur->llc_eapol_random_early_detection == NULL) {
         return false;
     }
 
@@ -507,7 +507,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     // Read the values for adaptation and LLC queues
-    adaptation_average = red_aq_get(cur->random_early_detection);
+    adaptation_average = red_aq_get(&cur->random_early_detection);
     llc_average = red_aq_get(cur->llc_random_early_detection);
     llc_eapol_average  = red_aq_get(cur->llc_eapol_random_early_detection);
     // Calculate combined average
@@ -785,23 +785,22 @@ static uint16_t ws_bootstrap_packet_per_seconds(struct net_if *cur, uint16_t pac
 
 void ws_bootstrap_packet_congestion_init(struct net_if *cur)
 {
-    red_free(cur->random_early_detection);
-    cur->random_early_detection = NULL;
-
-    uint32_t heap_size = UINT32_MAX;
-
     uint16_t packet_per_seconds = ws_bootstrap_packet_per_seconds(cur, WS_CONGESTION_PACKET_SIZE);
+    uint16_t max_th = ws_bootstrap_define_congestin_max_threshold(UINT32_MAX,
+                                                                  WS_CONGESTION_PACKET_SIZE,
+                                                                  packet_per_seconds,
+                                                                  WS_CONGESTION_QUEUE_DELAY,
+                                                                  WS_CONGESTION_BR_MIN_QUEUE_SIZE,
+                                                                  WS_CONGESTION_BR_MAX_QUEUE_SIZE);
 
-    uint16_t min_th, max_th;
-
-    max_th = ws_bootstrap_define_congestin_max_threshold(heap_size,
-                                                         WS_CONGESTION_PACKET_SIZE,
-                                                         packet_per_seconds,
-                                                         WS_CONGESTION_QUEUE_DELAY,
-                                                         WS_CONGESTION_BR_MIN_QUEUE_SIZE,
-                                                         WS_CONGESTION_BR_MAX_QUEUE_SIZE);
-    min_th = max_th / 2;
-    tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u", min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH, packet_per_seconds);
-    cur->random_early_detection = red_allocate(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
-
+    cur->random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
+    cur->random_early_detection.threshold_min = max_th / 2,
+    cur->random_early_detection.threshold_max = max_th,
+    cur->random_early_detection.drop_max_probability = WS_CONGESTION_RED_DROP_PROBABILITY,
+    red_init(&cur->random_early_detection);
+    tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u",
+            cur->random_early_detection.threshold_min,
+            cur->random_early_detection.threshold_max,
+            cur->random_early_detection.drop_max_probability,
+            cur->random_early_detection.weight, packet_per_seconds);
 }
