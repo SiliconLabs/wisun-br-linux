@@ -525,7 +525,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     if (red_info == NULL) {
-        red_info = red_create(
+        red_info = red_allocate(
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
                        100, RED_AVERAGE_WEIGHT_DISABLED);
@@ -802,6 +802,6 @@ void ws_bootstrap_packet_congestion_init(struct net_if *cur)
                                                          WS_CONGESTION_BR_MAX_QUEUE_SIZE);
     min_th = max_th / 2;
     tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u", min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH, packet_per_seconds);
-    cur->random_early_detection = red_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
+    cur->random_early_detection = red_allocate(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
 
 }

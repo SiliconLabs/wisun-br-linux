@@ -30,8 +30,8 @@
 #define RED_PROB_SCALE_MAX (RED_PROB_SCALE * 100)
 #define RED_RANDOM_PROB_MAX (RED_PROB_SCALE_MAX - 1)
 
-struct red_info *red_create(uint16_t threshold_min, uint16_t threshold_max,
-                            uint8_t drop_max_p, uint16_t weight)
+struct red_info *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
+                              uint8_t drop_max_p, uint16_t weight)
 {
     struct red_info *red_info = zalloc(sizeof(struct red_info));
 

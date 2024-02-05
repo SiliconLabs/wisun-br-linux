@@ -73,13 +73,13 @@ struct red_info {
  * Threshold values must be set how much device can buffer data.
  *
  * Small size data buffering:
- * red_create(32, 96, 10, RED_AVERAGE_WEIGHT_QUARTER)
+ * red_allocate(32, 96, 10, RED_AVERAGE_WEIGHT_QUARTER)
  *
  * Medium size data buffering:
- * red_create(96, 256, 10, RED_AVERAGE_WEIGHT_EIGHTH)
+ * red_allocate(96, 256, 10, RED_AVERAGE_WEIGHT_EIGHTH)
  *
  * High size buffering:
- * red_create(256, 600, 10, RED_AVERAGE_WEIGHT_EIGHTH)
+ * red_allocate(256, 600, 10, RED_AVERAGE_WEIGHT_EIGHTH)
  *
  * \param threshold_min min average queue size which enable packet drop
  * \param threshold_max average queue size when all new packets start drop
@@ -87,7 +87,7 @@ struct red_info {
  * \param weight accepted values 256-1, 256 is 1.0 weight which mean that new queue size overwrite old. 128 is 0.5 which gives 0.5 from old + 0.5 from new.
  * \return Pointer for allocated structure, NULL if memory allocation fail
  */
-struct red_info *red_create(uint16_t threshold_min, uint16_t threshold_max,
+struct red_info *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
                             uint8_t drop_max_probability, uint16_t weight);
 
 /**
