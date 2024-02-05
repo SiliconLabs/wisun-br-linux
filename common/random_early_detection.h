@@ -129,6 +129,6 @@ uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len);
  *
  * \return Current average
  */
-uint16_t red_aq_read(struct red_info *red_info);
+uint16_t red_aq_get(struct red_info *red_info);
 
 #endif

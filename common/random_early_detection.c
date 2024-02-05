@@ -75,17 +75,17 @@ uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len)
     // Store new average
     red_info->average_queue_size = average_sum;
     // Return always same format scaled than inn
-    return red_aq_read(red_info);
+    return red_aq_get(red_info);
 }
 
-uint16_t red_aq_read(struct red_info *red_info)
+uint16_t red_aq_get(struct red_info *red_info)
 {
     return red_info->average_queue_size / 256;
 }
 
 bool red_congestion_check(struct red_info *red_info)
 {
-    uint16_t sample_len = red_aq_read(red_info);
+    uint16_t sample_len = red_aq_get(red_info);
     uint32_t tmp_probability;
     uint32_t probability;
 

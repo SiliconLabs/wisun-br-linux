@@ -507,9 +507,9 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     // Read the values for adaptation and LLC queues
-    adaptation_average = red_aq_read(cur->random_early_detection);
-    llc_average = red_aq_read(cur->llc_random_early_detection);
-    llc_eapol_average  = red_aq_read(cur->llc_eapol_random_early_detection);
+    adaptation_average = red_aq_get(cur->random_early_detection);
+    llc_average = red_aq_get(cur->llc_random_early_detection);
+    llc_eapol_average  = red_aq_get(cur->llc_eapol_random_early_detection);
     // Calculate combined average
     average_sum = adaptation_average + llc_average + llc_eapol_average;
 
