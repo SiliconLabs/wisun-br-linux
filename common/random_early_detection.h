@@ -16,12 +16,24 @@
  * limitations under the License.
  */
 
-#ifndef SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
-#define SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
+#ifndef RANDOM_EARLY_DETECTION_H
+#define RANDOM_EARLY_DETECTION_H
+
 #include <stdint.h>
 #include <stdbool.h>
 
-struct red_info;
+struct red_config {
+    uint16_t weight;                /*< Weight for new sample len, 256 disabled average */
+    uint16_t threshold_min;         /*< Threshold Min value which start possibility start drop a packet */
+    uint16_t threshold_max;         /*< Threshold Max this value give max Probability for configured value over that every new packet will be dropped*/
+    uint8_t drop_max_probability;   /*< Max probability for drop packet between threshold_min and threshold_max threshold */
+};
+
+struct red_info {
+    struct red_config parameters;   /*< Random Early detetction parameters for queue avarge and packet drop */
+    uint32_t average_queue_size;              /*< Average queue size Scaled by 256 1.0 is 256 */
+    uint16_t count;                 /*< Missed Packet drop's. This value is incremented when average queue is over min threshold and packet is not dropped */
+};
 
 #define RED_AVERAGE_WEIGHT_DISABLED 256     /*< Average is disabled */
 #define RED_AVERAGE_WEIGHT_HALF     128     /*< Average weight for new sample is 0.5*new + 0.5 to last one */
@@ -48,9 +60,9 @@ struct red_info;
  *
  * Define base Probability based current AQ, average length
  *
- * tempP = drop_maX_P *(AQ - threshold_min) / (threshold_max - threshold_min);
+ * tmp_probability = drop_max_probability *(AQ - threshold_min) / (threshold_max - threshold_min);
  *
- * Prob = tempP / (1 - count*tempP)
+ * probability = tmp_probability / (1 - count*tmp_probability)
  *
  * threshold_min and threshold_max threshold define area for random early detection drop. When Average queue size go over Min threshold packet may drop by given maxProbability.
  * System will work smoother if min -max threshold range is wide. Then random drop is may cover small data burst until Max threshold Avarage is reached.
@@ -71,12 +83,12 @@ struct red_info;
  *
  * \param threshold_min min average queue size which enable packet drop
  * \param threshold_max average queue size when all new packets start drop
- * \param drop_maX_P is percent probability to drop packet 100-1 are possible values
+ * \param drop_max_probability is percent probability to drop packet 100-1 are possible values
  * \param weight accepted values 256-1, 256 is 1.0 weight which mean that new queue size overwrite old. 128 is 0.5 which gives 0.5 from old + 0.5 from new.
  * \return Pointer for allocated structure, NULL if memory allocation fail
  */
-struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t threshold_max, uint8_t drop_maX_P, uint16_t weight);
-
+struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t threshold_max,
+                                                 uint8_t drop_max_probability, uint16_t weight);
 
 /**
  * \brief Free Random early detection data
@@ -85,7 +97,6 @@ struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t 
  * \param red_info pointer to data
  */
 void random_early_detection_free(struct red_info *red_info);
-
 
 /**
  * \brief Random early detection drop function
@@ -107,7 +118,7 @@ bool random_early_detection_congestion_check(struct red_info *red_info);
  *
  * \return New average
  */
-uint16_t random_early_detection_aq_calc(struct red_info *red_info, uint16_t sampleLen);
+uint16_t random_early_detection_aq_calc(struct red_info *red_info, uint16_t sample_len);
 
 /**
  * \brief Read Random early detection Average queue size
