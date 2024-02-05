@@ -197,7 +197,7 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
         // FIXME: improve precision by storing ufsi over time and calculate drift
         // over a bigger window
         if (time_since_last_ufsi_us >= 10000000)
-            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / %.01lfppm drift (%.0lfus in %lds)", tr_eui64(address),
+            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / %.01lfppm drift (%.0lfus in %"PRId64"s)", tr_eui64(address),
                   1000000000.f * ufsi_drift_ms / time_since_last_ufsi_us, ufsi_drift_ms * 1000, time_since_last_ufsi_us / 1000000);
         else
             TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / drift measure not available", tr_eui64(address));
