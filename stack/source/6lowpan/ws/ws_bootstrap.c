@@ -507,9 +507,9 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     // Read the values for adaptation and LLC queues
-    adaptation_average = random_early_detection_aq_read(cur->random_early_detection);
-    llc_average = random_early_detection_aq_read(cur->llc_random_early_detection);
-    llc_eapol_average  = random_early_detection_aq_read(cur->llc_eapol_random_early_detection);
+    adaptation_average = red_aq_read(cur->random_early_detection);
+    llc_average = red_aq_read(cur->llc_random_early_detection);
+    llc_eapol_average  = red_aq_read(cur->llc_eapol_random_early_detection);
     // Calculate combined average
     average_sum = adaptation_average + llc_average + llc_eapol_average;
 
@@ -525,7 +525,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     if (red_info == NULL) {
-        red_info = random_early_detection_create(
+        red_info = red_create(
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
                        cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
                        100, RED_AVERAGE_WEIGHT_DISABLED);
@@ -535,8 +535,8 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     }
 
     // Check drop probability
-    average_sum = random_early_detection_aq_calc(red_info, average_sum);
-    return_value = random_early_detection_congestion_check(red_info);
+    average_sum = red_aq_calc(red_info, average_sum);
+    return_value = red_congestion_check(red_info);
 
 congestion_get_end:
     tr_info("Active supplicant limit, active: %i max: %i summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", active_supp, active_max, average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
@@ -785,7 +785,7 @@ static uint16_t ws_bootstrap_packet_per_seconds(struct net_if *cur, uint16_t pac
 
 void ws_bootstrap_packet_congestion_init(struct net_if *cur)
 {
-    random_early_detection_free(cur->random_early_detection);
+    red_free(cur->random_early_detection);
     cur->random_early_detection = NULL;
 
     uint32_t heap_size = UINT32_MAX;
@@ -802,6 +802,6 @@ void ws_bootstrap_packet_congestion_init(struct net_if *cur)
                                                          WS_CONGESTION_BR_MAX_QUEUE_SIZE);
     min_th = max_th / 2;
     tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u", min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH, packet_per_seconds);
-    cur->random_early_detection = random_early_detection_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
+    cur->random_early_detection = red_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
 
 }

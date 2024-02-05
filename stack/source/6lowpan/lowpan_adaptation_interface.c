@@ -177,7 +177,7 @@ static struct net_if *lowpan_adaptation_network_interface_discover(const mpx_api
 
 static void lowpan_adaptation_tx_queue_level_update(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
-    random_early_detection_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+    red_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
 
     if (interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level + ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE ||
             interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level - ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE) {
@@ -950,7 +950,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 
     if (!lowpan_buffer_tx_allowed(interface_ptr, buf)) {
 
-        if (random_early_detection_congestion_check(cur->random_early_detection)) {
+        if (red_congestion_check(cur->random_early_detection)) {
             // If we need to drop packet we drop oldest normal Priority packet.
             buffer_t *dropped = lowpan_adaptation_get_oldest_packet(interface_ptr, QOS_NORMAL);
             if (dropped) {

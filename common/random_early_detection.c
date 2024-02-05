@@ -30,8 +30,8 @@
 #define RED_PROB_SCALE_MAX (RED_PROB_SCALE * 100)
 #define RED_RANDOM_PROB_MAX (RED_PROB_SCALE_MAX - 1)
 
-struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t threshold_max,
-                                               uint8_t drop_max_p, uint16_t weight)
+struct red_info *red_create(uint16_t threshold_min, uint16_t threshold_max,
+                            uint8_t drop_max_p, uint16_t weight)
 {
     struct red_info *red_info = zalloc(sizeof(struct red_info));
 
@@ -46,12 +46,12 @@ struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t 
     return red_info;
 }
 
-void random_early_detection_free(struct red_info *red_info)
+void red_free(struct red_info *red_info)
 {
     free(red_info);
 }
 
-uint16_t random_early_detection_aq_calc(struct red_info *red_info, uint16_t sample_len)
+uint16_t red_aq_calc(struct red_info *red_info, uint16_t sample_len)
 {
     uint32_t average_sum;
 
@@ -75,17 +75,17 @@ uint16_t random_early_detection_aq_calc(struct red_info *red_info, uint16_t samp
     // Store new average
     red_info->average_queue_size = average_sum;
     // Return always same format scaled than inn
-    return random_early_detection_aq_read(red_info);
+    return red_aq_read(red_info);
 }
 
-uint16_t random_early_detection_aq_read(struct red_info *red_info)
+uint16_t red_aq_read(struct red_info *red_info)
 {
     return red_info->average_queue_size / 256;
 }
 
-bool random_early_detection_congestion_check(struct red_info *red_info)
+bool red_congestion_check(struct red_info *red_info)
 {
-    uint16_t sample_len = random_early_detection_aq_read(red_info);
+    uint16_t sample_len = red_aq_read(red_info);
     uint32_t tmp_probability;
     uint32_t probability;
 

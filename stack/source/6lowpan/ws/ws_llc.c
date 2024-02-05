@@ -250,7 +250,7 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     iobuf_free(&message->ie_buf_payload);
     free(message);
     llc_base->llc_message_list_size--;
-    random_early_detection_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
+    red_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
 }
 
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user)
@@ -392,8 +392,8 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     if (msg) {
         ns_list_remove(&base->temp_entries.llc_eap_pending_list, msg);
         base->temp_entries.llc_eap_pending_list_size--;
-        random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection,
-                                       base->temp_entries.llc_eap_pending_list_size);
+        red_aq_calc(base->interface_ptr->llc_eapol_random_early_detection,
+                    base->temp_entries.llc_eap_pending_list_size);
         ws_llc_mpx_eapol_send(base, msg);
     }
 }
@@ -1176,7 +1176,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
     message->priority = priority;
-    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    red_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
 
     mcps_data_req_t data_req;
@@ -1314,7 +1314,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     //Allocate message ID
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
-    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    red_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries.active_eapol_session = true;
@@ -1385,7 +1385,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
         //Move to pending list
         ns_list_add_to_end(&base->temp_entries.llc_eap_pending_list, message);
         base->temp_entries.llc_eap_pending_list_size++;
-        random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries.llc_eap_pending_list_size);
+        red_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries.llc_eap_pending_list_size);
     } else {
         ws_llc_mpx_eapol_send(base, message);
     }
@@ -1831,7 +1831,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     //Add To active list
     llc_message_id_allocate(message, base, false);
     base->llc_message_list_size++;
-    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    red_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
     message->message_type = request->frame_type;
     message->security = request->security;
@@ -1888,7 +1888,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     // Add To active list
     llc_message_id_allocate(msg, base, false);
     base->llc_message_list_size++;
-    random_early_detection_aq_calc(interface->llc_random_early_detection, base->llc_message_list_size);
+    red_aq_calc(interface->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, msg);
     msg->message_type = req->frame_type;
     msg->security     = req->security;
