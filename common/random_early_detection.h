@@ -46,14 +46,6 @@ struct red_config {
 void red_init(struct red_config *red_config);
 
 /**
- * \brief Free Random early detection data
- *
- *
- * \param red_info pointer to data
- */
-void red_free(struct red_config *red_info);
-
-/**
  * \brief Random early detection drop function
  *
  * \param red_info pointer, which is created user include all configurations

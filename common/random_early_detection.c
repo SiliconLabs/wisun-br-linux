@@ -37,11 +37,6 @@ void red_init(struct red_config *red_config)
     BUG_ON(red_config->threshold_max <= red_config->threshold_min);
 }
 
-void red_free(struct red_config *red_config)
-{
-    free(red_config);
-}
-
 uint16_t red_aq_calc(struct red_config *red_config, uint16_t sample_len)
 {
     uint32_t average_sum;
