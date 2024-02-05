@@ -597,7 +597,7 @@ void rcp_set_sec_key(struct rcp *rcp,
     BUG_ON(key_index < 1 || key_index > 7);
     if (version_older_than(rcp->version_api, 2, 0, 0)) {
         rcp_legacy_set_key(key_index - 1, lookup_data, key);
-        if (key && !memzcmp(key, 16))
+        if (key && memzcmp(key, 16))
             rcp_legacy_set_frame_counter(key_index - 1, frame_counter);
     } else {
         __rcp_set_sec_key(rcp, key_index, key, frame_counter);
