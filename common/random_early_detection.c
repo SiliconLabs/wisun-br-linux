@@ -46,6 +46,13 @@ struct red_config *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
     return red_config;
 }
 
+void red_init(struct red_config *red_config)
+{
+    BUG_ON(red_config->weight == 0 || red_config->weight > 256);
+    BUG_ON(red_config->drop_max_probability == 0 || red_config->drop_max_probability > 100);
+    BUG_ON(red_config->threshold_max <= red_config->threshold_min);
+}
+
 void red_free(struct red_config *red_config)
 {
     free(red_config);

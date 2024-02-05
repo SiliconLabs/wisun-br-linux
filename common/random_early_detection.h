@@ -93,6 +93,8 @@ struct red_config {
 struct red_config *red_allocate(uint16_t threshold_min, uint16_t threshold_max,
                             uint8_t drop_max_probability, uint16_t weight);
 
+void red_init(struct red_config *red_config);
+
 /**
  * \brief Free Random early detection data
  *
