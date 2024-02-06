@@ -94,7 +94,7 @@ static void rcp_ind_fatal(struct rcp *rcp, struct iobuf_read *buf)
         FATAL(3, "rcp error %s", hif_fatal_str(err));
 }
 
-static void __rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
+void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 {
     struct iobuf_write buf = { };
 
@@ -104,22 +104,16 @@ static void __rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
     iobuf_free(&buf);
 }
 
-void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
-{
-    if (!version_older_than(rcp->version_api, 2, 0, 0))
-        __rcp_set_host_api(rcp, host_api_version);
-}
-
 #define HIF_MASK_FHSS_TYPE      0x0007
 #define HIF_MASK_FHSS_DEFAULT   0x0010
 #define HIF_MASK_MODE_SWITCH    0x0020
 #define HIF_MASK_FRAME_COUNTERS 0x1fc0
 
-static void __rcp_req_data_tx(struct rcp *rcp,
-                              const uint8_t *frame, int frame_len,
-                              uint8_t handle, uint8_t fhss_type,
-                              const struct ws_neigh *neigh,
-                              const struct hif_rate_info rate_list[4])
+void rcp_req_data_tx(struct rcp *rcp,
+                     const uint8_t *frame, int frame_len,
+                     uint8_t handle, uint8_t fhss_type,
+                     const struct ws_neigh *neigh,
+                     const struct hif_rate_info rate_list[4])
 {
     struct iobuf_write buf = { };
     int bitfield_offset;
@@ -209,21 +203,7 @@ static void __rcp_req_data_tx(struct rcp *rcp,
     iobuf_free(&buf);
 }
 
-void rcp_req_data_tx(struct rcp *rcp,
-                     const uint8_t *frame, int frame_len,
-                     uint8_t handle, uint8_t fhss_type,
-                     const struct ws_neigh *neigh,
-                     const struct hif_rate_info rate_list[4])
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0))
-        rcp_legacy_tx_req(frame, frame_len, neigh, handle, fhss_type,
-                          false, MAC_DATA_MEDIUM_PRIORITY,
-                          rate_list ? rate_list[0].phy_mode_id : 0);
-    else
-        __rcp_req_data_tx(rcp, frame, frame_len, handle, fhss_type, neigh, rate_list);
-}
-
-static void __rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
+void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
 {
     struct iobuf_write buf = { };
 
@@ -231,14 +211,6 @@ static void __rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
     hif_push_u8(&buf, handle);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0))
-        rcp_legacy_tx_drop(handle);
-    else
-        __rcp_req_data_tx_abort(rcp, handle);
 }
 
 static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
@@ -319,29 +291,17 @@ static void __rcp_req_radio_enable(struct rcp *rcp)
 static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id);
 void rcp_req_radio_enable(struct rcp *rcp, uint16_t pan_id)
 {
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_start(pan_id, true);
-    } else {
-        __rcp_set_filter_pan_id(rcp, pan_id);
-        __rcp_req_radio_enable(rcp);
-    }
+    __rcp_set_filter_pan_id(rcp, pan_id);
+    __rcp_req_radio_enable(rcp);
 }
 
-static void __rcp_req_radio_list(struct rcp *rcp)
+void rcp_req_radio_list(struct rcp *rcp)
 {
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_REQ_RADIO_LIST);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_req_radio_list(struct rcp *rcp)
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0))
-        rcp_legacy_get_rf_config_list();
-    else
-        __rcp_req_radio_list(rcp);
 }
 
 #define HIF_MASK_RADIO_LIST_GROUP 0x0001
@@ -413,18 +373,13 @@ static void __rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t of
 
 void rcp_set_radio(struct rcp *rcp, const struct phy_rf_channel_configuration *rf_config)
 {
-    if (version_older_than(rcp->version_api, 0, 25, 1))
-        rcp_legacy_set_rf_config_legacy(rf_config);
-    else if (version_older_than(rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_rf_config(rf_config);
-    else
-        __rcp_set_radio(rcp,
-                        rf_config->rcp_config_index,
-                        rf_config->ofdm_mcs,
-                        rf_config->use_phy_op_modes);
+    __rcp_set_radio(rcp,
+                    rf_config->rcp_config_index,
+                    rf_config->ofdm_mcs,
+                    rf_config->use_phy_op_modes);
 }
 
-static void __rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
+void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
 {
     struct iobuf_write buf = { };
 
@@ -434,29 +389,7 @@ static void __rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
     iobuf_free(&buf);
 }
 
-enum {
-    // These values are part of the legacy RCP API.
-    REG_REGIONAL_NONE = 0,
-    REG_REGIONAL_ARIB = 1,
-    REG_REGIONAL_UNDEF,
-};
-
-void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        if (reg == HIF_REG_ARIB)
-            rcp_legacy_set_regional_regulation(REG_REGIONAL_ARIB);
-        else if (reg == HIF_REG_NONE)
-            rcp_legacy_set_regional_regulation(REG_REGIONAL_NONE);
-        else
-            rcp_legacy_set_regional_regulation(REG_REGIONAL_UNDEF);
-        rcp_legacy_set_edfe_mode(reg != HIF_REG_ARIB);
-    } else {
-        __rcp_set_radio_regulation(rcp, reg);
-    }
-}
-
-static void __rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
+void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
 {
     struct iobuf_write buf = { };
 
@@ -464,14 +397,6 @@ static void __rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     hif_push_i8(&buf, power_dbm);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
-{
-    if (version_older_than(rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_tx_power(power_dbm);
-    else
-        __rcp_set_radio_tx_power(rcp, power_dbm);
 }
 
 static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
@@ -561,22 +486,16 @@ static void __rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configura
 
 void rcp_set_fhss(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_set_fhss_timings(cfg);
-        if (!version_older_than(rcp->version_api, 0, 17, 0))
-            rcp_legacy_set_max_async_duration(cfg->async_tx_duration_ms);
-    } else {
-        __rcp_set_fhss_uc(rcp, cfg);
-        __rcp_set_fhss_ffn_bc(rcp, cfg);
-        __rcp_set_fhss_lfn_bc(rcp, cfg);
-        __rcp_set_fhss_async(rcp, cfg);
-    }
+    __rcp_set_fhss_uc(rcp, cfg);
+    __rcp_set_fhss_ffn_bc(rcp, cfg);
+    __rcp_set_fhss_lfn_bc(rcp, cfg);
+    __rcp_set_fhss_async(rcp, cfg);
 }
 
-static void __rcp_set_sec_key(struct rcp *rcp,
-                              uint8_t key_index,
-                              const uint8_t key[16],
-                              uint32_t frame_counter)
+void rcp_set_sec_key(struct rcp *rcp,
+                     uint8_t key_index,
+                     const uint8_t key[16],
+                     uint32_t frame_counter)
 {
     struct iobuf_write buf = { };
 
@@ -586,25 +505,6 @@ static void __rcp_set_sec_key(struct rcp *rcp,
     hif_push_u32(&buf, frame_counter);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_set_sec_key(struct rcp *rcp,
-                     uint8_t key_index,
-                     const uint8_t key[16],
-                     uint32_t frame_counter)
-{
-    const uint8_t lookup_data[9] = {
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, key_index
-    };
-
-    BUG_ON(key_index < 1 || key_index > 7);
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_set_key(key_index - 1, lookup_data, key);
-        if (key && memzcmp(key, 16))
-            rcp_legacy_set_frame_counter(key_index - 1, frame_counter);
-    } else {
-        __rcp_set_sec_key(rcp, key_index, key, frame_counter);
-    }
 }
 
 static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
@@ -617,7 +517,7 @@ static void __rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
     iobuf_free(&buf);
 }
 
-static void __rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
+void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
 {
     struct iobuf_write buf = { };
 
@@ -628,20 +528,6 @@ static void __rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], ui
         hif_push_fixed_u8_array(&buf, *eui64++, 8);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-}
-
-void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
-{
-    if (version_older_than(rcp->version_api, 0, 3, 0))
-        FATAL(1, "allowed_mac64/denied_mac64 requires RCP API >= 0.3.0");
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_enable_mac_filter(!allow);
-        rcp_legacy_clear_mac_filters();
-        while (count--)
-            rcp_legacy_add_mac_filter_entry(*eui64++, allow);
-    } else {
-        __rcp_set_filter_src64(rcp, eui64, count, allow);
-    }
 }
 
 struct rcp_cmd rcp_cmd_table[] = {
@@ -661,11 +547,6 @@ void rcp_rx(struct rcp *rcp)
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     struct iobuf_read buf = { .data = rcp_rx_buf };
     uint32_t cmd;
-
-    if (version_older_than(rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_rx(ctxt);
-        return;
-    }
 
     buf.data_size = rcp->device_rx(ctxt->os_ctxt, rcp_rx_buf, sizeof(rcp_rx_buf));
     if (!buf.data_size)
