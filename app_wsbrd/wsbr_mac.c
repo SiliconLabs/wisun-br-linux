@@ -63,7 +63,6 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
-    struct ws_neigh neighbor_ws_dummy = { 0 };
     struct ws_neigh *neighbor_ws;
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
@@ -74,6 +73,11 @@ void wsbr_data_req_ext(struct net_if *cur,
             .tx_attempts  = 20,
             .tx_power_dbm = INT8_MAX,
         },
+    };
+    struct mcps_data_rx_ie_list cnf_fail_ie = { };
+    struct mcps_data_cnf cnf_fail = {
+        .msduHandle = data->msduHandle,
+        .status = MLME_TRANSACTION_OVERFLOW,
     };
     struct iobuf_write frame = { };
 
@@ -105,9 +109,8 @@ void wsbr_data_req_ext(struct net_if *cur,
         neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
         if (data->DstAddrMode && !neighbor_ws) {
             WARN("%s: neighbor timeout before packet send", __func__);
-            // Send 0 initialized FHSS timings to the RCP, which will return a
-            // confirmation error.
-            neighbor_ws = &neighbor_ws_dummy;
+            cur->rcp->on_tx_cnf(cur->id, &cnf_fail, &cnf_fail_ie);
+            return;
         }
         wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
         BUG_ON(data->ExtendedFrameExchange);
