@@ -40,7 +40,7 @@
 
 static void ws_pae_timers_calculate(sec_timer_gtk_cfg_t *timer_settings);
 
-void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, struct sec_timer_cfg *new_timer_settings)
+void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, const struct sec_timer_cfg *new_timer_settings)
 {
     if (timer_settings == NULL || new_timer_settings == NULL) {
         return;

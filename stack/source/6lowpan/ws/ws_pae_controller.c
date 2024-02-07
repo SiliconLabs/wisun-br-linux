@@ -610,20 +610,16 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg)
+int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct sec_timer_cfg *sec_timer_cfg,
+                                   const struct sec_prot_cfg *sec_prot_cfg, const struct sec_timing_cfg *timing_cfg)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (controller == NULL) {
         return 0;
     }
 
-    if (sec_prot_cfg) {
-        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.Imin = sec_prot_cfg->sec_prot_trickle_imin * 10;
-        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.Imax = sec_prot_cfg->sec_prot_trickle_imax * 10;
-        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.k = 0;
-        controller->sec_cfg.prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
-        controller->sec_cfg.prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
-    }
+    if (sec_prot_cfg)
+        controller->sec_cfg.prot_cfg = *sec_prot_cfg;
 
     if (sec_timer_cfg) {
         ws_pae_timers_settings_init(&controller->sec_cfg.timer_cfg, sec_timer_cfg);
@@ -631,9 +627,8 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct sec_time
 
     controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
 
-    if (timing_cfg) {
-        controller->sec_cfg.timing_cfg.temp_eapol_min_timeout = timing_cfg->temp_eapol_min_timeout;
-    }
+    if (timing_cfg)
+        controller->sec_cfg.timing_cfg = *timing_cfg;
 
     return 0;
 }

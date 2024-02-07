@@ -109,6 +109,7 @@ add_custom_target(check_git
 add_library(libwsbrd STATIC
     version.c
     app_wsbrd/wsbr.c
+    app_wsbrd/wsbr_cfg.c
     app_wsbrd/wsbr_mac.c
     app_wsbrd/wsbr_pcapng.c
     app_wsbrd/frame_helpers.c

@@ -48,11 +48,13 @@
 #include "stack/source/rpl/rpl.h"
 #include "stack/source/rpl/rpl_lollipop.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
+#include "stack/source/mpl/mpl.h"
 
 #include "mbedtls_config_check.h"
 #include "commandline_values.h"
 #include "drop_privileges.h"
 #include "commandline.h"
+#include "wsbr_cfg.h"
 #include "version.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
@@ -186,7 +188,9 @@ static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     ws_sec.lgtk.new_act_time = ctxt->config.ws_lgtk_new_activation_time;
     ws_sec.lgtk.new_install_req = ctxt->config.ws_lgtk_new_install_required;
     ws_sec.lgtk.revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
-    ws_pae_controller_configure(&ctxt->net_if, &ws_sec, NULL, NULL);
+    ws_pae_controller_configure(&ctxt->net_if, &ws_sec,
+                                &size_params[ctxt->config.ws_size].security_protocol_config,
+                                &size_params[ctxt->config.ws_size].security_protocol_timings);
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
@@ -252,12 +256,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (ctxt->config.ws_pan_id >= 0)
         ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
 
-    // Note that calls to ws_management_timing_parameters_set() and
-    // is done by the function below.
-    ret = ws_management_network_size_set(ctxt->net_if.id, ctxt->config.ws_size);
-    WARN_ON(ret);
-    ctxt->net_if.ws_info.temp_link_min_timeout = ctxt->net_if.ws_info.cfg->timing.temp_link_min_timeout;
-    ctxt->net_if.ws_info.temp_eapol_min_timeout = ctxt->net_if.ws_info.cfg->timing.temp_eapol_min_timeout;
+    BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
+    mpl_domain_change_timing(ctxt->net_if.mpl_domain, &size_params[ctxt->config.ws_size].trickle_mpl,
+                             size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime);
+    ctxt->net_if.ws_info.mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
+    ctxt->net_if.ws_info.temp_link_min_timeout = size_params[ctxt->config.ws_size].temp_link_min_timeout;
+    ctxt->net_if.ws_info.temp_eapol_min_timeout = size_params[ctxt->config.ws_size].security_protocol_timings.temp_eapol_min_timeout;
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
