@@ -31,7 +31,7 @@
  * \param new_timer_settings new timer settings
  *
  */
-void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_cfg_t *new_timer_settings);
+void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, struct sec_timer_cfg *new_timer_settings);
 
 /**
  *  ws_pae_timers_gtk_new_install_required GTK new install required check

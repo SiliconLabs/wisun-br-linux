@@ -69,7 +69,6 @@ typedef union {
     ws_gen_cfg_t gen;
     ws_timing_cfg_t timing;
     ws_mpl_cfg_t mpl;
-    ws_sec_timer_cfg_t sec_timer;
     ws_sec_prot_cfg_t sec_prot;
 } ws_cfgs_t;
 
@@ -106,7 +105,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg);
 static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg);
-static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg);
 static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg);
 
 #define CFG_CB(default_cb, validate_cb, set_cb, offset) \
@@ -124,7 +122,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
     CFG_CB(ws_cfg_gen_default_set, ws_cfg_gen_validate, ws_cfg_gen_set, offsetof(ws_cfg_t, gen)),
     CFG_CB(ws_cfg_timing_default_set, ws_cfg_timing_validate, ws_cfg_timing_set, offsetof(ws_cfg_t, timing)),
     CFG_CB(ws_cfg_mpl_default_set, ws_cfg_mpl_validate, ws_cfg_mpl_set, offsetof(ws_cfg_t, mpl)),
-    CFG_CB(ws_cfg_sec_timer_default_set, ws_cfg_sec_timer_validate, ws_cfg_sec_timer_set, offsetof(ws_cfg_t, sec_timer)),
     CFG_CB(ws_cfg_sec_prot_default_set, ws_cfg_sec_prot_validate, ws_cfg_sec_prot_set, offsetof(ws_cfg_t, sec_prot)),
 };
 
@@ -550,72 +547,6 @@ int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
     }
 
     ws_mpl_cfg_t *cfg = &ws_cfg.mpl;
-
-    *cfg = *new_cfg;
-
-    return CFG_SETTINGS_OK;
-}
-
-static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg)
-{
-    cfg->pmk_lifetime = DEFAULT_PMK_LIFETIME;
-    cfg->ptk_lifetime = DEFAULT_PTK_LIFETIME;
-    cfg->gtk_expire_offset = DEFAULT_GTK_EXPIRE_OFFSET;
-    cfg->gtk_new_act_time = DEFAULT_GTK_NEW_ACTIVATION_TIME;
-    cfg->gtk_new_install_req = DEFAULT_GTK_NEW_INSTALL_REQUIRED;
-    cfg->ffn_revocat_lifetime_reduct = DEFAULT_FFN_REVOCATION_LIFETIME_REDUCTION;
-    cfg->lgtk_expire_offset = DEFAULT_LGTK_EXPIRE_OFFSET;
-    cfg->lgtk_new_act_time = DEFAULT_LGTK_NEW_ACTIVATION_TIME;
-    cfg->lgtk_new_install_req = DEFAULT_LGTK_NEW_INSTALL_REQUIRED;
-    cfg->lfn_revocat_lifetime_reduct = DEFAULT_LFN_REVOCATION_LIFETIME_REDUCTION;
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg)
-{
-    *cfg = ws_cfg.sec_timer;
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg)
-{
-    ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
-
-    if (cfg->pmk_lifetime != new_cfg->pmk_lifetime ||
-        cfg->ptk_lifetime != new_cfg->ptk_lifetime ||
-        cfg->gtk_expire_offset != new_cfg->gtk_expire_offset ||
-        cfg->gtk_new_act_time != new_cfg->gtk_new_act_time ||
-        cfg->gtk_new_install_req != new_cfg->gtk_new_install_req ||
-        cfg->ffn_revocat_lifetime_reduct != new_cfg->ffn_revocat_lifetime_reduct ||
-        cfg->lgtk_expire_offset != new_cfg->lgtk_expire_offset ||
-        cfg->lgtk_new_act_time != new_cfg->lgtk_new_act_time ||
-        cfg->lgtk_new_install_req != new_cfg->lgtk_new_install_req ||
-        cfg->lfn_revocat_lifetime_reduct != new_cfg->lfn_revocat_lifetime_reduct) {
-
-        return CFG_SETTINGS_CHANGED;
-    }
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_sec_timer_set(struct net_if *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags)
-{
-    (void) flags;
-
-    int8_t ret = ws_cfg_sec_timer_validate(new_cfg);
-    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
-        return ret;
-    }
-
-    if (cur) {
-        ws_pae_controller_configure(cur, new_cfg, NULL, NULL);
-    }
-
-    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
-        return CFG_SETTINGS_OK;
-    }
-
-    ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
 
     *cfg = *new_cfg;
 

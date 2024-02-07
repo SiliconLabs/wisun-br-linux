@@ -57,22 +57,6 @@ typedef struct ws_mpl_cfg {
 } ws_mpl_cfg_t;
 
 /**
- * \brief Struct ws_sec_timer_cfg_t Security timers configuration
- */
-typedef struct ws_sec_timer_cfg {
-    uint32_t pmk_lifetime;              /**< PMK lifetime; minutes; default 172800 */
-    uint32_t ptk_lifetime;              /**< PTK lifetime; minutes; default 86400 */
-    uint32_t gtk_expire_offset;         /**< GTK lifetime; GTK_EXPIRE_OFFSET; minutes; default 43200 */
-    uint16_t gtk_new_act_time;          /**< GTK_NEW_ACTIVATION_TIME (1/X of expire offset); default 720 */
-    uint8_t  gtk_new_install_req;       /**< GTK_NEW_INSTALL_REQUIRED; percent of GTK lifetime; range 1-100; default 80 */
-    uint16_t ffn_revocat_lifetime_reduct; /**< FFN_REVOCATION_LIFETIME_REDUCTION (reduction of lifetime); default 30 */
-    uint32_t lgtk_expire_offset;        /**< LGTK lifetime; LGTK_EXPIRE_OFFSET; minutes; default 129600 */
-    uint16_t lgtk_new_act_time;         /**< LGTK_NEW_ACTIVATION_TIME (1/X of expire offset); default 720 */
-    uint8_t  lgtk_new_install_req;      /**< LGTK_NEW_INSTALL_REQUIRED; percent of LGTK lifetime; range 1-100; default 80 */
-    uint16_t lfn_revocat_lifetime_reduct; /**< LFN_REVOCATION_LIFETIME_REDUCTION (reduction of lifetime); default 30 */
-} ws_sec_timer_cfg_t;
-
-/**
  * \brief Struct ws_sec_prot_cfg_t Security protocols configuration
  */
 typedef struct ws_sec_prot_cfg {
@@ -91,7 +75,6 @@ typedef struct ws_cfg {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
-    ws_sec_timer_cfg_t sec_timer;       /**< Security timers configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
 } ws_cfg_t;
 
@@ -140,10 +123,6 @@ int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t f
 int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg);
 int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags);
-
-int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg);
-int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg);
-int8_t ws_cfg_sec_timer_set(struct net_if *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg);
 int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg);

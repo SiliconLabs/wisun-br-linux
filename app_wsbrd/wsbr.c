@@ -155,24 +155,21 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
                              false);
 }
 
-static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
+static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 {
-    ws_sec_timer_cfg_t cfg;
-    int ret;
+    struct sec_timer_cfg ws_sec;
 
-    ws_cfg_sec_timer_get(&cfg);
-    cfg.pmk_lifetime = ctxt->config.ws_pmk_lifetime_s;
-    cfg.ptk_lifetime = ctxt->config.ws_ptk_lifetime_s;
-    cfg.gtk_expire_offset = ctxt->config.ws_gtk_expire_offset_s;
-    cfg.gtk_new_act_time = ctxt->config.ws_gtk_new_activation_time;
-    cfg.gtk_new_install_req = ctxt->config.ws_gtk_new_install_required;
-    cfg.ffn_revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction;
-    cfg.lgtk_expire_offset = ctxt->config.ws_lgtk_expire_offset_s;
-    cfg.lgtk_new_act_time = ctxt->config.ws_lgtk_new_activation_time;
-    cfg.lgtk_new_install_req = ctxt->config.ws_lgtk_new_install_required;
-    cfg.lfn_revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
-    ret = ws_cfg_sec_timer_set(&ctxt->net_if, &cfg, 0x00);
-    return ret;
+    ws_sec.pmk_lifetime = ctxt->config.ws_pmk_lifetime_s;
+    ws_sec.ptk_lifetime = ctxt->config.ws_ptk_lifetime_s;
+    ws_sec.gtk.expire_offset = ctxt->config.ws_gtk_expire_offset_s;
+    ws_sec.gtk.new_act_time = ctxt->config.ws_gtk_new_activation_time;
+    ws_sec.gtk.new_install_req = ctxt->config.ws_gtk_new_install_required;
+    ws_sec.gtk.revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction;
+    ws_sec.lgtk.expire_offset = ctxt->config.ws_lgtk_expire_offset_s;
+    ws_sec.lgtk.new_act_time = ctxt->config.ws_lgtk_new_activation_time;
+    ws_sec.lgtk.new_install_req = ctxt->config.ws_lgtk_new_install_required;
+    ws_sec.lgtk.revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
+    ws_pae_controller_configure(&ctxt->net_if, &ws_sec, NULL, NULL);
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
@@ -252,8 +249,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
 
-    ret = wsbr_configure_ws_sect_time(ctxt);
-    WARN_ON(ret);
+    wsbr_configure_ws_sect_time(ctxt);
 
     ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
