@@ -1712,11 +1712,11 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
     if (wh_ies.flus)
         // Only a single chan plan tag is supported. (0)
-        ws_wh_flus_write(&msg->ie_buf_header, info->cfg->fhss.fhss_uc_dwell_interval, 0);
+        ws_wh_flus_write(&msg->ie_buf_header, info->fhss_conf.fhss_uc_dwell_interval, 0);
     if (wh_ies.lbs)
         // Only a single chan plan tag is supported. (0)
         // TODO: use a separate LFN BSI
-        ws_wh_lbs_write(&msg->ie_buf_header, info->cfg->fhss.lfn_bc_interval,
+        ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
                         info->hopping_schedule.fhss_bsi, 0,
                         info->fhss_conf.lfn_bc_sync_period);
     if (wh_ies.lnd)
@@ -1727,7 +1727,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
     if (wh_ies.lbc)
-        ws_wh_lbc_write(&msg->ie_buf_header, info->cfg->fhss.lfn_bc_interval,
+        ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
                         info->fhss_conf.lfn_bc_sync_period);
     SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
         if (!(ie_custom->frame_type_mask & (1 << msg->message_type)))

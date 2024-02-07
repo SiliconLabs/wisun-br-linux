@@ -303,7 +303,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    if (ie_lcp.chan_plan.channel_function != net_if->ws_info.cfg->fhss.fhss_uc_channel_function) {
+    if (ie_lcp.chan_plan.channel_function != net_if->ws_info.fhss_conf.ws_uc_channel_function) {
         TRACE(TR_DROP, "drop %-9s: LUS-IE/LCP-IE channel function mismatch", tr_ws_frame(WS_FT_LPAS));
         return;
     }
