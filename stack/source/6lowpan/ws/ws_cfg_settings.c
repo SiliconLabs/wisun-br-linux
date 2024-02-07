@@ -559,8 +559,6 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
     cfg->sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->max_simult_sec_neg_tx_queue_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN;
-    cfg->max_simult_sec_neg_tx_queue_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX;
 
     return CFG_SETTINGS_OK;
 }
@@ -578,9 +576,7 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg)
     if (cfg->sec_prot_trickle_imin != new_cfg->sec_prot_trickle_imin ||
             cfg->sec_prot_trickle_imax != new_cfg->sec_prot_trickle_imax ||
             cfg->sec_prot_trickle_timer_exp != new_cfg->sec_prot_trickle_timer_exp ||
-            cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout ||
-            cfg->max_simult_sec_neg_tx_queue_min != new_cfg->max_simult_sec_neg_tx_queue_min ||
-            cfg->max_simult_sec_neg_tx_queue_max != new_cfg->max_simult_sec_neg_tx_queue_max) {
+            cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout) {
 
         return CFG_SETTINGS_CHANGED;
     }

@@ -64,8 +64,6 @@ typedef struct ws_sec_prot_cfg {
     uint16_t sec_prot_trickle_imin;           /**< Security protocol trickle parameters Imin; seconds; default 30 */
     uint16_t sec_prot_trickle_imax;           /**< Security protocol trickle parameters Imax; seconds; default 90 */
     uint8_t sec_prot_trickle_timer_exp;       /**< Security protocol trickle timer expirations; default 2 */
-    uint16_t max_simult_sec_neg_tx_queue_min; /**< PAE authenticator max simultaneous security negotiations TX queue minimum */
-    uint16_t max_simult_sec_neg_tx_queue_max; /**< PAE authenticator max simultaneous security negotiations TX queue maximum */
 } ws_sec_prot_cfg_t;
 
 /**
