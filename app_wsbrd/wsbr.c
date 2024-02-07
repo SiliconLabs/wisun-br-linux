@@ -167,7 +167,7 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     cfg.gtk_new_act_time = ctxt->config.ws_gtk_new_activation_time;
     cfg.gtk_new_install_req = ctxt->config.ws_gtk_new_install_required;
     cfg.ffn_revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction;
-    cfg.lgtk_expire_offset = ctxt->config.ws_lgtk_expire_offset;
+    cfg.lgtk_expire_offset = ctxt->config.ws_lgtk_expire_offset_s;
     cfg.lgtk_new_act_time = ctxt->config.ws_lgtk_new_activation_time;
     cfg.lgtk_new_install_req = ctxt->config.ws_lgtk_new_install_required;
     cfg.lfn_revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
