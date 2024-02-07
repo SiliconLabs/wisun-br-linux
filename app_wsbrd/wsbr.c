@@ -216,7 +216,15 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
             ctxt->net_if.ws_info.hopping_schedule.channel_plan = 0;
     }
 
+    ctxt->net_if.ws_info.fhss_conf.fhss_uc_dwell_interval = ctxt->config.uc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_conf.ws_uc_channel_function = channel_function;
+    ctxt->net_if.ws_info.fhss_conf.ws_bc_channel_function = channel_function;
+    ctxt->net_if.ws_info.fhss_conf.fhss_bc_dwell_interval = ctxt->config.bc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_conf.fhss_broadcast_interval = ctxt->config.bc_interval;
+    ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
+    ctxt->net_if.ws_info.fhss_conf.unicast_fixed_channel = fixed_channel;
+    ctxt->net_if.ws_info.fhss_conf.broadcast_fixed_channel = fixed_channel;
 
     bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask, ctxt->config.ws_allowed_channels, 256);
@@ -224,13 +232,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     rail_fill_pom(ctxt);
 
-    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->net_if.id, channel_function, fixed_channel,
-                                                                ctxt->config.uc_dwell_interval);
-    WARN_ON(ret);
-    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->net_if.id, channel_function, fixed_channel,
-                                                                  ctxt->config.bc_dwell_interval, ctxt->config.bc_interval);
-    WARN_ON(ret);
-    ret = ws_management_fhss_lfn_configure(ctxt->net_if.id, ctxt->config.lfn_bc_interval, ctxt->config.lfn_bc_sync_period);
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     // FIXME: no ws_management_xxx() setter

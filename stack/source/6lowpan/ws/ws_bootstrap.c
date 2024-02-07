@@ -160,22 +160,6 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
 {
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-    ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    return 0;
-}
-
-int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
-{
-    fhss_configuration->fhss_uc_dwell_interval = cur->ws_info.cfg->fhss.fhss_uc_dwell_interval;
-    fhss_configuration->ws_uc_channel_function = cur->ws_info.cfg->fhss.fhss_uc_channel_function;
-    fhss_configuration->ws_bc_channel_function = cur->ws_info.cfg->fhss.fhss_bc_channel_function;
-    fhss_configuration->fhss_bc_dwell_interval = cur->ws_info.cfg->fhss.fhss_bc_dwell_interval;
-    fhss_configuration->fhss_broadcast_interval = cur->ws_info.cfg->fhss.fhss_bc_interval;
-    fhss_configuration->lfn_bc_interval         = cur->ws_info.cfg->fhss.lfn_bc_interval;
-    if (cur->ws_info.cfg->fhss.fhss_uc_fixed_channel != 0xffff) {
-        fhss_configuration->unicast_fixed_channel = cur->ws_info.cfg->fhss.fhss_uc_fixed_channel;
-    }
-    fhss_configuration->broadcast_fixed_channel = cur->ws_info.cfg->fhss.fhss_bc_fixed_channel;
     return 0;
 }
 
