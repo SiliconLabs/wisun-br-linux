@@ -16,6 +16,7 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/specs/ieee802154.h"
+#include "common/mathutils.h"
 #include "common/specs/ws.h"
 
 #include "stack/source/core/timers.h"
@@ -486,8 +487,7 @@ void ws_mngt_pa_send(struct net_if *cur)
     // Border routers write the NW size
     cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
     if (cur->ws_info.pan_information.jm.mask & (1 << WS_JM_PLF)) {
-        plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size,
-                                 cur->ws_info.pan_information.max_pan_size);
+        plf = MIN(100 * cur->ws_info.pan_information.pan_size / cur->ws_info.pan_information.max_pan_size, 100);
         if (plf != cur->ws_info.pan_information.jm.plf) {
             cur->ws_info.pan_information.jm.plf = plf;
             cur->ws_info.pan_information.jm.version++;

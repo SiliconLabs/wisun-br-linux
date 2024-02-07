@@ -27,7 +27,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/ns_list.h"
-#include "common/mathutils.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ws.h"
 #include "common/events_scheduler.h"
@@ -187,9 +186,4 @@ bool ws_common_is_valid_nr(uint8_t node_role)
         return true;
     }
     return false;
-}
-
-uint8_t ws_common_calc_plf(uint16_t pan_size, uint16_t max_pan_size)
-{
-    return MIN(100 * pan_size / max_pan_size, 100);
 }
