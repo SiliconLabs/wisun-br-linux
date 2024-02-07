@@ -84,7 +84,6 @@ struct net_if {
     uint8_t cur_hop_limit;
     uint16_t reachable_time_ttl;        // s
     uint32_t base_reachable_time;       // ms
-    bool mpl_seed: 1;
 
     uint8_t mac[8];
     uint8_t iid_eui64[8];

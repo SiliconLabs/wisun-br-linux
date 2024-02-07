@@ -228,7 +228,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     if (mpl_domain_count_on_interface(cur) == 1) {
         /* Use default interface parameters */
         mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, 0, NULL);
-        cur->mpl_seed = true;
     }
 
     return domain;
@@ -247,7 +246,6 @@ bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
         if (count != 1) {
             return true;
         }
-        cur->mpl_seed = false;
     }
 
     ns_list_foreach_safe(mpl_seed_t, seed, &domain->seeds) {

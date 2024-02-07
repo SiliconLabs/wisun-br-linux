@@ -178,9 +178,9 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;      // Shouldn't happen - internal error
     }
 
-    if (outgoing_if->mpl_seed && buf->options.mpl_permitted &&
-            addr_is_ipv6_multicast(buf->dst_sa.address) &&
-            addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
+    if (buf->options.mpl_permitted &&
+        addr_is_ipv6_multicast(buf->dst_sa.address) &&
+        addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
         /* Special handling for MPL. Once we have decided we're sending to a
          * multicast next hop for a greater-than-realm-local destination,
          * if we're functioning as an MPL seed on that interface, we turn this

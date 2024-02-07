@@ -127,7 +127,6 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->rcp = rcp;
     entry->configure_flags = 0;
     entry->icmp_tokens = 10;
-    entry->mpl_seed = false;
     entry->mpl_data_trickle_params = rfc7731_default_data_message_trickle_params;
     entry->mpl_seed_set_entry_lifetime = RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME;
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
