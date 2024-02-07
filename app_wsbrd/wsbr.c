@@ -175,6 +175,11 @@ static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 {
     struct sec_timer_cfg ws_sec;
+    uint8_t *lgtks[3] = { };
+    bool lgtk_force = false;
+    uint8_t *gtks[4] = { };
+    bool gtk_force = false;
+    int ret;
 
     ws_sec.pmk_lifetime = ctxt->config.ws_pmk_lifetime_s;
     ws_sec.ptk_lifetime = ctxt->config.ws_ptk_lifetime_s;
@@ -189,18 +194,47 @@ static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     ws_pae_controller_configure(&ctxt->net_if, &ws_sec,
                                 &size_params[ctxt->config.ws_size].security_protocol_config,
                                 &size_params[ctxt->config.ws_size].security_protocol_timings);
+
+    if (strlen(ctxt->config.radius_secret) != 0)
+        if (ws_pae_controller_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.radius_secret),
+                                                       (uint8_t *)ctxt->config.radius_secret))
+            WARN("ws_pae_controller_radius_shared_secret_set");
+    if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
+        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
+            WARN("ws_pae_controller_radius_address_set");
+
+    for (int i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {
+        if (ctxt->config.ws_gtk_force[i]) {
+            gtk_force = true;
+            gtks[i] = ctxt->config.ws_gtk[i];
+        }
+    }
+    if (gtk_force) {
+        ret = ws_pae_controller_gtk_update(ctxt->net_if.id, gtks);
+        WARN_ON(ret);
+    }
+    for (int i = 0; i < ARRAY_SIZE(ctxt->config.ws_lgtk_force); i++) {
+        if (ctxt->config.ws_lgtk_force[i]) {
+            lgtk_force = true;
+            lgtks[i] = ctxt->config.ws_lgtk[i];
+        }
+    }
+    if (lgtk_force) {
+        ret = ws_pae_controller_lgtk_update(ctxt->net_if.id, lgtks);
+        WARN_ON(ret);
+    }
+
+    ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
+    WARN_ON(ret);
+    ret = ws_pae_controller_trusted_certificate_add(&ctxt->config.tls_ca);
+    WARN_ON(ret);
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
-    int ret, i;
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     const struct chan_params *chan_params;
-    uint8_t *gtks[4] = { };
-    bool gtk_force = false;
-    uint8_t *lgtks[3] = { };
-    bool lgtk_force = false;
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
@@ -271,34 +305,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     wsbr_configure_ws_sect_time(ctxt);
 
-    ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
-    WARN_ON(ret);
-
-    ret = ws_pae_controller_trusted_certificate_add(&ctxt->config.tls_ca);
-    WARN_ON(ret);
-
-    for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {
-        if (ctxt->config.ws_gtk_force[i]) {
-            gtk_force = true;
-            gtks[i] = ctxt->config.ws_gtk[i];
-        }
-    }
-    if (gtk_force) {
-        ret = ws_pae_controller_gtk_update(ctxt->net_if.id, gtks);
-        WARN_ON(ret);
-    }
-
-    for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_lgtk_force); i++) {
-        if (ctxt->config.ws_lgtk_force[i]) {
-            lgtk_force = true;
-            lgtks[i] = ctxt->config.ws_lgtk[i];
-        }
-    }
-    if (lgtk_force) {
-        ret = ws_pae_controller_lgtk_update(ctxt->net_if.id, lgtks);
-        WARN_ON(ret);
-    }
-
     ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
@@ -362,12 +368,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     rpl_glue_init(&ctxt->net_if);
     rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
 
-    if (strlen(ctxt->config.radius_secret) != 0)
-        if (ws_pae_controller_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
-            WARN("ws_pae_controller_radius_shared_secret_set");
-    if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
-        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
-            WARN("ws_pae_controller_radius_address_set");
     // Artificially add wsbrd to the DHCP lease list
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }
