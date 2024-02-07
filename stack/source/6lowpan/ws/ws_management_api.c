@@ -114,30 +114,6 @@ int ws_management_channel_mask_set(
     return 0;
 }
 
-int ws_management_channel_plan_set(
-    int8_t interface_id,
-    uint8_t uc_channel_function,
-    uint8_t bc_channel_function,
-    uint32_t ch0_freq, // Stack can not modify this
-    uint32_t channel_spacing,// Stack can not modify this
-    uint8_t number_of_channels)
-{
-    struct net_if *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    cur->ws_info.hopping_schedule.channel_plan = 1;
-    cur->ws_info.hopping_schedule.uc_channel_function = uc_channel_function;
-    cur->ws_info.hopping_schedule.bc_channel_function = bc_channel_function;
-    cur->ws_info.hopping_schedule.ch0_freq = ch0_freq;
-    cur->ws_info.hopping_schedule.channel_spacing = channel_spacing;
-    cur->ws_info.hopping_schedule.number_of_channels = number_of_channels;
-
-    // TODO update fields to llc
-    return 0;
-}
-
 int ws_management_fhss_unicast_channel_function_configure(
     int8_t interface_id,
     uint8_t channel_function,

@@ -102,32 +102,6 @@ int ws_management_channel_mask_set(
     uint8_t channel_mask[32]);
 
 /**
- * Configure Application defined channel plan.
- *
- * Change the application defined channel plan.
- * This changes our channel plan that is reported to our children.
- * PHY driver must be configured to follow these settings to make the configuration active.
- *
- *
- * \param interface_id Network interface ID.
- * \param uc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
- * \param bc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
- * \param ch0_freq ch0 center frequency in Hz
- * \param channel_spacing Channel spacing value 0:200k, 1:400k, 2:600k, 3:100k.
- * \param number_of_channels FHSS phy operating mode default to "1b".
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-int ws_management_channel_plan_set(
-    int8_t interface_id,
-    uint8_t uc_channel_function,
-    uint8_t bc_channel_function,
-    uint32_t ch0_freq, // Stack can not modify this
-    uint32_t channel_spacing,// Stack can not modify this
-    uint8_t number_of_channels);// Stack can not modify this
-
-/**
  * Configure unicast channel function.
  *
  * Change the default configuration for Wi-SUN FHSS operation.

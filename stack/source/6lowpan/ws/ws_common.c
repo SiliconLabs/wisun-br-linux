@@ -91,8 +91,10 @@ int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedul
         return -1;
 
     // Case where channel parameters are provided by the user
-    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
+    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF) {
+        hopping_schedule->channel_plan = 1;
         return 0;
+    }
 
     if (hopping_schedule->channel_plan_id && hopping_schedule->channel_plan_id != 255)
         hopping_schedule->channel_plan = 2;

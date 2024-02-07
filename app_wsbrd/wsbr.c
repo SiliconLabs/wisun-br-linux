@@ -194,18 +194,14 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
     ctxt->net_if.ws_info.hopping_schedule.operating_mode = ctxt->config.ws_mode;
     ctxt->net_if.ws_info.hopping_schedule.operating_class = ctxt->config.ws_class;
+    ctxt->net_if.ws_info.hopping_schedule.ch0_freq = ctxt->config.ws_chan0_freq;
+    ctxt->net_if.ws_info.hopping_schedule.channel_spacing = ctxt->config.ws_chan_spacing;
+    ctxt->net_if.ws_info.hopping_schedule.number_of_channels = ctxt->config.ws_chan_count;
+    ctxt->net_if.ws_info.hopping_schedule.uc_channel_function = channel_function;
+    ctxt->net_if.ws_info.hopping_schedule.bc_channel_function = channel_function;
     ws_common_regulatory_domain_config(&ctxt->net_if, &ctxt->net_if.ws_info.hopping_schedule);
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
-    if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF)
-        ret = ws_management_channel_plan_set(ctxt->net_if.id,
-                                             WS_CHAN_FUNC_DH1CF,
-                                             WS_CHAN_FUNC_DH1CF,
-                                             ctxt->config.ws_chan0_freq,
-                                             ctxt->config.ws_chan_spacing,
-                                             ctxt->config.ws_chan_count);
-    WARN_ON(ret);
-
     rail_fill_pom(ctxt);
 
     ret = ws_management_fhss_unicast_channel_function_configure(ctxt->net_if.id, channel_function, fixed_channel,
