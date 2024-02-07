@@ -101,8 +101,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur);
 
 void ws_common_seconds_timer(int seconds);
 
-void ws_common_fast_timer(int ticks);
-
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);

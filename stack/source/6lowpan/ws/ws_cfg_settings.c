@@ -457,8 +457,8 @@ int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t f
     }
 
     if (cur) {
-        cur->ws_info.mngt.trickle_params.Imin = new_cfg->disc_trickle_imin * 10;
-        cur->ws_info.mngt.trickle_params.Imax = new_cfg->disc_trickle_imax * 10;
+        cur->ws_info.mngt.trickle_params.Imin = new_cfg->disc_trickle_imin;
+        cur->ws_info.mngt.trickle_params.Imax = new_cfg->disc_trickle_imax;
         cur->ws_info.mngt.trickle_params.k = new_cfg->disc_trickle_k;
         cur->ws_info.mngt.trickle_params.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;
         ws_pae_controller_configure(cur, NULL, NULL, new_cfg);

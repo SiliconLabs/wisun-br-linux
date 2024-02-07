@@ -41,7 +41,6 @@ struct ws_timer g_timers[] = {
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
-    timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                     true),
     timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                    true),
     timer_entry(6LOWPAN_ADAPTATION,     lowpan_adaptation_interface_slow_timer,     1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    5000,                    true),

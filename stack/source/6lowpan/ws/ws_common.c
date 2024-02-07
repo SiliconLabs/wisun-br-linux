@@ -110,16 +110,7 @@ void ws_common_seconds_timer(int seconds)
         return;
 
     ws_bootstrap_seconds_timer(cur, seconds);
-}
-
-void ws_common_fast_timer(int ticks)
-{
-    struct net_if *cur = protocol_stack_interface_info_get();
-
-    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
-    ws_mngt_async_trickle_timer_cb(cur, ticks);
+    ws_mngt_async_trickle_timer_cb(cur, seconds);
 }
 
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
