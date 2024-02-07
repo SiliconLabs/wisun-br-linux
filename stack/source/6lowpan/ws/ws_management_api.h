@@ -43,22 +43,6 @@
 #define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
 /**
- * Initialize Wi-SUN stack.
- *
- * Generates the default configuration for Wi-SUN operation
- *
- * \param interface_id Network interface ID.
- * \param regulatory_domain Mandatory regulatory domain value of the device.
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-int ws_management_node_init(
-    int8_t interface_id,
-    uint8_t regulatory_domain);
-
-
-/**
  * Set timing parameters related to network size.
  *
  * timing parameters follows the specification example from Wi-SUN specification

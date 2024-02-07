@@ -30,31 +30,6 @@
 
 #define TRACE_GROUP "wsmg"
 
-
-int ws_management_node_init(
-    int8_t interface_id,
-    uint8_t regulatory_domain)
-{
-    struct net_if *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (interface_id >= 0 && !cur) {
-        return -1;
-    }
-
-    ws_gen_cfg_t gen_cfg;
-    if (ws_cfg_gen_get(&gen_cfg) < 0) {
-        return -3;
-    }
-
-    if (ws_cfg_gen_set(cur, &gen_cfg, 0) < 0) {
-        return -4;
-    }
-
-    return 0;
-}
-
 int ws_management_network_size_set(
     int8_t interface_id,
     uint8_t network_size)

@@ -202,8 +202,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
-    ret = ws_management_node_init(ctxt->net_if.id, ctxt->config.ws_domain);
-    WARN_ON(ret);
     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain = ctxt->config.ws_domain;
     ctxt->net_if.ws_info.hopping_schedule.phy_mode_id = ctxt->config.ws_phy_mode_id;
     ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
