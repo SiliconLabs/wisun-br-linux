@@ -1096,13 +1096,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct so
         return 0;
     }
 
-    if (ws_pae_controller_configure(controller->interface_ptr, NULL, NULL, NULL) < 0) {
-        return -1;
-    }
-
-    if (!radius_cfg->radius_addr_set) {
-        return 0;
-    }
+    controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
 
     if (ws_pae_auth_radius_address_set(controller->interface_ptr, address) < 0) {
         // If not set here since authenticator not created, then set on authenticator initialization
@@ -1123,9 +1117,8 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     radius_cfg->radius_shared_secret_len = shared_secret_len;
 
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (controller) {
-        ws_pae_controller_configure(controller->interface_ptr, NULL, NULL, NULL);
-    }
+    if (controller)
+        controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
 
     return 0;
 }
