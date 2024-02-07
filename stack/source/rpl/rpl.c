@@ -711,9 +711,9 @@ void rpl_timer(int ticks)
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
                 continue;
             if (elapsed > target->transits[i].path_lifetime_s) {
-                memset(target->transits + i, 0, sizeof(struct rpl_transit));
                 TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
                       tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
+                memset(target->transits + i, 0, sizeof(struct rpl_transit));
             } else {
                 del = false;
             }
