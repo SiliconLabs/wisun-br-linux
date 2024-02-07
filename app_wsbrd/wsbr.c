@@ -256,6 +256,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     // is done by the function below.
     ret = ws_management_network_size_set(ctxt->net_if.id, ctxt->config.ws_size);
     WARN_ON(ret);
+    ctxt->net_if.ws_info.temp_link_min_timeout = ctxt->net_if.ws_info.cfg->timing.temp_link_min_timeout;
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;

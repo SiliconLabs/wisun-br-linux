@@ -275,7 +275,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
         //Read current timestamp
         uint32_t time_from_last_unicast_schedule = current_time_stamp - neigh_table[i].host_rx_timestamp;
-        if (time_from_last_unicast_schedule >= interface->ws_info.cfg->timing.temp_link_min_timeout) {
+        if (time_from_last_unicast_schedule >= interface->ws_info.temp_link_min_timeout) {
             //Accept only Enough Old Device
             if (!oldest_neigh) {
                 //Accept first compare
