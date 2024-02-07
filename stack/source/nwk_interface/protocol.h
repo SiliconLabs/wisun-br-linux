@@ -70,7 +70,6 @@ struct net_if {
     uint8_t lowpan_info;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
-    multicast_mpl_seed_id_mode_e mpl_seed_id_mode;
     trickle_params_t mpl_data_trickle_params;
     uint16_t mpl_seed_set_entry_lifetime;
     uint8_t mpl_seed_id[16];

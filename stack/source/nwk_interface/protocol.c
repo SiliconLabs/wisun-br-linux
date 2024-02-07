@@ -130,7 +130,6 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->mpl_seed = false;
     entry->mpl_data_trickle_params = rfc7731_default_data_message_trickle_params;
     entry->mpl_seed_set_entry_lifetime = RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME;
-    entry->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     protocol_stack_interface_set_reachable_time(entry, 30000);
     entry->ipv6_neighbour_cache.link_mtu = IPV6_MIN_LINK_MTU;
