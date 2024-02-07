@@ -33,8 +33,7 @@
 
 int ws_management_node_init(
     int8_t interface_id,
-    uint8_t regulatory_domain,
-    char *network_name_ptr)
+    uint8_t regulatory_domain)
 {
     struct net_if *cur;
 
@@ -42,10 +41,6 @@ int ws_management_node_init(
 
     if (interface_id >= 0 && !cur) {
         return -1;
-    }
-
-    if (!network_name_ptr) {
-        return -2;
     }
 
     ws_phy_cfg_t phy_cfg;
@@ -63,8 +58,6 @@ int ws_management_node_init(
     if (ws_cfg_gen_get(&gen_cfg) < 0) {
         return -3;
     }
-
-    strncpy(gen_cfg.network_name, network_name_ptr, 32);
 
     if (ws_cfg_gen_set(cur, &gen_cfg, 0) < 0) {
         return -4;

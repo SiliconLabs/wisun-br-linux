@@ -1752,7 +1752,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_pan_write(&msg->ie_buf_payload, info->pan_information.pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
         if (wp_ies.netname)
-            ws_wp_nested_netname_write(&msg->ie_buf_payload, info->cfg->gen.network_name);
+            ws_wp_nested_netname_write(&msg->ie_buf_payload, info->network_name);
         if (wp_ies.panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies.gtkhash)

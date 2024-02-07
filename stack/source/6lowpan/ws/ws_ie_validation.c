@@ -98,7 +98,7 @@ bool ws_ie_validate_lcp(const struct ws_info *ws_info, const struct ws_lcp_ie *i
 
 bool ws_ie_validate_netname(const struct ws_info *ws_info, const struct ws_wp_netname *ie_netname)
 {
-    const char *network_name = ws_info->cfg->gen.network_name;
+    const char *network_name = ws_info->network_name;
 
     if (ie_netname->network_name_length != strlen(network_name) ||
         strncmp(network_name, (char *)ie_netname->network_name, ie_netname->network_name_length)) {

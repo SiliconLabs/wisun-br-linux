@@ -77,6 +77,7 @@ typedef struct fhss_ws_configuration {
 
 
 typedef struct ws_info {
+    char network_name[33];
     struct ws_mngt mngt;
     struct ws_ie_custom_list ie_custom_list;
     bool enable_lfn;

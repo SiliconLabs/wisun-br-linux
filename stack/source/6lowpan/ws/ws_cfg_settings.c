@@ -426,7 +426,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
 
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
 {
-    memset(cfg->network_name, 0, sizeof(cfg->network_name));
     cfg->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
@@ -443,14 +442,9 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg)
 {
     ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
-    if (strlen(new_cfg->network_name) > 32) {
-        return CFG_SETTINGS_ERROR_GEN_CONF;
-    }
-
     // Regulator domain, operating mode or class has changed
-    if (strcmp(cfg->network_name, new_cfg->network_name) != 0 ||
-            cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
-            cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
+    if (cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
+        cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
         return CFG_SETTINGS_CHANGED;
     }
 
@@ -471,9 +465,6 @@ int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
     ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
     cfg->network_size = new_cfg->network_size;
-    if (&cfg->network_name != &new_cfg->network_name) {
-        strncpy(cfg->network_name, new_cfg->network_name, 32);
-    }
     cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
     cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
 

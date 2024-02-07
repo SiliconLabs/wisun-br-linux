@@ -58,15 +58,13 @@
  *
  * \param interface_id Network interface ID.
  * \param regulatory_domain Mandatory regulatory domain value of the device.
- * \param network_name_ptr Network name where to join if no configuration found from storage.
  *
  * \return 0, Init OK.
  * \return <0 Init fail.
  */
 int ws_management_node_init(
     int8_t interface_id,
-    uint8_t regulatory_domain,
-    char *network_name_ptr);
+    uint8_t regulatory_domain);
 
 /**
  * Configure regulatory domain of Wi-SUN stack.
