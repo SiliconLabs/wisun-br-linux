@@ -43,55 +43,12 @@ int ws_management_node_init(
         return -1;
     }
 
-    ws_phy_cfg_t phy_cfg;
-    if (ws_cfg_phy_get(&phy_cfg) < 0) {
-        return -3;
-    }
-
-    phy_cfg.regulatory_domain = regulatory_domain;
-
-    if (ws_cfg_phy_set(cur, &phy_cfg, 0) < 0) {
-        return -4;
-    }
-
     ws_gen_cfg_t gen_cfg;
     if (ws_cfg_gen_get(&gen_cfg) < 0) {
         return -3;
     }
 
     if (ws_cfg_gen_set(cur, &gen_cfg, 0) < 0) {
-        return -4;
-    }
-
-    return 0;
-}
-
-int ws_management_regulatory_domain_set(
-    int8_t interface_id,
-    uint8_t regulatory_domain,
-    uint8_t operating_class,
-    uint8_t operating_mode,
-    uint8_t phy_mode_id,
-    uint8_t channel_plan_id)
-{
-    struct net_if *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-
-    ws_phy_cfg_t cfg;
-    if (ws_cfg_phy_get(&cfg) < 0) {
-        return -3;
-    }
-
-    cfg.regulatory_domain = regulatory_domain;
-    cfg.operating_mode = operating_mode;
-    cfg.operating_class = operating_class;
-    cfg.phy_mode_id = phy_mode_id;
-    cfg.channel_plan_id = channel_plan_id;
-
-    if (ws_cfg_phy_set(cur, &cfg, 0) < 0) {
         return -4;
     }
 

@@ -121,7 +121,7 @@ int8_t ws_common_allocate_and_init(struct net_if *cur)
     cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
 
     cur->ws_info.hopping_schedule.regulatory_domain = REG_DOMAIN_EU;
-    cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_3;
+    cur->ws_info.hopping_schedule.operating_mode = 0x03;
     cur->ws_info.hopping_schedule.operating_class = 2;
     // Clock drift value 255 indicates that information is not provided
     cur->ws_info.hopping_schedule.clock_drift = 255;

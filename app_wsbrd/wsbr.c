@@ -189,12 +189,14 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
     ret = ws_management_node_init(ctxt->net_if.id, ctxt->config.ws_domain);
     WARN_ON(ret);
+    ctxt->net_if.ws_info.hopping_schedule.regulatory_domain = ctxt->config.ws_domain;
+    ctxt->net_if.ws_info.hopping_schedule.phy_mode_id = ctxt->config.ws_phy_mode_id;
+    ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
+    ctxt->net_if.ws_info.hopping_schedule.operating_mode = ctxt->config.ws_mode;
+    ctxt->net_if.ws_info.hopping_schedule.operating_class = ctxt->config.ws_class;
+    ws_common_regulatory_domain_config(&ctxt->net_if, &ctxt->net_if.ws_info.hopping_schedule);
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
-    ret = ws_management_regulatory_domain_set(ctxt->net_if.id, ctxt->config.ws_domain,
-                                              ctxt->config.ws_class, ctxt->config.ws_mode,
-                                              ctxt->config.ws_phy_mode_id, ctxt->config.ws_chan_plan_id);
-    WARN_ON(ret);
     if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF)
         ret = ws_management_channel_plan_set(ctxt->net_if.id,
                                              WS_CHAN_FUNC_DH1CF,

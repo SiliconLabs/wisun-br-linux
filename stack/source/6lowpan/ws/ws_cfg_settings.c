@@ -67,7 +67,6 @@ typedef struct ws_cfg_cb {
 
 typedef union {
     ws_gen_cfg_t gen;
-    ws_phy_cfg_t phy;
     ws_timing_cfg_t timing;
     ws_fhss_cfg_t fhss;
     ws_mpl_cfg_t mpl;
@@ -124,7 +123,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
     // Network size configuration must be done first
     CFG_CB(ws_cfg_network_size_default_set, ws_cfg_network_size_validate, ws_cfg_network_size_set, offsetof(ws_cfg_t, gen)),
     CFG_CB(ws_cfg_gen_default_set, ws_cfg_gen_validate, ws_cfg_gen_set, offsetof(ws_cfg_t, gen)),
-    CFG_CB(ws_cfg_phy_default_set, ws_cfg_phy_validate, ws_cfg_phy_set, offsetof(ws_cfg_t, phy)),
     CFG_CB(ws_cfg_timing_default_set, ws_cfg_timing_validate, ws_cfg_timing_set, offsetof(ws_cfg_t, timing)),
     CFG_CB(ws_cfg_mpl_default_set, ws_cfg_mpl_validate, ws_cfg_mpl_set, offsetof(ws_cfg_t, mpl)),
     CFG_CB(ws_cfg_fhss_default_set, ws_cfg_fhss_validate, ws_cfg_fhss_set, offsetof(ws_cfg_t, fhss)),
@@ -211,12 +209,8 @@ int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_
 static uint8_t ws_cfg_config_get_by_size(struct net_if *cur, uint8_t network_size)
 {
     (void)cur;
-
-    ws_phy_cfg_t phy_cfg;
-    if (ws_cfg_phy_get(&phy_cfg) < 0) {
-        return CONFIG_SMALL;
-    }
-    uint32_t data_rate = ws_common_datarate_get_from_phy_mode(phy_cfg.phy_mode_id, phy_cfg.operating_mode);
+    uint32_t data_rate = ws_common_datarate_get_from_phy_mode(cur->ws_info.hopping_schedule.phy_mode_id,
+                                                              cur->ws_info.hopping_schedule.operating_mode);
 
     uint8_t index;
     if (data_rate < 150000) {
@@ -467,104 +461,6 @@ int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
     cfg->network_size = new_cfg->network_size;
     cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
     cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg)
-{
-    // FHSS configuration
-    cfg->regulatory_domain = REG_DOMAIN_EU;
-    cfg->operating_mode = OPERATING_MODE_3;
-    cfg->operating_class = 2;
-    cfg->phy_mode_id = 255;
-    cfg->channel_plan_id = 255;
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg)
-{
-    *cfg = ws_cfg.phy;
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg)
-{
-    ws_phy_cfg_t *cfg = &ws_cfg.phy;
-
-    // Regulator domain, operating mode or class has changed
-    if (cfg->regulatory_domain != new_cfg->regulatory_domain ||
-            cfg->operating_mode != new_cfg->operating_mode ||
-            cfg->operating_class != new_cfg->operating_class ||
-            cfg->phy_mode_id != new_cfg->phy_mode_id ||
-            cfg->channel_plan_id != new_cfg->channel_plan_id) {
-
-        ws_hopping_schedule_t hopping_schedule = {
-            .regulatory_domain = new_cfg->regulatory_domain,
-            .operating_mode = new_cfg->operating_mode,
-            .operating_class = new_cfg->operating_class,
-            .phy_mode_id = new_cfg->phy_mode_id,
-            .channel_plan_id = new_cfg->channel_plan_id
-        };
-
-        // Check that new settings are valid
-        if (ws_common_regulatory_domain_config(NULL, &hopping_schedule) < 0) {
-            // Invalid regulatory domain set
-            return CFG_SETTINGS_ERROR_PHY_CONF;
-        }
-
-        return CFG_SETTINGS_CHANGED;
-    }
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
-{
-    int8_t ret = ws_cfg_phy_validate(new_cfg);
-    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
-        return ret;
-    }
-    // Check settings and configure interface
-    if (cur) {
-        // Set operating mode for FSK if given with PHY mode ID
-        if ((new_cfg->phy_mode_id == 1) || (new_cfg->phy_mode_id == 17)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_1a;
-        } else if ((new_cfg->phy_mode_id == 2) || (new_cfg->phy_mode_id == 18)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_1b;
-        } else if ((new_cfg->phy_mode_id == 3) || (new_cfg->phy_mode_id == 19)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_2a;
-        } else if ((new_cfg->phy_mode_id == 4) || (new_cfg->phy_mode_id == 20)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_2b;
-        } else if ((new_cfg->phy_mode_id == 5) || (new_cfg->phy_mode_id == 21)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_3;
-        } else if ((new_cfg->phy_mode_id == 6) || (new_cfg->phy_mode_id == 22)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_4a;
-        } else if ((new_cfg->phy_mode_id == 7) || (new_cfg->phy_mode_id == 23)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_4b;
-        } else if ((new_cfg->phy_mode_id == 8) || (new_cfg->phy_mode_id == 24)) {
-            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_5;
-        } else {
-            cur->ws_info.hopping_schedule.operating_mode = new_cfg->operating_mode;
-        }
-        cur->ws_info.hopping_schedule.phy_mode_id = new_cfg->phy_mode_id;
-        cur->ws_info.hopping_schedule.channel_plan_id = new_cfg->channel_plan_id;
-        cur->ws_info.hopping_schedule.regulatory_domain = new_cfg->regulatory_domain;
-        cur->ws_info.hopping_schedule.operating_class = new_cfg->operating_class;
-
-        if (ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule) < 0) {
-            return CFG_SETTINGS_ERROR_PHY_CONF;
-        }
-    }
-
-    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
-        return CFG_SETTINGS_OK;
-    }
-
-    ws_phy_cfg_t *cfg = &ws_cfg.phy;
-
-    *cfg = *new_cfg;
 
     return CFG_SETTINGS_OK;
 }

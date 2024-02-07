@@ -30,15 +30,6 @@
 #include <stdint.h>
 #include "common/int24.h"
 
-#define OPERATING_MODE_1a 0x1a  /**< 50, 0,5 */
-#define OPERATING_MODE_1b 0x1b  /**< 50, 1.0 */
-#define OPERATING_MODE_2a 0x2a  /**< 100, 0,5 */
-#define OPERATING_MODE_2b 0x2b  /**< 100, 1.0 */
-#define OPERATING_MODE_3  0x03  /**< 150, 0.5 */
-#define OPERATING_MODE_4a 0x4a  /**< 200, 0.5 */
-#define OPERATING_MODE_4b 0x4b  /**< 200, 1.0 */
-#define OPERATING_MODE_5  0x05  /**< 300, 0.5 */
-
 /*
  *  Network Size definitions are device amount in hundreds of devices.
  *  These definitions are meant to give some estimates of sizes. Any value can be given as parameter
@@ -66,40 +57,6 @@ int ws_management_node_init(
     int8_t interface_id,
     uint8_t regulatory_domain);
 
-/**
- * Configure regulatory domain of Wi-SUN stack.
- *
- * Change the default configuration for Wi-SUN PHY operation.
- *
- * Supported values:
- * Domain: "NA"(0x01), "KR"(0x09), "EU"(0x03), "IN"(0x05), "KR"(0x09), "JP"(0x09), "WW"(0x00)
- * Operating class: (1), (2), (3), (4)
- * Operation mode: "1a" (symbol rate 50, modulation index 0.5)
- *                 "1b" (symbol rate 50, modulation index 1.0)
- *                 "2a" (symbol rate 100, modulation index 0.5)
- *                 "2b" (symbol rate 100, modulation index 1.0)
- *                 "3"  (symbol rate 150, modulation index 0.5)
- *                 "4a" (symbol rate 200, modulation index 0.5)
- *                 "4b" (symbol rate 200, modulation index 1.0)
- *                 "5"  (symbol rate 300, modulation index 0.5)
- *
- * if value of 255 is given then previous value is used.
- *
- * \param interface_id Network interface ID.
- * \param regulatory_domain FHSS regulatory domain. Default to "EU" 0x03.
- * \param operating_class FHSS operating class. Default to 2.
- * \param operating_mode FHSS phy operating mode. Default to "3".
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-int ws_management_regulatory_domain_set(
-    int8_t interface_id,
-    uint8_t regulatory_domain,
-    uint8_t operating_class,
-    uint8_t operating_mode,
-    uint8_t phy_mode_id,
-    uint8_t channel_plan_id);
 
 /**
  * Set timing parameters related to network size.

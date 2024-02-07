@@ -37,17 +37,6 @@ typedef struct ws_gen_cfg {
 } ws_gen_cfg_t;
 
 /**
- * \brief Struct ws_phy_cfg_t Physical layer configuration
- */
-typedef struct ws_phy_cfg {
-    uint8_t regulatory_domain;          /**< PHY regulatory domain; default "KR" 0x09 */
-    uint8_t operating_class;            /**< PHY operating class; default 1 */
-    uint8_t operating_mode;             /**< PHY operating mode; default "1b" symbol rate 50, modulation index 1 */
-    uint8_t phy_mode_id;                /**< PHY mode ID; default 255 (not used) */
-    uint8_t channel_plan_id;            /**< Channel plan ID; default 255 (not used) */
-} ws_phy_cfg_t;
-
-/**
  * \brief Struct ws_timing_cfg_t Timing configuration
  */
 typedef struct ws_timing_cfg {
@@ -122,7 +111,6 @@ typedef struct ws_sec_prot_cfg {
  */
 typedef struct ws_cfg {
     ws_gen_cfg_t gen;                   /**< General configuration */
-    ws_phy_cfg_t phy;                   /**< Physical layer configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_fhss_cfg_t fhss;                 /**< Frequency hopping configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
@@ -166,11 +154,6 @@ int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_
 int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg);
 int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg);
 int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
-
-int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg);
-int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg);
-int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg);
-int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg);
