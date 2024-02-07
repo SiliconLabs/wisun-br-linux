@@ -72,7 +72,7 @@ struct wsbrd_conf {
     int  ws_pan_id;
     int  ws_fan_version;
     int  ws_pmk_lifetime_s;
-    int  ws_ptk_lifetime;
+    int  ws_ptk_lifetime_s;
     int  ws_gtk_expire_offset;
     int  ws_gtk_new_activation_time;
     int  ws_gtk_new_install_required;
