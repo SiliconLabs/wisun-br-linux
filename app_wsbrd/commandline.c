@@ -256,6 +256,15 @@ static void conf_set_number(struct wsbrd_conf *config, const struct storage_pars
         FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
+static void conf_set_seconds_from_minutes(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest,
+                                          const void *raw_param)
+{
+    int *dest = raw_dest;
+
+    conf_set_number(config, info, raw_dest, raw_param);
+    *dest *= 60;
+}
+
 static void conf_set_string(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     uintptr_t max_len = (uintptr_t)raw_param;
@@ -512,13 +521,13 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "broadcast_interval",            &config->bc_interval,                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        &config->lfn_bc_interval,                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     &config->lfn_bc_sync_period,               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "pmk_lifetime",                  &config->ws_pmk_lifetime,                  conf_set_number,      &valid_unsigned },
-        { "ptk_lifetime",                  &config->ws_ptk_lifetime,                  conf_set_number,      &valid_unsigned },
-        { "gtk_expire_offset",             &config->ws_gtk_expire_offset,             conf_set_number,      &valid_unsigned },
+        { "pmk_lifetime",                  &config->ws_pmk_lifetime,                  conf_set_seconds_from_minutes, &valid_unsigned },
+        { "ptk_lifetime",                  &config->ws_ptk_lifetime,                  conf_set_seconds_from_minutes, &valid_unsigned },
+        { "gtk_expire_offset",             &config->ws_gtk_expire_offset,             conf_set_seconds_from_minutes, &valid_unsigned },
         { "gtk_new_activation_time",       &config->ws_gtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "gtk_new_install_required",      &config->ws_gtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
         { "ffn_revocation_lifetime_reduction", &config->ws_ffn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
-        { "lgtk_expire_offset",             &config->ws_lgtk_expire_offset,             conf_set_number,      &valid_unsigned },
+        { "lgtk_expire_offset",             &config->ws_lgtk_expire_offset,           conf_set_seconds_from_minutes, &valid_unsigned },
         { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
@@ -605,13 +614,13 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->lfn_bc_sync_period = 5;
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
-    config->ws_pmk_lifetime = 172800;
-    config->ws_ptk_lifetime = 86400;
-    config->ws_gtk_expire_offset = 43200;
+    config->ws_pmk_lifetime = 172800 * 60;
+    config->ws_ptk_lifetime = 86400 * 60;
+    config->ws_gtk_expire_offset = 43200 * 60;
     config->ws_gtk_new_activation_time = 720;
     config->ws_gtk_new_install_required = 80;
     config->ws_ffn_revocation_lifetime_reduction = 30;
-    config->ws_lgtk_expire_offset = 129600;
+    config->ws_lgtk_expire_offset = 129600 * 60;
     config->ws_lgtk_new_activation_time = 180;
     config->ws_lgtk_new_install_required = 90;
     config->ws_lfn_revocation_lifetime_reduction = 30;
