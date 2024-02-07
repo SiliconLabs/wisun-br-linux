@@ -202,7 +202,6 @@ static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
     mac_neighbor_table_entry_t *neighbor = entry->neighbor_info;
 
     ns_list_remove(&cur->ws_info.active_nud_process, entry);
-    free(entry);
 
     if (neighbor->nud_active)
         neighbor->nud_active = false;
@@ -213,6 +212,7 @@ static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *
     ws_nud_table_entry_t *nud_entry = ws_nud_entry_discover(cur, entry_ptr);
     if (nud_entry) {
         ws_nud_state_clean(cur, nud_entry);
+        free(nud_entry);
     }
 }
 
@@ -285,9 +285,11 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
                         neighbor_table_class_remove_entry(cur->mac_parameters.mac_neighbor_table, entry->neighbor_info);
+                        free(entry);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
+                    free(entry);
                 }
 
             } else {
@@ -300,6 +302,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         //Remove and try again later on
                         ws_nud_state_clean(cur, entry);
+                        free(entry);
                     }
                 } else {
                     entry->retry_count++;
