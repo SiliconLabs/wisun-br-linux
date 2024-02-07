@@ -236,7 +236,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     const struct chan_params *chan_params;
 
-    // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain = ctxt->config.ws_domain;
     ctxt->net_if.ws_info.hopping_schedule.phy_mode_id = ctxt->config.ws_phy_mode_id;
@@ -282,7 +281,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
-    // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
     if (ctxt->config.ws_pan_id >= 0)
@@ -295,7 +293,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.temp_link_min_timeout = size_params[ctxt->config.ws_size].temp_link_min_timeout;
     ctxt->net_if.ws_info.temp_eapol_min_timeout = size_params[ctxt->config.ws_size].security_protocol_timings.temp_eapol_min_timeout;
 
-    // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
     ctxt->net_if.ws_info.pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);
     ctxt->net_if.ws_info.enable_lfn   = ctxt->config.enable_lfn;
