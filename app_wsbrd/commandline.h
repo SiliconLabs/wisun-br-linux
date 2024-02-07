@@ -71,7 +71,7 @@ struct wsbrd_conf {
     int  tx_power;
     int  ws_pan_id;
     int  ws_fan_version;
-    int  ws_pmk_lifetime;
+    int  ws_pmk_lifetime_s;
     int  ws_ptk_lifetime;
     int  ws_gtk_expire_offset;
     int  ws_gtk_new_activation_time;

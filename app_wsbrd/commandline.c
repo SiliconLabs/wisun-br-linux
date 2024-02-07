@@ -521,7 +521,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "broadcast_interval",            &config->bc_interval,                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        &config->lfn_bc_interval,                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     &config->lfn_bc_sync_period,               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "pmk_lifetime",                  &config->ws_pmk_lifetime,                  conf_set_seconds_from_minutes, &valid_unsigned },
+        { "pmk_lifetime",                  &config->ws_pmk_lifetime_s,                conf_set_seconds_from_minutes, &valid_unsigned },
         { "ptk_lifetime",                  &config->ws_ptk_lifetime,                  conf_set_seconds_from_minutes, &valid_unsigned },
         { "gtk_expire_offset",             &config->ws_gtk_expire_offset,             conf_set_seconds_from_minutes, &valid_unsigned },
         { "gtk_new_activation_time",       &config->ws_gtk_new_activation_time,       conf_set_number,      &valid_positive },
@@ -614,7 +614,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->lfn_bc_sync_period = 5;
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
-    config->ws_pmk_lifetime = 172800 * 60;
+    config->ws_pmk_lifetime_s = 172800 * 60;
     config->ws_ptk_lifetime = 86400 * 60;
     config->ws_gtk_expire_offset = 43200 * 60;
     config->ws_gtk_new_activation_time = 720;
