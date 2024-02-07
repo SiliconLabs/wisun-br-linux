@@ -69,13 +69,6 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
     //GET BSI from BBR module
     cur->ws_info.fhss_conf.bsi = ws_bbr_bsi_generate();
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-    // Randomize fixed channels. Only used if channel plan is fixed.
-    cur->ws_info.cfg->fhss.fhss_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_uc_fixed_channel,
-                                                                                         cur->ws_info.hopping_schedule.number_of_channels,
-                                                                                         cur->ws_info.fhss_conf.domain_channel_mask);
-    cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_bc_fixed_channel,
-                                                                                         cur->ws_info.hopping_schedule.number_of_channels,
-                                                                                         cur->ws_info.fhss_conf.domain_channel_mask);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
     rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);

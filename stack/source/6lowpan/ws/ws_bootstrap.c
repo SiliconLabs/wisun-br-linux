@@ -182,18 +182,6 @@ int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_
     return 0;
 }
 
-uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint8_t *channel_mask)
-{
-    if (configured_fixed_channel == 0xFFFF) {
-        uint16_t random_channel = rand_get_random_in_range(0, number_of_channels - 1);
-        while (!bittest(channel_mask, random_channel))
-            random_channel = rand_get_random_in_range(0, number_of_channels - 1);
-        return random_channel;
-    } else {
-        return configured_fixed_channel;
-    }
-}
-
 static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
 {
     // Set the LLC information to follow the actual fhss settings

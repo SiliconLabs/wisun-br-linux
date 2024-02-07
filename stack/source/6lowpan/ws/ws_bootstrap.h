@@ -44,7 +44,6 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
 int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
 void ws_bootstrap_fhss_activate(struct net_if *cur);
-uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint8_t *channel_mask);
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
 
 
