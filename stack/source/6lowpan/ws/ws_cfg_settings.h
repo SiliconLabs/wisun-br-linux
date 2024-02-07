@@ -32,7 +32,6 @@ typedef struct ws_gen_cfg {
     /* Changing the network size resets the configuration settings depending on it to
        default values */
     uint8_t network_size;               /**< Network size selection; default medium (= 8) */
-    uint16_t rpl_selected_parent_max;   /**< RPL selected parent maximum value; default 2 */
 } ws_gen_cfg_t;
 
 /**

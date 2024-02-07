@@ -377,10 +377,6 @@ typedef struct ws_bs_ie {
 #define WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT
 #define WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT 750
 
-#define WS_RPL_SELECTED_PARENT_MAX 2
-
-#define WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX 4
-
 /*
  * Threshold (referenced to DEVICE_MIN_SENS) above which a neighbor node may be considered for inclusion into candidate parent set
  */
