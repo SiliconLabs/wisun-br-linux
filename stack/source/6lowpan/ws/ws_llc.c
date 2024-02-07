@@ -498,7 +498,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     if (msg->eapol_temporary && (data_cpy.status == MLME_SUCCESS || data_cpy.status == MLME_NO_DATA)) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
-            neighbor_tmp->eapol_temp_info.eapol_timeout = net_if->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
+            neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     }
 
     tx_confirm_duration = time_get_elapsed(CLOCK_MONOTONIC, msg->tx_time);
@@ -770,7 +770,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
     }
 
     ws_neigh = &tmp->neigh_info_list;
-    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
+    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     tmp->mpduLinkQuality = data->mpduLinkQuality;
     tmp->signal_dbm = data->signal_dbm;
     return ws_neigh;
@@ -1611,7 +1611,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
 
     ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (entry) {
-        entry->eapol_temp_info.eapol_timeout = ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+        entry->eapol_temp_info.eapol_timeout = ws_info->temp_eapol_min_timeout + 1;
         return entry;
     }
 

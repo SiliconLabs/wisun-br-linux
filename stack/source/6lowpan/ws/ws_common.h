@@ -92,6 +92,7 @@ typedef struct ws_info {
     // FIXME: fhss_conf is redundant with hopping_schedule
     struct fhss_ws_configuration fhss_conf;
     uint16_t temp_link_min_timeout; // TODO: should disapear in wsbrd v2.0
+    uint16_t temp_eapol_min_timeout;
     int regulation;  /**< Regional regulation context. */
 } ws_info_t;
 
