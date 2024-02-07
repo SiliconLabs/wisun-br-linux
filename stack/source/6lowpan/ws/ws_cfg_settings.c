@@ -253,7 +253,6 @@ cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur)
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 {
     // Configure the Wi-SUN parent configuration
-    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameter
@@ -287,7 +286,6 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
 {
     // Configure the Wi-SUN parent configuration
-    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
@@ -320,7 +318,6 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
 {
     // Configure the Wi-SUN parent configuration
-    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
@@ -353,7 +350,6 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
 static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
 {
     // Configure the Wi-SUN parent configuration
-    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
@@ -386,7 +382,6 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
 {
     // Configure the Wi-SUN parent configuration
-    cfg->gen.rpl_parent_candidate_max = WS_CERTIFICATE_RPL_PARENT_CANDIDATE_MAX;
     cfg->gen.rpl_selected_parent_max = WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
@@ -418,7 +413,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
 
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
 {
-    cfg->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
     cfg->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     return CFG_SETTINGS_OK;
@@ -435,8 +429,7 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg)
     ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
     // Regulator domain, operating mode or class has changed
-    if (cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
-        cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
+    if (cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
         return CFG_SETTINGS_CHANGED;
     }
 
@@ -457,7 +450,6 @@ int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
     ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
     cfg->network_size = new_cfg->network_size;
-    cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
     cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
 
     return CFG_SETTINGS_OK;
