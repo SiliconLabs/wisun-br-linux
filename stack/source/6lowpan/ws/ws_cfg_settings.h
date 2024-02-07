@@ -49,21 +49,6 @@ typedef struct ws_timing_cfg {
 } ws_timing_cfg_t;
 
 /**
- * \brief Struct ws_fhss_cfg_t Frequency hopping configuration
- */
-typedef struct ws_fhss_cfg {
-    uint8_t fhss_uc_dwell_interval;     /**< FHSS unicast dwell interval; range 15-250 milliseconds; default 255 */
-    uint8_t fhss_bc_dwell_interval;     /**< FHSS broadcast dwell interval; range 15-250 milliseconds; default 255 */
-    uint32_t fhss_bc_interval;          /**< FHSS broadcast interval; duration between broadcast dwell intervals. range: 0-16777216 milliseconds; default 1020 */
-    uint8_t fhss_uc_channel_function;   /**< FHSS WS unicast channel function; default 2 direct hash channel function */
-    uint8_t fhss_bc_channel_function;   /**< FHSS WS broadcast channel function; default 2 direct hash channel function */
-    uint16_t fhss_uc_fixed_channel;     /**< FHSS unicast fixed channel; default 0xffff */
-    uint16_t fhss_bc_fixed_channel;     /**< FHSS broadcast fixed channel; default 0xffff */
-    uint8_t fhss_channel_mask[32];      /**< FHSS channel mask; default; 0xff * 32 */
-    uint24_t lfn_bc_interval;
-} ws_fhss_cfg_t;
-
-/**
  * \brief Struct ws_mpl_cfg_t Multicast configuration
  */
 typedef struct ws_mpl_cfg {
@@ -112,7 +97,6 @@ typedef struct ws_sec_prot_cfg {
 typedef struct ws_cfg {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
-    ws_fhss_cfg_t fhss;                 /**< Frequency hopping configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
     ws_sec_timer_cfg_t sec_timer;       /**< Security timers configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
@@ -163,11 +147,6 @@ int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t f
 int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg);
 int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags);
-
-int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg);
-int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg);
-int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg);
-int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg);
 int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg);

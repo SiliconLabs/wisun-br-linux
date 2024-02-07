@@ -68,7 +68,6 @@ typedef struct ws_cfg_cb {
 typedef union {
     ws_gen_cfg_t gen;
     ws_timing_cfg_t timing;
-    ws_fhss_cfg_t fhss;
     ws_mpl_cfg_t mpl;
     ws_sec_timer_cfg_t sec_timer;
     ws_sec_prot_cfg_t sec_prot;
@@ -125,7 +124,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
     CFG_CB(ws_cfg_gen_default_set, ws_cfg_gen_validate, ws_cfg_gen_set, offsetof(ws_cfg_t, gen)),
     CFG_CB(ws_cfg_timing_default_set, ws_cfg_timing_validate, ws_cfg_timing_set, offsetof(ws_cfg_t, timing)),
     CFG_CB(ws_cfg_mpl_default_set, ws_cfg_mpl_validate, ws_cfg_mpl_set, offsetof(ws_cfg_t, mpl)),
-    CFG_CB(ws_cfg_fhss_default_set, ws_cfg_fhss_validate, ws_cfg_fhss_set, offsetof(ws_cfg_t, fhss)),
     CFG_CB(ws_cfg_sec_timer_default_set, ws_cfg_sec_timer_validate, ws_cfg_sec_timer_set, offsetof(ws_cfg_t, sec_timer)),
     CFG_CB(ws_cfg_sec_prot_default_set, ws_cfg_sec_prot_validate, ws_cfg_sec_prot_set, offsetof(ws_cfg_t, sec_prot)),
 };
@@ -623,100 +621,6 @@ int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
-{
-    // Set defaults for the device. user can modify these.
-    cfg->fhss_uc_fixed_channel = 0xffff;
-    cfg->fhss_bc_fixed_channel = 0xffff;
-    cfg->fhss_uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
-    cfg->fhss_bc_interval = WS_FHSS_BC_INTERVAL;
-    cfg->fhss_bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
-    cfg->fhss_uc_channel_function = WS_CHAN_FUNC_DH1CF;
-    cfg->fhss_bc_channel_function = WS_CHAN_FUNC_DH1CF;
-    cfg->lfn_bc_interval = 60000; // 1min
-    bitfill(cfg->fhss_channel_mask, true, 0, 255);
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg)
-{
-    *cfg = ws_cfg.fhss;
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
-{
-    ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
-
-    if (memcmp(cfg->fhss_channel_mask, new_cfg->fhss_channel_mask, 32) ||
-            cfg->fhss_uc_dwell_interval != new_cfg->fhss_uc_dwell_interval ||
-            cfg->fhss_bc_dwell_interval != new_cfg->fhss_bc_dwell_interval ||
-            cfg->fhss_bc_interval != new_cfg->fhss_bc_interval ||
-            cfg->fhss_uc_channel_function != new_cfg->fhss_uc_channel_function ||
-            cfg->fhss_bc_channel_function != new_cfg->fhss_bc_channel_function ||
-            cfg->fhss_uc_fixed_channel != new_cfg->fhss_uc_fixed_channel ||
-            cfg->fhss_bc_fixed_channel != new_cfg->fhss_bc_fixed_channel ||
-            cfg->lfn_bc_interval       != new_cfg->lfn_bc_interval) {
-
-        if (new_cfg->fhss_uc_dwell_interval < 15) {
-            return CFG_SETTINGS_ERROR_FHSS_CONF;
-        }
-
-        if (new_cfg->fhss_bc_dwell_interval < 100) {
-            return CFG_SETTINGS_ERROR_FHSS_CONF;
-        }
-
-        if (cfg->fhss_uc_channel_function != WS_CHAN_FUNC_FIXED &&
-                cfg->fhss_uc_channel_function != WS_CHAN_FUNC_VENDOR_DEFINED &&
-                cfg->fhss_uc_channel_function != WS_CHAN_FUNC_DH1CF &&
-                cfg->fhss_uc_channel_function != WS_CHAN_FUNC_TR51CF) {
-            return CFG_SETTINGS_ERROR_FHSS_CONF;
-        }
-
-        return CFG_SETTINGS_CHANGED;
-    }
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags)
-{
-    (void) cur;
-
-    int8_t ret = ws_cfg_fhss_validate(new_cfg);
-    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
-        return ret;
-    }
-
-    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
-        return CFG_SETTINGS_OK;
-    }
-
-    ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
-
-    *cfg = *new_cfg;
-
-    if (cfg->fhss_uc_channel_function == WS_CHAN_FUNC_FIXED && cfg->fhss_uc_fixed_channel == 0xffff) {
-        cfg->fhss_uc_fixed_channel = 0;
-        tr_warn("UC fixed channel not configured. Set to 0");
-    }
-
-    if (cfg->fhss_uc_channel_function != WS_CHAN_FUNC_FIXED) {
-        cfg->fhss_uc_fixed_channel = 0xffff;
-    }
-
-    if (cfg->fhss_bc_channel_function == WS_CHAN_FUNC_FIXED && cfg->fhss_bc_fixed_channel == 0xffff) {
-        cfg->fhss_bc_fixed_channel = 0;
-        tr_warn("BC fixed channel not configured. Set to 0");
-    }
-
-    if (cfg->fhss_bc_channel_function != WS_CHAN_FUNC_FIXED) {
-        cfg->fhss_bc_fixed_channel = 0xffff;
-    }
-
-    return CFG_SETTINGS_OK;
-}
-
 static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg)
 {
     cfg->pmk_lifetime = DEFAULT_PMK_LIFETIME;
@@ -904,4 +808,3 @@ int8_t ws_cfg_settings_interface_set(struct net_if *cur)
 
     return ret_value;
 }
-
