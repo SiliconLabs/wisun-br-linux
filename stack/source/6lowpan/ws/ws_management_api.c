@@ -295,7 +295,6 @@ int ws_management_fhss_lfn_configure(int8_t if_id,
     if (ws_cfg_fhss_default_set(&cfg_default) < 0)
         return -2;
     cfg.lfn_bc_interval    = lfn_bc_interval    ? : cfg_default.lfn_bc_interval;
-    cfg.lfn_bc_sync_period = lfn_bc_sync_period ? : cfg_default.lfn_bc_sync_period;
     if (ws_cfg_fhss_set(net_if, &cfg, 0) < 0)
         return -3;
     return 0;

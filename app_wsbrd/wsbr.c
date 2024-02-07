@@ -187,9 +187,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
-
     ret = ws_management_node_init(ctxt->net_if.id, ctxt->config.ws_domain);
     WARN_ON(ret);
+    ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     ret = ws_management_regulatory_domain_set(ctxt->net_if.id, ctxt->config.ws_domain,
                                               ctxt->config.ws_class, ctxt->config.ws_mode,

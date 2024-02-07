@@ -1718,7 +1718,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         // TODO: use a separate LFN BSI
         ws_wh_lbs_write(&msg->ie_buf_header, info->cfg->fhss.lfn_bc_interval,
                         info->hopping_schedule.fhss_bsi, 0,
-                        info->cfg->fhss.lfn_bc_sync_period);
+                        info->fhss_conf.lfn_bc_sync_period);
     if (wh_ies.lnd)
         ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
     if (wh_ies.lto)
@@ -1728,7 +1728,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
     if (wh_ies.lbc)
         ws_wh_lbc_write(&msg->ie_buf_header, info->cfg->fhss.lfn_bc_interval,
-                        info->cfg->fhss.lfn_bc_sync_period);
+                        info->fhss_conf.lfn_bc_sync_period);
     SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
         if (!(ie_custom->frame_type_mask & (1 << msg->message_type)))
             continue;

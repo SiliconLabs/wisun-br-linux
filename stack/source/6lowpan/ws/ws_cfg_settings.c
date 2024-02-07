@@ -738,7 +738,6 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     cfg->fhss_uc_channel_function = WS_CHAN_FUNC_DH1CF;
     cfg->fhss_bc_channel_function = WS_CHAN_FUNC_DH1CF;
     cfg->lfn_bc_interval = 60000; // 1min
-    cfg->lfn_bc_sync_period = 5;
     bitfill(cfg->fhss_channel_mask, true, 0, 255);
     return CFG_SETTINGS_OK;
 }
@@ -761,8 +760,7 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
             cfg->fhss_bc_channel_function != new_cfg->fhss_bc_channel_function ||
             cfg->fhss_uc_fixed_channel != new_cfg->fhss_uc_fixed_channel ||
             cfg->fhss_bc_fixed_channel != new_cfg->fhss_bc_fixed_channel ||
-            cfg->lfn_bc_interval       != new_cfg->lfn_bc_interval ||
-            cfg->lfn_bc_sync_period    != new_cfg->lfn_bc_sync_period) {
+            cfg->lfn_bc_interval       != new_cfg->lfn_bc_interval) {
 
         if (new_cfg->fhss_uc_dwell_interval < 15) {
             return CFG_SETTINGS_ERROR_FHSS_CONF;
