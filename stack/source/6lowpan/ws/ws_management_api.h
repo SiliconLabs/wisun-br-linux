@@ -40,7 +40,6 @@
 #define NETWORK_SIZE_MEDIUM         0x08    /**< 100 - 800 device networks are medium sized */
 #define NETWORK_SIZE_LARGE          0x0F    /**< 800 - 1500 device networks are large */
 #define NETWORK_SIZE_XLARGE         0x19    /**< 2500+ devices */
-#define NETWORK_SIZE_AUTOMATIC      0xFF    /**< Automatic network size */
 
 /**
  * Set timing parameters related to network size.

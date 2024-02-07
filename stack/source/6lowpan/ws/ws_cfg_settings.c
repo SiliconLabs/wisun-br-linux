@@ -170,7 +170,7 @@ int8_t ws_cfg_network_size_set(struct net_if *cur, uint8_t network_size, uint8_t
 
     if (config_size == CONFIG_CERTIFICATE) {
         set_function = ws_cfg_network_size_config_set_certificate;
-    } else if (config_size == CONFIG_SMALL || network_size == NETWORK_SIZE_AUTOMATIC) {
+    } else if (config_size == CONFIG_SMALL) {
         set_function = ws_cfg_network_size_config_set_small;
     } else if (config_size == CONFIG_MEDIUM) {
         set_function = ws_cfg_network_size_config_set_medium;

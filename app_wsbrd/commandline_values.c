@@ -48,7 +48,6 @@ const struct name_value valid_fsk_modulation_indexes[] = {
 };
 
 const struct name_value valid_ws_size[] = {
-    { "AUTO",   NETWORK_SIZE_AUTOMATIC },
     { "CERT",   NETWORK_SIZE_CERTIFICATE },
     { "SMALL",  NETWORK_SIZE_SMALL },
     { "S",      NETWORK_SIZE_SMALL },
