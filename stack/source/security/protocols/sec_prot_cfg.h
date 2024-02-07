@@ -28,7 +28,6 @@
 typedef struct sec_prot_cfg {
     trickle_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
-    uint8_t max_ongoing_auth_constant;
     uint16_t max_ongoing_auth_size_scaler;
 } sec_prot_cfg_t;
 
