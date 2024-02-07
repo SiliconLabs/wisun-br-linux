@@ -115,6 +115,6 @@ uint32_t ws_common_datarate_get(struct net_if *cur);
 
 bool ws_common_is_valid_nr(uint8_t node_role);
 
-uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size);
+uint8_t ws_common_calc_plf(uint16_t pan_size, uint16_t max_pan_size);
 
 #endif //WS_COMMON_H_

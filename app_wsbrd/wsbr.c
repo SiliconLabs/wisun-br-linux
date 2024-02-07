@@ -155,6 +155,23 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
                              false);
 }
 
+static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
+{
+    switch (network_size) {
+    case NETWORK_SIZE_CERTIFICATE:
+    case NETWORK_SIZE_SMALL:
+        return 100;
+    case NETWORK_SIZE_MEDIUM:
+        return 1000;
+    case NETWORK_SIZE_LARGE:
+        return 10000;
+    case NETWORK_SIZE_XLARGE:
+        return UINT16_MAX;
+    default:
+        BUG();
+    }
+}
+
 static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 {
     struct sec_timer_cfg ws_sec;
@@ -244,6 +261,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
+    ctxt->net_if.ws_info.pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);
     ctxt->net_if.ws_info.enable_lfn   = ctxt->config.enable_lfn;
     ctxt->net_if.ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 

@@ -189,22 +189,7 @@ bool ws_common_is_valid_nr(uint8_t node_role)
     return false;
 }
 
-uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size)
+uint8_t ws_common_calc_plf(uint16_t pan_size, uint16_t max_pan_size)
 {
-    uint16_t max_size;
-
-    switch (network_size) {
-    case NETWORK_SIZE_SMALL:
-        max_size = 100;
-        break;
-    case NETWORK_SIZE_MEDIUM:
-        max_size = 1000;
-        break;
-    case NETWORK_SIZE_LARGE:
-        max_size = 10000;
-        break;
-    default:
-        return UINT8_MAX;
-    }
-    return MIN(100 * pan_size / max_size, 100);
+    return MIN(100 * pan_size / max_pan_size, 100);
 }

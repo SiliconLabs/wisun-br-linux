@@ -487,7 +487,7 @@ void ws_mngt_pa_send(struct net_if *cur)
     cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
     if (cur->ws_info.pan_information.jm.mask & (1 << WS_JM_PLF)) {
         plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size,
-                                    cur->ws_info.cfg->gen.network_size);
+                                 cur->ws_info.pan_information.max_pan_size);
         if (plf != cur->ws_info.pan_information.jm.plf) {
             cur->ws_info.pan_information.jm.plf = plf;
             cur->ws_info.pan_information.jm.version++;
