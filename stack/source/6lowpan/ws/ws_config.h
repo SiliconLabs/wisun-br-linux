@@ -24,23 +24,6 @@
    be written at least once a week */
 #define PAN_VERSION_STORAGE_READ_INCREMENT    1000
 
-/* Border router connection lost timeout
- *
- * Interval within which a node expects to detect a change in PAN Version
- * (delivered via a PAN Configuration frame / PAN-IE).
- *
- * the maximum Trickle interval specified for DISC_IMAX (32 minutes).
- *
- */
-
-#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 30*60
-
-#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 60*60
-
-#define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
-
-#define PAN_VERSION_XLARGE_NETWORK_TIMEOUT 120*60
-
 /* Device min sensitivity. This value is dynamically configured and depends on radio
  *
  * Default value for us is -93

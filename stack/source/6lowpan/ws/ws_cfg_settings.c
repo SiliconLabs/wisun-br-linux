@@ -256,7 +256,6 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_15_SECS;       // 15 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_15_SECS << 2;  // 60 seconds
     cfg->timing.disc_trickle_k = 1;
-    cfg->timing.pan_timeout = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT;
 
@@ -281,7 +280,6 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;      // 960 seconds; 16 minutes
     cfg->timing.disc_trickle_k = 1;
-    cfg->timing.pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT;
 
@@ -305,7 +303,6 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 1;       // 120 seconds
     cfg->timing.disc_trickle_imax = 1536;      // 1536 seconds; 25 minutes
     cfg->timing.disc_trickle_k = 1;
-    cfg->timing.pan_timeout = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
 
@@ -329,7 +326,6 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 2;       // 240 seconds
     cfg->timing.disc_trickle_imax = 1920;      // 1920 seconds; 32 minutes
     cfg->timing.disc_trickle_k = 1;
-    cfg->timing.pan_timeout = PAN_VERSION_XLARGE_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
 
@@ -353,7 +349,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_15_SECS;       // 15 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_15_SECS << 2;  // 60 seconds
     cfg->timing.disc_trickle_k = 1;
-    cfg->timing.pan_timeout = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT;
 
@@ -411,7 +406,6 @@ int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
     cfg->disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
     cfg->disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;  // 960 seconds; 16 minutes
     cfg->disc_trickle_k = 1;
-    cfg->pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
     cfg->temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT;
 
@@ -431,7 +425,6 @@ int8_t ws_cfg_timing_validate(ws_timing_cfg_t *new_cfg)
     if (cfg->disc_trickle_imin != new_cfg->disc_trickle_imin ||
             cfg->disc_trickle_imax != new_cfg->disc_trickle_imax ||
             cfg->disc_trickle_k != new_cfg->disc_trickle_k ||
-            cfg->pan_timeout != new_cfg->pan_timeout ||
             cfg->temp_link_min_timeout != new_cfg->temp_link_min_timeout) {
 
         // Discovery Imin 1 to 255

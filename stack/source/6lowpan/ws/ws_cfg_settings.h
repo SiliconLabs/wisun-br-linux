@@ -41,7 +41,6 @@ typedef struct ws_timing_cfg {
     uint16_t disc_trickle_imin;         /**< Discovery trickle Imin; DISC_IMIN; seconds; range 1-255; default 30 */
     uint16_t disc_trickle_imax;         /**< Discovery trickle Imax; DISC_IMAX; seconds; range (2-2^8)*Imin‬; default 960 */
     uint8_t disc_trickle_k;             /**< Discovery trickle k; DISC_K; default 1 */
-    uint16_t pan_timeout;               /**< PAN timeout; PAN_TIMEOUT; seconds; range 60-15300; default 3840 */
     uint16_t temp_link_min_timeout;     /**< Temporary neighbor link minimum timeout; seconds; default 260 */
     uint16_t temp_eapol_min_timeout;     /**< Temporary neighbor link minimum timeout; seconds; default 330 */
 } ws_timing_cfg_t;
