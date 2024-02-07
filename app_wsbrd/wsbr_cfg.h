@@ -19,6 +19,14 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "common/trickle.h"
 
+enum ws_network_size {
+    WS_NETWORK_SIZE_SMALL,
+    WS_NETWORK_SIZE_MEDIUM,
+    WS_NETWORK_SIZE_LARGE,
+    WS_NETWORK_SIZE_XLARGE,
+    WS_NETWORK_SIZE_CERTIFICATION,
+};
+
 struct wsbr_cfg {
     uint16_t temp_link_min_timeout; // TODO: should disapear in wsbrd v2.0
     struct trickle_params trickle_discovery;

@@ -38,11 +38,11 @@
 #include "common/specs/ws.h"
 #include "common/string_extra.h"
 
-#include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/lowpan_mtu.h"
 #include "stack/source/core/netaddr_types.h"
 
 #include "commandline_values.h"
+#include "wsbr_cfg.h"
 #include "wsbr.h"
 
 #include "commandline.h"
@@ -604,7 +604,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_class = 0;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
-    config->ws_size = NETWORK_SIZE_SMALL;
+    config->ws_size = WS_NETWORK_SIZE_SMALL;
     config->ws_pan_id = -1;
     config->color_output = -1;
     config->tx_power = 14;

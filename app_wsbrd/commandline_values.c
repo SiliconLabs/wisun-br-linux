@@ -16,7 +16,8 @@
 #include "common/specs/ws.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
-#include "stack/source/6lowpan/ws/ws_management_api.h"
+
+#include "wsbr_cfg.h"
 
 #include "commandline_values.h"
 
@@ -48,15 +49,15 @@ const struct name_value valid_fsk_modulation_indexes[] = {
 };
 
 const struct name_value valid_ws_size[] = {
-    { "CERT",   NETWORK_SIZE_CERTIFICATE },
-    { "SMALL",  NETWORK_SIZE_SMALL },
-    { "S",      NETWORK_SIZE_SMALL },
-    { "MEDIUM", NETWORK_SIZE_MEDIUM },
-    { "M",      NETWORK_SIZE_MEDIUM },
-    { "LARGE",  NETWORK_SIZE_LARGE },
-    { "L",      NETWORK_SIZE_LARGE },
-    { "XLARGE", NETWORK_SIZE_XLARGE },
-    { "XL",     NETWORK_SIZE_XLARGE },
+    { "CERT",   WS_NETWORK_SIZE_CERTIFICATION },
+    { "SMALL",  WS_NETWORK_SIZE_SMALL },
+    { "S",      WS_NETWORK_SIZE_SMALL },
+    { "MEDIUM", WS_NETWORK_SIZE_MEDIUM },
+    { "M",      WS_NETWORK_SIZE_MEDIUM },
+    { "LARGE",  WS_NETWORK_SIZE_LARGE },
+    { "L",      WS_NETWORK_SIZE_LARGE },
+    { "XLARGE", WS_NETWORK_SIZE_XLARGE },
+    { "XL",     WS_NETWORK_SIZE_XLARGE },
     { NULL },
 };
 

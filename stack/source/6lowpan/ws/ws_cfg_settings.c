@@ -27,6 +27,7 @@
 #include "common/specs/ws.h"
 
 #include "nwk_interface/protocol.h"
+#include "app_wsbrd/wsbr_cfg.h"
 #include "mpl/mpl.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bbr_api.h"
@@ -143,7 +144,7 @@ static uint8_t ws_cfg_config_get_by_size(struct net_if *cur, uint8_t network_siz
         index = 3;
     }
 
-    if (network_size == NETWORK_SIZE_CERTIFICATE) {
+    if (network_size == WS_NETWORK_SIZE_CERTIFICATION) {
         return CONFIG_CERTIFICATE;
     } else if (network_size <= devices_by_datarate[index].max_for_small) {
         return CONFIG_SMALL;

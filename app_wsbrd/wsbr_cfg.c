@@ -11,7 +11,6 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_config.h"
 
 #include "stack/source/mpl/mpl.h"
@@ -19,7 +18,7 @@
 #include "wsbr_cfg.h"
 
 const struct wsbr_cfg size_params[5] = {
-    [NETWORK_SIZE_CERTIFICATE] = {
+    [WS_NETWORK_SIZE_CERTIFICATION] = {
         // Misc
         .temp_link_min_timeout = 260,
 
@@ -45,7 +44,7 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
         .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
-    [NETWORK_SIZE_SMALL] = {
+    [WS_NETWORK_SIZE_SMALL] = {
         // Misc
         .temp_link_min_timeout = 260,
 
@@ -71,7 +70,7 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
         .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
-    [NETWORK_SIZE_MEDIUM] = {
+    [WS_NETWORK_SIZE_MEDIUM] = {
         // Misc
         .temp_link_min_timeout = 260,
 
@@ -97,7 +96,7 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
         .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
-    [NETWORK_SIZE_LARGE] = {
+    [WS_NETWORK_SIZE_LARGE] = {
         // Misc
         .temp_link_min_timeout = 520,
 
@@ -123,7 +122,7 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
         .security_protocol_timings.temp_eapol_min_timeout = 750,
     },
-    [NETWORK_SIZE_XLARGE] = {
+    [WS_NETWORK_SIZE_XLARGE] = {
         // Misc
         .temp_link_min_timeout = 520,
 

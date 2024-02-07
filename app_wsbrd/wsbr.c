@@ -160,14 +160,14 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 {
     switch (network_size) {
-    case NETWORK_SIZE_CERTIFICATE:
-    case NETWORK_SIZE_SMALL:
+    case WS_NETWORK_SIZE_CERTIFICATION:
+    case WS_NETWORK_SIZE_SMALL:
         return 100;
-    case NETWORK_SIZE_MEDIUM:
+    case WS_NETWORK_SIZE_MEDIUM:
         return 1000;
-    case NETWORK_SIZE_LARGE:
+    case WS_NETWORK_SIZE_LARGE:
         return 10000;
-    case NETWORK_SIZE_XLARGE:
+    case WS_NETWORK_SIZE_XLARGE:
         return UINT16_MAX;
     default:
         BUG();
@@ -357,8 +357,8 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ctxt->rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
     if (ctxt->rpl_root.instance_id || memcmp(ctxt->rpl_root.dodag_id, ipv6, 16))
         FATAL(1, "RPL storage out-of-date (see -D)");
-    if (ctxt->config.ws_size == NETWORK_SIZE_SMALL ||
-        ctxt->config.ws_size == NETWORK_SIZE_CERTIFICATE) {
+    if (ctxt->config.ws_size == WS_NETWORK_SIZE_SMALL ||
+        ctxt->config.ws_size == WS_NETWORK_SIZE_CERTIFICATION) {
         ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
         ctxt->rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }

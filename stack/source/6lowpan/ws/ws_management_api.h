@@ -30,17 +30,6 @@
 #include <stdint.h>
 #include "common/int24.h"
 
-/*
- *  Network Size definitions are device amount in hundreds of devices.
- *  These definitions are meant to give some estimates of sizes. Any value can be given as parameter
- */
-
-#define NETWORK_SIZE_CERTIFICATE    0x00    /**< Network configuration used in Wi-SUN certification */
-#define NETWORK_SIZE_SMALL          0x01    /**< Small networks */
-#define NETWORK_SIZE_MEDIUM         0x02    /**< 100 - 800 device networks are medium sized */
-#define NETWORK_SIZE_LARGE          0x03    /**< 800 - 1500 device networks are large */
-#define NETWORK_SIZE_XLARGE         0x04    /**< 2500+ devices */
-
 /**
  * Set timing parameters related to network size.
  *
