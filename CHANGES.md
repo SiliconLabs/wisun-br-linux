@@ -1,12 +1,20 @@
 v1.9
 ------
-  - Support RCP API version 2.0.
+  - Support RCP API version 2.0 (released with GSDK 4.4.1):
+    * Multi-rate parameter for transmissions retries.
+    * Reduced number of states: timing information and expected frame counters
+      are now part of data requests.
+    * Automatic detection of RCP API version at boot.
   - Improve reboot behavior:
     * Save and restore RPL routes.
     * Save and restore IPv6 neighbor cache.
     * Introduce D-Bus property `RoutingGraph` and deprecate `ipv6` and `parent`
       fields in `Nodes`.
     * Introduce D-Bus methods to increase RPL counters.
+  - Stop forwarding locally scoped multicast packets to LFNs (`ff01::/16` and
+    `ff02::/16`).
+  - Remove 500 bytes limit to enable mode switch.
+  - Improve TBU frame subscription.
   - Internal cleanup.
 
 v1.8.2
