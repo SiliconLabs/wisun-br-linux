@@ -87,21 +87,6 @@ int ws_management_network_size_set(
     uint8_t network_size);
 
 /**
- * Set channel mask for FHSS operation.
- *
- * Default value: all channels are allowed.
- *
- * \param interface_id Network interface ID.
- * \param channel_mask set bits matching the channel 1 to allow channel 0 to disallow.
- *
- * \return 0, Init OK.
- * \return <0 Init fail.
- */
-int ws_management_channel_mask_set(
-    int8_t interface_id,
-    uint8_t channel_mask[32]);
-
-/**
  * Configure unicast channel function.
  *
  * Change the default configuration for Wi-SUN FHSS operation.

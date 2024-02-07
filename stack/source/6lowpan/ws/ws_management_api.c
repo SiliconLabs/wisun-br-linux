@@ -79,41 +79,6 @@ int ws_management_network_size_set(
     return 0;
 }
 
-int ws_management_channel_mask_set(
-    int8_t interface_id,
-    uint8_t channel_mask[32])
-{
-    struct net_if *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (interface_id >= 0 && !cur)
-        return -1;
-
-    ws_fhss_cfg_t cfg;
-    if (ws_cfg_fhss_get(&cfg) < 0) {
-        return -2;
-    }
-
-    ws_fhss_cfg_t cfg_default;
-    if (ws_cfg_fhss_default_set(&cfg_default) < 0) {
-        return -2;
-    }
-
-    if (channel_mask) {
-        memcpy(cfg.fhss_channel_mask, channel_mask, 32);
-    } else {
-        // Use the default
-        memcpy(cfg.fhss_channel_mask, cfg_default.fhss_channel_mask, 32);
-    }
-
-
-    if (ws_cfg_fhss_set(cur, &cfg, 0) < 0) {
-        return -3;
-    }
-
-    return 0;
-}
-
 int ws_management_fhss_unicast_channel_function_configure(
     int8_t interface_id,
     uint8_t channel_function,

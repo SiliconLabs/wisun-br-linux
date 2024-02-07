@@ -217,6 +217,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
+
+    bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
+    bitand(ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask, ctxt->config.ws_allowed_channels, 256);
+
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     rail_fill_pom(ctxt);
 
@@ -229,11 +233,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_management_fhss_lfn_configure(ctxt->net_if.id, ctxt->config.lfn_bc_interval, ctxt->config.lfn_bc_sync_period);
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
-    WARN_ON(ret);
-    if (fixed_channel == 0xFFFF) {
-        ret = ws_management_channel_mask_set(ctxt->net_if.id, ctxt->config.ws_allowed_channels);
-        WARN_ON(ret);
-    }
     // FIXME: no ws_management_xxx() setter
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
