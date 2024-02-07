@@ -72,7 +72,6 @@ struct net_if {
     if_group_list_t ip_groups;
     trickle_params_t mpl_data_trickle_params;
     uint16_t mpl_seed_set_entry_lifetime;
-    uint8_t mpl_seed_id[16];
     struct mpl_domain *mpl_domain;
     lowpan_context_list_t lowpan_contexts;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;

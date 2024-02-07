@@ -27,6 +27,7 @@
 #include "common/ns_list.h"
 #include "common/seqno.h"
 #include "common/specs/ipv6.h"
+#include "common/memutils.h"
 
 #include "core/timers.h"
 #include "core/ns_buffer.h"
@@ -177,6 +178,8 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 uint16_t seed_set_entry_lifetime,
                                 const trickle_params_t *data_trickle_params)
 {
+    mpl_domain_t *domain;
+
     if (!addr_is_ipv6_multicast(address) || addr_ipv6_multicast_scope(address) < IPV6_SCOPE_REALM_LOCAL) {
         return NULL;
     }
@@ -194,7 +197,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
 
     if (seed_id_mode == MULTICAST_MPL_SEED_ID_DEFAULT) {
         seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
-        seed_id = cur->mpl_seed_id;
+        seed_id = NULL;
     }
 
     uint8_t seed_id_len;
@@ -204,10 +207,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
         seed_id_len = 0;
     }
 
-    mpl_domain_t *domain = malloc(sizeof * domain + seed_id_len);
-    if (!domain) {
-        return NULL;
-    }
+    domain = zalloc(sizeof(struct mpl_domain) + seed_id_len);
     memcpy(domain->address, address, 16);
     domain->interface = cur;
     domain->sequence = rand_get_8bit();
@@ -218,7 +218,8 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     domain->data_trickle_params = data_trickle_params ? *data_trickle_params
                                   : cur->mpl_data_trickle_params;
     domain->seed_id_mode = seed_id_mode;
-    memcpy(domain->seed_id, seed_id, seed_id_len);
+    if (seed_id)
+        memcpy(domain->seed_id, seed_id, seed_id_len);
     ns_list_add_to_end(&mpl_domains, domain);
 
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
