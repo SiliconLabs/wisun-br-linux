@@ -33,10 +33,8 @@
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
-#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
-#include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/ws/ws_eapol_relay.h"
 #include "stack/source/6lowpan/ws/ws_eapol_auth_relay.h"
 #include "stack/source/core/timers.h"
@@ -333,7 +331,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     protocol_core_init();
     address_module_init();
-    ws_cfg_settings_init();
     protocol_init(&ctxt->net_if, &ctxt->rcp, ctxt->config.lowpan_mtu);
     protocol_6lowpan_configure_core(&ctxt->net_if);
     BUG_ON(ctxt->net_if.lowpan_info & INTERFACE_NWK_ACTIVE);

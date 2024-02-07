@@ -53,9 +53,7 @@
 #include "6lowpan/ws/ws_ie_validation.h"
 #include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_mpx_header.h"
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 
 #include "6lowpan/ws/ws_llc.h"
 

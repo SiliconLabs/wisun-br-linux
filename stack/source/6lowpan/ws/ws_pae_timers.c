@@ -26,8 +26,6 @@
 #include "nwk_interface/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_management_api.h"
 
 #include "6lowpan/ws/ws_pae_timers.h"
 

@@ -33,7 +33,6 @@
 #include "security/protocols/sec_prot.h"
 
 #include "6lowpan/ws/ws_common_defines.h"
-#include "6lowpan/ws/ws_management_api.h"
 
 #include "6lowpan/ws/ws_ie_lib.h"
 

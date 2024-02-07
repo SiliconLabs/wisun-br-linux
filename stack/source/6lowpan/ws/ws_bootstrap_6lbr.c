@@ -35,8 +35,6 @@
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
 
-#include "6lowpan/ws/ws_management_api.h"
-
 #include "app_wsbrd/rcp_api_legacy.h"
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
@@ -55,7 +53,6 @@
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"

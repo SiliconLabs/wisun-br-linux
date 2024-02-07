@@ -37,7 +37,6 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_management_api.h"
 
 #include "frame_helpers.h"
 #include "version.h"

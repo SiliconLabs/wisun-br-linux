@@ -56,7 +56,6 @@
 
 #include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
@@ -64,7 +63,6 @@
 #include "6lowpan/ws/ws_eapol_relay.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_neigh.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 
@@ -507,11 +505,6 @@ int ws_bootstrap_init(int8_t interface_id)
     }
 
     if (ws_common_allocate_and_init(cur) < 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
-
-    if (ws_cfg_settings_interface_set(cur) < 0) {
         ret_val =  -4;
         goto init_fail;
     }

@@ -46,7 +46,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_llc.h"
 

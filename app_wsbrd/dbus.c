@@ -32,7 +32,6 @@
 #include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
 #include "stack/source/6lowpan/ws/ws_pae_lib.h"
 #include "stack/source/6lowpan/ws/ws_pae_auth.h"
-#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_neigh.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
@@ -171,7 +170,7 @@ static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
     const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
     uint8_t gak[16];
 
-    if (!gtks || !net_if->ws_info.cfg)
+    if (!gtks)
         return sd_bus_error_set_errno(ret_error, EBADR);
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < key_cnt; i++) {

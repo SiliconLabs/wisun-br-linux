@@ -157,7 +157,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_bbr_api.c
     stack/source/6lowpan/ws/ws_bootstrap.c
     stack/source/6lowpan/ws/ws_bootstrap_6lbr.c
-    stack/source/6lowpan/ws/ws_cfg_settings.c
     stack/source/6lowpan/ws/ws_common.c
     stack/source/6lowpan/ws/ws_eapol_auth_relay.c
     stack/source/6lowpan/ws/ws_eapol_pdu.c
@@ -167,7 +166,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_ie_custom.c
     stack/source/6lowpan/ws/ws_ie_validation.c
     stack/source/6lowpan/ws/ws_llc.c
-    stack/source/6lowpan/ws/ws_management_api.c
     stack/source/6lowpan/ws/ws_mngt.c
     stack/source/6lowpan/ws/ws_mpx_header.c
     stack/source/6lowpan/ws/ws_neigh.c

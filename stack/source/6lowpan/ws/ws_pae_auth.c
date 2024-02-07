@@ -48,8 +48,6 @@
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_lib.h"

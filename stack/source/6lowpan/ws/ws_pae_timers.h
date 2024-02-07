@@ -22,7 +22,6 @@
 #include <stdbool.h>
 
 #include "security/protocols/sec_prot_cfg.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 
 /**
  * ws_pae_timers_settings_init initializes timer settings structure

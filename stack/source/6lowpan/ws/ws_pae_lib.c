@@ -30,9 +30,7 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
@@ -465,4 +463,3 @@ int8_t ws_pae_lib_shared_comp_list_timeout(shared_comp_list_t *comp_list, uint16
 
     return 0;
 }
-
