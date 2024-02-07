@@ -30,14 +30,6 @@
  */
 extern int DEVICE_MIN_SENS;
 
-/* Candidate parent Threshold
- */
-#define CAND_PARENT_THRESHOLD 10
-
-/* Candidate parent Threshold hysteresis
- */
-#define CAND_PARENT_HYSTERISIS 3
-
 /* Multicast MPL data message parameters
  */
 #define MPL_SAFE_HOP_COUNT 6
