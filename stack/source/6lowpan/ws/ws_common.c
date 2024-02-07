@@ -82,37 +82,6 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     return 0;
 }
 
-int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule)
-{
-    const struct chan_params *chan_params;
-
-    // Check if phy_mode_id is valid
-    if (!ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode))
-        return -1;
-
-    // Case where channel parameters are provided by the user
-    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF) {
-        hopping_schedule->channel_plan = 1;
-        return 0;
-    }
-
-    if (hopping_schedule->channel_plan_id && hopping_schedule->channel_plan_id != 255)
-        hopping_schedule->channel_plan = 2;
-    else
-        hopping_schedule->channel_plan = 0;
-    chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
-                                       hopping_schedule->operating_class);
-    if (!chan_params)
-        return -1;
-
-    hopping_schedule->ch0_freq = chan_params->chan0_freq;
-    hopping_schedule->number_of_channels = chan_params->chan_count;
-    hopping_schedule->channel_spacing = chan_params->chan_spacing;
-    BUG_ON(hopping_schedule->channel_spacing < 0);
-
-    return 0;
-}
-
 int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
     memset(&cur->ws_info, 0, sizeof(ws_info_t));
@@ -129,7 +98,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur)
     cur->ws_info.hopping_schedule.clock_drift = 255;
     // Timing accuracy is given from 0 to 2.55msec with 10usec resolution
     cur->ws_info.hopping_schedule.timing_accuracy = 100;
-    ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
     cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
     return 0;
 }

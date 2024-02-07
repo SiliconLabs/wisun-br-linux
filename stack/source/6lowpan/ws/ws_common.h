@@ -97,8 +97,6 @@ typedef struct ws_info {
 
 int8_t ws_common_generate_channel_list(const struct net_if *cur, uint8_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
-int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule);
-
 int8_t ws_common_allocate_and_init(struct net_if *cur);
 
 void ws_common_seconds_timer(int seconds);

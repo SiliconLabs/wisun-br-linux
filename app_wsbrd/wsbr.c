@@ -180,6 +180,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     int ret, i;
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    const struct chan_params *chan_params;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
     uint8_t *lgtks[3] = { };
@@ -194,12 +195,27 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
     ctxt->net_if.ws_info.hopping_schedule.operating_mode = ctxt->config.ws_mode;
     ctxt->net_if.ws_info.hopping_schedule.operating_class = ctxt->config.ws_class;
-    ctxt->net_if.ws_info.hopping_schedule.ch0_freq = ctxt->config.ws_chan0_freq;
-    ctxt->net_if.ws_info.hopping_schedule.channel_spacing = ctxt->config.ws_chan_spacing;
-    ctxt->net_if.ws_info.hopping_schedule.number_of_channels = ctxt->config.ws_chan_count;
     ctxt->net_if.ws_info.hopping_schedule.uc_channel_function = channel_function;
     ctxt->net_if.ws_info.hopping_schedule.bc_channel_function = channel_function;
-    ws_common_regulatory_domain_config(&ctxt->net_if, &ctxt->net_if.ws_info.hopping_schedule);
+
+    chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
+                                       ctxt->net_if.ws_info.hopping_schedule.channel_plan_id,
+                                       ctxt->net_if.ws_info.hopping_schedule.operating_class);
+    if (!chan_params) {
+        ctxt->net_if.ws_info.hopping_schedule.ch0_freq = ctxt->config.ws_chan0_freq;
+        ctxt->net_if.ws_info.hopping_schedule.channel_spacing = ctxt->config.ws_chan_spacing;
+        ctxt->net_if.ws_info.hopping_schedule.number_of_channels = ctxt->config.ws_chan_count;
+        ctxt->net_if.ws_info.hopping_schedule.channel_plan = 1;
+    } else {
+        ctxt->net_if.ws_info.hopping_schedule.ch0_freq = chan_params->chan0_freq;
+        ctxt->net_if.ws_info.hopping_schedule.channel_spacing = chan_params->chan_spacing;
+        ctxt->net_if.ws_info.hopping_schedule.number_of_channels = chan_params->chan_count;
+        if (ctxt->config.ws_chan_plan_id)
+            ctxt->net_if.ws_info.hopping_schedule.channel_plan = 2;
+        else
+            ctxt->net_if.ws_info.hopping_schedule.channel_plan = 0;
+    }
+
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     rail_fill_pom(ctxt);

@@ -277,7 +277,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bbr_pan_version_increase(cur);
 
     // Set default parameters for FHSS when starting a discovery
-    ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
     ws_bootstrap_6lbr_fhss_configure(cur);
     ws_bootstrap_set_domain_rf_config(cur);
     ws_bootstrap_fhss_activate(cur);
