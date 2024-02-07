@@ -149,55 +149,6 @@ extern int DEVICE_MIN_SENS;
 #define DEFAULT_LGTK_NEW_INSTALL_REQUIRED       90                       // 90 percent of LGTK lifetime --> 81 days
 #define DEFAULT_LFN_REVOCATION_LIFETIME_REDUCTION 30                     // default 1/30 * 90 days --> 3 days
 
-
-/*
- *  Security protocol initial EAPOL-key parameters
- *
- * Retry time is randomized between minimum and maximum retry time: rand(min,max).
- * For each subsequent retry the maximum retry time is doubled until the maximum
- * limit is reached.
- */
-
-/* Small network initial EAPOL-key retry exponential backoff parameters
- *     1st backoff 3 to 7 minutes, max 7 minutes, retries 2
- *     Minimum time for sequence is 3 + 3 = 6 minutes
- *     Maximum time for sequence is 7 + 7 = 14 minutes
- */
-#define SMALL_NW_INITIAL_KEY_RETRY_MIN_SECS               180     // 3
-#define SMALL_NW_INITIAL_KEY_RETRY_MAX_SECS               420     // 7
-#define SMALL_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS         420     // 7
-#define SMALL_NW_INITIAL_KEY_RETRY_COUNT                  2
-
-/* Medium network initial EAPOL-key retry exponential backoff parameters
- *     1st backoff 3 to 7 minutes, max 12 minutes, retries 4
- *     Minimum time for sequence is 3 + 3 + 3 + 3 = 12 minutes
- *     Maximum time for sequence is 7 + 12 + 12 + 12 = 43 minutes
- */
-#define MEDIUM_NW_INITIAL_KEY_RETRY_MIN_SECS              180     // 3
-#define MEDIUM_NW_INITIAL_KEY_RETRY_MAX_SECS              420     // 7
-#define MEDIUM_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS        720     // 12
-#define MEDIUM_NW_INITIAL_KEY_RETRY_COUNT                 4
-
-/* Large network initial EAPOL-key retry exponential backoff parameters
- *     1st backoff 5 to 10 minutes, max 15 minutes, retries 4
- *     Minimum time for sequence is 5 + 5 + 5 + 5 = 20 minutes
- *     Maximum time for sequence is 10 + 15 + 15 + 15 = 55 minutes
- */
-#define LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS               300     // 5
-#define LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS               600     // 10
-#define LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS         900     // 15
-#define LARGE_NW_INITIAL_KEY_RETRY_COUNT                  4
-
-/* Extra large network initial EAPOL-key retry exponential backoff parameters
- *     1st backoff 5 to 10 minutes, max 20 minutes, retries 4
- *     Minimum time for sequence is 5 + 5 + 5 + 5 = 20 minutes
- *     Maximum time for sequence is 10 + 20 + 20 + 20 = 70 minutes
- */
-#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MIN_SECS         300     // 5
-#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_SECS         600     // 10
-#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_MAX_LIMIT_SECS   1200    // 20
-#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT            4
-
 /*
  *  RADIUS client retry timer defaults
  */

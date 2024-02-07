@@ -83,10 +83,6 @@ typedef struct ws_sec_prot_cfg {
     uint8_t sec_prot_trickle_timer_exp;       /**< Security protocol trickle timer expirations; default 2 */
     uint16_t max_simult_sec_neg_tx_queue_min; /**< PAE authenticator max simultaneous security negotiations TX queue minimum */
     uint16_t max_simult_sec_neg_tx_queue_max; /**< PAE authenticator max simultaneous security negotiations TX queue maximum */
-    uint16_t initial_key_retry_min;           /**< Initial EAPOL-Key retry exponential backoff min; seconds; default 180 */
-    uint16_t initial_key_retry_max;           /**< Initial EAPOL-Key retry exponential backoff max; seconds; default 420 */
-    uint16_t initial_key_retry_max_limit;     /**< Initial EAPOL-Key retry exponential backoff max limit; seconds; default 720 */
-    uint8_t initial_key_retry_cnt;            /**< Number of initial key retries; default 4 */
 } ws_sec_prot_cfg_t;
 
 /**

@@ -623,10 +623,6 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct ws_sec_t
         controller->sec_cfg.prot_cfg.sec_prot_trickle_params.k = 0;
         controller->sec_cfg.prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
         controller->sec_cfg.prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
-        controller->sec_cfg.prot_cfg.initial_key_retry_min = sec_prot_cfg->initial_key_retry_min;
-        controller->sec_cfg.prot_cfg.initial_key_retry_max = sec_prot_cfg->initial_key_retry_max;
-        controller->sec_cfg.prot_cfg.initial_key_retry_max_limit = sec_prot_cfg->initial_key_retry_max_limit;
-        controller->sec_cfg.prot_cfg.initial_key_retry_cnt = sec_prot_cfg->initial_key_retry_cnt;
     }
 
     if (sec_timer_cfg) {
