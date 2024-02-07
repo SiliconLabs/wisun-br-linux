@@ -408,11 +408,6 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
      */
-    // Get network name
-    ws_gen_cfg_t gen_cfg;
-    if (ws_cfg_gen_get(&gen_cfg) < 0) {
-        return;
-    }
 
     // If PAN ID has not been set, set it
     if (cur->ws_info.pan_information.pan_id == 0xffff) {
@@ -423,9 +418,6 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
         cur->ws_info.pan_information.lfn_version = lfn_version;
         cur->ws_info.pan_information.lfn_version_set = true;
     }
-
-    // Stores the settings
-    ws_cfg_gen_set(cur, &gen_cfg, 0);
 }
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)

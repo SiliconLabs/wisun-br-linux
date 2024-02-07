@@ -48,7 +48,6 @@
 #define TRICKLE_IMIN_15_SECS 15
 
 typedef struct ws_cfg_nw_size {
-    ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast timing configuration*/
@@ -66,7 +65,6 @@ typedef struct ws_cfg_cb {
 } ws_cfg_cb_t;
 
 typedef union {
-    ws_gen_cfg_t gen;
     ws_timing_cfg_t timing;
     ws_mpl_cfg_t mpl;
     ws_sec_prot_cfg_t sec_prot;
@@ -102,8 +100,6 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg);
-static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg);
-static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg);
 static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg);
 
@@ -118,8 +114,6 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg);
 // Create validate and set callback table
 static const ws_cfg_cb_t cfg_cb[] = {
     // Network size configuration must be done first
-    CFG_CB(ws_cfg_network_size_default_set, ws_cfg_network_size_validate, ws_cfg_network_size_set, offsetof(ws_cfg_t, gen)),
-    CFG_CB(ws_cfg_gen_default_set, ws_cfg_gen_validate, ws_cfg_gen_set, offsetof(ws_cfg_t, gen)),
     CFG_CB(ws_cfg_timing_default_set, ws_cfg_timing_validate, ws_cfg_timing_set, offsetof(ws_cfg_t, timing)),
     CFG_CB(ws_cfg_mpl_default_set, ws_cfg_mpl_validate, ws_cfg_mpl_set, offsetof(ws_cfg_t, mpl)),
     CFG_CB(ws_cfg_sec_prot_default_set, ws_cfg_sec_prot_validate, ws_cfg_sec_prot_set, offsetof(ws_cfg_t, sec_prot)),
@@ -130,76 +124,7 @@ static const ws_cfg_cb_t cfg_cb[] = {
 // Wisun configuration storage
 ws_cfg_t ws_cfg;
 
-static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg)
-{
-    cfg->network_size = NETWORK_SIZE_MEDIUM;
-
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg)
-{
-    *cfg = ws_cfg.gen;
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *new_cfg)
-{
-    ws_gen_cfg_t *cfg = &ws_cfg.gen;
-    if (cfg->network_size != new_cfg->network_size) {
-        return CFG_SETTINGS_CHANGED;
-    }
-
-    return CFG_SETTINGS_OK;
-}
-
 typedef void (*ws_cfg_network_size_config_set_size)(ws_cfg_nw_size_t *cfg);
-
-int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
-{
-    (void) flags;
-
-    if (ws_cfg_network_size_validate(new_cfg) != CFG_SETTINGS_CHANGED) {
-        return CFG_SETTINGS_OK;
-    }
-
-    ws_gen_cfg_t *cfg = &ws_cfg.gen;
-
-    cfg->network_size = new_cfg->network_size;
-
-    ws_cfg_nw_size_t nw_size_cfg;
-    ws_cfg_gen_get(&nw_size_cfg.gen);
-    ws_cfg_timing_get(&nw_size_cfg.timing);
-    ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot);
-    ws_cfg_mpl_get(&nw_size_cfg.mpl);
-
-    ws_cfg_network_size_config_set_size set_function = NULL;
-
-    if (ws_cfg_network_config_get(cur) == CONFIG_CERTIFICATE) {
-        set_function = ws_cfg_network_size_config_set_certificate;
-    } else if (ws_cfg_network_config_get(cur) == CONFIG_SMALL || cfg->network_size == NETWORK_SIZE_AUTOMATIC) {
-        set_function = ws_cfg_network_size_config_set_small;
-    } else if (ws_cfg_network_config_get(cur) == CONFIG_MEDIUM) {
-        set_function = ws_cfg_network_size_config_set_medium;
-    } else if (ws_cfg_network_config_get(cur) == CONFIG_LARGE) {
-        set_function = ws_cfg_network_size_config_set_large;
-    } else {
-        set_function = ws_cfg_network_size_config_set_xlarge;
-    }
-
-    // Overrides the values on the new configuration
-    if (set_function != NULL) {
-        set_function(&nw_size_cfg);
-    }
-
-    /* Sets values if changed */
-    ws_cfg_gen_set(cur, &nw_size_cfg.gen, 0x00);
-    ws_cfg_timing_set(cur, &nw_size_cfg.timing, 0x00);
-    ws_cfg_sec_prot_set(cur, &nw_size_cfg.sec_prot, 0x00);
-    ws_cfg_mpl_set(cur, &nw_size_cfg.mpl, 0x00);
-
-    return CFG_SETTINGS_OK;
-}
 
 static uint8_t ws_cfg_config_get_by_size(struct net_if *cur, uint8_t network_size)
 {
@@ -230,22 +155,43 @@ static uint8_t ws_cfg_config_get_by_size(struct net_if *cur, uint8_t network_siz
     return CONFIG_XLARGE;
 }
 
-cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur)
+int8_t ws_cfg_network_size_set(struct net_if *cur, uint8_t network_size, uint8_t flags)
 {
-    // Get size of the network Amount of devices in the network
-    // Get the data rate of the network
-    // Adjust the configuration type based on the network size and data rate
+    (void) flags;
+    uint8_t config_size = ws_cfg_config_get_by_size(cur, network_size);
 
-    (void)cur;
+    ws_cfg_nw_size_t nw_size_cfg;
 
-    ws_gen_cfg_t cfg;
-    if (ws_cfg_gen_get(&cfg) < 0) {
-        return CONFIG_SMALL;
+    ws_cfg_timing_get(&nw_size_cfg.timing);
+    ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot);
+    ws_cfg_mpl_get(&nw_size_cfg.mpl);
+
+    ws_cfg_network_size_config_set_size set_function = NULL;
+
+    if (config_size == CONFIG_CERTIFICATE) {
+        set_function = ws_cfg_network_size_config_set_certificate;
+    } else if (config_size == CONFIG_SMALL || network_size == NETWORK_SIZE_AUTOMATIC) {
+        set_function = ws_cfg_network_size_config_set_small;
+    } else if (config_size == CONFIG_MEDIUM) {
+        set_function = ws_cfg_network_size_config_set_medium;
+    } else if (config_size == CONFIG_LARGE) {
+        set_function = ws_cfg_network_size_config_set_large;
+    } else {
+        set_function = ws_cfg_network_size_config_set_xlarge;
     }
 
-    return ws_cfg_config_get_by_size(cur, cfg.network_size);
-}
+    // Overrides the values on the new configuration
+    if (set_function != NULL) {
+        set_function(&nw_size_cfg);
+    }
 
+    /* Sets values if changed */
+    ws_cfg_timing_set(cur, &nw_size_cfg.timing, 0x00);
+    ws_cfg_sec_prot_set(cur, &nw_size_cfg.sec_prot, 0x00);
+    ws_cfg_mpl_set(cur, &nw_size_cfg.mpl, 0x00);
+
+    return CFG_SETTINGS_OK;
+}
 
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 {
@@ -361,40 +307,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->mpl.mpl_trickle_k = MPL_XLARGE_K;
     cfg->mpl.mpl_trickle_timer_exp = MPL_XLARGE_EXPIRATIONS;
     cfg->mpl.seed_set_entry_lifetime = MPL_XLARGE_SEED_LIFETIME;
-}
-
-static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
-{
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg)
-{
-    *cfg = ws_cfg.gen;
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg)
-{
-    return CFG_SETTINGS_OK;
-}
-
-int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
-{
-    int8_t ret = ws_cfg_gen_validate(new_cfg);
-    if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
-        return ret;
-    }
-
-    if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
-        return CFG_SETTINGS_OK;
-    }
-
-    ws_gen_cfg_t *cfg = &ws_cfg.gen;
-
-    cfg->network_size = new_cfg->network_size;
-
-    return CFG_SETTINGS_OK;
 }
 
 int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)

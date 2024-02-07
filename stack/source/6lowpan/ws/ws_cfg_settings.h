@@ -26,15 +26,6 @@
 struct net_if;
 
 /**
- * \brief Struct ws_gen_cfg_t General configuration
- */
-typedef struct ws_gen_cfg {
-    /* Changing the network size resets the configuration settings depending on it to
-       default values */
-    uint8_t network_size;               /**< Network size selection; default medium (= 8) */
-} ws_gen_cfg_t;
-
-/**
  * \brief Struct ws_timing_cfg_t Timing configuration
  */
 typedef struct ws_timing_cfg {
@@ -70,7 +61,6 @@ typedef struct ws_sec_prot_cfg {
  * \brief Struct ws_nw_size_cfg_t Network size configuration
  */
 typedef struct ws_cfg {
-    ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
@@ -103,15 +93,7 @@ int8_t ws_cfg_settings_init(void);
 int8_t ws_cfg_settings_default_set(void);
 int8_t ws_cfg_settings_interface_set(struct net_if *cur);
 
-cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur);
-
-int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg);
-int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *new_cfg);
-int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
-
-int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg);
-int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg);
-int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_network_size_set(struct net_if *cur, uint8_t network_size, uint8_t flags);
 
 int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg);

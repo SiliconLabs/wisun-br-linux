@@ -40,14 +40,7 @@ int ws_management_network_size_set(
     if (interface_id >= 0 && !cur)
         return -1;
 
-    ws_gen_cfg_t cfg;
-    if (ws_cfg_network_size_get(&cfg) < 0) {
-        return -3;
-    }
-
-    cfg.network_size = network_size;
-
-    if (ws_cfg_network_size_set(cur, &cfg, 0) < 0) {
+    if (ws_cfg_network_size_set(cur, network_size, 0) < 0) {
         return -3;
     }
 
