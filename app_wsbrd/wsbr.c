@@ -163,7 +163,7 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     ws_cfg_sec_timer_get(&cfg);
     cfg.pmk_lifetime = ctxt->config.ws_pmk_lifetime_s;
     cfg.ptk_lifetime = ctxt->config.ws_ptk_lifetime_s;
-    cfg.gtk_expire_offset = ctxt->config.ws_gtk_expire_offset;
+    cfg.gtk_expire_offset = ctxt->config.ws_gtk_expire_offset_s;
     cfg.gtk_new_act_time = ctxt->config.ws_gtk_new_activation_time;
     cfg.gtk_new_install_req = ctxt->config.ws_gtk_new_install_required;
     cfg.ffn_revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction;
