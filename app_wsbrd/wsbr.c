@@ -172,7 +172,7 @@ static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
     }
 }
 
-static void wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
+static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
 {
     struct sec_timer_cfg ws_sec;
     uint8_t *lgtks[3] = { };
@@ -303,7 +303,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
 
-    wsbr_configure_ws_sect_time(ctxt);
+    wsbr_pae_controller_configure(ctxt);
 
     ws_enable_mac_filtering(ctxt);
 
