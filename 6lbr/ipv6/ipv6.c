@@ -20,7 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include "6lbr/app/wsbr.h"
+#include "app/wsbr.h"
 #include "common/log_legacy.h"
 #include "common/ipv6_flow_label.h"
 #include "common/endian.h"
@@ -42,7 +42,7 @@
 #include "ipv6/ipv6_resolution.h"
 
 #include "ipv6/ipv6.h"
-#include "6lbr/app/tun.h"
+#include "app/tun.h"
 
 #define TRACE_GROUP "ipv6"
 

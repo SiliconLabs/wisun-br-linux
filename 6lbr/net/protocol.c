@@ -27,7 +27,7 @@
 #include "common/string_extra.h"
 #include "common/specs/ipv6.h"
 
-#include "6lbr/app/wsbr_mac.h"
+#include "app/wsbr_mac.h"
 #include "net/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

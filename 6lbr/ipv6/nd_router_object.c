@@ -26,8 +26,8 @@
 #include "common/bits.h"
 #include "common/specs/icmpv6.h"
 
-#include "6lbr/app/tun.h" // FIXME
-#include "6lbr/app/wsbr.h"
+#include "app/tun.h" // FIXME
+#include "app/wsbr.h"
 #include "net/protocol.h"
 #include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

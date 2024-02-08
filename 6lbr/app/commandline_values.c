@@ -15,7 +15,7 @@
 #include "common/ws_regdb.h"
 #include "common/specs/ws.h"
 
-#include "6lbr/ws/ws_common_defines.h"
+#include "ws/ws_common_defines.h"
 
 #include "wsbr_cfg.h"
 

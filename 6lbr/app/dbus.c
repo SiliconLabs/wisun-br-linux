@@ -16,7 +16,7 @@
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 #include <math.h>
-#include "6lbr/app/tun.h"
+#include "app/tun.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/memutils.h"
@@ -26,17 +26,17 @@
 #include "common/ns_list.h"
 #include "common/mathutils.h"
 
-#include "6lbr/ws/ws_bbr_api.h"
-#include "6lbr/ws/ws_common.h"
-#include "6lbr/ws/ws_pae_controller.h"
-#include "6lbr/ws/ws_pae_key_storage.h"
-#include "6lbr/ws/ws_pae_lib.h"
-#include "6lbr/ws/ws_pae_auth.h"
-#include "6lbr/ws/ws_neigh.h"
-#include "6lbr/ws/ws_llc.h"
-#include "6lbr/net/protocol.h"
-#include "6lbr/security/protocols/sec_prot_keys.h"
-#include "6lbr/ipv6/ipv6_routing_table.h"
+#include "ws/ws_bbr_api.h"
+#include "ws/ws_common.h"
+#include "ws/ws_pae_controller.h"
+#include "ws/ws_pae_key_storage.h"
+#include "ws/ws_pae_lib.h"
+#include "ws/ws_pae_auth.h"
+#include "ws/ws_neigh.h"
+#include "ws/ws_llc.h"
+#include "net/protocol.h"
+#include "security/protocols/sec_prot_keys.h"
+#include "ipv6/ipv6_routing_table.h"
 
 #include "commandline_values.h"
 #include "wsbr.h"

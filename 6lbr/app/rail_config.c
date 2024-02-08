@@ -17,7 +17,7 @@
 #include "common/ws_regdb.h"
 #include "common/named_values.h"
 
-#include "6lbr/net/protocol.h"
+#include "net/protocol.h"
 
 #include "commandline_values.h"
 #include "wsbr.h"

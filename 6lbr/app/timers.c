@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "common/log.h"
 
-#include "6lbr/net/timers.h"
+#include "net/timers.h"
 
 #include "timers.h"
 #include "wsbr.h"

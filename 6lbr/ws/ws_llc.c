@@ -38,9 +38,9 @@
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 
-#include "6lbr/app/wsbr.h"
-#include "6lbr/app/wsbr_mac.h"
-#include "6lbr/app/rcp_api_legacy.h"
+#include "app/wsbr.h"
+#include "app/wsbr_mac.h"
+#include "app/rcp_api_legacy.h"
 #include "net/timers.h"
 #include "net/protocol.h"
 #include "security/pana/pana_eap_header.h"

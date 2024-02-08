@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <fnmatch.h>
-#include "6lbr/app/wsbr.h"
+#include "app/wsbr.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/key_value_storage.h"

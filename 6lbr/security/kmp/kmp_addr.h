@@ -19,7 +19,7 @@
 #ifndef KMP_ADDR_H_
 #define KMP_ADDR_H_
 #include <stdint.h>
-#include "6lbr/net/netaddr_types.h"
+#include "net/netaddr_types.h"
 
 typedef enum kmp_addr_type {
     KMP_ADDR_EUI_64 = 0,

@@ -35,8 +35,8 @@
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
 
-#include "6lbr/app/rcp_api_legacy.h"
-#include "6lbr/app/commandline_values.h"
+#include "app/rcp_api_legacy.h"
+#include "app/commandline_values.h"
 #include "net/protocol.h"
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"

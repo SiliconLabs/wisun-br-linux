@@ -33,9 +33,9 @@
 #include "common/random_early_detection.h"
 #include "common/events_scheduler.h"
 
-#include "6lbr/app/wsbr.h"
-#include "6lbr/app/wsbr_mac.h"
-#include "6lbr/app/rcp_api.h"
+#include "app/wsbr.h"
+#include "app/wsbr_mac.h"
+#include "app/rcp_api.h"
 #include "net/timers.h"
 #include "net/netaddr_types.h"
 #include "net/ns_buffer.h"

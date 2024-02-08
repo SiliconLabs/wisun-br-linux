@@ -12,7 +12,7 @@
  */
 #include <netinet/in.h>
 
-#include "6lbr/app/wsbr.h"
+#include "app/wsbr.h"
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -20,8 +20,8 @@
 #include "common/specs/rpl.h"
 #include "common/specs/ipv6.h"
 
-#include "6lbr/ipv6/ipv6.h"
-#include "6lbr/net/ns_address_internal.h"
+#include "ipv6/ipv6.h"
+#include "net/ns_address_internal.h"
 #include "rpl_glue.h"
 #include "rpl_srh.h"
 #include "rpl.h"

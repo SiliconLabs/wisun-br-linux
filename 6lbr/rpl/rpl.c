@@ -15,9 +15,9 @@
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 
-#include "6lbr/net/timers.h"
-#include "6lbr/app/wsbr.h" // FIXME
-#include "6lbr/app/dbus.h"
+#include "net/timers.h"
+#include "app/wsbr.h" // FIXME
+#include "app/dbus.h"
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"

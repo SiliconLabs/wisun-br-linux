@@ -16,7 +16,7 @@
 #include <stdbool.h>
 #include <sys/uio.h>
 
-#include "6lbr/app/rcp_api.h"
+#include "app/rcp_api.h"
 
 struct fhss_ws_neighbor_timing_info;
 struct fhss_ws_configuration;
