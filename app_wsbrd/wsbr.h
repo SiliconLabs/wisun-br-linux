@@ -24,8 +24,8 @@ typedef struct sd_bus sd_bus;
 
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
-#include "stack/source/rpl/rpl.h"
-#include "stack/source/nwk_interface/protocol.h"
+#include "6lbr/rpl/rpl.h"
+#include "6lbr/nwk_interface/protocol.h"
 #include "rcp_api.h"
 
 #include "commandline.h"

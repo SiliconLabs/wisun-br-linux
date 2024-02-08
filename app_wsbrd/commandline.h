@@ -20,7 +20,7 @@
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
 #include <net/if.h>
 
-#include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "6lbr/6lowpan/ws/ws_pae_controller.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {

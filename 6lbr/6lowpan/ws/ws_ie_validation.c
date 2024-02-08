@@ -10,9 +10,9 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "stack/source/6lowpan/ws/ws_common.h"
-#include "stack/source/6lowpan/ws/ws_ie_lib.h"
-#include "stack/source/6lowpan/ws/ws_llc.h"
+#include "6lbr/6lowpan/ws/ws_common.h"
+#include "6lbr/6lowpan/ws/ws_ie_lib.h"
+#include "6lbr/6lowpan/ws/ws_llc.h"
 #include "common/log.h"
 #include "common/ws_regdb.h"
 

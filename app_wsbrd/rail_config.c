@@ -17,7 +17,7 @@
 #include "common/ws_regdb.h"
 #include "common/named_values.h"
 
-#include "stack/source/nwk_interface/protocol.h"
+#include "6lbr/nwk_interface/protocol.h"
 
 #include "commandline_values.h"
 #include "wsbr.h"

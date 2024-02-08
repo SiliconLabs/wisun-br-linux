@@ -36,10 +36,10 @@
 #include "common/netinet_in_extra.h"
 #include "common/specs/icmpv6.h"
 
-#include "stack/source/6lowpan/lowpan_adaptation_interface.h"
-#include "stack/source/nwk_interface/protocol.h"
-#include "stack/source/core/netaddr_types.h"
-#include "stack/source/core/ns_buffer.h"
+#include "6lbr/6lowpan/lowpan_adaptation_interface.h"
+#include "6lbr/nwk_interface/protocol.h"
+#include "6lbr/core/netaddr_types.h"
+#include "6lbr/core/ns_buffer.h"
 #include "tun.h"
 #include "wsbr.h"
 

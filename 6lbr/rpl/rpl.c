@@ -15,7 +15,7 @@
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 
-#include "stack/source/core/timers.h"
+#include "6lbr/core/timers.h"
 #include "app_wsbrd/wsbr.h" // FIXME
 #include "app_wsbrd/dbus.h"
 #include "common/bits.h"

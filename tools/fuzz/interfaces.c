@@ -15,11 +15,11 @@
 #include <assert.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include "stack/source/core/netaddr_types.h"
-#include "stack/source/security/kmp/kmp_socket_if.h"
-#include "stack/source/6lowpan/ws/ws_bbr_api.h"
-#include "stack/source/6lowpan/ws/ws_eapol_relay.h"
-#include "stack/source/6lowpan/ws/ws_eapol_auth_relay.h"
+#include "6lbr/core/netaddr_types.h"
+#include "6lbr/security/kmp/kmp_socket_if.h"
+#include "6lbr/6lowpan/ws/ws_bbr_api.h"
+#include "6lbr/6lowpan/ws/ws_eapol_relay.h"
+#include "6lbr/6lowpan/ws/ws_eapol_auth_relay.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"

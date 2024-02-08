@@ -3,7 +3,7 @@
 
 #include "app_wsbrd/timers.h"
 #include "app_wsbrd/wsbr.h"
-#include "stack/source/core/timers.h"
+#include "6lbr/core/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
 #include "common/os_types.h"
