@@ -598,7 +598,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     return true;
 }
 
-void mpl_slow_timer(int seconds)
+void mpl_timer(int seconds)
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
         uint32_t message_age_limit = (domain->seed_set_entry_lifetime * UINT32_C(10)) / 4;
