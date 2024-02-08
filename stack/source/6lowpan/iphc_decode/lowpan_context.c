@@ -73,9 +73,6 @@ void lowpan_context_timer(int ticks)
     struct net_if *interface = protocol_stack_interface_info_get();
     lowpan_context_list_t *list = &interface->lowpan_contexts;
 
-    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
     ns_list_foreach_safe(lowpan_context_t, ctx, list) {
         if (ctx->lifetime > ticks) {
             ctx->lifetime -= ticks;

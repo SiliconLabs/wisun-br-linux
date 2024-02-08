@@ -103,9 +103,6 @@ void ws_common_seconds_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
 
-    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_mngt_async_trickle_timer_cb(cur, seconds);
 }

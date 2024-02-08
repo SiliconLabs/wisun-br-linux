@@ -832,12 +832,8 @@ void lowpan_adaptation_expedite_forward_enable(struct net_if *cur)
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
-    fragmenter_interface_t *interface_ptr;
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 
-    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
-    interface_ptr = lowpan_adaptation_interface_discover(cur->id);
     if (!interface_ptr) {
         return;
     }
