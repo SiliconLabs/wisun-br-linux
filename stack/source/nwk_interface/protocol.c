@@ -80,7 +80,7 @@ void update_reachable_time(int seconds)
 void protocol_core_init(void)
 {
     ws_timer_start(WS_TIMER_MONOTONIC_TIME);
-    ws_timer_start(WS_TIMER_MPL_SLOW);
+    ws_timer_start(WS_TIMER_MPL);
     ws_timer_start(WS_TIMER_PAE_FAST);
     ws_timer_start(WS_TIMER_PAE_SLOW);
     ws_timer_start(WS_TIMER_IPV6_DESTINATION);
