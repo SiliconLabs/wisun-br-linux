@@ -287,8 +287,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
-    mpl_domain_change_timing(ctxt->net_if.mpl_domain, &size_params[ctxt->config.ws_size].trickle_mpl,
-                             size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime);
+    ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
+                                                NULL, MULTICAST_MPL_SEED_ID_DEFAULT,
+                                                size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
+                                                &size_params[ctxt->config.ws_size].trickle_mpl);
     ctxt->net_if.ws_info.mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
     ctxt->net_if.ws_info.temp_link_min_timeout = size_params[ctxt->config.ws_size].temp_link_min_timeout;
     ctxt->net_if.ws_info.temp_eapol_min_timeout = size_params[ctxt->config.ws_size].security_protocol_timings.temp_eapol_min_timeout;
