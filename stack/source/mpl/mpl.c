@@ -224,13 +224,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
 
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
     addr_add_group(cur, address);
-
-    /* If we just created the first domain on an interface, auto-create the all-forwarders domain (this does nothing if we're already a member) */
-    if (mpl_domain_count_on_interface(cur) == 1) {
-        /* Use default interface parameters */
-        mpl_domain_create(cur, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, 0, NULL);
-    }
-
     return domain;
 }
 
