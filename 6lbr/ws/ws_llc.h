@@ -23,7 +23,7 @@
 #include "common/ns_list.h"
 #include "app_wsbrd/rcp_api_legacy.h"
 
-#include "6lowpan/ws/ws_neigh.h"
+#include "ws/ws_neigh.h"
 
 typedef enum mac_data_priority mac_data_priority_e;
 struct net_if;

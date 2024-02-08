@@ -24,7 +24,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "common/specs/ipv6.h"
-#include "6lowpan/ws/ws_config.h"
+#include "ws/ws_config.h"
 #include "security/protocols/sec_prot_keys.h"
 
 #include "security/protocols/sec_prot_certs.h"

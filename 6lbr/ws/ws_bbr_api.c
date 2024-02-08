@@ -39,16 +39,16 @@
 #include "rpl/rpl.h"
 
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_bbr_api.h"
-#include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_pae_key_storage.h"
-#include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_bootstrap_6lbr.h"
+#include "ws/ws_bbr_api.h"
+#include "ws/ws_llc.h"
+#include "ws/ws_config.h"
+#include "ws/ws_common.h"
+#include "ws/ws_bootstrap.h"
+#include "ws/ws_pae_key_storage.h"
+#include "ws/ws_pae_controller.h"
+#include "ws/ws_bootstrap_6lbr.h"
 
-#include "6lowpan/ws/ws_bbr_api.h"
+#include "ws/ws_bbr_api.h"
 
 #define TRACE_GROUP "BBRw"
 

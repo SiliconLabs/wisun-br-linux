@@ -32,11 +32,11 @@
 #include "common/specs/ieee802154.h"
 
 #include "nwk_interface/protocol.h"
-#include "6lowpan/ws/ws_bbr_api.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_llc.h"
+#include "ws/ws_bbr_api.h"
+#include "ws/ws_bootstrap.h"
+#include "ws/ws_common.h"
+#include "ws/ws_config.h"
+#include "ws/ws_llc.h"
 
 #include "frame_helpers.h"
 #include "version.h"

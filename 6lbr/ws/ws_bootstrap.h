@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "6lowpan/ws/ws_common.h"
+#include "ws/ws_common.h"
 #include "nwk_interface/protocol.h"
 
 struct rpl_instance;

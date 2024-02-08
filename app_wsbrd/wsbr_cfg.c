@@ -11,7 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
-#include "6lowpan/ws/ws_config.h"
+#include "ws/ws_config.h"
 
 #include "6lbr/mpl/mpl.h"
 

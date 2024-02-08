@@ -34,7 +34,7 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/ws/ws_common.h"
+#include "ws/ws_common.h"
 
 #include "mpl/mpl.h"
 

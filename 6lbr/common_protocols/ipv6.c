@@ -30,8 +30,8 @@
 #include "common/specs/ip.h"
 
 #include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_llc.h"
+#include "ws/ws_bootstrap.h"
+#include "ws/ws_llc.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "core/ns_address_internal.h"

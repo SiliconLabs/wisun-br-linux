@@ -24,10 +24,10 @@
 #include "common/specs/ws.h"
 #include "common/ns_list.h"
 
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_neigh.h"
-#include "6lowpan/ws/ws_mngt.h"
-#include "6lowpan/ws/ws_ie_custom.h"
+#include "ws/ws_config.h"
+#include "ws/ws_neigh.h"
+#include "ws/ws_mngt.h"
+#include "ws/ws_ie_custom.h"
 
 #define NO_PENDING_PROCESS 0
 #define PENDING_KEY_INDEX_ADVERTISMENT 1

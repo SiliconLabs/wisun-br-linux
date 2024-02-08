@@ -46,14 +46,14 @@
 #include "security/protocols/gkh_sec_prot/auth_gkh_sec_prot.h"
 #include "security/protocols/radius_sec_prot/radius_client_sec_prot.h"
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_lib.h"
-#include "6lowpan/ws/ws_pae_key_storage.h"
+#include "ws/ws_config.h"
+#include "ws/ws_common.h"
+#include "ws/ws_pae_controller.h"
+#include "ws/ws_pae_timers.h"
+#include "ws/ws_pae_lib.h"
+#include "ws/ws_pae_key_storage.h"
 
-#include "6lowpan/ws/ws_pae_auth.h"
+#include "ws/ws_pae_auth.h"
 
 #define TRACE_GROUP "wspa"
 

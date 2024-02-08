@@ -154,26 +154,26 @@ add_library(libwsbrd STATIC
     6lbr/6lowpan/iphc_decode/lowpan_context.c
     6lbr/6lowpan/mac/mac_helper.c
     6lbr/6lowpan/nd/nd_router_object.c
-    6lbr/6lowpan/ws/ws_bbr_api.c
-    6lbr/6lowpan/ws/ws_bootstrap.c
-    6lbr/6lowpan/ws/ws_bootstrap_6lbr.c
-    6lbr/6lowpan/ws/ws_common.c
-    6lbr/6lowpan/ws/ws_eapol_auth_relay.c
-    6lbr/6lowpan/ws/ws_eapol_pdu.c
-    6lbr/6lowpan/ws/ws_eapol_relay.c
-    6lbr/6lowpan/ws/ws_eapol_relay_lib.c
-    6lbr/6lowpan/ws/ws_ie_lib.c
-    6lbr/6lowpan/ws/ws_ie_custom.c
-    6lbr/6lowpan/ws/ws_ie_validation.c
-    6lbr/6lowpan/ws/ws_llc.c
-    6lbr/6lowpan/ws/ws_mngt.c
-    6lbr/6lowpan/ws/ws_mpx_header.c
-    6lbr/6lowpan/ws/ws_neigh.c
-    6lbr/6lowpan/ws/ws_pae_auth.c
-    6lbr/6lowpan/ws/ws_pae_controller.c
-    6lbr/6lowpan/ws/ws_pae_key_storage.c
-    6lbr/6lowpan/ws/ws_pae_lib.c
-    6lbr/6lowpan/ws/ws_pae_timers.c
+    6lbr/ws/ws_bbr_api.c
+    6lbr/ws/ws_bootstrap.c
+    6lbr/ws/ws_bootstrap_6lbr.c
+    6lbr/ws/ws_common.c
+    6lbr/ws/ws_eapol_auth_relay.c
+    6lbr/ws/ws_eapol_pdu.c
+    6lbr/ws/ws_eapol_relay.c
+    6lbr/ws/ws_eapol_relay_lib.c
+    6lbr/ws/ws_ie_lib.c
+    6lbr/ws/ws_ie_custom.c
+    6lbr/ws/ws_ie_validation.c
+    6lbr/ws/ws_llc.c
+    6lbr/ws/ws_mngt.c
+    6lbr/ws/ws_mpx_header.c
+    6lbr/ws/ws_neigh.c
+    6lbr/ws/ws_pae_auth.c
+    6lbr/ws/ws_pae_controller.c
+    6lbr/ws/ws_pae_key_storage.c
+    6lbr/ws/ws_pae_lib.c
+    6lbr/ws/ws_pae_timers.c
     6lbr/common_protocols/icmpv6.c
     6lbr/common_protocols/ipv6.c
     6lbr/common_protocols/ipv6_resolution.c

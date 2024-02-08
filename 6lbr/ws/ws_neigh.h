@@ -23,7 +23,7 @@
 #include <time.h>
 #include "common/int24.h"
 
-#include "6lowpan/ws/ws_common_defines.h"
+#include "ws/ws_common_defines.h"
 
 struct net_if;
 

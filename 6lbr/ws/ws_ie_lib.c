@@ -32,9 +32,9 @@
 
 #include "security/protocols/sec_prot.h"
 
-#include "6lowpan/ws/ws_common_defines.h"
+#include "ws/ws_common_defines.h"
 
-#include "6lowpan/ws/ws_ie_lib.h"
+#include "ws/ws_ie_lib.h"
 
 // Wi-SUN FAN 1.1v06-d0 Figure 6-42 Node Role IE Format
 #define WS_WHIE_NR_NODE_ROLE_ID_MASK 0b00000111

@@ -24,8 +24,8 @@
 #include "common/ns_list.h"
 
 #include "core/ns_address.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_eapol_relay_lib.h"
+#include "ws/ws_config.h"
+#include "ws/ws_eapol_relay_lib.h"
 
 #define TRACE_GROUP "wsrl"
 

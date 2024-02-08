@@ -33,9 +33,9 @@
 #include "common/specs/ws.h"
 
 #include "security/protocols/sec_prot_keys.h"
-#include "6lowpan/ws/ws_pae_lib.h"
+#include "ws/ws_pae_lib.h"
 
-#include "6lowpan/ws/ws_pae_key_storage.h"
+#include "ws/ws_pae_key_storage.h"
 
 static const struct name_value nr_values[] = {
     { "br",        WS_NR_ROLE_BR      }, // should not happen

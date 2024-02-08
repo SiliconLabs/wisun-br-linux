@@ -26,10 +26,10 @@
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_llc.h"
+#include "ws/ws_config.h"
+#include "ws/ws_llc.h"
 
-#include "6lowpan/ws/ws_eapol_pdu.h"
+#include "ws/ws_eapol_pdu.h"
 
 #define TRACE_GROUP "wsep"
 

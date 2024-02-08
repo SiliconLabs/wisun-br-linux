@@ -32,15 +32,15 @@
 #include "common/events_scheduler.h"
 
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_bootstrap_6lbr.h"
-#include "6lowpan/ws/ws_bbr_api.h"
-#include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_ie_lib.h"
+#include "ws/ws_config.h"
+#include "ws/ws_llc.h"
+#include "ws/ws_bootstrap.h"
+#include "ws/ws_bootstrap_6lbr.h"
+#include "ws/ws_bbr_api.h"
+#include "ws/ws_pae_controller.h"
+#include "ws/ws_ie_lib.h"
 
-#include "6lowpan/ws/ws_common.h"
+#include "ws/ws_common.h"
 
 #define TRACE_GROUP "wscm"
 

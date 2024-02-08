@@ -24,7 +24,7 @@
 #include "nwk_interface/protocol_abstract.h"
 #include "core/ns_address_internal.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
-#include "6lowpan/ws/ws_common.h"
+#include "ws/ws_common.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 typedef struct buffer buffer_t;

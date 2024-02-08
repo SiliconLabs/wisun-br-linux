@@ -24,8 +24,8 @@
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_eapol_pdu.h"
-#include "6lowpan/ws/ws_config.h"
+#include "ws/ws_eapol_pdu.h"
+#include "ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"

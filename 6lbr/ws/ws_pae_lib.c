@@ -30,11 +30,11 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_key_storage.h"
+#include "ws/ws_config.h"
+#include "ws/ws_pae_timers.h"
+#include "ws/ws_pae_key_storage.h"
 
-#include "6lowpan/ws/ws_pae_lib.h"
+#include "ws/ws_pae_lib.h"
 
 #define TRACE_GROUP "wspl"
 

@@ -31,11 +31,11 @@
 #include "core/ns_address.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_eapol_pdu.h"
-#include "6lowpan/ws/ws_eapol_relay_lib.h"
+#include "ws/ws_config.h"
+#include "ws/ws_eapol_pdu.h"
+#include "ws/ws_eapol_relay_lib.h"
 
-#include "6lowpan/ws/ws_eapol_relay.h"
+#include "ws/ws_eapol_relay.h"
 #include "app_wsbrd/wsbr.h"
 
 #define TRACE_GROUP "wser"

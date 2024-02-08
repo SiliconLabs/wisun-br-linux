@@ -47,15 +47,15 @@
 #include "security/eapol/eapol_helper.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_ie_lib.h"
-#include "6lowpan/ws/ws_ie_validation.h"
-#include "6lowpan/ws/ws_neigh.h"
-#include "6lowpan/ws/ws_mpx_header.h"
-#include "6lowpan/ws/ws_pae_controller.h"
+#include "ws/ws_common.h"
+#include "ws/ws_bootstrap.h"
+#include "ws/ws_ie_lib.h"
+#include "ws/ws_ie_validation.h"
+#include "ws/ws_neigh.h"
+#include "ws/ws_mpx_header.h"
+#include "ws/ws_pae_controller.h"
 
-#include "6lowpan/ws/ws_llc.h"
+#include "ws/ws_llc.h"
 
 #define TRACE_GROUP "wllc"
 

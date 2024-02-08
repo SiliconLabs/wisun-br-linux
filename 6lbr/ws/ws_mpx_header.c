@@ -25,7 +25,7 @@
 #include "common/ns_list.h"
 #include "common/iobuf.h"
 
-#include "6lowpan/ws/ws_mpx_header.h"
+#include "ws/ws_mpx_header.h"
 
 // IEEE-802.15.9 Figure 10 Transaction Control field
 #define MPX_IE_TRANSFER_TYPE_MASK  0b00000111

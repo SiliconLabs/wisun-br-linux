@@ -41,15 +41,15 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
-#include "6lowpan/ws/ws_bbr_api.h"
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_mngt.h"
-#include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_auth.h"
-#include "6lowpan/ws/ws_pae_key_storage.h"
+#include "ws/ws_bbr_api.h"
+#include "ws/ws_config.h"
+#include "ws/ws_common.h"
+#include "ws/ws_mngt.h"
+#include "ws/ws_pae_timers.h"
+#include "ws/ws_pae_auth.h"
+#include "ws/ws_pae_key_storage.h"
 
-#include "6lowpan/ws/ws_pae_controller.h"
+#include "ws/ws_pae_controller.h"
 
 #define TRACE_GROUP "wspc"
 
