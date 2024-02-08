@@ -32,12 +32,6 @@ typedef struct buffer buffer_t;
 void protocol_push(buffer_t *buf);
 void protocol_core_init(void);
 
-#define INTERFACE_BOOTSTRAP_DEFINED     1
-#define INTERFACE_SECURITY_DEFINED      2
-
-#define INTERFACE_SETUP_MASK        3
-#define INTERFACE_SETUP_READY       3
-
 #define INTERFACE_NWK_ACTIVE                             8
 
 typedef enum multicast_mpl_seed_id_mode {
@@ -63,7 +57,6 @@ struct net_if {
     int8_t id;
     uint8_t zone_index[16];
     ns_list_link_t link;
-    uint8_t configure_flags;
     uint8_t lowpan_info;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;

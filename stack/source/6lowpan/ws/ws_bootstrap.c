@@ -195,10 +195,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         return -1;
     }
 
-    if ((cur->configure_flags & INTERFACE_SETUP_MASK) != INTERFACE_SETUP_READY) {
-        tr_error("Interface not yet fully configured");
-        return -2;
-    }
     if (ws_bootstrap_fhss_initialize(cur) != 0) {
         tr_error("fhss initialization failed");
         return -3;
@@ -230,12 +226,7 @@ cleanup:
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
-    // Configure IP stack to operate as Wi-SUN node
-    // Set default parameters to interface
-    cur->configure_flags = INTERFACE_BOOTSTRAP_DEFINED;
-    cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     cur->lowpan_info = 0;
-
     cur->ws_info.pan_information.pan_id = 0xffff;
     ws_mngt_async_trickle_stop(cur);
 }
