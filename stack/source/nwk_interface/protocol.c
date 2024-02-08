@@ -126,7 +126,6 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->mac_parameters.mtu = mtu;
     entry->rcp = rcp;
     entry->icmp_tokens = 10;
-    entry->mpl_data_trickle_params = rfc7731_default_data_message_trickle_params;
     entry->mpl_seed_set_entry_lifetime = RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME;
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     protocol_stack_interface_set_reachable_time(entry, 30000);

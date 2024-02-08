@@ -56,13 +56,6 @@
 static bool mpl_timer_running;
 static uint16_t mpl_total_buffered;
 
-const trickle_params_t rfc7731_default_data_message_trickle_params = {
-    .Imin = MPL_MS_TO_TICKS(512),   /* RFC 7731 says 10 * expected link latency; ZigBee IP says 512 ms */
-    .Imax = MPL_MS_TO_TICKS(512),   /* RFC 7731 says equal to Imin; ZigBee IP says 512 ms */
-    .k = 1,                         /* RFC 7731 says 1; ZigBee IP says infinite */
-    .TimerExpirations = 3           /* RFC 7731 says 3; ZigBee IP says 2 for routers, 0 for hosts */
-};
-
 /* Note that we don't use a buffer_t, to save a little RAM. We don't need
  * any of the metadata it stores...
  */
@@ -180,7 +173,8 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
 {
     mpl_domain_t *domain;
 
-    if (!addr_is_ipv6_multicast(address) || addr_ipv6_multicast_scope(address) < IPV6_SCOPE_REALM_LOCAL) {
+    if (!addr_is_ipv6_multicast(address) || addr_ipv6_multicast_scope(address) < IPV6_SCOPE_REALM_LOCAL ||
+        !data_trickle_params) {
         return NULL;
     }
 
@@ -215,8 +209,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     ns_list_init(&domain->seeds);
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime ? seed_set_entry_lifetime
                                       : cur->mpl_seed_set_entry_lifetime;
-    domain->data_trickle_params = data_trickle_params ? *data_trickle_params
-                                  : cur->mpl_data_trickle_params;
+    domain->data_trickle_params = *data_trickle_params;
     domain->seed_id_mode = seed_id_mode;
     if (seed_id)
         memcpy(domain->seed_id, seed_id, seed_id_len);

@@ -57,7 +57,6 @@ struct net_if {
     ns_list_link_t link;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
-    trickle_params_t mpl_data_trickle_params;
     uint16_t mpl_seed_set_entry_lifetime;
     struct mpl_domain *mpl_domain;
     lowpan_context_list_t lowpan_contexts;

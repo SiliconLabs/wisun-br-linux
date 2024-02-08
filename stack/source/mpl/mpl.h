@@ -33,7 +33,6 @@ typedef enum multicast_mpl_seed_id_mode multicast_mpl_seed_id_mode_e;
 
 #define MPL_MS_TO_TICKS(t) (((t) + MPL_TICK_MS - 1) / MPL_TICK_MS)
 
-extern const struct trickle_params rfc7731_default_data_message_trickle_params;
 #define RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME (30 * 60) // seconds
 
 typedef struct mpl_domain mpl_domain_t;
