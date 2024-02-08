@@ -226,7 +226,6 @@ cleanup:
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
-    cur->lowpan_info = 0;
     cur->ws_info.pan_information.pan_id = 0xffff;
     ws_mngt_async_trickle_stop(cur);
 }

@@ -32,8 +32,6 @@ typedef struct buffer buffer_t;
 void protocol_push(buffer_t *buf);
 void protocol_core_init(void);
 
-#define INTERFACE_NWK_ACTIVE                             8
-
 typedef enum multicast_mpl_seed_id_mode {
     MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
     MULTICAST_MPL_SEED_ID_MAC_SHORT = -1,               /** Use short MAC address if available (eg IEEE 802.15.4 interface's macShortAddress (16-bit)), else full MAC */
@@ -57,7 +55,6 @@ struct net_if {
     int8_t id;
     uint8_t zone_index[16];
     ns_list_link_t link;
-    uint8_t lowpan_info;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
     trickle_params_t mpl_data_trickle_params;
