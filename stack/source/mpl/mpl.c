@@ -53,7 +53,6 @@
 #define MAX_BUFFERED_MESSAGES_SIZE 8192
 #define MAX_BUFFERED_MESSAGE_LIFETIME 600 // 1/10 s ticks
 
-static bool mpl_timer_running;
 static uint16_t mpl_total_buffered;
 
 /* Note that we don't use a buffer_t, to save a little RAM. We don't need
@@ -96,7 +95,6 @@ struct mpl_domain {
 static NS_LIST_DEFINE(mpl_domains, mpl_domain_t, link);
 
 static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message);
-static void mpl_schedule_timer(void);
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed);
 
@@ -370,7 +368,6 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->timestamp = g_monotonic_time_100ms;
     /* Make sure trickle structure is initialised */
     trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
-    mpl_schedule_timer();
 
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
@@ -431,7 +428,6 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
 static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_message_t *message)
 {
     trickle_inconsistent_heard(&message->trickle, &domain->data_trickle_params);
-    mpl_schedule_timer();
 }
 
 static uint8_t mpl_seed_id_len(uint8_t seed_id_type)
@@ -602,36 +598,6 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     return true;
 }
 
-
-static void mpl_schedule_timer(void)
-{
-    if (!mpl_timer_running) {
-        mpl_timer_running = true;
-        ws_timer_start(WS_TIMER_MPL_FAST);
-    }
-}
-
-void mpl_fast_timer(int ticks)
-{
-    bool need_timer = false;
-    mpl_timer_running = false;
-
-    ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
-        ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
-            ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
-                if (trickle_timer(&message->trickle, &domain->data_trickle_params, ticks)) {
-                    mpl_buffer_transmit(domain, message, ns_list_get_next(&seed->messages, message) == NULL);
-                }
-                need_timer = need_timer || trickle_running(&message->trickle, &domain->data_trickle_params);
-            }
-        }
-    }
-
-    if (need_timer) {
-        mpl_schedule_timer();
-    }
-}
-
 void mpl_slow_timer(int seconds)
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
@@ -657,9 +623,9 @@ void mpl_slow_timer(int seconds)
                         g_monotonic_time_100ms - message->timestamp >= message_age_limit) {
                     seed->min_sequence = mpl_buffer_sequence(message) + 1;
                     mpl_buffer_delete(seed, message);
-                } else {
-                    break;
                 }
+                if (trickle_timer(&message->trickle, &domain->data_trickle_params, seconds))
+                    mpl_buffer_transmit(domain, message, ns_list_get_next(&seed->messages, message) == NULL);
             }
         }
     }

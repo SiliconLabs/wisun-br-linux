@@ -29,8 +29,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = MPL_MS_TO_TICKS(10 * 1000),
-        .trickle_mpl.Imax = MPL_MS_TO_TICKS(80 * 1000),
+        .trickle_mpl.Imin = 10,
+        .trickle_mpl.Imax = 80,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
@@ -55,8 +55,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = MPL_MS_TO_TICKS(1 * 1000),
-        .trickle_mpl.Imax = MPL_MS_TO_TICKS(10 * 1000),
+        .trickle_mpl.Imin = 1,
+        .trickle_mpl.Imax = 10,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
@@ -81,8 +81,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = MPL_MS_TO_TICKS(1 * 1000),
-        .trickle_mpl.Imax = MPL_MS_TO_TICKS(32 * 1000),
+        .trickle_mpl.Imin = 1,
+        .trickle_mpl.Imax = 32,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
@@ -107,8 +107,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = MPL_MS_TO_TICKS(5 * 1000),
-        .trickle_mpl.Imax = MPL_MS_TO_TICKS(40 * 1000),
+        .trickle_mpl.Imin = 5,
+        .trickle_mpl.Imax = 40,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
@@ -133,8 +133,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = MPL_MS_TO_TICKS(10 * 1000),
-        .trickle_mpl.Imax = MPL_MS_TO_TICKS(80 * 1000),
+        .trickle_mpl.Imin = 10,
+        .trickle_mpl.Imax = 80,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)

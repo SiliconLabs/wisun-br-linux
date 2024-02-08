@@ -28,11 +28,6 @@ struct trickle_params;
 typedef struct buffer buffer_t;
 typedef enum multicast_mpl_seed_id_mode multicast_mpl_seed_id_mode_e;
 
-/* Timing is in 50 ms (1/20 s) ticks */
-#define MPL_TICK_MS 50
-
-#define MPL_MS_TO_TICKS(t) (((t) + MPL_TICK_MS - 1) / MPL_TICK_MS)
-
 typedef struct mpl_domain mpl_domain_t;
 bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len);
 bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data);
@@ -48,7 +43,5 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const struct trickle_params *data_trickle_params);
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
 bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);
-
-void mpl_fast_timer(int ticks);
 
 #endif
