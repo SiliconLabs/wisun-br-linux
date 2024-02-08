@@ -319,5 +319,4 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     // Doing so allows to get back to an operational network faster.
     ws_mngt_pa_send(cur);
     ws_mngt_pc_send(cur);
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 }

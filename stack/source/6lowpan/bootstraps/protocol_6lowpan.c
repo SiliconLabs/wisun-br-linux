@@ -205,7 +205,6 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
         return -1;
 
     /* Change Idle-> Active */
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
     cur->if_stack_buffer_handler = protocol_6lowpan_stack;
     cur->if_llao_parse = protocol_6lowpan_llao_parse;
