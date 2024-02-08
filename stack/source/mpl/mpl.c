@@ -665,17 +665,6 @@ void mpl_slow_timer(int seconds)
     }
 }
 
-void mpl_clear_realm_scope_seeds(struct net_if *cur)
-{
-    ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
-        if (domain->interface == cur && addr_ipv6_multicast_scope(domain->address) <= IPV6_SCOPE_REALM_LOCAL) {
-            ns_list_foreach_safe(mpl_seed_t, seed, &domain->seeds) {
-                mpl_seed_delete(domain, seed);
-            }
-        }
-    }
-}
-
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     mpl_domain_t *domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);

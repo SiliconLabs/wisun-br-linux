@@ -41,8 +41,6 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool dec
 
 void mpl_slow_timer(int seconds);
 
-void mpl_clear_realm_scope_seeds(struct net_if *cur);
-
 /* Time units for trickle parameters is 50 ms (1/20 s) ticks */
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_type,
