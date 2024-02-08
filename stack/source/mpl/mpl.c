@@ -245,12 +245,6 @@ bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
     return true;
 }
 
-void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params *data_trickle_params, uint16_t seed_set_entry_lifetime)
-{
-    domain->data_trickle_params = *data_trickle_params;
-    domain->seed_set_entry_lifetime = seed_set_entry_lifetime;
-}
-
 static mpl_seed_t *mpl_seed_lookup(const mpl_domain_t *domain, uint8_t id_len, const uint8_t *seed_id)
 {
     ns_list_foreach(mpl_seed_t, seed, &domain->seeds) {
