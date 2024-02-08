@@ -42,9 +42,7 @@ static bool protocol_buffer_valid(buffer_t *b, struct net_if *cur)
         return false;
     if ((b->info & B_TO_MAC_MLME_MASK) == B_TO_MAC_FROM_MAC)
         return true;
-    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE)
-        return true;
-    return false;
+    return true;
 }
 
 static void protocol_6lowpan_stack(buffer_t *b)
