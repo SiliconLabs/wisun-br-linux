@@ -343,9 +343,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ret = tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
     FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->config.tun_dev);
 
-    ret = ws_bootstrap_up(&ctxt->net_if, ipv6);
-    BUG_ON(ret);
-
+    ws_bootstrap_up(&ctxt->net_if, ipv6);
     wsbr_check_link_local_addr(ctxt);
     if (ctxt->config.internal_dhcp)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);

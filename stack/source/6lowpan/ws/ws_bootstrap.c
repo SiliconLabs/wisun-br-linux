@@ -184,13 +184,10 @@ bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  b
     return true;
 }
 
-int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
+void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 {
     BUG_ON(!ipv6_address);
-
-    if (!cur) {
-        return -1;
-    }
+    BUG_ON(!cur);
 
     ws_bootstrap_fhss_initialize(cur);
     ws_bbr_init(cur);
@@ -210,7 +207,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     addr_add(cur, ipv6_address, 64);
     ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
-    return 0;
 }
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)

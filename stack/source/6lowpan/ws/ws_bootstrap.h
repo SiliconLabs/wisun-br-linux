@@ -33,7 +33,7 @@ struct mcps_data_ind;
 
 int ws_bootstrap_init(int8_t interface_id);
 
-int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
+void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
