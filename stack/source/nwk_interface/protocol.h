@@ -39,7 +39,6 @@ void protocol_core_init(void);
 #define INTERFACE_SETUP_READY       3
 
 #define INTERFACE_NWK_ACTIVE                             8
-#define INTERFACE_NWK_ROUTER_DEVICE                     16
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
 
 typedef enum multicast_mpl_seed_id_mode {

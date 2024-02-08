@@ -235,7 +235,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->configure_flags = INTERFACE_BOOTSTRAP_DEFINED;
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     cur->lowpan_info = 0;
-    cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
 
     cur->ws_info.pan_information.pan_id = 0xffff;
     ws_mngt_async_trickle_stop(cur);
