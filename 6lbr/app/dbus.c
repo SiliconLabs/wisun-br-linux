@@ -34,7 +34,7 @@
 #include "6lbr/ws/ws_pae_auth.h"
 #include "6lbr/ws/ws_neigh.h"
 #include "6lbr/ws/ws_llc.h"
-#include "6lbr/nwk_interface/protocol.h"
+#include "6lbr/net/protocol.h"
 #include "6lbr/security/protocols/sec_prot_keys.h"
 #include "6lbr/ipv6/ipv6_routing_table.h"
 

@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nwk_interface/protocol_abstract.h"
+#include "net/protocol_abstract.h"
 #include "6lowpan/mac/mpx_api.h"
 
 /*

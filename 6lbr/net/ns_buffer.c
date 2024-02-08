@@ -24,9 +24,9 @@
 #include <sys/socket.h>
 #include "common/log_legacy.h"
 
-#include "core/netaddr_types.h"
+#include "net/netaddr_types.h"
 
-#include "core/ns_buffer.h"
+#include "net/ns_buffer.h"
 
 #define TRACE_GROUP "buff"
 

@@ -7,7 +7,7 @@
 #include "6lbr/ws/ws_mngt.h"
 #include "6lbr/ws/ws_pae_controller.h"
 #include "6lbr/ipv6/ipv6_routing_table.h"
-#include "6lbr/nwk_interface/protocol.h"
+#include "6lbr/net/protocol.h"
 #include "6lbr/mpl/mpl.h"
 #include "6lbr/rpl/rpl.h"
 #include "common/memutils.h"

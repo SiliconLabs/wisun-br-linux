@@ -28,7 +28,7 @@
 
 #include "6lbr/app/tun.h" // FIXME
 #include "6lbr/app/wsbr.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "ipv6/ipv6_neigh_storage.h"

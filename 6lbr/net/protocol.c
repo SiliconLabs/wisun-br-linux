@@ -28,7 +28,7 @@
 #include "common/specs/ipv6.h"
 
 #include "6lbr/app/wsbr_mac.h"
-#include "core/timers.h"
+#include "net/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -39,7 +39,7 @@
 #include "ipv6/ipv6.h"
 #include "mpl/mpl.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 
 // RFC 4861 says we only have to reroll ReachableTime every couple of hours, but
 // to make sure the code is regularly exercised, let's make it 10 minutes.

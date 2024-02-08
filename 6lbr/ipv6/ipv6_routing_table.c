@@ -47,12 +47,12 @@
 #include "common/specs/ipv6.h"
 #include "ipv6/icmpv6.h"
 #include "ipv6/ipv6_resolution.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "common/time_extra.h"
 
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"
-#include "nwk_interface/protocol_abstract.h"
+#include "net/protocol_abstract.h"
 
 #define TRACE_GROUP "rout"
 

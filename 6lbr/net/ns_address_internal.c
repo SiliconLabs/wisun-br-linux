@@ -38,7 +38,7 @@
 
 #include "common/specs/ipv6.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 
 #define TRACE_GROUP "addr"
 

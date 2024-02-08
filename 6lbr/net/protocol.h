@@ -21,8 +21,8 @@
 #include "common/trickle.h"
 #include "common/ns_list.h"
 
-#include "nwk_interface/protocol_abstract.h"
-#include "core/ns_address_internal.h"
+#include "net/protocol_abstract.h"
+#include "net/ns_address_internal.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "ws/ws_common.h"
 #include "ipv6/ipv6_routing_table.h"

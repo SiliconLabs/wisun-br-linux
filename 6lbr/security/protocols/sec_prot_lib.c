@@ -32,7 +32,7 @@
 #include "common/hmac_md.h"
 #include "common/ieee80211_prf.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"

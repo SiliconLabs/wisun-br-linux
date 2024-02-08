@@ -23,7 +23,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "ws/ws_config.h"
 

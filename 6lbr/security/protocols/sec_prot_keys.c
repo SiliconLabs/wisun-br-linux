@@ -25,7 +25,7 @@
 #include "common/ns_list.h"
 #include "common/specs/ws.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "common/specs/ipv6.h"
 #include "ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"

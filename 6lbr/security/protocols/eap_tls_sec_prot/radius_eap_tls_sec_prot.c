@@ -24,7 +24,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "ws/ws_config.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/protocols/sec_prot_cfg.h"

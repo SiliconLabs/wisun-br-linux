@@ -35,9 +35,9 @@
 #include "common/ns_list.h"
 #include "common/time_extra.h"
 
-#include "core/ns_address.h"
-#include "core/timers.h"
-#include "nwk_interface/protocol.h"
+#include "net/ns_address.h"
+#include "net/timers.h"
+#include "net/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"

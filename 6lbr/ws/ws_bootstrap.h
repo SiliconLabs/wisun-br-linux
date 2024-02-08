@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 #include "ws/ws_common.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 
 struct rpl_instance;
 struct ws_stack_info;

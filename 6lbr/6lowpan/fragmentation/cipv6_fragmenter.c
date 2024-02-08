@@ -31,11 +31,11 @@
 #include "common/endian.h"
 #include "common/memutils.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "core/ns_buffer.h"
+#include "net/ns_buffer.h"
 
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 

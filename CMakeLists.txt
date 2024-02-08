@@ -177,14 +177,14 @@ add_library(libwsbrd STATIC
     6lbr/ipv6/icmpv6.c
     6lbr/ipv6/ipv6.c
     6lbr/ipv6/ipv6_resolution.c
-    6lbr/core/timers.c
-    6lbr/core/ns_address_internal.c
-    6lbr/core/ns_buffer.c
+    6lbr/net/timers.c
+    6lbr/net/ns_address_internal.c
+    6lbr/net/ns_buffer.c
     6lbr/ipv6/ipv6_neigh_storage.c
     6lbr/ipv6/ipv6_routing_table.c
     6lbr/mpl/mpl.c
-    6lbr/nwk_interface/protocol.c
-    6lbr/nwk_interface/protocol_abstract.c
+    6lbr/net/protocol.c
+    6lbr/net/protocol_abstract.c
     6lbr/rpl/rpl_glue.c
     6lbr/rpl/rpl_storage.c
     6lbr/rpl/rpl_srh.c

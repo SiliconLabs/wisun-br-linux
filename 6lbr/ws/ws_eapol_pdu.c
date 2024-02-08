@@ -23,7 +23,7 @@
 #include "common/ns_list.h"
 #include "common/specs/ipv6.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_config.h"

@@ -27,7 +27,7 @@
 #include "common/bits.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 
 #include "6lowpan/iphc_decode/lowpan_context.h"
 

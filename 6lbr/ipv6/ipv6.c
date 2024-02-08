@@ -32,9 +32,9 @@
 #include "ipv6/nd_router_object.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_llc.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "ipv6/ipv6_routing_table.h"
-#include "core/ns_address_internal.h"
+#include "net/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
 #include "mpl/mpl.h"
 

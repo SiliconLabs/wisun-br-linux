@@ -22,8 +22,8 @@
 #include "common/endian.h"
 #include "common/specs/ipv6.h"
 
-#include "core/ns_buffer.h"
-#include "nwk_interface/protocol.h"
+#include "net/ns_buffer.h"
+#include "net/protocol.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 
 #include "6lowpan/iphc_decode/iphc_decompress.h"

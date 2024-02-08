@@ -35,7 +35,7 @@
 #include "common/int24.h"
 #include "common/ns_list.h"
 
-#include "core/netaddr_types.h"
+#include "net/netaddr_types.h"
 #include "ipv6/ipv6_routing_table.h"
 
 #ifndef BUFFERS_MAX

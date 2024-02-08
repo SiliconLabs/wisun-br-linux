@@ -29,8 +29,8 @@
 #include "ipv6/nd_router_object.h"
 #include "ipv6/icmpv6.h"
 #include "ipv6/ipv6.h"
-#include "core/ns_buffer.h"
-#include "nwk_interface/protocol.h"
+#include "net/ns_buffer.h"
+#include "net/protocol.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 

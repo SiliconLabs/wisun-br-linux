@@ -28,7 +28,7 @@
 #include <time.h>
 #include "common/ns_list.h"
 
-#include "core/netaddr_types.h"
+#include "net/netaddr_types.h"
 
 /* Address Resolution and Neighbour Unreachablity Detection constants from
  * RFC 4861, updated by RFC 7048.

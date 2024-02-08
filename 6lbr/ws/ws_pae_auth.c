@@ -28,9 +28,9 @@
 #include "common/time_extra.h"
 #include "common/specs/ws.h"
 
-#include "core/ns_address.h"
-#include "core/timers.h"
-#include "nwk_interface/protocol.h"
+#include "net/ns_address.h"
+#include "net/timers.h"
+#include "net/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"

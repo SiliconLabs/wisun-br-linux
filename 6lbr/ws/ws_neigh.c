@@ -27,7 +27,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "6lbr/app/rcp_api_legacy.h"
 #include "6lbr/app/wsbr.h"
 

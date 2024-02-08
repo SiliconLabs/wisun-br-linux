@@ -30,7 +30,7 @@
 #include "common/specs/ipv6.h"
 #include "common/specs/ip.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "mpl/mpl.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "ipv6/ipv6_routing_table.h"

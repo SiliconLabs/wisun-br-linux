@@ -39,7 +39,7 @@
 #include "common/string_extra.h"
 
 #include "6lbr/6lowpan/lowpan_mtu.h"
-#include "6lbr/core/netaddr_types.h"
+#include "6lbr/net/netaddr_types.h"
 
 #include "commandline_values.h"
 #include "wsbr_cfg.h"

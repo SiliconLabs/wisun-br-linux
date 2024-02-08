@@ -27,7 +27,7 @@
 
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "6lbr/app/tun.h"
 
 static void ipv6_neigh_storage_delete(const uint8_t *eui64)

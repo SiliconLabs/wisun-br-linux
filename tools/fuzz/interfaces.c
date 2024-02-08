@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include "6lbr/core/netaddr_types.h"
+#include "6lbr/net/netaddr_types.h"
 #include "6lbr/security/kmp/kmp_socket_if.h"
 #include "6lbr/ws/ws_bbr_api.h"
 #include "6lbr/ws/ws_eapol_relay.h"

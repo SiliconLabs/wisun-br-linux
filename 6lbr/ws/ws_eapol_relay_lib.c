@@ -23,7 +23,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 
-#include "core/ns_address.h"
+#include "net/ns_address.h"
 #include "ws/ws_config.h"
 #include "ws/ws_eapol_relay_lib.h"
 

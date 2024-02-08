@@ -23,7 +23,7 @@
 
 #include "ipv6/ipv6.h"
 #include "ipv6/ipv6_resolution.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 

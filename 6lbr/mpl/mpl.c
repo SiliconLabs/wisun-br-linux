@@ -29,9 +29,9 @@
 #include "common/specs/ipv6.h"
 #include "common/memutils.h"
 
-#include "core/timers.h"
-#include "core/ns_buffer.h"
-#include "nwk_interface/protocol.h"
+#include "net/timers.h"
+#include "net/ns_buffer.h"
+#include "net/protocol.h"
 #include "ipv6/ipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_common.h"

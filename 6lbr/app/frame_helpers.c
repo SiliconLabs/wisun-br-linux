@@ -22,7 +22,7 @@
 #include "common/bits.h"
 #include "common/specs/ieee802154.h"
 
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 
 #include "rcp_api_legacy.h"
 #include "wsbr_mac.h"

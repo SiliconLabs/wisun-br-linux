@@ -37,9 +37,9 @@
 #include "common/specs/icmpv6.h"
 
 #include "6lbr/6lowpan/lowpan_adaptation_interface.h"
-#include "6lbr/nwk_interface/protocol.h"
-#include "6lbr/core/netaddr_types.h"
-#include "6lbr/core/ns_buffer.h"
+#include "6lbr/net/protocol.h"
+#include "6lbr/net/netaddr_types.h"
+#include "6lbr/net/ns_buffer.h"
 #include "tun.h"
 #include "wsbr.h"
 

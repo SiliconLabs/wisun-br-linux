@@ -37,7 +37,7 @@
 
 #include "6lbr/app/rcp_api_legacy.h"
 #include "6lbr/app/commandline_values.h"
-#include "nwk_interface/protocol.h"
+#include "net/protocol.h"
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "mpl/mpl.h"

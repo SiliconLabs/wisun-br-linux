@@ -11,8 +11,8 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <netinet/in.h>
-#include "6lbr/core/netaddr_types.h"
-#include "6lbr/core/timers.h"
+#include "6lbr/net/netaddr_types.h"
+#include "6lbr/net/timers.h"
 #include "6lbr/app/rcp_api_legacy.h"
 #include "6lbr/app/libwsbrd.h"
 #include "6lbr/app/wsbr_mac.h"
