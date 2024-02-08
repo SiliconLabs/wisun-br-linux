@@ -207,8 +207,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     domain->sequence = rand_get_8bit();
     domain->colour = false;
     ns_list_init(&domain->seeds);
-    domain->seed_set_entry_lifetime = seed_set_entry_lifetime ? seed_set_entry_lifetime
-                                      : cur->mpl_seed_set_entry_lifetime;
+    domain->seed_set_entry_lifetime = seed_set_entry_lifetime;
     domain->data_trickle_params = *data_trickle_params;
     domain->seed_id_mode = seed_id_mode;
     if (seed_id)

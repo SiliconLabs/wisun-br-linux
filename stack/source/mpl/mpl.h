@@ -33,8 +33,6 @@ typedef enum multicast_mpl_seed_id_mode multicast_mpl_seed_id_mode_e;
 
 #define MPL_MS_TO_TICKS(t) (((t) + MPL_TICK_MS - 1) / MPL_TICK_MS)
 
-#define RFC7731_DEFAULT_SEED_SET_ENTRY_LIFETIME (30 * 60) // seconds
-
 typedef struct mpl_domain mpl_domain_t;
 bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len);
 bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data);
