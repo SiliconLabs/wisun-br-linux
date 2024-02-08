@@ -197,7 +197,7 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->ipv6_neighbour_cache.send_nud_probes = true;
 }
 
-int8_t protocol_6lowpan_up(struct net_if *cur)
+void protocol_6lowpan_up(struct net_if *cur)
 {
     cur->if_stack_buffer_handler = protocol_6lowpan_stack;
     cur->if_llao_parse = protocol_6lowpan_llao_parse;
@@ -214,5 +214,4 @@ int8_t protocol_6lowpan_up(struct net_if *cur)
     // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
     // Interface metric will determine which interface is actually used, if we have multiple.
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
-    return 0;
 }

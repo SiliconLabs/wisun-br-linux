@@ -187,8 +187,6 @@ bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  b
 
 int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 {
-    int8_t ret_val = -1;
-
     BUG_ON(!ipv6_address);
 
     if (!cur) {
@@ -203,10 +201,7 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     addr_interface_set_ll64(cur);
     // Trigger discovery for bootstrap
-    ret_val = protocol_6lowpan_up(cur);
-    if (ret_val) {
-        goto cleanup;
-    }
+    protocol_6lowpan_up(cur);
 
     /* Omit sending of NA if ARO SUCCESS */
     cur->ipv6_neighbour_cache.omit_na_aro_success = true;
@@ -220,8 +215,6 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     addr_add(cur, ipv6_address, 64);
     ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
     return 0;
-cleanup:
-    return ret_val;
 }
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)
