@@ -20,7 +20,7 @@
 #include "common/specs/rpl.h"
 #include "common/specs/ipv6.h"
 
-#include "6lbr/common_protocols/ipv6.h"
+#include "6lbr/ipv6/ipv6.h"
 #include "6lbr/core/ns_address_internal.h"
 #include "rpl_glue.h"
 #include "rpl_srh.h"

@@ -36,7 +36,7 @@
 #include "common/ns_list.h"
 
 #include "core/netaddr_types.h"
-#include "ipv6_stack/ipv6_routing_table.h"
+#include "ipv6/ipv6_routing_table.h"
 
 #ifndef BUFFERS_MAX
 #define BUFFERS_MAX 10

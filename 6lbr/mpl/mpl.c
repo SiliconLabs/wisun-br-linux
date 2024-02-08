@@ -32,7 +32,7 @@
 #include "core/timers.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
-#include "common_protocols/ipv6.h"
+#include "ipv6/ipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_common.h"
 

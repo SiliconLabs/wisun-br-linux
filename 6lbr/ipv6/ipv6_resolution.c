@@ -28,13 +28,13 @@
 #include "core/netaddr_types.h"
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
-#include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?
-#include "ipv6_stack/ipv6_routing_table.h"
+#include "ipv6/nd_router_object.h" // for gp_address_ functions - better place?
+#include "ipv6/ipv6_routing_table.h"
 
-#include "common_protocols/ipv6.h"
-#include "common_protocols/icmpv6.h"
+#include "ipv6/ipv6.h"
+#include "ipv6/icmpv6.h"
 
-#include "common_protocols/ipv6_resolution.h"
+#include "ipv6/ipv6_resolution.h"
 
 #define TRACE_GROUP "ip6r"
 

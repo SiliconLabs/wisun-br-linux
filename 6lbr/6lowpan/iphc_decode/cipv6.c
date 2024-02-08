@@ -21,8 +21,8 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 
-#include "common_protocols/ipv6.h"
-#include "common_protocols/ipv6_resolution.h"
+#include "ipv6/ipv6.h"
+#include "ipv6/ipv6_resolution.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

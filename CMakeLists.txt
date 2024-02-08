@@ -153,7 +153,7 @@ add_library(libwsbrd STATIC
     6lbr/6lowpan/iphc_decode/iphc_decompress.c
     6lbr/6lowpan/iphc_decode/lowpan_context.c
     6lbr/6lowpan/mac/mac_helper.c
-    6lbr/6lowpan/nd/nd_router_object.c
+    6lbr/ipv6/nd_router_object.c
     6lbr/ws/ws_bbr_api.c
     6lbr/ws/ws_bootstrap.c
     6lbr/ws/ws_bootstrap_6lbr.c
@@ -174,14 +174,14 @@ add_library(libwsbrd STATIC
     6lbr/ws/ws_pae_key_storage.c
     6lbr/ws/ws_pae_lib.c
     6lbr/ws/ws_pae_timers.c
-    6lbr/common_protocols/icmpv6.c
-    6lbr/common_protocols/ipv6.c
-    6lbr/common_protocols/ipv6_resolution.c
+    6lbr/ipv6/icmpv6.c
+    6lbr/ipv6/ipv6.c
+    6lbr/ipv6/ipv6_resolution.c
     6lbr/core/timers.c
     6lbr/core/ns_address_internal.c
     6lbr/core/ns_buffer.c
-    6lbr/ipv6_stack/ipv6_neigh_storage.c
-    6lbr/ipv6_stack/ipv6_routing_table.c
+    6lbr/ipv6/ipv6_neigh_storage.c
+    6lbr/ipv6/ipv6_routing_table.c
     6lbr/mpl/mpl.c
     6lbr/nwk_interface/protocol.c
     6lbr/nwk_interface/protocol_abstract.c

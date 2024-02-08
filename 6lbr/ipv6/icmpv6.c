@@ -32,15 +32,15 @@
 
 #include "nwk_interface/protocol.h"
 #include "mpl/mpl.h"
-#include "ipv6_stack/ipv6_routing_table.h"
-#include "ipv6_stack/ipv6_routing_table.h"
-#include "6lowpan/nd/nd_router_object.h"
+#include "ipv6/ipv6_routing_table.h"
+#include "ipv6/ipv6_routing_table.h"
+#include "ipv6/nd_router_object.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "ws/ws_common.h"
 
-#include "common_protocols/ipv6.h"
+#include "ipv6/ipv6.h"
 
-#include "common_protocols/icmpv6.h"
+#include "ipv6/icmpv6.h"
 
 #define TRACE_GROUP "icmp"
 

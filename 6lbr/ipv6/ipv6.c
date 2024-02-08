@@ -29,19 +29,19 @@
 #include "common/specs/rpl.h"
 #include "common/specs/ip.h"
 
-#include "6lowpan/nd/nd_router_object.h"
+#include "ipv6/nd_router_object.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_llc.h"
 #include "nwk_interface/protocol.h"
-#include "ipv6_stack/ipv6_routing_table.h"
+#include "ipv6/ipv6_routing_table.h"
 #include "core/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
 #include "mpl/mpl.h"
 
-#include "common_protocols/icmpv6.h"
-#include "common_protocols/ipv6_resolution.h"
+#include "ipv6/icmpv6.h"
+#include "ipv6/ipv6_resolution.h"
 
-#include "common_protocols/ipv6.h"
+#include "ipv6/ipv6.h"
 #include "app_wsbrd/tun.h"
 
 #define TRACE_GROUP "ipv6"

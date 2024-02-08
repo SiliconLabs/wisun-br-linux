@@ -26,9 +26,9 @@
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/nd/nd_router_object.h"
-#include "common_protocols/icmpv6.h"
-#include "common_protocols/ipv6.h"
+#include "ipv6/nd_router_object.h"
+#include "ipv6/icmpv6.h"
+#include "ipv6/ipv6.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 

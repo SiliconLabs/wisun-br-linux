@@ -25,8 +25,8 @@
 #include "common/endian.h"
 #include "common/log.h"
 
-#include "ipv6_stack/ipv6_neigh_storage.h"
-#include "ipv6_stack/ipv6_routing_table.h"
+#include "ipv6/ipv6_neigh_storage.h"
+#include "ipv6/ipv6_routing_table.h"
 #include "nwk_interface/protocol.h"
 #include "app_wsbrd/tun.h"
 

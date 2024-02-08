@@ -29,13 +29,13 @@
 #include "app_wsbrd/tun.h" // FIXME
 #include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol.h"
-#include "common_protocols/icmpv6.h"
+#include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "ipv6_stack/ipv6_neigh_storage.h"
+#include "ipv6/ipv6_neigh_storage.h"
 #include "ws/ws_neigh.h"
-#include "ipv6_stack/ipv6_routing_table.h"
+#include "ipv6/ipv6_routing_table.h"
 
-#include "6lowpan/nd/nd_router_object.h"
+#include "ipv6/nd_router_object.h"
 
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {

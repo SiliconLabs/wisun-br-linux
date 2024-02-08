@@ -36,7 +36,7 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
-#include "common_protocols/ipv6.h"
+#include "ipv6/ipv6.h"
 #include "mpl/mpl.h"
 
 #include "nwk_interface/protocol.h"
