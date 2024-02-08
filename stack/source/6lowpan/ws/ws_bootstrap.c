@@ -154,11 +154,10 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
                                 cur->ws_info.hopping_schedule.number_of_channels);
 }
 
-static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
+static void ws_bootstrap_fhss_initialize(struct net_if *cur)
 {
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-    return 0;
 }
 
 static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
@@ -193,10 +192,7 @@ int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         return -1;
     }
 
-    if (ws_bootstrap_fhss_initialize(cur) != 0) {
-        tr_error("fhss initialization failed");
-        return -3;
-    }
+    ws_bootstrap_fhss_initialize(cur);
     ws_bbr_init(cur);
 
     addr_interface_set_ll64(cur);
