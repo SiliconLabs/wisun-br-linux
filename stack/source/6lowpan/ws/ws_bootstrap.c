@@ -612,9 +612,6 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 void ws_bootstrap_fhss_activate(struct net_if *cur)
 {
     ws_bootstrap_fhss_enable(cur);
-    // Only supporting fixed channel
-
-    cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     rcp_set_filter_pan_id(cur->rcp, cur->ws_info.pan_information.pan_id);
     rcp_req_radio_enable(cur->rcp);
     return;
