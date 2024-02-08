@@ -16,7 +16,7 @@
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 #include <math.h>
-#include "app_wsbrd/tun.h"
+#include "6lbr/app/tun.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/memutils.h"

@@ -12,8 +12,8 @@
  */
 #include <unistd.h>
 
-#include "app_wsbrd/wsbr.h"
-#include "app_wsbrd/rcp_api_legacy.h"
+#include "6lbr/app/wsbr.h"
+#include "6lbr/app/rcp_api_legacy.h"
 #include "common/bits.h"
 #include "common/bus_uart.h"
 #include "common/crc.h"

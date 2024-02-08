@@ -108,18 +108,18 @@ add_custom_target(check_git
 
 add_library(libwsbrd STATIC
     version.c
-    app_wsbrd/wsbr.c
-    app_wsbrd/wsbr_cfg.c
-    app_wsbrd/wsbr_mac.c
-    app_wsbrd/wsbr_pcapng.c
-    app_wsbrd/frame_helpers.c
-    app_wsbrd/rail_config.c
-    app_wsbrd/rcp_api.c
-    app_wsbrd/timers.c
-    app_wsbrd/tun.c
-    app_wsbrd/commandline.c
-    app_wsbrd/commandline_values.c
-    app_wsbrd/mbedtls_config_check.c
+    6lbr/app/wsbr.c
+    6lbr/app/wsbr_cfg.c
+    6lbr/app/wsbr_mac.c
+    6lbr/app/wsbr_pcapng.c
+    6lbr/app/frame_helpers.c
+    6lbr/app/rail_config.c
+    6lbr/app/rcp_api.c
+    6lbr/app/timers.c
+    6lbr/app/tun.c
+    6lbr/app/commandline.c
+    6lbr/app/commandline_values.c
+    6lbr/app/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
     common/events_scheduler.c
@@ -221,12 +221,12 @@ target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 if(LIBCAP_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBCAP)
-    target_sources(libwsbrd PRIVATE app_wsbrd/drop_privileges.c)
+    target_sources(libwsbrd PRIVATE 6lbr/app/drop_privileges.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBCAP)
 endif()
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(libwsbrd PRIVATE app_wsbrd/dbus.c)
+    target_sources(libwsbrd PRIVATE 6lbr/app/dbus.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)
@@ -245,7 +245,7 @@ if(LIBCPC_FOUND)
 endif()
 set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
 
-add_executable(wsbrd app_wsbrd/wsbrd.c)
+add_executable(wsbrd 6lbr/app/wsbrd.c)
 add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

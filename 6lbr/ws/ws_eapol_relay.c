@@ -36,7 +36,7 @@
 #include "ws/ws_eapol_relay_lib.h"
 
 #include "ws/ws_eapol_relay.h"
-#include "app_wsbrd/wsbr.h"
+#include "6lbr/app/wsbr.h"
 
 #define TRACE_GROUP "wser"
 

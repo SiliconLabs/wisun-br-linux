@@ -10,9 +10,9 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "app_wsbrd/wsbr.h"
-#include "app_wsbrd/frame_helpers.h"
-#include "app_wsbrd/rcp_api_legacy.h"
+#include "6lbr/app/wsbr.h"
+#include "6lbr/app/frame_helpers.h"
+#include "6lbr/app/rcp_api_legacy.h"
 #include "6lbr/nwk_interface/protocol.h"
 #include "6lbr/nwk_interface/protocol_abstract.h"
 #include "common/bits.h"

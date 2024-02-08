@@ -1,8 +1,8 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#include "app_wsbrd/timers.h"
-#include "app_wsbrd/wsbr.h"
+#include "6lbr/app/timers.h"
+#include "6lbr/app/wsbr.h"
 #include "6lbr/core/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"

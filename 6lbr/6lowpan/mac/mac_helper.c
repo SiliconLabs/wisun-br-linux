@@ -23,7 +23,7 @@
 #include "common/endian.h"
 #include "common/specs/ieee802154.h"
 
-#include "app_wsbrd/wsbr_mac.h"
+#include "6lbr/app/wsbr_mac.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 

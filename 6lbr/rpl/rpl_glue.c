@@ -12,7 +12,7 @@
  */
 #include <netinet/in.h>
 
-#include "app_wsbrd/wsbr.h"
+#include "6lbr/app/wsbr.h"
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"

@@ -20,7 +20,7 @@
 #define MPX_API_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "app_wsbrd/rcp_api_legacy.h"
+#include "6lbr/app/rcp_api_legacy.h"
 
 struct mcps_data_req;
 struct mcps_data_cnf;

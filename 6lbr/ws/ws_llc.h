@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
-#include "app_wsbrd/rcp_api_legacy.h"
+#include "6lbr/app/rcp_api_legacy.h"
 
 #include "ws/ws_neigh.h"
 

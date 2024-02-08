@@ -37,7 +37,7 @@
 #include "security/kmp/kmp_api.h"
 
 #include "security/kmp/kmp_socket_if.h"
-#include "app_wsbrd/wsbr.h"
+#include "6lbr/app/wsbr.h"
 
 
 #define TRACE_GROUP "kmsi"
