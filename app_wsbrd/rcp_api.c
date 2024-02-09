@@ -398,6 +398,9 @@ static void __rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t of
 {
     struct iobuf_write buf = { };
 
+    if (version_older_than(rcp->version_api, 2, 0, 1))
+        enable_ms = !enable_ms; // API < 2.0.1 has this inverted
+
     hif_push_u8(&buf, HIF_CMD_SET_RADIO);
     hif_push_u8(&buf, radioconf_index);
     hif_push_u8(&buf, ofdm_mcs);
