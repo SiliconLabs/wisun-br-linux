@@ -1132,7 +1132,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
     struct ws_neigh *ws_neigh;
     uint8_t ms_phy_mode_id = 0;
 
-    if (!data->TxAckReq || data->msduLength < 500)
+    if (!data->TxAckReq)
         return 0;
 
     ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, data->DstAddr);
