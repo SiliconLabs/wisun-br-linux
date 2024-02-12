@@ -114,7 +114,6 @@ void wsbr_data_req_ext(struct net_if *cur,
         }
         wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
         BUG_ON(data->ExtendedFrameExchange);
-        BUG_ON(data->phy_id);
         rcp_req_data_tx(cur->rcp, frame.data, frame.len,
                         data->msduHandle,  data->fhss_type, neighbor_ws,
                         data->phy_id ? rate_list : NULL);
