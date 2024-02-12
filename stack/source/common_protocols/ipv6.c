@@ -47,7 +47,7 @@
 #define TRACE_GROUP "ipv6"
 
 static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct net_if *cur, bool for_us);
-static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf);
+static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us);
 
 static bool ipv6_packet_is_for_us(buffer_t *buf)
 {
@@ -519,7 +519,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         return buf;
     }
 
-    ipv6_consider_forwarding_multicast_packet_to_lfn(buf);
+    ipv6_consider_forwarding_multicast_packet_to_lfn(buf, false);
 
     /* Note ipv6_buffer_route can change interface */
     if (!ipv6_buffer_route(buf)) {
@@ -989,7 +989,7 @@ no_forward:
     }
 }
 
-static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
+static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us)
 {
     buffer_t *clone;
 
@@ -1003,6 +1003,8 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf)
     // With the exception of the link-local-scope all-nodes group (ff02::1),
     // to participate in any other multicast group an LFN MUST use the LFN
     // Multicast Group Enrollment mechanism described in section 6.2.3.1.4.3.
+    if (addr_ipv6_multicast_scope(buf->dst_sa.address) < IPV6_SCOPE_REALM_LOCAL && for_us)
+        return;
     if (!ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->dst_sa.address) &&
         memcmp(buf->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16))
         return;
@@ -1204,7 +1206,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
          * clone or take ownership of the buffer, depending on for_us. If not
          * forwarding or for us, it will bin.
          */
-        ipv6_consider_forwarding_multicast_packet_to_lfn(buf);
+        ipv6_consider_forwarding_multicast_packet_to_lfn(buf, for_us);
         buf = ipv6_consider_forwarding_multicast_packet(buf, cur, for_us);
         if (!buf) {
             return NULL;
