@@ -348,36 +348,6 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     return entry;
 }
 
-static const char *state_names[] = {
-    [IP_NEIGHBOUR_NEW]          = "NEW",
-    [IP_NEIGHBOUR_INCOMPLETE]   = "INCOMPLETE",
-    [IP_NEIGHBOUR_STALE]        = "STALE",
-    [IP_NEIGHBOUR_REACHABLE]    = "REACHABLE",
-    [IP_NEIGHBOUR_DELAY]        = "DELAY",
-    [IP_NEIGHBOUR_PROBE]        = "PROBE",
-    [IP_NEIGHBOUR_UNREACHABLE]  = "UNREACHABLE",
-};
-
-static const char *type_names[] = {
-    [IP_NEIGHBOUR_GARBAGE_COLLECTIBLE]  = "GC",
-    [IP_NEIGHBOUR_REGISTERED]           = "REGISTERED",
-    [IP_NEIGHBOUR_TENTATIVE]            = "TENTATIVE",
-};
-
-void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
-{
-    tr_debug("Neighbour Cache %d", cache->interface_id);
-    tr_debug("Reachable Time: %"PRIu32"   Retrans Timer: %"PRIu32"   MTU: %"PRIu16"", cache->reachable_time, cache->retrans_timer, cache->link_mtu);
-    ns_list_foreach(const ipv6_neighbour_t, cur, &cache->list) {
-        tr_debug("IP Addr: %s", tr_ipv6(cur->ip_address));
-        tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, tr_key(cur->ll_address, addr_len_from_type(cur->ll_type)));
-        if (cache->recv_addr_reg && memzcmp(ipv6_neighbour_eui64(cache, cur), 8))
-            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime_s, tr_eui64(ipv6_neighbour_eui64(cache, cur)));
-        else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
-            tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime_s);
-    }
-}
-
 static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
 {
     ns_list_foreach_reverse_safe(ipv6_neighbour_t, entry, &cache->list) {
@@ -419,7 +389,6 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
     }
 
     cache->gc_timer = NCACHE_GC_PERIOD;
-    //ipv6_neighbour_cache_print(cache);
     ipv6_neighbour_cache_gc_periodic(cache);
 }
 
