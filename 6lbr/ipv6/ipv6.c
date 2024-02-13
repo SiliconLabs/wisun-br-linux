@@ -843,14 +843,6 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
         return buffer_free(buf);
     }
 
-    if (cur->if_special_forwarding) {
-        bool bounce = false;
-        buf = cur->if_special_forwarding(cur, buf, ll_src, &bounce);
-        if (!buf || bounce) {
-            return buf;
-        }
-    }
-
     if (addr_is_ipv6_loopback(buf->dst_sa.address) ||
         addr_is_ipv6_unspecified(buf->src_sa.address)) {
         return buffer_free(buf);
