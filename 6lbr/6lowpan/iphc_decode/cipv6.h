@@ -20,11 +20,6 @@
 
 typedef struct buffer buffer_t;
 
-/* MTU defined in RFC 4944 */
-#ifndef LOWPAN_MTU
-#define LOWPAN_MTU 1280
-#endif
-
 /* The max MTU we'll obey from a Router Advertisement */
 #ifndef LOWPAN_MAX_MTU
 #define LOWPAN_MAX_MTU LOWPAN_HARD_MTU_LIMIT

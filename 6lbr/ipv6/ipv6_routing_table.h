@@ -123,7 +123,6 @@ typedef struct ipv6_neighbour_cache {
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
     uint8_t                                 gc_timer;
-    uint16_t                                link_mtu;
     uint32_t                                retrans_timer;
     uint32_t                                reachable_time;
     // Interface specific information for route

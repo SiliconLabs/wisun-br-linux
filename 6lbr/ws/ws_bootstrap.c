@@ -516,8 +516,6 @@ int ws_bootstrap_init(int8_t interface_id)
         goto init_fail;
     }
 
-    cur->ipv6_neighbour_cache.link_mtu = WS_MPX_MAX_MTU;
-
     cur->ws_info.neighbor_storage = neigh_info;
 
     ws_bootstrap_configuration_reset(cur);
