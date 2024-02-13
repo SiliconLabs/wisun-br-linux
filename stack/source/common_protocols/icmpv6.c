@@ -733,7 +733,8 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         *ptr++ = 2;
         *ptr++ = earo->status;
         *ptr++ = earo->opaque;
-        *ptr++ = FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_I_MASK, earo->i)
+        *ptr++ = FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_P_MASK, earo->p)
+               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_I_MASK, earo->i)
                | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_R_MASK, earo->r)
                | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_T_MASK, earo->t);
         *ptr++ = earo->tid;
