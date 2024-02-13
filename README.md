@@ -32,7 +32,8 @@ flash it.
 
 The communication between the Linux host and the RCP is supported through a
 serial link (UART). On Silicon Labs mainboards, this serial link is provided
-over USB. The `/dev/ACMx` device should appear when you connect the mainboard.
+over USB. The `/dev/ttyACMx` device should appear when you connect the
+mainboard.
 
 [1]: https://github.com/SiliconLabs/wisun-br-linux-docker
 [2]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
