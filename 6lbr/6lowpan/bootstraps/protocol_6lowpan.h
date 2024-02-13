@@ -23,5 +23,4 @@
 struct net_if;
 
 void protocol_6lowpan_up(struct net_if *cur);
-void protocol_6lowpan_configure_core(struct net_if *cur);
 #endif

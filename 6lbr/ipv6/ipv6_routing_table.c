@@ -109,7 +109,7 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     }
     cache->gc_timer = NCACHE_GC_PERIOD;
     cache->retrans_timer = 1000;
-    cache->max_ll_len = 0;
+    cache->max_ll_len = 2 + 8;
     cache->interface_id = interface_id;
     cache->recv_addr_reg = false;
     cache->send_addr_reg = false;

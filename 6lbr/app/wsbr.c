@@ -337,7 +337,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     protocol_core_init();
     address_module_init();
     protocol_init(&ctxt->net_if, &ctxt->rcp, ctxt->config.lowpan_mtu);
-    protocol_6lowpan_configure_core(&ctxt->net_if);
     ret = ws_bootstrap_init(ctxt->net_if.id);
     BUG_ON(ret);
 
