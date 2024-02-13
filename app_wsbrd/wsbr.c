@@ -143,8 +143,6 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     BUG_ON(ctxt->config.ws_allowed_mac_address_count && ctxt->config.ws_denied_mac_address_count);
     if (!ctxt->config.ws_allowed_mac_address_count && !ctxt->config.ws_denied_mac_address_count)
         return;
-    if (version_older_than(ctxt->rcp.version_api, 0, 3, 0))
-        FATAL(1, "allowed_mac64/denied_mac64 requires RCP API >= 0.3.0");
     if (ctxt->config.ws_allowed_mac_address_count)
         rcp_set_filter_src64(&ctxt->rcp,
                              ctxt->config.ws_allowed_mac_addresses,
@@ -275,18 +273,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
-        FATAL_ON(version_older_than(ctxt->rcp.version_api, 0, 6, 0), 2,
-                 "regional_regulation requires RCP API >= 0.6.0");
         ctxt->net_if.ws_info.regulation = ctxt->config.ws_regional_regulation;
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
-
-    // Wi-SUN FAN 1.1v06 6.3.4.1.1.2 forbids EDFE when operating in Japan.
-    // Aggregate this restriction with the ARIB regulation for simplicity.
-    if (!version_older_than(ctxt->rcp.version_api, 0, 26, 0) &&
-        version_older_than(ctxt->rcp.version_api, 2, 0, 0) &&
-        ctxt->config.ws_regional_regulation == HIF_REG_ARIB)
-        rcp_legacy_set_edfe_mode(false);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
@@ -362,18 +351,8 @@ static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
-    int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
-
-    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0)) {
-        if (ctxt->rcp.init_state & RCP_HAS_HWADDR) {
-            if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
-                FATAL(3, "unsupported radio configuration (check --list-rf-config)");
-            else
-                FATAL(3, "unsupported RCP reset");
-        }
-    } else if (ctxt->rcp.init_state & RCP_HAS_RF_CONFIG) {
+    if (ctxt->rcp.init_state & RCP_HAS_RF_CONFIG)
         FATAL(3, "unsupported RCP reset");
-    }
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
           FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
           FIELD_GET(0x00FFFF00, ctxt->rcp.version_fw),
@@ -383,12 +362,6 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
           FIELD_GET(0x000000FF, ctxt->rcp.version_api));
     if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
         FATAL(3, "RCP API < 2.0.0 (too old)");
-    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0) &&
-        ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
-        FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
-              min_device_description_table_size);
-    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-        rcp_legacy_get_hw_addr();
 }
 
 void kill_handler(int signal)
@@ -424,23 +397,11 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
 
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
-    if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.enable_lfn)
-        FATAL(1, "enable_lfn requires RCP API >= 0.15.0");
-    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
-        FATAL(1, "pcap_file requires RCP API >= 0.16.0");
-    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
-        FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
-
     rcp_set_host_api(&ctxt->rcp, version_daemon_api);
+    rcp_req_radio_list(&ctxt->rcp);
+    while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
+        rcp_rx(&ctxt->rcp);
 
-    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
-        while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
-            rcp_rx(&ctxt->rcp);
-    } else {
-        rcp_req_radio_list(&ctxt->rcp);
-        while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
-            rcp_rx(&ctxt->rcp);
-    }
     if (ctxt->config.list_rf_configs) {
         rail_print_config_list(ctxt);
         exit(0);

@@ -481,7 +481,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .rssi    = INT_MAX,
         .rsl_in_dbm  = NAN,
         .rsl_out_dbm = NAN,
-        .pom_ie.mdr_command_capable = !version_older_than(ctxt->rcp.version_api, 0, 26, 0),
+        .pom_ie.mdr_command_capable = true,
     };
     uint8_t ipv6_addrs[3][16] = { 0 };
 

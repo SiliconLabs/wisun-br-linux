@@ -217,8 +217,6 @@ void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
     neigh->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
     neigh->fhss_data.ffn.ufsi             = ufsi;
     neigh->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_legacy_set_fhss_neighbor(eui64, &neigh->fhss_data);
 }
 
 void ws_neigh_lut_update(ws_neigh_t *neigh,
@@ -330,8 +328,6 @@ void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
                                   &neigh->fhss_data.uc_chan_count);
     }
     neigh->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_legacy_set_fhss_neighbor(eui64, &neigh->fhss_data);
 }
 
 // Compute the divisors of val closest to q_ref, possibly including 1 and val

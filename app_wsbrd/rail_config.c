@@ -164,14 +164,6 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
 
 void rail_fill_pom(struct wsbr_ctxt *ctxt)
 {
-    if (version_older_than(ctxt->rcp.version_api, 0, 25, 1)) {
-        ctxt->net_if.ws_info.hopping_schedule.rcp_rail_config_index = -1;
-        if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
-            WARN("No PHY operating modes available (requires RCP API >= 0.25.1)");
-        else if (ctxt->config.ws_phy_op_modes[0])
-            FATAL(1, "phy_operating_modes requires RCP API >= 0.25.1");
-        return;
-    }
     if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
         rail_fill_pom_auto(ctxt);
     else if (ctxt->config.ws_phy_op_modes[0])

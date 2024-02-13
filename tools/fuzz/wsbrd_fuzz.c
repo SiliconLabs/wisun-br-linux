@@ -57,7 +57,7 @@ bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
         return false;
     if (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         return false;
-    if (!version_older_than(ctxt->rcp.version_api, 0, 16, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
         return false;
     return true;
 }

@@ -234,8 +234,6 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
 
 void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_reset_stack();
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
     //Clear Pending Key Index State
@@ -287,8 +285,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_6lbr_fhss_configure(cur);
     ws_bootstrap_set_domain_rf_config(cur);
     ws_bootstrap_fhss_activate(cur);
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_fhss_hop_count(0);
 
     ws_bootstrap_6lbr_print_config(cur);
     INFO("");
@@ -319,17 +315,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     // Initialize eapol congestion tracking
     ws_bootstrap_6lbr_eapol_congestion_init(cur);
-
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
-        rcp_legacy_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX,
-                                    WS_TX_REQUEST_RESTART_MAX,
-                                    WS_REQUEST_RESTART_BLACKLIST_MIN,
-                                    WS_REQUEST_RESTART_BLACKLIST_MAX);
-        rcp_legacy_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
-        rcp_legacy_set_min_be(WS_MAC_MIN_BE);
-        rcp_legacy_set_max_be(WS_MAC_MAX_BE);
-    }
     // Advertisements stopped during the RPL scan
     ws_mngt_async_trickle_stop(cur);
     // Activate RPL

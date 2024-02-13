@@ -1014,14 +1014,9 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
         TRACE(TR_DROP, "drop %-9s: LFN support disabled", tr_ws_frame(frame_type));
         return;
     }
-    if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 25, 0)) {
-        TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.25.0", tr_ws_frame(frame_type));
-        return;
-    }
 
     neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
-    if (neigh && data->Key.SecurityLevel &&
-        !version_older_than(net_if->rcp->version_api, 2, 0, 0)) {
+    if (neigh && data->Key.SecurityLevel) {
         BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
         if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
             neigh->frame_counter_min[data->Key.KeyIndex - 1] == UINT32_MAX) {
@@ -1230,8 +1225,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // The chosen solution is to write the computed LTO information in the LTO-IE.
     // The MAC then reads these information and calculates the actual offset to
     // be applied based on the target's current broadcast schedule offset.
-    if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast &&
-        !version_older_than(base->interface_ptr->rcp->version_api, 0, 27, 0)) {
+    if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
                                                                                    ws_neigh->fhss_data.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->fhss_data.lfn.uc_interval_min_ms,
@@ -1256,8 +1250,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (ws_info->hopping_schedule.phy_op_modes[0] && ws_info->hopping_schedule.phy_op_modes[1])
-        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->hopping_schedule.phy_op_modes,
-                               !version_older_than(base->interface_ptr->rcp->version_api, 0, 26, 0));
+        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->hopping_schedule.phy_op_modes, true);
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
@@ -1457,9 +1450,6 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, uint8_t msduH
     if (!message) {
         return MLME_INVALID_HANDLE;
     }
-
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
-        return MLME_UNSUPPORTED_ATTRIBUTE;
     rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
     if (message->message_type == WS_FT_EAPOL) {
         ws_llc_mac_eapol_clear(base);
@@ -1497,8 +1487,7 @@ static void ws_llc_clean(llc_data_base_t *base)
         if (message->message_type == WS_FT_EAPOL) {
             ws_llc_mac_eapol_clear(base);
         }
-        if (!version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
-            rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
+        rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
         llc_message_free(message, base);
     }
 
@@ -1519,8 +1508,6 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-            rcp_legacy_drop_fhss_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
 }
@@ -1771,8 +1758,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies.gtkhash)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
         if (wp_ies.pom)
-            ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes,
-                                   !version_older_than(base->interface_ptr->rcp->version_api, 0, 26, 0));
+            ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, true);
         if (wp_ies.lcp)
             // Only unicast schedule using tag 0 is supported
             ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
@@ -1999,8 +1985,6 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries.active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-                rcp_legacy_drop_fhss_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries.active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries.free_temp_neigh, entry);
         } else {

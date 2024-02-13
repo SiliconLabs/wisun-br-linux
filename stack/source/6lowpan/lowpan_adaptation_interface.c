@@ -1205,10 +1205,8 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
             mac_purge_success = true;
         }
     } else {
-        if (!version_older_than(g_ctxt.rcp.version_api, 0, 4, 0)) {
-            rcp_req_data_tx_abort(cur->rcp, msduhandle);
-            mac_purge_success = true;
-        }
+        rcp_req_data_tx_abort(cur->rcp, msduhandle);
+        mac_purge_success = true;
     }
 
     return mac_purge_success;

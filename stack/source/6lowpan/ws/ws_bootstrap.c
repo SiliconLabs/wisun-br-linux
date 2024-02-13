@@ -74,10 +74,6 @@
 
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_neigh *neighbor)
 {
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
-        rcp_legacy_drop_fhss_neighbor(neighbor->mac64);
-    if (version_older_than(interface->rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     ws_neigh_del(&interface->ws_info.neighbor_storage, neighbor->mac64);
     if (!ws_neigh_lfn_count(&interface->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
@@ -168,11 +164,6 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
     // When FHSS doesn't exist yet, create one
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_allocate_fhss(&cur->ws_info.fhss_conf);
-        rcp_legacy_register_fhss();
-        rcp_legacy_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
-    }
     return 0;
 }
 
@@ -344,14 +335,10 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
     ws_bootstrap_neighbor_table_clean(net_if);
 
     ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, eui64);
-    if (!ws_neigh) {
+    if (!ws_neigh)
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
-                                          eui64, role,
-                                          net_if->ws_info.key_index_mask);
-        if (ws_neigh && version_older_than(net_if->rcp->version_api, 2, 0, 0))
-            rcp_legacy_set_neighbor(ws_neigh->index, mac_helper_panid_get(net_if), 0,
-                                    ws_neigh->mac64, 0);
-    }
+                                eui64, role,
+                                net_if->ws_info.key_index_mask);
 
     if (!ws_neigh)
         return NULL;
@@ -449,8 +436,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint8_t slot)
 {
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_get_frame_counter(slot);
 }
 
 static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
@@ -545,13 +530,8 @@ int ws_bootstrap_init(int8_t interface_id)
 
     neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
-    else
-        neighbors_table_size = UINT8_MAX;
-
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_frame_counter_per_key(true);
+    // TODO: drop this arbitrary limit
+    neighbors_table_size = UINT8_MAX;
 
     if (!ws_neigh_table_allocate(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
@@ -622,8 +602,6 @@ int ws_bootstrap_init(int8_t interface_id)
     cur->ws_info.neighbor_storage = neigh_info;
 
     ws_bootstrap_configuration_reset(cur);
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_accept_unknown_secured_frames(true);
 
     // Specification is ruling out the compression mode, but we are now doing it.
     cur->mpl_seed = true;
@@ -649,12 +627,6 @@ init_fail:
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
     rcp_set_radio(cur->rcp, &rf_configs);
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0)) {
-        rcp_legacy_set_802154_mode(IEEE_802_15_4G_2012);
-        rcp_legacy_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels,
-                                     CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
-        rcp_legacy_get_rx_sensitivity();
-    }
     return 0;
 }
 
@@ -706,8 +678,6 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     // Only supporting fixed channel
 
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-    if (version_older_than(cur->rcp->version_api, 2, 0, 0))
-        rcp_legacy_set_security(true);
     rcp_req_radio_enable(cur->rcp, cur->ws_info.pan_information.pan_id);
     return;
 }

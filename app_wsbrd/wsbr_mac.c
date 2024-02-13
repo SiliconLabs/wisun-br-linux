@@ -64,9 +64,6 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
     struct ws_neigh *neighbor_ws;
-    struct channel_list async_channel_list = {
-        .channel_page = CHANNEL_PAGE_10,
-    };
     struct hif_rate_info rate_list[4] = {
         {
             .phy_mode_id  = data->phy_id,
@@ -90,34 +87,16 @@ void wsbr_data_req_ext(struct net_if *cur,
     BUG_ON(ie_ext->payloadIovLength > 2);
     BUG_ON(ie_ext->headerIovLength > 1);
 
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0)) {
-        if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_CHAN_FUNC_FIXED) {
-            async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
-            bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
-        } else {
-            memcpy(async_channel_list.channel_mask,
-                   cur->ws_info.fhss_conf.domain_channel_mask,
-                   sizeof(async_channel_list.channel_mask));
-        }
-
-        rcp_legacy_tx_req_legacy(data,
-                          (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
-                          (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
-                          (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
-                          data->fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL);
-    } else {
-        neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
-        if (data->DstAddrMode && !neighbor_ws) {
-            WARN("%s: neighbor timeout before packet send", __func__);
-            cur->rcp->on_tx_cnf(cur->id, &cnf_fail, &cnf_fail_ie);
-            return;
-        }
-        wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
-        BUG_ON(data->ExtendedFrameExchange);
-        rcp_req_data_tx(cur->rcp, frame.data, frame.len,
-                        data->msduHandle,  data->fhss_type, neighbor_ws,
-                        data->phy_id ? rate_list : NULL);
-        iobuf_free(&frame);
+    neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
+    if (data->DstAddrMode && !neighbor_ws) {
+        WARN("%s: neighbor timeout before packet send", __func__);
+        cur->rcp->on_tx_cnf(cur->id, &cnf_fail, &cnf_fail_ie);
+        return;
     }
-
+    wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
+    BUG_ON(data->ExtendedFrameExchange);
+    rcp_req_data_tx(cur->rcp, frame.data, frame.len,
+                    data->msduHandle,  data->fhss_type, neighbor_ws,
+                    data->phy_id ? rate_list : NULL);
+    iobuf_free(&frame);
 }
