@@ -574,6 +574,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 
 static void dbus_message_append_rpl_target(sd_bus_message *reply, struct rpl_target *target, uint8_t pcs)
 {
+    uint8_t j;
+
     sd_bus_message_open_container(reply, 'r', "aybaay");
     sd_bus_message_append_array(reply, 'y', target->prefix, 16);
     sd_bus_message_append(reply, "b", target->external);
@@ -581,7 +583,11 @@ static void dbus_message_append_rpl_target(sd_bus_message *reply, struct rpl_tar
     for (uint8_t i = 0; i < pcs + 1; i++) {
         if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
             continue;
-        sd_bus_message_append_array(reply, 'y', target->transits[i].parent, 16);
+        for (j = 0; j < i; j++)
+            if (!memcmp(target->transits + i, target->transits + j, sizeof(struct rpl_transit)))
+                break;
+        if (i == j)
+            sd_bus_message_append_array(reply, 'y', target->transits[i].parent, 16);
     }
     sd_bus_message_close_container(reply);
     sd_bus_message_close_container(reply);
