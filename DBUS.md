@@ -174,7 +174,8 @@ refreshed. Each entry is a structure:
 - `ay`: Nodes's IPv6
 - `b`: Whether the node an LFN or not.
 - `aay`: An array of IPv6 addresses of the node's parents. Entries are sorted
-  in the node's preferred order.
+  in the node's preferred order. The border router should be the only entry
+  with no parents.
 
 ### `Gtks` and `Gaks` (`aay`)
 
