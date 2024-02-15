@@ -95,7 +95,6 @@ typedef struct pae_controller {
     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set;  /**< Send key index set callback */
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
     ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
-    ws_pae_controller_nw_info_updated *nw_info_updated;              /**< Network information updated callback */
     ws_pae_controller_congestion_get *congestion_get;                /**< Congestion get callback */
     ws_pae_controller_ip_addr_get *ip_addr_get;                      /**< IP address get callback */
     ws_pae_delete *pae_delete;                                       /**< PAE delete callback */
@@ -196,7 +195,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
-                                     ws_pae_controller_nw_info_updated *nw_info_updated,
                                      ws_pae_controller_congestion_get *congestion_get)
 {
     if (!interface_ptr) {
@@ -212,7 +210,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
     controller->nw_send_key_index_set = nw_send_key_index_set;
     controller->pan_ver_increment = pan_ver_increment;
     controller->lpan_ver_increment = lpan_ver_increment;
-    controller->nw_info_updated = nw_info_updated;
     controller->congestion_get = congestion_get;
     return 0;
 }
@@ -546,7 +543,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     controller->nw_key_set = NULL;
     controller->nw_send_key_index_set = NULL;
     controller->pan_ver_increment = NULL;
-    controller->nw_info_updated = NULL;
     controller->congestion_get = NULL;
 
     memset(&controller->sec_cfg, 0, sizeof(sec_cfg_t));
@@ -859,14 +855,7 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
     controller->pae_gtks_updated = ws_pae_auth_gtks_updated;
     controller->pae_nw_key_index_update = ws_pae_auth_nw_key_index_update;
 
-    if (ws_pae_controller_nw_info_read(controller) >= 0) {
-        /* If network information i.e pan_id and network name exists updates bootstrap with it,
-           (in case already configured by application then no changes are made) */
-        if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr);
-        }
-    }
-
+    ws_pae_controller_nw_info_read(controller);
     if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // If application has set GTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr, false);

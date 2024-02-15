@@ -313,7 +313,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
-                                     ws_pae_controller_nw_info_updated *nw_info_updated,
                                      ws_pae_controller_congestion_get *congestion_get);
 
 /**
