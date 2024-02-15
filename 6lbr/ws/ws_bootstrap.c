@@ -190,7 +190,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     BUG_ON(!cur);
 
     ws_bootstrap_fhss_initialize(cur);
-    ws_bbr_init(cur);
 
     addr_interface_set_ll64(cur);
     // Trigger discovery for bootstrap

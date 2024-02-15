@@ -283,6 +283,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
+    ws_bbr_init(&ctxt->net_if);
+
     if (ctxt->config.ws_pan_id >= 0)
         ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
 
