@@ -59,12 +59,6 @@
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
 
-/* when creating BBR make ULA dodag ID always and when network becomes available add prefix to DHCP
- *
- *
- */
-static uint32_t pan_version_timer = 0;
-
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
@@ -119,7 +113,6 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     }
     tr_debug("Border router version number update");
     // Version number is not periodically increased forcing nodes to check Border router availability using DAO
-    pan_version_timer = 0;
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
