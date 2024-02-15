@@ -834,18 +834,22 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
     }
     storage_close(info);
 
-    for (i = 0; i < GTK_NUM; i++)
-        if (!sec_keys_nw_info->gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].lifetime
-            && gtk_frame_counters->counter[i].set) {
-                memcpy(&sec_keys_nw_info->gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
-                memcpy(gtk_frame_counters->counter[i].gtk, new_gtks[i].key, sizeof(new_gtks[i].key));
-            }
-    for (i = 0; i < LGTK_NUM; i++)
-        if (!sec_keys_nw_info->lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].lifetime
-            && lgtk_frame_counters->counter[i].set) {
-            memcpy(&sec_keys_nw_info->lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
-            memcpy(lgtk_frame_counters->counter[i].gtk, new_lgtks[i].key, sizeof(new_lgtks[i].key));
-        }
+    for (i = 0; i < GTK_NUM; i++) {
+        if (!new_gtks[i].set || !new_gtks[i].lifetime || !gtk_frame_counters->counter[i].set)
+            continue;
+        if (sec_keys_nw_info->gtks->gtk[i].set)
+            FATAL(1, "GTK out-of-date in storage (see -D)");
+        memcpy(&sec_keys_nw_info->gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
+        memcpy(gtk_frame_counters->counter[i].gtk, new_gtks[i].key, sizeof(new_gtks[i].key));
+    }
+    for (i = 0; i < LGTK_NUM; i++) {
+        if (!new_lgtks[i].set || !new_lgtks[i].lifetime || !lgtk_frame_counters->counter[i].set)
+            continue;
+        if (sec_keys_nw_info->lgtks->gtk[i].set)
+            FATAL(1, "LGTK out-of-date in storage (see -D)");
+        memcpy(&sec_keys_nw_info->lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
+        memcpy(lgtk_frame_counters->counter[i].gtk, new_lgtks[i].key, sizeof(new_lgtks[i].key));
+    }
     return 0;
 }
 
