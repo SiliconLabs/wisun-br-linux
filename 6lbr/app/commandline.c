@@ -817,5 +817,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
             WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
                  val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
-
+    if ((memzcmp(config->ws_gtk_force, sizeof(config->ws_gtk_force)) ||
+         memzcmp(config->ws_lgtk_force, sizeof(config->ws_lgtk_force))) && config->ws_pan_id != -1)
+        WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
 }
