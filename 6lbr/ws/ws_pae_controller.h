@@ -364,8 +364,6 @@ void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned
 
 int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *network_name);
 
-int8_t ws_pae_controller_pan_version_set(struct net_if *interface_ptr, uint16_t pan_version);
-
 int8_t ws_pae_controller_lfn_version_set(struct net_if *interface_ptr, uint16_t lfn_version);
 
 #endif
