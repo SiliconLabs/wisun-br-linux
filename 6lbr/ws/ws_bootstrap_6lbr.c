@@ -282,9 +282,8 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     // Set authenticator relay to port 10253 and PAE to 10254 (and to own ll address)
     ws_eapol_auth_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, ll_addr, PAE_AUTH_SOCKET_PORT);
 
-    // Set PAN ID and network name to controller
+    // Send network name to controller
     ws_pae_controller_network_name_set(cur, cur->ws_info.network_name);
-    ws_pae_controller_pan_id_set(cur, cur->ws_info.pan_information.pan_id);
 
     // Set backbone IP address get callback
     ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);

@@ -242,27 +242,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
 
     sec_keys_nw_info->gtks = gtks;
     sec_keys_nw_info->lgtks = lgtks;
-    sec_keys_nw_info->key_pan_id = 0xFFFF;
     sec_keys_nw_info->updated = false;
-}
-
-int8_t ws_pae_controller_pan_id_set(struct net_if *interface_ptr, uint16_t pan_id)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    if (controller->sec_keys_nw_info.key_pan_id != pan_id) {
-        controller->sec_keys_nw_info.key_pan_id = pan_id;
-        controller->sec_keys_nw_info.updated = true;
-    }
-
-    return 0;
 }
 
 int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *network_name)
