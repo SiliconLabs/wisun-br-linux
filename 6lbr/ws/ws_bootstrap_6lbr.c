@@ -240,20 +240,10 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
 
-    // Clear Old information from stack
-    cur->ws_info.pan_information.pan_id = 0xffff;
     cur->ws_info.pan_information.pan_version_set = false;
     ws_bootstrap_ip_stack_reset(cur);
     ws_pae_controller_auth_init(cur);
 
-    uint16_t pan_id = ws_bbr_pan_id_get(cur);
-    if (pan_id != 0xffff) {
-        cur->ws_info.pan_information.pan_id = pan_id;
-    } else {
-        if (cur->ws_info.pan_information.pan_id == 0xffff) {
-            cur->ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffd);
-        }
-    }
     if (!cur->ws_info.pan_information.pan_version_set) {
         cur->ws_info.pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
         cur->ws_info.pan_information.pan_version_set = true;

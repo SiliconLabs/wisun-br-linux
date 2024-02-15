@@ -280,7 +280,7 @@ typedef void ws_pae_controller_pan_ver_increment(struct net_if *interface_ptr);
  * \param pan_version PAN version
  *
  */
-typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version);
+typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_version, uint16_t lfn_version);
 
 /**
  * ws_pae_controller_congestion_get get congestion information

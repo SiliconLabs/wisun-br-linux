@@ -26,6 +26,7 @@
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
 #include "common/specs/ws.h"
+#include "common/rand.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -285,8 +286,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ws_bbr_init(&ctxt->net_if);
 
-    if (ctxt->config.ws_pan_id >= 0)
-        ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->config.ws_pan_id);
+    ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
+    if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
+        ctxt->net_if.ws_info.pan_information.pan_id = ws_bbr_pan_id_get(&ctxt->net_if);
+    if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
+        ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
+
+    ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->net_if.ws_info.pan_information.pan_id);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,

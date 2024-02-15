@@ -757,7 +757,6 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
 
     if (!info)
         return -1;
-    fprintf(info->file, "pan_id = %#04x\n", sec_keys_nw_info->key_pan_id);
     fprintf(info->file, "pan_version = %d\n", sec_keys_nw_info->pan_version);
     fprintf(info->file, "lfn_version = %d\n", sec_keys_nw_info->lfn_version);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
@@ -829,8 +828,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
             break;
         if (ret) {
             WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("pan_id", info->key, 0)) {
-            sec_keys_nw_info->key_pan_id = strtoull(info->value, NULL, 0);
         } else if (!fnmatch("pan_version", info->key, 0)) {
             sec_keys_nw_info->pan_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("lfn_version", info->key, 0)) {
@@ -922,7 +919,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
             controller->nw_info_updated(interface_ptr,
-                                        controller->sec_keys_nw_info.key_pan_id,
                                         controller->sec_keys_nw_info.pan_version,
                                         controller->sec_keys_nw_info.lfn_version);
         }
