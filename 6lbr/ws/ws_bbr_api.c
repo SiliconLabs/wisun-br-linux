@@ -212,16 +212,6 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
     return cnt;
 }
 
-int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
-{
-    if (ws_bbr_pan_id != pan_id) {
-        ws_bbr_pan_id = pan_id;
-        // Store to NVM and restart bootstrap
-        ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
-    }
-    return 0;
-}
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);

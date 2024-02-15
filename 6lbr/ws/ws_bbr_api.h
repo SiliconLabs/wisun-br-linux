@@ -79,19 +79,6 @@ typedef struct bbr_route_info {
  */
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len);
 
-/**
- * Sets PAN configuration
- *
- * Sets PAN configuration parameters.
- *
- * \param interface_id Network interface ID.
- * \param pan_id PAN ID; 0xffff default, generate the PAN ID.
- *
- * \return 0, PAN configuration set.
- * \return <0 PAN configuration set failed.
- */
-int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
 
 void ws_bbr_pan_version_increase(struct net_if *cur);
