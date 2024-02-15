@@ -15,10 +15,10 @@ mod wsbrddbusapi;
 extern crate dbus;
 extern crate clap;
 
+use std::convert::TryInto;
+use std::net::Ipv6Addr;
 use std::time::Duration;
 use dbus::blocking::Connection;
-use dbus::arg::PropMap;
-use dbus::arg::prop_cast;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
 use clap::App;
 use clap::AppSettings;
@@ -29,24 +29,20 @@ fn format_byte_array(input: &[u8]) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<_>>().join(":")
 }
 
-fn is_parent(node: &(Vec<u8>, PropMap), target: &[u8]) -> bool {
-    let parent: Option<&Vec<u8>> = prop_cast(&node.1, "parent");
-    match parent {
-        Some(x) if AsRef::<[u8]>::as_ref(x) == target => true,
-        Some(_) => false,
-        None => false,
+fn is_parent(node: &(Vec<u8>, bool, Vec<Vec<u8>>), target: &[u8]) -> bool {
+    if node.2.is_empty() {
+        false
+    } else {
+        AsRef::<[u8]>::as_ref(&node.2[0]) == target
     }
 }
 
-fn is_border_router(node: &(Vec<u8>, PropMap)) -> bool {
-    let is_br: Option<&bool> = prop_cast(&node.1, "is_border_router");
-    match is_br {
-        Some(&x) => x,
-        None => false,
-    }
+fn ipv6_from_vec(vec: &Vec<u8>) -> Ipv6Addr {
+    let array: [u8; 16] = vec[..].try_into().unwrap();
+    Ipv6Addr::from(array)
 }
 
-fn print_rpl_tree(links: &[(Vec<u8>, PropMap)], parents: &[Vec<u8>], cur: &[u8], indent: &str) -> () {
+fn print_rpl_tree(links: &[(Vec<u8>, bool, Vec<Vec<u8>>)], parents: &[Vec<u8>], cur: &[u8], indent: &str) -> () {
     let mut children: Vec<_> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
     children.sort();
     let mut new_parents = parents.to_vec();
@@ -54,16 +50,16 @@ fn print_rpl_tree(links: &[(Vec<u8>, PropMap)], parents: &[Vec<u8>], cur: &[u8],
     if let Some((last_child, first_childs)) = children.split_last() {
         for c in first_childs {
             if new_parents.contains(c) {
-                println!("{}|- {} (loop!)", indent, format_byte_array(c));
+                println!("{}|- {} (loop!)", indent, ipv6_from_vec(c));
             } else {
-                println!("{}|- {}", indent, format_byte_array(c));
+                println!("{}|- {}", indent, ipv6_from_vec(c));
                 print_rpl_tree(links, &new_parents, c, &(indent.to_owned() + "|    "));
             }
         }
         if new_parents.contains(last_child) {
-            println!("{}`- {} (loop!)", indent, format_byte_array(last_child));
+            println!("{}`- {} (loop!)", indent, ipv6_from_vec(last_child));
         } else {
-            println!("{}`- {}", indent, format_byte_array(last_child));
+            println!("{}`- {}", indent, ipv6_from_vec(last_child));
             print_rpl_tree(links, &new_parents, last_child, &(indent.to_owned() + "     "));
         }
     }
@@ -124,10 +120,10 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
         println!("LGTK[{}]: {}", i, format_byte_array(g));
     }
 
-    let nodes = dbus_proxy.nodes().unwrap();
-    let node_br = nodes.iter().find(|n| is_border_router(n)).unwrap();
-    println!("{}", format_byte_array(&node_br.0));
-    print_rpl_tree(&nodes, &vec![], &node_br.0, "  ");
+    let graph = dbus_proxy.routing_graph().unwrap();
+    let br = graph.iter().find(|n| n.2.is_empty()).unwrap();
+    println!("{}", ipv6_from_vec(&br.0));
+    print_rpl_tree(&graph, &vec![], &br.0, "  ");
     Ok(())
 }
 
