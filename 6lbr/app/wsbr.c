@@ -284,9 +284,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
-    ws_bbr_init(&ctxt->net_if);
+    ctxt->net_if.ws_info.pan_information.pan_id = 0xffff;
+    ctxt->net_if.ws_info.fhss_conf.bsi = 0xffff;
 
-    ctxt->net_if.ws_info.pan_information.pan_id = ws_bbr_pan_id_get(&ctxt->net_if);
+    ws_bbr_init(&ctxt->net_if);
+    ws_bbr_nvm_info_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id);
+
     if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != 0xffff &&
         ctxt->net_if.ws_info.pan_information.pan_id != ctxt->config.ws_pan_id)
         FATAL(1, "PAN_ID out-of-date in storage (see -D)");
@@ -294,9 +297,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
     if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
-    ctxt->net_if.ws_info.fhss_conf.bsi = ws_bbr_bsi_generate();
+    if (ctxt->net_if.ws_info.fhss_conf.bsi == 0xffff)
+        ctxt->net_if.ws_info.fhss_conf.bsi = rand_get_random_in_range(0, 0xfffe);
 
-    ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->net_if.ws_info.pan_information.pan_id);
+    ws_bbr_nvm_info_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,

@@ -68,13 +68,13 @@ static uint32_t pan_version_timer = 0;
 static uint16_t ws_bbr_fhss_bsi = 0;
 static uint16_t ws_bbr_pan_id = 0xffff;
 
-static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
+void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
     int ret;
 
     if (!info)
-        return -1;
+        return;
     for (;;) {
         ret = storage_parse_line(info);
         if (ret == EOF)
@@ -90,10 +90,9 @@ static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
         }
     }
     storage_close(info);
-    return 0;
 }
 
-static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
+void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
 
@@ -178,16 +177,6 @@ static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 
 void ws_bbr_init(struct net_if *interface)
 {
-    (void) interface;
-    //Read From NVM
-    if (ws_bbr_nvm_info_read(&ws_bbr_fhss_bsi, &ws_bbr_pan_id) < 0) {
-        //NVM value not available Randomize Value Here by first time
-        ws_bbr_fhss_bsi = rand_get_16bit();
-        tr_debug("Randomized init value BSI %u", ws_bbr_fhss_bsi);
-    } else {
-        tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);
-        tr_debug("Read PAN ID %u from NVM", ws_bbr_pan_id);
-    }
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
 }
 
