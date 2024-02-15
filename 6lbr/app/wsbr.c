@@ -291,6 +291,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.pan_information.pan_id = ws_bbr_pan_id_get(&ctxt->net_if);
     if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
+    ctxt->net_if.ws_info.fhss_conf.bsi = ws_bbr_bsi_generate();
 
     ws_bbr_pan_configuration_set(ctxt->net_if.id, ctxt->net_if.ws_info.pan_information.pan_id);
 

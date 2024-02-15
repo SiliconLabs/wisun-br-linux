@@ -63,8 +63,6 @@
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
-    //GET BSI from BBR module
-    cur->ws_info.fhss_conf.bsi = ws_bbr_bsi_generate();
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);
