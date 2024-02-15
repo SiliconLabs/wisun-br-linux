@@ -65,7 +65,6 @@
  */
 static uint32_t pan_version_timer = 0;
 
-static uint16_t ws_bbr_fhss_bsi = 0;
 static uint16_t ws_bbr_pan_id = 0xffff;
 
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
@@ -178,12 +177,6 @@ static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 void ws_bbr_init(struct net_if *interface)
 {
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
-}
-
-uint16_t ws_bbr_bsi_generate(void)
-{
-    ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
-    return ws_bbr_fhss_bsi;
 }
 
 uint16_t ws_bbr_pan_id_get(struct net_if *interface)
