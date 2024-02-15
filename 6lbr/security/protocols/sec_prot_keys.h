@@ -150,7 +150,6 @@ typedef struct sec_prot_keys_nw_info {
     char network_name[33];                                 /**< Network name for keys */
     sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
     sec_prot_gtk_keys_t *lgtks;                            /**< Link to LGTKs */
-    uint16_t lfn_version;                                 /**< LFN PAN version for keys */
     bool updated : 1;                                      /**< Network info has been updated */
 } sec_prot_keys_nw_info_t;
 

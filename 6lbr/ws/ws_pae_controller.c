@@ -263,21 +263,6 @@ int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *ne
     return 0;
 }
 
-int8_t ws_pae_controller_lfn_version_set(struct net_if *interface_ptr, uint16_t lfn_version)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    controller->sec_keys_nw_info.lfn_version = lfn_version;
-    return 0;
-}
-
 static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
