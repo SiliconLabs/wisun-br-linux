@@ -60,7 +60,7 @@
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
 
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
+void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
     int ret;
@@ -77,6 +77,8 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
             *bsi = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_id", info->key, 0)) {
             *pan_id = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("pan_version", info->key, 0)) {
+            *pan_version = strtoul(info->value, NULL, 0) + PAN_VERSION_STORAGE_READ_INCREMENT;
         } else if (!fnmatch("api_version", info->key, 0)) {
             // Ignore for now
         } else {
@@ -86,7 +88,7 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
     storage_close(info);
 }
 
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
+void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
 
@@ -96,6 +98,7 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
     fprintf(info->file, "# Broadcast Schedule Identifier\n");
     fprintf(info->file, "bsi = %d\n", bsi);
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
+    fprintf(info->file, "pan_version = %d\n", pan_version);
     storage_close(info);
 }
 
@@ -120,9 +123,8 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
-
-    // Indicate new pan version to PAE controller
-    ws_pae_controller_pan_version_set(cur, cur->ws_info.pan_information.pan_version);
+    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
+                          cur->ws_info.pan_information.pan_version);
 }
 
 void ws_bbr_lfn_version_increase(struct net_if *cur)

@@ -238,14 +238,9 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
 
-    cur->ws_info.pan_information.pan_version_set = false;
     ws_bootstrap_ip_stack_reset(cur);
     ws_pae_controller_auth_init(cur);
 
-    if (!cur->ws_info.pan_information.pan_version_set) {
-        cur->ws_info.pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
-        cur->ws_info.pan_information.pan_version_set = true;
-    }
     cur->ws_info.pan_information.pan_size = 0;
     cur->ws_info.pan_information.jm.plf = 0;
     cur->ws_info.pan_information.routing_cost = 0;

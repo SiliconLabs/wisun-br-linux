@@ -666,9 +666,6 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller)
         return -1;
     }
 
-    // Increments PAN version to ensure that it is fresh
-    controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
-
     /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
        full authentication to update keys with new EUI-64 and in case of authenticator to update new
        authenticator EUI-64 to the network. */
@@ -737,7 +734,6 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
 
     if (!info)
         return -1;
-    fprintf(info->file, "pan_version = %d\n", sec_keys_nw_info->pan_version);
     fprintf(info->file, "lfn_version = %d\n", sec_keys_nw_info->lfn_version);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n", str_buf);
@@ -808,8 +804,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
             break;
         if (ret) {
             WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("pan_version", info->key, 0)) {
-            sec_keys_nw_info->pan_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("lfn_version", info->key, 0)) {
             sec_keys_nw_info->lfn_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("eui64", info->key, 0)) {
@@ -899,7 +893,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
             controller->nw_info_updated(interface_ptr,
-                                        controller->sec_keys_nw_info.pan_version,
                                         controller->sec_keys_nw_info.lfn_version);
         }
     }
