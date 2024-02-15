@@ -65,8 +65,6 @@
  */
 static uint32_t pan_version_timer = 0;
 
-static uint16_t ws_bbr_pan_id = 0xffff;
-
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
@@ -177,12 +175,6 @@ static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 void ws_bbr_init(struct net_if *interface)
 {
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
-}
-
-uint16_t ws_bbr_pan_id_get(struct net_if *interface)
-{
-    (void) interface;
-    return ws_bbr_pan_id;
 }
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
