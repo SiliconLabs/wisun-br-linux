@@ -90,14 +90,22 @@ pub trait ComSilabsWisunBorderRouter {
     fn join_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
     fn leave_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
     fn set_mode_switch(&self, arg0: Vec<u8>, arg1: i32) -> Result<(), dbus::Error>;
+    #[deprecated(note = "true")]
     fn set_slot_algorithm(&self, arg0: u8) -> Result<(), dbus::Error>;
     fn revoke_pairwise_keys(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
     fn revoke_group_keys(&self, arg0: Vec<u8>, arg1: Vec<u8>) -> Result<(), dbus::Error>;
+    fn install_gtk(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
+    fn install_lgtk(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
+    fn ie_custom_insert(&self, arg0: u8, arg1: u8, arg2: Vec<u8>, arg3: Vec<u8>) -> Result<(), dbus::Error>;
+    fn ie_custom_clear(&self) -> Result<(), dbus::Error>;
+    fn increment_rpl_dtsn(&self) -> Result<(), dbus::Error>;
+    fn increment_rpl_dodag_version_number(&self) -> Result<(), dbus::Error>;
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn gaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn lgtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn lgaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error>;
+    fn routing_graph(&self) -> Result<Vec<(Vec<u8>, bool, Vec<Vec<u8>>)>, dbus::Error>;
     fn hw_address(&self) -> Result<Vec<u8>, dbus::Error>;
     fn wisun_network_name(&self) -> Result<String, dbus::Error>;
     fn wisun_size(&self) -> Result<String, dbus::Error>;
@@ -124,6 +132,7 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
         self.method_call("com.silabs.Wisun.BorderRouter", "SetModeSwitch", (arg0, arg1, ))
     }
 
+    #[deprecated(note = "true")]
     fn set_slot_algorithm(&self, arg0: u8) -> Result<(), dbus::Error> {
         self.method_call("com.silabs.Wisun.BorderRouter", "SetSlotAlgorithm", (arg0, ))
     }
@@ -134,6 +143,30 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn revoke_group_keys(&self, arg0: Vec<u8>, arg1: Vec<u8>) -> Result<(), dbus::Error> {
         self.method_call("com.silabs.Wisun.BorderRouter", "RevokeGroupKeys", (arg0, arg1, ))
+    }
+
+    fn install_gtk(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "InstallGtk", (arg0, ))
+    }
+
+    fn install_lgtk(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "InstallLgtk", (arg0, ))
+    }
+
+    fn ie_custom_insert(&self, arg0: u8, arg1: u8, arg2: Vec<u8>, arg3: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "IeCustomInsert", (arg0, arg1, arg2, arg3, ))
+    }
+
+    fn ie_custom_clear(&self) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "IeCustomClear", ())
+    }
+
+    fn increment_rpl_dtsn(&self) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "IncrementRplDtsn", ())
+    }
+
+    fn increment_rpl_dodag_version_number(&self) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "IncrementRplDodagVersionNumber", ())
     }
 
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error> {
@@ -154,6 +187,10 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Nodes")
+    }
+
+    fn routing_graph(&self) -> Result<Vec<(Vec<u8>, bool, Vec<Vec<u8>>)>, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "RoutingGraph")
     }
 
     fn hw_address(&self) -> Result<Vec<u8>, dbus::Error> {
