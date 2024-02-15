@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <fnmatch.h>
+#include "app/version.h"
 #include "app/wsbr.h"
 #include "common/rand.h"
 #include "common/bits.h"
@@ -76,6 +77,8 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
             *bsi = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_id", info->key, 0)) {
             *pan_id = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("api_version", info->key, 0)) {
+            // Ignore for now
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }
@@ -89,6 +92,7 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
 
     if (!info)
         return;
+    fprintf(info->file, "api_version = %#08x\n", version_daemon_api);
     fprintf(info->file, "# Broadcast Schedule Identifier\n");
     fprintf(info->file, "bsi = %d\n", bsi);
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
