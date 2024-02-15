@@ -286,9 +286,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ws_bbr_init(&ctxt->net_if);
 
-    ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
+    ctxt->net_if.ws_info.pan_information.pan_id = ws_bbr_pan_id_get(&ctxt->net_if);
+    if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != 0xffff &&
+        ctxt->net_if.ws_info.pan_information.pan_id != ctxt->config.ws_pan_id)
+        FATAL(1, "PAN_ID out-of-date in storage (see -D)");
     if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
-        ctxt->net_if.ws_info.pan_information.pan_id = ws_bbr_pan_id_get(&ctxt->net_if);
+        ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
     if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
     ctxt->net_if.ws_info.fhss_conf.bsi = ws_bbr_bsi_generate();
