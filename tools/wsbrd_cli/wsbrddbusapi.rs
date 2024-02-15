@@ -132,7 +132,6 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
         self.method_call("com.silabs.Wisun.BorderRouter", "SetModeSwitch", (arg0, arg1, ))
     }
 
-    #[deprecated(note = "true")]
     fn set_slot_algorithm(&self, arg0: u8) -> Result<(), dbus::Error> {
         self.method_call("com.silabs.Wisun.BorderRouter", "SetSlotAlgorithm", (arg0, ))
     }
