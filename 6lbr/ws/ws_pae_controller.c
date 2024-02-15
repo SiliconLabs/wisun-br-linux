@@ -719,7 +719,6 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
 
     if (!info)
         return -1;
-    fprintf(info->file, "lfn_version = %d\n", sec_keys_nw_info->lfn_version);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n", str_buf);
     fprintf(info->file, "# For information:\n");
@@ -789,8 +788,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr, s
             break;
         if (ret) {
             WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("lfn_version", info->key, 0)) {
-            sec_keys_nw_info->lfn_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(gtk_eui64, 8, info->value))
                 WARN("%s:%d: invalid EUI64: %s", info->filename, info->linenr, info->value);
@@ -881,8 +878,7 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr,
-                                        controller->sec_keys_nw_info.lfn_version);
+            controller->nw_info_updated(interface_ptr);
         }
     }
 

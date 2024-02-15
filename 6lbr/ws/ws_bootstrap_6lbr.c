@@ -244,12 +244,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     cur->ws_info.pan_information.pan_size = 0;
     cur->ws_info.pan_information.jm.plf = 0;
     cur->ws_info.pan_information.routing_cost = 0;
-    // initialize for FAN 1.1 defaults
-    if (cur->ws_info.enable_lfn &&
-        !cur->ws_info.pan_information.lfn_version_set) {
-        cur->ws_info.pan_information.lfn_version = rand_get_random_in_range(0, 0xffff);
-        cur->ws_info.pan_information.lfn_version_set = true;
-    }
 
     ws_bbr_pan_version_increase(cur);
 

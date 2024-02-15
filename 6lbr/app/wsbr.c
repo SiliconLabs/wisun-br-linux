@@ -289,7 +289,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ws_bbr_init(&ctxt->net_if);
     ws_bbr_nvm_info_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
-                         &ctxt->net_if.ws_info.pan_information.pan_version);
+                         &ctxt->net_if.ws_info.pan_information.pan_version,
+                         &ctxt->net_if.ws_info.pan_information.lfn_version);
+
+    ctxt->net_if.ws_info.pan_information.lfn_version_set = ctxt->net_if.ws_info.enable_lfn;
 
     if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != 0xffff &&
         ctxt->net_if.ws_info.pan_information.pan_id != ctxt->config.ws_pan_id)
@@ -585,7 +588,8 @@ int wsbr_main(int argc, char *argv[])
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
     ws_bbr_nvm_info_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
-                          ctxt->net_if.ws_info.pan_information.pan_version);
+                          ctxt->net_if.ws_info.pan_information.pan_version,
+                          ctxt->net_if.ws_info.pan_information.lfn_version);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 

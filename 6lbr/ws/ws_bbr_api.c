@@ -60,7 +60,7 @@
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
 
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version)
+void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
     int ret;
@@ -79,6 +79,8 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version
             *pan_id = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_version", info->key, 0)) {
             *pan_version = strtoul(info->value, NULL, 0) + PAN_VERSION_STORAGE_READ_INCREMENT;
+        } else if (!fnmatch("lfn_version", info->key, 0)) {
+            *lfn_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("api_version", info->key, 0)) {
             // Ignore for now
         } else {
@@ -88,7 +90,7 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version
     storage_close(info);
 }
 
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version)
+void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
 
@@ -99,6 +101,7 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version)
     fprintf(info->file, "bsi = %d\n", bsi);
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
     fprintf(info->file, "pan_version = %d\n", pan_version);
+    fprintf(info->file, "lfn_version = %d\n", lfn_version);
     storage_close(info);
 }
 
@@ -124,7 +127,7 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
     ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version);
+                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version);
 }
 
 void ws_bbr_lfn_version_increase(struct net_if *cur)
@@ -137,8 +140,8 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
 
-    // Indicate new lfn version to PAE controller
-    ws_pae_controller_lfn_version_set(cur, cur->ws_info.pan_information.lfn_version);
+    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
+                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version);
     //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
     // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
     // the following occurs:
