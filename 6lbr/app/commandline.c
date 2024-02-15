@@ -162,6 +162,7 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "                          in the config file\n");
     fprintf(stream, "  -D, --delete-storage  Delete storage upon start, which deauhenticates any previously\n");
     fprintf(stream, "                          connected nodes. Useful for testing.\n");
+    fprintf(stream, "                          Setting this option twice (-DD) deletes the storage then exits.\n");
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
@@ -716,6 +717,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 FATAL(1, "deprecated option: -H/--hardflow");
                 break;
             case 'D':
+                if (config->storage_delete)
+                    config->storage_exit = true;
                 config->storage_delete = true;
                 break;
             case 'h':

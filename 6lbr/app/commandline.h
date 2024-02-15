@@ -59,6 +59,7 @@ struct wsbrd_conf {
 
     char storage_prefix[PATH_MAX];
     bool storage_delete;
+    bool storage_exit;
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
     uint8_t ws_gtk[4][16];

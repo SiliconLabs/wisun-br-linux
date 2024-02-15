@@ -567,6 +567,8 @@ int wsbr_main(int argc, char *argv[])
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete)
         storage_delete(files);
+    if (ctxt->config.storage_exit)
+        exit(0);
     if (ctxt->config.pan_size >= 0)
         test_pan_size_override = ctxt->config.pan_size;
     if (ctxt->config.pcap_file[0])
