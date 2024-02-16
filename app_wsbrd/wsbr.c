@@ -24,7 +24,6 @@
 #include "common/version.h"
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
-#include "common/time_extra.h"
 #include "common/log_legacy.h"
 #include "common/specs/ws.h"
 
@@ -445,62 +444,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     }
 }
 
-static bool wsbr_rcp_wait_reset(struct wsbr_ctxt *ctxt)
-{
-    time_t start = time_current(CLOCK_MONOTONIC);
-    struct pollfd pfd = {
-        .fd = ctxt->os_ctxt->trig_fd,
-        .events = POLLIN,
-    };
-    int ret = 0;
-
-    ctxt->os_ctxt->uart_init_phase = true;
-
-    // This hack enables resilient RCP API detection and is not relevant for
-    // CPC. We consider that if no reset indication was received within 2
-    // seconds, then the RCP is not responding and we should fallback to the
-    // version autodetection process as we may have chosen the wrong version.
-    while (1) {
-        if (!ctxt->os_ctxt->uart_data_ready) {
-            ret = poll(&pfd, 1, 2000);
-            FATAL_ON(ret < 0, 2, "poll: %m");
-        }
-        if (ret > 0 || ctxt->os_ctxt->uart_data_ready)
-            rcp_rx(&ctxt->rcp);
-        if (ctxt->rcp.init_state & RCP_HAS_RESET)
-            break;
-        if (time_current(CLOCK_MONOTONIC) - start >= 2) {
-            ctxt->os_ctxt->uart_init_phase = false;
-            return false;
-        }
-    }
-
-    ctxt->os_ctxt->uart_init_phase = false;
-    return true;
-}
-
 static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
-    if (ctxt->config.cpc_instance[0]) {
-        ctxt->rcp.device_tx = cpc_tx;
-        ctxt->rcp.device_rx = cpc_rx;
-        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
+    if (ctxt->config.uart_dev[0]) {
+        ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-        ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->os_ctxt);
-        if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-            rcp_legacy_reset();
-        else
-            rcp_req_reset(&ctxt->rcp, false);
-        BUG_ON(!wsbr_rcp_wait_reset(ctxt));
-        return;
-    }
-
-    BUG_ON(!ctxt->config.uart_dev[0]);
-    ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
-    ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-
-    for (int i = 0; i < 3; i++) {
-        ctxt->rcp.version_api = 0;
         ctxt->rcp.device_tx = wsbr_uart_legacy_tx;
         rcp_legacy_noop();
         rcp_legacy_reset();
@@ -517,11 +465,24 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
             ctxt->rcp.on_crc_error = uart_legacy_handle_crc_error;
             rcp_legacy_noop();
         }
-
-        if (wsbr_rcp_wait_reset(ctxt))
-            return;
+    } else if (ctxt->config.cpc_instance[0]) {
+        ctxt->rcp.device_tx = cpc_tx;
+        ctxt->rcp.device_rx = cpc_rx;
+        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
+        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+        ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->os_ctxt);
+        if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
+            rcp_legacy_reset();
+        else
+            rcp_req_reset(&ctxt->rcp, false);
+    } else {
+        BUG();
     }
-    FATAL(3, "unable to detect RCP API version");
+
+    ctxt->os_ctxt->uart_init_phase = true;
+    while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
+        rcp_rx(&ctxt->rcp);
+    ctxt->os_ctxt->uart_init_phase = false;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
