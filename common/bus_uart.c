@@ -356,7 +356,7 @@ void uart_legacy_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t f
          irq_err_counter, frame_len, header, crc);
 }
 
-bool uart_detect_v2(struct os_ctxt *ctxt, int n)
+bool uart_detect_v2(struct os_ctxt *ctxt)
 {
     struct pollfd pfd = {
         .fd = ctxt->trig_fd,
@@ -364,23 +364,20 @@ bool uart_detect_v2(struct os_ctxt *ctxt, int n)
     };
     int ret;
 
-    ctxt->uart_data_ready = true;
+    ret = poll(&pfd, 1, 10000);
+    if (!ret)
+        FATAL_ON(!ctxt->uart_rx_buf_len, 2, "RCP is not responding");
 
-    ret = poll(&pfd, 1, 5000);
-    FATAL_ON(ret < 0, 2, "%s poll : %m", __func__);
-    WARN_ON(!ret, "RCP is not responding");
-
-    while (1) {
-        ret = poll(&pfd, 1, -1);
+    for (;;) {
+        ret = poll(&pfd, 1, 1000);
         FATAL_ON(ret < 0, 2, "%s poll : %m", __func__);
-
+        if (!ret)
+            return false;
         uart_read(ctxt);
-
+        ctxt->uart_data_ready = true;
         for (int i = 0; i < ctxt->uart_rx_buf_len - 4; i++)
             if (crc_check(CRC_INIT_HCS, ctxt->uart_rx_buf + i, 2,
                           read_le16(ctxt->uart_rx_buf + i + 2)))
                 return true;
-        if (ctxt->uart_rx_buf_len >= n)
-            return false;
     }
 }

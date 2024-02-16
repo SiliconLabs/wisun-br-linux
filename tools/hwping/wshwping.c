@@ -389,7 +389,7 @@ static bool detect_v2(struct os_ctxt *ctxt, struct commandline_args *cmdline)
         uart_tx(ctxt, buf.data, buf.len);
         iobuf_free(&buf);
 
-        is_v2 = uart_detect_v2(ctxt, 30);
+        is_v2 = uart_detect_v2(ctxt);
         if (!is_v2) {
             hif_push_u8(&buf, get_spinel_hdr(ctxt));
             hif_push_uint(&buf, SPINEL_CMD_NOOP);

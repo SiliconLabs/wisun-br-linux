@@ -454,7 +454,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
         rcp_legacy_reset();
         ctxt->rcp.device_tx = uart_tx;
         rcp_req_reset(&ctxt->rcp, false);
-        if (uart_detect_v2(ctxt->os_ctxt, 30)) {
+        if (uart_detect_v2(ctxt->os_ctxt)) {
             ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
             ctxt->rcp.device_tx    = uart_tx;
             ctxt->rcp.device_rx    = uart_rx;

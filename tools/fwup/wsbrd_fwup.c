@@ -187,7 +187,7 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
     bool is_v2;
 
     ctxt->uart_init_phase = true;
-    is_v2 = uart_detect_v2(ctxt, 30);
+    is_v2 = uart_detect_v2(ctxt);
     rx_buf.data = buffer;
     rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer),
                                  is_v2 ? uart_rx : uart_legacy_rx);
