@@ -175,7 +175,6 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
-static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, uint8_t msduHandle, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
@@ -1438,24 +1437,6 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
     return ws_mpx_header_size_get(base, user_id);
 }
 
-static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, uint8_t msduHandle, uint16_t user_id)
-{
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return MLME_INVALID_HANDLE;
-    }
-    llc_message_t *message = llc_message_discover_mpx_user_id(msduHandle, user_id, &base->llc_message_list);
-    if (!message) {
-        return MLME_INVALID_HANDLE;
-    }
-    rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
-    if (message->message_type == WS_FT_EAPOL) {
-        ws_llc_mac_eapol_clear(base);
-    }
-    llc_message_free(message, base);
-    return 0;
-}
-
 static void wc_llc_mpx_priority_set_request(const mpx_api_t *api, bool enable_mode)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
@@ -1473,7 +1454,6 @@ static void ws_llc_mpx_init(mpx_class_t *mpx_class)
     mpx_class->mpx_api.mpx_headroom_size_get = &ws_llc_mpx_header_size_get;
     mpx_class->mpx_api.mpx_user_registration = &ws_llc_mpx_data_cb_register;
     mpx_class->mpx_api.mpx_data_request = &ws_llc_mpx_data_request;
-    mpx_class->mpx_api.mpx_data_purge = &ws_llc_mpx_data_purge_request;
     mpx_class->mpx_api.mpx_eui64_purge = &ws_llc_mpx_eui64_purge_request;
     mpx_class->mpx_api.mpx_priority_mode_set = &wc_llc_mpx_priority_set_request;
 }

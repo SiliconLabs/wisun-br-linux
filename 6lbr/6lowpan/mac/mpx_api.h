@@ -40,16 +40,6 @@ typedef struct mpx_api mpx_api_t;
 typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
 
 /**
- * @brief mpx_data_queue_clean clean MPX user data
- * @param api API to handle the request
- * @param purge MCPS-purge request
- * @param user_id MPX user ID
- * @return 0 if purge requst was OK, non-zero otherwise
- *
- */
-typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, uint8_t msduHandle, uint16_t user_id);
-
-/**
  * @brief mpx_data_confirm MPX-DATA confirm is called as a response to MPX-DATA request
  * @param api The API which handled the response
  * @param data MCPS-DATA.confirm specific values
@@ -108,7 +98,6 @@ typedef void mpx_high_priority_mode_set(const mpx_api_t *api, bool enable_mode);
  */
 struct mpx_api {
     mpx_data_request *mpx_data_request;             /**< MPX data request. */
-    mpx_data_purge_request *mpx_data_purge;            /**< MPX data Purge. */
     mpx_header_size_get *mpx_headroom_size_get;     /**< MPX headroom size get in bytes. */
     mpx_data_cb_register *mpx_user_registration;    /**< MPX User cb registration must be call before enable to send or RX data*/
     mpx_eui64_purge_request *mpx_eui64_purge;       /**< MPX Purge EUI-64 related data */
