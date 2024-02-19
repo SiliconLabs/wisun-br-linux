@@ -590,11 +590,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
             }
             buf->src_sa.addr_type = ADDR_IPV6;
         }
-        /* Hop Limit copied from inner packet (maybe already decremented) */
-        /* ECN copied from inner packet (RFC 6040 normal mode) */
-#ifdef RFC6040_COMPATIBILITY_MODE
-        buf->options.traffic_class &= ~ IP_TCLASS_ECN_MASK;
-#endif
         /* DSCP copied from inner packet */
         buf->options.type = IPV6_NH_IPV6;
         /* Compute new flow label from inner src, dst, flow (RFC 6438) */
