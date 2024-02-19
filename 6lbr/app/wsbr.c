@@ -386,9 +386,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     }
     rpl_glue_init(&ctxt->net_if);
     rpl_start(&ctxt->net_if.rpl_root, ctxt->config.tun_dev);
-
-    // Artificially add wsbrd to the DHCP lease list
-    wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }
 
 static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
@@ -414,32 +411,6 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 void kill_handler(int signal)
 {
     exit(0);
-}
-
-void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16])
-{
-    int i;
-
-    // delete entries that already use this IPv6 address
-    for (i = 0; i < ctxt->dhcp_leases_len; i++) {
-        if (!memcmp(ctxt->dhcp_leases[i].ipv6, ipv6, 16)) {
-            memmove(ctxt->dhcp_leases + i, ctxt->dhcp_leases + i + 1,
-                    (ctxt->dhcp_leases_len - i - 1) * sizeof(*ctxt->dhcp_leases));
-            ctxt->dhcp_leases_len--;
-            i--;
-        }
-    }
-
-    for (i = 0; i < ctxt->dhcp_leases_len; i++)
-        if (!memcmp(ctxt->dhcp_leases[i].eui64, eui64, 8))
-            break;
-    if (i == ctxt->dhcp_leases_len) {
-        ctxt->dhcp_leases_len++;
-        ctxt->dhcp_leases = realloc(ctxt->dhcp_leases, ctxt->dhcp_leases_len * sizeof(*ctxt->dhcp_leases));
-        BUG_ON(!ctxt->dhcp_leases);
-    }
-    memcpy(ctxt->dhcp_leases[i].eui64, eui64, 8);
-    memcpy(ctxt->dhcp_leases[i].ipv6, ipv6, 16);
 }
 
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)

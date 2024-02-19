@@ -68,18 +68,10 @@ struct wsbr_ctxt {
 
     int pcapng_fd;
     mode_t pcapng_type;
-
-    struct {
-        uint8_t eui64[8];
-        uint8_t ipv6[16];
-    } *dhcp_leases;
-    int dhcp_leases_len;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
 // case, please never use it.
 extern struct wsbr_ctxt g_ctxt;
-
-void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16]);
 
 #endif

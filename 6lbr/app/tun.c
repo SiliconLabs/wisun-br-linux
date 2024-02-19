@@ -29,7 +29,6 @@
 #include <netlink/route/link/inet6.h>
 #include <arpa/inet.h>
 #include "common/bits.h"
-#include "common/dhcp_server.h"
 #include "common/log.h"
 #include "common/endian.h"
 #include "common/iobuf.h"
@@ -418,8 +417,6 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     struct iobuf_read iobuf = { .data = buf };
     uint8_t ip_version, nxthdr;
     buffer_t *buf_6lowpan;
-    const uint8_t *eui64;
-    const uint8_t *ipv6;
     uint8_t type;
 
     if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
@@ -464,13 +461,6 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     if (nxthdr == SOL_TCP || nxthdr == SOL_UDP) {
         buf_6lowpan->src_sa.port = iobuf_pop_be16(&iobuf);
         buf_6lowpan->dst_sa.port = iobuf_pop_be16(&iobuf);
-        // Inspect DHCP packets to maintain a table for EUI-64/IPv6 association
-        if (nxthdr == SOL_UDP && buf_6lowpan->src_sa.port == DHCPV6_SERVER_PORT) {
-            iobuf_pop_be16(&iobuf); // Length
-            iobuf_pop_be16(&iobuf); // Checksum
-            if (!dhcp_dpi_get_lease(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf), &eui64, &ipv6))
-                wsbr_dhcp_lease_update(ctxt, eui64, ipv6);
-        }
     } else if (nxthdr == SOL_ICMPV6) {
         type = iobuf_pop_u8(&iobuf);
         if (!is_icmpv6_type_supported_by_wisun(type)) {
