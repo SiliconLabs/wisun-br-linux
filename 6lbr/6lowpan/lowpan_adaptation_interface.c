@@ -142,7 +142,6 @@ static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry
 static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
-static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
 
 static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind);
 static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm);
@@ -1005,21 +1004,6 @@ static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, const uint8_t *
         return false;
     }
     return true;
-}
-
-static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle)
-{
-    bool mac_purge_success = false;
-    if (interface_ptr->mpx_api) {
-        if (interface_ptr->mpx_api->mpx_data_purge(interface_ptr->mpx_api, msduhandle, interface_ptr->mpx_user_id) == 0) {
-            mac_purge_success = true;
-        }
-    } else {
-        rcp_req_data_tx_abort(cur->rcp, msduhandle);
-        mac_purge_success = true;
-    }
-
-    return mac_purge_success;
 }
 
 static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
