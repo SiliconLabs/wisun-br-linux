@@ -54,13 +54,6 @@
 
 #define TRACE_GROUP "BBRw"
 
-#define RPL_INSTANCE_ID 1
-
-#define WS_ULA_LIFETIME 24*3600
-#define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
-#define BBR_CHECK_INTERVAL 60
-#define BBR_BACKUP_ULA_DELAY 300
-
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
                           char network_name[33])
 {
