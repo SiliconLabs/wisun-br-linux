@@ -368,7 +368,6 @@ static int dbus_message_append_node(
     sd_bus_message *m,
     const char *property,
     const uint8_t self[8],
-    const uint8_t ipv6[][16],
     bool is_br,
     supp_entry_t *supp,
     const struct ws_neigh *neighbor)
@@ -427,12 +426,6 @@ static int dbus_message_append_node(
             sd_bus_message_append(m, "b", neighbor->pom_ie.mdr_command_capable);
             dbus_message_close_info(m, property);
         }
-        dbus_message_open_info(m, property, "ipv6", "aay");
-        sd_bus_message_open_container(m, 'a', "ay");
-        for (; memzcmp(*ipv6, 16); ipv6++)
-            sd_bus_message_append_array(m, 'y', *ipv6, 16);
-        sd_bus_message_close_container(m);
-        dbus_message_close_info(m, property);
     }
     sd_bus_message_close_container(m);
     sd_bus_message_close_container(m);
@@ -468,17 +461,13 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .rsl_out_dbm = NAN,
         .pom_ie.mdr_command_capable = true,
     };
-    uint8_t ipv6_addrs[3][16] = { 0 };
 
-    tun_addr_get_link_local(ctxt->config.tun_dev, ipv6_addrs[0]);
-    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6_addrs[1]);
     while (ctxt->net_if.ws_info.hopping_schedule.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
         neigh.pom_ie.phy_op_mode_number++;
     memcpy(neigh.pom_ie.phy_op_mode_id,
            ctxt->net_if.ws_info.hopping_schedule.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
-    dbus_message_append_node(m, property, ctxt->rcp.eui64,
-                             ipv6_addrs, true, false, &neigh);
+    dbus_message_append_node(m, property, ctxt->rcp.eui64, true, false, &neigh);
 }
 
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
@@ -487,8 +476,6 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 {
     const struct ws_neigh *neighbor_info;
     struct wsbr_ctxt *ctxt = userdata;
-    uint8_t node_ipv6[3][16] = { 0 };
-    uint8_t *ucast_addr;
     int len_pae;
     uint8_t eui64_pae[4096][8];
     supp_entry_t *supp;
@@ -499,18 +486,12 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     dbus_message_append_node_br(reply, property, ctxt);
 
     for (int i = 0; i < len_pae; i++) {
-        memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
-        memcpy(node_ipv6[0] + 8, eui64_pae[i], 8);
-        memset(node_ipv6[1], 0, 16);
-        ucast_addr = dhcp_eui64_to_ipv6(ctxt, eui64_pae[i]);
-        if (ucast_addr)
-            memcpy(node_ipv6[1], ucast_addr, 16);
         neighbor_info = dbus_get_neighbor_info(ctxt, eui64_pae[i]);
         if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
             supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
         else
             supp = NULL;
-        dbus_message_append_node(reply, property, eui64_pae[i], node_ipv6,
+        dbus_message_append_node(reply, property, eui64_pae[i],
                                  false, supp, neighbor_info);
         if (supp)
             free(supp);
