@@ -634,7 +634,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
     }
 
     dataReq.lfn_multicast = buf->options.lfn_multicast;
-    interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, MAC_DATA_NORMAL_PRIORITY);
+    interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id);
 }
 
 static bool lowpan_adaptation_is_destination_tx_active(fragmenter_tx_list_t *list, buffer_t *buf)

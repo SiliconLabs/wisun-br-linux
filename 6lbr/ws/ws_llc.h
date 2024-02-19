@@ -138,7 +138,7 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
 int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request);
 
 int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
-                            const uint8_t dst[8], mac_data_priority_e priority);
+                            const uint8_t dst[8]);
 
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 

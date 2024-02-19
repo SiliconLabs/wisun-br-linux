@@ -117,7 +117,6 @@ typedef struct llc_message {
     struct iobuf_write ie_buf_payload;
     struct iovec    ie_iov_payload[2]; // { WP-IE and MPX-IE header, MPX payload }
     mcps_data_req_ie_list_t ie_ext;
-    mac_data_priority_e priority;
     time_t tx_time;
     struct mlme_security security;
     ns_list_link_t  link;               /**< List link entry */
@@ -171,7 +170,7 @@ static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
 static llc_data_base_t *ws_llc_base_allocate(void);
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
-static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
+static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id);
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
@@ -267,7 +266,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     }
     message->ack_requested = false;
     message->eapol_temporary = false;
-    message->priority = MAC_DATA_NORMAL_PRIORITY;
     memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
     memset(&message->ie_buf_payload, 0, sizeof(struct iobuf_write));
     return message;
@@ -1122,7 +1120,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
                                    ms_phy_mode_id);
 }
 
-static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
+static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
     struct ws_neigh *ws_neigh;
@@ -1145,7 +1143,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     //Add To active list
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
-    message->priority = priority;
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
 
@@ -1297,7 +1294,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 }
 
 
-static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
+static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     bool eapol_handshake_first_msg = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
     int ie_offset;
@@ -1312,7 +1309,6 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
-    message->priority = priority;
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
 
@@ -1358,7 +1354,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
 }
 
 
-static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority)
+static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
     if (!base) {
@@ -1371,9 +1367,9 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
     }
 
     if (user_id == MPX_KEY_MANAGEMENT_ENC_USER_ID) {
-        ws_llc_mpx_eapol_request(base, user_cb, data, priority);
+        ws_llc_mpx_eapol_request(base, user_cb, data);
     } else if (user_id == MPX_LOWPAN_ENC_USER_ID) {
-        ws_llc_lowpan_mpx_data_request(base, user_cb, data, priority);
+        ws_llc_lowpan_mpx_data_request(base, user_cb, data);
     }
 }
 
@@ -1802,7 +1798,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
 // The Wi-SUN spec uses the term "directed frames" for LPA and LPC, but it
 // seems to just mean unicast.
 int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
-                            const uint8_t dst[8], mac_data_priority_e priority)
+                            const uint8_t dst[8])
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     mcps_data_req_t data_req = {
@@ -1831,7 +1827,6 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     ns_list_add_to_end(&base->llc_message_list, msg);
     msg->message_type = req->frame_type;
     msg->security     = req->security;
-    msg->priority     = priority;
 
     if (dst) {
         memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));

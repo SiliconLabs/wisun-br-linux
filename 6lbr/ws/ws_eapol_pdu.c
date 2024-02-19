@@ -187,7 +187,7 @@ int8_t ws_eapol_pdu_send_to_mpx(struct net_if *interface_ptr, const uint8_t *eui
 
     eapol_pdu_data->msdu_handle++;
 
-    eapol_pdu_data->mpx_api->mpx_data_request(eapol_pdu_data->mpx_api, &data_request, eapol_pdu_data->mpx_user_id, MAC_DATA_NORMAL_PRIORITY);
+    eapol_pdu_data->mpx_api->mpx_data_request(eapol_pdu_data->mpx_api, &data_request, eapol_pdu_data->mpx_user_id);
     return 0;
 }
 
