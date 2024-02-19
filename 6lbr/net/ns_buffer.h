@@ -150,14 +150,6 @@ typedef enum {
     B_DIR_MASK          = 0x0800,
 } buffer_info_t;
 
-typedef enum buffer_priority {
-    QOS_NORMAL = 0,
-    QOS_HIGH = 1,
-    QOS_NETWORK_CTRL = 2,
-    QOS_EXPEDITE_FORWARD = 3,
-    QOS_MAC_BEACON = 4
-} buffer_priority_e;
-
 #define B_TO_MAC_MLME_MASK (B_DIR_MASK + B_FROM_MASK + B_TO_MASK )
 #define B_TO_MAC_FROM_MAC (B_DIR_UP + B_FROM_MAC + B_TO_MAC )
 
