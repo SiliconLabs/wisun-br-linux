@@ -84,22 +84,22 @@ struct wsbr_ctxt g_ctxt = {
     .tun_fd = -1,
     .pcapng_fd = -1,
     .dhcp_server.fd = -1,
-    .rpl_root.sockfd = -1,
+    .net_if.rpl_root.sockfd = -1,
 
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
-    .rpl_root.dio_i_min        = 19,
-    .rpl_root.dio_i_doublings  = 1,
-    .rpl_root.dio_redundancy   = 0,
-    .rpl_root.lifetime_unit_s  = 1200,
-    .rpl_root.lifetime_s = 1200 * 6,
-    .rpl_root.min_rank_hop_inc = 128,
+    .net_if.rpl_root.dio_i_min        = 19,
+    .net_if.rpl_root.dio_i_doublings  = 1,
+    .net_if.rpl_root.dio_redundancy   = 0,
+    .net_if.rpl_root.lifetime_unit_s  = 1200,
+    .net_if.rpl_root.lifetime_s = 1200 * 6,
+    .net_if.rpl_root.min_rank_hop_inc = 128,
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
-    .rpl_root.pcs              = 7,
+    .net_if.rpl_root.pcs              = 7,
 
-    .rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
-    .rpl_root.instance_id      = 0,
-    .rpl_root.route_add = rpl_glue_route_add,
-    .rpl_root.route_del = rpl_glue_route_del,
+    .net_if.rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
+    .net_if.rpl_root.instance_id      = 0,
+    .net_if.rpl_root.route_add = rpl_glue_route_add,
+    .net_if.rpl_root.route_del = rpl_glue_route_del,
 
     .net_if.llc_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
     .net_if.llc_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
@@ -372,19 +372,19 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     if (ctxt->config.internal_dhcp)
         dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
 
-    memcpy(ctxt->rpl_root.dodag_id, ipv6, 16);
-    rpl_storage_load(&ctxt->rpl_root);
-    ctxt->rpl_root.compat = ctxt->config.rpl_compat;
-    ctxt->rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
-    if (ctxt->rpl_root.instance_id || memcmp(ctxt->rpl_root.dodag_id, ipv6, 16))
+    memcpy(ctxt->net_if.rpl_root.dodag_id, ipv6, 16);
+    rpl_storage_load(&ctxt->net_if.rpl_root);
+    ctxt->net_if.rpl_root.compat = ctxt->config.rpl_compat;
+    ctxt->net_if.rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
+    if (ctxt->net_if.rpl_root.instance_id || memcmp(ctxt->net_if.rpl_root.dodag_id, ipv6, 16))
         FATAL(1, "RPL storage out-of-date (see -D)");
     if (ctxt->config.ws_size == WS_NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == WS_NETWORK_SIZE_CERTIFICATION) {
-        ctxt->rpl_root.dio_i_min       = 15; // min interval 32s
-        ctxt->rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
+        ctxt->net_if.rpl_root.dio_i_min       = 15; // min interval 32s
+        ctxt->net_if.rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(&ctxt->net_if);
-    rpl_start(&ctxt->rpl_root, ctxt->config.tun_dev);
+    rpl_start(&ctxt->net_if.rpl_root, ctxt->config.tun_dev);
 
     // Artificially add wsbrd to the DHCP lease list
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
@@ -496,7 +496,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
     ctxt->fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
     ctxt->fds[POLLFD_DHCP_SERVER].events = POLLIN;
-    ctxt->fds[POLLFD_RPL].fd = ctxt->rpl_root.sockfd;
+    ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
     ctxt->fds[POLLFD_RPL].events = POLLIN;
     ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
     ctxt->fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
@@ -524,7 +524,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_DHCP_SERVER].revents & POLLIN)
         dhcp_recv(&ctxt->dhcp_server);
     if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
-        rpl_recv(&ctxt->rpl_root);
+        rpl_recv(&ctxt->net_if.rpl_root);
     if (ctxt->fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
         ws_eapol_relay_socket_cb(ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)

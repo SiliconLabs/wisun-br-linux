@@ -37,7 +37,7 @@ static int fuzz_dhcp_get_socket_id()
 
 static int fuzz_rpl_get_socket_fd()
 {
-    return g_ctxt.rpl_root.sockfd;
+    return g_ctxt.net_if.rpl_root.sockfd;
 }
 
 static struct {

@@ -27,7 +27,6 @@
 #include "common/specs/icmpv6.h"
 
 #include "app/tun.h" // FIXME
-#include "app/wsbr.h"
 #include "net/protocol.h"
 #include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -41,7 +40,6 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 {
     const uint8_t *eui64 = ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh);
     struct ws_neigh *ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage, eui64);
-    struct rpl_root *root = &g_ctxt.rpl_root;
     struct rpl_target *target;
 
     BUG_ON(!ws_neigh);
@@ -67,9 +65,9 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         neigh->lifetime_s = 0;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            target = rpl_target_get(root, neigh->ip_address);
+            target = rpl_target_get(&cur_interface->rpl_root, neigh->ip_address);
             if (target)
-                rpl_target_del(root, target);
+                rpl_target_del(&cur_interface->rpl_root, target);
             ws_neigh_refresh(ws_neigh, aro->lifetime);
         }
     }

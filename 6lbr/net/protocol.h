@@ -27,6 +27,8 @@
 #include "ws/ws_common.h"
 #include "ipv6/ipv6_routing_table.h"
 
+#include "rpl/rpl.h"
+
 typedef struct buffer buffer_t;
 
 void protocol_push(buffer_t *buf);
@@ -81,6 +83,8 @@ struct net_if {
 
     struct rcp *rcp;
     arm_15_4_mac_parameters_t mac_parameters;
+
+    struct rpl_root rpl_root;
 
     void (*if_stack_buffer_handler)(buffer_t *);
     void (*if_common_forwarding_out_cb)(struct net_if *, buffer_t *);

@@ -20,7 +20,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include "app/wsbr.h"
 #include "common/log_legacy.h"
 #include "common/ipv6_flow_label.h"
 #include "common/endian.h"
@@ -750,7 +749,7 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t 
         switch (*opt_type_ptr) {
             case IPV6_OPTION_RPI:
             case IPV6_OPTION_RPI_DEPRECATED:
-                if (!rpl_glue_process_rpi(&g_ctxt.rpl_root, buf, opt, optlen))
+                if (!rpl_glue_process_rpi(&cur->rpl_root, buf, opt, optlen))
                     goto drop;
                 // FIXME: hack to allow ignoring RPI from the kernel.
                 *opt_type_ptr = IPV6_OPTION_RPI;

@@ -154,7 +154,7 @@ uint16_t ws_bbr_pan_size(struct net_if *cur)
         return test_pan_size_override;
     }
 
-    return SLIST_SIZE(&g_ctxt.rpl_root.targets, link);
+    return SLIST_SIZE(&cur->rpl_root.targets, link);
 }
 
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
@@ -174,7 +174,7 @@ void ws_bbr_init(struct net_if *interface)
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
-    struct rpl_root *root = &g_ctxt.rpl_root;
+    struct rpl_root *root = &g_ctxt.net_if.rpl_root;
     struct rpl_transit *transit;
     struct rpl_target *target;
     int cnt = 0;

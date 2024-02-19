@@ -320,7 +320,7 @@ int dbus_increment_rpl_dtsn(sd_bus_message *m, void *userdata, sd_bus_error *ret
 {
     struct wsbr_ctxt *ctxt = userdata;
 
-    rpl_dtsn_inc(&ctxt->rpl_root);
+    rpl_dtsn_inc(&ctxt->net_if.rpl_root);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -329,7 +329,7 @@ int dbus_increment_rpl_dodag_version_number(sd_bus_message *m, void *userdata, s
 {
     struct wsbr_ctxt *ctxt = userdata;
 
-    rpl_dodag_version_inc(&ctxt->rpl_root);
+    rpl_dodag_version_inc(&ctxt->net_if.rpl_root);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -529,7 +529,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 if (!memcmp(table[j].target, node_ipv6[1] + 8, 8))
                     break;
             if (j != len_rpl) {
-                memcpy(ipv6, g_ctxt.rpl_root.dodag_id, 8);
+                memcpy(ipv6, ctxt->net_if.rpl_root.dodag_id, 8);
                 memcpy(ipv6 + 8, table[j].parent, 8);
                 parent = dhcp_ipv6_to_eui64(ctxt, ipv6);
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
@@ -593,8 +593,8 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
     tun_addr_get_global_unicast(ctxt->config.tun_dev, target_br.prefix);
     dbus_message_append_rpl_target(reply, &target_br, 0);
 
-    SLIST_FOREACH(target, &ctxt->rpl_root.targets, link)
-        dbus_message_append_rpl_target(reply, target, ctxt->rpl_root.pcs);
+    SLIST_FOREACH(target, &ctxt->net_if.rpl_root.targets, link)
+        dbus_message_append_rpl_target(reply, target, ctxt->net_if.rpl_root.pcs);
 
     // Since LFN are not routed by RPL, rank 1 LFNs are not RPL targets.
     // This hack allows to expose rank 1 LFNs and relies on their ipv6 address
@@ -602,9 +602,9 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
     ns_list_foreach(struct ipv6_neighbour, ipv6_neigh, &ctxt->net_if.ipv6_neighbour_cache.list) {
         if (IN6_IS_ADDR_MULTICAST(ipv6_neigh->ip_address) || IN6_IS_ADDR_LINKLOCAL(ipv6_neigh->ip_address))
             continue;
-        if (rpl_target_get(&ctxt->rpl_root, ipv6_neigh->ip_address))
+        if (rpl_target_get(&ctxt->net_if.rpl_root, ipv6_neigh->ip_address))
             continue;
-        dbus_message_append_ipv6_neigh(reply, ipv6_neigh, &ctxt->rpl_root);
+        dbus_message_append_ipv6_neigh(reply, ipv6_neigh, &ctxt->net_if.rpl_root);
     }
 
     sd_bus_message_close_container(reply);

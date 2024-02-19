@@ -12,7 +12,6 @@
  */
 #include <netinet/in.h>
 
-#include "app/wsbr.h"
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -22,6 +21,7 @@
 
 #include "ipv6/ipv6.h"
 #include "net/ns_address_internal.h"
+#include "6lbr/net/protocol.h"
 #include "rpl_glue.h"
 #include "rpl_srh.h"
 #include "rpl.h"
@@ -31,10 +31,10 @@
 
 void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
 {
-    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, rpl_root);
+    struct net_if *net_if = container_of(root, struct net_if, rpl_root);
 
     ipv6_route_add_with_info(prefix, prefix_len, // prefix
-                             ctxt->net_if.id,    // interface id
+                             net_if->id,    // interface id
                              in6addr_any.s6_addr, // next hop
                              ROUTE_RPL_DAO_SR,   // source
                              (void *)root,       // info
@@ -45,10 +45,10 @@ void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t pre
 
 void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
 {
-    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, rpl_root);
+    struct net_if *net_if = container_of(root, struct net_if, rpl_root);
 
     ipv6_route_delete_with_info(prefix, prefix_len, // prefix
-                                ctxt->net_if.id,    // interface id
+                                net_if->id,    // interface id
                                 in6addr_any.s6_addr, // next hop
                                 ROUTE_RPL_DAO_SR,   // source
                                 (void *)root,       // info
