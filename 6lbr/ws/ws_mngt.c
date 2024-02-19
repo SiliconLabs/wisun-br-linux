@@ -235,9 +235,9 @@ static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.lcp     = true,
+        .wp_ies.jm      = net_if->ws_info.pan_information.jm.mask,
     };
 
-    // TODO: JM-IE
     ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_HIGH_PRIORITY);
 }
 
