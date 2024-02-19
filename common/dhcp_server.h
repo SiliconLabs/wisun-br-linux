@@ -41,6 +41,4 @@ struct dhcp_server {
 void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, uint8_t *prefix);
 void dhcp_recv(struct dhcp_server *dhcp);
 
-int dhcp_dpi_get_lease(const uint8_t *pkt, size_t pkt_len, const uint8_t **eui64, const uint8_t **ipv6);
-
 #endif

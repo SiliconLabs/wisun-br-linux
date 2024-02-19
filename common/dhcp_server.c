@@ -399,37 +399,3 @@ void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, 
     if (bind(dhcp->fd, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
         FATAL(1, "%s: bind: %m", __func__);
 }
-
-int dhcp_dpi_get_lease(const uint8_t *pkt, size_t pkt_len, const uint8_t **eui64, const uint8_t **ipv6)
-{
-    struct iobuf_read iobuf = {
-        .data_size = pkt_len,
-        .data = pkt,
-    };
-    struct iobuf_read relay;
-    uint8_t msg_type;
-    int ret;
-
-    msg_type = iobuf_pop_u8(&iobuf);
-    if (msg_type == DHCPV6_MSG_RELAY_REPLY) {
-        iobuf_pop_u8(&iobuf); // hop-count
-        iobuf_pop_data_ptr(&iobuf, 16); // link-address
-        iobuf_pop_data_ptr(&iobuf, 16); // peer-address
-        dhcp_get_option(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf), DHCPV6_OPT_RELAY, &relay);
-        if (relay.err)
-            return -EINVAL;
-        return dhcp_dpi_get_lease(iobuf_ptr(&relay), iobuf_remaining_size(&relay), eui64, ipv6);
-    } else if (msg_type != DHCPV6_MSG_REPLY) {
-        return -EINVAL;
-    }
-
-    iobuf_pop_be24(&iobuf); // transaction-id
-    ret = dhcp_get_client_ipv6(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf), ipv6);
-    if (ret < 0)
-        return ret;
-    ret = dhcp_get_client_hwaddr(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf), eui64);
-    if (ret < 0)
-        return ret;
-
-    return 0;
-}
