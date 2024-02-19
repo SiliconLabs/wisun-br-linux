@@ -490,7 +490,7 @@ void rcp_legacy_enable_mac_filter(bool forward_unknown)
     hif_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_START);
     hif_push_u16(&buf, forward_unknown ? 0x100 : 0);
     hif_push_u16(&buf, 0);
-    hif_push_u16(&buf, forward_unknown ? 0x200 : 0);
+    hif_push_u16(&buf, forward_unknown ? 0x100 : 0);
     hif_push_u16(&buf, 0);
     rcp_legacy_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -515,7 +515,7 @@ void rcp_legacy_add_mac_filter_entry(const uint8_t mac64[8], bool forward)
     hif_push_fixed_u8_array(&buf, mac64, 8);
     hif_push_u16(&buf, forward ? 0x100 : 0);
     hif_push_u16(&buf, 0);
-    hif_push_u16(&buf, forward ? 0x200 : 0);
+    hif_push_u16(&buf, forward ? 0x100 : 0);
     hif_push_u16(&buf, 0);
     rcp_legacy_tx(ctxt, &buf);
     iobuf_free(&buf);
