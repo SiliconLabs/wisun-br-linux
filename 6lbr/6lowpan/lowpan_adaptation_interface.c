@@ -678,16 +678,6 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
     return true;
 }
 
-void lowpan_adaptation_interface_slow_timer(int seconds)
-{
-    struct net_if *cur = protocol_stack_interface_info_get();
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
-
-    if (!interface_ptr) {
-        return;
-    }
-}
-
 static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur, buffer_t *buf)
 {
     // Convert from 100ms slots to seconds

@@ -48,8 +48,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, struct buffer *buf);
 
 struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *buf);
 
-void lowpan_adaptation_interface_slow_timer(int seconds);
-
 int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, const uint8_t *address_ptr, addrtype_e adr_type);
 
 #endif
