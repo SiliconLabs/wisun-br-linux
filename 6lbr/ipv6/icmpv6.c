@@ -748,7 +748,6 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
             tr_debug("Neighbour removed for negative response send");
             return buffer_free(buf);
         }
-        buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     }
 
     //Force Next Hop is destination
