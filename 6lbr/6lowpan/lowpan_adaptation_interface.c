@@ -418,11 +418,6 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
     return 0;
 }
 
-buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
-{
-    return ns_list_get_first(&interface_ptr->directTxQueue);
-}
-
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
 {
     fragmenter_tx_entry_t *indirec_entry = malloc(sizeof(fragmenter_tx_entry_t));
@@ -857,7 +852,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 
         if (red_congestion_check(&cur->random_early_detection)) {
             // If we need to drop packet we drop oldest normal Priority packet.
-            buffer_t *dropped = lowpan_adaptation_get_oldest_packet(interface_ptr, QOS_NORMAL);
+            buffer_t *dropped = ns_list_get_first(&interface_ptr->directTxQueue);
             if (dropped) {
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
