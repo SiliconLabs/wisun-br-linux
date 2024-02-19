@@ -315,12 +315,6 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     ws_bootstrap_neighbor_delete(cur, ws_neigh);
 }
 
-static void ws_bootstrap_pan_version_increment(struct net_if *cur)
-{
-    (void)cur;
-    ws_mngt_pan_version_increase(cur);
-}
-
 static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     uint8_t key_index,
                                     const uint8_t key[16],
@@ -472,7 +466,7 @@ int ws_bootstrap_init(int8_t interface_id)
     if (ws_pae_controller_cb_register(cur,
                                       ws_bootstrap_nw_key_set,
                                       ws_bootstrap_nw_key_index_set,
-                                      ws_bootstrap_pan_version_increment,
+                                      ws_mngt_pan_version_increase,
                                       ws_mngt_lfn_version_increase,
                                       ws_bootstrap_eapol_congestion_get) < 0) {
         ret_val =  -4;
