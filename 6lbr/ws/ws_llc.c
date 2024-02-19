@@ -1162,7 +1162,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
-    data_req.priority = message->priority;
     data_req.phy_id = ws_llc_mdr_phy_mode_get(base, data);
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {
@@ -1262,7 +1261,6 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msdu = NULL;
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
-    data_req->priority = message->priority;
     ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
 }
 
@@ -1788,7 +1786,6 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     data_req.ExtendedFrameExchange = false;
     if (request->frame_type == WS_FT_PAS)
         data_req.PanIdSuppressed = true;
-    data_req.priority = message->priority;
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
 
     ws_llc_prepare_ie(base, message, request->wh_ies, request->wp_ies);
@@ -1814,7 +1811,6 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
         .SrcAddrMode = MAC_ADDR_MODE_64_BIT,
         .DstAddrMode = dst ? MAC_ADDR_MODE_64_BIT : MAC_ADDR_MODE_NONE,
         .Key = req->security,
-        .priority  = priority,
     };
     llc_message_t *msg;
 

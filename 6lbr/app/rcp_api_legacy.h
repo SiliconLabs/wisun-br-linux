@@ -77,7 +77,6 @@ typedef struct mcps_data_req {
     bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
     struct mlme_security Key;       /**< Security key */
-    uint8_t priority;               /**< See mac_data_priority_e */
     uint8_t phy_id;
     uint8_t fhss_type;              /**< FHSS policy to send that frame */
 } mcps_data_req_t;
