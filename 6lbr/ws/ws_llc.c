@@ -160,7 +160,6 @@ static NS_LIST_DEFINE(llc_data_base_list, llc_data_base_t, link);
 /** LLC message local functions */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list);
 static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message_list_t *list);
-static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t user_id, llc_message_list_t *list);
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base);
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user);
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
@@ -217,27 +216,6 @@ static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message
     }
     return NULL;
 }
-
-
-static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t user_id, llc_message_list_t *list)
-{
-    uint8_t message_type;
-    if (user_id == MPX_LOWPAN_ENC_USER_ID) {
-        message_type = WS_FT_DATA;
-    } else {
-        message_type = WS_FT_EAPOL;
-    }
-
-    ns_list_foreach(llc_message_t, message, list) {
-        if (message->message_type == message_type && message->mpx_user_handle == handle) {
-            return message;
-        }
-    }
-    return NULL;
-}
-
-
-
 
 //Free message and delete from list
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
