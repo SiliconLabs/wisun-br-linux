@@ -1415,15 +1415,6 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
     return ws_mpx_header_size_get(base, user_id);
 }
 
-static void wc_llc_mpx_priority_set_request(const mpx_api_t *api, bool enable_mode)
-{
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return;
-    }
-    base->high_priority_mode = enable_mode;
-}
-
 static void ws_llc_mpx_init(mpx_class_t *mpx_class)
 {
     //Init Mbed Class and API
@@ -1433,7 +1424,6 @@ static void ws_llc_mpx_init(mpx_class_t *mpx_class)
     mpx_class->mpx_api.mpx_user_registration = &ws_llc_mpx_data_cb_register;
     mpx_class->mpx_api.mpx_data_request = &ws_llc_mpx_data_request;
     mpx_class->mpx_api.mpx_eui64_purge = &ws_llc_mpx_eui64_purge_request;
-    mpx_class->mpx_api.mpx_priority_mode_set = &wc_llc_mpx_priority_set_request;
 }
 
 static void ws_llc_clean(llc_data_base_t *base)

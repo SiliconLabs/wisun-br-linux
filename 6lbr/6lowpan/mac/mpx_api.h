@@ -86,14 +86,6 @@ typedef int8_t mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *conf
 typedef void mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *eui64);
 
 /**
- * \brief mpx_high_priority_mode_set Enable/Disable MPX high priority mode for TX process
- * @param api The API which handled the response
- * @param enable_mode True for enable High Priority mode, False disable
- *
- */
-typedef void mpx_high_priority_mode_set(const mpx_api_t *api, bool enable_mode);
-
-/**
  * \brief Struct mpx_api_s defines functions for MPX user for register call backs and send data.
  */
 struct mpx_api {
@@ -101,7 +93,6 @@ struct mpx_api {
     mpx_header_size_get *mpx_headroom_size_get;     /**< MPX headroom size get in bytes. */
     mpx_data_cb_register *mpx_user_registration;    /**< MPX User cb registration must be call before enable to send or RX data*/
     mpx_eui64_purge_request *mpx_eui64_purge;       /**< MPX Purge EUI-64 related data */
-    mpx_high_priority_mode_set *mpx_priority_mode_set; /**< MPX request to enable / disable High Priority mode */
 };
 
 
