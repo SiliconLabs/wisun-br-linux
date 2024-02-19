@@ -320,5 +320,3 @@ static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr)
 
     return eapol_pdu_data;
 }
-
-
