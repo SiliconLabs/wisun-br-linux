@@ -355,18 +355,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }
 
-static int wsbr_uart_legacy_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    int ret;
-
-    ret = uart_legacy_tx(os_ctxt, buf, buf_len);
-    // Old firmware may merge close Rx events
-    if (version_older_than(ctxt->rcp.version_api, 0, 4, 0))
-        usleep(20000);
-    return ret;
-}
-
 static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
 {
     TRACE(TR_DROP, "drop %-9s: from %s: status 0x%02x", "15.4", tr_eui64(src), status);
@@ -393,8 +381,8 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
           FIELD_GET(0xFF000000, ctxt->rcp.version_api),
           FIELD_GET(0x00FFFF00, ctxt->rcp.version_api),
           FIELD_GET(0x000000FF, ctxt->rcp.version_api));
-    if (version_older_than(ctxt->rcp.version_api, 0, 2, 0))
-        FATAL(3, "RCP API is too old");
+    if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
+        FATAL(3, "RCP API < 2.0.0 (too old)");
     if (version_older_than(ctxt->rcp.version_api, 2, 0, 0) &&
         ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
         FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
@@ -464,22 +452,10 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     if (ctxt->config.uart_dev[0]) {
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-        ctxt->rcp.device_tx = wsbr_uart_legacy_tx;
-        rcp_legacy_noop();
-        rcp_legacy_reset();
-        ctxt->rcp.device_tx = uart_tx;
+        ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
+        ctxt->rcp.device_tx    = uart_tx;
+        ctxt->rcp.device_rx    = uart_rx;
         rcp_req_reset(&ctxt->rcp, false);
-        if (uart_detect_v2(ctxt->os_ctxt)) {
-            ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
-            ctxt->rcp.device_tx    = uart_tx;
-            ctxt->rcp.device_rx    = uart_rx;
-        } else {
-            WARN("assuming RCP API < 2.0.0");
-            ctxt->rcp.device_tx    = wsbr_uart_legacy_tx;
-            ctxt->rcp.device_rx    = uart_legacy_rx;
-            ctxt->rcp.on_crc_error = uart_legacy_handle_crc_error;
-            rcp_legacy_noop();
-        }
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;
         ctxt->rcp.device_rx = cpc_rx;
@@ -487,9 +463,8 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
         ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->os_ctxt);
         if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-            rcp_legacy_reset();
-        else
-            rcp_req_reset(&ctxt->rcp, false);
+            FATAL(3, "RCP API < 2.0.0 (too old)");
+        rcp_req_reset(&ctxt->rcp, false);
     } else {
         BUG();
     }
