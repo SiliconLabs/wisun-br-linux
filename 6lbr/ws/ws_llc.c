@@ -1948,7 +1948,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
             return -3;
     }
 
-    if (!memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8)) {
+    if (!neighbor_mac_address || !memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8)) {
         if (mode == SL_WISUN_MODE_SWITCH_DEFAULT)
             return -6;
 

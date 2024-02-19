@@ -26,7 +26,6 @@
 #include "common/ns_list.h"
 #include "common/mathutils.h"
 
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"
 #include "ws/ws_pae_key_storage.h"
@@ -61,11 +60,11 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
     if (phy_mode_id > 0)
-        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, 1, phy_mode_id, eui64); // mode switch enabled
+        ret = ws_llc_set_mode_switch(&ctxt->net_if, 1, phy_mode_id, eui64); // mode switch enabled
     else if (phy_mode_id == -1)
-        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, -1, 0, eui64); // mode switch disabled
+        ret = ws_llc_set_mode_switch(&ctxt->net_if, -1, 0, eui64); // mode switch disabled
     else if (phy_mode_id == 0)
-        ret = ws_bbr_set_mode_switch(ctxt->net_if.id, 0, 0, eui64); // mode switch back to default
+        ret = ws_llc_set_mode_switch(&ctxt->net_if, 0, 0, eui64); // mode switch back to default
     else
         ret = -EINVAL;
 
