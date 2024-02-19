@@ -1693,6 +1693,16 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     struct ws_ie_custom *ie_custom;
     bool has_ie_custom_wp = false;
     int ie_offset;
+    uint8_t plf;
+
+    info->pan_information.pan_size = ws_bbr_pan_size(base->interface_ptr);
+    if (info->pan_information.jm.mask & (1 << WS_JM_PLF)) {
+        plf = MIN(100 * info->pan_information.pan_size / info->pan_information.max_pan_size, 100);
+        if (plf != info->pan_information.jm.plf) {
+            info->pan_information.jm.plf = plf;
+            info->pan_information.jm.version++;
+        }
+    }
 
     if (wh_ies.utt)
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);

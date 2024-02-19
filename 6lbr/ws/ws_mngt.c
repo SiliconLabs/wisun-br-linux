@@ -238,7 +238,6 @@ static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.lcp     = true,
     };
 
-    net_if->ws_info.pan_information.pan_size = ws_bbr_pan_size(net_if);
     // TODO: JM-IE
     ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_HIGH_PRIORITY);
 }
@@ -478,20 +477,7 @@ void ws_mngt_pa_send(struct net_if *cur)
         .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
         .wp_ies.jm      = cur->ws_info.pan_information.jm.mask,
     };
-    uint8_t plf;
 
-    // FIXME: we would like to compute these in ws_llc before including the
-    // relevant IEs, but it is inconvenient since we are still supporting
-    // FFNs for simulation.
-    // Border routers write the NW size
-    cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
-    if (cur->ws_info.pan_information.jm.mask & (1 << WS_JM_PLF)) {
-        plf = MIN(100 * cur->ws_info.pan_information.pan_size / cur->ws_info.pan_information.max_pan_size, 100);
-        if (plf != cur->ws_info.pan_information.jm.plf) {
-            cur->ws_info.pan_information.jm.plf = plf;
-            cur->ws_info.pan_information.jm.version++;
-        }
-    }
     cur->ws_info.pan_information.routing_cost = 0;
 
     ws_llc_asynch_request(cur, &req);
