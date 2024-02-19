@@ -25,7 +25,6 @@
 
 #include "ws/ws_neigh.h"
 
-typedef enum mac_data_priority mac_data_priority_e;
 struct net_if;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
