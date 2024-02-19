@@ -368,7 +368,6 @@ static int dbus_message_append_node(
     sd_bus_message *m,
     const char *property,
     const uint8_t self[8],
-    const uint8_t parent[8],
     const uint8_t ipv6[][16],
     bool is_br,
     supp_entry_t *supp,
@@ -398,11 +397,6 @@ static int dbus_message_append_node(
                 sd_bus_message_append(m, "y", supp->sec_keys.node_role);
                 dbus_message_close_info(m, property);
             }
-        }
-        if (parent) {
-            dbus_message_open_info(m, property, "parent", "ay");
-            sd_bus_message_append_array(m, 'y', parent, 8);
-            dbus_message_close_info(m, property);
         }
         if (neighbor) {
             dbus_message_open_info(m, property, "is_neighbor", "b");
@@ -491,7 +485,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
     memcpy(neigh.pom_ie.phy_op_mode_id,
            ctxt->net_if.ws_info.hopping_schedule.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
-    dbus_message_append_node(m, property, ctxt->rcp.eui64, NULL,
+    dbus_message_append_node(m, property, ctxt->rcp.eui64,
                              ipv6_addrs, true, false, &neigh);
 }
 
@@ -502,17 +496,12 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     const struct ws_neigh *neighbor_info;
     struct wsbr_ctxt *ctxt = userdata;
     uint8_t node_ipv6[3][16] = { 0 };
-    bbr_route_info_t table[4096];
-    uint8_t *parent, *ucast_addr;
-    int len_pae, len_rpl, j;
+    uint8_t *ucast_addr;
+    int len_pae;
     uint8_t eui64_pae[4096][8];
     supp_entry_t *supp;
-    uint8_t ipv6[16];
 
     len_pae = ws_pae_auth_supp_list(ctxt->net_if.id, eui64_pae, sizeof(eui64_pae));
-    len_rpl = ws_bbr_routing_table_get(ctxt->net_if.id, table, ARRAY_SIZE(table));
-    if (len_rpl < 0)
-        return sd_bus_error_set_errno(ret_error, EAGAIN);
 
     sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     dbus_message_append_node_br(reply, property, ctxt);
@@ -521,26 +510,15 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
         memcpy(node_ipv6[0] + 8, eui64_pae[i], 8);
         memset(node_ipv6[1], 0, 16);
-        parent = NULL;
         ucast_addr = dhcp_eui64_to_ipv6(ctxt, eui64_pae[i]);
-        if (ucast_addr) {
+        if (ucast_addr)
             memcpy(node_ipv6[1], ucast_addr, 16);
-            for (j = 0; j < len_rpl; j++)
-                if (!memcmp(table[j].target, node_ipv6[1] + 8, 8))
-                    break;
-            if (j != len_rpl) {
-                memcpy(ipv6, ctxt->net_if.rpl_root.dodag_id, 8);
-                memcpy(ipv6 + 8, table[j].parent, 8);
-                parent = dhcp_ipv6_to_eui64(ctxt, ipv6);
-                WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
-            }
-        }
         neighbor_info = dbus_get_neighbor_info(ctxt, eui64_pae[i]);
         if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
             supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
         else
             supp = NULL;
-        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6,
+        dbus_message_append_node(reply, property, eui64_pae[i], node_ipv6,
                                  false, supp, neighbor_info);
         if (supp)
             free(supp);
