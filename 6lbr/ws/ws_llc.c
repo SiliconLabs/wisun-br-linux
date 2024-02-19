@@ -1690,15 +1690,15 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               struct wh_ie_list wh_ies, struct wp_ie_list wp_ies)
 {
     struct ws_info *info = &base->interface_ptr->ws_info;
+    uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
+                         rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     struct ws_ie_custom *ie_custom;
     bool has_ie_custom_wp = false;
     int ie_offset;
     uint8_t plf;
 
-    info->pan_information.pan_size = (info->pan_information.test_pan_size == -1) ?
-                                      rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     if (info->pan_information.jm.mask & (1 << WS_JM_PLF)) {
-        plf = MIN(100 * info->pan_information.pan_size / info->pan_information.max_pan_size, 100);
+        plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
         if (plf != info->pan_information.jm.plf) {
             info->pan_information.jm.plf = plf;
             info->pan_information.jm.version++;
@@ -1758,7 +1758,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies.bs)
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies.pan)
-            ws_wp_nested_pan_write(&msg->ie_buf_payload, info->pan_information.pan_size,
+            ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
         if (wp_ies.netname)
             ws_wp_nested_netname_write(&msg->ie_buf_payload, info->network_name);
