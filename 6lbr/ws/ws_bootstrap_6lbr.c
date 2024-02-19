@@ -75,11 +75,14 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 
 static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
 {
-    if (ws_bbr_backbone_address_get(interface_ptr, address)) {
-        return 0;
-    }
+    const uint8_t *addr;
 
-    return -1;
+    addr = addr_select_with_prefix(interface_ptr, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
+    if (!addr)
+        return -1;
+
+    memcpy(address, addr, 16);
+    return 0;
 }
 
 static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)

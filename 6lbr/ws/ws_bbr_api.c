@@ -36,7 +36,6 @@
 #include "net/timers.h"
 #include "net/protocol.h"
 #include "net/ns_buffer.h"
-#include "net/ns_address_internal.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "rpl/rpl.h"
@@ -113,17 +112,6 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close(info);
-}
-
-bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address)
-{
-    const uint8_t *addr;
-
-    addr = addr_select_with_prefix(cur, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
-    if (!addr)
-        return false;
-    memcpy(address, addr, 16);
-    return true;
 }
 
 void ws_bbr_pan_version_increase(struct net_if *cur)
