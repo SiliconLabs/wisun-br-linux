@@ -32,7 +32,6 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
-extern uint16_t test_pan_size_override;
 struct net_if;
 
 /**

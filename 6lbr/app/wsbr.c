@@ -320,6 +320,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
     ctxt->net_if.ws_info.pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);
+    ctxt->net_if.ws_info.pan_information.test_pan_size = ctxt->config.pan_size;
     ctxt->net_if.ws_info.enable_lfn   = ctxt->config.enable_lfn;
     ctxt->net_if.ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 
@@ -577,8 +578,6 @@ int wsbr_main(int argc, char *argv[])
         storage_delete(files);
     if (ctxt->config.storage_exit)
         exit(0);
-    if (ctxt->config.pan_size >= 0)
-        test_pan_size_override = ctxt->config.pan_size;
     if (ctxt->config.pcap_file[0])
         wsbr_pcapng_init(ctxt);
 

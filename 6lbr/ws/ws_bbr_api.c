@@ -142,18 +142,11 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     ws_bbr_pan_version_increase(cur);
 }
 
-uint16_t test_pan_size_override = 0xffff;
-
 uint16_t ws_bbr_pan_size(struct net_if *cur)
 {
     if (!cur) {
         return 0;
     }
-
-    if (test_pan_size_override != 0xffff) {
-        return test_pan_size_override;
-    }
-
     return SLIST_SIZE(&cur->rpl_root.targets, link);
 }
 
