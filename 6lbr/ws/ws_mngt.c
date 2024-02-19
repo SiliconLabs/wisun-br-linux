@@ -567,3 +567,17 @@ void ws_mngt_pan_version_increase(struct net_if *cur)
                           cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
                           cur->ws_info.network_name);
 }
+
+void ws_mngt_lfn_version_increase(struct net_if *cur)
+{
+    INFO("LFN version number update");
+    // ws_mngt_pan_version_increase() will reset the PC trickle and update the
+    // storage
+    cur->ws_info.pan_information.lfn_version++;
+
+    //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
+    // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
+    // the following occurs:
+    // d. A change in LFN Version.
+    ws_mngt_pan_version_increase(cur);
+}

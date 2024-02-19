@@ -25,7 +25,6 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/key_value_storage.h"
-#include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/events_scheduler.h"
 #include "common/sys_queue_extra.h"
@@ -50,8 +49,6 @@
 #include "ws/ws_bootstrap_6lbr.h"
 
 #include "ws/ws_bbr_api.h"
-
-#define TRACE_GROUP "BBRw"
 
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
                           char network_name[33])
@@ -104,26 +101,6 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close(info);
-}
-
-void ws_bbr_lfn_version_increase(struct net_if *cur)
-{
-    if (!cur) {
-        return;
-    }
-    tr_debug("Border router LFN version number update");
-    cur->ws_info.pan_information.lfn_version++;
-    // Inconsistent for border router to make information distribute faster
-    ws_mngt_async_trickle_reset_pc(cur);
-
-    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
-                          cur->ws_info.network_name);
-    //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
-    // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
-    // the following occurs:
-    // d. A change in LFN Version.
-    ws_mngt_pan_version_increase(cur);
 }
 
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)

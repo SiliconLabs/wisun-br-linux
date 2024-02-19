@@ -36,8 +36,6 @@ struct net_if;
 
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t * neighbor_mac_address);
 
-void ws_bbr_lfn_version_increase(struct net_if *cur);
-
 void ws_bbr_init(struct net_if *interface);
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
 void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);

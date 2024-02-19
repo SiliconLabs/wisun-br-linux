@@ -54,7 +54,6 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "ipv6/nd_router_object.h"
 
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_config.h"
@@ -325,7 +324,7 @@ static void ws_bootstrap_pan_version_increment(struct net_if *cur)
 static void ws_bootstrap_lfn_version_increment(struct net_if *cur)
 {
     (void)cur;
-    ws_bbr_lfn_version_increase(cur);
+    ws_mngt_lfn_version_increase(cur);
 }
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur,
