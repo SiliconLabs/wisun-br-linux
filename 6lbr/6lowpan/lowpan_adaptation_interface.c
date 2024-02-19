@@ -903,17 +903,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
         goto tx_error_handler;
     }
 
-    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
-
-    if (traffic_class == IP_DSCP_EF) {
-        buffer_priority_set(buf, QOS_EXPEDITE_FORWARD);
-    } else if (traffic_class == IP_DSCP_CS6) {
-        //Network Control
-        buffer_priority_set(buf, QOS_NETWORK_CTRL);
-    } else if (traffic_class) {
-        buffer_priority_set(buf, QOS_HIGH);
-    }
-
     if (!buf->adaptation_timestamp) {
         // Set TX start timestamp
         buf->adaptation_timestamp = g_monotonic_time_100ms;
