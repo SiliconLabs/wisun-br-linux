@@ -17,7 +17,6 @@
 #include <netinet/in.h>
 #include "6lbr/net/netaddr_types.h"
 #include "6lbr/security/kmp/kmp_socket_if.h"
-#include "6lbr/ws/ws_bbr_api.h"
 #include "6lbr/ws/ws_eapol_relay.h"
 #include "6lbr/ws/ws_eapol_auth_relay.h"
 #include "6lbr/app/wsbr.h"

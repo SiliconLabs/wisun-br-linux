@@ -287,7 +287,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.pan_information.pan_id = 0xffff;
     ctxt->net_if.ws_info.fhss_conf.bsi = 0xffff;
 
-    ws_bbr_init(&ctxt->net_if);
     ws_bbr_nvm_info_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
                          &ctxt->net_if.ws_info.pan_information.pan_version,
                          &ctxt->net_if.ws_info.pan_information.lfn_version,

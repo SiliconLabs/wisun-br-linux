@@ -87,7 +87,6 @@ struct net_if {
     struct rpl_root rpl_root;
 
     void (*if_stack_buffer_handler)(buffer_t *);
-    void (*if_common_forwarding_out_cb)(struct net_if *, buffer_t *);
     bool (*if_ns_transmit)(struct net_if *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);
     bool (*if_map_ip_to_link_addr)(struct net_if *cur, const uint8_t *ip_addr, enum addrtype *ll_type, const uint8_t **ll_addr_out);
     uint8_t (*if_llao_parse)(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);

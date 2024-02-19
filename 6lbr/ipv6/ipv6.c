@@ -1208,12 +1208,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         if (ll_src.addr_type == ADDR_802_15_4_LONG && buf->link_specific.ieee802_15_4.requestAck)
             ipv6_refresh_neighbor_lifetime(buf, ll_src.address + PAN_ID_LEN);
 
-        if (!for_us) {
-            if (cur->if_common_forwarding_out_cb) {
-                cur->if_common_forwarding_out_cb(cur, buf);
-            }
+        if (!for_us)
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
-        }
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
     }

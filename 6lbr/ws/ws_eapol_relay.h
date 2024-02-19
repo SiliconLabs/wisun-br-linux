@@ -20,6 +20,8 @@
 #define WS_EAPOL_RELAY_H_
 #include <stdint.h>
 
+struct net_if;
+
 /*
  * EAPOL relay conveys EAPOL PDUs between authenticator EAPOL relay and local
  * MPX interface.

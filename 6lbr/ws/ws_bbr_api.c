@@ -102,18 +102,3 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close(info);
 }
-
-static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
-{
-    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
-
-    if (traffic_class == IP_DSCP_EF) {
-        //indicate EF forwarding to adaptation
-        lowpan_adaptation_expedite_forward_enable(interface);
-    }
-}
-
-void ws_bbr_init(struct net_if *interface)
-{
-    interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
-}

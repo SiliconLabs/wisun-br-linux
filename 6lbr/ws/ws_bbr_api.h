@@ -32,9 +32,6 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
-struct net_if;
-
-void ws_bbr_init(struct net_if *interface);
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
 void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);
 
