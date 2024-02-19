@@ -142,14 +142,6 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     ws_bbr_pan_version_increase(cur);
 }
 
-uint16_t ws_bbr_pan_size(struct net_if *cur)
-{
-    if (!cur) {
-        return 0;
-    }
-    return SLIST_SIZE(&cur->rpl_root.targets, link);
-}
-
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 {
     uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;

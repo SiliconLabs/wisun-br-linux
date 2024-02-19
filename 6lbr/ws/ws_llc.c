@@ -1696,7 +1696,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     uint8_t plf;
 
     info->pan_information.pan_size = (info->pan_information.test_pan_size == -1) ?
-                                      ws_bbr_pan_size(base->interface_ptr) : info->pan_information.test_pan_size;
+                                      rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     if (info->pan_information.jm.mask & (1 << WS_JM_PLF)) {
         plf = MIN(100 * info->pan_information.pan_size / info->pan_information.max_pan_size, 100);
         if (plf != info->pan_information.jm.plf) {

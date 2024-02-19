@@ -21,7 +21,6 @@
 
 #include "net/timers.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"

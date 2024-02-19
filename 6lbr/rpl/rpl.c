@@ -97,6 +97,11 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
     dbus_emit_routing_graph_change(ctxt);
 }
 
+uint16_t rpl_target_count(struct rpl_root *root)
+{
+    return SLIST_SIZE(&root->targets, link);
+}
+
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target)
 {
     for (uint8_t i = 0; i < root->pcs + 1; i++)

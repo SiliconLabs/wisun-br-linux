@@ -135,6 +135,7 @@ void rpl_dtsn_inc(struct rpl_root *root);
 struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16]);
 struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16]);
 void rpl_target_del(struct rpl_root *root, struct rpl_target *target);
+uint16_t rpl_target_count(struct rpl_root *root);
 struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_target *target);
 
 static inline uint16_t rpl_dag_rank(const struct rpl_root *root, uint16_t rank)
