@@ -447,14 +447,6 @@ static uint8_t *dhcp_eui64_to_ipv6(struct wsbr_ctxt *ctxt, const uint8_t eui64[8
     return NULL;
 }
 
-static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16])
-{
-    for (int i = 0; i < ctxt->dhcp_leases_len; i++)
-        if (!memcmp(ipv6, ctxt->dhcp_leases[i].ipv6, 16))
-            return ctxt->dhcp_leases[i].eui64;
-    return NULL;
-}
-
 static const ws_neigh_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
                                                                const uint8_t eui64[8])
 {
