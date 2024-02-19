@@ -97,7 +97,6 @@ typedef struct fragmenter_interface {
     uint16_t directTxQueue_size;
     uint16_t directTxQueue_level;
     uint16_t activeTxList_size;
-    uint32_t last_rx_high_priority;
     bool fragmenter_active; /*!< Fragmenter state */
     mpx_api_t *mpx_api;
     uint16_t mpx_user_id;
@@ -207,12 +206,6 @@ static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_
         return NULL;
     }
     ns_list_foreach_safe(buffer_t, buf, &interface_ptr->directTxQueue) {
-
-        if (buf->link_specific.ieee802_15_4.requestAck && interface_ptr->last_rx_high_priority) {
-            //Stop reading at this point when Priority is not enough big
-            return NULL;
-        }
-
         if (lowpan_buffer_tx_allowed(interface_ptr, buf)) {
             ns_list_remove(&interface_ptr->directTxQueue, buf);
             interface_ptr->directTxQueue_size--;
@@ -375,7 +368,6 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     buffer_free_list(&interface_ptr->directTxQueue);
     interface_ptr->directTxQueue_size = 0;
     interface_ptr->directTxQueue_level = 0;
-    interface_ptr->last_rx_high_priority = 0;
 
     return 0;
 }
@@ -684,24 +676,6 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
     if (is_unicast && lowpan_adaptation_is_destination_tx_active(&interface_ptr->activeUnicastList, buf)) {
         return false;
     }
-
-    if (is_unicast && interface_ptr->last_rx_high_priority) {
-        return false;
-    }
-    return true;
-}
-
-static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *interface_ptr)
-{
-    if (!interface_ptr->last_rx_high_priority || ((g_monotonic_time_100ms - interface_ptr->last_rx_high_priority) < LOWPAN_HIGH_PRIORITY_STATE_LENGTH)) {
-        return false;
-    }
-
-    //Disable High Priority Mode
-    if (interface_ptr->mpx_api) {
-        interface_ptr->mpx_api->mpx_priority_mode_set(interface_ptr->mpx_api, false);
-    }
-    interface_ptr->last_rx_high_priority = 0;
     return true;
 }
 
@@ -712,15 +686,6 @@ void lowpan_adaptation_interface_slow_timer(int seconds)
 
     if (!interface_ptr) {
         return;
-    }
-
-    if (lowpan_adaptation_high_priority_state_exit(interface_ptr)) {
-        //Activate Packets from TX queue
-        buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
-        while (buf_from_queue) {
-            lowpan_adaptation_interface_tx(cur, buf_from_queue);
-            buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
-        }
     }
 }
 
@@ -778,9 +743,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     } else if (lowpan_adaptation_interface_check_buffer_timeout(cur, buf)) {
         goto tx_error_handler;
     }
-
-    //Update priority status
-    lowpan_adaptation_high_priority_state_exit(interface_ptr);
 
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
@@ -961,8 +923,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     }
     // When confirmation is for direct transmission, push all allowed buffers to MAC
     if (active_direct_confirm == true) {
-        //Check Possibility for exit from High Priority state
-        lowpan_adaptation_high_priority_state_exit(interface_ptr);
         buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
         while (buf_from_queue) {
             lowpan_adaptation_interface_tx(cur, buf_from_queue);
