@@ -58,4 +58,6 @@ void ws_mngt_lts_timer_cb(int ticks);
 // Broadcast an LPC frame on LGTK hash, or active LGTK index change
 void ws_mngt_lpc_pae_cb(struct net_if *net_if);
 
+void ws_mngt_pan_version_increase(struct net_if *cur);
+
 #endif

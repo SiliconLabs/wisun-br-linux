@@ -319,7 +319,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 static void ws_bootstrap_pan_version_increment(struct net_if *cur)
 {
     (void)cur;
-    ws_bbr_pan_version_increase(cur);
+    ws_mngt_pan_version_increase(cur);
 }
 
 static void ws_bootstrap_lfn_version_increment(struct net_if *cur)

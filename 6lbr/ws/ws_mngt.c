@@ -24,6 +24,7 @@
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"
+#include "ws/ws_bbr_api.h"
 #include "ws/ws_ie_lib.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_llc.h"
@@ -553,4 +554,16 @@ void ws_mngt_lts_timer_cb(int ticks)
     struct net_if *net_if = protocol_stack_interface_info_get();
 
     ws_mngt_lts_send(net_if);
+}
+
+void ws_mngt_pan_version_increase(struct net_if *cur)
+{
+    INFO("PAN version number update");
+    // Version number is not periodically increased forcing nodes to check Border router availability using DAO
+    cur->ws_info.pan_information.pan_version++;
+    // Inconsistent for border router to make information distribute faster
+    ws_mngt_async_trickle_reset_pc(cur);
+    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
+                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
+                          cur->ws_info.network_name);
 }

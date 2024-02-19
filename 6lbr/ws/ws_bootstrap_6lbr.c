@@ -49,7 +49,6 @@
 #include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_llc.h"
 #include "ws/ws_neigh.h"
 #include "ws/ws_ie_lib.h"
@@ -247,7 +246,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     cur->ws_info.pan_information.jm.plf = 0;
     cur->ws_info.pan_information.routing_cost = 0;
 
-    ws_bbr_pan_version_increase(cur);
+    ws_mngt_pan_version_increase(cur);
 
     // Set default parameters for FHSS when starting a discovery
     ws_bootstrap_6lbr_fhss_configure(cur);

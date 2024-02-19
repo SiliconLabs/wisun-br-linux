@@ -106,21 +106,6 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     storage_close(info);
 }
 
-void ws_bbr_pan_version_increase(struct net_if *cur)
-{
-    if (!cur) {
-        return;
-    }
-    tr_debug("Border router version number update");
-    // Version number is not periodically increased forcing nodes to check Border router availability using DAO
-    cur->ws_info.pan_information.pan_version++;
-    // Inconsistent for border router to make information distribute faster
-    ws_mngt_async_trickle_reset_pc(cur);
-    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
-                          cur->ws_info.network_name);
-}
-
 void ws_bbr_lfn_version_increase(struct net_if *cur)
 {
     if (!cur) {
@@ -138,7 +123,7 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
     // the following occurs:
     // d. A change in LFN Version.
-    ws_bbr_pan_version_increase(cur);
+    ws_mngt_pan_version_increase(cur);
 }
 
 static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
