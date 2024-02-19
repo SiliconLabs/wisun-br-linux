@@ -30,6 +30,8 @@
 #include "common/events_scheduler.h"
 #include "common/sys_queue_extra.h"
 #include "common/specs/ip.h"
+#include "common/memutils.h"
+#include "common/parsers.h"
 
 #include "net/timers.h"
 #include "net/protocol.h"
@@ -60,7 +62,8 @@
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
 
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version)
+void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
+                          char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
     int ret;
@@ -81,6 +84,9 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version
             *pan_version = strtoul(info->value, NULL, 0) + PAN_VERSION_STORAGE_READ_INCREMENT;
         } else if (!fnmatch("lfn_version", info->key, 0)) {
             *lfn_version = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("network_name", info->key, 0)) {
+            if (parse_escape_sequences(network_name, info->value, 33))
+                WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
         } else if (!fnmatch("api_version", info->key, 0)) {
             // Ignore for now
         } else {
@@ -90,9 +96,11 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version
     storage_close(info);
 }
 
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version)
+void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
+                           const char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
+    char str_buf[256];
 
     if (!info)
         return;
@@ -102,6 +110,8 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
     fprintf(info->file, "pan_version = %d\n", pan_version);
     fprintf(info->file, "lfn_version = %d\n", lfn_version);
+    str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
+    fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close(info);
 }
 
@@ -127,7 +137,8 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
     ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version);
+                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
+                          cur->ws_info.network_name);
 }
 
 void ws_bbr_lfn_version_increase(struct net_if *cur)
@@ -141,7 +152,8 @@ void ws_bbr_lfn_version_increase(struct net_if *cur)
     ws_mngt_async_trickle_reset_pc(cur);
 
     ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version);
+                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
+                          cur->ws_info.network_name);
     //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
     // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
     // the following occurs:

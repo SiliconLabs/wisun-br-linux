@@ -24,6 +24,7 @@
 #include "common/version.h"
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
+#include "common/string_extra.h"
 #include "common/log_legacy.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
@@ -277,7 +278,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask, ctxt->config.ws_allowed_channels, 256);
 
-    strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     rail_fill_pom(ctxt);
 
     g_timers[WS_TIMER_LTS].period_ms =
@@ -290,8 +290,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_bbr_init(&ctxt->net_if);
     ws_bbr_nvm_info_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
                          &ctxt->net_if.ws_info.pan_information.pan_version,
-                         &ctxt->net_if.ws_info.pan_information.lfn_version);
+                         &ctxt->net_if.ws_info.pan_information.lfn_version,
+                         ctxt->net_if.ws_info.network_name);
 
+    if (memzcmp(ctxt->net_if.ws_info.network_name, sizeof(ctxt->net_if.ws_info.network_name)) &&
+        strcmp(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name))
+        FATAL(1, "Network Name out-of-date in storage (see -D)");
+    strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     ctxt->net_if.ws_info.pan_information.lfn_version_set = ctxt->net_if.ws_info.enable_lfn;
 
     if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != 0xffff &&
@@ -589,7 +594,7 @@ int wsbr_main(int argc, char *argv[])
     // so because of privileges
     ws_bbr_nvm_info_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                           ctxt->net_if.ws_info.pan_information.pan_version,
-                          ctxt->net_if.ws_info.pan_information.lfn_version);
+                          ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 

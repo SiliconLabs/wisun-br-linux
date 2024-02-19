@@ -89,8 +89,8 @@ uint16_t ws_bbr_pan_size(struct net_if *cur);
 bool ws_bbr_backbone_address_get(struct net_if *cur, uint8_t *address);
 
 void ws_bbr_init(struct net_if *interface);
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version);
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version);
+void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
+void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);
 
 
 #endif
