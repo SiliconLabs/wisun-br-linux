@@ -705,36 +705,6 @@ static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *i
     return true;
 }
 
-static void lowpan_adaptation_high_priority_state_enable(struct net_if *cur, fragmenter_interface_t *interface_ptr)
-{
-
-    if (!interface_ptr->last_rx_high_priority) {
-        // MPX enaled stack must inform MPX to priority enable
-        if (interface_ptr->mpx_api) {
-            interface_ptr->mpx_api->mpx_priority_mode_set(interface_ptr->mpx_api, true);
-        }
-        //Purge Active tx queue's all possible's
-        if (!interface_ptr->fragmenter_active) {
-            //Purge Only When Fragmenter is not active
-            ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, entry, &interface_ptr->activeUnicastList) {
-
-                if (lowpan_adaptation_purge_from_mac(cur, interface_ptr, entry->buf->seq)) {
-                    buffer_t *buf = entry->buf;
-                    ns_list_remove(&interface_ptr->activeUnicastList, entry);
-                    interface_ptr->activeTxList_size--;
-                    free(entry);
-                    //Add message to tx queue front based on priority. Now same priority at buf is prioritised at order
-                    lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
-                }
-            }
-        }
-    }
-
-    //Store timestamp for indicate last RX High Priority message
-    interface_ptr->last_rx_high_priority = g_monotonic_time_100ms ? g_monotonic_time_100ms : 1;
-
-}
-
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
