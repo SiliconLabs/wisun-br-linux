@@ -38,7 +38,6 @@
 #include "net/ns_buffer.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "rpl/rpl.h"
 
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_bbr_api.h"
@@ -155,26 +154,6 @@ static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 void ws_bbr_init(struct net_if *interface)
 {
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
-}
-
-int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
-{
-    struct rpl_root *root = &g_ctxt.net_if.rpl_root;
-    struct rpl_transit *transit;
-    struct rpl_target *target;
-    int cnt = 0;
-
-    SLIST_FOREACH(target, &root->targets, link) {
-        transit = rpl_transit_preferred(root, target);
-        if (!transit)
-            continue;
-        memcpy(table_ptr[cnt].target, target->prefix + 8, 8);
-        memcpy(table_ptr[cnt].parent, transit->parent + 8, 8);
-        cnt++;
-        if (cnt >= table_len)
-            break;
-    }
-    return cnt;
 }
 
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
