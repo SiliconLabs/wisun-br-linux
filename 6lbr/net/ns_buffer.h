@@ -184,7 +184,6 @@ typedef struct buffer {
     uint16_t            offset;                 /*!< Offset indicator (used in some upward paths) */
     bool                ip_routed_up: 1;
     uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
-    buffer_priority_e   priority;
     buffer_link_info_t  link_specific;
     uint16_t            mpl_option_data_offset;
     buffer_options_t    options;                /*!< Additional signal info etc */

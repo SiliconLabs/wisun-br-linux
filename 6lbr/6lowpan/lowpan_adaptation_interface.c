@@ -188,42 +188,14 @@ static void lowpan_adaptation_tx_queue_level_update(struct net_if *cur, fragment
 
 static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
-    buffer_t *lower_priority_buf = NULL;
-
-    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
-
-        if (entry->priority < buf->priority) {
-            lower_priority_buf = entry;
-            break;
-        }
-    }
-
-    if (lower_priority_buf) {
-        ns_list_add_before(&interface_ptr->directTxQueue, lower_priority_buf, buf);
-    } else {
-        ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
-    }
+    ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
     interface_ptr->directTxQueue_size++;
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
 }
 
 static void lowpan_adaptation_tx_queue_write_to_front(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
-    buffer_t *lower_priority_buf = NULL;
-
-    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
-
-        if (entry->priority <= buf->priority) {
-            lower_priority_buf = entry;
-            break;
-        }
-    }
-
-    if (lower_priority_buf) {
-        ns_list_add_before(&interface_ptr->directTxQueue, lower_priority_buf, buf);
-    } else {
-        ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
-    }
+    ns_list_add_to_start(&interface_ptr->directTxQueue, buf);
     interface_ptr->directTxQueue_size++;
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
 }
@@ -236,7 +208,7 @@ static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_
     }
     ns_list_foreach_safe(buffer_t, buf, &interface_ptr->directTxQueue) {
 
-        if (buf->link_specific.ieee802_15_4.requestAck && interface_ptr->last_rx_high_priority &&  buf->priority < QOS_EXPEDITE_FORWARD) {
+        if (buf->link_specific.ieee802_15_4.requestAck && interface_ptr->last_rx_high_priority) {
             //Stop reading at this point when Priority is not enough big
             return NULL;
         }
@@ -448,14 +420,7 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
 
 buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
 {
-    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
-        if (entry->priority == priority) {
-            // Only Higher priority packets left no need to go through list anymore
-            return entry;
-        }
-    }
-    return NULL;
-
+    return ns_list_get_first(&interface_ptr->directTxQueue);
 }
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
@@ -681,29 +646,9 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
         dataReq.msduLength = buffer_data_length(buf);
         dataReq.msdu = buffer_data_pointer(buf);
     }
-    //Define data priority
-    mac_data_priority_e data_priority;
-
-    switch (buf->priority) {
-        case QOS_HIGH:
-            data_priority = MAC_DATA_MEDIUM_PRIORITY;
-            break;
-        case QOS_NETWORK_CTRL:
-            data_priority = MAC_DATA_HIGH_PRIORITY;
-            break;
-        case QOS_EXPEDITE_FORWARD:
-            data_priority = MAC_DATA_EXPEDITE_FORWARD;
-            break;
-        case QOS_MAC_BEACON:
-            data_priority = MAC_DATA_HIGH_PRIORITY;
-            break;
-        default:
-            data_priority = MAC_DATA_NORMAL_PRIORITY;
-            break;
-    }
 
     dataReq.lfn_multicast = buf->options.lfn_multicast;
-    interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
+    interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, MAC_DATA_NORMAL_PRIORITY);
 }
 
 static bool lowpan_adaptation_is_destination_tx_active(fragmenter_tx_list_t *list, buffer_t *buf)
@@ -745,7 +690,7 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
         return false;
     }
 
-    if (is_unicast && interface_ptr->last_rx_high_priority &&  buf->priority < QOS_EXPEDITE_FORWARD) {
+    if (is_unicast && interface_ptr->last_rx_high_priority) {
         return false;
     }
     return true;
@@ -755,20 +700,6 @@ static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *i
 {
     if (!interface_ptr->last_rx_high_priority || ((g_monotonic_time_100ms - interface_ptr->last_rx_high_priority) < LOWPAN_HIGH_PRIORITY_STATE_LENGTH)) {
         return false;
-    }
-
-    //Check First buffer_from tx queue
-    buffer_t *buf = ns_list_get_first(&interface_ptr->directTxQueue);
-    if (buf && buf->priority == QOS_EXPEDITE_FORWARD) {
-        //TX queue must not include any
-        return false;
-    }
-
-    //Check If we have a Any active TX process still active
-    ns_list_foreach(fragmenter_tx_entry_t, entry, &interface_ptr->activeUnicastList) {
-        if (entry->buf->priority == QOS_EXPEDITE_FORWARD) {
-            return false;
-        }
     }
 
     //Disable High Priority Mode
@@ -868,17 +799,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
             return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
         }
     }
-
-    if ((buf->priority == QOS_NORMAL) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_LOW_PRIORITY)) {
-        return true;
-    } else if ((buf->priority == QOS_HIGH) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_HIGH_PRIORITY)) {
-        return true;
-    } else if ((buf->priority == QOS_NETWORK_CTRL) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_HIGH_PRIORITY)) {
-        return true;
-    } else if ((buf->priority == QOS_EXPEDITE_FORWARD) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_EF_PRIORITY)) {
-        return true;
-    }
-    return false;
+    return buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_LOW_PRIORITY;
 }
 
 int lowpan_adaptation_queue_size(int8_t interface_id)
@@ -914,7 +835,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     }
 
     //Update priority status
-    lowpan_adaptation_priority_status_update(cur, interface_ptr, buf->priority);
+    lowpan_adaptation_priority_status_update(cur, interface_ptr, QOS_NORMAL);
 
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
