@@ -735,17 +735,6 @@ static void lowpan_adaptation_high_priority_state_enable(struct net_if *cur, fra
 
 }
 
-
-static void lowpan_adaptation_priority_status_update(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
-{
-    if (priority == QOS_EXPEDITE_FORWARD) {
-        lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
-    } else {
-        //Let check can we disable possible High Priority state
-        lowpan_adaptation_high_priority_state_exit(interface_ptr);
-    }
-}
-
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
@@ -821,7 +810,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     }
 
     //Update priority status
-    lowpan_adaptation_priority_status_update(cur, interface_ptr, QOS_NORMAL);
+    lowpan_adaptation_high_priority_state_exit(interface_ptr);
 
     //Check packet size
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
