@@ -201,7 +201,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
-    cur->ws_info.pan_information.pan_id = 0xffff;
     ws_mngt_async_trickle_stop(cur);
 }
 
