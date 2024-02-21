@@ -273,6 +273,24 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
     return len;
 }
 
+static void rcp_ind_fatal(struct iobuf_read *buf, bool ignore_crc)
+{
+    const char *err_msg;
+    uint16_t err_code;
+
+    err_code = hif_pop_u16(buf);
+    err_msg = hif_pop_str(buf);
+    BUG_ON(buf->err);
+    // If a frame was canceled previously before restarting wshwping, the RCP
+    // will emit a CRC error once its buffers are filled with by NOP request.
+    if (ignore_crc && err_code == HIF_ECRC)
+        return;
+    if (err_msg)
+        FATAL(3, "rcp error %s: %s", hif_fatal_str(err_code), err_msg);
+    else
+        FATAL(3, "rcp error %s", hif_fatal_str(err_code));
+}
+
 static int receive(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     const uint8_t *payload;
@@ -298,9 +316,13 @@ static int receive(struct bus *bus, struct commandline_args *cmdline, uint16_t c
                 return counter;
             }
         }
-    } else if (val != HIF_CMD_CNF_PING) {
-        WARN("received %02x instead of %02x", val, HIF_CMD_CNF_PING);
-        return counter;
+    } else {
+        if (val == HIF_CMD_IND_FATAL)
+            rcp_ind_fatal(&rx_buf, false);
+        if (val != HIF_CMD_CNF_PING) {
+            WARN("received %02x instead of %02x", val, HIF_CMD_CNF_PING);
+            return counter;
+        }
     }
 
     val = hif_pop_u16(&rx_buf);
@@ -399,6 +421,9 @@ static void wait_reset(struct bus *bus, struct commandline_args *cmdline, bool i
                 continue;
             case HIF_CMD_IND_RESET:
                 return;
+            case HIF_CMD_IND_FATAL:
+                rcp_ind_fatal(&iobuf, true);
+                break;
             default:
                 FATAL(3, "unexpected command");
             }
