@@ -20,10 +20,6 @@
 #define WS_CONFIG_H_
 #include <stdint.h>
 
-/* If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days i.e. storage must
-   be written at least once a week */
-#define PAN_VERSION_STORAGE_READ_INCREMENT    1000
-
 /* Device min sensitivity. This value is dynamically configured and depends on radio
  *
  * Default value for us is -93

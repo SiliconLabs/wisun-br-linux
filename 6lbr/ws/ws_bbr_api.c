@@ -41,7 +41,6 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_bbr_api.h"
 #include "ws/ws_llc.h"
-#include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_pae_key_storage.h"
@@ -49,6 +48,10 @@
 #include "ws/ws_bootstrap_6lbr.h"
 
 #include "ws/ws_bbr_api.h"
+
+// If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days
+// i.e. storage must be written at least once a week
+#define PAN_VERSION_STORAGE_READ_INCREMENT    1000
 
 void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
                           char network_name[33])
