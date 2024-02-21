@@ -219,7 +219,12 @@ static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t cou
         uart_legacy_tx(bus, tx_buf.data, tx_buf.len);
     else
         uart_tx(bus, tx_buf.data, tx_buf.len);
-    spinel_trace(tx_buf.data, tx_buf.data_size, "hif tx: ");
+
+    if (!is_v2)
+        spinel_trace(tx_buf.data, tx_buf.data_size, "hif tx: ");
+    else
+        TRACE(TR_HIF, "hif tx: REQ_PING %s",
+              tr_bytes(tx_buf.data + 1, tx_buf.len - 1, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
     iobuf_free(&tx_buf);
 }
 
