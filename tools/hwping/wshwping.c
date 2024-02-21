@@ -375,12 +375,42 @@ static void print_throughput(struct timespec *ts, struct commandline_args *cmdli
     INFO("equivalent baudrate: %.0lf bits/sec", 10 * real_payload * real_exchanges_count / real_time);
 }
 
+static void wait_reset(struct bus *bus, struct commandline_args *cmdline, bool is_v2)
+{
+    uint8_t buf[FIELD_MAX(UART_HDR_LEN_MASK)];
+    struct iobuf_read iobuf = { .data = buf };
+
+    while (1) {
+        iobuf.cnt = 0;
+        iobuf.data_size = read_data(bus, cmdline, buf, sizeof(buf), is_v2);
+        if (!is_v2) {
+            hif_pop_u8(&iobuf);
+            switch (hif_pop_uint(&iobuf)) {
+            case SPINEL_CMD_NOOP:
+                continue;
+            case SPINEL_CMD_RESET:
+                return;
+            default:
+                FATAL(3, "unexpected command");
+            }
+        } else {
+            switch (hif_pop_u8(&iobuf)) {
+            case HIF_CMD_IND_NOP:
+                continue;
+            case HIF_CMD_IND_RESET:
+                return;
+            default:
+                FATAL(3, "unexpected command");
+            }
+        }
+    }
+}
+
 static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
 {
     struct iobuf_write buf = { };
     uint32_t version_api;
     bool is_v2;
-    int ret;
 
     if (cmdline->cpc_instance[0]) {
         version_api = cpc_secondary_app_version(bus);
@@ -408,10 +438,9 @@ static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
             send_data(bus, cmdline, buf.data, buf.len, false);
             iobuf_free(&buf);
         }
-        bus->uart.data_ready = false;
-        bus->uart.rx_buf_len = 0;
-        ret = tcflush(bus->fd, TCIFLUSH);
-        FATAL_ON(ret < 0, 2, "tcflush: %m");
+        bus->uart.init_phase = true;
+        wait_reset(bus, cmdline, is_v2);
+        bus->uart.init_phase = false;
         return is_v2;
     }
 }
