@@ -207,14 +207,11 @@ static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t cou
         hif_push_u8(&tx_buf, HIF_CMD_REQ_PING);
     }
     hif_push_u16(&tx_buf, counter);
-    if (cmdline->mode & MODE_TX)
-        hif_push_u16(&tx_buf, cmdline->payload_size);
+    hif_push_u16(&tx_buf, (cmdline->mode & MODE_TX) ? cmdline->payload_size : 0);
+    if (!is_v2)
+        hif_push_raw(&tx_buf, payload_buf, (cmdline->mode & MODE_RX) ? cmdline->payload_size : 0);
     else
-        hif_push_u16(&tx_buf, 0);
-    if (cmdline->mode & MODE_RX)
-        hif_push_raw(&tx_buf, payload_buf, cmdline->payload_size);
-    else
-        hif_push_raw(&tx_buf, payload_buf, 0);
+        hif_push_data(&tx_buf, payload_buf, (cmdline->mode & MODE_RX) ? cmdline->payload_size : 0);
 
     if (cmdline->cpc_instance[0])
         cpc_tx(bus, tx_buf.data, tx_buf.len);
