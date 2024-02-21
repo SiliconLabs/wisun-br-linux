@@ -38,5 +38,8 @@ int uart_legacy_rx(struct bus *bus, void *buf, unsigned int len);
 // Try to find a valid APIv2 header within the first bytes received.
 bool uart_detect_v2(struct bus *bus);
 
+// Wait for the kernel transmission queue to send all of its content.
+void uart_tx_flush(struct bus *bus);
+
 #endif
 
