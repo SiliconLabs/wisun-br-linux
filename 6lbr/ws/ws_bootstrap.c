@@ -153,12 +153,6 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
                                 cur->ws_info.hopping_schedule.number_of_channels);
 }
 
-static void ws_bootstrap_fhss_initialize(struct net_if *cur)
-{
-    // When FHSS doesn't exist yet, create one
-    ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-}
-
 static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
 {
     // Set the LLC information to follow the actual fhss settings
@@ -187,8 +181,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 {
     BUG_ON(!ipv6_address);
     BUG_ON(!cur);
-
-    ws_bootstrap_fhss_initialize(cur);
 
     addr_interface_set_ll64(cur);
     // Trigger discovery for bootstrap
