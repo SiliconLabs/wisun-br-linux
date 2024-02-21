@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <sys/file.h>
+#include <sys/ioctl.h>
 #include <sys/uio.h>
 
 #include "common/bits.h"
@@ -328,4 +329,19 @@ bool uart_detect_v2(struct bus *bus)
                           read_le16(bus->uart.rx_buf + i + 2)))
                 return true;
     }
+}
+
+static inline int uart_txqlen(struct bus *bus)
+{
+    int ret, cnt;
+
+    ret = ioctl(bus->fd, TIOCOUTQ, &cnt);
+    FATAL_ON(ret < 0, 2, "ioctl TIOCOUTQ: %m");
+    return cnt;
+}
+
+void uart_tx_flush(struct bus *bus)
+{
+    while (uart_txqlen(bus))
+        usleep(1000);
 }
