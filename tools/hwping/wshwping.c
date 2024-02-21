@@ -193,6 +193,25 @@ static uint8_t get_spinel_hdr(struct bus *bus)
     return hdr;
 }
 
+static void send_data(struct bus *bus, struct commandline_args *cmdline,
+                      const uint8_t *buf, size_t buf_len, bool is_v2)
+{
+    BUG_ON(!buf_len);
+    if (cmdline->cpc_instance[0])
+        cpc_tx(bus, buf, buf_len);
+    else if (!is_v2)
+        uart_legacy_tx(bus, buf, buf_len);
+    else
+        uart_tx(bus, buf, buf_len);
+
+    if (!is_v2)
+        spinel_trace(buf, buf_len, "hif tx: ");
+    else
+        TRACE(TR_HIF, "hif tx: %s %s",
+              hif_cmd_str(buf[0]),
+              tr_bytes(buf + 1, buf_len - 1, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+}
+
 static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     struct iobuf_write tx_buf = { };
@@ -213,18 +232,7 @@ static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t cou
     else
         hif_push_data(&tx_buf, payload_buf, (cmdline->mode & MODE_RX) ? cmdline->payload_size : 0);
 
-    if (cmdline->cpc_instance[0])
-        cpc_tx(bus, tx_buf.data, tx_buf.len);
-    else if (!is_v2)
-        uart_legacy_tx(bus, tx_buf.data, tx_buf.len);
-    else
-        uart_tx(bus, tx_buf.data, tx_buf.len);
-
-    if (!is_v2)
-        spinel_trace(tx_buf.data, tx_buf.data_size, "hif tx: ");
-    else
-        TRACE(TR_HIF, "hif tx: REQ_PING %s",
-              tr_bytes(tx_buf.data + 1, tx_buf.len - 1, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    send_data(bus, cmdline, tx_buf.data, tx_buf.len, is_v2);
     iobuf_free(&tx_buf);
 }
 
@@ -379,24 +387,24 @@ static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
     } else {
         hif_push_u8(&buf, get_spinel_hdr(bus));
         hif_push_uint(&buf, SPINEL_CMD_NOOP);
-        uart_legacy_tx(bus, buf.data, buf.len);
+        send_data(bus, cmdline, buf.data, buf.len, false);
         iobuf_free(&buf);
 
         hif_push_u8(&buf, get_spinel_hdr(bus));
         hif_push_uint(&buf, SPINEL_CMD_RESET);
-        uart_legacy_tx(bus, buf.data, buf.len);
+        send_data(bus, cmdline, buf.data, buf.len, false);
         iobuf_free(&buf);
 
         hif_push_u8(&buf, HIF_CMD_REQ_RESET);
         hif_push_bool(&buf,false);
-        uart_tx(bus, buf.data, buf.len);
+        send_data(bus, cmdline, buf.data, buf.len, true);
         iobuf_free(&buf);
 
         is_v2 = uart_detect_v2(bus);
         if (!is_v2) {
             hif_push_u8(&buf, get_spinel_hdr(bus));
             hif_push_uint(&buf, SPINEL_CMD_NOOP);
-            uart_legacy_tx(bus, buf.data, buf.len);
+            send_data(bus, cmdline, buf.data, buf.len, false);
             iobuf_free(&buf);
         }
         bus->uart.data_ready = false;
