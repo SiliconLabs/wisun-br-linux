@@ -31,7 +31,7 @@
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "ws/ws_bbr_api.h"
+#include "ws/ws_pan_info_storage.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
@@ -287,10 +287,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.pan_information.pan_id = 0xffff;
     ctxt->net_if.ws_info.fhss_conf.bsi = 0xffff;
 
-    ws_bbr_nvm_info_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
-                         &ctxt->net_if.ws_info.pan_information.pan_version,
-                         &ctxt->net_if.ws_info.pan_information.lfn_version,
-                         ctxt->net_if.ws_info.network_name);
+    ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
+                             &ctxt->net_if.ws_info.pan_information.pan_version,
+                             &ctxt->net_if.ws_info.pan_information.lfn_version,
+                             ctxt->net_if.ws_info.network_name);
 
     if (memzcmp(ctxt->net_if.ws_info.network_name, sizeof(ctxt->net_if.ws_info.network_name)) &&
         strcmp(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name))
@@ -561,9 +561,9 @@ int wsbr_main(int argc, char *argv[])
         drop_privileges(&ctxt->config);
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
-    ws_bbr_nvm_info_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
-                          ctxt->net_if.ws_info.pan_information.pan_version,
-                          ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
+    ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
+                              ctxt->net_if.ws_info.pan_information.pan_version,
+                              ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 

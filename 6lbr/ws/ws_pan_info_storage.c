@@ -25,14 +25,14 @@
 
 #include "app/version.h"
 
-#include "ws/ws_bbr_api.h"
+#include "ws_pan_info_storage.h"
 
 // If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days
 // i.e. storage must be written at least once a week
 #define PAN_VERSION_STORAGE_READ_INCREMENT    1000
 
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
-                          char network_name[33])
+void ws_pan_info_storage_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
+                              char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
     int ret;
@@ -65,8 +65,8 @@ void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version
     storage_close(info);
 }
 
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
-                           const char network_name[33])
+void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
+                               const char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
     char str_buf[256];

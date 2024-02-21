@@ -16,22 +16,12 @@
  * limitations under the License.
  */
 
-/**
- * \file ws_bbr_api.h
- * \brief Wi-SUN backbone border router (BBR) application interface.
- *
- * This is Wi-SUN backbone Border router service.
- * When started the module takes care of starting the
- * components that enables default border router functionality in Wi-SUN network.
- *
- */
+#ifndef WS_PAN_INFO_STORAGE_H
+#define WS_PAN_INFO_STORAGE_H
 
-#ifndef WS_BBR_API_H_
-#define WS_BBR_API_H_
 #include <stdint.h>
 
-void ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
-void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);
-
+void ws_pan_info_storage_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
+void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);
 
 #endif

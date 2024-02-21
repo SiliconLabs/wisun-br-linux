@@ -36,7 +36,6 @@
 #include "ws/ws_llc.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_bootstrap_6lbr.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_pae_controller.h"
 #include "ws/ws_ie_lib.h"
 

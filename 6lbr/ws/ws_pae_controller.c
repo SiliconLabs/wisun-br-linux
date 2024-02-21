@@ -41,7 +41,6 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"

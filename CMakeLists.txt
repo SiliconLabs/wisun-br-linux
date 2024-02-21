@@ -154,7 +154,7 @@ add_library(libwsbrd STATIC
     6lbr/6lowpan/iphc_decode/lowpan_context.c
     6lbr/6lowpan/mac/mac_helper.c
     6lbr/ipv6/nd_router_object.c
-    6lbr/ws/ws_bbr_api.c
+    6lbr/ws/ws_pan_info_storage.c
     6lbr/ws/ws_bootstrap.c
     6lbr/ws/ws_bootstrap_6lbr.c
     6lbr/ws/ws_common.c

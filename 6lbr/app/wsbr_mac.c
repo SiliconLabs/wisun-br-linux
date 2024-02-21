@@ -32,7 +32,6 @@
 #include "common/specs/ieee802154.h"
 
 #include "net/protocol.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_config.h"

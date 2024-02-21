@@ -21,10 +21,10 @@
 
 #include "net/timers.h"
 #include "6lowpan/mac/mac_helper.h"
+#include "ws/ws_pan_info_storage.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"
-#include "ws/ws_bbr_api.h"
 #include "ws/ws_ie_lib.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_llc.h"
@@ -563,9 +563,9 @@ void ws_mngt_pan_version_increase(struct net_if *cur)
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
-    ws_bbr_nvm_info_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
-                          cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
-                          cur->ws_info.network_name);
+    ws_pan_info_storage_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
+                              cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
+                              cur->ws_info.network_name);
 }
 
 void ws_mngt_lfn_version_increase(struct net_if *cur)
