@@ -86,6 +86,11 @@ static void rcp_ind_fatal(struct rcp *rcp, struct iobuf_read *buf)
     msg = hif_pop_str(buf);
     BUG_ON(buf->err);
 
+    // CRC errors can happen during init if a previous frame transmission was
+    // interrupted.
+    if (err == HIF_ECRC && !rcp->has_reset)
+        return;
+
     if (msg)
         FATAL(3, "rcp error %s: %s", hif_fatal_str(err), msg);
     else
