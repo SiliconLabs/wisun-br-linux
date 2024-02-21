@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <poll.h>
@@ -404,13 +405,25 @@ static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
     }
 }
 
+static void *sighandler_data;
+
+static void sighandler(int signum)
+{
+    uart_tx_flush(sighandler_data);
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char **argv)
 {
+    const struct sigaction sigact = { .sa_handler = sighandler };
     struct timespec ts_start, ts_end, ts_res;
     struct commandline_args cmdline = { };
     struct bus bus = { };
     int in_cnt, out_cnt;
     bool is_v2;
+
+    sighandler_data = &bus;
+    sigaction(SIGINT, &sigact, NULL);
 
     parse_commandline(&cmdline, argc, argv);
 

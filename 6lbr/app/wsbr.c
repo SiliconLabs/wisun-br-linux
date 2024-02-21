@@ -400,6 +400,10 @@ static void wsbr_handle_reset(struct rcp *rcp)
 
 void kill_handler(int signal)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+
+    if (ctxt->config.uart_dev[0])
+        uart_tx_flush(&ctxt->rcp.bus);
     exit(0);
 }
 
