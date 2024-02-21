@@ -103,10 +103,10 @@ extern "C" void __wrap___tr_printf(const char *color, const char *fmt, ...)
     va_end(ap);
 }
 
-extern "C" sighandler_t __wrap_signal(int signum, sighandler_t handler)
+extern "C" int __wrap_sigaction(int signum, const struct sigaction *sa_in, struct sigaction *sa_out)
 {
     errno = ENOSYS;
-    return SIG_ERR;
+    return -1;
 }
 
 // exit() is not thread-safe, so aborting is preferred.
