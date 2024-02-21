@@ -526,6 +526,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
 
 int wsbr_main(int argc, char *argv[])
 {
+    struct sigaction sigact = { };
     static const char *files[] = {
         "neighbor-*:*:*:*:*:*:*:*",
         "keys-*:*:*:*:*:*:*:*",
@@ -537,10 +538,12 @@ int wsbr_main(int argc, char *argv[])
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
-    signal(SIGINT, kill_handler);
-    signal(SIGHUP, kill_handler);
-    signal(SIGTERM, kill_handler);
-    signal(SIGPIPE, SIG_IGN); // Handle writing to unread FIFO for pcapng capture
+    sigact.sa_handler = kill_handler;
+    sigaction(SIGINT, &sigact, NULL);
+    sigaction(SIGHUP, &sigact, NULL);
+    sigaction(SIGTERM, &sigact, NULL);
+    sigact.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sigact, NULL); // Handle writing to unread FIFO for pcapng capture
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
