@@ -15,37 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define _GNU_SOURCE
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
+
 #include <fnmatch.h>
-#include "app/version.h"
-#include "app/wsbr.h"
-#include "common/rand.h"
-#include "common/bits.h"
+
 #include "common/key_value_storage.h"
-#include "common/endian.h"
-#include "common/events_scheduler.h"
-#include "common/sys_queue_extra.h"
-#include "common/specs/ip.h"
 #include "common/memutils.h"
 #include "common/parsers.h"
+#include "common/log.h"
 
-#include "net/timers.h"
-#include "net/protocol.h"
-#include "net/ns_buffer.h"
-#include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/lowpan_adaptation_interface.h"
-
-#include "6lowpan/mac/mpx_api.h"
-#include "ws/ws_bbr_api.h"
-#include "ws/ws_llc.h"
-#include "ws/ws_common.h"
-#include "ws/ws_bootstrap.h"
-#include "ws/ws_pae_key_storage.h"
-#include "ws/ws_pae_controller.h"
-#include "ws/ws_bootstrap_6lbr.h"
+#include "app/version.h"
 
 #include "ws/ws_bbr_api.h"
 
