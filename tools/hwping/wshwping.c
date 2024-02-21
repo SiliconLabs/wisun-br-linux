@@ -262,6 +262,14 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
                 len = uart_rx(bus, buf, buf_len);
         }
     } while (!len);
+    if (len) {
+        if (!is_v2)
+            spinel_trace(buf, len, "hif rx: ");
+        else
+            TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(buf[0]),
+                  tr_bytes(buf + 1, len - 1,
+                           NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    }
     return len;
 }
 
@@ -278,14 +286,7 @@ static int receive(struct bus *bus, struct commandline_args *cmdline, uint16_t c
         WARN("poll: no answer from RCP on ping %d", counter);
         return counter + 1;
     }
-    if (!is_v2)
-        spinel_trace(rx_buf.data, rx_buf.data_size, "hif rx: ");
     val = hif_pop_u8(&rx_buf); // Either RCPv2 command or SPINEL header
-    if (is_v2)
-        TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(val),
-              tr_bytes(iobuf_ptr(&rx_buf), iobuf_remaining_size(&rx_buf),
-                       NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
-
     if (!is_v2) {
         val = hif_pop_uint(&rx_buf);
         if (val != SPINEL_CMD_RCP_PING) {
