@@ -93,7 +93,6 @@ void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, 
     if (!info)
         return;
     fprintf(info->file, "api_version = %#08x\n", version_daemon_api);
-    fprintf(info->file, "# Broadcast Schedule Identifier\n");
     fprintf(info->file, "bsi = %d\n", bsi);
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
     fprintf(info->file, "pan_version = %d\n", pan_version);
