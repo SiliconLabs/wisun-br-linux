@@ -37,11 +37,6 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-void ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *on_expire)
-{
-    table->on_expire = on_expire;
-}
-
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                          const uint8_t mac64[8],
                          uint8_t role,
@@ -92,7 +87,8 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 
     SLIST_FOREACH_SAFE(neigh, &table->neigh_info_list, link, tmp)
         if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
-            table->on_expire(neigh->mac64);
+            if (table->on_expire)
+                table->on_expire(neigh->mac64);
 }
 
 size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)

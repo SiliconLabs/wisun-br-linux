@@ -360,8 +360,6 @@ int ws_bootstrap_init(int8_t interface_id)
     if (!cur)
         return -1;
 
-    ws_neigh_table_allocate(&cur->ws_info.neighbor_storage, ws_bootstrap_neighbor_del);
-
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 

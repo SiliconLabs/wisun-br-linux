@@ -116,6 +116,8 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.pae_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
     .net_if.pae_random_early_detection.drop_max_probability = 100,
 
+    .net_if.ws_info.neighbor_storage.on_expire = ws_bootstrap_neighbor_del,
+
     .os_ctxt = &g_os_ctxt,
 };
 
