@@ -80,8 +80,6 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
 
 int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
-    memset(&cur->ws_info, 0, sizeof(ws_info_t));
-
     cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
     cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
 

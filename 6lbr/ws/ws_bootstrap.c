@@ -355,13 +355,12 @@ congestion_get_end:
 int ws_bootstrap_init(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    ws_neigh_table_t neigh_info;
     int ret_val = 0;
 
     if (!cur)
         return -1;
 
-    ws_neigh_table_allocate(&neigh_info, ws_bootstrap_neighbor_del);
+    ws_neigh_table_allocate(&cur->ws_info.neighbor_storage, ws_bootstrap_neighbor_del);
 
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
@@ -410,8 +409,6 @@ int ws_bootstrap_init(int8_t interface_id)
         // add deallocs
         goto init_fail;
     }
-
-    cur->ws_info.neighbor_storage = neigh_info;
 
     ws_bootstrap_configuration_reset(cur);
 
