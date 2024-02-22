@@ -78,7 +78,6 @@ typedef struct ws_neigh {
     bool offset_adjusted;                                  /*!< For LTO */
     uint8_t node_role;
     uint32_t frame_counter_min[7];
-    uint8_t index;                                         /*!< Unique Neighbour index */
     bool in_use;                                           /*!< True if the entry is in use */
     uint8_t mac64[8];                                      /*!< MAC64 */
     uint32_t expiration_s;
