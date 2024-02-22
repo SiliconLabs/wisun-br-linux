@@ -43,11 +43,6 @@ bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *re
     return true;
 }
 
-
-void ws_neigh_table_free(ws_neigh_table_t *table)
-{
-}
-
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                          const uint8_t mac64[8],
                          uint8_t role,
