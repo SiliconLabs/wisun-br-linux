@@ -59,7 +59,6 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     for (uint8_t key_index = 1; key_index <= 7; key_index++)
         if (!(key_index_mask & (1u << key_index)))
             neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
-    neigh->in_use = true;
     memcpy(neigh->mac64, mac64, 8);
     neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
