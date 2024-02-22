@@ -37,9 +37,9 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-void ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb)
+void ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *on_expire)
 {
-    table->remove_cb = remove_cb;
+    table->on_expire = on_expire;
 }
 
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
@@ -92,7 +92,7 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 
     SLIST_FOREACH_SAFE(neigh, &table->neigh_info_list, link, tmp)
         if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
-            table->remove_cb(neigh->mac64);
+            table->on_expire(neigh->mac64);
 }
 
 size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
