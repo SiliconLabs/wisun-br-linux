@@ -204,65 +204,10 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     ws_mngt_async_trickle_stop(cur);
 }
 
-// TODO: in wsbrd 2.0, this function must disappear.
-static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
-{
-    uint8_t neigh_count = ws_neigh_get_neigh_count(&interface->ws_info.neighbor_storage);
-    ws_neigh_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
-    time_t current_time_stamp = time_current(CLOCK_MONOTONIC);
-    ws_neigh_t *oldest_neigh = NULL;
-
-    if (neigh_count < interface->ws_info.neighbor_storage.list_size)
-        return;
-
-    WARN("neighbor table full");
-
-    for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
-        if (!neigh_table[i].in_use)
-            continue;
-
-        if (oldest_neigh && oldest_neigh->lifetime_s < neigh_table[i].lifetime_s)
-            // We have already shorter link entry found this cannot replace it
-            continue;
-
-        if (neigh_table[i].lifetime_s > WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-            //Do not permit to remove configured temp life time
-            continue;
-
-        if (neigh_table[i].trusted_device)
-            if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac64))
-                // We have registered entry so we have been selected as parent
-                continue;
-
-        //Read current timestamp
-        uint32_t time_from_last_unicast_schedule = current_time_stamp - neigh_table[i].host_rx_timestamp;
-        if (time_from_last_unicast_schedule >= interface->ws_info.temp_link_min_timeout) {
-            //Accept only Enough Old Device
-            if (!oldest_neigh) {
-                //Accept first compare
-                oldest_neigh = &neigh_table[i];
-            } else {
-                uint32_t compare_neigh_time = current_time_stamp - oldest_neigh->host_rx_timestamp;
-                if (compare_neigh_time < time_from_last_unicast_schedule)  {
-                    //Accept older RX timeout always
-                    oldest_neigh = &neigh_table[i];
-                }
-            }
-        }
-    }
-
-    if (oldest_neigh) {
-        tr_info("dropped oldest neighbour %s", tr_eui64(oldest_neigh->mac64));
-        ws_bootstrap_neighbor_del(oldest_neigh->mac64);
-    }
-}
-
 struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
 {
     struct ws_neigh *ws_neigh;
     struct ipv6_neighbour *ipv6_neighbor;
-
-    ws_bootstrap_neighbor_table_clean(net_if);
 
     ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!ws_neigh)
@@ -311,7 +256,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
                                     const uint8_t key[16],
                                     uint32_t frame_counter)
 {
-    struct ws_neigh *neigh_list = cur->ws_info.neighbor_storage.neigh_info_list;
+    struct ws_neigh *neigh;
 
     BUG_ON(key_index < 1 || key_index > 7);
     // Firmware API < 0.15 crashes if slots > 3 are accessed
@@ -324,8 +269,8 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
     } else {
         cur->ws_info.key_index_mask &= ~(1u << key_index);
     }
-    for (int i = 0; i < cur->ws_info.neighbor_storage.list_size; i++)
-        neigh_list[i].frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;
+    SLIST_FOREACH(neigh, & cur->ws_info.neighbor_storage.neigh_info_list, link)
+        neigh->frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;
 }
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
@@ -411,18 +356,13 @@ int ws_bootstrap_init(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     ws_neigh_table_t neigh_info;
-    uint32_t neighbors_table_size;
     int ret_val = 0;
 
     if (!cur)
         return -1;
 
-    neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
-    // TODO: drop this arbitrary limit
-    neighbors_table_size = UINT8_MAX;
-
-    if (!ws_neigh_table_allocate(&neigh_info, neighbors_table_size, ws_bootstrap_neighbor_del)) {
+    if (!ws_neigh_table_allocate(&neigh_info, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
         goto init_fail;
     }

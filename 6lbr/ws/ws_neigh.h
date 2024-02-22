@@ -18,6 +18,7 @@
 
 #ifndef WS_NEIGH_H
 #define WS_NEIGH_H
+#include <sys/queue.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
@@ -87,21 +88,23 @@ typedef struct ws_neigh {
     uint32_t ms_tx_count;                                  /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t ms_retries_count;                             /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
+    SLIST_ENTRY(ws_neigh) link;
 } ws_neigh_t;
 
+SLIST_HEAD(ws_neigh_list, ws_neigh);
 typedef void ws_neigh_remove_notify(const uint8_t *mac64);
 
 /**
  * Neighbor hopping info data base
  */
 typedef struct ws_neigh_table {
-    ws_neigh_t *neigh_info_list;           /*!< Allocated hopping info array*/
+    struct ws_neigh_list neigh_info_list;           /*!< Allocated hopping info array*/
     uint8_t list_size;                                    /*!< List size*/
     ws_neigh_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
 } ws_neigh_table_t;
 
 
-bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb);
+bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb);
 
 void ws_neigh_table_free(ws_neigh_table_t *table);
 
@@ -152,7 +155,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
 
 void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);
 
-uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
+size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
 
 void ws_neigh_trust(struct ws_neigh *neigh);
 

@@ -107,9 +107,7 @@ void ws_common_seconds_timer(int seconds)
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, eui64);
-    ws_neigh_t *neigh_table = interface->ws_info.neighbor_storage.neigh_info_list;
     uint32_t lifetime_s = aro_timeout * 60;
-    uint8_t child_count = 0;
 
     if (!ws_neigh)
         return ARO_TOPOLOGICALLY_INCORRECT;
@@ -125,21 +123,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_SUCCESS;
     }
 
-    for (uint8_t i = 0; i < interface->ws_info.neighbor_storage.list_size; i++) {
-        if (!neigh_table[i].in_use)
-            continue;
-        if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, neigh_table[i].mac64))
-            child_count++;
-    }
-
-    if (child_count >= interface->ws_info.neighbor_storage.list_size) {
-        tr_warn("Child registration not allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
-        return ARO_FULL;
-    }
-
     ws_neigh_refresh(ws_neigh, lifetime_s);
-    tr_info("Child registration allowed %d/%d", child_count, interface->ws_info.neighbor_storage.list_size);
-
     return ARO_SUCCESS;
 }
 

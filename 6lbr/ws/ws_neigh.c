@@ -18,11 +18,13 @@
 
 #include <math.h>
 
+#include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/endian.h"
 #include "common/mathutils.h"
+#include "common/memutils.h"
 #include "common/rand.h"
 #include "common/log.h"
 #include "common/bits.h"
@@ -35,34 +37,15 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neigh_table_allocate(ws_neigh_table_t *table, uint8_t list_size, ws_neigh_remove_notify *remove_cb)
+bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb)
 {
-    ws_neigh_t *list_ptr;
-
-    table->neigh_info_list = malloc(sizeof(ws_neigh_t) * list_size);
-
-    if (!table->neigh_info_list)
-        return false;
-
-    table->list_size = list_size;
     table->remove_cb = remove_cb;
-    list_ptr = table->neigh_info_list;
-
-    for (uint8_t i = 0; i < list_size; i++) {
-        memset(list_ptr, 0, sizeof(ws_neigh_t));
-        list_ptr->rsl_in_dbm = NAN;
-        list_ptr->rsl_out_dbm = NAN;
-        list_ptr->index = i;
-        list_ptr++;
-    }
     return true;
 }
 
 
 void ws_neigh_table_free(ws_neigh_table_t *table)
 {
-    free(table->neigh_info_list);
-    table->neigh_info_list = NULL;
     table->list_size = 0;
 }
 
@@ -71,18 +54,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                          uint8_t role,
                          unsigned int key_index_mask)
 {
-    ws_neigh_t *neigh_table = table->neigh_info_list;
-    ws_neigh_t *neigh = NULL;
-
-    for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].in_use) {
-            neigh = &neigh_table[i];
-            break;
-        }
-    }
-
-    if (!neigh)
-        return NULL;
+    ws_neigh_t *neigh = zalloc(sizeof(struct ws_neigh));
 
     neigh->node_role = role;
     for (uint8_t key_index = 1; key_index <= 7; key_index++)
@@ -92,20 +64,20 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     memcpy(neigh->mac64, mac64, 8);
     neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    neigh->rsl_in_dbm = NAN;
+    neigh->rsl_out_dbm = NAN;
+    SLIST_INSERT_HEAD(&table->neigh_info_list, neigh, link);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
     return neigh;
 }
 
 ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
 {
-    ws_neigh_t *neigh_table = table->neigh_info_list;
+    struct ws_neigh *neigh;
 
-    for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].in_use)
-            continue;
-        if (!memcmp(neigh_table[i].mac64, mac64, 8))
-            return &neigh_table[i];
-    }
+    SLIST_FOREACH(neigh, &table->neigh_info_list, link)
+        if (!memcmp(neigh->mac64, mac64, 8))
+            return neigh;
 
     return NULL;
 }
@@ -113,41 +85,27 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
 void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
 {
     ws_neigh_t *neigh = ws_neigh_get(table, mac64);
-    uint8_t index;
 
     if (neigh) {
+        SLIST_REMOVE(&table->neigh_info_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
-        index = neigh->index;
-        memset(neigh, 0, sizeof(ws_neigh_t));
-        neigh->rsl_in_dbm = NAN;
-        neigh->rsl_out_dbm = NAN;
-        neigh->index = index;
+        free(neigh);
     }
 }
 
 void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 {
-    ws_neigh_t *neigh_table = table->neigh_info_list;
+    struct ws_neigh *neigh;
+    struct ws_neigh *tmp;
 
-    for (uint8_t i = 0; i < table->list_size; i++) {
-        if (!neigh_table[i].in_use)
-            continue;
-
-        if (time_current(CLOCK_MONOTONIC) >= neigh_table[i].expiration_s)
-            table->remove_cb(neigh_table[i].mac64);
-    }
+    SLIST_FOREACH_SAFE(neigh, &table->neigh_info_list, link, tmp)
+        if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
+            table->remove_cb(neigh->mac64);
 }
 
-uint8_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
+size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
 {
-    ws_neigh_t *neigh_table = table->neigh_info_list;
-    uint8_t count = 0;
-
-    for (uint8_t i = 0; i < table->list_size; i++)
-        if (neigh_table[i].in_use)
-            count++;
-
-    return count;
+    return SLIST_SIZE(&table->neigh_info_list, link);
 }
 
 static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
@@ -552,13 +510,12 @@ bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_
 
 int ws_neigh_lfn_count(ws_neigh_table_t *table)
 {
-    ws_neigh_t *neigh_table = table->neigh_info_list;
+    struct ws_neigh *neigh;
     int cnt = 0;
 
-    for (uint8_t i = 0; i < table->list_size; i++)
-        if (neigh_table[i].node_role == WS_NR_ROLE_LFN)
+    SLIST_FOREACH(neigh, &table->neigh_info_list, link)
+        if (neigh->node_role == WS_NR_ROLE_LFN)
             cnt++;
-
     return cnt;
 }
 
