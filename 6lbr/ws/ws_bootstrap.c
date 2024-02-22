@@ -269,7 +269,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
     } else {
         cur->ws_info.key_index_mask &= ~(1u << key_index);
     }
-    SLIST_FOREACH(neigh, & cur->ws_info.neighbor_storage.neigh_info_list, link)
+    SLIST_FOREACH(neigh, & cur->ws_info.neighbor_storage.neigh_list, link)
         neigh->frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;
 }
 

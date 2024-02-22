@@ -53,7 +53,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->rsl_in_dbm = NAN;
     neigh->rsl_out_dbm = NAN;
-    SLIST_INSERT_HEAD(&table->neigh_info_list, neigh, link);
+    SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
     return neigh;
 }
@@ -62,7 +62,7 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
 {
     struct ws_neigh *neigh;
 
-    SLIST_FOREACH(neigh, &table->neigh_info_list, link)
+    SLIST_FOREACH(neigh, &table->neigh_list, link)
         if (!memcmp(neigh->mac64, mac64, 8))
             return neigh;
 
@@ -74,7 +74,7 @@ void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
     ws_neigh_t *neigh = ws_neigh_get(table, mac64);
 
     if (neigh) {
-        SLIST_REMOVE(&table->neigh_info_list, neigh, ws_neigh, link);
+        SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         free(neigh);
     }
@@ -85,7 +85,7 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
     struct ws_neigh *neigh;
     struct ws_neigh *tmp;
 
-    SLIST_FOREACH_SAFE(neigh, &table->neigh_info_list, link, tmp)
+    SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
         if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
             if (table->on_expire)
                 table->on_expire(neigh->mac64);
@@ -93,7 +93,7 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 
 size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
 {
-    return SLIST_SIZE(&table->neigh_info_list, link);
+    return SLIST_SIZE(&table->neigh_list, link);
 }
 
 static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
@@ -501,7 +501,7 @@ int ws_neigh_lfn_count(ws_neigh_table_t *table)
     struct ws_neigh *neigh;
     int cnt = 0;
 
-    SLIST_FOREACH(neigh, &table->neigh_info_list, link)
+    SLIST_FOREACH(neigh, &table->neigh_list, link)
         if (neigh->node_role == WS_NR_ROLE_LFN)
             cnt++;
     return cnt;
