@@ -101,7 +101,7 @@ typedef struct ws_neigh_table {
 } ws_neigh_table_t;
 
 
-bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb);
+void ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb);
 
 ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
 

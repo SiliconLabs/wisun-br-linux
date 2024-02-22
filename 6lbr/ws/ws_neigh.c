@@ -37,10 +37,9 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb)
+void ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *remove_cb)
 {
     table->remove_cb = remove_cb;
-    return true;
 }
 
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
