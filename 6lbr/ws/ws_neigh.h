@@ -99,7 +99,6 @@ typedef void ws_neigh_remove_notify(const uint8_t *mac64);
  */
 typedef struct ws_neigh_table {
     struct ws_neigh_list neigh_info_list;           /*!< Allocated hopping info array*/
-    uint8_t list_size;                                    /*!< List size*/
     ws_neigh_remove_notify *remove_cb;              /*!< Neighbor Remove Callback notify */
 } ws_neigh_table_t;
 

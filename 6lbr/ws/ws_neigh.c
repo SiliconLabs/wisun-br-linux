@@ -46,7 +46,6 @@ bool ws_neigh_table_allocate(ws_neigh_table_t *table, ws_neigh_remove_notify *re
 
 void ws_neigh_table_free(ws_neigh_table_t *table)
 {
-    table->list_size = 0;
 }
 
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,

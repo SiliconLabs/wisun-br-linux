@@ -361,7 +361,6 @@ int ws_bootstrap_init(int8_t interface_id)
     if (!cur)
         return -1;
 
-    neigh_info.list_size = 0;
     if (!ws_neigh_table_allocate(&neigh_info, ws_bootstrap_neighbor_del)) {
         ret_val = -1;
         goto init_fail;
