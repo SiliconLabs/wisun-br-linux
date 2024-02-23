@@ -18,7 +18,6 @@
 #include "6lbr/app/wsbr_mac.h"
 #include "6lbr/app/wsbr.h"
 #include "6lbr/app/tun.h"
-#include "tools/fuzz/capture.h"
 #include "tools/fuzz/commandline.h"
 #include "tools/fuzz/interfaces.h"
 #include "tools/fuzz/replay.h"
@@ -32,7 +31,6 @@
 #include "common/version.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
-#include "capture.h"
 #include "interfaces.h"
 
 struct fuzz_ctxt g_fuzz_ctxt = {
@@ -46,8 +44,6 @@ struct fuzz_ctxt g_fuzz_ctxt = {
         { -1, -1 },
         { -1, -1 },
     },
-    .capture_fd      = -1,
-    .capture_init_fd = -1,
 };
 
 void __real_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream));
@@ -59,9 +55,9 @@ void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
 
     if (ctxt->fuzzing_enabled)
         ctxt->wsbrd->config.storage_delete = true;
-    if (ctxt->capture_fd >= 0 || ctxt->replay_count) {
-        WARN_ON(!ctxt->wsbrd->config.storage_delete, "storage_delete set to false while using capture/replay");
-        WARN_ON(!ctxt->wsbrd->config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
+    if (ctxt->replay_count) {
+        WARN_ON(!ctxt->wsbrd->config.storage_delete, "storage_delete set to false while using replay");
+        WARN_ON(!ctxt->wsbrd->config.tun_autoconf, "tun_autoconf set to false while using replay");
     }
 }
 
@@ -69,19 +65,11 @@ int __real_uart_rx(struct bus *bus, void *buf, unsigned int buf_len);
 int __wrap_uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
-    int ret;
 
     if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
         return 0;
-
-    ret = __real_uart_rx(bus, buf, buf_len);
-
-    if (fuzz_ctxt->capture_fd >= 0 && ret > 0) {
-        fuzz_capture_timers(fuzz_ctxt);
-        fuzz_capture_uart(fuzz_ctxt, buf, ret);
-    }
-
-    return ret;
+    else
+        return __real_uart_rx(bus, buf, buf_len);
 }
 
 bool __real_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc);
@@ -111,17 +99,10 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     ssize_t size = __real_read(fd, buf, count);
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
-    if (fd == ctxt->wsbrd->timerfd) {
-        if (ctxt->capture_fd >= 0) {
-            ctxt->timer_counter++;
-        } else if (ctxt->replay_count) {
-            ctxt->timer_counter--;
-            if (ctxt->timer_counter)
-                fuzz_trigger_timer(ctxt);
-        }
-    } else if (fd == ctxt->wsbrd->tun_fd && ctxt->capture_fd >= 0) {
-        fuzz_capture_timers(ctxt);
-        fuzz_capture_interface(ctxt, IF_TUN, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
+    if (fd == ctxt->wsbrd->timerfd && ctxt->replay_count) {
+        ctxt->timer_counter--;
+        if (ctxt->timer_counter)
+            fuzz_trigger_timer(ctxt);
     } else if (fd == ctxt->wsbrd->rcp.bus.fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
         ctxt->wsbrd->rcp.bus.fd = ctxt->replay_fds[ctxt->replay_i++];

@@ -25,6 +25,7 @@
 
 extern "C" {
 #include "6lbr/app/libwsbrd.h"
+#include "tools/fuzz/interfaces.h"
 #include "tools/fuzz/replay.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/memutils.h"
@@ -38,7 +39,7 @@ extern "C" {
 
 int g_simulation_id;
 std::string g_capture_filename;
-std::string g_capture_init_filename;
+std::string g_capture_init_filename; // Unused
 
 static void wsbr_ns3_cleanup(void *arg)
 {
@@ -78,10 +79,6 @@ void wsbr_ns3_main(const char *config)
         args.push_back((char *)g_capture_filename.c_str());
         args.push_back((char *)"--fuzz"); // Always use simplified RNG
     }
-    if (!g_capture_init_filename.empty()) {
-        args.push_back((char *)"--capture-init");
-        args.push_back((char *)g_capture_init_filename.c_str());
-    }
     args.push_back(NULL);
 
     pthread_cleanup_push(wsbr_ns3_cleanup, config_filename);
@@ -119,6 +116,11 @@ extern "C" void __wrap_exit(int status)
         fprintf(stderr, "\x1b[31mwsbrd: %s\x1b[0m\n", last_error);
     ns3::FatalImpl::FlushStreams();
     std::terminate();
+}
+
+void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf)
+{
+    BUG();
 }
 
 void fuzz_ind_replay_timers(struct rcp *rcp, struct iobuf_read *buf)

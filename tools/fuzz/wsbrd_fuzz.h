@@ -28,9 +28,6 @@ struct fuzz_ctxt {
     time_t mbedtls_time;
     int timer_counter;
 
-    int capture_fd;
-    int capture_init_fd;
-
     int replay_count;
     int replay_fds[10];
     int replay_i;

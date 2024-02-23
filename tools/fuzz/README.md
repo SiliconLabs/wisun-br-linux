@@ -4,10 +4,6 @@ This tool is designed to fuzz the `wsbrd` daemon. To do so an additional
 program `wsbrd-fuzz` is compiled, which wraps `wsbrd` and provides
 additional options:
 
-- `--capture` records all packets arriving at the UART and TUN interfaces, as
-  well as keep track of time elapsed between packets. This data is saved to a
-  file in a raw format, and is intended for use with `--replay`. Using
-  `--delete-storage` is recommended to avoid using cache files.
 - `--replay` replaces the regular UART input device with a file containing raw
   data (`-u` is ignored). To replay time delays, and TUN packets, some
   additional SPINEL commands have been added, which are only implemented in
@@ -18,9 +14,6 @@ additional options:
   (which are generally seeds or keys for cryptographic purposes), and removes
   some SPINEL size checks to help the fuzzer. The NVM is also disabled as when
   using `--delete-storage`.
-- `--capture-init` records the RCP initialization phase in a separate file
-  during capture. This helps the fuzzer explore the main loop rather than this
-  restrictive phase.
 
 While originally designed for fuzzing, these options can also be used as a
 debug tool. The replay mode allows running a debugger several times without
@@ -104,10 +97,9 @@ same configuration for both `wsbrd` and the RCP. That being because the fuzzer
 will launch the program with the same arguments every time, which includes the
 config file as well as the RCP initialization recording.
 
-To record, use `wsbrd-fuzz` along with `--capture`, `--capture-init` and
-`--fuzz`:
+To record, use `wsbrd-fuzz` along with `--capture`, and `--fuzz`:
 
-    wsbrd-fuzz -F wsbr.conf --capture=uart.raw --capture-init=init.raw --fuzz
+    wsbrd-fuzz -F wsbr.conf --capture=capture.raw --fuzz
 
 Record several tests which cover different parts of the code, and gather the
 results in a single directory which will be refered as `in/` going forward.

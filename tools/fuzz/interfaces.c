@@ -27,7 +27,6 @@
 #include "common/hif.h"
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"
-#include "capture.h"
 
 static int fuzz_dhcp_get_socket_id()
 {
@@ -185,133 +184,70 @@ void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt)
     }
 }
 
-static void fuzz_capture_socket(int fd,
-                                const uint8_t src_addr[16],
-                                const uint8_t dst_addr[16],
-                                uint16_t src_port,
-                                const void *buf, size_t size)
-{
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    int i;
-
-    if (size <= 0)
-        return;
-
-    fuzz_capture_timers(ctxt);
-    i = fuzz_find_socket_index(fd);
-    fuzz_capture_interface(ctxt, s_sockets[i].interface,
-                           src_addr, dst_addr, src_port,
-                           buf, size);
-}
-
 ssize_t __real_recv(int sockfd, void *buf, size_t len, int flags);
 ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    ssize_t size;
 
-    if (ctxt->replay_count)
-        return read(sockfd, buf, len);
+    if (!ctxt->replay_count)
+        return __real_recv(sockfd, buf, len, flags);
 
-    size = __real_recv(sockfd, buf, len, flags);
-    if (ctxt->capture_fd >= 0)
-        fuzz_capture_socket(sockfd, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
-
-    return size;
+    return read(sockfd, buf, len);
 }
 
 ssize_t __real_recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_sa, socklen_t *addrlen);
 ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_sa, socklen_t *addrlen)
 {
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)src_sa;
-    const uint8_t *src_addr = in6addr_any.s6_addr;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    uint16_t src_port = 0;
-    ssize_t size;
     int i;
 
-    if (ctxt->replay_count) {
-        if (src_addr) {
-            BUG_ON(*addrlen < sizeof(struct sockaddr_in6));
-            *addrlen = sizeof(struct sockaddr_in6);
-            i = fuzz_find_socket_index(sockfd);
-            src_ipv6->sin6_family = AF_INET6;
-            src_ipv6->sin6_port = htons(s_sockets[i].src_port);
-            memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
-        }
-        return read(sockfd, buf, len);
-    }
+    if (!ctxt->replay_count)
+        return __real_recvfrom(sockfd, buf, len, flags, src_sa, addrlen);
 
-    size = __real_recvfrom(sockfd, buf, len, flags, src_sa, addrlen);
-    if (ctxt->capture_fd >= 0) {
-        if (src_sa) {
-            BUG_ON(src_ipv6->sin6_family != AF_INET6);
-            src_addr = src_ipv6->sin6_addr.s6_addr;
-            src_port = ntohs(src_ipv6->sin6_port);
-        }
-        fuzz_capture_socket(sockfd, src_addr, in6addr_any.s6_addr, src_port, buf, size);
+    if (addrlen) {
+        BUG_ON(*addrlen < sizeof(struct sockaddr_in6));
+        *addrlen = sizeof(struct sockaddr_in6);
+        i = fuzz_find_socket_index(sockfd);
+        src_ipv6->sin6_family = AF_INET6;
+        src_ipv6->sin6_port = htons(s_sockets[i].src_port);
+        memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
     }
-
-    return size;
+    return read(sockfd, buf, len);
 }
 
 ssize_t __real_recvmsg(int sockfd, struct msghdr *msg, int flags);
 ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
 {
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)msg->msg_name;
-    const uint8_t *src_addr = in6addr_any.s6_addr;
-    const uint8_t *dst_addr = in6addr_any.s6_addr;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     struct in6_pktinfo pktinfo = { };
-    uint16_t src_port = 0;
     struct cmsghdr *cmsg;
-    ssize_t size;
     int i;
 
+    if (!ctxt->replay_count)
+        return __real_recvmsg(sockfd, msg, flags);
+
     BUG_ON(msg->msg_iovlen != 1);
-    if (ctxt->replay_count) {
-        i = fuzz_find_socket_index(sockfd);
-        if (msg->msg_namelen) {
-            BUG_ON(msg->msg_namelen < sizeof(struct sockaddr_in6));
-            msg->msg_namelen = sizeof(struct sockaddr_in6);
-            src_ipv6->sin6_family = AF_INET6;
-            src_ipv6->sin6_port = htons(s_sockets[i].src_port);
-            memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
-        }
-        if (msg->msg_controllen) {
-            BUG_ON(msg->msg_controllen < CMSG_SPACE(sizeof(struct in6_pktinfo)));
-            cmsg = CMSG_FIRSTHDR(msg);
-            BUG_ON(!cmsg);
-            cmsg->cmsg_len   = CMSG_LEN(sizeof(struct in6_pktinfo));
-            cmsg->cmsg_level = IPPROTO_IPV6;
-            cmsg->cmsg_type  = IPV6_PKTINFO;
-            memcpy(pktinfo.ipi6_addr.s6_addr, s_sockets[i].dst_addr, 16);
-            memcpy(CMSG_DATA(cmsg), &pktinfo, sizeof(pktinfo));
-        }
-        return read(sockfd, msg->msg_iov[0].iov_base, msg->msg_iov[0].iov_len);
+    i = fuzz_find_socket_index(sockfd);
+    if (msg->msg_namelen) {
+        BUG_ON(msg->msg_namelen < sizeof(struct sockaddr_in6));
+        msg->msg_namelen = sizeof(struct sockaddr_in6);
+        src_ipv6->sin6_family = AF_INET6;
+        src_ipv6->sin6_port = htons(s_sockets[i].src_port);
+        memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
     }
-
-    size = __real_recvmsg(sockfd, msg, flags);
-    if (ctxt->capture_fd >= 0) {
-        if (msg->msg_namelen) {
-            BUG_ON(src_ipv6->sin6_family != AF_INET6);
-            src_addr = src_ipv6->sin6_addr.s6_addr;
-            src_port = ntohs(src_ipv6->sin6_port);
-        }
-        if (msg->msg_controllen) {
-            cmsg = CMSG_FIRSTHDR(msg);
-            BUG_ON(!cmsg);
-            BUG_ON(cmsg->cmsg_level != IPPROTO_IPV6);
-            BUG_ON(cmsg->cmsg_type != IPV6_PKTINFO);
-            BUG_ON(cmsg->cmsg_len < sizeof(struct in6_pktinfo));
-            dst_addr = ((struct in6_pktinfo *)CMSG_DATA(cmsg))->ipi6_addr.s6_addr;
-        }
-        fuzz_capture_socket(sockfd, src_addr, dst_addr, src_port,
-                            msg->msg_iov[0].iov_base, size);
-
+    if (msg->msg_controllen) {
+        BUG_ON(msg->msg_controllen < CMSG_SPACE(sizeof(struct in6_pktinfo)));
+        cmsg = CMSG_FIRSTHDR(msg);
+        BUG_ON(!cmsg);
+        cmsg->cmsg_len   = CMSG_LEN(sizeof(struct in6_pktinfo));
+        cmsg->cmsg_level = IPPROTO_IPV6;
+        cmsg->cmsg_type  = IPV6_PKTINFO;
+        memcpy(pktinfo.ipi6_addr.s6_addr, s_sockets[i].dst_addr, 16);
+        memcpy(CMSG_DATA(cmsg), &pktinfo, sizeof(pktinfo));
     }
-
-    return size;
+    return read(sockfd, msg->msg_iov[0].iov_base, msg->msg_iov[0].iov_len);
 }
 
 int __real_socket(int domain, int type, int protocol);

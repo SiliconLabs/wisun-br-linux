@@ -296,7 +296,6 @@ if(COMPILE_DEVTOOLS)
         tools/fuzz/wsbrd_fuzz.c
         tools/fuzz/commandline.c
         tools/fuzz/interfaces.c
-        tools/fuzz/capture.c
         tools/fuzz/replay.c
         tools/fuzz/rand.c
         tools/fuzz/main.c
@@ -378,9 +377,7 @@ if(COMPILE_DEVTOOLS)
             tools/simulation/rand.cpp
             tools/simulation/time.cpp
             tools/simulation/uart.cpp
-            tools/fuzz/capture.c
             tools/fuzz/commandline.c
-            tools/fuzz/interfaces.c
             tools/fuzz/rand.c
             tools/fuzz/wsbrd_fuzz.c
         )
@@ -403,12 +400,6 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
             -Wl,--wrap=getrandom
-            # For --capture
-            -Wl,--wrap=uart_rx
-            -Wl,--wrap=read
-            -Wl,--wrap=recv
-            -Wl,--wrap=recvfrom
-            -Wl,--wrap=recvmsg
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
