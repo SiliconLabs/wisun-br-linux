@@ -57,6 +57,8 @@ struct wsbrd_conf {
 
     uint8_t ipv6_prefix[16];
 
+    char capture[PATH_MAX];
+
     char storage_prefix[PATH_MAX];
     bool storage_delete;
     bool storage_exit;

@@ -191,6 +191,11 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  -A, --authority=FILE   Certificate of the authority (CA) (shared with all devices of the\n");
     fprintf(stream, "                           network)\n");
     fprintf(stream, "\n");
+    fprintf(stream, "Debug:\n");
+    fprintf(stream, "  --capture=FILE        Record raw data received on UART and network interfaces, and save it\n");
+    fprintf(stream, "                          to FILE. Also record timer ticks, and use a predicable RNG for\n");
+    fprintf(stream, "                          replay using wsbrd-fuzz.\n");
+    fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
@@ -592,6 +597,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "certificate", required_argument, 0,  'C' },
         { "authority",   required_argument, 0,  'A' },
         { "baudrate",    required_argument, 0,  'b' },
+        { "capture",     required_argument, 0,  'r' },
         { "hardflow",    no_argument,       0,  'H' },
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
@@ -727,6 +733,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                     config->storage_exit = true;
                 config->storage_delete = true;
                 break;
+            case 'r':
+                snprintf(config->capture, sizeof(config->capture), "%s", optarg); // safe strncpy()
+                break;
             case 'h':
                 print_help(stdout);
                 exit(0);
@@ -829,4 +838,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if ((memzcmp(config->ws_gtk_force, sizeof(config->ws_gtk_force)) ||
          memzcmp(config->ws_lgtk_force, sizeof(config->ws_lgtk_force))) && config->ws_pan_id != -1)
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
+    if (config->capture[0] && !config->storage_delete)
+        WARN("--capture used without --delete-storage");
 }

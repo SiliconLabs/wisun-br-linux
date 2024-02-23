@@ -14,6 +14,7 @@
 #include <signal.h>
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
+#include "common/capture.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/bus.h"
@@ -543,6 +544,8 @@ int wsbr_main(int argc, char *argv[])
         exit(0);
     if (ctxt->config.pcap_file[0])
         wsbr_pcapng_init(ctxt);
+    if (ctxt->config.capture[0])
+        capture_start(ctxt->config.capture);
 
     wsbr_rcp_reset(ctxt);
     wsbr_rcp_init(ctxt);
