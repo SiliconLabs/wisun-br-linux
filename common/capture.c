@@ -13,6 +13,7 @@
 #define _GNU_SOURCE
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sys/random.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -221,6 +222,25 @@ ssize_t xsendto(int fd, const void *buf, size_t buf_len, int flags,
 ssize_t xsendmsg(int fd, const struct msghdr *msg, int flags)
 {
     return sendmsg(fd, msg, flags);
+}
+
+ssize_t xgetrandom(void *buf, size_t buf_len, unsigned int flags)
+{
+    static bool init = false;
+    struct capture_ctxt *ctxt = &g_capture_ctxt;
+    uint8_t *ptr = (uint8_t *)buf;
+    size_t cnt = buf_len;
+
+    if (ctxt->recfd < 0)
+        return getrandom(buf, buf_len, flags);
+
+    if (!init) {
+        srand(0);
+        init = true;
+    }
+    while (cnt--)
+        *ptr++ = rand();
+    return buf_len;
 }
 
 void capture_record_hif(const void *buf, size_t buf_len)

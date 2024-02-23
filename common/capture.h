@@ -27,7 +27,8 @@
  * frames received by the RCP must be recorded by calling capture_record_hif().
  * File descriptor interactions must use the xread()/xwrite() variants, which
  * call the regular read()/write() and write data to the capture file only
- * after capture_start() is called to set the output file.
+ * after capture_start() is called to set the output file. Finally, all random
+ * number generation must use xgetrandom() to ensure reproducibility.
  */
 
 ssize_t xread(int fd, void *buf, size_t buf_len);
@@ -41,6 +42,8 @@ ssize_t xsend(int fd, const void *buf, size_t buf_len, int flags);
 ssize_t xsendto(int fd, const void *buf, size_t buf_len, int flags,
                 const struct sockaddr *dst, socklen_t dst_len);
 ssize_t xsendmsg(int fd, const struct msghdr *msg, int flags);
+
+ssize_t xgetrandom(void *buf, size_t buf_len, unsigned int flags);
 
 void capture_register_timerfd(int fd);
 void capture_register_netfd(int fd);

@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <limits.h>
-#include <sys/random.h>
 
+#include "common/capture.h"
 #include "common/log.h"
 
 #include "rand.h"
@@ -58,7 +58,7 @@ void rand_get_n_bytes_random(void *ptr, uint8_t count)
 {
     int ret;
 
-    ret = getrandom(ptr, count, 0);
+    ret = xgetrandom(ptr, count, 0);
     FATAL_ON(ret != count, 2);
 }
 
