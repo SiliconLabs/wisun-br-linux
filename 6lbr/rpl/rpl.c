@@ -19,6 +19,7 @@
 #include "app/wsbr.h" // FIXME
 #include "app/dbus.h"
 #include "common/bits.h"
+#include "common/capture.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/named_values.h"
@@ -233,7 +234,7 @@ static void rpl_send(struct rpl_root *root, uint8_t code,
     ssize_t ret;
 
     memcpy(addr.sin6_addr.s6_addr, dst, 16);
-    ret = sendmsg(root->sockfd, &msg, 0);
+    ret = xsendmsg(root->sockfd, &msg, 0);
     if (ret < sizeof(icmpv6_hdr) + size)
         FATAL(2, "%s: sendto %s: %m", __func__, tr_ipv6(dst));
     TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s", tr_icmp_rpl(code), tr_ipv6(dst));
@@ -647,7 +648,7 @@ void rpl_recv(struct rpl_root *root)
     struct cmsghdr *cmsg;
     ssize_t size;
 
-    size = recvmsg(root->sockfd, &msg, 0);
+    size = xrecvmsg(root->sockfd, &msg, 0);
     FATAL_ON(size < 0, 2, "%s: recvmsg: %m", __func__);
     if (msg.msg_namelen != sizeof(src) || src.sin6_family != AF_INET6) {
         TRACE(TR_DROP, "drop %-9s: source address not IPv6", "rpl");
@@ -682,6 +683,7 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
 
     root->sockfd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(root->sockfd < 0, 2, "%s: socket: %m", __func__);
+    capture_register_netfd(root->sockfd);
     err = setsockopt(root->sockfd, IPPROTO_IPV6, IPV6_RECVPKTINFO, (int[1]){ true }, sizeof(int));
     FATAL_ON(err < 0, 2, "%s: setsockopt IPV6_RECVPKTINFO: %m", __func__);
     err = setsockopt(root->sockfd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, (int[1]){ false }, sizeof(int));

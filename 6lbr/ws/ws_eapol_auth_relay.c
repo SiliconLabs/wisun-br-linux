@@ -23,6 +23,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+
+#include "common/capture.h"
 #include "common/endian.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
@@ -90,6 +92,7 @@ int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_po
     eapol_auth_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
     if (eapol_auth_relay->socket_id < 0)
         FATAL(1, "%s: socket: %m", __func__);
+    capture_register_netfd(eapol_auth_relay->socket_id);
     if (setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
         FATAL(1, "%s: setsocketopt: %m", __func__);
     if (bind(eapol_auth_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
@@ -124,7 +127,7 @@ void ws_eapol_auth_relay_socket_cb(int fd)
         return;
     }
 
-    socket_data_len = recvfrom(fd, data, sizeof(data), 0, (struct sockaddr *) &sockaddr, &sockaddr_len);
+    socket_data_len = xrecvfrom(fd, data, sizeof(data), 0, (struct sockaddr *) &sockaddr, &sockaddr_len);
     if (socket_data_len <= 0)
         return;
 
@@ -194,7 +197,7 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
     msg_iov[0].iov_len = 26;
     msg_iov[1].iov_base = (void *)data;
     msg_iov[1].iov_len = data_len;
-    if (sendmsg(eapol_auth_relay->socket_id, &msghdr, 0) <= 0)
+    if (xsendmsg(eapol_auth_relay->socket_id, &msghdr, 0) <= 0)
         tr_debug("ws_eapol_auth_relay_send_to_kmp: %m");
     return 0;
 }

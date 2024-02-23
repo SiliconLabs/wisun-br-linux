@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
+#include "common/capture.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 
@@ -46,7 +48,7 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
     msg_iov[0].iov_len = 8;
     msg_iov[1].iov_base = (void *)data;
     msg_iov[1].iov_len = data_len;
-    if(sendmsg(socket_id, &msghdr, 0) <= 0)
+    if (xsendmsg(socket_id, &msghdr, 0) <= 0)
         tr_debug("ws_eapol_relay_lib_send_to_relay: %m");
     return 0;
 }

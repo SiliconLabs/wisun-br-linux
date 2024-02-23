@@ -11,6 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/bits.h"
+#include "common/capture.h"
 #include "common/endian.h"
 #include "common/hif.h"
 #include "common/iobuf.h"
@@ -484,6 +485,7 @@ void rcp_rx(struct rcp *rcp)
     buf.data_size = rcp->bus.rx(&rcp->bus, rcp_rx_buf, sizeof(rcp_rx_buf));
     if (!buf.data_size)
         return;
+    capture_record_hif(buf.data, buf.data_size);
     cmd = hif_pop_u8(&buf);
     if (cmd == 0xff)
         spinel_trace(buf.data, buf.data_size, "hif rx: ");

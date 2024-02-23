@@ -15,6 +15,7 @@
 #include <net/if.h>
 #include <errno.h>
 
+#include "common/capture.h"
 #include "common/log.h"
 #include "common/iobuf.h"
 #include "common/named_values.h"
@@ -251,8 +252,8 @@ static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
     TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
           val_to_str(reply->data[0], dhcp_frames, "[UNK]"),
           tr_ipv6(dest->sin6_addr.s6_addr));
-    ret = sendto(dhcp->fd, reply->data, reply->len, 0,
-                 (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
+    ret = xsendto(dhcp->fd, reply->data, reply->len, 0,
+                  (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
     WARN_ON(ret < 0, "%s: sendmsg: %m", __func__);
 }
 
@@ -340,8 +341,8 @@ void dhcp_recv(struct dhcp_server *dhcp)
     uint8_t buf[1024];
 
     req.data = buf;
-    req.data_size = recvfrom(dhcp->fd, buf, sizeof(buf), 0,
-                             (struct sockaddr *)&src_addr, &src_addr_len);
+    req.data_size = xrecvfrom(dhcp->fd, buf, sizeof(buf), 0,
+                              (struct sockaddr *)&src_addr, &src_addr_len);
     if (src_addr.sin6_family != AF_INET6) {
         TRACE(TR_DROP, "drop %-9s: not IPv6", "dhcp");
         return;
@@ -374,6 +375,7 @@ void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, 
     dhcp->fd = socket(AF_INET6, SOCK_DGRAM, 0);
     if (dhcp->fd < 0)
         FATAL(1, "%s: socket: %m", __func__);
+    capture_register_netfd(dhcp->fd);
     if (setsockopt(dhcp->fd, SOL_SOCKET, SO_BINDTODEVICE, tun_dev, IF_NAMESIZE) < 0)
         FATAL(1, "%s: setsockopt: %m", __func__);
     if (bind(dhcp->fd, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)

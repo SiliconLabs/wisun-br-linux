@@ -23,6 +23,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+
+#include "common/capture.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/specs/ipv6.h"
@@ -103,6 +105,7 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
     eapol_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
     if (eapol_relay->socket_id < 0)
         FATAL(1, "%s: socket: %m", __func__);
+    capture_register_netfd(eapol_relay->socket_id);
     if (setsockopt(eapol_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
         FATAL(1, "%s: setsocketopt: %m", __func__);
     if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
@@ -149,7 +152,7 @@ void ws_eapol_relay_socket_cb(int fd)
     ssize_t data_len;
     uint8_t data[2048];
 
-    data_len = recv(fd, data, sizeof(data), 0);
+    data_len = xrecv(fd, data, sizeof(data), 0);
     if (data_len <= 0)
         return;
 

@@ -29,6 +29,7 @@
 #include <netlink/route/link/inet6.h>
 #include <arpa/inet.h>
 #include "common/bits.h"
+#include "common/capture.h"
 #include "common/log.h"
 #include "common/endian.h"
 #include "common/iobuf.h"
@@ -52,7 +53,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     ssize_t ret;
 
-    ret = write(ctxt->tun_fd, buf, len);
+    ret = xwrite(ctxt->tun_fd, buf, len);
     TRACE(TR_TUN, "tx-tun: %u bytes", len);
     if (ret < 0)
         WARN("%s: write: %m", __func__);
@@ -264,6 +265,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[8], uint8_t ipv6_pr
         FATAL(2, "tun open: %m");
     if (ioctl(fd, TUNSETIFF, &ifr))
         FATAL(2, "tun ioctl: %m");
+    capture_register_netfd(fd);
     if (devname)
         strcpy(devname, ifr.ifr_name);
     sock = nl_socket_alloc();
@@ -421,7 +423,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 
     if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
         return;
-    iobuf.data_size = read(ctxt->tun_fd, buf, sizeof(buf));
+    iobuf.data_size = xread(ctxt->tun_fd, buf, sizeof(buf));
     if (iobuf.data_size < 0) {
         WARN("%s: read: %m", __func__);
         return;

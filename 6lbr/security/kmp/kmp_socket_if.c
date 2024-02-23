@@ -24,6 +24,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+
+#include "common/capture.h"
 #include "common/endian.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
@@ -117,6 +119,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             socket_if->kmp_socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
             if (socket_if->kmp_socket_id < 0)
                 FATAL(1, "%s: socket: %m", __func__);
+            capture_register_netfd(socket_if->kmp_socket_id);
             if (setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
                 FATAL(1, "%s: setsocketopt: %m", __func__);
             if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
@@ -133,6 +136,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             socket_if->kmp_socket_id = socket(socket_if->remote_sockaddr.ss_family, SOCK_DGRAM, 0);
             if (socket_if->kmp_socket_id < 0)
                 FATAL(1, "%s: socket: %m", __func__);
+            capture_register_netfd(socket_if->kmp_socket_id);
             radius_cli_bind.ss_family = ((struct sockaddr_storage *) remote_addr)->ss_family;
             if (bind(socket_if->kmp_socket_id, (struct sockaddr *)&radius_cli_bind, sizeof(radius_cli_bind)) < 0)
                 FATAL(1, "%s: bind: %m", __func__);
@@ -211,9 +215,11 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
     }
 
     if (instance_id == KMP_RELAY_INSTANCE_INDEX)
-        ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&sockaddr, sizeof(struct sockaddr_in6));
+        ret = xsendto(socket_if->kmp_socket_id, pdu, size, 0,
+                      (struct sockaddr *)&sockaddr, sizeof(struct sockaddr_in6));
     else if (instance_id == KMP_RADIUS_INSTANCE_INDEX)
-        ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->remote_sockaddr, sizeof(socket_if->remote_sockaddr));
+        ret = xsendto(socket_if->kmp_socket_id, pdu, size, 0,
+                      (struct sockaddr *)&socket_if->remote_sockaddr, sizeof(socket_if->remote_sockaddr));
     else
         ret = -1;
 
@@ -241,7 +247,7 @@ void kmp_socket_if_pae_socket_cb(int fd)
     uint8_t data[2048];
     uint8_t *pdu = NULL;
 
-    data_len = recv(fd, data, sizeof(data), 0);
+    data_len = xrecv(fd, data, sizeof(data), 0);
     if (data_len <= 0)
         return;
 
@@ -302,7 +308,7 @@ uint8_t kmp_socket_if_radius_socket_cb(int fd)
         return -1;
     }
 
-    size = recv(fd, radius_recv_buf, sizeof(radius_recv_buf), 0);
+    size = xrecv(fd, radius_recv_buf, sizeof(radius_recv_buf), 0);
     if (size < 0)
         return -1;
 

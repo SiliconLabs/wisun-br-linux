@@ -1,6 +1,7 @@
 #include <sys/timerfd.h>
 #include <inttypes.h>
-#include <unistd.h>
+
+#include "common/capture.h"
 #include "common/log.h"
 
 #include "net/timers.h"
@@ -18,6 +19,7 @@ void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 
     ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
     FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
+    capture_register_timerfd(ctxt->timerfd);
     ret = timerfd_settime(ctxt->timerfd, 0, &parms, NULL);
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
@@ -27,7 +29,7 @@ void wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
     uint64_t val;
     int ret;
 
-    ret = read(ctxt->timerfd, &val, sizeof(val));
+    ret = xread(ctxt->timerfd, &val, sizeof(val));
     WARN_ON(ret < sizeof(val), "cancelled timer?");
     WARN_ON(val != 1, "missing timers: %"PRIu64, val - 1);
     ws_timer_global_tick();
