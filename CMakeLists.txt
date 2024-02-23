@@ -122,6 +122,7 @@ add_library(libwsbrd STATIC
     6lbr/app/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
+    common/capture.c
     common/events_scheduler.c
     common/log.c
     common/bits.c
