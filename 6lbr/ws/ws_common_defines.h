@@ -41,7 +41,7 @@ struct ws_jm { // Join metrics
  * @brief ws_pan_information_t PAN information
  */
 typedef struct ws_pan_information {
-    uint16_t pan_id;
+    int pan_id;
     int test_pan_size;
     uint16_t max_pan_size;
     struct ws_jm jm;

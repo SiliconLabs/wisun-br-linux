@@ -117,6 +117,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.pae_random_early_detection.drop_max_probability = 100,
 
     .net_if.ws_info.neighbor_storage.on_expire = ws_bootstrap_neighbor_del,
+    .net_if.ws_info.pan_information.pan_id = -1,
 
     .os_ctxt = &g_os_ctxt,
 };
@@ -286,7 +287,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
-    ctxt->net_if.ws_info.pan_information.pan_id = 0xffff;
     ctxt->net_if.ws_info.fhss_conf.bsi = 0xffff;
 
     ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
@@ -300,12 +300,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
     ctxt->net_if.ws_info.pan_information.lfn_version_set = ctxt->net_if.ws_info.enable_lfn;
 
-    if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != 0xffff &&
+    if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != -1 &&
         ctxt->net_if.ws_info.pan_information.pan_id != ctxt->config.ws_pan_id)
         FATAL(1, "PAN_ID out-of-date in storage (see -D)");
-    if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
+    if (ctxt->net_if.ws_info.pan_information.pan_id == -1)
         ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
-    if (ctxt->net_if.ws_info.pan_information.pan_id == 0xffff)
+    if (ctxt->net_if.ws_info.pan_information.pan_id == -1)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
     if (ctxt->net_if.ws_info.fhss_conf.bsi == 0xffff)
         ctxt->net_if.ws_info.fhss_conf.bsi = rand_get_random_in_range(0, 0xfffe);

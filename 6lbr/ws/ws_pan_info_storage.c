@@ -31,7 +31,7 @@
 // i.e. storage must be written at least once a week
 #define PAN_VERSION_STORAGE_READ_INCREMENT    1000
 
-void ws_pan_info_storage_read(uint16_t *bsi, uint16_t *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
+void ws_pan_info_storage_read(uint16_t *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
                               char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
