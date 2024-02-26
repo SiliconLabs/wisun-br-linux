@@ -104,7 +104,6 @@ typedef enum eapol_pdu_recv_prior {
 } eapol_pdu_recv_prior_e;
 
 typedef struct eapol_pdu_recv_cb_data {
-    eapol_pdu_recv_prior_e priority;           /**< Priority: high, medium or low */
     bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
     ws_eapol_pdu_address_check *addr_check;    /**< Address check callback */
     ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
