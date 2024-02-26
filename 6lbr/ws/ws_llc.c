@@ -630,6 +630,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         // Calculate RSL for all UDATA packets heard
         ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
+        ws_neigh->lqi = data->mpduLinkQuality;
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
@@ -710,6 +711,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
 
     // Calculate RSL for all UDATA packets heard
     ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
+    ws_neigh->lqi = data->mpduLinkQuality;
 
     if (data->Key.SecurityLevel)
         ws_neigh_trust(ws_neigh);

@@ -70,6 +70,7 @@ typedef struct ws_neigh {
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
     uint8_t last_DSN;
     int rssi;
+    int lqi;
     bool unicast_data_rx : 1;
     time_t host_rx_timestamp;
     struct ws_pom_ie pom_ie;
