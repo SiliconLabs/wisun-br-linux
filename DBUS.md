@@ -157,6 +157,7 @@ graph is refreshed.
 |`is_authenticated`|`b`      |                                                                          |
 |`is_neighbor`     |`b`      |Only nodes that use direct unicast traffic to the border router are listed|
 |`rssi`            |`i`      |Received Signal Strength Indication (RSSI) of the last packet received in dBm (neighbor only)|
+|`lqi`             |`y`      |Link Quality Indicator (LQI) of the last packet received (neighbor only)|
 |`rsl`             |`i`      |Exponentially Weighted Moving Average (EWMA) of the Received Signal Level (RSL) in dBm (neighbor only)|
 |`rsl_adv`         |`i`      |EWMA of the RSL in dBm advertised by the node in RSL-IE (neighbor only)   |
 |`pom`             |`ay`     |List of PhyModeIds for mode switch advertised in POM-IE (neighbor only)   |

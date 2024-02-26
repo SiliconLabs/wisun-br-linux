@@ -415,6 +415,11 @@ static int dbus_message_append_node(
                 sd_bus_message_append(m, "i", (int)neighbor->rsl_out_dbm);
                 dbus_message_close_info(m, property);
             }
+            if (neighbor->lqi != INT_MAX) {
+                dbus_message_open_info(m, property, "lqi", "y");
+                sd_bus_message_append(m, "y", (uint8_t)neighbor->lqi);
+                dbus_message_close_info(m, property);
+            }
             dbus_message_open_info(m, property, "pom", "ay");
             sd_bus_message_append_array(m, 'y',
                                                 neighbor->pom_ie.phy_op_mode_id,
@@ -450,6 +455,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .rssi    = INT_MAX,
         .rsl_in_dbm  = NAN,
         .rsl_out_dbm = NAN,
+        .lqi = INT_MAX,
         .pom_ie.mdr_command_capable = true,
     };
 
