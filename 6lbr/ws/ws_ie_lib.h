@@ -25,7 +25,6 @@
 #include "ws/ws_common_defines.h"
 
 struct iobuf_write;
-struct ws_pan_information;
 struct ws_utt_ie;
 struct ws_bt_ie;
 struct ws_us_ie;
@@ -98,7 +97,7 @@ void       ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm *jm
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
-bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration);
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, ws_pan_ie_t *pan_ie);
 bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
 bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, ws_wp_netname_t *network_name);
 bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t gtkhash[4]);

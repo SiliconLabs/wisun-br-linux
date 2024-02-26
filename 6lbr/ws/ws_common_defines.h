@@ -249,6 +249,16 @@ typedef struct ws_lbats_ie {
     uint16_t next_transmit_delay;
 } ws_lbats_ie_t;
 
+typedef struct ws_pan_ie {
+    uint16_t pan_size;
+    uint16_t routing_cost;
+    unsigned use_parent_bs_ie: 1;
+    unsigned routing_method: 1;
+    unsigned lfn_window_style: 1;
+    unsigned reserved: 2;
+    unsigned fan_tps_version: 3;
+} ws_pan_ie_t;
+
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class
  */

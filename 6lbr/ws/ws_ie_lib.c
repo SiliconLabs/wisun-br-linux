@@ -822,23 +822,19 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration)
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, ws_pan_ie_t *pan_ie)
 {
     struct iobuf_read ie_buf;
     uint8_t tmp8;
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_PAN, &ie_buf, false);
-    iobuf_pop_le16(&ie_buf); // PAN size
-    pan_configuration->routing_cost = iobuf_pop_le16(&ie_buf);
+    pan_ie->pan_size = iobuf_pop_le16(&ie_buf);
+    pan_ie->routing_cost = iobuf_pop_le16(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    if (!FIELD_GET(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, tmp8))
-        TRACE(TR_IGNORE, "ignore %-9s: unsupported local BS-IE", "15.4");
-    if (!FIELD_GET(WS_WPIE_PAN_ROUTING_METHOD_MASK, tmp8))
-        TRACE(TR_IGNORE, "ignore %-9s: unsupported routing method", "15.4");
-    pan_configuration->version            = FIELD_GET(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  tmp8);
-    if (pan_configuration->version > WS_FAN_VERSION_1_0 &&
-        FIELD_GET(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, tmp8))
-        TRACE(TR_IGNORE, "ignore %-9s: unsupported LFN window style", "15.4");
+    pan_ie->use_parent_bs_ie = FIELD_GET(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, tmp8);
+    pan_ie->routing_method = FIELD_GET(WS_WPIE_PAN_ROUTING_METHOD_MASK, tmp8);
+    pan_ie->lfn_window_style = FIELD_GET(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, tmp8);
+    pan_ie->fan_tps_version = FIELD_GET(WS_WPIE_PAN_FAN_TPS_VERSION_MASK, tmp8);
     return !ie_buf.err;
 }
 

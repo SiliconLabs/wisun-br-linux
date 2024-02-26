@@ -87,7 +87,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
-    ws_pan_information_t pan_information;
+    ws_pan_ie_t ie_pan;
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
@@ -96,7 +96,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PA))
         return;
     // FIXME: see comment in ws_llc_mngt_ind
-    if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
+    if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pan)) {
         TRACE(TR_DROP, "drop %-9s: missing PAN-IE", tr_ws_frame(WS_FT_PA));
         return;
     }
@@ -109,9 +109,15 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     }
 
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
+    if (!ie_pan.use_parent_bs_ie)
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported local BS-IE", "15.4");
+    if (!ie_pan.routing_method)
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported routing method", "15.4");
+    if (ie_pan.fan_tps_version > WS_FAN_VERSION_1_0 && ie_pan.lfn_window_style)
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported LFN window style", "15.4");
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
-    if (pan_information.routing_cost != 0xFFFF)
+    if (ie_pan.routing_cost != 0xFFFF)
         trickle_consistent_heard(&net_if->ws_info.mngt.trickle_pa);
 }
 
