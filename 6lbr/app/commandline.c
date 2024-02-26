@@ -107,6 +107,12 @@ static const struct number_limit valid_lowpan_mtu = {
     LOWPAN_MTU_MIN, LOWPAN_MTU_MAX
 };
 
+// 0xffff is not a valid pan_id and means 'undefined' or 'broadcast'
+// See IEEE 802.15.4
+static const struct number_limit valid_pan_id = {
+    0, 0xfffe
+};
+
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05,
     INT_MIN
@@ -508,7 +514,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
-        { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
+        { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      &valid_pan_id },
         { "enable_lfn",                    &config->enable_lfn,                       conf_set_bool,        NULL },
         { "enable_ffn10",                  &config->enable_ffn10,                     conf_set_bool,        NULL },
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
