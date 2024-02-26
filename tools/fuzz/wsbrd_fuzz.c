@@ -37,14 +37,6 @@
 struct fuzz_ctxt g_fuzz_ctxt = {
     .wsbrd = &g_ctxt,
     .mbedtls_time = 1700000000, // Tue Nov 14 23:13:20 CET 2023
-    .socket_pipes = {
-        { -1, -1 },
-        { -1, -1 },
-        { -1, -1 },
-        { -1, -1 },
-        { -1, -1 },
-        { -1, -1 },
-    },
 };
 
 void __real_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream));

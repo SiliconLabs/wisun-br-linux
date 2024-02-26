@@ -28,85 +28,57 @@
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"
 
-static int fuzz_dhcp_get_socket_id()
+static struct fuzz_iface *fuzz_iface_new(struct fuzz_ctxt *ctxt)
 {
-    return g_ctxt.dhcp_server.fd;
+    struct fuzz_iface *iface;
+    int ret;
+
+    ctxt->iface_count++;
+    ctxt->iface_list = reallocarray(ctxt->iface_list, ctxt->iface_count, sizeof(struct fuzz_iface));
+    FATAL_ON(!ctxt->iface_list, 2, "%s(): realloc: %m", __func__);
+    iface = &ctxt->iface_list[ctxt->iface_count - 1];
+
+    memset(iface, 0, sizeof(*iface));
+    ret = pipe(iface->pipefd);
+    FATAL_ON(ret < 0, 2, "pipe: %m");
+    return iface;
 }
 
-static int fuzz_rpl_get_socket_fd()
+static struct fuzz_iface *fuzz_iface_get(struct fuzz_ctxt *ctxt, int fd)
 {
-    return g_ctxt.net_if.rpl_root.sockfd;
+    for (int i = 0; i < ctxt->iface_count; i++)
+        if (ctxt->iface_list[i].pipefd[0] == fd)
+            return &ctxt->iface_list[i];
+    BUG("fd=%i not registered", fd);
 }
-
-static struct {
-    int interface;
-    int (*get_capture_fd)();
-    int replay_write_fd;
-    uint8_t src_addr[16];
-    uint8_t dst_addr[16];
-    uint16_t src_port;
-} s_sockets[] = {
-    { IF_DHCP_SERVER,    fuzz_dhcp_get_socket_id,               -1 },
-    { IF_EAPOL_RELAY,    ws_eapol_auth_relay_get_socket_fd,     -1 },
-    { IF_BR_EAPOL_RELAY, ws_eapol_relay_get_socket_fd,          -1 },
-    { IF_PAE_AUTH,       kmp_socket_if_get_pae_socket_fd,       -1 },
-    { IF_RADIUS,         kmp_socket_if_get_radius_sockfd,       -1 },
-    { IF_RPL,            fuzz_rpl_get_socket_fd,                -1 },
-};
-static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries for capture/replay");
-
 
 void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf)
 {
-    static bool init = false;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    uint8_t src_addr[16];
-    uint8_t dst_addr[16];
+    struct fuzz_iface *iface;
     const uint8_t *data;
-    uint16_t src_port;
-    uint8_t interface;
+    uint8_t iface_index;
     size_t size;
-    int ret, i;
-    int fd = -1;
+    int ret;
 
     BUG_ON(rcp != &ctxt->wsbrd->rcp);
     if (!rcp->has_rf_list)
         FATAL(1, "interface command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "interface command received while replay is disabled");
 
-    if (!init) {
-        fuzz_replay_socket_init(ctxt);
-        init = true;
-    }
+    iface_index = hif_pop_u8(buf);
+    BUG_ON(iface_index >= ctxt->iface_count, "iface_index=%u not registered", iface_index);
+    iface = &ctxt->iface_list[iface_index];
 
-    interface = hif_pop_u8(buf);
-    hif_pop_fixed_u8_array(buf, src_addr, 16);
-    hif_pop_fixed_u8_array(buf, dst_addr, 16);
-    src_port = hif_pop_u16(buf);
-
-    if (interface == IF_TUN) {
-        fd = ctxt->tun_pipe[1];
-    } else {
-        for (i = 0; i < ARRAY_SIZE(s_sockets); i++) {
-            if (interface == s_sockets[i].interface) {
-                fd = s_sockets[i].replay_write_fd;
-                memcpy(s_sockets[i].src_addr, src_addr, 16);
-                memcpy(s_sockets[i].dst_addr, dst_addr, 16);
-                s_sockets[i].src_port = src_port;
-                break;
-            }
-        }
-    }
-    if (fd < 0) {
-        WARN("%d: no such interface", interface);
-        return;
-    }
+    hif_pop_fixed_u8_array(buf, iface->src_addr.s6_addr, 16);
+    hif_pop_fixed_u8_array(buf, iface->dst_addr.s6_addr, 16);
+    iface->src_port = hif_pop_u16(buf);
 
     size = hif_pop_data_ptr(buf, &data);
     if (buf->err)
         return;
 
-    ret = write(fd, data, size);
+    ret = write(iface->pipefd[1], data, size);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < size, 2, "%s: write: Short write", __func__);
 }
@@ -115,7 +87,7 @@ void __real_wsbr_tun_init(struct wsbr_ctxt *wsbrd);
 void __wrap_wsbr_tun_init(struct wsbr_ctxt *wsbrd)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    int ret;
+    struct fuzz_iface *iface;
 
     BUG_ON(ctxt->wsbrd != wsbrd);
     if (!ctxt->replay_count) {
@@ -123,9 +95,8 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *wsbrd)
         return;
     }
 
-    ret = pipe(ctxt->tun_pipe);
-    FATAL_ON(ret < 0, 2, "pipe: %m");
-    wsbrd->tun_fd = ctxt->tun_pipe[0];
+    iface = fuzz_iface_new(ctxt);
+    wsbrd->tun_fd = iface->pipefd[0];
 
     memcpy(ctxt->tun_gua, wsbrd->config.ipv6_prefix, 8);
     memcpy(ctxt->tun_gua + 8, wsbrd->rcp.eui64, 8);
@@ -161,29 +132,6 @@ int __wrap_tun_addr_get_link_local(char* if_name, uint8_t ip[16])
     }
 }
 
-static int fuzz_find_socket_index(int fd)
-{
-    for (int i = 0; i < ARRAY_SIZE(s_sockets); i++)
-        if (fd == s_sockets[i].get_capture_fd())
-            return i;
-    BUG("invalid socket");
-}
-
-void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt)
-{
-    int j;
-
-    for (int i = 0; i < IF_SOCKET_COUNT; i++) {
-        for (j = 0; j < IF_SOCKET_COUNT; j++) {
-            if (ctxt->socket_pipes[i][0] == s_sockets[j].get_capture_fd()) {
-                s_sockets[j].replay_write_fd = ctxt->socket_pipes[i][1];
-                break;
-            }
-        }
-        BUG_ON(j == IF_SOCKET_COUNT, "unassigned replay pipe");
-    }
-}
-
 ssize_t __real_recv(int sockfd, void *buf, size_t len, int flags);
 ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
 {
@@ -200,7 +148,7 @@ ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct soc
 {
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)src_sa;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    int i;
+    struct fuzz_iface *iface;
 
     if (!ctxt->replay_count)
         return __real_recvfrom(sockfd, buf, len, flags, src_sa, addrlen);
@@ -208,10 +156,10 @@ ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct soc
     if (addrlen) {
         BUG_ON(*addrlen < sizeof(struct sockaddr_in6));
         *addrlen = sizeof(struct sockaddr_in6);
-        i = fuzz_find_socket_index(sockfd);
+        iface = fuzz_iface_get(ctxt, sockfd);
         src_ipv6->sin6_family = AF_INET6;
-        src_ipv6->sin6_port = htons(s_sockets[i].src_port);
-        memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
+        src_ipv6->sin6_port = htons(iface->src_port);
+        src_ipv6->sin6_addr = iface->src_addr;
     }
     return read(sockfd, buf, len);
 }
@@ -222,20 +170,20 @@ ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
     struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)msg->msg_name;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     struct in6_pktinfo pktinfo = { };
+    struct fuzz_iface *iface;
     struct cmsghdr *cmsg;
-    int i;
 
     if (!ctxt->replay_count)
         return __real_recvmsg(sockfd, msg, flags);
 
     BUG_ON(msg->msg_iovlen != 1);
-    i = fuzz_find_socket_index(sockfd);
+    iface = fuzz_iface_get(ctxt, sockfd);
     if (msg->msg_namelen) {
         BUG_ON(msg->msg_namelen < sizeof(struct sockaddr_in6));
         msg->msg_namelen = sizeof(struct sockaddr_in6);
         src_ipv6->sin6_family = AF_INET6;
-        src_ipv6->sin6_port = htons(s_sockets[i].src_port);
-        memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
+        src_ipv6->sin6_port = htons(iface->src_port);
+        src_ipv6->sin6_addr = iface->src_addr;
     }
     if (msg->msg_controllen) {
         BUG_ON(msg->msg_controllen < CMSG_SPACE(sizeof(struct in6_pktinfo)));
@@ -244,7 +192,7 @@ ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
         cmsg->cmsg_len   = CMSG_LEN(sizeof(struct in6_pktinfo));
         cmsg->cmsg_level = IPPROTO_IPV6;
         cmsg->cmsg_type  = IPV6_PKTINFO;
-        memcpy(pktinfo.ipi6_addr.s6_addr, s_sockets[i].dst_addr, 16);
+        pktinfo.ipi6_addr = iface->dst_addr;
         memcpy(CMSG_DATA(cmsg), &pktinfo, sizeof(pktinfo));
     }
     return read(sockfd, msg->msg_iov[0].iov_base, msg->msg_iov[0].iov_len);
@@ -254,16 +202,13 @@ int __real_socket(int domain, int type, int protocol);
 int __wrap_socket(int domain, int type, int protocol)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    int ret;
+    struct fuzz_iface *iface;
 
     if (!ctxt->replay_count)
         return __real_socket(domain, type, protocol);
 
-    BUG_ON(ctxt->socket_pipe_count >= IF_SOCKET_COUNT);
-    ret = pipe(ctxt->socket_pipes[ctxt->socket_pipe_count]);
-    FATAL_ON(ret < 0, 2, "pipe: %m");
-
-    return ctxt->socket_pipes[ctxt->socket_pipe_count++][0];
+    iface = fuzz_iface_new(ctxt);
+    return iface->pipefd[0];
 }
 
 int __real_setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);

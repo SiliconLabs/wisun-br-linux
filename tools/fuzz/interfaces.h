@@ -12,6 +12,7 @@
  */
 #ifndef FUZZ_INTERFACES_H
 #define FUZZ_INTERFACES_H
+#include <netinet/in.h>
 #include <stdint.h>
 
 #define IF_SOCKET_COUNT 6
@@ -31,7 +32,13 @@ enum {
     IF_RPL,
 };
 
+struct fuzz_iface {
+    int pipefd[2];
+    struct in6_addr src_addr;
+    struct in6_addr dst_addr;
+    uint16_t src_port;
+};
+
 void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf);
-void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt);
 
 #endif
