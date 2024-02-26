@@ -68,7 +68,6 @@ typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
-    uint16_t routing_cost;                                 /*!< ETX to border Router. */
     uint8_t last_DSN;
     int rssi;
     bool unicast_data_rx : 1;
