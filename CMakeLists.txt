@@ -333,7 +333,7 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=bind
         -Wl,--wrap=sendto
         -Wl,--wrap=sendmsg
-        -Wl,--wrap=getrandom
+        -Wl,--wrap=xgetrandom
     )
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -392,14 +392,13 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=uart_open
             -Wl,--wrap=write
             -Wl,--wrap=writev
-            -Wl,--wrap=getrandom
+            -Wl,--wrap=xgetrandom
             -Wl,--wrap=wsbr_common_timer_init
             -Wl,--wrap=wsbr_common_timer_process
             -Wl,--wrap=clock_gettime
             -Wl,--wrap=signal
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
-            -Wl,--wrap=getrandom
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()

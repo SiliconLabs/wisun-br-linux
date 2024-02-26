@@ -10,37 +10,24 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <stdlib.h>
-#include <stdint.h>
 #include <sys/types.h>
+#include <stdint.h>
 
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "rand.h"
 
-ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
+ssize_t __wrap_xgetrandom(void *buf, size_t buf_len, unsigned int flags)
 {
-    static bool init = false;
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    uint8_t *buf8 = (uint8_t *) buf;
+    uint8_t *buf8 = buf;
 
-    if (!ctxt->rand_predictable)
-        return fuzz_real_getrandom(buf, buflen, flags);
-
-    if (!init) {
-        srand(0);
-        init = true;
-    }
+    if (!ctxt->fuzzing_enabled || buf_len <= 8)
+        return fuzz_real_getrandom(buf, buf_len, flags);
 
     // In most of the cases, when the stack ask for an array of random uint8_t,
     // it is initializing a key or seed for cryptographic material. In this
-    // case, returning very predictible data simplify frames replay
-    if (ctxt->fuzzing_enabled && buflen > 8) {
-        for (size_t i = 0; i < buflen; i++)
-            buf8[i] = i + 1;
-    } else {
-        for (size_t i = 0; i < buflen; i++)
-            buf8[i] = rand();
-    }
-
-    return buflen;
+    // case, returning very predictable data simplify frames replay
+    for (size_t i = 0; i < buf_len; i++)
+        buf8[i] = i + 1;
+    return buf_len;
 }

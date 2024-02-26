@@ -22,6 +22,7 @@
 #include "tools/fuzz/interfaces.h"
 #include "tools/fuzz/replay.h"
 #include "common/bus_uart.h"
+#include "common/capture.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/bus.h"
@@ -123,5 +124,9 @@ int wsbr_fuzz_main(int argc, char *argv[])
             cmd->fn = fuzz_ind_replay_socket;
     }
     argc = fuzz_parse_commandline(ctxt, argv);
+
+    if (ctxt->replay_count || ctxt->fuzzing_enabled)
+        capture_start("/dev/null"); // HACK: enable predictable RNG
+
     return wsbr_main(argc, argv);
 }
