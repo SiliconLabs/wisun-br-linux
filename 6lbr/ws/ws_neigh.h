@@ -71,7 +71,6 @@ typedef struct ws_neigh {
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
     uint8_t last_DSN;
     int rssi;
-    bool synch_done : 1;
     bool unicast_data_rx : 1;
     time_t host_rx_timestamp;
     struct ws_pom_ie pom_ie;
