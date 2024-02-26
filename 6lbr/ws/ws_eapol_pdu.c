@@ -45,7 +45,6 @@ typedef struct eapol_pdu_msdu {
 typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 
 typedef struct eapol_pdu_recv_cb {
-    uint8_t priority;
     bool filter_requsted: 1;
     ws_eapol_pdu_address_check *addr_check;
     ws_eapol_pdu_receive *receive;
@@ -136,7 +135,6 @@ int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_re
         return -1;
     }
 
-    eapol_pdu_data->recv_cb->priority = cb_data->priority;
     eapol_pdu_data->recv_cb->addr_check = cb_data->addr_check;
     eapol_pdu_data->recv_cb->receive = cb_data->receive;
     eapol_pdu_data->recv_cb->filter_requsted = cb_data->filter_requsted;
