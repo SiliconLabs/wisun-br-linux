@@ -47,7 +47,7 @@ typedef struct fhss_ws_configuration {
     /** WS broadcast channel function. */
     enum ws_channel_functions ws_bc_channel_function;
     /** Broadcast schedule identifier. */
-    uint16_t bsi;
+    int bsi;
     /** Unicast dwell interval. Range: 15-250 milliseconds. */
     uint8_t fhss_uc_dwell_interval;
     /** Broadcast interval. Duration between broadcast dwell intervals. Range: 0-16777216 milliseconds. */

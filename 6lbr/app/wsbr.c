@@ -118,6 +118,7 @@ struct wsbr_ctxt g_ctxt = {
 
     .net_if.ws_info.neighbor_storage.on_expire = ws_bootstrap_neighbor_del,
     .net_if.ws_info.pan_information.pan_id = -1,
+    .net_if.ws_info.fhss_conf.bsi = -1,
 
     .os_ctxt = &g_os_ctxt,
 };
@@ -287,8 +288,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
-    ctxt->net_if.ws_info.fhss_conf.bsi = 0xffff;
-
     ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
                              &ctxt->net_if.ws_info.pan_information.pan_version,
                              &ctxt->net_if.ws_info.pan_information.lfn_version,
@@ -307,8 +306,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
     if (ctxt->net_if.ws_info.pan_information.pan_id == -1)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
-    if (ctxt->net_if.ws_info.fhss_conf.bsi == 0xffff)
-        ctxt->net_if.ws_info.fhss_conf.bsi = rand_get_random_in_range(0, 0xfffe);
+    if (ctxt->net_if.ws_info.fhss_conf.bsi == -1)
+        ctxt->net_if.ws_info.fhss_conf.bsi = rand_get_random_in_range(0, 0xffff);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
