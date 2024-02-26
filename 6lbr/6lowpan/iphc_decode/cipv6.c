@@ -133,13 +133,6 @@ buffer_t *lowpan_up(buffer_t *buf)
         goto drop;
     }
 
-    /* If our PAN ID is set to 0xffff (eg during beacon scan), the MAC will be
-     * receiving all packets to all PANs. "Mute" 6LoWPAN reception in this state.
-     */
-    if (cur->ws_info.pan_information.pan_id == 0xffff) {
-        goto drop;
-    }
-
     const uint8_t *ip_hc = buffer_data_pointer(buf);
 
     //tr_debug("IP-UP";

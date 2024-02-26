@@ -501,7 +501,6 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
 static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *net_if, const mcps_data_ind_t *data, uint8_t frame_type)
 {
     struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
-    uint16_t pan_id;
 
     if (!base) {
         return NULL;
@@ -512,8 +511,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
         return NULL;
     }
 
-    pan_id = base->interface_ptr->ws_info.pan_information.pan_id;
-    if (pan_id != 0xffff && data->SrcPANId != pan_id) {
+    if (data->SrcPANId != base->interface_ptr->ws_info.pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: invalid source PAN ID", tr_ws_frame(frame_type));
         return NULL;
     }
