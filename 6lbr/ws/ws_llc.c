@@ -376,7 +376,6 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                                 const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neigh *ws_neigh)
 {
-    const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
@@ -387,18 +386,17 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         switch (confirm->status) {
         case MLME_SUCCESS:
         case MLME_TX_NO_ACK:
-        case MLME_NO_DATA:
             if (!ws_neigh)
                 break;
             if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
-                if (success)
+                if (confirm->status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
-                if (success)
+                if (confirm->status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
                                     confirm->timestamp, ws_neigh->mac64);
@@ -468,7 +466,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
         ws_llc_rate_handle_tx_conf(base, data, ws_neigh);
     }
 
-    if (msg->eapol_temporary && (data_cpy.status == MLME_SUCCESS || data_cpy.status == MLME_NO_DATA)) {
+    if (msg->eapol_temporary && data_cpy.status == MLME_SUCCESS) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
             neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
