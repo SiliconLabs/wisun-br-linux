@@ -19,20 +19,18 @@ struct rcp;
 struct net_if;
 struct wsbr_ctxt;
 struct hif_tx_cnf;
+struct hif_rx_ind;
 struct iobuf_write;
 struct iobuf_read;
 struct mcps_data_ind;
 struct mcps_data_req;
 struct mcps_data_req_ie_list;
-struct mcps_data_rx_ie_list;
 
 void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext);
 
 void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf);
-void wsbr_rx_ind(struct rcp *rcp,
-                 const struct mcps_data_ind *ind,
-                 const struct mcps_data_rx_ie_list *ies);
+void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind);
 
 #endif

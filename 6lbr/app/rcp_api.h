@@ -42,9 +42,7 @@ struct rcp {
 
     void (*on_reset)(struct rcp *rcp);
     void (*on_tx_cnf)(struct rcp *rcp, const struct hif_tx_cnf *cnf);
-    void (*on_rx_ind)(struct rcp *rcp,
-                      const struct mcps_data_ind *ind,
-                      const struct mcps_data_rx_ie_list *ies);
+    void (*on_rx_ind)(struct rcp *rcp, const struct hif_rx_ind *ind);
 
     bool has_reset;
     bool has_rf_list;

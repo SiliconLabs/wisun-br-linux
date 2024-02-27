@@ -11,10 +11,6 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "app/wsbr.h"
-#include "app/frame_helpers.h"
-#include "app/rcp_api_legacy.h"
-#include "net/protocol.h"
-#include "net/protocol_abstract.h"
 #include "common/bits.h"
 #include "common/endian.h"
 #include "common/hif.h"
@@ -232,25 +228,16 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
 {
-    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
-    struct mcps_data_rx_ie_list ind_ie;
-    struct mcps_data_ind ind;
-    const uint8_t *frame;
-    size_t frame_len;
-    int ret;
+    struct hif_rx_ind ind = { };
 
-    frame_len           = hif_pop_data_ptr(buf, &frame);
-    ind.timestamp       = hif_pop_u64(buf);
-    ind.mpduLinkQuality = hif_pop_u8(buf); // LQI
-    ind.signal_dbm      = hif_pop_i8(buf); // RSSI
-    hif_pop_u8(buf);  // TODO: RX PhyModeId
-    hif_pop_u16(buf); // TODO: RX channel
+    ind.frame_len    = hif_pop_data_ptr(buf, &ind.frame);
+    ind.timestamp_us = hif_pop_u64(buf);
+    ind.lqi          = hif_pop_u8(buf);
+    ind.rx_power_dbm = hif_pop_i8(buf);
+    ind.phy_mode_id  = hif_pop_u8(buf);
+    ind.chan_num     = hif_pop_u16(buf);
     BUG_ON(buf->err);
-
-    ret = wsbr_data_ind_parse(frame, frame_len, &ind, &ind_ie, ctxt->net_if.ws_info.pan_information.pan_id);
-    if (ret < 0)
-        return;
-    rcp->on_rx_ind(rcp, &ind, &ind_ie);
+    rcp->on_rx_ind(rcp, &ind);
 }
 
 void rcp_req_radio_enable(struct rcp *rcp)

@@ -108,6 +108,7 @@ typedef struct mcps_data_cnf {
 // Used by on_rx_ind()
 // See IEEE standard 802.15.4-2006 (table 43) for more details
 typedef struct mcps_data_ind {
+    struct hif_rx_ind hif;
     unsigned SrcAddrMode: 2;    /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     uint16_t SrcPANId;          /**< Source PAN ID */
     uint8_t SrcAddr[8];         /**< Source address */
@@ -118,9 +119,6 @@ typedef struct mcps_data_ind {
     bool PanIdSuppressed: 1;    /**< Suppress PAN-ID if possible. 2015 extension only */
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */
-    uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
-    int signal_dbm;             /**< This extension for normal IEEE 802.15.4 Data indication */
-    uint64_t timestamp;         /**< The time, in symbols, at which the data were received */
     uint8_t DSN;                /**< Data sequence number */
     struct mlme_security Key;   /**< Security key */
     uint16_t msduLength;        /**< Data unit length */

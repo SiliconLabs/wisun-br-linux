@@ -282,7 +282,9 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
     if (eapol_pdu_data->recv_cb)
         if (eapol_pdu_data->recv_cb->addr_check(eapol_pdu_data->interface_ptr, data->SrcAddr) >= 0) {
             if (eapol_pdu_data->recv_cb->filter_requsted &&
-                !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr, data->SrcAddr, data->DSN, data->timestamp)) {
+                !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr,
+                                                   data->SrcAddr, data->DSN,
+                                                   data->hif.timestamp_us)) {
                 tr_info("EAPOL relay filter drop");
                 return;
             }

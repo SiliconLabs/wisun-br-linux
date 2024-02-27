@@ -113,11 +113,17 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf)
     ws_llc_mac_confirm_cb(ctxt->net_if.id, &mcps_cnf, &mcps_ie);
 }
 
-void wsbr_rx_ind(struct rcp *rcp,
-                 const struct mcps_data_ind *ind,
-                 const struct mcps_data_rx_ie_list *ies)
+void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+    struct mcps_data_ind mcps_ind = { .hif = *ind };
+    struct mcps_data_rx_ie_list mcps_ie = { };
+    int ret;
 
-    ws_llc_mac_indication_cb(ctxt->net_if.id, ind, ies);
+    ret = wsbr_data_ind_parse(ind->frame, ind->frame_len,
+                              &mcps_ind, &mcps_ie,
+                              ctxt->net_if.ws_info.pan_information.pan_id);
+    if (ret < 0)
+        return;
+    ws_llc_mac_indication_cb(ctxt->net_if.id, &mcps_ind, &mcps_ie);
 }

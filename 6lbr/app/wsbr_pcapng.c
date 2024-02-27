@@ -110,7 +110,7 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind,
     struct iobuf_write buf = { };
     struct pcapng_epb epb = {
         .if_id = 0, // only one interface is used
-        .timestamp = ind->timestamp, // ind->timestamp is in us
+        .timestamp = ind->hif.timestamp_us,
     };
 
     epb.pkt_len    = wsbr_data_ind_rebuild(frame, ind, ie);

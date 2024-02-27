@@ -127,6 +127,16 @@ struct hif_tx_cnf {
     uint32_t frame_counter;
 };
 
+struct hif_rx_ind {
+    const uint8_t *frame;
+    size_t   frame_len;
+    uint64_t timestamp_us;
+    uint8_t  lqi;
+    int8_t   rx_power_dbm;
+    uint8_t  phy_mode_id;
+    uint16_t chan_num;
+};
+
 const char *hif_cmd_str(uint8_t cmd);
 const char *hif_fatal_str(uint16_t code);
 

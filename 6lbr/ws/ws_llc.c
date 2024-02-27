@@ -616,14 +616,14 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     if (ws_neigh) {
         if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed &&
-            !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
+            !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us)) {
             tr_info("Drop duplicate message");
             return;
         }
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
-        ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+        ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         if (has_us)
             ws_neigh_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
@@ -631,8 +631,8 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             ws_neigh->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
-        ws_neigh->lqi = data->mpduLinkQuality;
+        ws_neigh_rsl_in_dbm_update(ws_neigh, data->hif.rx_power_dbm);
+        ws_neigh->lqi = data->hif.lqi;
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
@@ -694,7 +694,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     }
 
     if (!data->DstAddrMode && !data->DSN_suppressed &&
-        !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->timestamp)) {
+        !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us)) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
@@ -702,7 +702,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in ULAD frame from LFN");
     ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                 data->timestamp, data->SrcAddr);
+                                 data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
         ws_neigh_lus_update(base->interface_ptr, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
@@ -712,8 +712,8 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
         ws_neigh->unicast_data_rx = true;
 
     // Calculate RSL for all UDATA packets heard
-    ws_neigh_rsl_in_dbm_update(ws_neigh, data->signal_dbm);
-    ws_neigh->lqi = data->mpduLinkQuality;
+    ws_neigh_rsl_in_dbm_update(ws_neigh, data->hif.rx_power_dbm);
+    ws_neigh->lqi = data->hif.lqi;
 
     if (data->Key.SecurityLevel)
         ws_neigh_trust(ws_neigh);
@@ -746,8 +746,8 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
 
     ws_neigh = &tmp->neigh_info_list;
     tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
-    tmp->mpduLinkQuality = data->mpduLinkQuality;
-    tmp->signal_dbm = data->signal_dbm;
+    tmp->mpduLinkQuality = data->hif.lqi;
+    tmp->signal_dbm = data->hif.rx_power_dbm;
     return ws_neigh;
 }
 
@@ -786,7 +786,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->timestamp, data->SrcAddr);
+    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us)
         ws_neigh_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
@@ -840,7 +840,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
     ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                 data->timestamp, data->SrcAddr);
+                        data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
         ws_neigh_lus_update(base->interface_ptr, ws_neigh,
                                      has_lcp ? &ie_lcp.chan_plan : NULL,
@@ -941,9 +941,9 @@ static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data,
     else
         trace_domain = TR_15_4_MNGT;
     if (data->SrcPANId && data->SrcPANId != 0xFFFF)
-        TRACE(trace_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->SrcPANId, data->signal_dbm);
+        TRACE(trace_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->SrcPANId, data->hif.rx_power_dbm);
     else
-        TRACE(trace_domain, "rx-15.4 %-9s src:%s (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->signal_dbm);
+        TRACE(trace_domain, "rx-15.4 %-9s src:%s (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->hif.rx_power_dbm);
 }
 
 static inline bool ws_is_frame_mngt(uint8_t frame_type)
