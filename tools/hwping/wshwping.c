@@ -229,7 +229,7 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
 {
     int len, ret;
     struct pollfd pollfd = {
-        .fd = bus->trig_fd,
+        .fd = bus->fd,
         .events = POLLIN,
     };
 
@@ -398,7 +398,7 @@ static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
         }
         bus->uart_data_ready = false;
         bus->uart_rx_buf_len = 0;
-        ret = tcflush(bus->data_fd, TCIFLUSH);
+        ret = tcflush(bus->fd, TCIFLUSH);
         FATAL_ON(ret < 0, 2, "tcflush: %m");
         return is_v2;
     }
@@ -415,11 +415,10 @@ int main(int argc, char **argv)
     parse_commandline(&cmdline, argc, argv);
 
     if (cmdline.cpc_instance[0])
-        bus.data_fd = cpc_open(&bus, cmdline.cpc_instance, g_enabled_traces & TR_CPC);
+        bus.fd = cpc_open(&bus, cmdline.cpc_instance, g_enabled_traces & TR_CPC);
     else
-        bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    bus.trig_fd = bus.data_fd;
-    FATAL_ON(bus.data_fd < 0, 2, "Cannot open device: %m");
+        bus.fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    FATAL_ON(bus.fd < 0, 2, "Cannot open device: %m");
     is_v2 = detect_v2(&bus, &cmdline);
 
     out_cnt = 0;

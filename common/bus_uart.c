@@ -90,7 +90,7 @@ static void uart_read(struct bus *bus)
 {
     ssize_t size;
 
-    size = read(bus->data_fd,
+    size = read(bus->fd,
                 bus->uart_rx_buf + bus->uart_rx_buf_len,
                 sizeof(bus->uart_rx_buf) - bus->uart_rx_buf_len);
     FATAL_ON(size < 0, 2, "%s: read: %m", __func__);
@@ -116,7 +116,7 @@ int uart_tx(struct bus *bus, const void *buf, unsigned int buf_len)
     write_le16(hdr + 2, crc16(CRC_INIT_HCS, hdr, 2));
     write_le16(fcs,     crc16(CRC_INIT_FCS, buf, buf_len));
 
-    ret = writev(bus->data_fd, iov, ARRAY_SIZE(iov));
+    ret = writev(bus->fd, iov, ARRAY_SIZE(iov));
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     if (ret != sizeof(hdr) + buf_len + sizeof(fcs))
         FATAL(2 ,"%s: write: Short write", __func__);
@@ -206,7 +206,7 @@ int uart_legacy_tx(struct bus *bus, const void *buf, unsigned int buf_len)
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
           tr_bytes(buf, buf_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf_len);
-    ret = write(bus->data_fd, frame, frame_len);
+    ret = write(bus->fd, frame, frame_len);
     BUG_ON(ret != frame_len, "write: %m");
     free(frame);
 
@@ -307,7 +307,7 @@ int uart_legacy_rx(struct bus *bus, void *buf, unsigned int buf_len)
 bool uart_detect_v2(struct bus *bus)
 {
     struct pollfd pfd = {
-        .fd = bus->trig_fd,
+        .fd = bus->fd,
         .events = POLLIN,
     };
     int ret;

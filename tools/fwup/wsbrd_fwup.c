@@ -103,7 +103,7 @@ static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
 {
     int len, ret;
     struct pollfd pollfd = {
-        .fd = bus->trig_fd,
+        .fd = bus->fd,
         .events = POLLIN,
     };
 
@@ -150,18 +150,18 @@ static void handle_btl_update(struct bus *bus)
     char *btl_str = "Gecko Bootloader";
     struct pollfd pollfd = { .events = POLLIN };
 
-    pollfd.fd = bus->trig_fd;
+    pollfd.fd = bus->fd;
     sleep(1); // wait for rcp to reboot
     ret = poll(&pollfd, 1, 1000);
     if (ret < 0)
         FATAL(2, "poll: %m");
     if (!ret)
         FATAL(1, "failed to start bootloader");
-    ret = read(bus->data_fd, btl_rx_buf, sizeof(btl_rx_buf));
+    ret = read(bus->fd, btl_rx_buf, sizeof(btl_rx_buf));
     if (!memmem(btl_rx_buf, ret, btl_str, strlen(btl_str)))
         FATAL(1, "cannot get bootloader banner");
     // option '1' to upload gbl
-    write(bus->data_fd, &btl_upload_gbl, sizeof(uint8_t));
+    write(bus->fd, &btl_upload_gbl, sizeof(uint8_t));
 }
 
 static void handle_btl_run(struct bus *bus)
@@ -171,10 +171,10 @@ static void handle_btl_run(struct bus *bus)
 
     // wait for the Gecko Bootloader banner
     usleep(500000);
-    ret = tcflush(bus->data_fd, TCIFLUSH);
+    ret = tcflush(bus->fd, TCIFLUSH);
     FATAL_ON(ret < 0, 2, "tcflush: %m");
     // option '2' to run
-    write(bus->data_fd, &btl_run, sizeof(uint8_t));
+    write(bus->fd, &btl_run, sizeof(uint8_t));
 }
 
 static void handle_rcp_reset(struct bus *bus)
@@ -259,12 +259,11 @@ int main(int argc, char **argv)
     parse_commandline(&cmdline, argc, argv);
     check_if_sx_is_installed();
 
-    bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    bus.trig_fd = bus.data_fd;
-    FATAL_ON(bus.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
+    bus.fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    FATAL_ON(bus.fd < 0, 2, "%s: %m", cmdline.uart_device);
     send_btl_update(&bus);
     handle_btl_update(&bus);
-    close(bus.data_fd);
+    close(bus.fd);
 
     pid = fork();
     if (pid > 0) {
@@ -287,12 +286,11 @@ int main(int argc, char **argv)
     if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus))
         FATAL(1, "xmodem transfer failed");
 
-    bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    bus.trig_fd = bus.data_fd;
-    FATAL_ON(bus.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
+    bus.fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    FATAL_ON(bus.fd < 0, 2, "%s: %m", cmdline.uart_device);
     handle_btl_run(&bus);
     handle_rcp_reset(&bus);
-    close(bus.data_fd);
+    close(bus.fd);
 
     return 0;
 }

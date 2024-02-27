@@ -123,8 +123,7 @@ struct wsbr_ctxt g_ctxt = {
 // See warning in common/bus.h
 struct bus g_bus = {
     // avoid initializating to 0 = STDIN_FILENO
-    .trig_fd = -1,
-    .data_fd = -1,
+    .fd = -1,
 };
 
 static int get_fixed_channel(uint8_t bitmask[32])
@@ -425,8 +424,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     int ret;
 
     if (ctxt->config.uart_dev[0]) {
-        ctxt->bus->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
-        ctxt->bus->trig_fd = ctxt->bus->data_fd;
+        ctxt->bus->fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
         ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
         ctxt->rcp.device_tx    = uart_tx;
         ctxt->rcp.device_rx    = uart_rx;
@@ -434,8 +432,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;
         ctxt->rcp.device_rx = cpc_rx;
-        ctxt->bus->data_fd = cpc_open(ctxt->bus, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
-        ctxt->bus->trig_fd = ctxt->bus->data_fd;
+        ctxt->bus->fd = cpc_open(ctxt->bus, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
         ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->bus);
         if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
             FATAL(3, "RCP API < 2.0.0 (too old)");
@@ -444,7 +441,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
         BUG();
     }
 
-    pfd.fd = ctxt->bus->trig_fd;
+    pfd.fd = ctxt->bus->fd;
     pfd.events = POLLIN;
     ret = poll(&pfd, 1, 5000);
     FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
@@ -460,7 +457,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
     ctxt->fds[POLLFD_DBUS].events = POLLIN;
-    ctxt->fds[POLLFD_RCP].fd = ctxt->bus->trig_fd;
+    ctxt->fds[POLLFD_RCP].fd = ctxt->bus->fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
     ctxt->fds[POLLFD_TUN].fd = ctxt->tun_fd;
     ctxt->fds[POLLFD_TUN].events = POLLIN;

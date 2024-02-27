@@ -22,8 +22,7 @@
 struct slist;
 
 struct bus {
-    int     trig_fd;
-    int     data_fd;
+    int     fd;
     int     spi_recv_window;
     int     spinel_tid;
     int     spinel_iid;
