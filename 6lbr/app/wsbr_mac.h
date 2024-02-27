@@ -22,8 +22,6 @@ struct iobuf_read;
 struct mcps_data_req;
 struct mcps_data_req_ie_list;
 
-void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len,
-                               uint8_t header, uint8_t irq_err_counter);
 void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext);
