@@ -291,19 +291,19 @@ static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api)
     return NULL;
 }
 
-static inline bool ws_wp_ie_is_empty(struct wp_ie_list wp_ies)
+static inline bool ws_wp_ie_is_empty(const struct wp_ie_list *wp_ies)
 {
-    return !(wp_ies.us
-          || wp_ies.bs
-          || wp_ies.pan
-          || wp_ies.netname
-          || wp_ies.panver
-          || wp_ies.gtkhash
-          || wp_ies.lgtkhash
-          || wp_ies.lfnver
-          || wp_ies.lcp
-          || wp_ies.lbats
-          || wp_ies.pom);
+    return !(wp_ies->us
+          || wp_ies->bs
+          || wp_ies->pan
+          || wp_ies->netname
+          || wp_ies->panver
+          || wp_ies->gtkhash
+          || wp_ies->lgtkhash
+          || wp_ies->lfnver
+          || wp_ies->lcp
+          || wp_ies->lbats
+          || wp_ies->pom);
 }
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id)
@@ -1629,7 +1629,8 @@ mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 
 // TODO: Factorize this further with EAPOL and MPX requests?
 static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
-                              struct wh_ie_list wh_ies, struct wp_ie_list wp_ies)
+                              const struct wh_ie_list *wh_ies,
+                              const struct wp_ie_list *wp_ies)
 {
     struct ws_info *info = &base->interface_ptr->ws_info;
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
@@ -1647,37 +1648,37 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         }
     }
 
-    if (wh_ies.utt)
+    if (wh_ies->utt)
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
-    if (wh_ies.bt)
+    if (wh_ies->bt)
         ws_wh_bt_write(&msg->ie_buf_header);
-    if (wh_ies.lutt)
+    if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
-    if (wh_ies.lbt)
+    if (wh_ies->lbt)
         ws_wh_lbt_write(&msg->ie_buf_header, NULL);
-    if (wh_ies.nr)
+    if (wh_ies->nr)
         // TODO: Provide clock drift and timing accuracy
         // TODO: Make the LFN listening interval configurable (currently it is 5s-4.66h)
         ws_wh_nr_write(&msg->ie_buf_header, WS_NR_ROLE_BR, 255, 0, 5000, 1680000);
-    if (wh_ies.lus)
+    if (wh_ies->lus)
         ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
-    if (wh_ies.flus)
+    if (wh_ies->flus)
         // Only a single chan plan tag is supported. (0)
         ws_wh_flus_write(&msg->ie_buf_header, info->fhss_conf.fhss_uc_dwell_interval, 0);
-    if (wh_ies.lbs)
+    if (wh_ies->lbs)
         // Only a single chan plan tag is supported. (0)
         // TODO: use a separate LFN BSI
         ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
                         info->hopping_schedule.fhss_bsi, 0,
                         info->fhss_conf.lfn_bc_sync_period);
-    if (wh_ies.lnd)
+    if (wh_ies->lnd)
         ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
-    if (wh_ies.lto)
+    if (wh_ies->lto)
         ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing->offset,
                         base->ie_params.lfn_timing->adjusted_listening_interval);
-    if (wh_ies.panid)
+    if (wh_ies->panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
-    if (wh_ies.lbc)
+    if (wh_ies->lbc)
         ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
                         info->fhss_conf.lfn_bc_sync_period);
     SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
@@ -1695,32 +1696,32 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
 
     if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
-        if (wp_ies.us)
+        if (wp_ies->us)
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule);
-        if (wp_ies.bs)
+        if (wp_ies->bs)
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
-        if (wp_ies.pan)
+        if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
-        if (wp_ies.netname)
+        if (wp_ies->netname)
             ws_wp_nested_netname_write(&msg->ie_buf_payload, info->network_name);
-        if (wp_ies.panver)
+        if (wp_ies->panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
-        if (wp_ies.gtkhash)
+        if (wp_ies->gtkhash)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
-        if (wp_ies.pom)
+        if (wp_ies->pom)
             ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, true);
-        if (wp_ies.lcp)
+        if (wp_ies->lcp)
             // Only unicast schedule using tag 0 is supported
             ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
-        if (wp_ies.lfnver)
+        if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
-        if (wp_ies.lgtkhash)
+        if (wp_ies->lgtkhash)
             ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
                                         ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
-        if (wp_ies.lbats)
+        if (wp_ies->lbats)
             ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
-        if (wp_ies.jm)
+        if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
             if (ie_custom->frame_type_mask & (1 << msg->message_type) &&
@@ -1784,7 +1785,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
         data_req.PanIdSuppressed = true;
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
 
-    ws_llc_prepare_ie(base, message, request->wh_ies, request->wp_ies);
+    ws_llc_prepare_ie(base, message, &request->wh_ies, &request->wp_ies);
 
     message->tx_time = time_current(CLOCK_MONOTONIC);
 
@@ -1846,7 +1847,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     data_req.msduHandle = msg->msg_handle;
 
-    ws_llc_prepare_ie(base, msg, req->wh_ies, req->wp_ies);
+    ws_llc_prepare_ie(base, msg, &req->wh_ies, &req->wp_ies);
 
     msg->tx_time = time_current(CLOCK_MONOTONIC);
 
