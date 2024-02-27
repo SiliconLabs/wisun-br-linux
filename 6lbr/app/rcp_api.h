@@ -40,7 +40,7 @@ struct rcp {
     int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
-    void (*on_reset)(struct wsbr_ctxt *ctxt);
+    void (*on_reset)(struct rcp *rcp);
     void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_cnf *conf, const struct mcps_data_rx_ie_list *payload);
     void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_rx_ie_list *payload);
 

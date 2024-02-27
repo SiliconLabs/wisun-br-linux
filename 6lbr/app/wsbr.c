@@ -66,7 +66,7 @@
 #include "dbus.h"
 #include "tun.h"
 
-static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
+static void wsbr_handle_reset(struct rcp *rcp);
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
@@ -384,8 +384,10 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     rpl_start(&ctxt->net_if.rpl_root, ctxt->config.tun_dev);
 }
 
-static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
+static void wsbr_handle_reset(struct rcp *rcp)
 {
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+
     if (ctxt->rcp.init_state & RCP_HAS_RF_CONFIG)
         FATAL(3, "unsupported RCP reset");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
