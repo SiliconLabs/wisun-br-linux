@@ -161,8 +161,11 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // of IPv6 Address that is being registered.  That Link-Local Address
         // MUST be either an address that is already registered to the 6LR or
         // the address that is being registered.
-        if (!addr_is_ipv6_link_local(src_addr))
+        if (!addr_is_ipv6_link_local(src_addr)) {
+            na_earo->present = true;
+            na_earo->status = ARO_INVALID_SOURCE_ADDR;
             return true;
+        }
         //   RFC 8505 Section 5.1 - Extending the Address Registration Option
         // The Target Address field in the NS containing the EARO is now the
         // field that indicates the address that is being registered, as
