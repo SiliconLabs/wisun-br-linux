@@ -21,7 +21,7 @@
 
 struct slist;
 
-struct os_ctxt {
+struct bus {
     int     trig_fd;
     int     data_fd;
     int     spi_recv_window;
@@ -38,6 +38,6 @@ struct os_ctxt {
 
 // This global variable is necessary for various API of nanostack. Beside this
 // case, please never use it.
-extern struct os_ctxt g_os_ctxt;
+extern struct bus g_bus;
 
 #endif

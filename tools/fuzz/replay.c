@@ -6,7 +6,7 @@
 #include "6lbr/net/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/hif.h"
 
 ssize_t __real_write(int fd, const void *buf, size_t count);
@@ -78,7 +78,7 @@ ssize_t __wrap_write(int fd, const void *buf, size_t count)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
-    if (fd == ctxt->wsbrd->os_ctxt->data_fd && ctxt->replay_count)
+    if (fd == ctxt->wsbrd->bus->data_fd && ctxt->replay_count)
         return count;
 
     if (fd == ctxt->wsbrd->tun_fd && ctxt->replay_count)
@@ -93,7 +93,7 @@ ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
     BUG_ON(iovcnt != 3); // hdr | cmd + body | fcs
-    if (fd == ctxt->wsbrd->os_ctxt->data_fd && ctxt->replay_count)
+    if (fd == ctxt->wsbrd->bus->data_fd && ctxt->replay_count)
         return iov[0].iov_len + iov[1].iov_len + iov[2].iov_len;
     else
         return __real_writev(fd, iov, iovcnt);

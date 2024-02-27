@@ -25,7 +25,7 @@ struct ws_neigh;
 struct iobuf_write;
 struct iobuf_read;
 struct wsbr_ctxt;
-struct os_ctxt;
+struct bus;
 struct net_if;
 struct rcp;
 

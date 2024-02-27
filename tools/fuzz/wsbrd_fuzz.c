@@ -25,7 +25,7 @@
 #include "common/bus_uart.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/iobuf.h"
 #include "common/spinel.h"
 #include "common/hif.h"
@@ -65,8 +65,8 @@ void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
 }
 
-int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
-int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int __real_uart_rx(struct bus *bus, void *buf, unsigned int buf_len);
+int __wrap_uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
     int ret;
@@ -74,7 +74,7 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
         return 0;
 
-    ret = __real_uart_rx(ctxt, buf, buf_len);
+    ret = __real_uart_rx(bus, buf, buf_len);
 
     if (fuzz_ctxt->capture_fd >= 0 && ret > 0) {
         fuzz_capture_timers(fuzz_ctxt);
@@ -122,10 +122,10 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     } else if (fd == ctxt->wsbrd->tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
         fuzz_capture_interface(ctxt, IF_TUN, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
-    } else if (fd == ctxt->wsbrd->os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
+    } else if (fd == ctxt->wsbrd->bus->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
-        ctxt->wsbrd->os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
-        return __real_read(ctxt->wsbrd->os_ctxt->data_fd, buf, count);
+        ctxt->wsbrd->bus->data_fd = ctxt->replay_fds[ctxt->replay_i++];
+        return __real_read(ctxt->wsbrd->bus->data_fd, buf, count);
     }
 
     return size;

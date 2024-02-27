@@ -29,7 +29,7 @@
 #include <netdb.h>
 #include "common/key_value_storage.h"
 #include "common/named_values.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/ws_regdb.h"
 #include "common/parsers.h"
 #include "common/memutils.h"

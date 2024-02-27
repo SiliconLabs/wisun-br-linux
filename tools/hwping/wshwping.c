@@ -19,7 +19,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/bus_uart.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/hif.h"
 #include "common/spinel.h"
 #include "common/bus_cpc.h"
@@ -181,18 +181,18 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
     FATAL_ON(cmd->payload_size < 0, 2, "payload size must > 8");
 }
 
-static uint8_t get_spinel_hdr(struct os_ctxt *ctxt)
+static uint8_t get_spinel_hdr(struct bus *bus)
 {
-    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
+    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, bus->spinel_iid);
 
-    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
-    if (!ctxt->spinel_tid)
-        ctxt->spinel_tid = 1;
-    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
+    bus->spinel_tid = (bus->spinel_tid + 1) % 0x10;
+    if (!bus->spinel_tid)
+        bus->spinel_tid = 1;
+    hdr |= FIELD_PREP(0x0F, bus->spinel_tid);
     return hdr;
 }
 
-static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
+static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     struct iobuf_write tx_buf = { };
     uint8_t payload_buf[cmdline->payload_size];
@@ -200,7 +200,7 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
     for (int i = 0; i < cmdline->payload_size; i++)
         payload_buf[i] = i % 0x10;
     if (!is_v2) {
-        hif_push_u8(&tx_buf, get_spinel_hdr(ctxt));
+        hif_push_u8(&tx_buf, get_spinel_hdr(bus));
         hif_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
     } else {
         hif_push_u8(&tx_buf, HIF_CMD_REQ_PING);
@@ -216,25 +216,25 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
         hif_push_raw(&tx_buf, payload_buf, 0);
 
     if (cmdline->cpc_instance[0])
-        cpc_tx(ctxt, tx_buf.data, tx_buf.len);
+        cpc_tx(bus, tx_buf.data, tx_buf.len);
     else if (!is_v2)
-        uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
+        uart_legacy_tx(bus, tx_buf.data, tx_buf.len);
     else
-        uart_tx(ctxt, tx_buf.data, tx_buf.len);
+        uart_tx(bus, tx_buf.data, tx_buf.len);
     spinel_trace(tx_buf.data, tx_buf.data_size, "hif tx: ");
     iobuf_free(&tx_buf);
 }
 
-static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint8_t *buf, int buf_len, bool is_v2)
+static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8_t *buf, int buf_len, bool is_v2)
 {
     int len, ret;
     struct pollfd pollfd = {
-        .fd = ctxt->trig_fd,
+        .fd = bus->trig_fd,
         .events = POLLIN,
     };
 
     do {
-        if (!ctxt->uart_data_ready) {
+        if (!bus->uart_data_ready) {
             ret = poll(&pollfd, 1, 5000); // response time of ping should below 5 second
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -242,19 +242,19 @@ static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, 
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || ctxt->uart_data_ready) {
+        if (pollfd.revents & POLLIN || bus->uart_data_ready) {
             if (cmdline->cpc_instance[0])
-                len = cpc_rx(ctxt, buf, buf_len);
+                len = cpc_rx(bus, buf, buf_len);
             else if (!is_v2)
-                len = uart_legacy_rx(ctxt, buf, buf_len);
+                len = uart_legacy_rx(bus, buf, buf_len);
             else
-                len = uart_rx(ctxt, buf, buf_len);
+                len = uart_rx(bus, buf, buf_len);
         }
     } while (!len);
     return len;
 }
 
-static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
+static int receive(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     const uint8_t *payload;
     int expected_payload, val;
@@ -262,7 +262,7 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
     struct iobuf_read rx_buf = { };
 
     rx_buf.data = buffer;
-    rx_buf.data_size = read_data(ctxt, cmdline, buffer, sizeof(buffer), is_v2);
+    rx_buf.data_size = read_data(bus, cmdline, buffer, sizeof(buffer), is_v2);
     if (!rx_buf.data_size) {
         WARN("poll: no answer from RCP on ping %d", counter);
         return counter + 1;
@@ -363,7 +363,7 @@ static void print_throughput(struct timespec *ts, struct commandline_args *cmdli
     INFO("equivalent baudrate: %.0lf bits/sec", 10 * real_payload * real_exchanges_count / real_time);
 }
 
-static bool detect_v2(struct os_ctxt *ctxt, struct commandline_args *cmdline)
+static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
 {
     struct iobuf_write buf = { };
     uint32_t version_api;
@@ -371,34 +371,34 @@ static bool detect_v2(struct os_ctxt *ctxt, struct commandline_args *cmdline)
     int ret;
 
     if (cmdline->cpc_instance[0]) {
-        version_api = cpc_secondary_app_version(ctxt);
+        version_api = cpc_secondary_app_version(bus);
         return !version_older_than(version_api, 2, 0, 0);
     } else {
-        hif_push_u8(&buf, get_spinel_hdr(ctxt));
+        hif_push_u8(&buf, get_spinel_hdr(bus));
         hif_push_uint(&buf, SPINEL_CMD_NOOP);
-        uart_legacy_tx(ctxt, buf.data, buf.len);
+        uart_legacy_tx(bus, buf.data, buf.len);
         iobuf_free(&buf);
 
-        hif_push_u8(&buf, get_spinel_hdr(ctxt));
+        hif_push_u8(&buf, get_spinel_hdr(bus));
         hif_push_uint(&buf, SPINEL_CMD_RESET);
-        uart_legacy_tx(ctxt, buf.data, buf.len);
+        uart_legacy_tx(bus, buf.data, buf.len);
         iobuf_free(&buf);
 
         hif_push_u8(&buf, HIF_CMD_REQ_RESET);
         hif_push_bool(&buf,false);
-        uart_tx(ctxt, buf.data, buf.len);
+        uart_tx(bus, buf.data, buf.len);
         iobuf_free(&buf);
 
-        is_v2 = uart_detect_v2(ctxt);
+        is_v2 = uart_detect_v2(bus);
         if (!is_v2) {
-            hif_push_u8(&buf, get_spinel_hdr(ctxt));
+            hif_push_u8(&buf, get_spinel_hdr(bus));
             hif_push_uint(&buf, SPINEL_CMD_NOOP);
-            uart_legacy_tx(ctxt, buf.data, buf.len);
+            uart_legacy_tx(bus, buf.data, buf.len);
             iobuf_free(&buf);
         }
-        ctxt->uart_data_ready = false;
-        ctxt->uart_rx_buf_len = 0;
-        ret = tcflush(ctxt->data_fd, TCIFLUSH);
+        bus->uart_data_ready = false;
+        bus->uart_rx_buf_len = 0;
+        ret = tcflush(bus->data_fd, TCIFLUSH);
         FATAL_ON(ret < 0, 2, "tcflush: %m");
         return is_v2;
     }
@@ -408,39 +408,39 @@ int main(int argc, char **argv)
 {
     struct timespec ts_start, ts_end, ts_res;
     struct commandline_args cmdline = { };
-    struct os_ctxt ctxt = { };
+    struct bus bus = { };
     int in_cnt, out_cnt;
     bool is_v2;
 
     parse_commandline(&cmdline, argc, argv);
 
     if (cmdline.cpc_instance[0])
-        ctxt.data_fd = cpc_open(&ctxt, cmdline.cpc_instance, g_enabled_traces & TR_CPC);
+        bus.data_fd = cpc_open(&bus, cmdline.cpc_instance, g_enabled_traces & TR_CPC);
     else
-        ctxt.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    ctxt.trig_fd = ctxt.data_fd;
-    FATAL_ON(ctxt.data_fd < 0, 2, "Cannot open device: %m");
-    is_v2 = detect_v2(&ctxt, &cmdline);
+        bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    bus.trig_fd = bus.data_fd;
+    FATAL_ON(bus.data_fd < 0, 2, "Cannot open device: %m");
+    is_v2 = detect_v2(&bus, &cmdline);
 
     out_cnt = 0;
     in_cnt = 0;
     while (out_cnt < cmdline.window) {
-        send(&ctxt, &cmdline, out_cnt, is_v2);
+        send(&bus, &cmdline, out_cnt, is_v2);
         print_progress(&cmdline, out_cnt, in_cnt);
         out_cnt++;
     }
     clock_gettime(CLOCK_REALTIME, &ts_start);
     while (out_cnt < cmdline.number_of_exchanges + cmdline.window) {
         while (out_cnt <= in_cnt + cmdline.window) {
-            send(&ctxt, &cmdline, out_cnt, is_v2);
+            send(&bus, &cmdline, out_cnt, is_v2);
             print_progress(&cmdline, out_cnt, in_cnt);
             out_cnt++;
         }
-        in_cnt = receive(&ctxt, &cmdline, in_cnt, is_v2);
+        in_cnt = receive(&bus, &cmdline, in_cnt, is_v2);
     }
     clock_gettime(CLOCK_REALTIME, &ts_end);
     while (in_cnt < out_cnt) {
-        in_cnt = receive(&ctxt, &cmdline, in_cnt, is_v2);
+        in_cnt = receive(&bus, &cmdline, in_cnt, is_v2);
         print_progress(&cmdline, out_cnt, in_cnt);
     }
 

@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "common/log.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/named_values.h"
 #include "common/parsers.h"
 #include "common/pcapng.h"

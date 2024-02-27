@@ -22,7 +22,7 @@ struct fhss_ws_configuration;
 struct mcps_data_cnf;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
-struct os_ctxt;
+struct bus;
 struct phy_rf_channel_configuration;
 struct wsbr_ctxt;
 struct ws_neigh;
@@ -37,8 +37,8 @@ struct rcp_rail_config {
 };
 
 struct rcp {
-    int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-    int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
+    int  (*device_tx)(struct bus *bus, const void *buf, unsigned int len);
+    int  (*device_rx)(struct bus *bus, void *buf, unsigned int len);
 
     void (*on_reset)(struct rcp *rcp);
     void (*on_tx_cnf)(struct rcp *rcp, const struct hif_tx_cnf *cnf);

@@ -23,7 +23,7 @@
 #include "common/crc.h"
 #include "common/log.h"
 #include "common/memutils.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/hif.h"
 
 #include "bus_uart.h"
@@ -86,22 +86,22 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-static void uart_read(struct os_ctxt *ctxt)
+static void uart_read(struct bus *bus)
 {
     ssize_t size;
 
-    size = read(ctxt->data_fd,
-                ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
-                sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
+    size = read(bus->data_fd,
+                bus->uart_rx_buf + bus->uart_rx_buf_len,
+                sizeof(bus->uart_rx_buf) - bus->uart_rx_buf_len);
     FATAL_ON(size < 0, 2, "%s: read: %m", __func__);
     FATAL_ON(!size, 2, "%s: read: Empty read", __func__);
     TRACE(TR_BUS, "bus rx: %s (%zd bytes)",
-          tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
+          tr_bytes(bus->uart_rx_buf + bus->uart_rx_buf_len,
                    size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
-    ctxt->uart_rx_buf_len += size;
+    bus->uart_rx_buf_len += size;
 }
 
-int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int uart_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 {
     uint8_t hdr[4], fcs[2];
     const struct iovec iov[] = {
@@ -116,7 +116,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     write_le16(hdr + 2, crc16(CRC_INIT_HCS, hdr, 2));
     write_le16(fcs,     crc16(CRC_INIT_FCS, buf, buf_len));
 
-    ret = writev(ctxt->data_fd, iov, ARRAY_SIZE(iov));
+    ret = writev(bus->data_fd, iov, ARRAY_SIZE(iov));
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     if (ret != sizeof(hdr) + buf_len + sizeof(fcs))
         FATAL(2 ,"%s: write: Short write", __func__);
@@ -129,24 +129,24 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     return ret;
 }
 
-int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     struct iobuf_read iobuf = { };
     const uint8_t *hdr;
     uint16_t len, fcs;
 
-    if (!ctxt->uart_data_ready)
-        uart_read(ctxt);
-    ctxt->uart_data_ready = false;
-    iobuf.data      = ctxt->uart_rx_buf;
-    iobuf.data_size = ctxt->uart_rx_buf_len;
+    if (!bus->uart_data_ready)
+        uart_read(bus);
+    bus->uart_data_ready = false;
+    iobuf.data      = bus->uart_rx_buf;
+    iobuf.data_size = bus->uart_rx_buf_len;
     hdr = iobuf_pop_data_ptr(&iobuf, 4);
     if (iobuf.err)
         return 0;
     if (!crc_check(CRC_INIT_HCS, hdr, 2, read_le16(hdr + 2))) {
-        memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + 1, ctxt->uart_rx_buf_len - 1);
-        ctxt->uart_rx_buf_len -= 1;
-        ctxt->uart_data_ready = true;
+        memmove(bus->uart_rx_buf, bus->uart_rx_buf + 1, bus->uart_rx_buf_len - 1);
+        bus->uart_rx_buf_len -= 1;
+        bus->uart_data_ready = true;
         return 0;
     }
     len = FIELD_GET(UART_HDR_LEN_MASK, read_le16(hdr));
@@ -155,15 +155,15 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     fcs = iobuf_pop_le16(&iobuf);
     if (iobuf.err)
         return 0; // Frame not fully received
-    ctxt->uart_data_ready = true;
+    bus->uart_data_ready = true;
     if (!crc_check(CRC_INIT_FCS, buf, len, fcs)) {
-        memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + 1, ctxt->uart_rx_buf_len - 1);
-        ctxt->uart_rx_buf_len -= 1;
+        memmove(bus->uart_rx_buf, bus->uart_rx_buf + 1, bus->uart_rx_buf_len - 1);
+        bus->uart_rx_buf_len -= 1;
         TRACE(TR_DROP, "drop %-9s: bad fcs", "uart");
         return 0;
     }
-    memmove(ctxt->uart_rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
-    ctxt->uart_rx_buf_len = iobuf_remaining_size(&iobuf);
+    memmove(bus->uart_rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+    bus->uart_rx_buf_len = iobuf_remaining_size(&iobuf);
     return len;
 }
 
@@ -194,7 +194,7 @@ static size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in
     return frame_len;
 }
 
-int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int uart_legacy_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(CRC_INIT_LEGACY, buf, buf_len) ^ CRC_XOROUT_LEGACY;
     uint8_t *frame = malloc(buf_len * 2 + 3);
@@ -206,7 +206,7 @@ int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
           tr_bytes(buf, buf_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf_len);
-    ret = write(ctxt->data_fd, frame, frame_len);
+    ret = write(bus->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len, "write: %m");
     free(frame);
 
@@ -216,40 +216,40 @@ int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 /*
  * Returns the next HDLC frame if available, terminator included.
  */
-static size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
+static size_t uart_legacy_rx_hdlc(struct bus *bus, uint8_t *buf, size_t buf_len)
 {
     int frame_start, frame_len;
     int i;
 
-    if (!ctxt->uart_data_ready)
-        uart_read(ctxt);
+    if (!bus->uart_data_ready)
+        uart_read(bus);
 
     i = 0;
-    while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
+    while (bus->uart_rx_buf[i] == 0x7E && i < bus->uart_rx_buf_len)
         i++;
     frame_start = i;
-    while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len)
+    while (bus->uart_rx_buf[i] != 0x7E && i < bus->uart_rx_buf_len)
         i++;
     frame_len = i - frame_start + 1;
-    if (ctxt->uart_init_phase && i >= ctxt->uart_rx_buf_len)
-        ctxt->uart_data_ready = false;
-    BUG_ON(ctxt->uart_data_ready && i >= ctxt->uart_rx_buf_len);
-    if (i >= ctxt->uart_rx_buf_len)
+    if (bus->uart_init_phase && i >= bus->uart_rx_buf_len)
+        bus->uart_data_ready = false;
+    BUG_ON(bus->uart_data_ready && i >= bus->uart_rx_buf_len);
+    if (i >= bus->uart_rx_buf_len)
         return 0;
 
     BUG_ON(buf_len < frame_len);
-    memcpy(buf, ctxt->uart_rx_buf + frame_start, frame_len);
+    memcpy(buf, bus->uart_rx_buf + frame_start, frame_len);
 
-    while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
+    while (bus->uart_rx_buf[i] == 0x7E && i < bus->uart_rx_buf_len)
         i++;
-    memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + i, ctxt->uart_rx_buf_len - i);
-    ctxt->uart_rx_buf_len -= i;
+    memmove(bus->uart_rx_buf, bus->uart_rx_buf + i, bus->uart_rx_buf_len - i);
+    bus->uart_rx_buf_len -= i;
 
     i = 0;
-    ctxt->uart_data_ready = false;
-    while (i < ctxt->uart_rx_buf_len) {
-        if (ctxt->uart_rx_buf[i] == 0x7E) {
-            ctxt->uart_data_ready = true;
+    bus->uart_data_ready = false;
+    while (i < bus->uart_rx_buf_len) {
+        if (bus->uart_rx_buf[i] == 0x7E) {
+            bus->uart_data_ready = true;
             break;
         }
         i++;
@@ -292,40 +292,40 @@ static size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len,
     return frame_len;
 }
 
-int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int uart_legacy_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     uint8_t frame[4096];
     size_t frame_len;
 
-    frame_len = uart_legacy_rx_hdlc(ctxt, frame, sizeof(frame));
+    frame_len = uart_legacy_rx_hdlc(bus, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_init_phase);
+    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, bus->uart_init_phase);
     return frame_len;
 }
 
-bool uart_detect_v2(struct os_ctxt *ctxt)
+bool uart_detect_v2(struct bus *bus)
 {
     struct pollfd pfd = {
-        .fd = ctxt->trig_fd,
+        .fd = bus->trig_fd,
         .events = POLLIN,
     };
     int ret;
 
     ret = poll(&pfd, 1, 10000);
     if (!ret)
-        FATAL_ON(!ctxt->uart_rx_buf_len, 2, "RCP is not responding");
+        FATAL_ON(!bus->uart_rx_buf_len, 2, "RCP is not responding");
 
     for (;;) {
         ret = poll(&pfd, 1, 1000);
         FATAL_ON(ret < 0, 2, "%s poll : %m", __func__);
         if (!ret)
             return false;
-        uart_read(ctxt);
-        ctxt->uart_data_ready = true;
-        for (int i = 0; i < ctxt->uart_rx_buf_len - 4; i++)
-            if (crc_check(CRC_INIT_HCS, ctxt->uart_rx_buf + i, 2,
-                          read_le16(ctxt->uart_rx_buf + i + 2)))
+        uart_read(bus);
+        bus->uart_data_ready = true;
+        for (int i = 0; i < bus->uart_rx_buf_len - 4; i++)
+            if (crc_check(CRC_INIT_HCS, bus->uart_rx_buf + i, 2,
+                          read_le16(bus->uart_rx_buf + i + 2)))
                 return true;
     }
 }

@@ -15,33 +15,33 @@
 #include <stdint.h>
 #include "common/log.h"
 
-struct os_ctxt;
+struct bus;
 
 #ifdef HAVE_LIBCPC
 
-int cpc_open(struct os_ctxt *ctxt, const char *instance_name, bool verbose);
-int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len);
-int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
-uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt);
+int cpc_open(struct bus *bus, const char *instance_name, bool verbose);
+int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len);
+int cpc_rx(struct bus *bus, void *buf, unsigned int buf_len);
+uint32_t cpc_secondary_app_version(struct bus *bus);
 
 #else
 
-static inline int cpc_open(struct os_ctxt *ctxt, const char *instance_name, bool verbose)
+static inline int cpc_open(struct bus *bus, const char *instance_name, bool verbose)
 {
     FATAL(1, "support for CPC is disabled");
 }
 
-static inline int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+static inline int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 {
     return -1;
 }
 
-static inline int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+static inline int cpc_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     return -1;
 }
 
-static inline uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt)
+static inline uint32_t cpc_secondary_app_version(struct bus *bus)
 {
     return 0;
 }

@@ -16,20 +16,20 @@
 #include <stddef.h>
 #include <stdint.h>
 
-struct os_ctxt;
+struct bus;
 
 #define UART_HDR_LEN_MASK 0x07ff
 
 int uart_open(const char *device, int bitrate, bool hardflow);
 
-int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+int uart_tx(struct bus *bus, const void *buf, unsigned int len);
+int uart_rx(struct bus *bus, void *buf, unsigned int len);
 
-int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+int uart_legacy_tx(struct bus *bus, const void *buf, unsigned int len);
+int uart_legacy_rx(struct bus *bus, void *buf, unsigned int len);
 
 // Try to find a valid APIv2 header within the first bytes received.
-bool uart_detect_v2(struct os_ctxt *ctxt);
+bool uart_detect_v2(struct bus *bus);
 
 #endif
 

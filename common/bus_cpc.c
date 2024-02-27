@@ -12,12 +12,12 @@
  */
 #include <sl_cpc.h>
 
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/log.h"
 #include "common/hif.h"
 #include "common/version.h"
 
-// FIXME: This is global to avoid a conditional definition as a member of os_ctxt.
+// FIXME: This is global to avoid a conditional definition as a member of bus.
 static cpc_handle_t g_cpc_handle;
 
 #include "bus_cpc.h"
@@ -27,42 +27,42 @@ static void cpc_reset_callback(void)
     FATAL(3, "RCP reset");
 }
 
-int cpc_open(struct os_ctxt *ctxt, const char *cpc_instance, bool verbose)
+int cpc_open(struct bus *bus, const char *cpc_instance, bool verbose)
 {
     int ret, fd;
 
     ret = cpc_init(&g_cpc_handle, cpc_instance, verbose, cpc_reset_callback);
     FATAL_ON(ret, 2, "cpc_init: %m");
-    fd = cpc_open_endpoint(g_cpc_handle, &ctxt->cpc_ep, SL_CPC_ENDPOINT_WISUN, 1);
+    fd = cpc_open_endpoint(g_cpc_handle, &bus->cpc_ep, SL_CPC_ENDPOINT_WISUN, 1);
     FATAL_ON(fd < 0, 2, "cpc_open_endpoint: %m");
-    // ret = cpc_set_endpoint_option(ctxt->cpc_ep, CPC_OPTION_BLOCKING, (void *)true, sizeof(bool));
+    // ret = cpc_set_endpoint_option(bus->cpc_ep, CPC_OPTION_BLOCKING, (void *)true, sizeof(bool));
     // FATAL_ON(ret, 2, "cpc_set_endpoint_option: %m");
     return fd;
 }
 
-int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 {
     int ret;
 
-    ret = cpc_write_endpoint(ctxt->cpc_ep, buf, buf_len, 0);
+    ret = cpc_write_endpoint(bus->cpc_ep, buf, buf_len, 0);
     FATAL_ON(ret < 0, 2, "cpc_write_endpoint: %m");
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
         tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
 }
 
-int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int cpc_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     int ret;
 
-    ret = cpc_read_endpoint(ctxt->cpc_ep, buf, buf_len, 0);
+    ret = cpc_read_endpoint(bus->cpc_ep, buf, buf_len, 0);
     FATAL_ON(ret < 0, 2, "cpc_read_endpoint: %m");
     TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
         tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
 }
 
-uint32_t cpc_secondary_app_version(struct os_ctxt *ctxt)
+uint32_t cpc_secondary_app_version(struct bus *bus)
 {
     uint8_t major, patch;
     const char *str;

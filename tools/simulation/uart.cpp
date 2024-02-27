@@ -17,7 +17,7 @@
 extern "C" {
 #include "6lbr/app/wsbr.h"
 #include "common/log.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 }
 
 ns3::Callback<int, const void *, size_t> g_uart_cb = ns3::MakeNullCallback<int, const void *, size_t>();
@@ -32,7 +32,7 @@ extern "C" int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 extern "C" ssize_t __real_write(int fd, const void *buf, size_t count);
 extern "C" ssize_t __wrap_write(int fd, const void *buf, size_t count)
 {
-    if (fd == g_ctxt.os_ctxt->data_fd)
+    if (fd == g_ctxt.bus->data_fd)
         return g_uart_cb(buf, count);
     else
         return __real_write(fd, buf, count);
@@ -44,7 +44,7 @@ extern "C" ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
     uint8_t *buf;
     ssize_t ret;
 
-    if (fd != g_ctxt.os_ctxt->data_fd)
+    if (fd != g_ctxt.bus->data_fd)
         return __real_writev(fd, iov, iovcnt);
 
     BUG_ON(iovcnt != 3); // hdr | cmd + body | fcs

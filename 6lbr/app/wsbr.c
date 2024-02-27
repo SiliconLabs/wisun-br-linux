@@ -16,7 +16,7 @@
 #include "common/bus_cpc.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/ws_regdb.h"
 #include "common/log.h"
 #include "common/bits.h"
@@ -117,11 +117,11 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_conf.bsi = -1,
 
-    .os_ctxt = &g_os_ctxt,
+    .bus = &g_bus,
 };
 
-// See warning in common/os_types.h
-struct os_ctxt g_os_ctxt = {
+// See warning in common/bus.h
+struct bus g_bus = {
     // avoid initializating to 0 = STDIN_FILENO
     .trig_fd = -1,
     .data_fd = -1,
@@ -425,8 +425,8 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     int ret;
 
     if (ctxt->config.uart_dev[0]) {
-        ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
-        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+        ctxt->bus->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
+        ctxt->bus->trig_fd = ctxt->bus->data_fd;
         ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
         ctxt->rcp.device_tx    = uart_tx;
         ctxt->rcp.device_rx    = uart_rx;
@@ -434,9 +434,9 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;
         ctxt->rcp.device_rx = cpc_rx;
-        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
-        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-        ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->os_ctxt);
+        ctxt->bus->data_fd = cpc_open(ctxt->bus, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
+        ctxt->bus->trig_fd = ctxt->bus->data_fd;
+        ctxt->rcp.version_api = cpc_secondary_app_version(ctxt->bus);
         if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
             FATAL(3, "RCP API < 2.0.0 (too old)");
         rcp_req_reset(&ctxt->rcp, false);
@@ -444,23 +444,23 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
         BUG();
     }
 
-    pfd.fd = ctxt->os_ctxt->trig_fd;
+    pfd.fd = ctxt->bus->trig_fd;
     pfd.events = POLLIN;
     ret = poll(&pfd, 1, 5000);
     FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
     WARN_ON(!ret, "RCP is not responding");
 
-    ctxt->os_ctxt->uart_init_phase = true;
+    ctxt->bus->uart_init_phase = true;
     while (!ctxt->rcp.has_reset)
         rcp_rx(&ctxt->rcp);
-    ctxt->os_ctxt->uart_init_phase = false;
+    ctxt->bus->uart_init_phase = false;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
     ctxt->fds[POLLFD_DBUS].events = POLLIN;
-    ctxt->fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
+    ctxt->fds[POLLFD_RCP].fd = ctxt->bus->trig_fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
     ctxt->fds[POLLFD_TUN].fd = ctxt->tun_fd;
     ctxt->fds[POLLFD_TUN].events = POLLIN;
@@ -487,7 +487,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     uint64_t val;
     int ret;
 
-    if (ctxt->os_ctxt->uart_data_ready)
+    if (ctxt->bus->uart_data_ready)
         ret = poll(ctxt->fds, POLLFD_COUNT, 0);
     else
         ret = poll(ctxt->fds, POLLFD_COUNT, -1);
@@ -516,7 +516,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     }
     if (ctxt->fds[POLLFD_RCP].revents & POLLIN ||
         ctxt->fds[POLLFD_RCP].revents & POLLERR ||
-        ctxt->os_ctxt->uart_data_ready)
+        ctxt->bus->uart_data_ready)
         rcp_rx(&ctxt->rcp);
     if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);

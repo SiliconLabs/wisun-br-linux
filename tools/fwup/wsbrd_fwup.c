@@ -23,7 +23,7 @@
 #include <linux/limits.h>
 #include "common/log.h"
 #include "common/bus_uart.h"
-#include "common/os_types.h"
+#include "common/bus.h"
 #include "common/hif.h"
 #include "common/spinel.h"
 #include "common/iobuf.h"
@@ -98,17 +98,17 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
     FATAL_ON(ret, 1, "%s does not exists", cmd->gbl_file_path);
 }
 
-static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len,
-                        int (*rx)(struct os_ctxt *ctxt, void *buf, unsigned int buf_len))
+static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
+                        int (*rx)(struct bus *bus, void *buf, unsigned int buf_len))
 {
     int len, ret;
     struct pollfd pollfd = {
-        .fd = ctxt->trig_fd,
+        .fd = bus->trig_fd,
         .events = POLLIN,
     };
 
     do {
-        if (!ctxt->uart_data_ready) {
+        if (!bus->uart_data_ready) {
             ret = poll(&pollfd, 1, 5000);
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -116,33 +116,33 @@ static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len,
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || ctxt->uart_data_ready)
-            len = rx(ctxt, buf, buf_len);
+        if (pollfd.revents & POLLIN || bus->uart_data_ready)
+            len = rx(bus, buf, buf_len);
     } while (!len);
     return len;
 }
 
-static void send_btl_update(struct os_ctxt *ctxt)
+static void send_btl_update(struct bus *bus)
 {
     struct iobuf_write tx_buf = { };
 
     hif_push_u8(&tx_buf, 0);
     hif_push_uint(&tx_buf, SPINEL_CMD_NOOP);
-    uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
+    uart_legacy_tx(bus, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
 
     hif_push_u8(&tx_buf, 0);
     hif_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
-    uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
+    uart_legacy_tx(bus, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
 
     hif_push_u8(&tx_buf, HIF_CMD_REQ_RESET);
     hif_push_bool(&tx_buf, true);
-    uart_tx(ctxt, tx_buf.data, tx_buf.len);
+    uart_tx(bus, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
 }
 
-static void handle_btl_update(struct os_ctxt *ctxt)
+static void handle_btl_update(struct bus *bus)
 {
     int ret;
     char btl_rx_buf[4096];
@@ -150,34 +150,34 @@ static void handle_btl_update(struct os_ctxt *ctxt)
     char *btl_str = "Gecko Bootloader";
     struct pollfd pollfd = { .events = POLLIN };
 
-    pollfd.fd = ctxt->trig_fd;
+    pollfd.fd = bus->trig_fd;
     sleep(1); // wait for rcp to reboot
     ret = poll(&pollfd, 1, 1000);
     if (ret < 0)
         FATAL(2, "poll: %m");
     if (!ret)
         FATAL(1, "failed to start bootloader");
-    ret = read(ctxt->data_fd, btl_rx_buf, sizeof(btl_rx_buf));
+    ret = read(bus->data_fd, btl_rx_buf, sizeof(btl_rx_buf));
     if (!memmem(btl_rx_buf, ret, btl_str, strlen(btl_str)))
         FATAL(1, "cannot get bootloader banner");
     // option '1' to upload gbl
-    write(ctxt->data_fd, &btl_upload_gbl, sizeof(uint8_t));
+    write(bus->data_fd, &btl_upload_gbl, sizeof(uint8_t));
 }
 
-static void handle_btl_run(struct os_ctxt *ctxt)
+static void handle_btl_run(struct bus *bus)
 {
     char btl_run = '2';
     int ret;
 
     // wait for the Gecko Bootloader banner
     usleep(500000);
-    ret = tcflush(ctxt->data_fd, TCIFLUSH);
+    ret = tcflush(bus->data_fd, TCIFLUSH);
     FATAL_ON(ret < 0, 2, "tcflush: %m");
     // option '2' to run
-    write(ctxt->data_fd, &btl_run, sizeof(uint8_t));
+    write(bus->data_fd, &btl_run, sizeof(uint8_t));
 }
 
-static void handle_rcp_reset(struct os_ctxt *ctxt)
+static void handle_rcp_reset(struct bus *bus)
 {
     int cmd;
     const char *version_fw_str;
@@ -186,10 +186,10 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
     struct iobuf_read rx_buf = { };
     bool is_v2;
 
-    ctxt->uart_init_phase = true;
-    is_v2 = uart_detect_v2(ctxt);
+    bus->uart_init_phase = true;
+    is_v2 = uart_detect_v2(bus);
     rx_buf.data = buffer;
-    rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer),
+    rx_buf.data_size = read_data(bus, buffer, sizeof(buffer),
                                  is_v2 ? uart_rx : uart_legacy_rx);
     if (!rx_buf.data_size) {
         INFO("No RCP version received");
@@ -208,7 +208,7 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
         cmd = hif_pop_uint(&rx_buf);
         if (cmd == SPINEL_CMD_NOOP) {
             rx_buf.cnt = 0;
-            rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer), uart_legacy_rx);
+            rx_buf.data_size = read_data(bus, buffer, sizeof(buffer), uart_legacy_rx);
             hif_pop_u8(&rx_buf);
             cmd = hif_pop_uint(&rx_buf);
         }
@@ -253,18 +253,18 @@ int main(int argc, char **argv)
     pid_t pid;
     int ret, wstatus, sxfd;
     struct commandline_args cmdline = { };
-    struct os_ctxt ctxt = { };
+    struct bus bus = { };
     char *sx_args[] = { "sx", "-vv", cmdline.gbl_file_path, NULL };
 
     parse_commandline(&cmdline, argc, argv);
     check_if_sx_is_installed();
 
-    ctxt.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    ctxt.trig_fd = ctxt.data_fd;
-    FATAL_ON(ctxt.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
-    send_btl_update(&ctxt);
-    handle_btl_update(&ctxt);
-    close(ctxt.data_fd);
+    bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    bus.trig_fd = bus.data_fd;
+    FATAL_ON(bus.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
+    send_btl_update(&bus);
+    handle_btl_update(&bus);
+    close(bus.data_fd);
 
     pid = fork();
     if (pid > 0) {
@@ -287,12 +287,12 @@ int main(int argc, char **argv)
     if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus))
         FATAL(1, "xmodem transfer failed");
 
-    ctxt.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
-    ctxt.trig_fd = ctxt.data_fd;
-    FATAL_ON(ctxt.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
-    handle_btl_run(&ctxt);
-    handle_rcp_reset(&ctxt);
-    close(ctxt.data_fd);
+    bus.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
+    bus.trig_fd = bus.data_fd;
+    FATAL_ON(bus.data_fd < 0, 2, "%s: %m", cmdline.uart_device);
+    handle_btl_run(&bus);
+    handle_rcp_reset(&bus);
+    close(bus.data_fd);
 
     return 0;
 }
