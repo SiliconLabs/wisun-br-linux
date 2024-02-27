@@ -28,11 +28,6 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
 int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
-// These functions are exported for debug purposes
-size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len);
-size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len, bool inhibit_crc_warning);
-size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc);
-
 // Try to find a valid APIv2 header within the first bytes received.
 bool uart_detect_v2(struct os_ctxt *ctxt);
 

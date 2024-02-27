@@ -179,7 +179,7 @@ static int uart_legacy_tx_append(uint8_t *buf, uint8_t byte)
     }
 }
 
-size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
+static size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
 {
     uint8_t crc_bytes[2];
     int frame_len;
@@ -216,7 +216,7 @@ int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 /*
  * Returns the next HDLC frame if available, terminator included.
  */
-size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
+static size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 {
     int frame_start, frame_len;
     int i;
@@ -258,7 +258,9 @@ size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     return frame_len;
 }
 
-size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len, bool inhibit_crc_warning)
+static size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len,
+                                      const uint8_t *in, size_t in_len,
+                                      bool inhibit_crc_warning)
 {
     int i = 0, frame_len = 0;
 
