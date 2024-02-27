@@ -23,7 +23,6 @@ struct slist;
 
 struct bus {
     int     fd;
-    int     spi_recv_window;
     int     spinel_tid;
     int     spinel_iid;
     bool    uart_data_ready;
