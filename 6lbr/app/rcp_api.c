@@ -32,7 +32,7 @@ static void rcp_tx(struct rcp *rcp, struct iobuf_write *buf)
     TRACE(TR_HIF, "hif tx: %s %s", hif_cmd_str(buf->data[0]),
           tr_bytes(buf->data + 1, buf->len - 1,
                    NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
-    rcp->device_tx(&rcp->bus, buf->data, buf->len);
+    rcp->bus.tx(&rcp->bus, buf->data, buf->len);
 }
 
 static void rcp_ind_nop(struct rcp *rcp, struct iobuf_read *buf)
@@ -481,7 +481,7 @@ void rcp_rx(struct rcp *rcp)
     struct iobuf_read buf = { .data = rcp_rx_buf };
     uint32_t cmd;
 
-    buf.data_size = rcp->device_rx(&rcp->bus, rcp_rx_buf, sizeof(rcp_rx_buf));
+    buf.data_size = rcp->bus.rx(&rcp->bus, rcp_rx_buf, sizeof(rcp_rx_buf));
     if (!buf.data_size)
         return;
     cmd = hif_pop_u8(&buf);

@@ -21,6 +21,9 @@
 struct slist;
 
 struct bus {
+    int  (*tx)(struct bus *bus, const void *buf, unsigned int len);
+    int  (*rx)(struct bus *bus, void *buf, unsigned int len);
+
     int     fd;
     int     spinel_tid;
     int     spinel_iid;

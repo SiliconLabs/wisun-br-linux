@@ -39,8 +39,6 @@ struct rcp_rail_config {
 
 struct rcp {
     struct bus bus;
-    int  (*device_tx)(struct bus *bus, const void *buf, unsigned int len);
-    int  (*device_rx)(struct bus *bus, void *buf, unsigned int len);
 
     void (*on_reset)(struct rcp *rcp);
     void (*on_tx_cnf)(struct rcp *rcp, const struct hif_tx_cnf *cnf);
