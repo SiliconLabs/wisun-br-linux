@@ -228,7 +228,6 @@ static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
 
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 {
-    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     struct mcps_data_rx_ie_list ie = { };
     struct mcps_data_cnf cnf = { };
     const uint8_t *frame;
@@ -252,7 +251,7 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
         ret = wsbr_data_cnf_parse(frame, frame_len, &cnf, &ie);
         WARN_ON(ret < 0, "invalid ack frame");
     }
-    ctxt->rcp.on_tx_cnf(ctxt->net_if.id, &cnf, &ie);
+    rcp->on_tx_cnf(rcp, &cnf, &ie);
 }
 
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
@@ -275,7 +274,7 @@ static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
     ret = wsbr_data_ind_parse(frame, frame_len, &ind, &ind_ie, ctxt->net_if.ws_info.pan_information.pan_id);
     if (ret < 0)
         return;
-    ctxt->rcp.on_rx_ind(ctxt->net_if.id, &ind, &ind_ie);
+    rcp->on_rx_ind(rcp, &ind, &ind_ie);
 }
 
 void rcp_req_radio_enable(struct rcp *rcp)

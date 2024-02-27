@@ -88,7 +88,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
-        cur->rcp->on_tx_cnf(cur->id, &cnf_fail, &cnf_fail_ie);
+        cur->rcp->on_tx_cnf(cur->rcp, &cnf_fail, &cnf_fail_ie);
         return;
     }
     wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
@@ -97,4 +97,22 @@ void wsbr_data_req_ext(struct net_if *cur,
                     data->msduHandle,  data->fhss_type, neighbor_ws,
                     data->phy_id ? rate_list : NULL);
     iobuf_free(&frame);
+}
+
+void wsbr_tx_cnf(struct rcp *rcp,
+                 const struct mcps_data_cnf *cnf,
+                 const struct mcps_data_rx_ie_list *ies)
+{
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+
+    ws_llc_mac_confirm_cb(ctxt->net_if.id, cnf, ies);
+}
+
+void wsbr_rx_ind(struct rcp *rcp,
+                 const struct mcps_data_ind *ind,
+                 const struct mcps_data_rx_ie_list *ies)
+{
+    struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+
+    ws_llc_mac_indication_cb(ctxt->net_if.id, ind, ies);
 }

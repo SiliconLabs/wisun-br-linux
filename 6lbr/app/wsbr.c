@@ -73,8 +73,8 @@ struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
 
     .rcp.on_reset = wsbr_handle_reset,
-    .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
-    .rcp.on_rx_ind = ws_llc_mac_indication_cb,
+    .rcp.on_tx_cnf = wsbr_tx_cnf,
+    .rcp.on_rx_ind = wsbr_rx_ind,
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,
