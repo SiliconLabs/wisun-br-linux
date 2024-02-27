@@ -122,10 +122,10 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     } else if (fd == ctxt->wsbrd->tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
         fuzz_capture_interface(ctxt, IF_TUN, in6addr_any.s6_addr, in6addr_any.s6_addr, 0, buf, size);
-    } else if (fd == ctxt->wsbrd->bus->fd && !size && ctxt->replay_i < ctxt->replay_count) {
+    } else if (fd == ctxt->wsbrd->rcp.bus.fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
-        ctxt->wsbrd->bus->fd = ctxt->replay_fds[ctxt->replay_i++];
-        return __real_read(ctxt->wsbrd->bus->fd, buf, count);
+        ctxt->wsbrd->rcp.bus.fd = ctxt->replay_fds[ctxt->replay_i++];
+        return __real_read(ctxt->wsbrd->rcp.bus.fd, buf, count);
     }
 
     return size;

@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "common/bus.h"
 #include "common/hif.h"
 
 // TODO: drop legacy structures
@@ -37,6 +38,7 @@ struct rcp_rail_config {
 };
 
 struct rcp {
+    struct bus bus;
     int  (*device_tx)(struct bus *bus, const void *buf, unsigned int len);
     int  (*device_rx)(struct bus *bus, void *buf, unsigned int len);
 
