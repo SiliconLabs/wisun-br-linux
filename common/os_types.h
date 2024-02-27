@@ -21,12 +21,6 @@
 
 struct slist;
 
-struct retransmission_frame {
-    uint8_t frame[2048];
-    uint16_t frame_len;
-    uint16_t crc;
-};
-
 struct os_ctxt {
     int     trig_fd;
     int     data_fd;
@@ -40,11 +34,6 @@ struct os_ctxt {
 #ifdef HAVE_LIBCPC
     cpc_endpoint_t cpc_ep;
 #endif
-
-    // For retransmission in case of crc error on the rcp
-    // FIXME: rename this and the structure / naive circular buffer : rearch
-    int retransmission_index;
-    struct retransmission_frame retransmission_buffers[15]; // spinel header range from 1 to 15
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
