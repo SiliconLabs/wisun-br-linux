@@ -67,17 +67,14 @@
 #include "tun.h"
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
-static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status);
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
 
     .rcp.on_reset = wsbr_handle_reset,
-    .rcp.on_rx_err = wsbr_handle_rx_err,
     .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
     .rcp.on_rx_ind = ws_llc_mac_indication_cb,
-    .rcp.on_rx_frame_counter = ws_pae_controller_nw_frame_counter_indication_cb,
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,
@@ -385,11 +382,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     }
     rpl_glue_init(&ctxt->net_if);
     rpl_start(&ctxt->net_if.rpl_root, ctxt->config.tun_dev);
-}
-
-static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
-{
-    TRACE(TR_DROP, "drop %-9s: from %s: status 0x%02x", "15.4", tr_eui64(src), status);
 }
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
