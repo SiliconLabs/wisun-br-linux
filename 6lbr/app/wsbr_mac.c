@@ -71,8 +71,8 @@ void wsbr_data_req_ext(struct net_if *cur,
     };
     struct mcps_data_rx_ie_list cnf_fail_ie = { };
     struct mcps_data_cnf cnf_fail = {
-        .msduHandle = data->msduHandle,
-        .status = MLME_TRANSACTION_OVERFLOW,
+        .hif.handle = data->msduHandle,
+        .hif.status = HIF_STATUS_TIMEDOUT,
     };
     struct iobuf_write frame = { };
 
@@ -88,7 +88,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
-        cur->rcp->on_tx_cnf(cur->rcp, &cnf_fail, &cnf_fail_ie);
+        ws_llc_mac_confirm_cb(cur->id, &cnf_fail, &cnf_fail_ie);
         return;
     }
     wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
@@ -99,13 +99,18 @@ void wsbr_data_req_ext(struct net_if *cur,
     iobuf_free(&frame);
 }
 
-void wsbr_tx_cnf(struct rcp *rcp,
-                 const struct mcps_data_cnf *cnf,
-                 const struct mcps_data_rx_ie_list *ies)
+void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
+    struct mcps_data_cnf mcps_cnf = { .hif = *cnf };
+    struct mcps_data_rx_ie_list mcps_ie = { };
+    int ret;
 
-    ws_llc_mac_confirm_cb(ctxt->net_if.id, cnf, ies);
+    if (cnf->frame_len) {
+        ret = wsbr_data_cnf_parse(cnf->frame, cnf->frame_len, &mcps_cnf, &mcps_ie);
+        WARN_ON(ret < 0, "invalid ack frame");
+    }
+    ws_llc_mac_confirm_cb(ctxt->net_if.id, &mcps_cnf, &mcps_ie);
 }
 
 void wsbr_rx_ind(struct rcp *rcp,

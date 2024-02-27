@@ -17,6 +17,7 @@
 #include <sys/uio.h>
 
 #include "app/rcp_api.h"
+#include "common/log.h"
 
 struct fhss_ws_neighbor_timing_info;
 struct fhss_ws_configuration;
@@ -95,13 +96,7 @@ enum mcps_data_cnf_status {
 // Used by on_tx_cnf()
 // See IEEE standard 802.15.4-2006 (table 42) for more details
 typedef struct mcps_data_cnf {
-    uint8_t msduHandle;     /**< Handle associated with MSDU */
-    uint8_t status;         /**< Status of the last MSDU transmission, see enum mcps_data_cnf_status */
-    uint64_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
-    //Non-standard extension
-    uint8_t cca_retries;    /**< Number of CCA retries used during sending */
-    uint8_t tx_retries;     /**< Number of retries done during sending, 0 means no retries */
-    uint32_t frame_counter; // Frame counter used for successful TX of a secured frame
+    struct hif_tx_cnf hif;
     struct mlme_security sec; // Auxiliary security header of the ACK frame (if any)
     struct {
         uint8_t phy_mode_id;
@@ -140,5 +135,19 @@ struct mcps_data_rx_ie_list {
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
 };
+
+static inline uint8_t mlme_status_from_hif(enum hif_data_status status)
+{
+    switch (status) {
+    case HIF_STATUS_SUCCESS:  return MLME_SUCCESS;
+    case HIF_STATUS_NOMEM:    return MLME_TRANSACTION_OVERFLOW;
+    case HIF_STATUS_CCA:      return MLME_BUSY_CHAN;
+    case HIF_STATUS_NOACK:    return MLME_TX_NO_ACK;
+    case HIF_STATUS_TIMEDOUT: return MLME_TRANSACTION_EXPIRED;
+    default:
+        WARN("unknown status 0x%02x", status);
+        return MLME_INVALID_PARAMETER; // arbitrary
+    }
+}
 
 #endif

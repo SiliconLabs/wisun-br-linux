@@ -211,46 +211,23 @@ void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
     iobuf_free(&buf);
 }
 
-static uint8_t rcp_data_status_hif2mlme(enum hif_data_status status)
-{
-    switch (status) {
-    case HIF_STATUS_SUCCESS:  return MLME_SUCCESS;
-    case HIF_STATUS_NOMEM:    return MLME_TRANSACTION_OVERFLOW;
-    case HIF_STATUS_CCA:      return MLME_BUSY_CHAN;
-    case HIF_STATUS_NOACK:    return MLME_TX_NO_ACK;
-    case HIF_STATUS_TIMEDOUT: return MLME_TRANSACTION_EXPIRED;
-    default:
-        WARN("unknown status 0x%02x", status);
-        return MLME_INVALID_PARAMETER; // arbitrary
-    }
-}
-
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 {
-    struct mcps_data_rx_ie_list ie = { };
-    struct mcps_data_cnf cnf = { };
-    const uint8_t *frame;
-    size_t frame_len;
-    int ret;
+    struct hif_tx_cnf cnf = { };
 
-    cnf.msduHandle    = hif_pop_u8(buf);
-    cnf.status        = rcp_data_status_hif2mlme(hif_pop_u8(buf));
-    frame_len         = hif_pop_data_ptr(buf, &frame);
-    cnf.timestamp     = hif_pop_u64(buf);
-    hif_pop_u8(buf);  // TODO: LQI
-    hif_pop_u8(buf);  // TODO: RSSI
+    cnf.handle        = hif_pop_u8(buf);
+    cnf.status        = hif_pop_u8(buf);
+    cnf.frame_len     = hif_pop_data_ptr(buf, &cnf.frame);
+    cnf.timestamp_us  = hif_pop_u64(buf);
+    cnf.lqi           = hif_pop_u8(buf);
+    cnf.rx_power_dbm  = hif_pop_u8(buf);
     cnf.frame_counter = hif_pop_u32(buf);
-    hif_pop_u16(buf); // TODO: channel
+    cnf.chan_num      = hif_pop_u16(buf);
     cnf.cca_retries   = hif_pop_u8(buf);
     cnf.tx_retries    = hif_pop_u8(buf);
     hif_pop_u8(buf);  // TODO: mode switch stats
     BUG_ON(buf->err);
-
-    if (frame_len) {
-        ret = wsbr_data_cnf_parse(frame, frame_len, &cnf, &ie);
-        WARN_ON(ret < 0, "invalid ack frame");
-    }
-    rcp->on_tx_cnf(rcp, &cnf, &ie);
+    rcp->on_tx_cnf(rcp, &cnf);
 }
 
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)

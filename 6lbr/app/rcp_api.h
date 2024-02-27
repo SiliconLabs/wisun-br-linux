@@ -41,9 +41,7 @@ struct rcp {
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
     void (*on_reset)(struct rcp *rcp);
-    void (*on_tx_cnf)(struct rcp *rcp,
-                      const struct mcps_data_cnf *cnf,
-                      const struct mcps_data_rx_ie_list *ies);
+    void (*on_tx_cnf)(struct rcp *rcp, const struct hif_tx_cnf *cnf);
     void (*on_rx_ind)(struct rcp *rcp,
                       const struct mcps_data_ind *ind,
                       const struct mcps_data_rx_ie_list *ies);

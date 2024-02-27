@@ -357,7 +357,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
     if (mpx_usr && mpx_usr->data_confirm) {
         mpx_confirm = *confirm;
-        mpx_confirm.msduHandle = msg->mpx_user_handle;
+        mpx_confirm.hif.handle = msg->mpx_user_handle;
         mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
     }
 
@@ -376,6 +376,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                                 const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neigh *ws_neigh)
 {
+    const uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
@@ -383,7 +384,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     int ie_rsl;
 
     if (msg->ack_requested) {
-        switch (confirm->status) {
+        switch (mlme_status) {
         case MLME_SUCCESS:
         case MLME_TX_NO_ACK:
             if (!ws_neigh)
@@ -391,15 +392,15 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
             if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
-                if (confirm->status == MLME_SUCCESS)
+                if (mlme_status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-                ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->timestamp, ws_neigh->mac64);
+                ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
-                if (confirm->status == MLME_SUCCESS)
+                if (mlme_status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                    confirm->timestamp, ws_neigh->mac64);
+                                    confirm->hif.timestamp_us, ws_neigh->mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
                 ws_neigh_rsl_out_dbm_update(ws_neigh, ie_rsl);
@@ -410,7 +411,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_LOWPAN_ENC_USER_ID);
     if (mpx_usr && mpx_usr->data_confirm) {
         mpx_confirm = *confirm;
-        mpx_confirm.msduHandle = msg->mpx_user_handle;
+        mpx_confirm.hif.handle = msg->mpx_user_handle;
         mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
     }
 }
@@ -435,16 +436,17 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     struct llc_data_base *base;
     struct llc_message *msg;
     time_t tx_confirm_duration;
+    uint8_t mlme_status;
 
     base = ws_llc_discover_by_interface(net_if);
     if (!base)
         return;
-    msg = llc_message_discover_by_mac_handle(data_cpy.msduHandle, &base->llc_message_list);
+    msg = llc_message_discover_by_mac_handle(data_cpy.hif.handle, &base->llc_message_list);
     if (!msg)
         return;
 
-    if (msg->security.SecurityLevel && data_cpy.frame_counter)
-        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data_cpy.frame_counter);
+    if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
+        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
@@ -454,7 +456,8 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
             BUG_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7);
             if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
-                data_cpy.status = MLME_COUNTER_ERROR;
+                data_cpy.hif.status = HIF_STATUS_NOACK;
+                mlme_status = MLME_COUNTER_ERROR;
                 TRACE(TR_TX_ABORT, "tx-abort %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
                       "15.4", data_cpy.sec.KeyIndex, data_cpy.sec.frame_counter,
                       ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1]);
@@ -466,7 +469,8 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
         ws_llc_rate_handle_tx_conf(base, data, ws_neigh);
     }
 
-    if (msg->eapol_temporary && data_cpy.status == MLME_SUCCESS) {
+    mlme_status = mlme_status_from_hif(data->hif.status);
+    if (msg->eapol_temporary && mlme_status == MLME_SUCCESS) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
             neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
@@ -1132,8 +1136,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (!message) {
         mcps_data_cnf_t data_conf;
         memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
-        data_conf.msduHandle = data->msduHandle;
-        data_conf.status = MLME_TRANSACTION_OVERFLOW;
+        data_conf.hif.handle = data->msduHandle;
+        data_conf.hif.status = HIF_STATUS_NOMEM;
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
@@ -1302,8 +1306,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     if (!message) {
         mcps_data_cnf_t data_conf;
         memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
-        data_conf.msduHandle = data->msduHandle;
-        data_conf.status = MLME_TRANSACTION_OVERFLOW;
+        data_conf.hif.handle = data->msduHandle;
+        data_conf.hif.status = HIF_STATUS_NOMEM;
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
@@ -1493,7 +1497,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
     if (data->success_phy_mode_id == schedule->phy_mode_id_ms_base)
         neighbor->ms_tx_count++;
 
-    if (data->tx_retries) {
+    if (data->hif.tx_retries) {
         // Look for mode switch retries
         for (i = 0; i < ARRAY_SIZE(data->retry_per_rate); i++) {
             if (data->retry_per_rate[i].phy_mode_id == schedule->phy_mode_id_ms_base) {

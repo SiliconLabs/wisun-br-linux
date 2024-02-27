@@ -842,6 +842,8 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
 
 static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm)
 {
+    uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
+
     if (!cur || !confirm) {
         return -1;
     }
@@ -854,25 +856,25 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     //Check first
     fragmenter_tx_entry_t *tx_ptr;
     bool active_direct_confirm;
-    if (lowpan_active_tx_handle_verify(confirm->msduHandle, interface_ptr->active_broadcast_tx_buf.buf)) {
+    if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf)) {
         active_direct_confirm = true;
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
-    } else if (lowpan_active_tx_handle_verify(confirm->msduHandle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
+    } else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
         active_direct_confirm = true;
         tx_ptr = &interface_ptr->active_lfn_broadcast_tx_buf;
     } else {
-        tx_ptr = lowpan_listed_tx_handle_verify(confirm->msduHandle, &interface_ptr->activeUnicastList);
+        tx_ptr = lowpan_listed_tx_handle_verify(confirm->hif.handle, &interface_ptr->activeUnicastList);
         if (tx_ptr)
             active_direct_confirm = true;
     }
 
     if (!tx_ptr) {
-        tr_error("No data request for this confirmation %u", confirm->msduHandle);
+        tr_error("No data request for this confirmation %u", confirm->hif.handle);
         return -1;
     }
     buffer_t *buf = tx_ptr->buf;
 
-    if (confirm->status == MLME_SUCCESS) {
+    if (mlme_status == MLME_SUCCESS) {
         //Check is there more packets
         if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
             if (tx_ptr->fragmented_data && active_direct_confirm)
@@ -881,7 +883,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         } else {
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
-    } else if ((buf->link_specific.ieee802_15_4.requestAck) && (confirm->status == MLME_TRANSACTION_EXPIRED)) {
+    } else if ((buf->link_specific.ieee802_15_4.requestAck) && (mlme_status == MLME_TRANSACTION_EXPIRED)) {
         lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
         free(tx_ptr);
@@ -889,11 +891,11 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     } else {
 
 
-        if (confirm->status == MLME_TRANSACTION_OVERFLOW) {
+        if (mlme_status == MLME_TRANSACTION_OVERFLOW) {
             tr_error("MCPS Data fail by MLME_TRANSACTION_OVERFLOW");
         }
 
-        tr_error("MCPS Data fail by status %u", confirm->status);
+        tr_error("MCPS Data fail by status %u", mlme_status);
         if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
             tr_info("Dest addr: %x", read_be16(buf->dst_sa.address + 2));
         } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
