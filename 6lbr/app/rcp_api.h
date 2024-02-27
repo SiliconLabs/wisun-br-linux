@@ -48,7 +48,8 @@ struct rcp {
                       const struct mcps_data_ind *ind,
                       const struct mcps_data_rx_ie_list *ies);
 
-    uint32_t init_state;
+    bool has_reset;
+    bool has_rf_list;
     uint32_t version_api;
     uint32_t version_fw;
     const char *version_label;

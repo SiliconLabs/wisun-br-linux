@@ -60,7 +60,7 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
 {
     const char *version_label;
 
-    FATAL_ON(rcp->init_state & RCP_HAS_RESET, 3, "unsupported RCP reset");
+    FATAL_ON(rcp->has_reset, 3, "unsupported RCP reset");
 
     rcp->version_api = hif_pop_u32(buf);
     rcp->version_fw  = hif_pop_u32(buf);
@@ -71,8 +71,7 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
     BUG_ON(version_older_than(rcp->version_api, 2, 0, 0));
     rcp->version_label = strdup(version_label);
     BUG_ON(!rcp->version_label);
-    rcp->init_state |= RCP_HAS_RESET;
-    rcp->init_state |= RCP_HAS_HWADDR;
+    rcp->has_reset = true;
 
     if (rcp->on_reset)
         rcp->on_reset(rcp);
@@ -308,7 +307,7 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
     int offset;
     int i = 0;
 
-    BUG_ON(rcp->init_state & RCP_HAS_RF_CONFIG_LIST);
+    BUG_ON(rcp->has_rf_list);
     entry_size = hif_pop_u8(buf);
     BUG_ON(entry_size < 2 + 1 + 4 + 4 + 2);
     list_end   = hif_pop_bool(buf);
@@ -342,7 +341,7 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
     memset(&rcp->rail_config_list[i], 0, sizeof(struct rcp_rail_config));
     BUG_ON(buf->err || iobuf_remaining_size(buf));
     if (list_end)
-        rcp->init_state |= RCP_HAS_RF_CONFIG_LIST;
+        rcp->has_rf_list = true;
 }
 
 void rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, bool enable_ms)
@@ -358,8 +357,6 @@ void rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, b
     hif_push_bool(&buf, enable_ms);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
-
-    rcp->init_state |= RCP_HAS_RF_CONFIG;
 }
 
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg)

@@ -388,7 +388,7 @@ static void wsbr_handle_reset(struct rcp *rcp)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
 
-    if (ctxt->rcp.init_state & RCP_HAS_RF_CONFIG)
+    if (ctxt->rcp.has_rf_list)
         FATAL(3, "unsupported RCP reset");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
           FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
@@ -410,7 +410,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     rcp_set_host_api(&ctxt->rcp, version_daemon_api);
     rcp_req_radio_list(&ctxt->rcp);
-    while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
+    while (!ctxt->rcp.has_rf_list)
         rcp_rx(&ctxt->rcp);
 
     if (ctxt->config.list_rf_configs) {
@@ -451,7 +451,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     WARN_ON(!ret, "RCP is not responding");
 
     ctxt->os_ctxt->uart_init_phase = true;
-    while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
+    while (!ctxt->rcp.has_reset)
         rcp_rx(&ctxt->rcp);
     ctxt->os_ctxt->uart_init_phase = false;
 }

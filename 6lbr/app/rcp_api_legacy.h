@@ -28,11 +28,6 @@ struct os_ctxt;
 struct net_if;
 struct rcp;
 
-#define RCP_HAS_RESET          0x0001
-#define RCP_HAS_HWADDR         0x0002
-#define RCP_HAS_RF_CONFIG_LIST 0x0004
-#define RCP_HAS_RF_CONFIG      0x0008
-
 typedef struct phy_rf_channel_configuration {
     uint32_t channel_0_center_frequency;
     uint32_t channel_spacing;
