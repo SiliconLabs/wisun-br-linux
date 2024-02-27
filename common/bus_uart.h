@@ -20,6 +20,13 @@ struct bus;
 
 #define UART_HDR_LEN_MASK 0x07ff
 
+struct bus_uart {
+    bool    data_ready;
+    int     rx_buf_len;
+    uint8_t rx_buf[2048];
+    bool    init_phase;
+};
+
 int uart_open(const char *device, int bitrate, bool hardflow);
 
 int uart_tx(struct bus *bus, const void *buf, unsigned int len);

@@ -234,7 +234,7 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
     };
 
     do {
-        if (!bus->uart_data_ready) {
+        if (!bus->uart.data_ready) {
             ret = poll(&pollfd, 1, 5000); // response time of ping should below 5 second
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -242,7 +242,7 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || bus->uart_data_ready) {
+        if (pollfd.revents & POLLIN || bus->uart.data_ready) {
             if (cmdline->cpc_instance[0])
                 len = cpc_rx(bus, buf, buf_len);
             else if (!is_v2)
@@ -396,8 +396,8 @@ static bool detect_v2(struct bus *bus, struct commandline_args *cmdline)
             uart_legacy_tx(bus, buf.data, buf.len);
             iobuf_free(&buf);
         }
-        bus->uart_data_ready = false;
-        bus->uart_rx_buf_len = 0;
+        bus->uart.data_ready = false;
+        bus->uart.rx_buf_len = 0;
         ret = tcflush(bus->fd, TCIFLUSH);
         FATAL_ON(ret < 0, 2, "tcflush: %m");
         return is_v2;

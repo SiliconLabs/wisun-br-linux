@@ -447,10 +447,10 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
     WARN_ON(!ret, "RCP is not responding");
 
-    ctxt->bus->uart_init_phase = true;
+    ctxt->bus->uart.init_phase = true;
     while (!ctxt->rcp.has_reset)
         rcp_rx(&ctxt->rcp);
-    ctxt->bus->uart_init_phase = false;
+    ctxt->bus->uart.init_phase = false;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
@@ -484,7 +484,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     uint64_t val;
     int ret;
 
-    if (ctxt->bus->uart_data_ready)
+    if (ctxt->bus->uart.data_ready)
         ret = poll(ctxt->fds, POLLFD_COUNT, 0);
     else
         ret = poll(ctxt->fds, POLLFD_COUNT, -1);
@@ -513,7 +513,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     }
     if (ctxt->fds[POLLFD_RCP].revents & POLLIN ||
         ctxt->fds[POLLFD_RCP].revents & POLLERR ||
-        ctxt->bus->uart_data_ready)
+        ctxt->bus->uart.data_ready)
         rcp_rx(&ctxt->rcp);
     if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
         wsbr_common_timer_process(ctxt);

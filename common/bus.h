@@ -16,6 +16,7 @@
 #include <stdbool.h>
 
 #include "bus_cpc.h"
+#include "bus_uart.h"
 
 struct slist;
 
@@ -23,10 +24,7 @@ struct bus {
     int     fd;
     int     spinel_tid;
     int     spinel_iid;
-    bool    uart_data_ready;
-    int     uart_rx_buf_len;
-    uint8_t uart_rx_buf[2048];
-    bool    uart_init_phase;
+    struct bus_uart uart;
     struct bus_cpc cpc;
 };
 

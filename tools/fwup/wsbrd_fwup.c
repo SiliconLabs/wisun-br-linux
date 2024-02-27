@@ -108,7 +108,7 @@ static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
     };
 
     do {
-        if (!bus->uart_data_ready) {
+        if (!bus->uart.data_ready) {
             ret = poll(&pollfd, 1, 5000);
             if (ret < 0)
                 FATAL(2, "poll: %m");
@@ -116,7 +116,7 @@ static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || bus->uart_data_ready)
+        if (pollfd.revents & POLLIN || bus->uart.data_ready)
             len = rx(bus, buf, buf_len);
     } while (!len);
     return len;
@@ -186,7 +186,7 @@ static void handle_rcp_reset(struct bus *bus)
     struct iobuf_read rx_buf = { };
     bool is_v2;
 
-    bus->uart_init_phase = true;
+    bus->uart.init_phase = true;
     is_v2 = uart_detect_v2(bus);
     rx_buf.data = buffer;
     rx_buf.data_size = read_data(bus, buffer, sizeof(buffer),

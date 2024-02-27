@@ -91,14 +91,14 @@ static void uart_read(struct bus *bus)
     ssize_t size;
 
     size = read(bus->fd,
-                bus->uart_rx_buf + bus->uart_rx_buf_len,
-                sizeof(bus->uart_rx_buf) - bus->uart_rx_buf_len);
+                bus->uart.rx_buf + bus->uart.rx_buf_len,
+                sizeof(bus->uart.rx_buf) - bus->uart.rx_buf_len);
     FATAL_ON(size < 0, 2, "%s: read: %m", __func__);
     FATAL_ON(!size, 2, "%s: read: Empty read", __func__);
     TRACE(TR_BUS, "bus rx: %s (%zd bytes)",
-          tr_bytes(bus->uart_rx_buf + bus->uart_rx_buf_len,
+          tr_bytes(bus->uart.rx_buf + bus->uart.rx_buf_len,
                    size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
-    bus->uart_rx_buf_len += size;
+    bus->uart.rx_buf_len += size;
 }
 
 int uart_tx(struct bus *bus, const void *buf, unsigned int buf_len)
@@ -135,18 +135,18 @@ int uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
     const uint8_t *hdr;
     uint16_t len, fcs;
 
-    if (!bus->uart_data_ready)
+    if (!bus->uart.data_ready)
         uart_read(bus);
-    bus->uart_data_ready = false;
-    iobuf.data      = bus->uart_rx_buf;
-    iobuf.data_size = bus->uart_rx_buf_len;
+    bus->uart.data_ready = false;
+    iobuf.data      = bus->uart.rx_buf;
+    iobuf.data_size = bus->uart.rx_buf_len;
     hdr = iobuf_pop_data_ptr(&iobuf, 4);
     if (iobuf.err)
         return 0;
     if (!crc_check(CRC_INIT_HCS, hdr, 2, read_le16(hdr + 2))) {
-        memmove(bus->uart_rx_buf, bus->uart_rx_buf + 1, bus->uart_rx_buf_len - 1);
-        bus->uart_rx_buf_len -= 1;
-        bus->uart_data_ready = true;
+        memmove(bus->uart.rx_buf, bus->uart.rx_buf + 1, bus->uart.rx_buf_len - 1);
+        bus->uart.rx_buf_len -= 1;
+        bus->uart.data_ready = true;
         return 0;
     }
     len = FIELD_GET(UART_HDR_LEN_MASK, read_le16(hdr));
@@ -155,15 +155,15 @@ int uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
     fcs = iobuf_pop_le16(&iobuf);
     if (iobuf.err)
         return 0; // Frame not fully received
-    bus->uart_data_ready = true;
+    bus->uart.data_ready = true;
     if (!crc_check(CRC_INIT_FCS, buf, len, fcs)) {
-        memmove(bus->uart_rx_buf, bus->uart_rx_buf + 1, bus->uart_rx_buf_len - 1);
-        bus->uart_rx_buf_len -= 1;
+        memmove(bus->uart.rx_buf, bus->uart.rx_buf + 1, bus->uart.rx_buf_len - 1);
+        bus->uart.rx_buf_len -= 1;
         TRACE(TR_DROP, "drop %-9s: bad fcs", "uart");
         return 0;
     }
-    memmove(bus->uart_rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
-    bus->uart_rx_buf_len = iobuf_remaining_size(&iobuf);
+    memmove(bus->uart.rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+    bus->uart.rx_buf_len = iobuf_remaining_size(&iobuf);
     return len;
 }
 
@@ -221,35 +221,35 @@ static size_t uart_legacy_rx_hdlc(struct bus *bus, uint8_t *buf, size_t buf_len)
     int frame_start, frame_len;
     int i;
 
-    if (!bus->uart_data_ready)
+    if (!bus->uart.data_ready)
         uart_read(bus);
 
     i = 0;
-    while (bus->uart_rx_buf[i] == 0x7E && i < bus->uart_rx_buf_len)
+    while (bus->uart.rx_buf[i] == 0x7E && i < bus->uart.rx_buf_len)
         i++;
     frame_start = i;
-    while (bus->uart_rx_buf[i] != 0x7E && i < bus->uart_rx_buf_len)
+    while (bus->uart.rx_buf[i] != 0x7E && i < bus->uart.rx_buf_len)
         i++;
     frame_len = i - frame_start + 1;
-    if (bus->uart_init_phase && i >= bus->uart_rx_buf_len)
-        bus->uart_data_ready = false;
-    BUG_ON(bus->uart_data_ready && i >= bus->uart_rx_buf_len);
-    if (i >= bus->uart_rx_buf_len)
+    if (bus->uart.init_phase && i >= bus->uart.rx_buf_len)
+        bus->uart.data_ready = false;
+    BUG_ON(bus->uart.data_ready && i >= bus->uart.rx_buf_len);
+    if (i >= bus->uart.rx_buf_len)
         return 0;
 
     BUG_ON(buf_len < frame_len);
-    memcpy(buf, bus->uart_rx_buf + frame_start, frame_len);
+    memcpy(buf, bus->uart.rx_buf + frame_start, frame_len);
 
-    while (bus->uart_rx_buf[i] == 0x7E && i < bus->uart_rx_buf_len)
+    while (bus->uart.rx_buf[i] == 0x7E && i < bus->uart.rx_buf_len)
         i++;
-    memmove(bus->uart_rx_buf, bus->uart_rx_buf + i, bus->uart_rx_buf_len - i);
-    bus->uart_rx_buf_len -= i;
+    memmove(bus->uart.rx_buf, bus->uart.rx_buf + i, bus->uart.rx_buf_len - i);
+    bus->uart.rx_buf_len -= i;
 
     i = 0;
-    bus->uart_data_ready = false;
-    while (i < bus->uart_rx_buf_len) {
-        if (bus->uart_rx_buf[i] == 0x7E) {
-            bus->uart_data_ready = true;
+    bus->uart.data_ready = false;
+    while (i < bus->uart.rx_buf_len) {
+        if (bus->uart.rx_buf[i] == 0x7E) {
+            bus->uart.data_ready = true;
             break;
         }
         i++;
@@ -300,7 +300,7 @@ int uart_legacy_rx(struct bus *bus, void *buf, unsigned int buf_len)
     frame_len = uart_legacy_rx_hdlc(bus, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, bus->uart_init_phase);
+    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, bus->uart.init_phase);
     return frame_len;
 }
 
@@ -314,7 +314,7 @@ bool uart_detect_v2(struct bus *bus)
 
     ret = poll(&pfd, 1, 10000);
     if (!ret)
-        FATAL_ON(!bus->uart_rx_buf_len, 2, "RCP is not responding");
+        FATAL_ON(!bus->uart.rx_buf_len, 2, "RCP is not responding");
 
     for (;;) {
         ret = poll(&pfd, 1, 1000);
@@ -322,10 +322,10 @@ bool uart_detect_v2(struct bus *bus)
         if (!ret)
             return false;
         uart_read(bus);
-        bus->uart_data_ready = true;
-        for (int i = 0; i < bus->uart_rx_buf_len - 4; i++)
-            if (crc_check(CRC_INIT_HCS, bus->uart_rx_buf + i, 2,
-                          read_le16(bus->uart_rx_buf + i + 2)))
+        bus->uart.data_ready = true;
+        for (int i = 0; i < bus->uart.rx_buf_len - 4; i++)
+            if (crc_check(CRC_INIT_HCS, bus->uart.rx_buf + i, 2,
+                          read_le16(bus->uart.rx_buf + i + 2)))
                 return true;
     }
 }
