@@ -15,9 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef HAVE_LIBCPC
-#include <sl_cpc.h>
-#endif
+#include "bus_cpc.h"
 
 struct slist;
 
@@ -29,9 +27,7 @@ struct bus {
     int     uart_rx_buf_len;
     uint8_t uart_rx_buf[2048];
     bool    uart_init_phase;
-#ifdef HAVE_LIBCPC
-    cpc_endpoint_t cpc_ep;
-#endif
+    struct bus_cpc cpc;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

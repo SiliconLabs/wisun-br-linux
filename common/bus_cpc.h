@@ -18,6 +18,25 @@
 struct bus;
 
 #ifdef HAVE_LIBCPC
+#include <assert.h>
+#include <sl_cpc.h>
+
+// For some reason these CPC types are declared as a struct containing only a
+// void pointer, instead of simply being void pointers, which makes casting
+// awful if they are not stored with their exact type.
+static_assert(sizeof(cpc_endpoint_t) == sizeof(void *));
+static_assert(sizeof(cpc_handle_t) == sizeof(void *));
+#else
+typedef void *cpc_endpoint_t;
+typedef void *cpc_handle_t;
+#endif
+
+struct bus_cpc {
+    cpc_endpoint_t endpoint;
+    cpc_handle_t handle;
+};
+
+#ifdef HAVE_LIBCPC
 
 int cpc_open(struct bus *bus, const char *instance_name, bool verbose);
 int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len);
