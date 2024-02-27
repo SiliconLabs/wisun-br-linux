@@ -33,7 +33,6 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
                          const uint8_t *content, size_t content_len, uint16_t frame_type_mask)
 {
     struct ws_ie_custom *ie;
-    bool is_long;
     int offset;
 
     switch (type) {
@@ -45,13 +44,11 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
         if (content_len > FIELD_MAX(IEEE802154_IE_NESTED_SHORT_LEN_MASK) ||
             id          > FIELD_MAX(IEEE802154_IE_NESTED_SHORT_ID_MASK))
             return -EINVAL;
-        is_long = false;
         break;
     case WS_IE_CUSTOM_TYPE_NESTED_LONG:
         if (content_len > FIELD_MAX(IEEE802154_IE_NESTED_LONG_LEN_MASK) ||
             id          > FIELD_MAX(IEEE802154_IE_NESTED_LONG_ID_MASK))
             return -EINVAL;
-        is_long = true;
         break;
     default:
         return -EINVAL;
@@ -86,9 +83,9 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
         iobuf_push_data(&ie->buf, content, content_len);
         ieee802154_ie_fill_len_header(&ie->buf, offset);
     } else {
-        offset = ieee802154_ie_push_nested(&ie->buf, id, is_long);
+        offset = ieee802154_ie_push_nested(&ie->buf, id, type == WS_IE_CUSTOM_TYPE_NESTED_LONG);
         iobuf_push_data(&ie->buf, content, content_len);
-        ieee802154_ie_fill_len_nested(&ie->buf, offset, is_long);
+        ieee802154_ie_fill_len_nested(&ie->buf, offset, type == WS_IE_CUSTOM_TYPE_NESTED_LONG);
     }
     return 0;
 }
