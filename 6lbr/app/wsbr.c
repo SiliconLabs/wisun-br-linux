@@ -421,6 +421,9 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
 static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
+    struct pollfd pfd = { };
+    int ret;
+
     if (ctxt->config.uart_dev[0]) {
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
@@ -440,6 +443,12 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     } else {
         BUG();
     }
+
+    pfd.fd = ctxt->os_ctxt->trig_fd;
+    pfd.events = POLLIN;
+    ret = poll(&pfd, 1, 5000);
+    FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+    WARN_ON(!ret, "RCP is not responding");
 
     ctxt->os_ctxt->uart_init_phase = true;
     while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
