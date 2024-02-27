@@ -44,18 +44,3 @@ ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 
     return buflen;
 }
-
-// mbedtls uses time as source of entropy.
-// time() is only used by mbedtls thankfully.
-time_t __real_time(time_t *tloc);
-time_t __wrap_time(time_t *tloc)
-{
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-
-    if (!ctxt->rand_predictable)
-        return __real_time(tloc);
-
-    if (tloc)
-        *tloc = ctxt->mbedtls_time;
-    return ctxt->mbedtls_time;
-}

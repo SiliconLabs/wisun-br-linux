@@ -243,6 +243,25 @@ ssize_t xgetrandom(void *buf, size_t buf_len, unsigned int flags)
     return buf_len;
 }
 
+// MbedTLS uses time as source of entropy. The time function can be overwritten
+// using mbedtls_platform_set_time(), but this requires the compilation flag
+// MBEDTLS_PLATFORM_TIME_ALT which is not part of the default MbedTLS
+// configuration. time() is only used by MbedTLS thankfully, so it can be
+// wrapped to return a constant value.
+time_t __real_time(time_t *res);
+time_t __wrap_time(time_t *res)
+{
+    static const time_t val = 1750000000; // 2025-06-15 15:06:40
+    struct capture_ctxt *ctxt = &g_capture_ctxt;
+
+    if (ctxt->recfd < 0)
+        return __real_time(res);
+
+    if (res)
+        *res = val;
+    return val;
+}
+
 void capture_record_hif(const void *buf, size_t buf_len)
 {
     struct capture_ctxt *ctxt = &g_capture_ctxt;

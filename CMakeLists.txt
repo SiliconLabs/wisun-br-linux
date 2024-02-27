@@ -218,6 +218,7 @@ target_include_directories(libwsbrd PRIVATE
     stack/
 )
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
+target_link_options(libwsbrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 if(LIBCAP_FOUND)
@@ -334,7 +335,6 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=sendto
         -Wl,--wrap=sendmsg
         -Wl,--wrap=getrandom
-        -Wl,--wrap=time
     )
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -403,7 +403,6 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
             -Wl,--wrap=getrandom
-            -Wl,--wrap=time
             # For --capture
             -Wl,--wrap=uart_rx
             -Wl,--wrap=read
