@@ -48,8 +48,6 @@ struct rcp {
     uint32_t version_api;
     uint32_t version_fw;
     const char *version_label;
-    uint32_t neighbors_table_size;
-    uint8_t lfn_limit;
     uint8_t  eui64[8];
     struct rcp_rail_config *rail_config_list;
 };
