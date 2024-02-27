@@ -50,12 +50,6 @@ struct fuzz_ctxt g_fuzz_ctxt = {
     .capture_init_fd = -1,
 };
 
-// Fuzzing command can only be processed from the main loop.
-bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
-{
-    return ctxt->rcp.has_rf_list;
-}
-
 void __real_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream));
 void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream))
 {

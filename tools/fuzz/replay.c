@@ -55,7 +55,8 @@ void fuzz_ind_replay_timers(struct rcp *rcp, struct iobuf_read *buf)
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
     BUG_ON(rcp != &ctxt->wsbrd->rcp);
-    FATAL_ON(!fuzz_is_main_loop(ctxt->wsbrd), 1, "timer command received during RCP init");
+    if (!rcp->has_rf_list)
+        FATAL(1, "timer command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "timer command received while replay is disabled");
     ctxt->timer_counter = hif_pop_u16(buf);
     if (ctxt->timer_counter)

@@ -39,7 +39,7 @@ void fuzz_capture_uart(struct fuzz_ctxt *ctxt, const void *buf, size_t buf_len)
     ssize_t ret;
     int fd;
 
-    if (ctxt->capture_init_fd >= 0 && !fuzz_is_main_loop(&g_ctxt))
+    if (ctxt->capture_init_fd >= 0 && !ctxt->wsbrd->rcp.has_rf_list)
         fd = ctxt->capture_init_fd;
     else
         fd = ctxt->capture_fd;

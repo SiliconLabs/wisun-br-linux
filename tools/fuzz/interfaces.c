@@ -71,7 +71,8 @@ void fuzz_ind_replay_socket(struct rcp *rcp, struct iobuf_read *buf)
     int fd = -1;
 
     BUG_ON(rcp != &ctxt->wsbrd->rcp);
-    FATAL_ON(!fuzz_is_main_loop(ctxt->wsbrd), 1, "interface command received during RCP init");
+    if (!rcp->has_rf_list)
+        FATAL(1, "interface command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "interface command received while replay is disabled");
 
     if (!init) {
