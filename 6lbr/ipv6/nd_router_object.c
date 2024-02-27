@@ -25,6 +25,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/specs/icmpv6.h"
+#include "common/specs/ipv6.h"
 
 #include "app/tun.h" // FIXME
 #include "net/protocol.h"
@@ -182,7 +183,8 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         na_earo->tid = tid;
         if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
             if (addr_ipv6_equal(ADDR_ALL_MPL_FORWARDERS, registered_addr) ||
-                !IN6_IS_ADDR_MULTICAST(registered_addr)) {
+                !IN6_IS_ADDR_MULTICAST(registered_addr) ||
+                addr_ipv6_multicast_scope(registered_addr) < IPV6_SCOPE_LINK_LOCAL) {
                 TRACE(TR_IGNORE, "invalid multicast address in earo: %s", tr_ipv6(registered_addr));
                 na_earo->status = ARO_TOPOLOGICALLY_INCORRECT;
                 return true;
