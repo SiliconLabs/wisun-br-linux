@@ -48,7 +48,6 @@ typedef struct ws_pan_information {
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
     uint16_t lfn_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */
-    bool lfn_version_set: 1;   /**< 1 LFN PAN version is set. */
     unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 

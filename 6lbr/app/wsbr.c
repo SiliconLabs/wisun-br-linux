@@ -297,7 +297,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         strcmp(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name))
         FATAL(1, "Network Name out-of-date in storage (see -D)");
     strncpy(ctxt->net_if.ws_info.network_name, ctxt->config.ws_name, sizeof(ctxt->net_if.ws_info.network_name));
-    ctxt->net_if.ws_info.pan_information.lfn_version_set = ctxt->net_if.ws_info.enable_lfn;
 
     if (ctxt->config.ws_pan_id != -1 && ctxt->net_if.ws_info.pan_information.pan_id != -1 &&
         ctxt->net_if.ws_info.pan_information.pan_id != ctxt->config.ws_pan_id)

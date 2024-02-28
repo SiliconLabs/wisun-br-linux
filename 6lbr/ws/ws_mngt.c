@@ -495,13 +495,13 @@ void ws_mngt_pc_send(struct net_if *cur)
         .frame_type = WS_FT_PC,
         .wh_ies.utt      = true,
         .wh_ies.bt       = true,
-        .wh_ies.lbc      = cur->ws_info.pan_information.lfn_version_set,
+        .wh_ies.lbc      = cur->ws_info.enable_lfn,
         .wp_ies.us       = true,
         .wp_ies.bs       = true,
         .wp_ies.panver   = true,
         .wp_ies.gtkhash  = true,
-        .wp_ies.lgtkhash = cur->ws_info.pan_information.lfn_version_set,
-        .wp_ies.lfnver   = cur->ws_info.pan_information.lfn_version_set,
+        .wp_ies.lgtkhash = cur->ws_info.enable_lfn,
+        .wp_ies.lfnver   = cur->ws_info.enable_lfn,
         .security.SecurityLevel = SEC_ENC_MIC64,
     };
 
