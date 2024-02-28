@@ -1,0 +1,53 @@
+#!/bin/env python3
+import argparse
+import mmap
+import os
+
+
+HIF_CMD_CNF_RADIO_LIST = 0x22
+
+
+def read_le16(buf: bytes) -> int:
+    return buf[0] | (buf[1] << 8)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='split-capture',
+        description=
+            'Split a capture file between the RCP init phase and the rest. Inputing\n'
+            'capture.raw will output capture.init.raw and capture.main.raw',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('filename', help='Capture file')
+    args = parser.parse_args()
+
+    in_fd = os.open(args.filename, os.O_RDONLY)
+    in_len = os.stat(in_fd).st_size
+    in_map = mmap.mmap(in_fd, in_len, mmap.MAP_PRIVATE, mmap.PROT_READ)
+
+    offset = 0
+    has_rf_config = False
+    while not has_rf_config:
+        frame_len = read_le16(in_map.read(2))
+        in_map.read(2) # HCS
+
+        hif_cmd = in_map.read(1)[0]
+        if hif_cmd == HIF_CMD_CNF_RADIO_LIST:
+            in_map.read(1) # entry len
+            list_end = in_map.read(1)[0]
+            if (list_end):
+                has_rf_config = True
+
+        offset += 4 + frame_len + 2
+        in_map.seek(offset)
+
+    in_name, in_ext = os.path.splitext(args.filename)
+    with open(in_name + '.init' + in_ext, 'wb') as out_file:
+        out_file.write(in_map[:offset])
+    with open(in_name + '.main' + in_ext, 'wb') as out_file:
+        out_file.write(in_map[offset:])
+
+    os.close(in_fd)
+
+main()

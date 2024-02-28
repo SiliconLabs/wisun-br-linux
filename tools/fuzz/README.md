@@ -104,6 +104,13 @@ To record, use `wsbrd-fuzz` along with `--capture`, and `--fuzz`:
 Record several tests which cover different parts of the code, and gather the
 results in a single directory which will be refered as `in/` going forward.
 
+The RCP initialization phase needs to be put in a separate file to help the
+fuzzer explore the main loop rather than this restrictive phase. Capture files
+can be split using the `split-capture` script:
+
+    # Split into capture.init.raw capture.main.raw
+    ./split-capture capture.raw
+
 ### Instrumenting the target
 
 To retrieve coverage data, `wsbrd-fuzz` must be compiled with a special
