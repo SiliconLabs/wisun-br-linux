@@ -17,6 +17,7 @@
  */
 
 #include <math.h>
+#include <inttypes.h>
 
 #include "common/time_extra.h"
 #include "common/ws_regdb.h"
