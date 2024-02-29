@@ -13,6 +13,7 @@
 #ifndef WSBR_H
 #define WSBR_H
 
+#include <sys/types.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <poll.h>
