@@ -17,6 +17,7 @@
  */
 
 #include <math.h>
+#include <inttypes.h>
 
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
