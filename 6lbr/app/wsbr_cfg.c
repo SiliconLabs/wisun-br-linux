@@ -19,9 +19,6 @@
 
 const struct wsbr_cfg size_params[5] = {
     [WS_NETWORK_SIZE_CERTIFICATION] = {
-        // Misc
-        .temp_link_min_timeout = 260,
-
         // Discovery
         .trickle_discovery.Imin = 15,
         .trickle_discovery.Imax = 60,
@@ -44,9 +41,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_SMALL] = {
-        // Misc
-        .temp_link_min_timeout = 260,
-
         // Discovery
         .trickle_discovery.Imin = 15,
         .trickle_discovery.Imax = 60,
@@ -69,9 +63,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_MEDIUM] = {
-        // Misc
-        .temp_link_min_timeout = 260,
-
         // Discovery
         .trickle_discovery.Imin = 60,
         .trickle_discovery.Imax = 960,
@@ -94,9 +85,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_LARGE] = {
-        // Misc
-        .temp_link_min_timeout = 520,
-
         // Discovery
         .trickle_discovery.Imin = 120,
         .trickle_discovery.Imax = 1536,
@@ -119,9 +107,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
     },
     [WS_NETWORK_SIZE_XLARGE] = {
-        // Misc
-        .temp_link_min_timeout = 520,
-
         // Discovery
         .trickle_discovery.Imin = 240,
         .trickle_discovery.Imax = 1920,

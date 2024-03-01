@@ -303,7 +303,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                 size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
     ctxt->net_if.ws_info.mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
-    ctxt->net_if.ws_info.temp_link_min_timeout = size_params[ctxt->config.ws_size].temp_link_min_timeout;
 
     ctxt->net_if.ws_info.pan_information.version = ctxt->config.ws_fan_version;
     ctxt->net_if.ws_info.pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);

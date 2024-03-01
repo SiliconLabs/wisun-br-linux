@@ -28,7 +28,6 @@ enum ws_network_size {
 };
 
 struct wsbr_cfg {
-    uint16_t temp_link_min_timeout; // TODO: should disapear in wsbrd v2.0
     struct trickle_params trickle_discovery;
 
     // MPL paramters
