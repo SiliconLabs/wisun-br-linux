@@ -183,18 +183,6 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
 int8_t ws_pae_controller_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
 
 /**
- * ws_pae_controller_border_router_addr_read read border router address
- *
- * \param interface_ptr interface
- * \param eui_64 pointer to EUI-64
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_border_router_addr_read(struct net_if *interface_ptr, uint8_t *iid);
-
-/**
  * ws_pae_controller_gtk_update update GTKs (test interface)
  *
  * \param interface_id interface identifier

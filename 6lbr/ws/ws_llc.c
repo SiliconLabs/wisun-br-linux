@@ -1410,11 +1410,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
 
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
-    if (eapol_handshake_first_msg) {
-        uint8_t eapol_auth_eui64[8];
-        ws_pae_controller_border_router_addr_read(base->interface_ptr, eapol_auth_eui64);
-        ws_wh_ea_write(&message->ie_buf_header, eapol_auth_eui64);
-    }
+    if (eapol_handshake_first_msg)
+        ws_wh_ea_write(&message->ie_buf_header, base->interface_ptr->rcp->eui64);
     message->ie_iov_header.iov_len = message->ie_buf_header.len;
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
