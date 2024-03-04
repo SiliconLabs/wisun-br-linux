@@ -1946,8 +1946,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     SLIST_FOREACH_SAFE(entry, &base->temp_entries.active_eapol_temp_neigh, link, tmp) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            SLIST_REMOVE(&base->temp_entries.active_eapol_temp_neigh, entry, ws_neigh, link);
-            SLIST_INSERT_HEAD(&base->temp_entries.free_temp_neigh, entry, link);
+            ws_llc_release_eapol_temp_entry(&base->temp_entries, entry->mac64);
         } else {
             entry->eapol_temp_info.eapol_timeout -= seconds_update;
             if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
