@@ -140,6 +140,7 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
+    struct ws_neigh *ws_neigh;
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
@@ -153,6 +154,11 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
     trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pa,
                                &net_if->ws_info.mngt.trickle_params);
+    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    if (!ws_neigh)
+        return;
+    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_us_update(net_if, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
 }
 
 void ws_mngt_pc_analyze(struct net_if *net_if,
