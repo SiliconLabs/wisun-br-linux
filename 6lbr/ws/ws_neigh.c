@@ -263,19 +263,19 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
         ws_neigh_excluded_mask_by_mask(chan_list, &chan_info->excluded_channels.mask, *chan_cnt);
 }
 
-void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
+void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_timing_info *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
-    neigh->fhss_data.uc_chan_func = chan_info->channel_function;
+    fhss_data->uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
-        neigh->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
-        neigh->fhss_data.uc_chan_count = 1;
+        fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(net_if, &neigh->fhss_data.uc_channel_list, chan_info,
-                                  &neigh->fhss_data.uc_chan_count);
+        ws_neigh_set_chan_list(net_if, &fhss_data->uc_channel_list, chan_info,
+                                  &fhss_data->uc_chan_count);
     }
-    neigh->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
+    fhss_data->ffn.uc_dwell_interval_ms = dwell_interval;
 }
 
 // Compute the divisors of val closest to q_ref, possibly including 1 and val

@@ -113,7 +113,7 @@ void ws_neigh_lut_update(ws_neigh_t *neigh,
 void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
-void ws_neigh_us_update(const struct net_if *net_if, ws_neigh_t *neigh,
+void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_timing_info *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8]);
 // LFN Unicast Schedule update
