@@ -229,7 +229,7 @@ void ws_wh_flus_write(struct iobuf_write *buf, uint24_t dwell_interval, uint8_t 
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie)
+void ws_wh_lbt_write(struct iobuf_write *buf)
 {
     int offset;
 

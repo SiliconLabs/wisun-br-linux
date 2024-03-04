@@ -1107,7 +1107,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->lbt)
-        ws_wh_lbt_write(&msg->ie_buf_header, NULL);
+        ws_wh_lbt_write(&msg->ie_buf_header);
     if (wh_ies->nr)
         // TODO: Provide clock drift and timing accuracy
         // TODO: Make the LFN listening interval configurable (currently it is 5s-4.66h)
@@ -1391,7 +1391,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ws_wh_bt_write(&message->ie_buf_header);
 
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
-        ws_wh_lbt_write(&message->ie_buf_header, NULL);
+        ws_wh_lbt_write(&message->ie_buf_header);
 
     // Adding another parameter to the MAC's API just for LTO was not a good idea.
     // The chosen solution is to write the computed LTO information in the LTO-IE.
