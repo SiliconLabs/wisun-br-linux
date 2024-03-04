@@ -427,6 +427,10 @@ static int dbus_message_append_node(
                 dbus_message_open_info(m, property, "lqi", "y");
                 sd_bus_message_append(m, "y", (uint8_t)neighbor->lqi);
                 dbus_message_close_info(m, property);
+            } else if (neighbor->lqi_unsecured != INT_MAX) {
+                dbus_message_open_info(m, property, "lqi", "y");
+                sd_bus_message_append(m, "y", (uint8_t)neighbor->lqi_unsecured);
+                dbus_message_close_info(m, property);
             }
             dbus_message_open_info(m, property, "pom", "ay");
             sd_bus_message_append_array(m, 'y',
@@ -459,6 +463,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .rsl_in_dbm_unsecured = NAN,
         .rsl_out_dbm = NAN,
         .lqi = INT_MAX,
+        .lqi_unsecured = INT_MAX,
         .pom_ie.mdr_command_capable = true,
     };
 

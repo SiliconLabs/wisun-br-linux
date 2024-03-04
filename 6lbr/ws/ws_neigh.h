@@ -82,6 +82,7 @@ typedef struct ws_neigh {
     int rssi;
     int rssi_unsecured;
     int lqi;
+    int lqi_unsecured;
     bool unicast_data_rx : 1;
     struct ws_pom_ie pom_ie;
     struct lto_info lto_info;

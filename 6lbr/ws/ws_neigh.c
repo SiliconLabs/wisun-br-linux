@@ -58,6 +58,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     neigh->rssi = INT_MAX;
     neigh->rssi_unsecured = INT_MAX;
     neigh->lqi = INT_MAX;
+    neigh->lqi_unsecured = INT_MAX;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
     return neigh;
