@@ -21,9 +21,9 @@
 static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_plan,
                                      const ws_hopping_schedule_t *hopping_schedule)
 {
-    const ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
-    const ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
-    const ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
+    const struct ws_channel_plan_zero *plan0 = &rx_plan->plan.zero;
+    const struct ws_channel_plan_one *plan1 = &rx_plan->plan.one;
+    const struct ws_channel_plan_two *plan2 = &rx_plan->plan.two;
     int plan_nr = rx_plan->channel_plan;
     const struct chan_params *parms = NULL;
 

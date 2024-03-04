@@ -195,7 +195,8 @@ void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie)
 }
 
 static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info,
-                                            const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
+                                            const struct ws_excluded_channel_range *range_info,
+                                            uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
     const uint8_t *range_ptr = range_info->range_start;
@@ -215,7 +216,8 @@ static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info
 }
 
 static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
-                                           const ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
+                                           const struct ws_excluded_channel_mask *mask_info,
+                                           uint16_t number_of_channels)
 {
     int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 

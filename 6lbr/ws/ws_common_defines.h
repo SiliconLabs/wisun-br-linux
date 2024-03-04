@@ -261,80 +261,82 @@ struct ws_pan_ie {
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class
  */
-typedef struct ws_channel_plan_zero {
+struct ws_channel_plan_zero {
     uint8_t regulatory_domain;
     uint8_t operating_class;
-} ws_channel_plan_zero_t;
+};
 
 /**
  * @brief ws_channel_plan_one_t WS channel plan 1 define ch0, channel spacing and channel count
  */
-typedef struct ws_channel_plan_one {
+struct ws_channel_plan_one {
     uint24_t ch0; // kHz
     unsigned channel_spacing: 4;
     uint16_t number_of_channel;
-} ws_channel_plan_one_t;
+};
 
 /**
  * @brief ws_channel_plan_two_t WS channel plan 2 define regulator domain and chanel plan 1
  */
-typedef struct ws_channel_plan_two {
+struct ws_channel_plan_two {
     uint8_t regulatory_domain;
     uint8_t channel_plan_id;
-} ws_channel_plan_two_t;
+};
 
 /**
  * @brief ws_channel_function_zero_t WS function 0 fixed channel
  */
-typedef struct ws_channel_function_zero {
+struct ws_channel_function_zero {
     uint16_t fixed_channel;
-} ws_channel_function_zero_t;
+};
 
 /**
  * @brief ws_channel_function_three_t WS function 3 vendor specific channel hop
  */
-typedef struct ws_channel_function_three {
+struct ws_channel_function_three {
     uint8_t channel_hop_count;
     const uint8_t *channel_list;
-} ws_channel_function_three_t;
+};
 
 /**
  * @brief ws_excluded_channel_range_t WS excluded channel range
  */
-typedef struct ws_excluded_channel_range {
+struct ws_excluded_channel_range {
     uint8_t number_of_range;
     const uint8_t *range_start;
-} ws_excluded_channel_range_t;
+};
 
 /**
  * @brief ws_excluded_channel_mask_t WS excluded channel mask
  */
-typedef struct ws_excluded_channel_mask {
+struct ws_excluded_channel_mask {
     const uint8_t *channel_mask;
     uint8_t mask_len_inline;
-} ws_excluded_channel_mask_t;
+};
 
 /**
  * @brief ws_generic_channel_info_t Generic Channel Info
  */
-typedef struct ws_generic_channel_info {
+struct ws_generic_channel_info {
     unsigned channel_plan: 3;
     unsigned channel_function: 3;
     unsigned excluded_channel_ctrl: 2;
     union ws_channel_plan {
-        ws_channel_plan_zero_t zero;
-        ws_channel_plan_one_t one;
-        ws_channel_plan_two_t two;
+        struct ws_channel_plan_zero zero;
+        struct ws_channel_plan_one one;
+        struct ws_channel_plan_two two;
     } plan;
     union ws_channel_function {
-        ws_channel_function_zero_t zero;
-        ws_channel_function_three_t three;
+        struct ws_channel_function_zero zero;
+        /* struct ws_channel_function_one not supported */
+        /* struct ws_channel_function_two not supported */
+        struct ws_channel_function_three three;
     } function;
     union ws_excluded_channel {
-        ws_excluded_channel_range_t range;
-        ws_excluded_channel_mask_t mask;
+        struct ws_excluded_channel_range range;
+        struct ws_excluded_channel_mask mask;
     } excluded_channels;
-} ws_generic_channel_info_t;
+};
 
 /**
  * @brief ws_lcp_ie_t LFN Channel information

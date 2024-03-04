@@ -715,7 +715,7 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
     return !ie_buf.err;
 }
 
-static void ws_channel_plan_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
+static void ws_channel_plan_read(struct iobuf_read *ie_buf, struct ws_generic_channel_info *chan_info)
 {
     switch (chan_info->channel_plan) {
     case 0:
@@ -737,7 +737,7 @@ static void ws_channel_plan_read(struct iobuf_read *ie_buf, ws_generic_channel_i
     }
 }
 
-static void ws_channel_function_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
+static void ws_channel_function_read(struct iobuf_read *ie_buf, struct ws_generic_channel_info *chan_info)
 {
     union ws_channel_function *func = &chan_info->function;
 
@@ -758,7 +758,7 @@ static void ws_channel_function_read(struct iobuf_read *ie_buf, ws_generic_chann
     }
 }
 
-static void ws_channel_excluded_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
+static void ws_channel_excluded_read(struct iobuf_read *ie_buf, struct ws_generic_channel_info *chan_info)
 {
     union ws_excluded_channel *exc_chan = &chan_info->excluded_channels;
 
