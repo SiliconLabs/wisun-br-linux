@@ -23,13 +23,4 @@
 
 #include "security/protocols/sec_prot_cfg.h"
 
-/**
- * ws_pae_timers_settings_init initializes timer settings structure
- *
- * \param timer_settings timer settings
- * \param new_timer_settings new timer settings
- *
- */
-void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, const struct sec_timer_cfg *new_timer_settings);
-
 #endif

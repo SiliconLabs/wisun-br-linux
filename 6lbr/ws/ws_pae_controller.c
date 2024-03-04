@@ -565,7 +565,7 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct se
         controller->sec_cfg.prot_cfg = *sec_prot_cfg;
 
     if (sec_timer_cfg) {
-        ws_pae_timers_settings_init(&controller->sec_cfg.timer_cfg, sec_timer_cfg);
+        controller->sec_cfg.timer_cfg = *sec_timer_cfg;
     }
 
     controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;

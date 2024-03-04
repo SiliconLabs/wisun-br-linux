@@ -35,30 +35,3 @@
 
 #define DEFAULT_GTK_REQUEST_IMIN                4                       // 4 minutes
 #define DEFAULT_GTK_REQUEST_IMAX                64                      // 64 minutes
-
-static void ws_pae_timers_calculate(sec_timer_gtk_cfg_t *timer_settings);
-
-void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, const struct sec_timer_cfg *new_timer_settings)
-{
-    if (timer_settings == NULL || new_timer_settings == NULL) {
-        return;
-    }
-
-    *timer_settings = *new_timer_settings;
-
-    ws_pae_timers_calculate(&timer_settings->gtk);
-    ws_pae_timers_calculate(&timer_settings->lgtk);
-}
-
-static void ws_pae_timers_calculate(struct sec_timer_gtk_cfg *timer_gtk_settings)
-{
-    uint32_t gtk_revocation_lifetime = timer_gtk_settings->expire_offset / timer_gtk_settings->revocat_lifetime_reduct;
-    uint32_t new_gtk_activation_time = timer_gtk_settings->expire_offset / timer_gtk_settings->new_act_time;
-
-    uint32_t time_to_gtk_update = gtk_revocation_lifetime;
-    if (gtk_revocation_lifetime > new_gtk_activation_time) {
-        time_to_gtk_update = gtk_revocation_lifetime - new_gtk_activation_time;
-    }
-    tr_info("(L)GTK timers revocation lifetime: %"PRIu32", new activation time: %"PRIu32", time to update: %"PRIu32"",
-            gtk_revocation_lifetime, new_gtk_activation_time, time_to_gtk_update);
-}
