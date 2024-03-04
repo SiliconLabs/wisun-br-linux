@@ -191,7 +191,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(net_if, ws_neigh, &ie_us.chan_plan,ie_us.dwell_interval, data->SrcAddr);
 }
 
@@ -223,7 +223,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(net_if, ws_neigh, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
 }
 

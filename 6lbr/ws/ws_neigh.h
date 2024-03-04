@@ -103,7 +103,7 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
 void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64);
 
 // Unicast Timing update
-void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
+void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Unicast timing update
 void ws_neigh_lut_update(ws_neigh_t *neigh,

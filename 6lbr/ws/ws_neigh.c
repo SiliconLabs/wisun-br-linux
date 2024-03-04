@@ -99,32 +99,32 @@ size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
     return SLIST_SIZE(&table->neigh_list, link);
 }
 
-static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
+static void ws_neigh_calculate_ufsi_drift(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
                                           uint64_t timestamp, const uint8_t address[8])
 {
-    if (neigh->fhss_data.ffn.utt_rx_tstamp_us && neigh->fhss_data.ffn.ufsi) {
+    if (fhss_data->ffn.utt_rx_tstamp_us && fhss_data->ffn.ufsi) {
         // No UFSI on fixed channel
-        if (neigh->fhss_data.uc_chan_func == WS_CHAN_FUNC_FIXED) {
+        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_FIXED) {
             return;
         }
         double seq_length = 0x10000;
-        if (neigh->fhss_data.uc_chan_func == WS_CHAN_FUNC_TR51CF) {
-            seq_length = neigh->fhss_data.uc_chan_count;
+        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_TR51CF) {
+            seq_length = fhss_data->uc_chan_count;
         }
-        double ufsi_prev_tmp = neigh->fhss_data.ffn.ufsi;
+        double ufsi_prev_tmp = fhss_data->ffn.ufsi;
         double ufsi_cur_tmp = ufsi;
-        if (neigh->fhss_data.uc_chan_func == WS_CHAN_FUNC_DH1CF) {
+        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
             }
         }
         // Convert 24-bit UFSI to real time before drift calculation
-        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
-        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000;
-        uint64_t time_since_last_ufsi_us = timestamp - neigh->fhss_data.ffn.utt_rx_tstamp_us;
+        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
+        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
+        uint64_t time_since_last_ufsi_us = timestamp - fhss_data->ffn.utt_rx_tstamp_us;
 
-        if (neigh->fhss_data.uc_chan_func == WS_CHAN_FUNC_TR51CF) {
-            uint32_t full_uc_schedule_ms = neigh->fhss_data.ffn.uc_dwell_interval_ms * neigh->fhss_data.uc_chan_count;
+        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_TR51CF) {
+            uint32_t full_uc_schedule_ms = fhss_data->ffn.uc_dwell_interval_ms * fhss_data->uc_chan_count;
             uint32_t temp_ms;
 
             if (!full_uc_schedule_ms)
@@ -139,7 +139,7 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
         double ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
         if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
             // add ufsi sequence length
-            ufsi_diff_ms += seq_length * neigh->fhss_data.ffn.uc_dwell_interval_ms;
+            ufsi_diff_ms += seq_length * fhss_data->ffn.uc_dwell_interval_ms;
 
         double ufsi_drift_ms = time_since_last_ufsi_us / 1000.f - ufsi_diff_ms;
         // Since resolution of the RCP timer is 1µs, a window 10 million times
@@ -154,17 +154,17 @@ static void ws_neigh_calculate_ufsi_drift(ws_neigh_t *neigh, uint24_t ufsi,
     }
 }
 
-void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
+void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8])
 {
-    ws_neigh_calculate_ufsi_drift(neigh, ufsi, tstamp_us, eui64);
+    ws_neigh_calculate_ufsi_drift(fhss_data, ufsi, tstamp_us, eui64);
 
-    if (neigh->fhss_data.ffn.utt_rx_tstamp_us == tstamp_us &&
-        neigh->fhss_data.ffn.ufsi             == ufsi)
+    if (fhss_data->ffn.utt_rx_tstamp_us == tstamp_us &&
+        fhss_data->ffn.ufsi             == ufsi)
         return; // Save an update
 
-    neigh->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
-    neigh->fhss_data.ffn.ufsi             = ufsi;
+    fhss_data->ffn.utt_rx_tstamp_us = tstamp_us;
+    fhss_data->ffn.ufsi             = ufsi;
 }
 
 void ws_neigh_lut_update(ws_neigh_t *neigh,

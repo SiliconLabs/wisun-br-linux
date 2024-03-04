@@ -394,7 +394,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (mlme_status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-                ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
+                ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
                 if (mlme_status == MLME_SUCCESS)
@@ -623,7 +623,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
-        ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+        ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         if (has_us)
             ws_neigh_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
@@ -785,7 +785,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neigh_ut_update(ws_neigh, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us)
         ws_neigh_us_update(base->interface_ptr, ws_neigh, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
