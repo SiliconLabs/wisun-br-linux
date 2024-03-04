@@ -273,9 +273,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     uint8_t ll_addr[16];
     addr_interface_get_ll_address(cur, ll_addr, 1);
 
-    //SET EAPOL authenticator EUI64
-    ws_pae_controller_border_router_addr_write(cur, cur->mac);
-
     // Set EAPOL relay to port 10255 and authenticator relay to 10253 (and to own ll address)
     ws_eapol_relay_start(cur, BR_EAPOL_RELAY_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
 

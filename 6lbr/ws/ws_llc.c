@@ -816,7 +816,6 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     struct iobuf_read ie_wp;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
-    uint8_t auth_eui64[8];
     mpx_user_t *mpx_user;
     mpx_msg_t mpx_frame;
     bool has_us, has_bs;
@@ -850,8 +849,6 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (has_us)
         ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
-    if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
-        ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;

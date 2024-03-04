@@ -53,7 +53,6 @@
 
 typedef int8_t ws_pae_delete(struct net_if *interface_ptr);
 typedef void ws_pae_timer(uint16_t ticks);
-typedef int8_t ws_pae_br_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
@@ -80,7 +79,6 @@ typedef struct pae_controller {
     ns_list_link_t link;                                             /**< Link */
     uint8_t target_eui_64[8];                                        /**< EAPOL target */
     uint16_t target_pan_id;                                          /**< EAPOL target PAN ID */
-    uint8_t br_eui_64[8];                                            /**< Border router EUI-64 */
     pae_controller_gtk_t gtks;                                       /**< Material for GTKs */
     pae_controller_gtk_t lgtks;                                       /**< Material for GTKs */
     sec_prot_keys_nw_info_t sec_keys_nw_info;                        /**< Security keys network information */
@@ -97,7 +95,6 @@ typedef struct pae_controller {
     ws_pae_delete *pae_delete;                                       /**< PAE delete callback */
     ws_pae_timer *pae_fast_timer;                                    /**< PAE fast timer callback */
     ws_pae_timer *pae_slow_timer;                                    /**< PAE slow timer callback */
-    ws_pae_br_addr_write *pae_br_addr_write;                         /**< PAE Border router EUI-64 write callback */
     ws_pae_gtks_updated *pae_gtks_updated;                           /**< PAE GTKs updated */
     ws_pae_gtk_hash_update *pae_gtk_hash_update;                     /**< PAE GTK HASH update */
     ws_pae_nw_key_index_update *pae_nw_key_index_update;             /**< PAE NW key index update */
@@ -575,7 +572,6 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
 static void ws_pae_controller_data_init(pae_controller_t *controller)
 {
     memset(controller->target_eui_64, 0, sizeof(controller->target_eui_64));
-    memset(controller->br_eui_64, 0, sizeof(controller->br_eui_64));
     memset(controller->gtks.gtkhash, 0, sizeof(controller->gtks.gtkhash));
     memset(controller->lgtks.gtkhash, 0, sizeof(controller->lgtks.gtkhash));
     memset(controller->gtks.nw_key, 0, sizeof(controller->gtks.nw_key));
@@ -585,7 +581,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->pae_delete = NULL;
     controller->pae_fast_timer = NULL;
     controller->pae_slow_timer = NULL;
-    controller->pae_br_addr_write = NULL;
     controller->pae_gtks_updated = NULL;
     controller->pae_gtk_hash_update = NULL;
     controller->pae_nw_key_index_update = NULL;
@@ -1034,26 +1029,6 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
     if (controller)
         controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
-
-    return 0;
-}
-
-int8_t ws_pae_controller_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64)
-{
-    if (!eui_64) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    if (controller->pae_br_addr_write) {
-        return controller->pae_br_addr_write(interface_ptr, eui_64);
-    } else {
-        memcpy(controller->br_eui_64, eui_64, 8);
-    }
 
     return 0;
 }
