@@ -156,13 +156,13 @@ static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 
 static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
 {
-    struct sec_timer_gtk_cfg timing_ffn = {
+    struct sec_timing timing_ffn = {
         .expire_offset           = ctxt->config.ws_gtk_expire_offset_s,
         .new_act_time            = ctxt->config.ws_gtk_new_activation_time,
         .new_install_req         = ctxt->config.ws_gtk_new_install_required,
         .revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction,
     };
-    struct sec_timer_gtk_cfg timing_lfn = {
+    struct sec_timing timing_lfn = {
         .expire_offset           = ctxt->config.ws_lgtk_expire_offset_s,
         .new_act_time            = ctxt->config.ws_lgtk_new_activation_time,
         .new_install_req         = ctxt->config.ws_lgtk_new_install_required,

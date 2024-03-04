@@ -87,8 +87,8 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr);
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
                                    uint32_t pmk_lifetime_s,
                                    uint32_t ptk_lifetime_s,
-                                   const struct sec_timer_gtk_cfg *timing_ffn,
-                                   const struct sec_timer_gtk_cfg *timing_lfn,
+                                   const struct sec_timing *timing_ffn,
+                                   const struct sec_timing *timing_lfn,
                                    const struct sec_prot_cfg *sec_prot_cfg);
 
 /**

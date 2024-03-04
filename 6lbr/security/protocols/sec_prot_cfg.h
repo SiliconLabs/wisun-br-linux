@@ -32,12 +32,12 @@ typedef struct sec_prot_cfg {
 
 /* Security timer configuration settings */
 
-typedef struct sec_timer_gtk_cfg {
+struct sec_timing {
     uint32_t expire_offset;                     /* GTK lifetime; LGTK_EXPIRE_OFFSET (seconds) */
     uint16_t new_act_time;                      /* GTK_NEW_ACTIVATION_TIME (1/X of expire offset) */
     uint8_t  new_install_req;                   /* GTK_NEW_INSTALL_REQUIRED (percent of LGTK lifetime) */
     uint16_t revocat_lifetime_reduct;           /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
-} sec_timer_gtk_cfg_t;
+};
 
 /* Security radius configuration settings */
 
@@ -53,8 +53,8 @@ typedef struct sec_cfg {
     sec_prot_cfg_t prot_cfg;
     uint32_t pmk_lifetime_s;
     uint32_t ptk_lifetime_s;
-    struct sec_timer_gtk_cfg timing_ffn;
-    struct sec_timer_gtk_cfg timing_lfn;
+    struct sec_timing timing_ffn;
+    struct sec_timing timing_lfn;
     sec_radius_cfg_t *radius_cfg;
 } sec_cfg_t;
 

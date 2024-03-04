@@ -483,7 +483,7 @@ int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui_6
 
 int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk, uint8_t new_gtk[GTK_LEN])
 {
-    sec_timer_gtk_cfg_t *timer_cfg;
+    struct sec_timing *timer_cfg;
     sec_prot_gtk_keys_t *key_nw_info, *key_nw_info_next;
 
     if (!interface_ptr) {
@@ -697,7 +697,7 @@ void ws_pae_auth_fast_timer(uint16_t ticks)
 
 void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, bool is_lgtk)
 {
-    struct sec_timer_gtk_cfg *timer_gtk_cfg;
+    struct sec_timing *timer_gtk_cfg;
     pae_auth_gtk_t *pae_auth_gtk;
     sec_prot_gtk_keys_t *keys;
     uint64_t current_time = time_current(CLOCK_REALTIME);
@@ -790,7 +790,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, s
                                                          bool is_lgtk, int seconds)
 {
     uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(keys, gtk_index);
-    const struct sec_timer_gtk_cfg *timing;
+    const struct sec_timing *timing;
     uint32_t decrement_seconds = 0;
     uint32_t key_new_install_threshold;
 
