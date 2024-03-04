@@ -515,7 +515,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     if (active_index >= 0) {
         // As default removes other keys than active
         int8_t not_removed_index = active_index;
-        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(timer_cfg);
+        uint32_t revocation_lifetime = timer_cfg->expire_offset / timer_cfg->revocat_lifetime_reduct;
         uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, active_index);
         uint64_t current_time = time_current(CLOCK_REALTIME);
 

@@ -56,14 +56,4 @@ bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *sec_cfg, u
  */
 bool ws_pae_timers_gtk_new_activation_time(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds);
 
-/**
- *  ws_pae_timers_gtk_revocation_lifetime_get GTK revocation lifetime get
- *
- * \param sec_cfg security configuration
- *
- * \return GTK revocation lifetime
- *
- */
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(struct sec_timer_gtk_cfg *timer_gtk_cfg);
-
 #endif

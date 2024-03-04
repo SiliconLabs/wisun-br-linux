@@ -80,8 +80,3 @@ bool ws_pae_timers_gtk_new_activation_time(struct sec_timer_gtk_cfg *timer_gtk_c
         return false;
     }
 }
-
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(struct sec_timer_gtk_cfg *timer_gtk_cfg)
-{
-    return timer_gtk_cfg->expire_offset / timer_gtk_cfg->revocat_lifetime_reduct;
-}
