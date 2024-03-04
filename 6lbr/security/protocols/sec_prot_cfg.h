@@ -40,8 +40,8 @@ typedef struct sec_timer_gtk_cfg {
 } sec_timer_gtk_cfg_t;
 
 typedef struct sec_timer_cfg {
-    uint32_t pmk_lifetime;                           /* PMK lifetime (seconds) */
-    uint32_t ptk_lifetime;                           /* PTK lifetime (seconds) */
+    uint32_t pmk_lifetime_s;
+    uint32_t ptk_lifetime_s;
     struct sec_timer_gtk_cfg gtk;
     struct sec_timer_gtk_cfg lgtk;
 } sec_timer_cfg_t;

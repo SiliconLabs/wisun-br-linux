@@ -163,8 +163,8 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
     bool gtk_force = false;
     int ret;
 
-    ws_sec.pmk_lifetime = ctxt->config.ws_pmk_lifetime_s;
-    ws_sec.ptk_lifetime = ctxt->config.ws_ptk_lifetime_s;
+    ws_sec.pmk_lifetime_s = ctxt->config.ws_pmk_lifetime_s;
+    ws_sec.ptk_lifetime_s = ctxt->config.ws_ptk_lifetime_s;
     ws_sec.gtk.expire_offset = ctxt->config.ws_gtk_expire_offset_s;
     ws_sec.gtk.new_act_time = ctxt->config.ws_gtk_new_activation_time;
     ws_sec.gtk.new_install_req = ctxt->config.ws_gtk_new_install_required;
