@@ -59,7 +59,7 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
                                         const struct mcps_data_rx_ie_list *ie_ext,
                                         uint8_t frame_type)
 {
-    ws_wp_netname_t ie_netname;
+    struct ws_wp_netname ie_netname;
 
     // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_netname)) {
@@ -74,7 +74,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
-    ws_pom_ie_t ie_pom;
+    struct ws_pom_ie ie_pom;
 
     if (!ws_neigh)
         return;
@@ -97,9 +97,9 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neigh *ws_neigh;
-    ws_pan_ie_t ie_pan;
-    ws_utt_ie_t ie_utt;
-    ws_us_ie_t ie_us;
+    struct ws_pan_ie ie_pan;
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PA))
         return;
@@ -141,8 +141,8 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neigh *ws_neigh;
-    ws_utt_ie_t ie_utt;
-    ws_us_ie_t ie_us;
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAS))
         return;
@@ -167,10 +167,10 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
 {
     struct ws_neigh *ws_neigh;
     uint16_t ws_pan_version;
-    ws_utt_ie_t ie_utt;
-    ws_bt_ie_t ie_bt;
-    ws_us_ie_t ie_us;
-    ws_bs_ie_t ie_bs;
+    struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
+    struct ws_us_ie ie_us;
+    struct ws_bs_ie ie_bs;
 
     if (data->Key.SecurityLevel != SEC_ENC_MIC64) {
         TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(WS_FT_PC));
@@ -219,8 +219,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neigh *ws_neigh;
-    ws_utt_ie_t ie_utt;
-    ws_us_ie_t ie_us;
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PCS))
         return;

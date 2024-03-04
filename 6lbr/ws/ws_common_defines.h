@@ -106,149 +106,149 @@ typedef struct ws_hopping_schedule {
 /**
  * @brief ws_utt_ie_t WS UTT-IE
  */
-typedef struct ws_utt_ie {
+struct ws_utt_ie {
     uint8_t message_type;
     uint24_t ufsi; // Filled by MAC
-} ws_utt_ie_t;
+};
 
 /**
  * @brief ws_utt_ie_t WS LUTT-IE
  */
-typedef struct ws_lutt_ie {
+struct ws_lutt_ie {
     uint8_t  message_type;
     uint16_t slot_number; // Filled by MAC
     uint24_t interval_offset; // Filled by MAC
-} ws_lutt_ie_t;
+};
 
 /**
  * @brief ws_lbt_ie_t WS LBT-IE
  */
-typedef struct ws_lbt_ie {
+struct ws_lbt_ie {
     uint16_t slot_number; // Filled by MAC
     uint24_t interval_offset; // Filled by MAC
-} ws_lbt_ie_t;
+};
 
 /**
  * @brief ws_nr_ie_t WS NR-IE
  */
-typedef struct ws_nr_ie {
+struct ws_nr_ie {
     uint8_t node_role: 3;
     uint8_t reserved: 5;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     uint24_t listen_interval_min;
     uint24_t listen_interval_max;
-} ws_nr_ie_t;
+};
 
 /**
  * @brief ws_lus_ie_t WS LUS-IE
  */
-typedef struct ws_lus_ie {
+struct ws_lus_ie {
     uint24_t listen_interval;
     uint8_t channel_plan_tag;
-} ws_lus_ie_t;
+};
 
 /**
  * @brief ws_lus_ie_t WS FLUS-IE
  */
-typedef struct ws_flus_ie {
+struct ws_flus_ie {
     uint8_t dwell_interval;
     uint8_t channel_plan_tag;
-} ws_flus_ie_t;
+};
 
 /**
  * @brief ws_lnd_ie_t WS LND-IE
  */
-typedef struct ws_lnd_ie {
+struct ws_lnd_ie {
     uint8_t response_threshold;
     uint24_t response_delay; // Filled by MAC
     uint8_t discovery_slot_time;
     uint8_t discovery_slots;
     uint16_t discovery_first_slot; // Filled by MAC
-} ws_lnd_ie_t;
+};
 
 /**
  * @brief ws_lto_ie_t WS LTO-IE
  */
-typedef struct ws_lto_ie {
+struct ws_lto_ie {
     uint24_t offset;
     uint24_t adjusted_listening_interval;
-} ws_lto_ie_t;
+};
 
 /**
  * @brief ws_lbs_ie_t WS LBS-IE
  */
-typedef struct ws_lbs_ie {
+struct ws_lbs_ie {
     uint24_t broadcast_interval;
     uint16_t broadcast_scheduler_id;
     uint8_t channel_plan_tag;
     uint8_t broadcast_sync_period;
-} ws_lbs_ie_t;
+};
 
 
 /**
  * @brief ws_panid_ie_t WS PANID-IE
  */
-typedef struct ws_panid_ie {
+struct ws_panid_ie {
     uint16_t        panid;
-} ws_panid_ie_t;
+};
 
 /**
  * @brief ws_lbc_ie_t WS LBC-IE read
  */
-typedef struct ws_lbc_ie {
+struct ws_lbc_ie {
     uint24_t lfn_broadcast_interval;
     uint8_t broadcast_sync_period;
-} ws_lbc_ie_t;
+};
 
 /**
  * @brief ws_pom_ie_t PHY Operating Modes
  */
-typedef struct ws_pom_ie {
+struct ws_pom_ie {
     uint8_t phy_op_mode_number: 4; /**< Number of PHY Operating Modes */
     uint8_t mdr_command_capable: 1;/**< Indicate if the transmitter supports MDR Command */
     uint8_t reserved: 3;           /**< Reserved, set to 0. */
     uint8_t phy_op_mode_id[15];
-} ws_pom_ie_t;
+};
 
 /**
  * @brief ws_bt_ie_t WS BT-IE read
  */
-typedef struct ws_bt_ie {
+struct ws_bt_ie {
     uint16_t broadcast_slot_number;
     uint24_t broadcast_interval_offset;
-} ws_bt_ie_t;
+};
 
 /**
  * @brief ws_fc_ie_t WS FC-IE element
  */
-typedef struct ws_fc_ie {
+struct ws_fc_ie {
     uint8_t tx_flow_ctrl;
     uint8_t rx_flow_ctrl;
-} ws_fc_ie_t;
+};
 
 /**
  * @brief ws_lfnver_ie_t WS LFNVER-IE element
  */
-typedef struct ws_lfnver_ie {
+struct ws_lfnver_ie {
     uint16_t lfn_version;
-} ws_lfnver_ie_t;
+};
 
 /**
  * @brief ws_lgtkhash_ie_t WS LGTKHASH-IE element
  */
-typedef struct ws_lgtkhash_ie {
+struct ws_lgtkhash_ie {
     unsigned active_lgtk_index: 2; /**< Indicate Active LGTK index 0-2 */
     uint8_t valid_hashs;           /**< Valid entries */
     uint8_t gtkhashs[8][4];        /**< A generic struct to handle GTKs */
-} ws_lgtkhash_ie_t;
+};
 
-typedef struct ws_lbats_ie {
+struct ws_lbats_ie {
     uint8_t additional_transmissions;
     uint16_t next_transmit_delay;
-} ws_lbats_ie_t;
+};
 
-typedef struct ws_pan_ie {
+struct ws_pan_ie {
     uint16_t pan_size;
     uint16_t routing_cost;
     unsigned use_parent_bs_ie: 1;
@@ -256,7 +256,7 @@ typedef struct ws_pan_ie {
     unsigned lfn_window_style: 1;
     unsigned reserved: 2;
     unsigned fan_tps_version: 3;
-} ws_pan_ie_t;
+};
 
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class
@@ -339,32 +339,32 @@ typedef struct ws_generic_channel_info {
 /**
  * @brief ws_lcp_ie_t LFN Channel information
  */
-typedef struct ws_lcp_ie {
+struct ws_lcp_ie {
     uint8_t lfn_channel_plan_tag;
     struct ws_generic_channel_info chan_plan;
-} ws_lcp_ie_t;
+};
 
 /**
  * @brief ws_us_ie_t WS US-IE read
  */
-typedef struct ws_us_ie {
+struct ws_us_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     struct ws_generic_channel_info chan_plan;
-} ws_us_ie_t;
+};
 
 /**
  * @brief ws_bs_ie_t WS BS-IE read
  */
-typedef struct ws_bs_ie {
+struct ws_bs_ie {
     uint32_t broadcast_interval;
     uint16_t broadcast_schedule_identifier;
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     struct ws_generic_channel_info chan_plan;
-} ws_bs_ie_t;
+};
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
 #define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */

@@ -35,10 +35,10 @@ struct ws_pom_ie;
 /**
  * @brief ws_wp_netname_t WS nested payload network name
  */
-typedef struct ws_wp_netname {
+struct ws_wp_netname {
     uint8_t network_name_length;
     const uint8_t *network_name;
-} ws_wp_netname_t;
+};
 
 
 /* WS_WH HEADER IE */
@@ -97,9 +97,9 @@ void       ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm *jm
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
-bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, ws_pan_ie_t *pan_ie);
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_ie *pan_ie);
 bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
-bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, ws_wp_netname_t *network_name);
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_wp_netname *network_name);
 bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t gtkhash[4]);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);

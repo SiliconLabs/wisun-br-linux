@@ -822,7 +822,7 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, ws_pan_ie_t *pan_ie)
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_ie *pan_ie)
 {
     struct iobuf_read ie_buf;
     uint8_t tmp8;
@@ -856,7 +856,7 @@ bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t g
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, ws_wp_netname_t *network_name)
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_wp_netname *network_name)
 {
     struct iobuf_read ie_buf;
 

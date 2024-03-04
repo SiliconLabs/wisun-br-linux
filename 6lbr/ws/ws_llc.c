@@ -83,14 +83,14 @@ typedef struct llc_ie_params {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     /* FAN 1.1 elements */
-    ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
-    ws_flus_ie_t            *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
-    ws_lbs_ie_t             *lfn_bs;                /**< LFN Broadcast schedule */
-    ws_lnd_ie_t             *lfn_network_discovery; /**< LFN Network Discovery */
-    ws_lto_ie_t             *lfn_timing;            /**< LFN Timing */
-    ws_panid_ie_t           *pan_id;                /**< PAN ID */
-    ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
-    ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
+    struct ws_lus_ie        *lfn_us;                /**< LFN Unicast schedule */
+    struct ws_flus_ie       *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
+    struct ws_lbs_ie        *lfn_bs;                /**< LFN Broadcast schedule */
+    struct ws_lnd_ie        *lfn_network_discovery; /**< LFN Network Discovery */
+    struct ws_lto_ie        *lfn_timing;            /**< LFN Timing */
+    struct ws_panid_ie      *pan_id;                /**< PAN ID */
+    struct ws_lcp_ie        *lfn_channel_plan;      /**< LCP IE data */
+    struct ws_lbats_ie      *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
 
 /// Enumeration for Mode Switch mode
@@ -900,9 +900,9 @@ static void ws_trace_llc_mac_req(const mcps_data_req_t *data, const llc_message_
 static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data,
                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
+    struct ws_lutt_ie ws_lutt;
+    struct ws_utt_ie ws_utt;
     const char *type_str;
-    ws_lutt_ie_t ws_lutt;
-    ws_utt_ie_t ws_utt;
     int message_type;
     int trace_domain;
 
@@ -947,9 +947,9 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neigh *neigh;
+    struct ws_lutt_ie ie_lutt;
+    struct ws_utt_ie ie_utt;
     bool has_utt, has_lutt;
-    ws_lutt_ie_t ie_lutt;
-    ws_utt_ie_t ie_utt;
     uint8_t frame_type;
 
     ws_trace_llc_mac_ind(data, ie_ext);

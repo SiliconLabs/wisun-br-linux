@@ -188,7 +188,7 @@ void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const s
     fhss_data->lfn.lnd_rx_tstamp_us      = tstamp_us;
 }
 
-void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie)
+void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie)
 {
     neigh->lto_info.uc_interval_min_ms = nr_ie->listen_interval_min;
     neigh->lto_info.uc_interval_max_ms = nr_ie->listen_interval_max;

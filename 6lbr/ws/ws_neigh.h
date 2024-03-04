@@ -141,7 +141,7 @@ uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_i
 uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
 
 // Node Role update (LFN only)
-void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie);
+void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie);
 
 bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
 
