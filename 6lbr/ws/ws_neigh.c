@@ -165,7 +165,6 @@ void ws_neigh_ut_update(ws_neigh_t *neigh, uint24_t ufsi,
 
     neigh->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
     neigh->fhss_data.ffn.ufsi             = ufsi;
-    neigh->host_rx_timestamp = time_current(CLOCK_MONOTONIC);
 }
 
 void ws_neigh_lut_update(ws_neigh_t *neigh,

@@ -72,7 +72,6 @@ typedef struct ws_neigh {
     int rssi;
     int lqi;
     bool unicast_data_rx : 1;
-    time_t host_rx_timestamp;
     struct ws_pom_ie pom_ie;
     bool offset_adjusted;                                  /*!< For LTO */
     uint8_t node_role;
