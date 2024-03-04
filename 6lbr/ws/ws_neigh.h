@@ -119,6 +119,7 @@ void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_tim
 // LFN Unicast Schedule update
 void ws_neigh_lus_update(const struct net_if *net_if,
                          ws_neigh_t *neigh,
+                         struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms);
 
