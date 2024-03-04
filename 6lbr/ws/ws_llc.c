@@ -1104,6 +1104,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->bt)
         ws_wh_bt_write(&msg->ie_buf_header);
+    if (wh_ies->ea)
+        ws_wh_ea_write(&msg->ie_buf_header, base->interface_ptr->rcp->eui64);
     if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->lbt)
@@ -1492,7 +1494,15 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     bool eapol_handshake_first_msg = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
-    int ie_offset;
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+        .bt  = true,
+        .ea  = eapol_handshake_first_msg,
+    };
+    struct wp_ie_list wp_ies = {
+        .us = true,
+        .bs = eapol_handshake_first_msg,
+    };
 
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
@@ -1514,27 +1524,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->message_type = WS_FT_EAPOL;
     message->security = data->Key;
 
-    ws_wh_utt_write(&message->ie_buf_header, message->message_type);
-    ws_wh_bt_write(&message->ie_buf_header);
-    if (eapol_handshake_first_msg)
-        ws_wh_ea_write(&message->ie_buf_header, base->interface_ptr->rcp->eui64);
-    message->ie_iov_header.iov_len = message->ie_buf_header.len;
-    message->ie_iov_header.iov_base = message->ie_buf_header.data;
-    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
-    message->ie_ext.headerIovLength = 1;
-
-    ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                          &base->interface_ptr->ws_info.fhss_config);
-    if (eapol_handshake_first_msg)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                              &base->interface_ptr->ws_info.fhss_config);
-    ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
-    message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
-    message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
+    ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
-    message->ie_ext.payloadIeVectorList = &message->ie_iov_payload[0];
     message->ie_ext.payloadIovLength = 2;
 
     if (base->temp_entries.active_eapol_session) {

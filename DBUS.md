@@ -103,6 +103,7 @@ contents.
 |-------------|---------------------|------------|
 |      `0x00` |PAN Advertisement    | PA         |
 |      `0x02` |PAN Configuration    | PC         |
+|      `0x06` |EAP over LAN         | EAPOL      |
 |      `0x09` |LFN PAN Advertisement| LPA        |
 |      `0x0b` |LFN PAN Configuration| LPC        |
 
