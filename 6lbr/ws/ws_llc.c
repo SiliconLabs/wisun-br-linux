@@ -126,7 +126,6 @@ typedef struct llc_message {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct temp_entriest {
-    struct ws_neigh                 neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */

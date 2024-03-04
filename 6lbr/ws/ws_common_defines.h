@@ -441,9 +441,4 @@ typedef struct ws_bs_ie {
 #define BR_EAPOL_RELAY_SOCKET_PORT            10255
 #define PAE_AUTH_SOCKET_PORT                  10254
 
-/*
- * EAPOL and multicast neighbor tables size
- */
-#define MAX_NEIGH_TEMPORARY_EAPOL_SIZE 5
-
 #endif
