@@ -746,7 +746,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
 
     ws_neigh = &tmp->neigh_info_list;
     tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
-    tmp->signal_dbm = data->hif.rx_power_dbm;
+    ws_neigh->rssi = data->hif.rx_power_dbm;
     return ws_neigh;
 }
 

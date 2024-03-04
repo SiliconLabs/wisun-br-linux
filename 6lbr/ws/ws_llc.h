@@ -87,7 +87,6 @@ typedef struct ws_neighbor_temp_class {
     struct ws_neigh neigh_info_list;  /*!< Allocated hopping info array*/
     eapol_temporary_info_t eapol_temp_info;
     uint8_t mac64[8];
-    int8_t signal_dbm;
     ns_list_link_t link;
 } ws_neighbor_temp_class_t;
 
