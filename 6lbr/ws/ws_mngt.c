@@ -83,6 +83,15 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
     ws_neigh->pom_ie = ie_pom;
 }
 
+static struct ws_neigh *ws_mngt_neigh_fetch(struct net_if *net_if, const uint8_t *mac64, uint8_t role)
+{
+    struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, mac64);
+
+    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, mac64))
+        ws_neigh = ws_bootstrap_neighbor_add(net_if, mac64, role);
+    return ws_neigh;
+}
+
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
@@ -186,9 +195,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                    &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
-    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
-        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
@@ -218,9 +225,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
                                &net_if->ws_info.mngt.trickle_params);
 
-    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
-    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, data->SrcAddr))
-        ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
