@@ -176,13 +176,13 @@ void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
     fhss_data->lfn.uc_interval_offset_ms = interval_offset;
 }
 
-void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
+void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
 {
-    neigh->fhss_data.lfn.lpa_response_delay_ms = ie_lnd->response_delay;
-    neigh->fhss_data.lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
-    neigh->fhss_data.lfn.lpa_slot_count        = ie_lnd->discovery_slots;
-    neigh->fhss_data.lfn.lpa_slot_first        = ie_lnd->discovery_first_slot;
-    neigh->fhss_data.lfn.lnd_rx_tstamp_us      = tstamp_us;
+    fhss_data->lfn.lpa_response_delay_ms = ie_lnd->response_delay;
+    fhss_data->lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
+    fhss_data->lfn.lpa_slot_count        = ie_lnd->discovery_slots;
+    fhss_data->lfn.lpa_slot_first        = ie_lnd->discovery_first_slot;
+    fhss_data->lfn.lnd_rx_tstamp_us      = tstamp_us;
 }
 
 void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie)

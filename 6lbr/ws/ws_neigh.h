@@ -110,7 +110,7 @@ void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Network Discovery update
-void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
+void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
 void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_timing_info *fhss_data,
