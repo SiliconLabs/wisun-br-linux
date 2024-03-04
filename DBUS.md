@@ -86,9 +86,8 @@ Insert a custom Wi-SUN Information Element (IE). There can only be one IE
 inserted per type and ID, specifying an existing custom IE will overwrite it,
 or remove it if there are no target frames. This is designed for testing but
 can also be used to insert vendor IEs (VH-IE or VP-IE for header and payload
-respectively). The PAN version will be incremented each time this method is
-called. Inserting a custom IE conflicting with a natively inserted IE is not
-recommended, as packets will contain two instances of the IE with different
+respectively). Inserting a custom IE conflicting with a natively inserted IE is
+not recommended, as packets will contain two instances of the IE with different
 contents.
 
 - `y`: IE type, `0` for Wi-SUN header IE (WH-IE), `1` for nested short Wi-SUN
