@@ -187,8 +187,8 @@ void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const s
 
 void ws_neigh_nr_update(ws_neigh_t *neigh, ws_nr_ie_t *nr_ie)
 {
-    neigh->fhss_data.lfn.uc_interval_min_ms = nr_ie->listen_interval_min;
-    neigh->fhss_data.lfn.uc_interval_max_ms = nr_ie->listen_interval_max;
+    neigh->lto_info.uc_interval_min_ms = nr_ie->listen_interval_min;
+    neigh->lto_info.uc_interval_max_ms = nr_ie->listen_interval_max;
 }
 
 static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info,
@@ -409,7 +409,7 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 bool ws_neigh_lus_update(const struct net_if *net_if,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
-                         uint24_t listen_interval_ms)
+                         uint24_t listen_interval_ms, const struct lto_info *lto_info)
 {
     uint24_t adjusted_listening_interval;
     bool offset_adjusted = true;
@@ -417,8 +417,8 @@ bool ws_neigh_lus_update(const struct net_if *net_if,
     if (fhss_data->lfn.uc_listen_interval_ms != listen_interval_ms) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(net_if->ws_info.fhss_conf.lfn_bc_interval,
                                                                           fhss_data->lfn.uc_listen_interval_ms,
-                                                                          fhss_data->lfn.uc_interval_min_ms,
-                                                                          fhss_data->lfn.uc_interval_max_ms);
+                                                                          lto_info->uc_interval_min_ms,
+                                                                          lto_info->uc_interval_max_ms);
         if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
             offset_adjusted = false;
     }

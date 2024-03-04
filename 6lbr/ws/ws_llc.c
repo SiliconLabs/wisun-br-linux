@@ -704,9 +704,9 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
-                                                        has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                        ie_lus.listen_interval);
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+                                                                 has_lcp ? &ie_lcp.chan_plan : NULL,
+                                                                 ie_lus.listen_interval, &ws_neigh->lto_info);
 
     if (data->DstAddrMode == ADDR_802_15_4_LONG)
         ws_neigh->unicast_data_rx = true;
@@ -841,9 +841,9 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                         data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
-                                                        has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                        ie_lus.listen_interval);
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+                                                                 has_lcp ? &ie_lcp.chan_plan : NULL,
+                                                                 ie_lus.listen_interval, &ws_neigh->lto_info);
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -1200,14 +1200,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
                                                                                    ws_neigh->fhss_data.lfn.uc_listen_interval_ms,
-                                                                                   ws_neigh->fhss_data.lfn.uc_interval_min_ms,
-                                                                                   ws_neigh->fhss_data.lfn.uc_interval_max_ms);
+                                                                                   ws_neigh->lto_info.uc_interval_min_ms,
+                                                                                   ws_neigh->lto_info.uc_interval_max_ms);
         adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
                                                    base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
         if ((adjusted_listening_interval != ws_neigh->fhss_data.lfn.uc_listen_interval_ms ||
-            !ws_neigh->offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
+            !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
-            ws_neigh->offset_adjusted = true;
+            ws_neigh->lto_info.offset_adjusted = true;
         }
     }
 

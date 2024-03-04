@@ -53,9 +53,6 @@ struct fhss_ws_neighbor_timing_info {
             uint8_t  lpa_slot_count;        // from LND-IE
             uint16_t lpa_slot_first;        // from LND-IE
             uint64_t lnd_rx_tstamp_us;
-
-            uint24_t uc_interval_min_ms;    // from NR-IE
-            uint24_t uc_interval_max_ms;    // from NR-IE
         } lfn;
     };
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
@@ -70,6 +67,12 @@ typedef struct eapol_temporary_info {
     uint16_t eapol_timeout; /*!< EAPOL relay Temporary entry lifetime */
 } eapol_temporary_info_t;
 
+struct lto_info {
+    uint24_t uc_interval_min_ms;    // from NR-IE
+    uint24_t uc_interval_max_ms;    // from NR-IE
+    bool offset_adjusted;
+};
+
 typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
@@ -79,7 +82,7 @@ typedef struct ws_neigh {
     int lqi;
     bool unicast_data_rx : 1;
     struct ws_pom_ie pom_ie;
-    bool offset_adjusted;                                  /*!< For LTO */
+    struct lto_info lto_info;
     uint8_t node_role;
     uint32_t frame_counter_min[7];
     uint8_t mac64[8];                                      /*!< MAC64 */
@@ -127,7 +130,7 @@ void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_tim
 bool ws_neigh_lus_update(const struct net_if *net_if,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
-                         uint24_t listen_interval_ms);
+                         uint24_t listen_interval_ms, const struct lto_info *lto_info);
 
 uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
                                              uint24_t uc_interval_min, uint24_t uc_interval_max);
