@@ -22,24 +22,203 @@
 #include <stdbool.h>
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h"
-#include "ws/ws_common_defines.h"
 
 struct iobuf_write;
-struct ws_utt_ie;
-struct ws_bt_ie;
-struct ws_us_ie;
 struct ws_hopping_schedule;
-struct ws_fc_ie;
-struct ws_pom_ie;
 
-/**
- * @brief ws_wp_netname_t WS nested payload network name
- */
+struct ws_utt_ie {
+    uint8_t message_type;
+    uint24_t ufsi;            // Filled by MAC
+};
+
+struct ws_lutt_ie {
+    uint8_t  message_type;
+    uint16_t slot_number;     // Filled by MAC
+    uint24_t interval_offset; // Filled by MAC
+};
+
+struct ws_lbt_ie {
+    uint16_t slot_number;     // Filled by MAC
+    uint24_t interval_offset; // Filled by MAC
+};
+
+struct ws_nr_ie {
+    uint8_t node_role: 3;
+    uint8_t reserved: 5;
+    uint8_t clock_drift;
+    uint8_t timing_accuracy;
+    uint24_t listen_interval_min;
+    uint24_t listen_interval_max;
+};
+
+struct ws_lus_ie {
+    uint24_t listen_interval;
+    uint8_t channel_plan_tag;
+};
+
+struct ws_flus_ie {
+    uint8_t dwell_interval;
+    uint8_t channel_plan_tag;
+};
+
+struct ws_lnd_ie {
+    uint8_t response_threshold;
+    uint24_t response_delay;       // Filled by MAC
+    uint8_t discovery_slot_time;
+    uint8_t discovery_slots;
+    uint16_t discovery_first_slot; // Filled by MAC
+};
+
+struct ws_lto_ie {
+    uint24_t offset;
+    uint24_t adjusted_listening_interval;
+};
+
+struct ws_lbs_ie {
+    uint24_t broadcast_interval;
+    uint16_t broadcast_scheduler_id;
+    uint8_t channel_plan_tag;
+    uint8_t broadcast_sync_period;
+};
+
+struct ws_panid_ie {
+    uint16_t        panid;
+};
+
+struct ws_lbc_ie {
+    uint24_t lfn_broadcast_interval;
+    uint8_t broadcast_sync_period;
+};
+
+struct ws_pom_ie {
+    uint8_t phy_op_mode_number: 4;
+    uint8_t mdr_command_capable: 1;
+    uint8_t reserved: 3;
+    uint8_t phy_op_mode_id[15];
+};
+
+struct ws_bt_ie {
+    uint16_t broadcast_slot_number;
+    uint24_t broadcast_interval_offset;
+};
+
+struct ws_fc_ie {
+    uint8_t tx_flow_ctrl;
+    uint8_t rx_flow_ctrl;
+};
+
+struct ws_lfnver_ie {
+    uint16_t lfn_version;
+};
+
+struct ws_lgtkhash_ie {
+    unsigned active_lgtk_index: 2;
+    uint8_t valid_hashs;
+    uint8_t gtkhashs[8][4];
+};
+
+struct ws_lbats_ie {
+    uint8_t additional_transmissions;
+    uint16_t next_transmit_delay;
+};
+
+struct ws_pan_ie {
+    uint16_t pan_size;
+    uint16_t routing_cost;
+    unsigned use_parent_bs_ie: 1;
+    unsigned routing_method: 1;
+    unsigned lfn_window_style: 1;
+    unsigned reserved: 2;
+    unsigned fan_tps_version: 3;
+};
+
+struct ws_jm_ie {
+    unsigned int mask;
+    uint8_t version;
+    uint8_t plf; // PAN Load Factor
+};
+
+struct ws_channel_plan_zero {
+    uint8_t regulatory_domain;
+    uint8_t operating_class;
+};
+
+struct ws_channel_plan_one {
+    uint24_t ch0; // kHz
+    unsigned channel_spacing: 4;
+    uint16_t number_of_channel;
+};
+
+struct ws_channel_plan_two {
+    uint8_t regulatory_domain;
+    uint8_t channel_plan_id;
+};
+
+struct ws_channel_function_zero {
+    uint16_t fixed_channel;
+};
+
+struct ws_channel_function_three {
+    uint8_t channel_hop_count;
+    const uint8_t *channel_list;
+};
+
+struct ws_excluded_channel_range {
+    uint8_t number_of_range;
+    const uint8_t *range_start;
+};
+
+struct ws_excluded_channel_mask {
+    const uint8_t *channel_mask;
+    uint8_t mask_len_inline;
+};
+
+struct ws_generic_channel_info {
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
+    union ws_channel_plan {
+        struct ws_channel_plan_zero zero;
+        struct ws_channel_plan_one one;
+        struct ws_channel_plan_two two;
+    } plan;
+    union ws_channel_function {
+        struct ws_channel_function_zero zero;
+        /* struct ws_channel_function_one not supported */
+        /* struct ws_channel_function_two not supported */
+        struct ws_channel_function_three three;
+    } function;
+    union ws_excluded_channel {
+        struct ws_excluded_channel_range range;
+        struct ws_excluded_channel_mask mask;
+    } excluded_channels;
+};
+
+struct ws_lcp_ie {
+    uint8_t lfn_channel_plan_tag;
+    struct ws_generic_channel_info chan_plan;
+};
+
+struct ws_us_ie {
+    uint8_t dwell_interval;
+    uint8_t clock_drift;
+    uint8_t timing_accuracy;
+    struct ws_generic_channel_info chan_plan;
+};
+
+struct ws_bs_ie {
+    uint32_t broadcast_interval;
+    uint16_t broadcast_schedule_identifier;
+    uint8_t dwell_interval;
+    uint8_t clock_drift;
+    uint8_t timing_accuracy;
+    struct ws_generic_channel_info chan_plan;
+};
+
 struct ws_wp_netname {
     uint8_t network_name_length;
     const uint8_t *network_name;
 };
-
 
 /* WS_WH HEADER IE */
 void   ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type);

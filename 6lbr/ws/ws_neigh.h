@@ -24,7 +24,7 @@
 #include <time.h>
 #include "common/int24.h"
 
-#include "ws/ws_common_defines.h"
+#include "6lbr/ws/ws_ie_lib.h"
 
 struct net_if;
 
