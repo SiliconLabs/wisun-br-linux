@@ -704,9 +704,9 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh_lus_update(base->interface_ptr, ws_neigh, &ws_neigh->fhss_data,
-                            has_lcp ? &ie_lcp.chan_plan : NULL,
-                            ie_lus.listen_interval);
+        ws_neigh->offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+                                                        has_lcp ? &ie_lcp.chan_plan : NULL,
+                                                        ie_lus.listen_interval);
 
     if (data->DstAddrMode == ADDR_802_15_4_LONG)
         ws_neigh->unicast_data_rx = true;
@@ -841,9 +841,9 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                         data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh_lus_update(base->interface_ptr, ws_neigh, &ws_neigh->fhss_data,
-                            has_lcp ? &ie_lcp.chan_plan : NULL,
-                            ie_lus.listen_interval);
+        ws_neigh->offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+                                                        has_lcp ? &ie_lcp.chan_plan : NULL,
+                                                        ie_lus.listen_interval);
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;

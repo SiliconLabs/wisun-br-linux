@@ -406,13 +406,13 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
     return LFN_SCHEDULE_GUARD_TIME_MS * rand_get_random_in_range(1, max_offset_ms / LFN_SCHEDULE_GUARD_TIME_MS);
 }
 
-void ws_neigh_lus_update(const struct net_if *net_if,
-                         ws_neigh_t *neigh,
+bool ws_neigh_lus_update(const struct net_if *net_if,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms)
 {
     uint24_t adjusted_listening_interval;
+    bool offset_adjusted = true;
 
     if (fhss_data->lfn.uc_listen_interval_ms != listen_interval_ms) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(net_if->ws_info.fhss_conf.lfn_bc_interval,
@@ -420,12 +420,12 @@ void ws_neigh_lus_update(const struct net_if *net_if,
                                                                           fhss_data->lfn.uc_interval_min_ms,
                                                                           fhss_data->lfn.uc_interval_max_ms);
         if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
-            neigh->offset_adjusted = false;
+            offset_adjusted = false;
     }
 
     fhss_data->lfn.uc_listen_interval_ms = listen_interval_ms;
     if (!chan_info)
-        return; // Support chan plan tag 255 (reuse previous schedule)
+        return offset_adjusted; // Support chan plan tag 255 (reuse previous schedule)
     fhss_data->uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
         fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
@@ -434,6 +434,7 @@ void ws_neigh_lus_update(const struct net_if *net_if,
         ws_neigh_set_chan_list(net_if, &fhss_data->uc_channel_list, chan_info,
                                &fhss_data->uc_chan_count);
     }
+    return offset_adjusted;
 }
 
 // Wi-SUN FAN 1.1v07 - 3.1 Definitions
