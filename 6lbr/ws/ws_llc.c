@@ -108,7 +108,6 @@ typedef struct llc_message {
     unsigned        message_type: 4;   /**< Frame type to UTT */
     unsigned        mpx_id: 5;          /**< MPX sequence */
     bool            ack_requested: 1;   /**< ACK requested */
-    bool            eapol_temporary: 1; /**< EAPOL TX entry index used */
     unsigned        dst_address_type: 2; /**<  Destination address type */
     unsigned        src_address_type: 2; /**<  Source address type */
     uint8_t         msg_handle;         /**< LLC genetaed unique MAC handle */
@@ -259,7 +258,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         return NULL;
     }
     message->ack_requested = false;
-    message->eapol_temporary = false;
     memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
     memset(&message->ie_buf_payload, 0, sizeof(struct iobuf_write));
     return message;
@@ -343,7 +341,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     base->temp_entries.active_eapol_session = false;
 
     mlme_status = mlme_status_from_hif(confirm->hif.status);
-    if (msg->eapol_temporary && mlme_status == MLME_SUCCESS)
+    if (mlme_status == MLME_SUCCESS)
         ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
@@ -1251,15 +1249,6 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 {
     mcps_data_req_t data_req;
-
-    //Discover Temporary entry
-    struct ws_neigh *temp_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, message->dst_address);
-
-    if (temp_neigh && temp_neigh->eapol_temp_info.eapol_timeout) {
-        message->eapol_temporary = true;
-    } else {
-        message->eapol_temporary = false;
-    }
 
     //Allocate message ID
     llc_message_id_allocate(message, base, true);
