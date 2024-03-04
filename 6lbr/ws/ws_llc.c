@@ -1479,15 +1479,6 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
     }
 }
 
-static void ws_init_temporary_neigh_data(struct ws_neigh *entry, const uint8_t *mac64)
-{
-    //Clear Old data
-    memset(entry, 0, sizeof(ws_neigh_t) - sizeof(entry->link));
-    entry->rsl_in_dbm = NAN;
-    entry->rsl_out_dbm = NAN;
-    memcpy(entry->mac64, mac64, 8);
-}
-
 int8_t ws_llc_create(struct net_if *interface,
                      ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf)
 {
