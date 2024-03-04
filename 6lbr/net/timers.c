@@ -41,7 +41,7 @@ struct ws_timer g_timers[] = {
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
     timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                    true),
-    timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    5000,                    true),
+    timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),
