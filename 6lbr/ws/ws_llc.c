@@ -173,7 +173,6 @@ static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
-static struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64);
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
 
@@ -1429,18 +1428,6 @@ static void ws_llc_clean(llc_data_base_t *base)
 
     //Disable High Priority mode
     base->high_priority_mode = false;
-}
-
-struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64)
-{
-    struct ws_neigh *neigh;
-
-    SLIST_FOREACH(neigh, list, link) {
-        if (memcmp(neigh->mac64, mac64, 8) == 0) {
-            return neigh;
-        }
-    }
-    return NULL;
 }
 
 static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64)
