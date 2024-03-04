@@ -35,6 +35,7 @@
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
+#include "common/sys_queue_extra.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 
@@ -125,9 +126,9 @@ typedef struct llc_message {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct temp_entriest {
-    ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
-    ws_neighbor_temp_list_t         active_eapol_temp_neigh;
-    ws_neighbor_temp_list_t         free_temp_neigh;
+    struct ws_neigh                 neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
+    struct ws_neigh_list            active_eapol_temp_neigh;
+    struct ws_neigh_list            free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
@@ -176,9 +177,9 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
-static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
-static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
+static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
+static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry);
+static struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
 
@@ -324,14 +325,14 @@ static llc_data_base_t *ws_llc_base_allocate(void)
         return NULL;
     }
     memset(base, 0, sizeof(llc_data_base_t));
-    ns_list_init(&base->temp_entries.active_eapol_temp_neigh);
-    ns_list_init(&base->temp_entries.free_temp_neigh);
+    SLIST_INIT(&base->temp_entries.active_eapol_temp_neigh);
+    SLIST_INIT(&base->temp_entries.free_temp_neigh);
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
 
     //Add to free list to full from static
     for (int i = 0; i < MAX_NEIGH_TEMPORARY_EAPOL_SIZE; i++)
-        ns_list_add_to_end(&base->temp_entries.free_temp_neigh,
-                           &base->temp_entries.neighbour_temporary_table[i]);
+        SLIST_INSERT_HEAD(&base->temp_entries.free_temp_neigh,
+                           &base->temp_entries.neighbour_temporary_table[i], link);
 
     ns_list_init(&base->llc_message_list);
 
@@ -435,7 +436,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neigh *ws_neigh = NULL;
-    struct ws_neighbor_temp_class *neighbor_tmp;
+    struct ws_neigh *neighbor_tmp;
     struct mcps_data_cnf data_cpy = *data;
     struct llc_data_base *base;
     struct llc_message *msg;
@@ -477,7 +478,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     if (msg->eapol_temporary && mlme_status == MLME_SUCCESS) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
-            neighbor_tmp->neigh_info_list.eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+            neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     }
 
     tx_confirm_duration = time_get_elapsed(CLOCK_MONOTONIC, msg->tx_time);
@@ -737,18 +738,16 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
                                                                            data->SrcAddr);
-    ws_neighbor_temp_class_t *tmp;
 
     if (ws_neigh)
         return ws_neigh;
 
-    tmp = ws_allocate_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
-    if (!tmp) {
+    ws_neigh = ws_allocate_eapol_temp_entry(&base->temp_entries, data->SrcAddr);
+    if (!ws_neigh) {
         WARN("EAPOL temporary pool empty");
         return NULL;
     }
 
-    ws_neigh = &tmp->neigh_info_list;
     ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     ws_neigh->rssi = data->hif.rx_power_dbm;
     return ws_neigh;
@@ -1273,7 +1272,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     mcps_data_req_t data_req;
 
     //Discover Temporary entry
-    ws_neighbor_temp_class_t *temp_neigh = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, message->dst_address);
+    struct ws_neigh *temp_neigh = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, message->dst_address);
 
     if (temp_neigh) {
         message->eapol_temporary = true;
@@ -1451,29 +1450,34 @@ static void ws_llc_clean(llc_data_base_t *base)
     base->high_priority_mode = false;
 }
 
-static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry)
+static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry)
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        ns_list_add_to_end(&base->free_temp_neigh, entry);
+        SLIST_INSERT_HEAD(&base->free_temp_neigh, entry, link);
     }
 }
 
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base)
 {
+    struct ws_neigh *neigh;
+    struct ws_neigh *tmp;
+
     //Empty active list eapol list
-    ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->active_eapol_temp_neigh) {
-        ns_list_remove(&base->active_eapol_temp_neigh, entry);
-        ws_llc_temp_entry_free(base, entry);
+    SLIST_FOREACH_SAFE(neigh, &base->active_eapol_temp_neigh, link, tmp) {
+        SLIST_REMOVE(&base->active_eapol_temp_neigh, neigh, ws_neigh, link);
+        ws_llc_temp_entry_free(base, neigh);
     }
 }
 
-static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64)
+struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64)
 {
-    ns_list_foreach(ws_neighbor_temp_class_t, entry, list) {
-        if (memcmp(entry->mac64, mac64, 8) == 0) {
-            return entry;
+    struct ws_neigh *neigh;
+
+    SLIST_FOREACH(neigh, list, link) {
+        if (memcmp(neigh->mac64, mac64, 8) == 0) {
+            return neigh;
         }
     }
     return NULL;
@@ -1481,12 +1485,12 @@ static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_lis
 
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
-    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
+    struct ws_neigh *neighbor = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (!neighbor) {
         return;
     }
 
-    ns_list_remove(&base->active_eapol_temp_neigh, neighbor);
+    SLIST_REMOVE(&base->active_eapol_temp_neigh, neighbor, ws_neigh, link);
     ws_llc_temp_entry_free(base, neighbor);
 
 }
@@ -1530,7 +1534,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
     }
 }
 
-ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64)
+struct ws_neigh *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1541,34 +1545,31 @@ ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, 
 }
 
 
-static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const uint8_t *mac64)
+static void ws_init_temporary_neigh_data(struct ws_neigh *entry, const uint8_t *mac64)
 {
     //Clear Old data
-    memset(&entry->neigh_info_list, 0, sizeof(ws_neigh_t));
-    entry->neigh_info_list.rsl_in_dbm = NAN;
-    entry->neigh_info_list.rsl_out_dbm = NAN;
+    memset(entry, 0, sizeof(ws_neigh_t) - sizeof(entry->link));
+    entry->rsl_in_dbm = NAN;
+    entry->rsl_out_dbm = NAN;
     memcpy(entry->mac64, mac64, 8);
 }
 
-static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
+static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
     struct llc_data_base *llc_base = container_of(base, struct llc_data_base, temp_entries);
     struct ws_info *ws_info = &llc_base->interface_ptr->ws_info;
 
-    ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
+    struct ws_neigh *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (entry) {
-        entry->neigh_info_list.eapol_temp_info.eapol_timeout = ws_info->temp_eapol_min_timeout + 1;
+        entry->eapol_temp_info.eapol_timeout = ws_info->temp_eapol_min_timeout + 1;
         return entry;
     }
 
-    if (ns_list_count(&base->free_temp_neigh)) {
-        entry = ns_list_get_first(&base->free_temp_neigh);
-        ns_list_remove(&base->free_temp_neigh, entry);
-    }
+    entry = SLIST_POP(&base->free_temp_neigh, link);
 
     //Add to list
     if (entry) {
-        ns_list_add_to_start(&base->active_eapol_temp_neigh, entry);
+        SLIST_INSERT_HEAD(&base->active_eapol_temp_neigh, entry, link);
         //Clear Old data
         ws_init_temporary_neigh_data(entry, mac64);
     }
@@ -1936,26 +1937,29 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    struct ws_neigh *entry;
+    struct ws_neigh *tmp;
+
     if (!base) {
         return;
     }
 
-    ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries.active_eapol_temp_neigh) {
-        if (entry->neigh_info_list.eapol_temp_info.eapol_timeout <= seconds_update) {
-            ns_list_remove(&base->temp_entries.active_eapol_temp_neigh, entry);
-            ns_list_add_to_end(&base->temp_entries.free_temp_neigh, entry);
+    SLIST_FOREACH_SAFE(entry, &base->temp_entries.active_eapol_temp_neigh, link, tmp) {
+        if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
+            SLIST_REMOVE(&base->temp_entries.active_eapol_temp_neigh, entry, ws_neigh, link);
+            SLIST_INSERT_HEAD(&base->temp_entries.free_temp_neigh, entry, link);
         } else {
-            entry->neigh_info_list.eapol_temp_info.eapol_timeout -= seconds_update;
-            if (entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter == 0) {
+            entry->eapol_temp_info.eapol_timeout -= seconds_update;
+            if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
                 //No active filter period
                 continue;
             }
 
             //Update filter time
-            if (entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
-                entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter = 0;
+            if (entry->eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
+                entry->eapol_temp_info.eapol_rx_relay_filter = 0;
             } else {
-                entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
+                entry->eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
             }
         }
     }
@@ -1966,7 +1970,7 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     struct ws_neigh *ws_neigh;
-    struct ws_neighbor_temp_class *tmp_neigh;
+    struct ws_neigh *tmp_neigh;
 
     if (!base)
         return false;
@@ -1980,12 +1984,12 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
         return ws_neigh_duplicate_packet_check(ws_neigh, mac_sequency, rx_timestamp);
     }
 
-    if (tmp_neigh->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter &&
-        tmp_neigh->neigh_info_list.eapol_temp_info.last_rx_mac_sequency == mac_sequency)
+    if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter &&
+        tmp_neigh->eapol_temp_info.last_rx_mac_sequency == mac_sequency)
         return false;
 
-    tmp_neigh->neigh_info_list.eapol_temp_info.last_rx_mac_sequency = mac_sequency;
-    tmp_neigh->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
+    tmp_neigh->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
+    tmp_neigh->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
     return true;
 
 }

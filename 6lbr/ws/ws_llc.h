@@ -74,17 +74,6 @@ struct ws_llc_mngt_req {
     struct mlme_security security;
 };
 
-/**
- * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
- */
-typedef struct ws_neighbor_temp_class {
-    struct ws_neigh neigh_info_list;  /*!< Allocated hopping info array*/
-    uint8_t mac64[8];
-    ns_list_link_t link;
-} ws_neighbor_temp_class_t;
-
-typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
-
 typedef void ws_llc_mngt_ind_cb(struct net_if *net_if, const struct mcps_data_ind *data, const struct mcps_data_rx_ie_list *ie, uint8_t frame_type);
 typedef void ws_llc_mngt_cnf_cb(struct net_if *net_if, uint8_t frame_type);
 
@@ -135,7 +124,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
                                        uint8_t mac_sequency, uint64_t rx_timestamp);
 
-ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64);
+struct ws_neigh *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64);
 
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 

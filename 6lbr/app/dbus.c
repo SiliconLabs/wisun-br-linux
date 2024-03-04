@@ -439,11 +439,11 @@ static int dbus_message_append_node(
 static const ws_neigh_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
                                                                const uint8_t eui64[8])
 {
-    ws_neighbor_temp_class_t *neighbor_ws_tmp;
+    struct ws_neigh *neighbor_ws_tmp;
 
     neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(&ctxt->net_if, eui64);
     if (neighbor_ws_tmp)
-        return &neighbor_ws_tmp->neigh_info_list;
+        return neighbor_ws_tmp;
     return ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
 }
 
