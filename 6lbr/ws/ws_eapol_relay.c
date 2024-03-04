@@ -169,7 +169,6 @@ void ws_eapol_relay_socket_cb(int fd)
 
     // EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
     if (data_len == 9) {
-        ws_eapol_pdu_mpx_eui64_purge(eapol_relay->interface_ptr, socket_pdu);
         free(socket_pdu);
         return;
     }

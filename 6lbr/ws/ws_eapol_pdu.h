@@ -154,16 +154,4 @@ typedef int8_t ws_eapol_pdu_tx_status(struct net_if *interface_ptr, eapol_pdu_tx
  */
 int8_t ws_eapol_pdu_send_to_mpx(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status tx_status, uint8_t tx_identifier);
 
-/**
- *  ws_eapol_pdu_mpx_eui64_purge purge EUI-64 from MPX
- *
- * \param interface_ptr interface
- * \param eui_64 EUI-64 to purge
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_eapol_pdu_mpx_eui64_purge(struct net_if *interface_ptr, const uint8_t *eui_64);
-
 #endif
