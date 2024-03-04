@@ -404,10 +404,18 @@ static int dbus_message_append_node(
                 dbus_message_open_info(m, property, "rssi", "i");
                 sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
                 dbus_message_close_info(m, property);
+            } else if (neighbor->rssi_unsecured != INT_MAX) {
+                dbus_message_open_info(m, property, "rssi", "i");
+                sd_bus_message_append_basic(m, 'i', &neighbor->rssi_unsecured);
+                dbus_message_close_info(m, property);
             }
             if (!isnan(neighbor->rsl_in_dbm)) {
                 dbus_message_open_info(m, property, "rsl", "i");
                 sd_bus_message_append(m, "i", (int)neighbor->rsl_in_dbm);
+                dbus_message_close_info(m, property);
+            } else if (!isnan(neighbor->rsl_in_dbm_unsecured)) {
+                dbus_message_open_info(m, property, "rsl", "i");
+                sd_bus_message_append(m, "i", (int)neighbor->rsl_in_dbm_unsecured);
                 dbus_message_close_info(m, property);
             }
             if (!isnan(neighbor->rsl_out_dbm)) {
@@ -446,7 +454,9 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
 {
     struct ws_neigh neigh = {
         .rssi    = INT_MAX,
+        .rssi_unsecured = INT_MAX,
         .rsl_in_dbm  = NAN,
+        .rsl_in_dbm_unsecured = NAN,
         .rsl_out_dbm = NAN,
         .lqi = INT_MAX,
         .pom_ie.mdr_command_capable = true,

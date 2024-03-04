@@ -53,8 +53,10 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->rsl_in_dbm = NAN;
+    neigh->rsl_in_dbm_unsecured = NAN;
     neigh->rsl_out_dbm = NAN;
     neigh->rssi = INT_MAX;
+    neigh->rssi_unsecured = INT_MAX;
     neigh->lqi = INT_MAX;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);

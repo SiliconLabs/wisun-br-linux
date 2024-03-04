@@ -612,6 +612,8 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         // Calculate RSL for all UDATA packets heard
         ws_neigh->rsl_in_dbm = ws_common_rsl_calc(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm);
         ws_neigh->rssi = data->hif.rx_power_dbm;
+        ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+        ws_neigh->rssi_unsecured = data->hif.rx_power_dbm;
         ws_neigh->lqi = data->hif.lqi;
 
         if (data->Key.SecurityLevel)
@@ -691,6 +693,8 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     // Calculate RSL for all UDATA packets heard
     ws_neigh->rsl_in_dbm = ws_common_rsl_calc(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm);
     ws_neigh->rssi = data->hif.rx_power_dbm;
+    ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rssi_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi = data->hif.lqi;
 
     if (data->Key.SecurityLevel)
@@ -751,7 +755,8 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
         return;
 
     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-    ws_neigh->rssi = data->hif.rx_power_dbm;
+    ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rssi_unsecured = data->hif.rx_power_dbm;
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
@@ -807,7 +812,8 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
         return;
 
     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-    ws_neigh->rssi = data->hif.rx_power_dbm;
+    ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rssi_unsecured = data->hif.rx_power_dbm;
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
