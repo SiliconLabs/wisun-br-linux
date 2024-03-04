@@ -124,8 +124,6 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
                                        uint8_t mac_sequency, uint64_t rx_timestamp);
 
-struct ws_neigh *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64);
-
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 
 const char *tr_ws_frame(uint8_t frame_type);

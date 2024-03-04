@@ -50,10 +50,6 @@
 
 struct ws_neigh *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
 {
-    struct ws_neigh *neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(cur, eui64);
-
-    if (neighbor_ws_tmp)
-        return neighbor_ws_tmp;
     return ws_neigh_get(&cur->ws_info.neighbor_storage, eui64);
 }
 

@@ -1479,12 +1479,6 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
     }
 }
 
-struct ws_neigh *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64)
-{
-    return ws_neigh_get(&interface->ws_info.neighbor_storage, mac64);
-}
-
-
 static void ws_init_temporary_neigh_data(struct ws_neigh *entry, const uint8_t *mac64)
 {
     //Clear Old data
