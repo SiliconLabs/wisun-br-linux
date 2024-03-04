@@ -343,7 +343,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         }
     }
 
-    ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_lus_update(net_if, ws_neigh, &ie_lcp.chan_plan, ie_lus.listen_interval);
     ws_neigh_lnd_update(ws_neigh, &ie_lnd, data->hif.timestamp_us);
@@ -412,7 +412,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
         return;
     }
 
-    ws_neigh_lut_update(ws_neigh, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
         ws_neigh_lus_update(net_if, ws_neigh,

@@ -167,13 +167,13 @@ void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t
     fhss_data->ffn.ufsi             = ufsi;
 }
 
-void ws_neigh_lut_update(ws_neigh_t *neigh,
+void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8])
 {
-    neigh->fhss_data.lfn.lutt_rx_tstamp_us     = tstamp_us;
-    neigh->fhss_data.lfn.uc_slot_number        = slot_number;
-    neigh->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
+    fhss_data->lfn.lutt_rx_tstamp_us     = tstamp_us;
+    fhss_data->lfn.uc_slot_number        = slot_number;
+    fhss_data->lfn.uc_interval_offset_ms = interval_offset;
 }
 
 void ws_neigh_lnd_update(ws_neigh_t *neigh, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
