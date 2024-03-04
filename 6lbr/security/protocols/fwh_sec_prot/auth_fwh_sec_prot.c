@@ -442,7 +442,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 // Reset PTK mismatch
                 sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
                 // Update PTK
-                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->sec_cfg->timer_cfg.ptk_lifetime_s);
+                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->sec_cfg->ptk_lifetime_s);
                 sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             }

@@ -384,7 +384,7 @@ void ws_pae_auth_start(struct net_if *interface_ptr)
     int gtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (gtk_index < 0) {
         // If there is no key, inserts a new one
-        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset, false);
+        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timing_ffn.expire_offset, false);
         gtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->gtks);
         ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     } else {
@@ -395,7 +395,7 @@ void ws_pae_auth_start(struct net_if *interface_ptr)
     int lgtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->lgtks);
     if (lgtk_index < 0) {
         // If there is no key, inserts a new one
-        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->lgtks, pae_auth->lgtks.next_gtks, pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset, true);
+        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->lgtks, pae_auth->lgtks.next_gtks, pae_auth->sec_cfg->timing_lfn.expire_offset, true);
         lgtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->lgtks);
         ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->lgtks, lgtk_index);
     } else {
@@ -496,11 +496,11 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     }
 
     if (is_lgtk) {
-        timer_cfg = &pae_auth->sec_cfg->timer_cfg.lgtk;
+        timer_cfg = &pae_auth->sec_cfg->timing_lfn;
         key_nw_info= pae_auth->sec_keys_nw_info->lgtks;
         key_nw_info_next = pae_auth->lgtks.next_gtks;
     } else {
-        timer_cfg = &pae_auth->sec_cfg->timer_cfg.gtk;
+        timer_cfg = &pae_auth->sec_cfg->timing_ffn;
         key_nw_info= pae_auth->sec_keys_nw_info->gtks;
         key_nw_info_next = pae_auth->gtks.next_gtks;
     }
@@ -707,12 +707,12 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
         keys = pae_auth->sec_keys_nw_info->lgtks;
         pae_auth_gtk = &pae_auth->lgtks;
         active_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->lgtks);
-        timer_gtk_cfg = &pae_auth->sec_cfg->timer_cfg.lgtk;
+        timer_gtk_cfg = &pae_auth->sec_cfg->timing_lfn;
     } else {
         keys = pae_auth->sec_keys_nw_info->gtks;
         pae_auth_gtk = &pae_auth->gtks;
         active_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
-        timer_gtk_cfg = &pae_auth->sec_cfg->timer_cfg.gtk;
+        timer_gtk_cfg = &pae_auth->sec_cfg->timing_ffn;
     }
 
     if (!sec_prot_keys_gtk_is_set(keys, i)) {
@@ -789,8 +789,8 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, s
                                                          pae_auth_gtk_t *pae_auth_gtk, uint8_t gtk_index,
                                                          bool is_lgtk, int seconds)
 {
-    sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
     uint32_t key_lifetime_left = sec_prot_keys_gtk_lifetime_get(keys, gtk_index);
+    const struct sec_timer_gtk_cfg *timing;
     uint32_t decrement_seconds = 0;
     uint32_t key_new_install_threshold;
 
@@ -800,10 +800,8 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, s
     }
     pae_auth_gtk->prev_frame_cnt_timer = FRAME_CNT_TIMER;
 
-    if (is_lgtk)
-        key_new_install_threshold = timer_cfg->lgtk.expire_offset - timer_cfg->lgtk.new_install_req * timer_cfg->lgtk.expire_offset / 100;
-    else
-        key_new_install_threshold = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
+    timing = is_lgtk ? &pae_auth->sec_cfg->timing_lfn : &pae_auth->sec_cfg->timing_ffn;
+    key_new_install_threshold = timing->expire_offset - timing->new_install_req * timing->expire_offset / 100;
 
     if (pae_auth_gtk->frame_counters->counter[gtk_index].frame_counter >= FRAME_CNT_THRESHOLD) {
         if (key_lifetime_left > key_new_install_threshold) {
@@ -1336,7 +1334,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * has been, trigger 4WH to update also the PTK. This prevents writing multiple
              * GTK keys to same index using same PTK.
              */
-            if (pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset > SHORT_LGTK_LIFETIME &&
+            if (pae_auth->sec_cfg->timing_lfn.expire_offset > SHORT_LGTK_LIFETIME &&
                 sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(&sec_keys->lgtks, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
@@ -1360,7 +1358,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * has been, trigger 4WH to update also the PTK. This prevents writing multiple
              * GTK keys to same index using same PTK.
              */
-            if (pae_auth->sec_cfg->timer_cfg.gtk.expire_offset > SHORT_GTK_LIFETIME &&
+            if (pae_auth->sec_cfg->timing_ffn.expire_offset > SHORT_GTK_LIFETIME &&
                     sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(&sec_keys->gtks, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
@@ -1517,10 +1515,10 @@ void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bo
     BUG_ON(!pae_auth);
     if (is_lgtk) {
         keys     = pae_auth->sec_keys_nw_info->lgtks;
-        lifetime = pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset;
+        lifetime = pae_auth->sec_cfg->timing_lfn.expire_offset;
     } else {
         keys     = pae_auth->sec_keys_nw_info->gtks;
-        lifetime = pae_auth->sec_cfg->timer_cfg.gtk.expire_offset;
+        lifetime = pae_auth->sec_cfg->timing_ffn.expire_offset;
     }
     ws_pae_auth_gtk_insert(keys, key, lifetime, is_lgtk);
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);

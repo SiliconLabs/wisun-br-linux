@@ -552,7 +552,11 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct sec_timer_cfg *sec_timer_cfg,
+int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
+                                   uint32_t pmk_lifetime_s,
+                                   uint32_t ptk_lifetime_s,
+                                   const struct sec_timer_gtk_cfg *timing_ffn,
+                                   const struct sec_timer_gtk_cfg *timing_lfn,
                                    const struct sec_prot_cfg *sec_prot_cfg)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -563,9 +567,12 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct se
     if (sec_prot_cfg)
         controller->sec_cfg.prot_cfg = *sec_prot_cfg;
 
-    if (sec_timer_cfg) {
-        controller->sec_cfg.timer_cfg = *sec_timer_cfg;
-    }
+    controller->sec_cfg.pmk_lifetime_s = pmk_lifetime_s;
+    controller->sec_cfg.ptk_lifetime_s = ptk_lifetime_s;
+    BUG_ON(!timing_ffn);
+    controller->sec_cfg.timing_ffn = *timing_ffn;
+    BUG_ON(!timing_lfn);
+    controller->sec_cfg.timing_lfn = *timing_lfn;
 
     controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
     return 0;
@@ -1100,7 +1107,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtk[i]) {
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->gtks.gtks);
-            lifetime += controller->sec_cfg.timer_cfg.gtk.expire_offset;
+            lifetime += controller->sec_cfg.timing_ffn.expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks.gtks, i, gtk[i], lifetime) >= 0) {
                 controller->gtks.gtks_set = true;
                 tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, g_monotonic_time_100ms / 10);
@@ -1143,7 +1150,7 @@ int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[LGTK_NUM
     for (uint8_t i = 0; i < LGTK_NUM; i++) {
         if (lgtk[i]) {
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->lgtks.gtks);
-            lifetime += controller->sec_cfg.timer_cfg.lgtk.expire_offset;
+            lifetime += controller->sec_cfg.timing_lfn.expire_offset;
             if (sec_prot_keys_gtk_set(&controller->lgtks.gtks, i, lgtk[i], lifetime) >= 0) {
                 controller->lgtks.gtks_set = true;
                 tr_info("LGTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, g_monotonic_time_100ms / 10);

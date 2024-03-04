@@ -39,13 +39,6 @@ typedef struct sec_timer_gtk_cfg {
     uint16_t revocat_lifetime_reduct;           /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
 } sec_timer_gtk_cfg_t;
 
-typedef struct sec_timer_cfg {
-    uint32_t pmk_lifetime_s;
-    uint32_t ptk_lifetime_s;
-    struct sec_timer_gtk_cfg gtk;
-    struct sec_timer_gtk_cfg lgtk;
-} sec_timer_cfg_t;
-
 /* Security radius configuration settings */
 
 typedef struct sec_radius_cfg {
@@ -58,7 +51,10 @@ typedef struct sec_radius_cfg {
 
 typedef struct sec_cfg {
     sec_prot_cfg_t prot_cfg;
-    sec_timer_cfg_t timer_cfg;
+    uint32_t pmk_lifetime_s;
+    uint32_t ptk_lifetime_s;
+    struct sec_timer_gtk_cfg timing_ffn;
+    struct sec_timer_gtk_cfg timing_lfn;
     sec_radius_cfg_t *radius_cfg;
 } sec_cfg_t;
 
