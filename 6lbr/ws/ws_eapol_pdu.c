@@ -182,8 +182,6 @@ int8_t ws_eapol_pdu_mpx_eui64_purge(struct net_if *interface_ptr, const uint8_t 
         return -1;
     }
 
-    eapol_pdu_data->mpx_api->mpx_eui64_purge(eapol_pdu_data->mpx_api, eui_64);
-
     return 0;
 }
 

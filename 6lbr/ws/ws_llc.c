@@ -1336,15 +1336,6 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
     }
 }
 
-static void ws_llc_mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *eui64)
-{
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return;
-    }
-    tr_info("LLC purge EAPOL temporary entry: %s", tr_eui64(eui64));
-}
-
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
@@ -1379,7 +1370,6 @@ static void ws_llc_mpx_init(mpx_class_t *mpx_class)
     mpx_class->mpx_api.mpx_headroom_size_get = &ws_llc_mpx_header_size_get;
     mpx_class->mpx_api.mpx_user_registration = &ws_llc_mpx_data_cb_register;
     mpx_class->mpx_api.mpx_data_request = &ws_llc_mpx_data_request;
-    mpx_class->mpx_api.mpx_eui64_purge = &ws_llc_mpx_eui64_purge_request;
 }
 
 static void ws_llc_clean(llc_data_base_t *base)

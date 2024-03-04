@@ -78,21 +78,12 @@ typedef uint16_t mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 typedef int8_t mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
 
 /**
- * @brief mpx_eui64_purge_request Purge EUI-64 related data from MPX
- * @param api The API which handled the response
- * @param eui64 EUI-64 to purge
- *
- */
-typedef void mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *eui64);
-
-/**
  * \brief Struct mpx_api_s defines functions for MPX user for register call backs and send data.
  */
 struct mpx_api {
     mpx_data_request *mpx_data_request;             /**< MPX data request. */
     mpx_header_size_get *mpx_headroom_size_get;     /**< MPX headroom size get in bytes. */
     mpx_data_cb_register *mpx_user_registration;    /**< MPX User cb registration must be call before enable to send or RX data*/
-    mpx_eui64_purge_request *mpx_eui64_purge;       /**< MPX Purge EUI-64 related data */
 };
 
 
