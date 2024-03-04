@@ -345,7 +345,10 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             data->calculating = false;
 
             if (sec_prot_result_ok_check(&data->common)) {
-                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->sec_cfg->pmk_lifetime_s);
+                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk,
+                                        prot->sec_keys->node_role == WS_NR_ROLE_LFN ?
+                                        prot->sec_cfg->timing_lfn.pmk_lifetime_s :
+                                        prot->sec_cfg->timing_ffn.pmk_lifetime_s);
             }
 
             // KMP-FINISHED.indication,
