@@ -437,44 +437,6 @@ bool ws_neigh_lus_update(const struct net_if *net_if,
     return offset_adjusted;
 }
 
-// Wi-SUN FAN 1.1v07 - 3.1 Definitions
-// Exponentially Weighted Moving Average (EWMA).
-//
-// Given a sequence of values X (t=0, 1, 2, 3, …), EWMA(t) is
-// defined as S(X(t)) + (1-S)(EWMA(t-1)).
-//
-// … where …
-//
-// Smoothing Factor 0 < S < 1
-// EWMA (0) = X(0).
-void ws_neigh_rsl_in_dbm_update(ws_neigh_t *neigh, int dbm_heard)
-{
-    // EWMA (0) = X(0).
-    if (isnan(neigh->rsl_in_dbm)) {
-        neigh->rsl_in_dbm = dbm_heard;
-        return;
-    }
-
-    // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
-    // RSL_EWMA_SF = 1/8
-    neigh->rsl_in_dbm = (dbm_heard + 7 * neigh->rsl_in_dbm) / 8;
-    neigh->rssi = dbm_heard;
-}
-
-void ws_neigh_rsl_out_dbm_update(ws_neigh_t *neigh, int advertised_dbm)
-{
-    // EWMA (0) = X(0).
-    if (isnan(neigh->rsl_out_dbm)) {
-        neigh->rsl_out_dbm = advertised_dbm;
-        return;
-    }
-
-    // Wi-SUN FAN 1.1v07 - 6.2.1 Constants
-    // RSL_EWMA_SF = 1/8
-    neigh->rsl_out_dbm = (advertised_dbm + 7 * neigh->rsl_out_dbm) / 8;
-}
-
-
 bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)
 {
     if (neigh->last_DSN != mac_dsn) {
