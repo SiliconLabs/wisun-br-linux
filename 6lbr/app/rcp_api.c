@@ -27,6 +27,10 @@
 
 uint8_t rcp_rx_buf[4096];
 
+// See IEEE 802.15.4-2020 - 6.16.2.8 Received Signal Strength Indicator (RSSI)
+// [...] the minimum and maximum values are 0 (–174 dBm) and 254 (80 dBm)
+#define RX_POWER_DBM_MAX 80
+
 static void rcp_tx(struct rcp *rcp, struct iobuf_write *buf)
 {
     BUG_ON(!buf->len);
@@ -237,6 +241,7 @@ static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
     ind.phy_mode_id  = hif_pop_u8(buf);
     ind.chan_num     = hif_pop_u16(buf);
     BUG_ON(buf->err);
+    BUG_ON(ind.rx_power_dbm > RX_POWER_DBM_MAX);
     rcp->on_rx_ind(rcp, &ind);
 }
 
