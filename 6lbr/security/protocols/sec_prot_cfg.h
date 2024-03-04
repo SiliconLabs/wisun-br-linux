@@ -56,14 +56,9 @@ typedef struct sec_radius_cfg {
     bool radius_addr_set : 1;                        /**< Radius server address is set */
 } sec_radius_cfg_t;
 
-typedef struct sec_timing_cfg {
-    uint16_t temp_eapol_min_timeout;                 /**< Temporary neighbor link minimum timeout; seconds; default 330 */
-} sec_timing_cfg_t;
-
 typedef struct sec_cfg {
     sec_prot_cfg_t prot_cfg;
     sec_timer_cfg_t timer_cfg;
-    sec_timing_cfg_t timing_cfg;
     sec_radius_cfg_t *radius_cfg;
 } sec_cfg_t;
 

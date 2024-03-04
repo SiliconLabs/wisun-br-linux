@@ -42,7 +42,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_trickle_params.k = 0,
         .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
-        .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
     [WS_NETWORK_SIZE_SMALL] = {
         // Misc
@@ -68,7 +67,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_trickle_params.k = 0,
         .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
-        .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
     [WS_NETWORK_SIZE_MEDIUM] = {
         // Misc
@@ -94,7 +92,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_trickle_params.k = 0,
         .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
         .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
-        .security_protocol_timings.temp_eapol_min_timeout = 330,
     },
     [WS_NETWORK_SIZE_LARGE] = {
         // Misc
@@ -120,7 +117,6 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_trickle_params.k = 0,
         .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
         .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
-        .security_protocol_timings.temp_eapol_min_timeout = 750,
     },
     [WS_NETWORK_SIZE_XLARGE] = {
         // Misc
@@ -146,6 +142,5 @@ const struct wsbr_cfg size_params[5] = {
         .security_protocol_config.sec_prot_trickle_params.k = 0,
         .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
         .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
-        .security_protocol_timings.temp_eapol_min_timeout = 750,
     },
 };

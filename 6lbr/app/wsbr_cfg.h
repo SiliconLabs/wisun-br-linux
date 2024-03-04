@@ -35,7 +35,6 @@ struct wsbr_cfg {
     struct trickle_params trickle_mpl;
     uint16_t mpl_seed_set_entry_lifetime;
 
-    struct sec_timing_cfg security_protocol_timings;
     struct sec_prot_cfg security_protocol_config;
 };
 

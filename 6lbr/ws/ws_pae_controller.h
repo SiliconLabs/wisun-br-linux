@@ -85,7 +85,7 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr);
  *
  */
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct sec_timer_cfg *sec_timer_cfg,
-                                   const struct sec_prot_cfg *sec_prot_cfg, const struct sec_timing_cfg *timing_cfg);
+                                   const struct sec_prot_cfg *sec_prot_cfg);
 
 /**
  * ws_pae_controller_init initializes PAE authenticator

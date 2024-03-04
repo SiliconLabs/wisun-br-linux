@@ -344,7 +344,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
     mlme_status = mlme_status_from_hif(confirm->hif.status);
     if (msg->eapol_temporary && mlme_status == MLME_SUCCESS)
-        ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+        ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
     if (mpx_usr && mpx_usr->data_confirm) {
@@ -724,7 +724,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
         return ws_neigh;
 
     ws_neigh = ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, node_role);
-    ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     return ws_neigh;
 }
 
@@ -761,7 +761,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     ws_neigh->rssi = data->hif.rx_power_dbm;
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
@@ -817,7 +817,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     ws_neigh->rssi = data->hif.rx_power_dbm;
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))

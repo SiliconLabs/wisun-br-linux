@@ -554,7 +554,7 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
 }
 
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct sec_timer_cfg *sec_timer_cfg,
-                                   const struct sec_prot_cfg *sec_prot_cfg, const struct sec_timing_cfg *timing_cfg)
+                                   const struct sec_prot_cfg *sec_prot_cfg)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (controller == NULL) {
@@ -569,10 +569,6 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr, const struct se
     }
 
     controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
-
-    if (timing_cfg)
-        controller->sec_cfg.timing_cfg = *timing_cfg;
-
     return 0;
 }
 
