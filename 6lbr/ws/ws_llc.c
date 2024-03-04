@@ -171,7 +171,6 @@ static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
-static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64);
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
 
 
@@ -575,9 +574,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
-    if (data->Key.SecurityLevel)
-        ws_llc_release_eapol_temp_entry(base, data->SrcAddr);
-
     add_neighbor = false;
     ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
 
@@ -666,9 +662,6 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
         if (!ws_ie_validate_lcp(&base->interface_ptr->ws_info, &ie_lcp))
             return;
     }
-
-    if (data->Key.SecurityLevel)
-        ws_llc_release_eapol_temp_entry(base, data->SrcAddr);
 
     ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, data->SrcAddr);
     if (!ws_neigh) {
@@ -843,8 +836,6 @@ static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *
         TRACE(TR_DROP, "drop %-9s: missing WP-IE", tr_ws_frame(frame_type));
         return;
     }
-
-    ws_llc_release_eapol_temp_entry(base, data->SrcAddr);
 
     ie_list.headerIeList = ie_ext->headerIeList,
     ie_list.headerIeListLength = ie_ext->headerIeListLength;
@@ -1352,7 +1343,6 @@ static void ws_llc_mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *
         return;
     }
     tr_info("LLC purge EAPOL temporary entry: %s", tr_eui64(eui64));
-    ws_llc_release_eapol_temp_entry(base, eui64);
 }
 
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id)
@@ -1413,14 +1403,6 @@ static void ws_llc_clean(llc_data_base_t *base)
 
     //Disable High Priority mode
     base->high_priority_mode = false;
-}
-
-static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64)
-{
-    struct ws_neigh *neighbor = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, mac64);
-    if (!neighbor) {
-        return;
-    }
 }
 
 #define MS_FALLBACK_MIN_SAMPLE 50
