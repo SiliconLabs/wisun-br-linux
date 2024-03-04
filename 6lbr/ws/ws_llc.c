@@ -350,10 +350,17 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message *msg,
                                  const struct mcps_data_cnf *confirm)
 {
+    struct ws_neigh *ws_neigh = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
+    uint8_t mlme_status;
 
+    BUG_ON(!ws_neigh);
     base->temp_entries.active_eapol_session = false;
+
+    mlme_status = mlme_status_from_hif(confirm->hif.status);
+    if (msg->eapol_temporary && mlme_status == MLME_SUCCESS)
+        ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
     if (mpx_usr && mpx_usr->data_confirm) {
@@ -436,12 +443,10 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
 {
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neigh *ws_neigh = NULL;
-    struct ws_neigh *neighbor_tmp;
     struct mcps_data_cnf data_cpy = *data;
     struct llc_data_base *base;
     struct llc_message *msg;
     time_t tx_confirm_duration;
-    uint8_t mlme_status;
 
     base = ws_llc_discover_by_interface(net_if);
     if (!base)
@@ -462,7 +467,6 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
             if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
                 data_cpy.hif.status = HIF_STATUS_NOACK;
-                mlme_status = MLME_COUNTER_ERROR;
                 TRACE(TR_TX_ABORT, "tx-abort %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
                       "15.4", data_cpy.sec.KeyIndex, data_cpy.sec.frame_counter,
                       ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1]);
@@ -472,13 +476,6 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
         }
 
         ws_llc_rate_handle_tx_conf(base, data, ws_neigh);
-    }
-
-    mlme_status = mlme_status_from_hif(data->hif.status);
-    if (msg->eapol_temporary && mlme_status == MLME_SUCCESS) {
-        neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
-        if (neighbor_tmp)
-            neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     }
 
     tx_confirm_duration = time_get_elapsed(CLOCK_MONOTONIC, msg->tx_time);
