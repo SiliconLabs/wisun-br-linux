@@ -127,7 +127,6 @@ typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct temp_entriest {
     struct ws_neigh                 neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
-    struct ws_neigh_list            free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
@@ -322,16 +321,8 @@ static llc_data_base_t *ws_llc_base_allocate(void)
         return NULL;
     }
     memset(base, 0, sizeof(llc_data_base_t));
-    SLIST_INIT(&base->temp_entries.free_temp_neigh);
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
-
-    //Add to free list to full from static
-    for (int i = 0; i < MAX_NEIGH_TEMPORARY_EAPOL_SIZE; i++)
-        SLIST_INSERT_HEAD(&base->temp_entries.free_temp_neigh,
-                           &base->temp_entries.neighbour_temporary_table[i], link);
-
     ns_list_init(&base->llc_message_list);
-
     ns_list_add_to_end(&llc_data_base_list, base);
     return base;
 }
