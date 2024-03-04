@@ -127,7 +127,6 @@ typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct temp_entriest {
     struct ws_neigh                 neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
-    struct ws_neigh_list            active_eapol_temp_neigh;
     struct ws_neigh_list            free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
@@ -176,7 +175,6 @@ static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
-static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
 static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64, uint8_t node_role);
 static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry);
 static struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64);
@@ -325,7 +323,6 @@ static llc_data_base_t *ws_llc_base_allocate(void)
         return NULL;
     }
     memset(base, 0, sizeof(llc_data_base_t));
-    SLIST_INIT(&base->temp_entries.active_eapol_temp_neigh);
     SLIST_INIT(&base->temp_entries.free_temp_neigh);
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
 
@@ -1442,7 +1439,6 @@ static void ws_llc_clean(llc_data_base_t *base)
     base->temp_entries.active_eapol_session = false;
     memset(&base->ie_params, 0, sizeof(llc_ie_params_t));
 
-    ws_llc_temp_neigh_info_table_reset(&base->temp_entries);
     //Disable High Priority mode
     base->high_priority_mode = false;
 }
@@ -1452,19 +1448,6 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
         SLIST_INSERT_HEAD(&base->free_temp_neigh, entry, link);
-    }
-}
-
-
-static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base)
-{
-    struct ws_neigh *neigh;
-    struct ws_neigh *tmp;
-
-    //Empty active list eapol list
-    SLIST_FOREACH_SAFE(neigh, &base->active_eapol_temp_neigh, link, tmp) {
-        SLIST_REMOVE(&base->active_eapol_temp_neigh, neigh, ws_neigh, link);
-        ws_llc_temp_entry_free(base, neigh);
     }
 }
 
@@ -1571,7 +1554,6 @@ int8_t ws_llc_create(struct net_if *interface,
     base->mngt_cnf = mngt_cnf;
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
-    ws_llc_temp_neigh_info_table_reset(&base->temp_entries);
     return 0;
 }
 
