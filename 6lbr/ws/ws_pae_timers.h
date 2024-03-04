@@ -32,16 +32,4 @@
  */
 void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, const struct sec_timer_cfg *new_timer_settings);
 
-/**
- *  ws_pae_timers_gtk_new_install_required GTK new install required check
- *
- * \param sec_cfg security configuration
- * \param seconds elapsed seconds
- *
- * \return true new GTK install required expired
- * \return false GTK install not required
- *
- */
-bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *sec_cfg, uint32_t seconds);
-
 #endif

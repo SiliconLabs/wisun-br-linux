@@ -724,21 +724,21 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
         gtk_lifetime_dec_extra_seconds = ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth, keys, pae_auth_gtk, i, is_lgtk, seconds);
     uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(keys, i, current_time, seconds + gtk_lifetime_dec_extra_seconds, true);
     if (active_index == i) {
-        if (!pae_auth_gtk->gtk_new_inst_req_exp) {
-            pae_auth_gtk->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(timer_gtk_cfg, timer_seconds);
-            if (pae_auth_gtk->gtk_new_inst_req_exp) {
-                int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(keys);
-                if (second_index < 0) {
-                    tr_info("%s new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"",
-                            is_lgtk ? "LGTK" : "GTK", active_index, timer_seconds, g_monotonic_time_100ms / 10);
-                    ws_pae_auth_gtk_key_insert(keys, pae_auth_gtk->next_gtks, timer_gtk_cfg->expire_offset, is_lgtk);
-                    ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
-                    // Update keys to NVM as needed
-                    pae_auth->nw_info_updated(pae_auth->interface_ptr);
-                } else {
-                    tr_info("%s new install already done; second index: %i, time: %"PRIu32", system time: %"PRIu32"",
-                            is_lgtk ? "LGTK" : "GTK", second_index, timer_seconds, g_monotonic_time_100ms / 10);
-                }
+        if (!pae_auth_gtk->gtk_new_inst_req_exp &&
+            timer_gtk_cfg->new_install_req > 0 &&
+            timer_gtk_cfg->expire_offset - timer_gtk_cfg->new_install_req * timer_gtk_cfg->expire_offset / 100 > timer_seconds) {
+            pae_auth_gtk->gtk_new_inst_req_exp = true;
+            int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(keys);
+            if (second_index < 0) {
+                tr_info("%s new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"",
+                        is_lgtk ? "LGTK" : "GTK", active_index, timer_seconds, g_monotonic_time_100ms / 10);
+                ws_pae_auth_gtk_key_insert(keys, pae_auth_gtk->next_gtks, timer_gtk_cfg->expire_offset, is_lgtk);
+                ws_pae_auth_network_keys_from_gtks_set(pae_auth, is_lgtk);
+                // Update keys to NVM as needed
+                pae_auth->nw_info_updated(pae_auth->interface_ptr);
+            } else {
+                tr_info("%s new install already done; second index: %i, time: %"PRIu32", system time: %"PRIu32"",
+                        is_lgtk ? "LGTK" : "GTK", second_index, timer_seconds, g_monotonic_time_100ms / 10);
             }
         }
 

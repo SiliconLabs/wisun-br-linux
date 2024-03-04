@@ -62,10 +62,3 @@ static void ws_pae_timers_calculate(struct sec_timer_gtk_cfg *timer_gtk_settings
     tr_info("(L)GTK timers revocation lifetime: %"PRIu32", new activation time: %"PRIu32", time to update: %"PRIu32"",
             gtk_revocation_lifetime, new_gtk_activation_time, time_to_gtk_update);
 }
-
-bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds)
-{
-    uint32_t gtk_new_install_req_seconds = timer_gtk_cfg->expire_offset - timer_gtk_cfg->new_install_req * timer_gtk_cfg->expire_offset / 100;
-
-    return timer_gtk_cfg->new_install_req > 0 && seconds < gtk_new_install_req_seconds;
-}
