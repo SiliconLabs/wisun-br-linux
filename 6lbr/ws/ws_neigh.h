@@ -79,8 +79,8 @@ typedef struct ws_neigh {
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
     uint8_t last_DSN;
-    int rssi;
-    int rssi_unsecured;
+    int rx_power_dbm;
+    int rx_power_dbm_unsecured;
     int lqi;
     int lqi_unsecured;
     bool unicast_data_rx : 1;

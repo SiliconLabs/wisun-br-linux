@@ -55,8 +55,8 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     neigh->rsl_in_dbm = NAN;
     neigh->rsl_in_dbm_unsecured = NAN;
     neigh->rsl_out_dbm = NAN;
-    neigh->rssi = INT_MAX;
-    neigh->rssi_unsecured = INT_MAX;
+    neigh->rx_power_dbm = INT_MAX;
+    neigh->rx_power_dbm_unsecured = INT_MAX;
     neigh->lqi = INT_MAX;
     neigh->lqi_unsecured = INT_MAX;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
