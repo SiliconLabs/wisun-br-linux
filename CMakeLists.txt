@@ -174,7 +174,6 @@ add_library(libwsbrd STATIC
     6lbr/ws/ws_pae_controller.c
     6lbr/ws/ws_pae_key_storage.c
     6lbr/ws/ws_pae_lib.c
-    6lbr/ws/ws_pae_timers.c
     6lbr/ipv6/icmpv6.c
     6lbr/ipv6/ipv6.c
     6lbr/ipv6/ipv6_resolution.c

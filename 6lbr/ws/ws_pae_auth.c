@@ -49,7 +49,6 @@
 #include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"
-#include "ws/ws_pae_timers.h"
 #include "ws/ws_pae_lib.h"
 #include "ws/ws_pae_key_storage.h"
 

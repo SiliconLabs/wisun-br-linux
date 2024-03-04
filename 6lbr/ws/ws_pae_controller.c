@@ -44,7 +44,6 @@
 #include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"
-#include "ws/ws_pae_timers.h"
 #include "ws/ws_pae_auth.h"
 #include "ws/ws_pae_key_storage.h"
 

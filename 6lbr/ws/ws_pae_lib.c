@@ -31,7 +31,6 @@
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "ws/ws_config.h"
-#include "ws/ws_pae_timers.h"
 #include "ws/ws_pae_key_storage.h"
 
 #include "ws/ws_pae_lib.h"
