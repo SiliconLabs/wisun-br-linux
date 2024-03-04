@@ -473,7 +473,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
     if (msg->eapol_temporary && mlme_status == MLME_SUCCESS) {
         neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries.active_eapol_temp_neigh, msg->dst_address);
         if (neighbor_tmp)
-            neighbor_tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+            neighbor_tmp->neigh_info_list.eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     }
 
     tx_confirm_duration = time_get_elapsed(CLOCK_MONOTONIC, msg->tx_time);
@@ -745,7 +745,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
     }
 
     ws_neigh = &tmp->neigh_info_list;
-    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
+    ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     ws_neigh->rssi = data->hif.rx_power_dbm;
     return ws_neigh;
 }
@@ -1542,7 +1542,6 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
     entry->neigh_info_list.rsl_in_dbm = NAN;
     entry->neigh_info_list.rsl_out_dbm = NAN;
     memcpy(entry->mac64, mac64, 8);
-    entry->eapol_temp_info.eapol_rx_relay_filter = 0;
 }
 
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
@@ -1552,7 +1551,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
 
     ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (entry) {
-        entry->eapol_temp_info.eapol_timeout = ws_info->temp_eapol_min_timeout + 1;
+        entry->neigh_info_list.eapol_temp_info.eapol_timeout = ws_info->temp_eapol_min_timeout + 1;
         return entry;
     }
 
@@ -1934,21 +1933,21 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
     }
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries.active_eapol_temp_neigh) {
-        if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
+        if (entry->neigh_info_list.eapol_temp_info.eapol_timeout <= seconds_update) {
             ns_list_remove(&base->temp_entries.active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries.free_temp_neigh, entry);
         } else {
-            entry->eapol_temp_info.eapol_timeout -= seconds_update;
-            if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
+            entry->neigh_info_list.eapol_temp_info.eapol_timeout -= seconds_update;
+            if (entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter == 0) {
                 //No active filter period
                 continue;
             }
 
             //Update filter time
-            if (entry->eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
-                entry->eapol_temp_info.eapol_rx_relay_filter = 0;
+            if (entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
+                entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter = 0;
             } else {
-                entry->eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
+                entry->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
             }
         }
     }
@@ -1973,11 +1972,12 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
         return ws_neigh_duplicate_packet_check(ws_neigh, mac_sequency, rx_timestamp);
     }
 
-    if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter && tmp_neigh->eapol_temp_info.last_rx_mac_sequency == mac_sequency)
+    if (tmp_neigh->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter &&
+        tmp_neigh->neigh_info_list.eapol_temp_info.last_rx_mac_sequency == mac_sequency)
         return false;
 
-    tmp_neigh->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
-    tmp_neigh->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
+    tmp_neigh->neigh_info_list.eapol_temp_info.last_rx_mac_sequency = mac_sequency;
+    tmp_neigh->neigh_info_list.eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
     return true;
 
 }

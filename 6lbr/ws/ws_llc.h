@@ -74,18 +74,11 @@ struct ws_llc_mngt_req {
     struct mlme_security security;
 };
 
-typedef struct eapol_temporary_info {
-    uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
-    uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
-    uint16_t eapol_timeout; /*!< EAPOL relay Temporary entry lifetime */
-} eapol_temporary_info_t;
-
 /**
  * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
  */
 typedef struct ws_neighbor_temp_class {
     struct ws_neigh neigh_info_list;  /*!< Allocated hopping info array*/
-    eapol_temporary_info_t eapol_temp_info;
     uint8_t mac64[8];
     ns_list_link_t link;
 } ws_neighbor_temp_class_t;

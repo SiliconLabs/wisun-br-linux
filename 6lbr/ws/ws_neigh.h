@@ -64,6 +64,12 @@ struct fhss_ws_neighbor_timing_info {
     struct ws_channel_mask uc_channel_list;          // Neighbor unicast channel list
 };
 
+typedef struct eapol_temporary_info {
+    uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
+    uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
+    uint16_t eapol_timeout; /*!< EAPOL relay Temporary entry lifetime */
+} eapol_temporary_info_t;
+
 typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
@@ -84,6 +90,7 @@ typedef struct ws_neigh {
     uint32_t ms_tx_count;                                  /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t ms_retries_count;                             /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
+    struct eapol_temporary_info eapol_temp_info;
     SLIST_ENTRY(ws_neigh) link;
 } ws_neigh_t;
 
