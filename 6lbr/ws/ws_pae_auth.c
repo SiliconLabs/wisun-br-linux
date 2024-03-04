@@ -742,7 +742,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
             }
         }
 
-        if (ws_pae_timers_gtk_new_activation_time(timer_gtk_cfg, timer_seconds)) {
+        if (timer_gtk_cfg->expire_offset / timer_gtk_cfg->new_act_time > timer_seconds) {
             int8_t new_active_index = ws_pae_auth_new_gtk_activate(keys);
             tr_info("%s new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"",
                     is_lgtk ? "LGTK" : "GTK", active_index, timer_seconds, new_active_index, g_monotonic_time_100ms / 10);

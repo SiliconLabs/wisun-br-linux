@@ -44,16 +44,4 @@ void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, const struct s
  */
 bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *sec_cfg, uint32_t seconds);
 
-/**
- *  ws_pae_timers_gtk_new_activation_time GTK new activation time
- *
- * \param sec_cfg security configuration
- * \param seconds elapsed seconds
- *
- * \return true GTK new activation time expired
- * \return false GTK new activation time not expired
- *
- */
-bool ws_pae_timers_gtk_new_activation_time(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds);
-
 #endif
