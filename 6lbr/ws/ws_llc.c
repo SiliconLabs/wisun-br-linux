@@ -173,7 +173,6 @@ static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
-static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64, uint8_t node_role);
 static struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64);
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
@@ -725,7 +724,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
     if (ws_neigh)
         return ws_neigh;
 
-    ws_neigh = ws_allocate_eapol_temp_entry(&base->temp_entries, data->SrcAddr, node_role);
+    ws_neigh = ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, node_role);
     ws_neigh->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.temp_eapol_min_timeout + 1;
     return ws_neigh;
 }
@@ -1506,13 +1505,6 @@ static void ws_init_temporary_neigh_data(struct ws_neigh *entry, const uint8_t *
     entry->rsl_in_dbm = NAN;
     entry->rsl_out_dbm = NAN;
     memcpy(entry->mac64, mac64, 8);
-}
-
-static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64, uint8_t node_role)
-{
-    struct llc_data_base *llc_base = container_of(base, struct llc_data_base, temp_entries);
-
-    return ws_bootstrap_neighbor_add(llc_base->interface_ptr, mac64, node_role);
 }
 
 int8_t ws_llc_create(struct net_if *interface,
