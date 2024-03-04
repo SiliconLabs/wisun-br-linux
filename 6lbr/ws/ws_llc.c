@@ -421,8 +421,12 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
     if (!ws_neigh)
         return false;
 
-    if (ws_neigh->node_role == WS_NR_ROLE_LFN)
-        return tx_confirm_duration * 1000 >= ws_neigh->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN) {
+        if (ws_neigh->fhss_data.lfn.uc_listen_interval_ms)
+            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+        else
+            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+    }
     return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
 
@@ -785,9 +789,9 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us)
-        ws_neigh_us_update(base->interface_ptr, &ws_neigh->fhss_data, &ie_us.chan_plan,
+        ws_neigh_us_update(base->interface_ptr, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
@@ -838,10 +842,10 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
-    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                         data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 
@@ -1161,6 +1165,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
     data_req.phy_id = ws_llc_mdr_phy_mode_get(base, data);
+    data_req.frame_type = WS_FT_DATA;
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {
         data_req.SeqNumSuppressed = true;
@@ -1259,6 +1264,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msdu = NULL;
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
+    data_req->frame_type = message->message_type;
     ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
 }
 
@@ -1781,6 +1787,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
     data_req.ExtendedFrameExchange = false;
+    data_req.frame_type = request->frame_type;
     if (request->frame_type == WS_FT_PAS)
         data_req.PanIdSuppressed = true;
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
@@ -1807,6 +1814,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
         .PanIdSuppressed  = true,
         .SrcAddrMode = MAC_ADDR_MODE_64_BIT,
         .DstAddrMode = dst ? MAC_ADDR_MODE_64_BIT : MAC_ADDR_MODE_NONE,
+        .frame_type = req->frame_type,
         .Key = req->security,
     };
     llc_message_t *msg;

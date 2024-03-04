@@ -75,6 +75,7 @@ struct lto_info {
 
 typedef struct ws_neigh {
     struct fhss_ws_neighbor_timing_info fhss_data;
+    struct fhss_ws_neighbor_timing_info fhss_data_unsecured;
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
     uint8_t last_DSN;

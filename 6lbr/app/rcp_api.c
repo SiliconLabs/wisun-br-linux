@@ -105,7 +105,8 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
-                     const struct ws_neigh *neigh,
+                     const struct fhss_ws_neighbor_timing_info *fhss_data,
+                     const uint32_t frame_counters_min[7],
                      const struct hif_rate_info rate_list[4])
 {
     struct iobuf_write buf = { };
@@ -123,22 +124,22 @@ void rcp_req_data_tx(struct rcp *rcp,
     bitfield |= FIELD_PREP(HIF_MASK_FHSS_TYPE, fhss_type);
     switch (fhss_type) {
     case HIF_FHSS_TYPE_FFN_UC:
-        BUG_ON(!neigh);
-        BUG_ON(!neigh->fhss_data.ffn.uc_dwell_interval_ms);
-        hif_push_u64(&buf, neigh->fhss_data.ffn.utt_rx_tstamp_us);
-        hif_push_u24(&buf, neigh->fhss_data.ffn.ufsi);
-        hif_push_u8(&buf, neigh->fhss_data.ffn.uc_dwell_interval_ms);
+        BUG_ON(!fhss_data);
+        BUG_ON(!fhss_data->ffn.uc_dwell_interval_ms);
+        hif_push_u64(&buf, fhss_data->ffn.utt_rx_tstamp_us);
+        hif_push_u24(&buf, fhss_data->ffn.ufsi);
+        hif_push_u8(&buf, fhss_data->ffn.uc_dwell_interval_ms);
         break;
     case HIF_FHSS_TYPE_FFN_BC:
         bitfield |= HIF_MASK_FHSS_DEFAULT;
         break;
     case HIF_FHSS_TYPE_LFN_UC:
-        BUG_ON(!neigh);
-        BUG_ON(!neigh->fhss_data.lfn.uc_listen_interval_ms);
-        hif_push_u64(&buf, neigh->fhss_data.lfn.lutt_rx_tstamp_us);
-        hif_push_u16(&buf, neigh->fhss_data.lfn.uc_slot_number);
-        hif_push_u24(&buf, neigh->fhss_data.lfn.uc_interval_offset_ms);
-        hif_push_u24(&buf, neigh->fhss_data.lfn.uc_listen_interval_ms);
+        BUG_ON(!fhss_data);
+        BUG_ON(!fhss_data->lfn.uc_listen_interval_ms);
+        hif_push_u64(&buf, fhss_data->lfn.lutt_rx_tstamp_us);
+        hif_push_u16(&buf, fhss_data->lfn.uc_slot_number);
+        hif_push_u24(&buf, fhss_data->lfn.uc_interval_offset_ms);
+        hif_push_u24(&buf, fhss_data->lfn.uc_listen_interval_ms);
         break;
     case HIF_FHSS_TYPE_LFN_BC:
         bitfield |= HIF_MASK_FHSS_DEFAULT;
@@ -147,39 +148,39 @@ void rcp_req_data_tx(struct rcp *rcp,
         bitfield |= HIF_MASK_FHSS_DEFAULT;
         break;
     case HIF_FHSS_TYPE_LFN_PA:
-        BUG_ON(!neigh);
-        BUG_ON(!neigh->fhss_data.lfn.lpa_slot_duration_ms);
-        hif_push_u64(&buf, neigh->fhss_data.lfn.lnd_rx_tstamp_us);
-        hif_push_u32(&buf, neigh->fhss_data.lfn.lpa_response_delay_ms);
-        hif_push_u8(&buf,  neigh->fhss_data.lfn.lpa_slot_duration_ms);
-        hif_push_u8(&buf,  neigh->fhss_data.lfn.lpa_slot_count);
-        hif_push_u16(&buf, neigh->fhss_data.lfn.lpa_slot_first);
+        BUG_ON(!fhss_data);
+        BUG_ON(!fhss_data->lfn.lpa_slot_duration_ms);
+        hif_push_u64(&buf, fhss_data->lfn.lnd_rx_tstamp_us);
+        hif_push_u32(&buf, fhss_data->lfn.lpa_response_delay_ms);
+        hif_push_u8(&buf,  fhss_data->lfn.lpa_slot_duration_ms);
+        hif_push_u8(&buf,  fhss_data->lfn.lpa_slot_count);
+        hif_push_u16(&buf, fhss_data->lfn.lpa_slot_first);
         break;
     default:
         BUG();
     }
     if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
-        hif_push_u8(&buf, neigh->fhss_data.uc_chan_func);
-        switch (neigh->fhss_data.uc_chan_func) {
+        hif_push_u8(&buf, fhss_data->uc_chan_func);
+        switch (fhss_data->uc_chan_func) {
         case WS_CHAN_FUNC_FIXED:
-            hif_push_u16(&buf, neigh->fhss_data.uc_chan_fixed);
+            hif_push_u16(&buf, fhss_data->uc_chan_fixed);
             break;
         case WS_CHAN_FUNC_DH1CF: {
-            uint8_t chan_mask_len = roundup(neigh->fhss_data.uc_chan_count, 8) / 8;
+            uint8_t chan_mask_len = roundup(fhss_data->uc_chan_count, 8) / 8;
 
             hif_push_u8(&buf, chan_mask_len);
-            hif_push_fixed_u8_array(&buf, neigh->fhss_data.uc_channel_list.channel_mask, chan_mask_len);
+            hif_push_fixed_u8_array(&buf, fhss_data->uc_channel_list.channel_mask, chan_mask_len);
             break;
         }
         default:
             BUG();
         }
     }
-    if (neigh) {
-        for (uint8_t i = 0; i < ARRAY_SIZE(neigh->frame_counter_min); i++) {
-            if (neigh->frame_counter_min[i] != UINT32_MAX) {
+    if (frame_counters_min) {
+        for (uint8_t i = 0; i < 7; i++) {
+            if (frame_counters_min[i] != UINT32_MAX) {
                 bitfield |= FIELD_PREP(HIF_MASK_FRAME_COUNTERS, 1u << i);
-                hif_push_u32(&buf, neigh->frame_counter_min[i]);
+                hif_push_u32(&buf, frame_counters_min[i]);
             }
         }
     }

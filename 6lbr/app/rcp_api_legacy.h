@@ -68,6 +68,7 @@ typedef struct mcps_data_req {
     struct mlme_security Key;       /**< Security key */
     uint8_t phy_id;
     uint8_t fhss_type;              /**< FHSS policy to send that frame */
+    uint8_t frame_type;
 } mcps_data_req_t;
 
 // Used by rcp_legacy_tx_req_legacy()

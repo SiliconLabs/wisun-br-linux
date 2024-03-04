@@ -223,8 +223,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(net_if, &ws_neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_us_update(net_if, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval, data->SrcAddr);
 }
 
 static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
@@ -343,11 +343,11 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         }
     }
 
-    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(net_if, &ws_neigh->fhss_data, &ie_lcp.chan_plan,
+    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(net_if, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
                                                              ie_lus.listen_interval, &ws_neigh->lto_info);
-    ws_neigh_lnd_update(&ws_neigh->fhss_data, &ie_lnd, data->hif.timestamp_us);
+    ws_neigh_lnd_update(&ws_neigh->fhss_data_unsecured, &ie_lnd, data->hif.timestamp_us);
 
     ws_neigh_nr_update(ws_neigh, &ie_nr);
 
@@ -413,10 +413,10 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
         return;
     }
 
-    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
+    ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(net_if, &ws_neigh->fhss_data,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(net_if, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 
