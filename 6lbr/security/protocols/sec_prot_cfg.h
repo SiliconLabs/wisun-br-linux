@@ -34,6 +34,7 @@ typedef struct sec_prot_cfg {
 
 struct sec_timing {
     uint32_t pmk_lifetime_s;
+    uint32_t ptk_lifetime_s;
     uint32_t expire_offset;                     /* GTK lifetime; LGTK_EXPIRE_OFFSET (seconds) */
     uint16_t new_act_time;                      /* GTK_NEW_ACTIVATION_TIME (1/X of expire offset) */
     uint8_t  new_install_req;                   /* GTK_NEW_INSTALL_REQUIRED (percent of LGTK lifetime) */
@@ -52,7 +53,6 @@ typedef struct sec_radius_cfg {
 
 typedef struct sec_cfg {
     sec_prot_cfg_t prot_cfg;
-    uint32_t ptk_lifetime_s;
     struct sec_timing timing_ffn;
     struct sec_timing timing_lfn;
     sec_radius_cfg_t *radius_cfg;

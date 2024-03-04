@@ -553,7 +553,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
 }
 
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
-                                   uint32_t ptk_lifetime_s,
                                    const struct sec_timing *timing_ffn,
                                    const struct sec_timing *timing_lfn,
                                    const struct sec_prot_cfg *sec_prot_cfg)
@@ -566,7 +565,6 @@ int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
     if (sec_prot_cfg)
         controller->sec_cfg.prot_cfg = *sec_prot_cfg;
 
-    controller->sec_cfg.ptk_lifetime_s = ptk_lifetime_s;
     BUG_ON(!timing_ffn);
     controller->sec_cfg.timing_ffn = *timing_ffn;
     BUG_ON(!timing_lfn);
