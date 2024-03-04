@@ -521,7 +521,7 @@ void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm *jm)
+void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm)
 {
     uint8_t tmp8;
     int offset;

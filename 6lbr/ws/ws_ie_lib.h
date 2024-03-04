@@ -93,7 +93,7 @@ void    ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lb
 void   ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version);
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, const gtkhash_t lgtkhash[3], uint8_t active_lgtk_index);
 void      ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag, struct ws_hopping_schedule *hopping_schedule);
-void       ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm *jm);
+void       ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm);
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
