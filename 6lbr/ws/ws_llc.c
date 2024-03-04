@@ -176,7 +176,6 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static struct ws_neigh *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64, uint8_t node_role);
-static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry);
 static struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const uint8_t *mac64);
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor);
@@ -1441,14 +1440,6 @@ static void ws_llc_clean(llc_data_base_t *base)
 
     //Disable High Priority mode
     base->high_priority_mode = false;
-}
-
-static void ws_llc_temp_entry_free(temp_entriest_t *base, struct ws_neigh *entry)
-{
-    //Pointer is static add to free list
-    if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        SLIST_INSERT_HEAD(&base->free_temp_neigh, entry, link);
-    }
 }
 
 struct ws_neigh *ws_llc_discover_temp_entry(struct ws_neigh_list *list, const uint8_t *mac64)
