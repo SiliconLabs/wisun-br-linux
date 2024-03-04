@@ -401,12 +401,12 @@ static int dbus_message_append_node(
             sd_bus_message_append(m, "b", true);
             dbus_message_close_info(m, property);
             if (neighbor->rx_power_dbm != INT_MAX) {
-                dbus_message_open_info(m, property, "rssi", "i");
-                sd_bus_message_append_basic(m, 'i', &neighbor->rx_power_dbm);
+                dbus_message_open_info(m, property, "rssi", "y");
+                sd_bus_message_append(m, "y", (uint8_t)(neighbor->rx_power_dbm + 174));
                 dbus_message_close_info(m, property);
             } else if (neighbor->rx_power_dbm_unsecured != INT_MAX) {
-                dbus_message_open_info(m, property, "rssi", "i");
-                sd_bus_message_append_basic(m, 'i', &neighbor->rx_power_dbm_unsecured);
+                dbus_message_open_info(m, property, "rssi", "y");
+                sd_bus_message_append(m, "y", (uint8_t)(neighbor->rx_power_dbm_unsecured + 174));
                 dbus_message_close_info(m, property);
             }
             if (!isnan(neighbor->rsl_in_dbm)) {

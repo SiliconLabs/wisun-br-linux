@@ -156,7 +156,7 @@ graph is refreshed.
 |`node_role`       |`y`      |Semantics from Wi-SUN (`0`: BR, `1`: FFN-FAN1.1, `2`: LFN, none: FFN-FAN1.0)|
 |`is_authenticated`|`b`      |                                                                          |
 |`is_neighbor`     |`b`      |Only nodes that use direct unicast traffic to the border router are listed|
-|`rssi`            |`i`      |Received Signal Strength Indication (RSSI) of the last packet received in dBm (neighbor only)|
+|`rssi`            |`y`      |Received Signal Strength Indication (RSSI) of the last received packet as described in 802.15.4 (neighbor only)|
 |`lqi`             |`y`      |Link Quality Indicator (LQI) of the last packet received (neighbor only)|
 |`rsl`             |`i`      |Exponentially Weighted Moving Average (EWMA) of the Received Signal Level (RSL) in dBm (neighbor only)|
 |`rsl_adv`         |`i`      |EWMA of the RSL in dBm advertised by the node in RSL-IE (neighbor only)   |
