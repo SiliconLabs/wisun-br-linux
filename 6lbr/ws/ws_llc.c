@@ -35,7 +35,6 @@
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
-#include "common/sys_queue_extra.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 
@@ -342,7 +341,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
     mlme_status = mlme_status_from_hif(confirm->hif.status);
     if (mlme_status == MLME_SUCCESS)
-        ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+        ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
     if (mpx_usr && mpx_usr->data_confirm) {
@@ -720,10 +719,7 @@ static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const m
 
     if (ws_neigh)
         return ws_neigh;
-
-    ws_neigh = ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, node_role);
-    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    return ws_neigh;
+    return ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, node_role);
 }
 
 static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
@@ -759,7 +755,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
     ws_neigh->rssi = data->hif.rx_power_dbm;
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
@@ -815,7 +811,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh->eapol_temp_info.eapol_timeout = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
     ws_neigh->rssi = data->hif.rx_power_dbm;
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
@@ -1425,8 +1421,6 @@ static void ws_llc_release_eapol_temp_entry(struct llc_data_base *base, const ui
     if (!neighbor) {
         return;
     }
-
-    neighbor->eapol_temp_info.eapol_timeout = 0;
 }
 
 #define MS_FALLBACK_MIN_SAMPLE 50
@@ -1829,31 +1823,22 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     struct ws_neigh *entry;
-    struct ws_neigh *tmp;
 
     if (!base) {
         return;
     }
 
-    SLIST_FOREACH_SAFE(entry, &interface->ws_info.neighbor_storage.neigh_list, link, tmp) {
-        // See ws_neigh_table_expire()
-        if (!entry->eapol_temp_info.eapol_timeout)
+    SLIST_FOREACH(entry, &interface->ws_info.neighbor_storage.neigh_list, link) {
+        if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
+            //No active filter period
             continue;
-        if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            ws_llc_release_eapol_temp_entry(base, entry->mac64);
-        } else {
-            entry->eapol_temp_info.eapol_timeout -= seconds_update;
-            if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
-                //No active filter period
-                continue;
-            }
+        }
 
-            //Update filter time
-            if (entry->eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
-                entry->eapol_temp_info.eapol_rx_relay_filter = 0;
-            } else {
-                entry->eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
-            }
+        //Update filter time
+        if (entry->eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
+            entry->eapol_temp_info.eapol_rx_relay_filter = 0;
+        } else {
+            entry->eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
         }
     }
 }
@@ -1871,7 +1856,7 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
     if (!tmp_neigh)
         return false;
 
-    if (!tmp_neigh->eapol_temp_info.eapol_timeout)
+    if (tmp_neigh->lifetime_s != WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
         return ws_neigh_duplicate_packet_check(tmp_neigh, mac_sequency, rx_timestamp);
 
     if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter &&
