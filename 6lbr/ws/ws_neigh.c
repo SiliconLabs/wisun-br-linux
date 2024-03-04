@@ -88,10 +88,14 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
     struct ws_neigh *neigh;
     struct ws_neigh *tmp;
 
-    SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
+    SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp) {
+        // See ws_llc_timer_seconds()
+        if (neigh->eapol_temp_info.eapol_timeout)
+            continue;
         if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
             if (table->on_expire)
                 table->on_expire(neigh->mac64);
+    }
 }
 
 size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
