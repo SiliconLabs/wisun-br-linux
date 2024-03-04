@@ -705,7 +705,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static struct ws_neigh *ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data, uint8_t node_role)
+static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_data_ind_t *data, uint8_t node_role)
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
                                                                            data->SrcAddr);
@@ -744,7 +744,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
-    ws_neigh = ws_llc_eapol_neighbor_get(base, data, WS_NR_ROLE_ROUTER);
+    ws_neigh = ws_llc_neigh_fetch(base, data, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
 
@@ -800,7 +800,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
             return;
     }
 
-    ws_neigh = ws_llc_eapol_neighbor_get(base, data, WS_NR_ROLE_LFN);
+    ws_neigh = ws_llc_neigh_fetch(base, data, WS_NR_ROLE_LFN);
     if (!ws_neigh)
         return;
 
