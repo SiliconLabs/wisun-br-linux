@@ -75,6 +75,9 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
     size_t eui64_len;
     int phy_mode_id;
 
+    if (version_older_than(ctxt->rcp.version_api, 2, 0, 1))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+
     sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     sd_bus_message_read_basic(m, 'i', &phy_mode_id);
 
