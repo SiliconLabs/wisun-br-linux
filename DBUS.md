@@ -18,6 +18,8 @@ application.
 
 ### `SetModeSwitch` (`ayi`)
 
+*Requires RCP API ≥ 2.0.1*
+
 There are two ways to configure mode switch, either global or per neighbor. Each
 neighbor can either use the global config, or a node-specific setting.
 
