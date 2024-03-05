@@ -1,11 +1,11 @@
-# Downloaded from https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.1.10
+# Downloaded from https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.1.11
 ---
 swagger: "2.0"
 info:
   description: "Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Note that optional object properties, when not included in messaging and unless noted otherwise, will assume their default values as specified in the FAN TPS. Copyright © Wi-SUN Alliance 2023.  TODO LFN timing adjust. TODO LBATS handling."
-  version: 1.1.10
+  version: 1.1.11
   title: TBU API
-basePath: /Wi-SUN/TBU/1.1.10
+basePath: /Wi-SUN/TBU/1.1.11
 schemes:
 - https
 - http
@@ -388,6 +388,36 @@ paths:
           description: Unknown error occurred.
           schema:
             $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter/rpl/incrementDodagVersion:
+    put:
+      description: Increment the RPL DODAG Version Number. NOTE This API call MUST be supported in all run modes! It can and will be called during operation in runMode=1.
+      parameters: []
+      responses:
+        "200":
+          description: RPL DODAG Version Number incremented successfully
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/borderRouter/rpl/incrementDtsn:
+    put:
+      description: Increment the RPL DTSN. NOTE This API call MUST be supported in all run modes! It can and will be called during operation in runMode=1.
+      parameters: []
+      responses:
+        "200":
+          description: RPL DTSN incremented successfully
+        "400":
+          description: Node is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
   /config/router:
     put:
       description: Configure Router specific settings.  This method may be issued to any Router node (including Border Routers).
@@ -402,6 +432,30 @@ paths:
           description: Router successfully configured.
         "400":
           description: Node is not a Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /config/router/neighborDiscovery:
+    put:
+      description: "Options for configuring a router's Neighbor Discovery default address registration lifetime, and enabling/disabling the transmission of Neighbor Solicitation frames. NOTE This API call MUST be supported in all run modes! It can and will be called during operation in runMode=1."
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/NeighborDiscovery'
+      responses:
+        "200":
+          description: Neighbor Discovery successfully configured.
+        "400":
+          description: Node is not a Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "401":
+          description: Invalid parameter.
           schema:
             $ref: '#/definitions/ErrorResponse'
         default:
@@ -1138,3 +1192,16 @@ definitions:
         example: 000102030405060708090A0B0C0D0E0F
         description: "Set as specified in [FANTPS] JM-IE description.  Encoded as HEX string."
     description: "A Join Metric as used within the Join Metrics IE described in [FANTPS]."
+  NeighborDiscovery:
+    type: object
+    required:
+    - registrationLifetime
+    properties:
+      registrationLifetime:
+        type: integer
+        description: "16-bit unsigned integer. The amount of time in units of 60 seconds that the router should retain the Neighbor Cache Entry for the sender of the Neighbor Solicitation (NS) that includes this option. [RFC 6775 Section 4.1] When the registration lifetime is changed, and NS frames are enabled, a TBU MUST send an NS frame within 10 seconds."
+      enableNeighborSolicitations:
+        type: boolean
+        description: Whether or not to enable Neighbor Solicitation (NS) frames. Default is enabled.
+        default: true
+    description: Settings involved in configuring and controlling IPv6 Neighbor Discovery
