@@ -618,6 +618,14 @@ def put_config_border_router_rpl_increment_dtsn():
 
 
 @dbus_errcheck
+def put_config_border_router_rpl_increment_dodag_version():
+    if wsbrd.service.active_state != 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported config-time operation')
+    wsbrd.dbus().increment_rpl_dodag_version_number()
+    return success()
+
+
+@dbus_errcheck
 @json_errcheck('/config/whitelist')
 def put_config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
@@ -890,6 +898,7 @@ def app_build():
     app.add_url_rule('/config/borderRouter/joinMetrics',         view_func=config_border_router_join_metrics,           methods=['PUT', 'DELETE'])
     app.add_url_rule('/config/borderRouter/externalResources',   view_func=put_config_border_router_external_resources, methods=['PUT'])
     app.add_url_rule('/config/borderRouter/rpl/incrementDtsn',   view_func=put_config_border_router_rpl_increment_dtsn, methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/rpl/incrementDodagVersion', view_func=put_config_border_router_rpl_increment_dodag_version, methods=['PUT'])
     app.add_url_rule('/config/router',                           view_func=put_config_router,                           methods=['PUT'])
     app.add_url_rule('/config/whitelist',                        view_func=put_config_whitelist,                        methods=['PUT'])
     app.add_url_rule('/subscription/frames',                     view_func=put_subscription_frame,                      methods=['PUT'])
