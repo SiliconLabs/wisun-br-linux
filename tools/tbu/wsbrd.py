@@ -101,6 +101,10 @@ class WsbrdDbusInterface(
     def ie_custom_insert(self, ie_type, id, content, frame_types) -> None:
         raise NotImplementedError
 
+    @sdbus.dbus_method()
+    def increment_rpl_dtsn(self) -> None:
+        raise NotImplementedError
+
 
 # For some reason, storing an instance of WsbrdDbusInterface in a global
 # variable (as for SystemdUnitDbusInterface) results in the error 'Transport
