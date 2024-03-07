@@ -29,7 +29,7 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
     const struct chan_params *parms = NULL;
 
     if (plan_nr == 1)
-        return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
+        return plan1->ch0 * 1000 == fhss_config->ch0_freq &&
                plan1->channel_spacing == ws_regdb_chan_spacing_id(hopping_schedule->channel_spacing) &&
                plan1->number_of_channel == fhss_config->number_of_channels;
     if (plan_nr == 0)
@@ -40,7 +40,7 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
                                      plan2->channel_plan_id, 0);
     if (!parms)
         return false;
-    return parms->chan0_freq == hopping_schedule->ch0_freq &&
+    return parms->chan0_freq == fhss_config->ch0_freq &&
            parms->chan_count == fhss_config->number_of_channels &&
            parms->chan_spacing == hopping_schedule->channel_spacing;
 }

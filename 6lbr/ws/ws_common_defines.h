@@ -84,7 +84,6 @@ typedef struct ws_hopping_schedule {
     uint32_t channel_spacing;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
-    uint24_t ch0_freq; // Default should be derived from regulatory domain
 } ws_hopping_schedule_t;
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */

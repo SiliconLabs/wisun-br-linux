@@ -146,7 +146,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         INFO("  RCP configuration index: %d", hopping_schedule->rcp_rail_config_index);
 
 
-    INFO("  channel 0 frequency: %.1fMHz", hopping_schedule->ch0_freq / 1000000.);
+    INFO("  channel 0 frequency: %.1fMHz", fhss_configuration->ch0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", hopping_schedule->channel_spacing / 1000);
     INFO("  channel count: %d", fhss_configuration->number_of_channels);
     INFO("  channel masks:");
