@@ -124,8 +124,8 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     else
         INFO("  domain: %s", val_to_str(hopping_schedule->regulatory_domain, valid_ws_domains, "??"));
 
-    if (hopping_schedule->channel_plan_id && hopping_schedule->channel_plan_id != 255)
-        INFO("  channel plan id: %d", hopping_schedule->channel_plan_id);
+    if (fhss_configuration->channel_plan_id && fhss_configuration->channel_plan_id != 255)
+        INFO("  channel plan id: %d", fhss_configuration->channel_plan_id);
     else
         INFO("  class: 0x%x", hopping_schedule->operating_class);
 
@@ -185,7 +185,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
                                         fhss_configuration->number_of_channels,
                                         hopping_schedule->regulatory_domain,
                                         hopping_schedule->operating_class,
-                                        hopping_schedule->channel_plan_id);
+                                        fhss_configuration->channel_plan_id);
         INFO("     async     %*s %*s", length, "--",
              length, tr_channel_mask(async_chan_mask, fhss_configuration->number_of_channels));
     }
@@ -200,7 +200,7 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
     INFO("Nodes join ability:");
     INFO("  rank    FFN1.0    FFN1.1    LFN");
 
-    chan_plan_id = cur->ws_info.hopping_schedule.channel_plan_id;
+    chan_plan_id = cur->ws_info.fhss_conf.channel_plan_id;
     if (chan_plan_id && chan_plan_id != 255) {
         sprintf(ffn10, "no");
         sprintf(lfn, cur->ws_info.enable_lfn ? "yes" : "no");

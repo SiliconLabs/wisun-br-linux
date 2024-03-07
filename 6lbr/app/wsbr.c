@@ -234,12 +234,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain = ctxt->config.ws_domain;
     ctxt->net_if.ws_info.hopping_schedule.phy_mode_id = ctxt->config.ws_phy_mode_id;
-    ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
+    ctxt->net_if.ws_info.fhss_conf.channel_plan_id = ctxt->config.ws_chan_plan_id;
     ctxt->net_if.ws_info.hopping_schedule.operating_mode = ctxt->config.ws_mode;
     ctxt->net_if.ws_info.hopping_schedule.operating_class = ctxt->config.ws_class;
 
     chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
-                                       ctxt->net_if.ws_info.hopping_schedule.channel_plan_id,
+                                       ctxt->net_if.ws_info.fhss_conf.channel_plan_id,
                                        ctxt->net_if.ws_info.hopping_schedule.operating_class);
     if (!chan_params) {
         ctxt->net_if.ws_info.fhss_conf.ch0_freq = ctxt->config.ws_chan0_freq;
@@ -270,12 +270,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,
                                     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
                                     ctxt->net_if.ws_info.hopping_schedule.operating_class,
-                                    ctxt->net_if.ws_info.hopping_schedule.channel_plan_id);
+                                    ctxt->net_if.ws_info.fhss_conf.channel_plan_id);
     ws_common_generate_channel_list(&ctxt->net_if, ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask,
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,
                                     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
                                     ctxt->net_if.ws_info.hopping_schedule.operating_class,
-                                    ctxt->net_if.ws_info.hopping_schedule.channel_plan_id);
+                                    ctxt->net_if.ws_info.fhss_conf.channel_plan_id);
     bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask, ctxt->config.ws_allowed_channels, 256);
 

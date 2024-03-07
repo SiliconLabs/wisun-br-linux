@@ -79,7 +79,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_nei
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
 {
     fhss_configuration->channel_mask_size = fhss_configuration->number_of_channels;
-    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.fhss_conf.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
+    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.fhss_conf.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.fhss_conf.channel_plan_id);
 }
 
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
@@ -355,7 +355,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
-    chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
+    chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, fhss_config->channel_plan_id,
                                        hopping_schedule->operating_class);
 
     rf_config.rcp_config_index = hopping_schedule->rcp_rail_config_index;

@@ -70,6 +70,7 @@ typedef struct fhss_ws_configuration {
     /** Channel mask size */
     uint16_t channel_mask_size;
     uint32_t async_tx_duration_ms;
+    uint8_t channel_plan_id;
     uint8_t number_of_channels;
     uint32_t channel_spacing;
     uint24_t ch0_freq;

@@ -336,7 +336,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
         break;
     case 2:
         iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
-        iobuf_push_u8(buf, hopping_schedule->channel_plan_id);
+        iobuf_push_u8(buf, fhss_config->channel_plan_id);
         break;
     default:
         BUG("Unsupported channel plan: %u", hopping_schedule->channel_plan);
