@@ -400,7 +400,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_BS, true);
     iobuf_push_le32(buf, hopping_schedule->fhss_broadcast_interval);
-    iobuf_push_le16(buf, hopping_schedule->fhss_bsi);
+    iobuf_push_le16(buf, fhss_config->bsi);
     iobuf_push_u8(buf, fhss_config->fhss_bc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
