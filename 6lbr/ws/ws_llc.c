@@ -1202,7 +1202,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
                           &base->interface_ptr->ws_info.fhss_conf);
     if (!data->TxAckReq)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+                              &base->interface_ptr->ws_info.fhss_conf);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (ws_info->hopping_schedule.phy_op_modes[0] && ws_info->hopping_schedule.phy_op_modes[1])
         ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->hopping_schedule.phy_op_modes, true);
@@ -1311,7 +1312,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
                           &base->interface_ptr->ws_info.fhss_conf);
     if (eapol_handshake_first_msg)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+                              &base->interface_ptr->ws_info.fhss_conf);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1578,7 +1580,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule,
                                   &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->bs)
-            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
+            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule,
+                                  &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);

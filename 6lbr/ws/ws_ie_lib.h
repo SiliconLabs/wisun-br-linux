@@ -261,7 +261,7 @@ bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *
 
 /* WS_WP_NESTED PAYLOD IE */
 void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, const struct fhss_ws_configuration *fhss_config);
-void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
+void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, const struct fhss_ws_configuration *fhss_config);
 void      ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uint16_t routing_cost, uint8_t tps_version);
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, const char *netname);
 void   ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version);

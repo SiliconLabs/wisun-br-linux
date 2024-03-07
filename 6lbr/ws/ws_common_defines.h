@@ -71,7 +71,6 @@ typedef struct ws_excluded_channel_data {
  * @brief ws_hopping_schedule_t Chanel hopping schedule information
  */
 typedef struct ws_hopping_schedule {
-    uint8_t fhss_bc_dwell_interval;
     uint8_t regulatory_domain;          /**< PHY regulatory domain default to "KR" 0x09 */
     uint8_t operating_class;            /**< PHY operating class default to 1 */
     uint8_t operating_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
