@@ -181,7 +181,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     if (!fhss_configuration->ws_uc_channel_function) {
         INFO("     async     %*s BIT(%d)", length, "--", fhss_configuration->unicast_fixed_channel);
     } else {
-        ws_common_generate_channel_list(cur, async_chan_mask,
+        ws_common_generate_channel_list(&cur->ws_info.fhss_conf, async_chan_mask,
                                         fhss_configuration->number_of_channels,
                                         hopping_schedule->regulatory_domain,
                                         hopping_schedule->operating_class,

@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include <inttypes.h>
+#include <limits.h>
 
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
@@ -30,9 +31,9 @@
 #include "common/log.h"
 #include "common/bits.h"
 
-#include "net/protocol.h"
+#include "6lbr/ws/ws_common.h"
+
 #include "app/rcp_api_legacy.h"
-#include "app/wsbr.h"
 
 #include "ws_neigh.h"
 
@@ -229,7 +230,7 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
     }
 }
 
-static void ws_neigh_set_chan_list(const struct net_if *net_if,
+static void ws_neigh_set_chan_list(const struct fhss_ws_configuration *fhss_config,
                                    struct ws_channel_mask *chan_list,
                                    const struct ws_generic_channel_info *chan_info,
                                    uint16_t *chan_cnt)
@@ -255,10 +256,10 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
     }
 
     if (params)
-        ws_common_generate_channel_list(net_if, chan_list->channel_mask, *chan_cnt,
+        ws_common_generate_channel_list(fhss_config, chan_list->channel_mask, *chan_cnt,
                                         params->reg_domain, params->op_class, params->chan_plan_id);
     else
-        ws_common_generate_channel_list(net_if, chan_list->channel_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
+        ws_common_generate_channel_list(fhss_config, chan_list->channel_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
 
     chan_list->channel_count = bitcnt(chan_list->channel_mask, *chan_cnt);
 
@@ -268,7 +269,7 @@ static void ws_neigh_set_chan_list(const struct net_if *net_if,
         ws_neigh_excluded_mask_by_mask(chan_list, &chan_info->excluded_channels.mask, *chan_cnt);
 }
 
-void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_us_update(const struct fhss_ws_configuration *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
@@ -277,7 +278,7 @@ void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_tim
         fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
         fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(net_if, &fhss_data->uc_channel_list, chan_info,
+        ws_neigh_set_chan_list(fhss_config, &fhss_data->uc_channel_list, chan_info,
                                   &fhss_data->uc_chan_count);
     }
     fhss_data->ffn.uc_dwell_interval_ms = dwell_interval;
@@ -411,7 +412,7 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
     return LFN_SCHEDULE_GUARD_TIME_MS * rand_get_random_in_range(1, max_offset_ms / LFN_SCHEDULE_GUARD_TIME_MS);
 }
 
-bool ws_neigh_lus_update(const struct net_if *net_if,
+bool ws_neigh_lus_update(const struct fhss_ws_configuration *fhss_config,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms, const struct lto_info *lto_info)
@@ -420,7 +421,7 @@ bool ws_neigh_lus_update(const struct net_if *net_if,
     bool offset_adjusted = true;
 
     if (fhss_data->lfn.uc_listen_interval_ms != listen_interval_ms) {
-        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(net_if->ws_info.fhss_conf.lfn_bc_interval,
+        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(fhss_config->lfn_bc_interval,
                                                                           fhss_data->lfn.uc_listen_interval_ms,
                                                                           lto_info->uc_interval_min_ms,
                                                                           lto_info->uc_interval_max_ms);
@@ -436,7 +437,7 @@ bool ws_neigh_lus_update(const struct net_if *net_if,
         fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
         fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(net_if, &fhss_data->uc_channel_list, chan_info,
+        ws_neigh_set_chan_list(fhss_config, &fhss_data->uc_channel_list, chan_info,
                                &fhss_data->uc_chan_count);
     }
     return offset_adjusted;

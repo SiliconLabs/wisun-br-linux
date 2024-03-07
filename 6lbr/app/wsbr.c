@@ -266,12 +266,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.fhss_conf.unicast_fixed_channel = fixed_channel;
     ctxt->net_if.ws_info.fhss_conf.broadcast_fixed_channel = fixed_channel;
 
-    ws_common_generate_channel_list(&ctxt->net_if, ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask,
+    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask,
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,
                                     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
                                     ctxt->net_if.ws_info.hopping_schedule.operating_class,
                                     ctxt->net_if.ws_info.fhss_conf.channel_plan_id);
-    ws_common_generate_channel_list(&ctxt->net_if, ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask,
+    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask,
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,
                                     ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
                                     ctxt->net_if.ws_info.hopping_schedule.operating_class,

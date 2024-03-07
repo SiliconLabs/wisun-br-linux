@@ -47,7 +47,7 @@
 
 int DEVICE_MIN_SENS = -93;
 
-int8_t ws_common_generate_channel_list(const struct net_if *cur,
+int8_t ws_common_generate_channel_list(const struct fhss_ws_configuration *fhss_config,
                                        uint8_t *channel_mask,
                                        uint16_t number_of_channels,
                                        uint8_t regulatory_domain,
@@ -62,7 +62,7 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     memset(channel_mask, 0xFF, 32);
     if (chan_params && chan_params->chan_allowed)
         parse_bitmask(channel_mask, 32, chan_params->chan_allowed);
-    if (cur->ws_info.fhss_conf.regulation == HIF_REG_ARIB) {
+    if (fhss_config->regulation == HIF_REG_ARIB) {
         // For now, ARIB is not supported for custom channel plans
         BUG_ON(!chan_params);
         // For now, ARIB is not supported outside of Japan

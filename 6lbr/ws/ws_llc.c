@@ -604,7 +604,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             BUG("missing UTT-IE in data frame from FFN");
         ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         if (has_us)
-            ws_neigh_us_update(base->interface_ptr, &ws_neigh->fhss_data, &ie_us.chan_plan,
+            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             ws_neigh->unicast_data_rx = true;
@@ -684,7 +684,8 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_conf,
+                                                                 &ws_neigh->fhss_data,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 
@@ -765,7 +766,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us)
-        ws_neigh_us_update(base->interface_ptr, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
@@ -824,7 +825,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                         data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(base->interface_ptr, &ws_neigh->fhss_data_unsecured,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 

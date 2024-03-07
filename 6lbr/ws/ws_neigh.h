@@ -26,7 +26,7 @@
 
 #include "6lbr/ws/ws_ie_lib.h"
 
-struct net_if;
+struct fhss_ws_configuration;
 
 struct ws_channel_mask {
     uint16_t channel_count;                     // Active channels at mask
@@ -126,11 +126,11 @@ void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
 void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
-void ws_neigh_us_update(const struct net_if *net_if, struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_us_update(const struct fhss_ws_configuration *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8]);
 // LFN Unicast Schedule update
-bool ws_neigh_lus_update(const struct net_if *net_if,
+bool ws_neigh_lus_update(const struct fhss_ws_configuration *fhss_config,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms, const struct lto_info *lto_info);
