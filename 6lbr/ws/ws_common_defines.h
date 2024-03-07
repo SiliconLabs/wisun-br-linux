@@ -82,7 +82,6 @@ typedef struct ws_hopping_schedule {
     int rcp_rail_config_index;          /**< Index number in rcp.rail_config_list. Needed to configure the RCP */
     uint8_t channel_plan_id;            /**< Channel plan ID, default to 255 */
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */
-    uint8_t bc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
     uint32_t channel_spacing;
     uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;

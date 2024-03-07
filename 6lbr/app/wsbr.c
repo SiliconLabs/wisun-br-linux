@@ -237,7 +237,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.hopping_schedule.channel_plan_id = ctxt->config.ws_chan_plan_id;
     ctxt->net_if.ws_info.hopping_schedule.operating_mode = ctxt->config.ws_mode;
     ctxt->net_if.ws_info.hopping_schedule.operating_class = ctxt->config.ws_class;
-    ctxt->net_if.ws_info.hopping_schedule.bc_channel_function = channel_function;
 
     chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.hopping_schedule.regulatory_domain,
                                        ctxt->net_if.ws_info.hopping_schedule.channel_plan_id,

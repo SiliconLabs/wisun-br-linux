@@ -94,10 +94,9 @@ static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_sched
     }
 }
 
-static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_schedule,
-                                 const struct fhss_ws_configuration *fhss_config, bool unicast)
+static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -133,7 +132,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
 
     length++;
     length += ws_chan_plan_len(hopping_schedule);
-    length += ws_chan_func_len(hopping_schedule, fhss_config, unicast);
+    length += ws_chan_func_len(fhss_config, unicast);
     length += ws_chan_excl_len(hopping_schedule, unicast);
     return length;
 }
@@ -303,7 +302,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
-    const uint8_t func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
     uint8_t tmp8 = 0;
 
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, hopping_schedule->channel_plan);
@@ -336,7 +335,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
 static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                   const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
