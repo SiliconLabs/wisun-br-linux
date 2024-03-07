@@ -79,7 +79,6 @@ typedef struct ws_hopping_schedule {
     uint8_t phy_mode_id_ms_tx;
     uint8_t phy_mode_id_ms_base;
     int rcp_rail_config_index;          /**< Index number in rcp.rail_config_list. Needed to configure the RCP */
-    uint8_t timing_accuracy;
 } ws_hopping_schedule_t;
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
