@@ -75,6 +75,7 @@ typedef struct fhss_ws_configuration {
     uint32_t channel_spacing;
     uint24_t ch0_freq;
     uint8_t channel_plan;
+    int regulation;
 } fhss_ws_configuration_t;
 
 
@@ -91,7 +92,6 @@ typedef struct ws_info {
     struct ws_neigh_table neighbor_storage;
     // FIXME: fhss_conf is redundant with hopping_schedule
     struct fhss_ws_configuration fhss_conf;
-    int regulation;  /**< Regional regulation context. */
 } ws_info_t;
 
 

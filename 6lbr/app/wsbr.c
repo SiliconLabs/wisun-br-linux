@@ -325,7 +325,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
-        ctxt->net_if.ws_info.regulation = ctxt->config.ws_regional_regulation;
+        ctxt->net_if.ws_info.fhss_conf.regulation = ctxt->config.ws_regional_regulation;
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
 }
