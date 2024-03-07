@@ -147,7 +147,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 
 
     INFO("  channel 0 frequency: %.1fMHz", fhss_configuration->ch0_freq / 1000000.);
-    INFO("  channel spacing: %dkHz", hopping_schedule->channel_spacing / 1000);
+    INFO("  channel spacing: %dkHz", fhss_configuration->channel_spacing / 1000);
     INFO("  channel count: %d", fhss_configuration->number_of_channels);
     INFO("  channel masks:");
 
