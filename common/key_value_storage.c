@@ -128,8 +128,6 @@ void storage_delete(const char *files[])
     if (!g_storage_prefix)
         return;
 
-    INFO("deleting storage");
-
     for (; *files; files++) {
         snprintf(filename, sizeof(filename), "%s%s", g_storage_prefix, *files);
         ret = glob(filename, 0, NULL, &globbuf);

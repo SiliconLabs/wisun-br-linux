@@ -525,8 +525,10 @@ int wsbr_main(int argc, char *argv[])
     wsbr_check_mbedtls_features();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
-    if (ctxt->config.storage_delete)
+    if (ctxt->config.storage_delete) {
+        INFO("deleting storage");
         storage_delete(files);
+    }
     if (ctxt->config.storage_exit)
         exit(0);
     if (ctxt->config.pcap_file[0])
