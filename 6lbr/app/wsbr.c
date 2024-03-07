@@ -283,6 +283,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                     ctxt->net_if.ws_info.fhss_conf.channel_plan_id);
     bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(ctxt->net_if.ws_info.fhss_conf.broadcast_channel_mask, ctxt->config.ws_allowed_channels, 256);
+    if (!memzcmp(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, sizeof(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask)))
+        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
 
     rail_fill_pom(ctxt);
 
