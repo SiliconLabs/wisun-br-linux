@@ -67,8 +67,6 @@ typedef struct fhss_ws_configuration {
     uint8_t unicast_channel_mask[32];
     /** Wi-SUN specific broadcast channel mask */
     uint8_t broadcast_channel_mask[32];
-    /** Channel mask size */
-    uint16_t channel_mask_size;
     uint32_t async_tx_duration_ms;
     uint8_t regulatory_domain;
     uint8_t operating_class;
