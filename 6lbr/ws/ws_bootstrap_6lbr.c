@@ -115,6 +115,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info.hopping_schedule;
     const struct fhss_ws_configuration *fhss_configuration = &cur->ws_info.fhss_conf;
+    ws_excluded_channel_data_t excl;
     uint8_t async_chan_mask[32];
     int length;
 
@@ -153,18 +154,28 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     length = -roundup(fhss_configuration->number_of_channels, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
+    if (fhss_configuration->ws_uc_channel_function)
+        ws_common_calc_chan_excl(&excl, fhss_configuration->unicast_channel_mask,
+                                 fhss_configuration->domain_channel_mask,
+                                 fhss_configuration->number_of_channels);
+
     if (!fhss_configuration->ws_uc_channel_function)
         INFO("     unicast   %*s BIT(%d)", length, "--", fhss_configuration->unicast_fixed_channel);
     else
         INFO("     unicast   %*s %*s",
-             length, tr_excl_channel_mask(hopping_schedule->uc_excluded_channels.channel_mask, fhss_configuration->number_of_channels),
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->number_of_channels),
              length, tr_channel_mask(fhss_configuration->unicast_channel_mask, fhss_configuration->number_of_channels));
+
+    if (fhss_configuration->ws_bc_channel_function)
+        ws_common_calc_chan_excl(&excl, fhss_configuration->broadcast_channel_mask,
+                                 fhss_configuration->domain_channel_mask,
+                                 fhss_configuration->number_of_channels);
 
     if (!fhss_configuration->ws_bc_channel_function)
         INFO("     broadcast %*s BIT(%d)", length, "--", fhss_configuration->broadcast_fixed_channel);
     else
         INFO("     broadcast %*s %*s",
-             length, tr_excl_channel_mask(hopping_schedule->bc_excluded_channels.channel_mask, fhss_configuration->number_of_channels),
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->number_of_channels),
              length, tr_channel_mask(fhss_configuration->broadcast_channel_mask, fhss_configuration->number_of_channels));
 
     if (!fhss_configuration->ws_uc_channel_function) {

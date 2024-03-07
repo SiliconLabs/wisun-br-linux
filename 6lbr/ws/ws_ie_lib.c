@@ -109,19 +109,24 @@ static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config
     }
 }
 
-static uint16_t ws_chan_excl_len(const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
+    ws_excluded_channel_data_t excl;
 
-    switch (excl->excluded_channel_ctrl) {
+    if (unicast)
+        ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
+    else
+        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
+
+    switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
-        return 1 + 4 * excl->excluded_range_length;
+        return 1 + 4 * excl.excluded_range_length;
     case WS_EXC_CHAN_CTRL_BITMASK:
-        return excl->channel_mask_bytes_inline;
+        return excl.channel_mask_bytes_inline;
     case WS_EXC_CHAN_CTRL_NONE:
         return 0;
     default:
-        BUG("Unsupported excluded channel control: %u", excl->excluded_channel_ctrl);
+        BUG("Unsupported excluded channel control: %u", excl.excluded_channel_ctrl);
     }
 }
 
@@ -133,7 +138,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
     length++;
     length += ws_chan_plan_len(hopping_schedule);
     length += ws_chan_func_len(fhss_config, unicast);
-    length += ws_chan_excl_len(hopping_schedule, unicast);
+    length += ws_chan_excl_len(fhss_config, unicast);
     return length;
 }
 
@@ -301,13 +306,18 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
     const uint8_t func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
+    ws_excluded_channel_data_t excl;
     uint8_t tmp8 = 0;
+
+    if (unicast)
+        ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
+    else
+        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
 
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, hopping_schedule->channel_plan);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK, func);
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, excl->excluded_channel_ctrl);
+    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, excl.excluded_channel_ctrl);
     iobuf_push_u8(buf, tmp8);
 }
 
@@ -349,25 +359,30 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_
     }
 }
 
-static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
+    ws_excluded_channel_data_t excl;
 
-    switch (excl->excluded_channel_ctrl) {
+    if (unicast)
+        ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
+    else
+        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
+
+    switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
-        iobuf_push_u8(buf, excl->excluded_range_length);
-        for (int i = 0; i < excl->excluded_range_length; i++) {
-            iobuf_push_le16(buf, excl->excluded_range[i].range_start);
-            iobuf_push_le16(buf, excl->excluded_range[i].range_end);
+        iobuf_push_u8(buf, excl.excluded_range_length);
+        for (int i = 0; i < excl.excluded_range_length; i++) {
+            iobuf_push_le16(buf, excl.excluded_range[i].range_start);
+            iobuf_push_le16(buf, excl.excluded_range[i].range_end);
         }
         break;
     case WS_EXC_CHAN_CTRL_BITMASK:
-        iobuf_push_data(buf, excl->channel_mask, excl->channel_mask_bytes_inline);
+        iobuf_push_data(buf, excl.channel_mask, excl.channel_mask_bytes_inline);
         break;
     case WS_EXC_CHAN_CTRL_NONE:
         break;
     default:
-        BUG("Unsupported excluded channel control: %u", excl->excluded_channel_ctrl);
+        BUG("Unsupported excluded channel control: %u", excl.excluded_channel_ctrl);
     }
 }
 
@@ -377,7 +392,7 @@ static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hoppin
     ws_wp_schedule_base_write(buf, hopping_schedule, fhss_config, unicast);
     ws_wp_chan_plan_write(buf, hopping_schedule, fhss_config);
     ws_wp_chan_func_write(buf, fhss_config, unicast);
-    ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
+    ws_wp_chan_excl_write(buf, fhss_config, unicast);
 }
 
 void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,

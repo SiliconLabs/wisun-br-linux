@@ -80,14 +80,6 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 {
     fhss_configuration->channel_mask_size = fhss_configuration->number_of_channels;
     ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.fhss_conf.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
-    ws_common_calc_chan_excl(&cur->ws_info.hopping_schedule.uc_excluded_channels,
-                                fhss_configuration->unicast_channel_mask,
-                                fhss_configuration->domain_channel_mask,
-                                fhss_configuration->number_of_channels);
-    ws_common_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
-                                fhss_configuration->broadcast_channel_mask,
-                                fhss_configuration->domain_channel_mask,
-                                fhss_configuration->number_of_channels);
 }
 
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)

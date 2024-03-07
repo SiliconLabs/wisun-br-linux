@@ -85,8 +85,6 @@ typedef struct ws_hopping_schedule {
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     uint24_t ch0_freq; // Default should be derived from regulatory domain
-    ws_excluded_channel_data_t uc_excluded_channels;
-    ws_excluded_channel_data_t bc_excluded_channels;
 } ws_hopping_schedule_t;
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
