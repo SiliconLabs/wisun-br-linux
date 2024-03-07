@@ -120,20 +120,6 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.fhss_conf.bsi = -1,
 };
 
-static int get_fixed_channel(uint8_t bitmask[32])
-{
-    int val = -1;
-
-    for (int i = 0; i < 256; i++) {
-        if (bittest(bitmask, i)) {
-            if (val >= 0)
-                return 0xFFFF;
-            val = i;
-        }
-    }
-    return val;
-}
-
 static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 {
     BUG_ON(ctxt->config.ws_allowed_mac_address_count && ctxt->config.ws_denied_mac_address_count);
@@ -227,8 +213,8 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
-    int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
-    uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    int fixed_channel = ws_common_get_fixed_channel(ctxt->config.ws_allowed_channels);
+    uint8_t channel_function = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     const struct chan_params *chan_params;
 
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
@@ -263,8 +249,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.fhss_conf.fhss_broadcast_interval = ctxt->config.bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
-    ctxt->net_if.ws_info.fhss_conf.unicast_fixed_channel = fixed_channel;
-    ctxt->net_if.ws_info.fhss_conf.broadcast_fixed_channel = fixed_channel;
 
     ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.domain_channel_mask,
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,

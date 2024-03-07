@@ -347,10 +347,12 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_
 static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
-        iobuf_push_le16(buf, unicast ? fhss_config->unicast_fixed_channel : fhss_config->broadcast_fixed_channel);
+        BUG_ON(fixed_channel < 0);
+        iobuf_push_le16(buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
     case WS_CHAN_FUNC_TR51CF:

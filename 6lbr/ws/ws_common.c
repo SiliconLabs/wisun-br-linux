@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <math.h>
 #include "common/log.h"
 #include "common/bits.h"
@@ -202,4 +203,18 @@ float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm)
         return rx_power_dbm;
     else
         return (rx_power_dbm + 7 * rsl_dbm) / 8;
+}
+
+int ws_common_get_fixed_channel(const uint8_t bitmask[32])
+{
+    int val = -EINVAL;
+
+    for (int i = 0; i < 256; i++) {
+        if (bittest(bitmask, i)) {
+            if (val >= 0)
+                return -EINVAL;
+            val = i;
+        }
+    }
+    return val;
 }

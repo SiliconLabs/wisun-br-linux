@@ -57,10 +57,6 @@ typedef struct fhss_ws_configuration {
     uint8_t lfn_bc_sync_period;
     /** Broadcast dwell interval. Range: 15-250 milliseconds. */
     uint8_t fhss_bc_dwell_interval;
-    /** Unicast fixed channel */
-    uint8_t unicast_fixed_channel;
-    /** Broadcast fixed channel */
-    uint8_t broadcast_fixed_channel;
     /** Domain channel mask, Wi-SUN uses it to exclure channels on US-IE and BS-IE. */
     uint8_t domain_channel_mask[32];
     /** Wi-SUN specific unicast channel mask */
@@ -117,5 +113,7 @@ uint32_t ws_common_datarate_get(struct net_if *cur);
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);
+
+int ws_common_get_fixed_channel(const uint8_t bitmask[32]);
 
 #endif //WS_COMMON_H_
