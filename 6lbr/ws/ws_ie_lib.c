@@ -94,9 +94,10 @@ static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_sched
     }
 }
 
-static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_schedule,
+                                 const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -125,13 +126,14 @@ static uint16_t ws_chan_excl_len(const struct ws_hopping_schedule *hopping_sched
     }
 }
 
-uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast)
+uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule,
+                                              const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     uint16_t length = unicast ? 3 : 9;
 
     length++;
     length += ws_chan_plan_len(hopping_schedule);
-    length += ws_chan_func_len(hopping_schedule, unicast);
+    length += ws_chan_func_len(hopping_schedule, fhss_config, unicast);
     length += ws_chan_excl_len(hopping_schedule, unicast);
     return length;
 }
@@ -297,10 +299,11 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+                                      const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
-    const uint8_t func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
     uint8_t tmp8 = 0;
 
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, hopping_schedule->channel_plan);
@@ -330,9 +333,10 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
-static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+                                  const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
+    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : hopping_schedule->bc_channel_function;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -368,11 +372,12 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
-static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+                                 const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    ws_wp_schedule_base_write(buf, hopping_schedule, unicast);
+    ws_wp_schedule_base_write(buf, hopping_schedule, fhss_config, unicast);
     ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_chan_func_write(buf, hopping_schedule, unicast);
+    ws_wp_chan_func_write(buf, hopping_schedule, fhss_config, unicast);
     ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
 }
 
@@ -385,7 +390,7 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, fhss_config->fhss_uc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
-    ws_wp_schedule_write(buf, hopping_schedule, true);
+    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, true);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -400,7 +405,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, fhss_config->fhss_bc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
-    ws_wp_schedule_write(buf, hopping_schedule, false);
+    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, false);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -504,13 +509,14 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
 }
 
 void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
-                            struct ws_hopping_schedule *hopping_schedule)
+                            struct ws_hopping_schedule *hopping_schedule,
+                            const struct fhss_ws_configuration *fhss_config)
 {
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_LCP, true);
     iobuf_push_u8(buf, tag);
-    ws_wp_schedule_write(buf, hopping_schedule, true); // Write unicast schedule
+    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, true); // Write unicast schedule
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 

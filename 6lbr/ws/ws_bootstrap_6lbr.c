@@ -154,7 +154,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     length = -roundup(hopping_schedule->number_of_channels, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    if (!hopping_schedule->uc_channel_function)
+    if (!fhss_configuration->ws_uc_channel_function)
         INFO("     unicast   %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
     else
         INFO("     unicast   %*s %*s",
@@ -168,7 +168,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_excl_channel_mask(hopping_schedule->bc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
              length, tr_channel_mask(fhss_configuration->broadcast_channel_mask, hopping_schedule->number_of_channels));
 
-    if (!hopping_schedule->uc_channel_function) {
+    if (!fhss_configuration->ws_uc_channel_function) {
         INFO("     async     %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
     } else {
         ws_common_generate_channel_list(cur, async_chan_mask,

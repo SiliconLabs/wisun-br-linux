@@ -1009,13 +1009,16 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true) +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, false);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
+                                                            &base->interface_ptr->ws_info.fhss_conf, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
+                                                            &base->interface_ptr->ws_info.fhss_conf, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
+                                                            &base->interface_ptr->ws_info.fhss_conf, true);
     }
     return header_size;
 }
@@ -1595,7 +1598,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, true);
         if (wp_ies->lcp)
             // Only unicast schedule using tag 0 is supported
-            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
+            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule,
+                                   &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
         if (wp_ies->lgtkhash)
