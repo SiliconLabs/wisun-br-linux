@@ -104,7 +104,6 @@ static void ws_bootstrap_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, c
         }
 
         bitset(chan_excl->channel_mask, i);
-        chan_excl->excluded_channel_count++;
 
         if (!in_range) {
             in_range = true;

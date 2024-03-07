@@ -62,7 +62,6 @@ typedef struct ws_excluded_channel_data {
     unsigned excluded_channel_ctrl: 2;
     unsigned excluded_range_length: 3;
     ws_excluded_channel_range_data_t excluded_range[WS_EXCLUDED_MAX_RANGE_TO_SEND];
-    uint16_t excluded_channel_count;
     uint8_t channel_mask_bytes_inline;
     uint8_t channel_mask[32];
 } ws_excluded_channel_data_t;
