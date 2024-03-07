@@ -129,16 +129,16 @@ static void ws_bootstrap_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, c
 
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    fhss_configuration->channel_mask_size = cur->ws_info.hopping_schedule.number_of_channels;
-    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
+    fhss_configuration->channel_mask_size = fhss_configuration->number_of_channels;
+    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.fhss_conf.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
     ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.uc_excluded_channels,
                                 fhss_configuration->unicast_channel_mask,
                                 fhss_configuration->domain_channel_mask,
-                                cur->ws_info.hopping_schedule.number_of_channels);
+                                fhss_configuration->number_of_channels);
     ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
                                 fhss_configuration->broadcast_channel_mask,
                                 fhss_configuration->domain_channel_mask,
-                                cur->ws_info.hopping_schedule.number_of_channels);
+                                fhss_configuration->number_of_channels);
 }
 
 static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
@@ -418,6 +418,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info.hopping_schedule;
+    struct fhss_ws_configuration *fhss_config = &cur->ws_info.fhss_conf;
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
@@ -441,7 +442,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     if (!chan_params) {
         rf_config.channel_0_center_frequency = hopping_schedule->ch0_freq;
         rf_config.channel_spacing = hopping_schedule->channel_spacing;
-        rf_config.number_of_channels = hopping_schedule->number_of_channels;
+        rf_config.number_of_channels = fhss_config->number_of_channels;
     } else {
         WARN_ON(!ws_regdb_check_phy_chan_compat(phy_params, chan_params),
                 "non standard RF configuration in use");

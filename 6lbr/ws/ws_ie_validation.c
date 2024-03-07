@@ -19,7 +19,8 @@
 #include "ws_ie_validation.h"
 
 static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_plan,
-                                     const ws_hopping_schedule_t *hopping_schedule)
+                                     const ws_hopping_schedule_t *hopping_schedule,
+                                     const struct fhss_ws_configuration *fhss_config)
 {
     const struct ws_channel_plan_zero *plan0 = &rx_plan->plan.zero;
     const struct ws_channel_plan_one *plan1 = &rx_plan->plan.one;
@@ -30,7 +31,7 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
     if (plan_nr == 1)
         return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
                plan1->channel_spacing == ws_regdb_chan_spacing_id(hopping_schedule->channel_spacing) &&
-               plan1->number_of_channel == hopping_schedule->number_of_channels;
+               plan1->number_of_channel == fhss_config->number_of_channels;
     if (plan_nr == 0)
         parms = ws_regdb_chan_params(plan0->regulatory_domain,
                                      0, plan0->operating_class);
@@ -40,7 +41,7 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
     if (!parms)
         return false;
     return parms->chan0_freq == hopping_schedule->ch0_freq &&
-           parms->chan_count == hopping_schedule->number_of_channels &&
+           parms->chan_count == fhss_config->number_of_channels &&
            parms->chan_spacing == hopping_schedule->channel_spacing;
 }
 
@@ -48,7 +49,7 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
                                     const struct ws_generic_channel_info *chan_info,
                                     const char *ie_str)
 {
-    if (!ws_ie_validate_chan_plan(chan_info, &ws_info->hopping_schedule)) {
+    if (!ws_ie_validate_chan_plan(chan_info, &ws_info->hopping_schedule, &ws_info->fhss_conf)) {
         TRACE(TR_DROP, "drop %-9s: %s channel plan mismatch", "15.4", ie_str);
         return false;
     }

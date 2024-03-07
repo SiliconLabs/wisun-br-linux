@@ -311,7 +311,8 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
     iobuf_push_u8(buf, tmp8);
 }
 
-static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule)
+static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+                                  const struct fhss_ws_configuration *fhss_config)
 {
     switch (hopping_schedule->channel_plan) {
     case 0:
@@ -321,7 +322,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
     case 1:
         iobuf_push_le24(buf, hopping_schedule->ch0_freq / 1000);
         iobuf_push_u8(buf, ws_regdb_chan_spacing_id(hopping_schedule->channel_spacing));
-        iobuf_push_le16(buf, hopping_schedule->number_of_channels);
+        iobuf_push_le16(buf, fhss_config->number_of_channels);
         break;
     case 2:
         iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
@@ -374,7 +375,7 @@ static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hoppin
                                  const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     ws_wp_schedule_base_write(buf, hopping_schedule, fhss_config, unicast);
-    ws_wp_chan_plan_write(buf, hopping_schedule);
+    ws_wp_chan_plan_write(buf, hopping_schedule, fhss_config);
     ws_wp_chan_func_write(buf, fhss_config, unicast);
     ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
 }

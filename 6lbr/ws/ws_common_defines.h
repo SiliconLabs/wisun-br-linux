@@ -82,7 +82,6 @@ typedef struct ws_hopping_schedule {
     uint8_t channel_plan_id;            /**< Channel plan ID, default to 255 */
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */
     uint32_t channel_spacing;
-    uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     uint24_t ch0_freq; // Default should be derived from regulatory domain
