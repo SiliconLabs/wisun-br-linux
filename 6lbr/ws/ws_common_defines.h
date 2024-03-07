@@ -86,7 +86,6 @@ typedef struct ws_hopping_schedule {
     uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;
     uint8_t timing_accuracy;
-    uint16_t uc_fixed_channel;
     uint16_t bc_fixed_channel;
     uint32_t fhss_broadcast_interval;
     uint24_t ch0_freq; // Default should be derived from regulatory domain

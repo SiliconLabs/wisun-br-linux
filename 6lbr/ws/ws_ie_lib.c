@@ -339,7 +339,7 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hoppi
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
-        iobuf_push_le16(buf, unicast ? hopping_schedule->uc_fixed_channel : hopping_schedule->bc_fixed_channel);
+        iobuf_push_le16(buf, unicast ? fhss_config->unicast_fixed_channel : hopping_schedule->bc_fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
     case WS_CHAN_FUNC_TR51CF:

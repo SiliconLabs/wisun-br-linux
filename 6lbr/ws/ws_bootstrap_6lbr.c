@@ -155,7 +155,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
     if (!fhss_configuration->ws_uc_channel_function)
-        INFO("     unicast   %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
+        INFO("     unicast   %*s BIT(%d)", length, "--", fhss_configuration->unicast_fixed_channel);
     else
         INFO("     unicast   %*s %*s",
              length, tr_excl_channel_mask(hopping_schedule->uc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
@@ -169,7 +169,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_channel_mask(fhss_configuration->broadcast_channel_mask, hopping_schedule->number_of_channels));
 
     if (!fhss_configuration->ws_uc_channel_function) {
-        INFO("     async     %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
+        INFO("     async     %*s BIT(%d)", length, "--", fhss_configuration->unicast_fixed_channel);
     } else {
         ws_common_generate_channel_list(cur, async_chan_mask,
                                         hopping_schedule->number_of_channels,
