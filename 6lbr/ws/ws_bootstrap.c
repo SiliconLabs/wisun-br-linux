@@ -292,11 +292,6 @@ int ws_bootstrap_init(int8_t interface_id)
         goto init_fail;
     }
 
-    if (ws_common_allocate_and_init(cur) < 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
-
     //Register MPXUser to adapatation layer
     if (lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_LOWPAN_ENC_USER_ID) != 0) {
         ret_val =  -4;

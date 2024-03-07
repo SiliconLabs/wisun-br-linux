@@ -118,18 +118,6 @@ void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8
         chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
 }
 
-int8_t ws_common_allocate_and_init(struct net_if *cur)
-{
-    cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
-    cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
-
-    cur->ws_info.hopping_schedule.regulatory_domain = REG_DOMAIN_EU;
-    cur->ws_info.hopping_schedule.operating_mode = 0x03;
-    cur->ws_info.hopping_schedule.operating_class = 2;
-    cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
-    return 0;
-}
-
 void ws_common_seconds_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
