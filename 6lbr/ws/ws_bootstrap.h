@@ -41,7 +41,6 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 
 
-void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
 void ws_bootstrap_fhss_activate(struct net_if *cur);
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
 

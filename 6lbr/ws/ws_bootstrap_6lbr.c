@@ -62,7 +62,6 @@
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
-    ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_lfn_bc(cur->rcp, &cur->ws_info.fhss_conf);

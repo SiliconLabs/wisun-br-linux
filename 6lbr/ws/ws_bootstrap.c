@@ -76,11 +76,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_nei
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
-{
-    ws_common_generate_channel_list(&cur->ws_info.fhss_conf, fhss_configuration->domain_channel_mask, cur->ws_info.fhss_conf.number_of_channels, cur->ws_info.fhss_conf.regulatory_domain, cur->ws_info.fhss_conf.operating_class, cur->ws_info.fhss_conf.channel_plan_id);
-}
-
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
 {
     (void)cur;
