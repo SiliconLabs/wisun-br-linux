@@ -329,7 +329,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
     switch (fhss_config->channel_plan) {
     case 0:
         iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
-        iobuf_push_u8(buf, hopping_schedule->operating_class);
+        iobuf_push_u8(buf, fhss_config->operating_class);
         break;
     case 1:
         iobuf_push_le24(buf, fhss_config->ch0_freq / 1000);

@@ -127,7 +127,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     if (fhss_configuration->channel_plan_id && fhss_configuration->channel_plan_id != 255)
         INFO("  channel plan id: %d", fhss_configuration->channel_plan_id);
     else
-        INFO("  class: 0x%x", hopping_schedule->operating_class);
+        INFO("  class: 0x%x", fhss_configuration->operating_class);
 
     if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
         INFO("  phy mode id: 0x%02x", hopping_schedule->phy_mode_id);
@@ -184,7 +184,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         ws_common_generate_channel_list(&cur->ws_info.fhss_conf, async_chan_mask,
                                         fhss_configuration->number_of_channels,
                                         hopping_schedule->regulatory_domain,
-                                        hopping_schedule->operating_class,
+                                        fhss_configuration->operating_class,
                                         fhss_configuration->channel_plan_id);
         INFO("     async     %*s %*s", length, "--",
              length, tr_channel_mask(async_chan_mask, fhss_configuration->number_of_channels));
