@@ -119,10 +119,10 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     uint8_t async_chan_mask[32];
     int length;
 
-    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
+    if (fhss_configuration->regulatory_domain == REG_DOMAIN_UNDEF)
         INFO("  domain: custom");
     else
-        INFO("  domain: %s", val_to_str(hopping_schedule->regulatory_domain, valid_ws_domains, "??"));
+        INFO("  domain: %s", val_to_str(fhss_configuration->regulatory_domain, valid_ws_domains, "??"));
 
     if (fhss_configuration->channel_plan_id && fhss_configuration->channel_plan_id != 255)
         INFO("  channel plan id: %d", fhss_configuration->channel_plan_id);
@@ -183,7 +183,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     } else {
         ws_common_generate_channel_list(&cur->ws_info.fhss_conf, async_chan_mask,
                                         fhss_configuration->number_of_channels,
-                                        hopping_schedule->regulatory_domain,
+                                        fhss_configuration->regulatory_domain,
                                         fhss_configuration->operating_class,
                                         fhss_configuration->channel_plan_id);
         INFO("     async     %*s %*s", length, "--",
