@@ -45,9 +45,6 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 void ws_bootstrap_fhss_activate(struct net_if *cur);
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
 
-
-void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration);
-
 void ws_bootstrap_ip_stack_reset(struct net_if *cur);
 void ws_bootstrap_ip_stack_activate(struct net_if *cur);
 

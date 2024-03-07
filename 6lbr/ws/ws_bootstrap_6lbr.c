@@ -67,7 +67,6 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
     rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_lfn_bc(cur->rcp, &cur->ws_info.fhss_conf);
     rcp_set_fhss_async(cur->rcp, &cur->ws_info.fhss_conf);
-    ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;
 }

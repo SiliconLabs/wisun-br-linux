@@ -76,10 +76,6 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, struct ws_nei
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
-{
-}
-
 /**
  * @param chan_excl is filled with a list of excluded channels to be advertised
  *   in a schedule IE (US,BS,LCP)
@@ -143,9 +139,6 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 
 static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
 {
-    // Set the LLC information to follow the actual fhss settings
-    ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
-
     return 0;
 }
 
