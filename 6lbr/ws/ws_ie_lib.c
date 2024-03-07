@@ -332,14 +332,13 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
-static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
-                                  const struct fhss_ws_configuration *fhss_config, bool unicast)
+static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
-        iobuf_push_le16(buf, unicast ? fhss_config->unicast_fixed_channel : hopping_schedule->bc_fixed_channel);
+        iobuf_push_le16(buf, unicast ? fhss_config->unicast_fixed_channel : fhss_config->broadcast_fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
     case WS_CHAN_FUNC_TR51CF:
@@ -376,7 +375,7 @@ static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hoppin
 {
     ws_wp_schedule_base_write(buf, hopping_schedule, fhss_config, unicast);
     ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_chan_func_write(buf, hopping_schedule, fhss_config, unicast);
+    ws_wp_chan_func_write(buf, fhss_config, unicast);
     ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
 }
 

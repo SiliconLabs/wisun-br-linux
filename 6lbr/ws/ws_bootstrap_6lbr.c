@@ -162,7 +162,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_channel_mask(fhss_configuration->unicast_channel_mask, hopping_schedule->number_of_channels));
 
     if (!fhss_configuration->ws_bc_channel_function)
-        INFO("     broadcast %*s BIT(%d)", length, "--", hopping_schedule->bc_fixed_channel);
+        INFO("     broadcast %*s BIT(%d)", length, "--", fhss_configuration->broadcast_fixed_channel);
     else
         INFO("     broadcast %*s %*s",
              length, tr_excl_channel_mask(hopping_schedule->bc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
