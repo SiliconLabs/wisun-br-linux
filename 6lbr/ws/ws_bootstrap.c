@@ -85,7 +85,6 @@ void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configura
     cur->ws_info.hopping_schedule.bc_channel_function = fhss_configuration->ws_bc_channel_function;
     cur->ws_info.hopping_schedule.fhss_bc_dwell_interval = fhss_configuration->fhss_bc_dwell_interval;
     cur->ws_info.hopping_schedule.fhss_broadcast_interval = fhss_configuration->fhss_broadcast_interval;
-    cur->ws_info.hopping_schedule.fhss_uc_dwell_interval = fhss_configuration->fhss_uc_dwell_interval;
     cur->ws_info.hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 

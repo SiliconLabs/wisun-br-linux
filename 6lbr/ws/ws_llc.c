@@ -1199,7 +1199,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+                          &base->interface_ptr->ws_info.fhss_conf);
     if (!data->TxAckReq)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
@@ -1307,7 +1308,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+                          &base->interface_ptr->ws_info.fhss_conf);
     if (eapol_handshake_first_msg)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
@@ -1573,7 +1575,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies->us)
-            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule);
+            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule,
+                                  &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->bs)
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies->pan)

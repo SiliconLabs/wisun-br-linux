@@ -24,6 +24,7 @@
 #include "security/protocols/sec_prot.h"
 
 struct iobuf_write;
+struct fhss_ws_configuration;
 struct ws_hopping_schedule;
 
 struct ws_utt_ie {
@@ -259,7 +260,7 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
-void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
+void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, const struct fhss_ws_configuration *fhss_config);
 void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
 void      ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uint16_t routing_cost, uint8_t tps_version);
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, const char *netname);

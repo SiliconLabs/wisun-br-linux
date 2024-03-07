@@ -33,6 +33,7 @@
 #include "security/protocols/sec_prot.h"
 
 #include "ws/ws_common_defines.h"
+#include "ws/ws_common.h"
 
 #include "ws/ws_ie_lib.h"
 
@@ -375,12 +376,13 @@ static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hoppin
     ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
 }
 
-void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule)
+void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+                           const struct fhss_ws_configuration *fhss_config)
 {
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_US, true);
-    iobuf_push_u8(buf, hopping_schedule->fhss_uc_dwell_interval);
+    iobuf_push_u8(buf, fhss_config->fhss_uc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
     ws_wp_schedule_write(buf, hopping_schedule, true);
