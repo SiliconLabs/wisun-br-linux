@@ -266,7 +266,7 @@ void      ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uin
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, const char *netname);
 void   ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version);
 void  ws_wp_nested_gtkhash_write(struct iobuf_write *buf, const gtkhash_t gtkhash[4]);
-uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, const struct fhss_ws_configuration *fhss_config, bool unicast_schedule);
+uint16_t ws_wp_nested_hopping_schedule_length(const struct fhss_ws_configuration *fhss_config, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 void      ws_wp_nested_pom_write(struct iobuf_write *buf, const uint8_t phy_op_modes[16], bool mdr_cmd_capable);
 void    ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);

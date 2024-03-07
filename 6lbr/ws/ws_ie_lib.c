@@ -80,9 +80,9 @@ static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
     return offset;
 }
 
-static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_schedule)
+static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config)
 {
-    switch (hopping_schedule->channel_plan) {
+    switch (fhss_config->channel_plan) {
     case 0:
         return 2; // reg domain, op class
     case 1:
@@ -90,7 +90,7 @@ static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_sched
     case 2:
         return 2; // reg domain, chan plan id
     default:
-        BUG("Unsupported channel plan: %u", hopping_schedule->channel_plan);
+        BUG("Unsupported channel plan: %u", fhss_config->channel_plan);
     }
 }
 
@@ -130,13 +130,12 @@ static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config
     }
 }
 
-uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule,
-                                              const struct fhss_ws_configuration *fhss_config, bool unicast)
+uint16_t ws_wp_nested_hopping_schedule_length(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     uint16_t length = unicast ? 3 : 9;
 
     length++;
-    length += ws_chan_plan_len(hopping_schedule);
+    length += ws_chan_plan_len(fhss_config);
     length += ws_chan_func_len(fhss_config, unicast);
     length += ws_chan_excl_len(fhss_config, unicast);
     return length;
@@ -315,7 +314,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
     else
         ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, fhss_config->domain_channel_mask, fhss_config->number_of_channels);
 
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, hopping_schedule->channel_plan);
+    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, fhss_config->channel_plan);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK, func);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, excl.excluded_channel_ctrl);
     iobuf_push_u8(buf, tmp8);
@@ -324,7 +323,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
 static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                   const struct fhss_ws_configuration *fhss_config)
 {
-    switch (hopping_schedule->channel_plan) {
+    switch (fhss_config->channel_plan) {
     case 0:
         iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
         iobuf_push_u8(buf, hopping_schedule->operating_class);
@@ -339,7 +338,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
         iobuf_push_u8(buf, fhss_config->channel_plan_id);
         break;
     default:
-        BUG("Unsupported channel plan: %u", hopping_schedule->channel_plan);
+        BUG("Unsupported channel plan: %u", fhss_config->channel_plan);
     }
 }
 

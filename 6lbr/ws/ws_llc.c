@@ -1009,16 +1009,13 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
-                                                            &base->interface_ptr->ws_info.fhss_conf, true) +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
-                                                            &base->interface_ptr->ws_info.fhss_conf, false);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule,
-                                                            &base->interface_ptr->ws_info.fhss_conf, true);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, true);
     }
     return header_size;
 }

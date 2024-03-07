@@ -74,6 +74,7 @@ typedef struct fhss_ws_configuration {
     uint8_t number_of_channels;
     uint32_t channel_spacing;
     uint24_t ch0_freq;
+    uint8_t channel_plan;
 } fhss_ws_configuration_t;
 
 

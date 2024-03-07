@@ -245,15 +245,15 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.fhss_conf.ch0_freq = ctxt->config.ws_chan0_freq;
         ctxt->net_if.ws_info.fhss_conf.channel_spacing = ctxt->config.ws_chan_spacing;
         ctxt->net_if.ws_info.fhss_conf.number_of_channels = ctxt->config.ws_chan_count;
-        ctxt->net_if.ws_info.hopping_schedule.channel_plan = 1;
+        ctxt->net_if.ws_info.fhss_conf.channel_plan = 1;
     } else {
         ctxt->net_if.ws_info.fhss_conf.ch0_freq = chan_params->chan0_freq;
         ctxt->net_if.ws_info.fhss_conf.channel_spacing = chan_params->chan_spacing;
         ctxt->net_if.ws_info.fhss_conf.number_of_channels = chan_params->chan_count;
         if (ctxt->config.ws_chan_plan_id)
-            ctxt->net_if.ws_info.hopping_schedule.channel_plan = 2;
+            ctxt->net_if.ws_info.fhss_conf.channel_plan = 2;
         else
-            ctxt->net_if.ws_info.hopping_schedule.channel_plan = 0;
+            ctxt->net_if.ws_info.fhss_conf.channel_plan = 0;
     }
 
     ctxt->net_if.ws_info.fhss_conf.fhss_uc_dwell_interval = ctxt->config.uc_dwell_interval;
