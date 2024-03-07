@@ -293,6 +293,8 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
+    int fixed_channel = ws_common_get_fixed_channel(net_if->ws_info.fhss_conf.unicast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
@@ -329,7 +331,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    if (ie_lcp.chan_plan.channel_function != net_if->ws_info.fhss_conf.ws_uc_channel_function) {
+    if (ie_lcp.chan_plan.channel_function != chan_func) {
         TRACE(TR_DROP, "drop %-9s: LUS-IE/LCP-IE channel function mismatch", tr_ws_frame(WS_FT_LPAS));
         return;
     }

@@ -213,8 +213,6 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
-    int fixed_channel = ws_common_get_fixed_channel(ctxt->config.ws_allowed_channels);
-    uint8_t channel_function = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     const struct chan_params *chan_params;
 
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
@@ -243,8 +241,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     ctxt->net_if.ws_info.fhss_conf.fhss_uc_dwell_interval = ctxt->config.uc_dwell_interval;
-    ctxt->net_if.ws_info.fhss_conf.ws_uc_channel_function = channel_function;
-    ctxt->net_if.ws_info.fhss_conf.ws_bc_channel_function = channel_function;
     ctxt->net_if.ws_info.fhss_conf.fhss_bc_dwell_interval = ctxt->config.bc_dwell_interval;
     ctxt->net_if.ws_info.fhss_conf.fhss_broadcast_interval = ctxt->config.bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;

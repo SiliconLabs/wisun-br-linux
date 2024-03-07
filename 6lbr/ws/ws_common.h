@@ -43,10 +43,6 @@ typedef struct ws_pending_key_index {
  * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
  */
 typedef struct fhss_ws_configuration {
-    /** WS unicast channel function. */
-    enum ws_channel_functions ws_uc_channel_function;
-    /** WS broadcast channel function. */
-    enum ws_channel_functions ws_bc_channel_function;
     /** Broadcast schedule identifier. */
     int bsi;
     /** Unicast dwell interval. Range: 15-250 milliseconds. */

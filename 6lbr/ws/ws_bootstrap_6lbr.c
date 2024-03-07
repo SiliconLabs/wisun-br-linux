@@ -116,6 +116,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     const struct fhss_ws_configuration *fhss_configuration = &cur->ws_info.fhss_conf;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
+    uint8_t chan_func;
     int fixed_channel;
     int length;
 
@@ -158,12 +159,13 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
                                     fhss_configuration->regulatory_domain, fhss_configuration->operating_class,
                                     fhss_configuration->channel_plan_id);
 
-    if (fhss_configuration->ws_uc_channel_function)
+    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->unicast_channel_mask);
+    chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_configuration->unicast_channel_mask,
                                  domain_channel_mask, fhss_configuration->number_of_channels);
 
-    if (!fhss_configuration->ws_uc_channel_function) {
-        fixed_channel = ws_common_get_fixed_channel(fhss_configuration->unicast_channel_mask);
+    if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
     } else {
@@ -172,12 +174,13 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_channel_mask(fhss_configuration->unicast_channel_mask, fhss_configuration->number_of_channels));
     }
 
-    if (fhss_configuration->ws_bc_channel_function)
+    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->broadcast_channel_mask);
+    chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_configuration->broadcast_channel_mask,
                                  domain_channel_mask, fhss_configuration->number_of_channels);
 
-    if (!fhss_configuration->ws_bc_channel_function) {
-        fixed_channel = ws_common_get_fixed_channel(fhss_configuration->broadcast_channel_mask);
+    if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     broadcast %*s BIT(%d)", length, "--", fixed_channel);
     } else {

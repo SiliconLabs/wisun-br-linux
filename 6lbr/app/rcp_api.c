@@ -351,12 +351,13 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
 void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->unicast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_SET_FHSS_UC);
     hif_push_u8(&buf, cfg->fhss_uc_dwell_interval);
-    hif_push_u8(&buf, cfg->ws_uc_channel_function);
-    switch (cfg->ws_uc_channel_function) {
+    hif_push_u8(&buf, chan_func);
+    switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);
@@ -376,14 +377,15 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->broadcast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_FFN_BC);
     hif_push_u24(&buf, cfg->fhss_broadcast_interval);
     hif_push_u16(&buf, cfg->bsi);
     hif_push_u8(&buf,  cfg->fhss_bc_dwell_interval);
-    hif_push_u8(&buf,  cfg->ws_bc_channel_function);
-    switch (cfg->ws_bc_channel_function) {
+    hif_push_u8(&buf,  chan_func);
+    switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);
@@ -403,14 +405,15 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
 void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->broadcast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
     // FIXME: Some parameters are shared with FFN broadcast
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_LFN_BC);
     hif_push_u24(&buf, cfg->lfn_bc_interval);
     hif_push_u16(&buf, cfg->bsi);
-    hif_push_u8(&buf,  cfg->ws_bc_channel_function);
-    switch (cfg->ws_bc_channel_function) {
+    hif_push_u8(&buf,  chan_func);
+    switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);

@@ -99,7 +99,8 @@ static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config
 
 static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -312,7 +313,8 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
     uint8_t tmp8 = 0;
@@ -354,8 +356,8 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_
 
 static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    const uint8_t chan_func = unicast ? fhss_config->ws_uc_channel_function : fhss_config->ws_bc_channel_function;
     int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
