@@ -66,7 +66,7 @@ typedef struct ws_excluded_channel_data {
     uint8_t channel_mask[32];
 } ws_excluded_channel_data_t;
 
-typedef struct ws_hopping_schedule {
+struct ws_hopping_schedule {
     uint8_t op_mode;
     uint8_t phy_mode_id;
     uint8_t phy_op_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
@@ -74,7 +74,7 @@ typedef struct ws_hopping_schedule {
     uint8_t phy_mode_id_ms_tx;
     uint8_t phy_mode_id_ms_base;
     int rcp_rail_config_index; // Index number in rcp.rail_config_list. Needed to configure the RCP.
-} ws_hopping_schedule_t;
+};
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
 #define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */

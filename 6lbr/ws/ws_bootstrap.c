@@ -339,7 +339,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
-    ws_hopping_schedule_t *hopping_schedule = &cur->ws_info.hopping_schedule;
+    struct ws_hopping_schedule *hopping_schedule = &cur->ws_info.hopping_schedule;
     struct fhss_ws_configuration *fhss_config = &cur->ws_info.fhss_conf;
     phy_rf_channel_configuration_t rf_config = { };
 
