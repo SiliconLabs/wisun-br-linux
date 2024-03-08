@@ -376,12 +376,12 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 
 void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    int fixed_channel = ws_common_get_fixed_channel(cfg->broadcast_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_channel_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_FFN_BC);
-    hif_push_u24(&buf, cfg->broadcast_interval);
+    hif_push_u24(&buf, cfg->bc_interval);
     hif_push_u16(&buf, cfg->bsi);
     hif_push_u8(&buf,  cfg->bc_dwell_interval);
     hif_push_u8(&buf,  chan_func);
@@ -391,8 +391,8 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
-        hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
+        hif_push_u8(&buf, sizeof(cfg->bc_channel_mask));
+        hif_push_fixed_u8_array(&buf, cfg->bc_channel_mask, sizeof(cfg->bc_channel_mask));
         break;
     default:
         BUG("unsupported channel function");
@@ -404,7 +404,7 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
 
 void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    int fixed_channel = ws_common_get_fixed_channel(cfg->broadcast_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_channel_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
@@ -419,8 +419,8 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->broadcast_channel_mask));
-        hif_push_fixed_u8_array(&buf, cfg->broadcast_channel_mask, sizeof(cfg->broadcast_channel_mask));
+        hif_push_u8(&buf, sizeof(cfg->bc_channel_mask));
+        hif_push_fixed_u8_array(&buf, cfg->bc_channel_mask, sizeof(cfg->bc_channel_mask));
         break;
     default:
         BUG("unsupported channel function");

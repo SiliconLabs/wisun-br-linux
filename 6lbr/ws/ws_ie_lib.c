@@ -99,7 +99,7 @@ static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config
 
 static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->bc_channel_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
@@ -124,7 +124,7 @@ static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
@@ -313,7 +313,7 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->bc_channel_mask);
     uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
@@ -325,7 +325,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
 
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, fhss_config->channel_plan);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK, func);
@@ -356,7 +356,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_
 
 static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->broadcast_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->unicast_channel_mask : fhss_config->bc_channel_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
@@ -383,7 +383,7 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->unicast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->broadcast_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
@@ -431,7 +431,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_BS, true);
-    iobuf_push_le32(buf, fhss_config->broadcast_interval);
+    iobuf_push_le32(buf, fhss_config->bc_interval);
     iobuf_push_le16(buf, fhss_config->bsi);
     iobuf_push_u8(buf, fhss_config->bc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
