@@ -355,7 +355,7 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_SET_FHSS_UC);
-    hif_push_u8(&buf, cfg->fhss_uc_dwell_interval);
+    hif_push_u8(&buf, cfg->uc_dwell_interval);
     hif_push_u8(&buf, chan_func);
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -381,9 +381,9 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_FFN_BC);
-    hif_push_u24(&buf, cfg->fhss_broadcast_interval);
+    hif_push_u24(&buf, cfg->broadcast_interval);
     hif_push_u16(&buf, cfg->bsi);
-    hif_push_u8(&buf,  cfg->fhss_bc_dwell_interval);
+    hif_push_u8(&buf,  cfg->bc_dwell_interval);
     hif_push_u8(&buf,  chan_func);
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:

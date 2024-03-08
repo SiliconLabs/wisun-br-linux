@@ -240,9 +240,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
             ctxt->net_if.ws_info.fhss_conf.channel_plan = 0;
     }
 
-    ctxt->net_if.ws_info.fhss_conf.fhss_uc_dwell_interval = ctxt->config.uc_dwell_interval;
-    ctxt->net_if.ws_info.fhss_conf.fhss_bc_dwell_interval = ctxt->config.bc_dwell_interval;
-    ctxt->net_if.ws_info.fhss_conf.fhss_broadcast_interval = ctxt->config.bc_interval;
+    ctxt->net_if.ws_info.fhss_conf.uc_dwell_interval = ctxt->config.uc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_conf.bc_dwell_interval = ctxt->config.bc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_conf.broadcast_interval = ctxt->config.bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
 

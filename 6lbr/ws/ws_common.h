@@ -41,11 +41,11 @@ typedef struct ws_pending_key_index {
 
 typedef struct fhss_ws_configuration {
     int bsi;
-    uint8_t fhss_uc_dwell_interval;
-    uint32_t fhss_broadcast_interval;
+    uint8_t uc_dwell_interval;
+    uint32_t broadcast_interval;
     uint32_t lfn_bc_interval;
     uint8_t lfn_bc_sync_period;
-    uint8_t fhss_bc_dwell_interval;
+    uint8_t bc_dwell_interval;
     uint8_t unicast_channel_mask[32];
     uint8_t broadcast_channel_mask[32];
     uint32_t async_tx_duration_ms;

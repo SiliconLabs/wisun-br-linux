@@ -418,7 +418,7 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_sche
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_US, true);
-    iobuf_push_u8(buf, fhss_config->fhss_uc_dwell_interval);
+    iobuf_push_u8(buf, fhss_config->uc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
     iobuf_push_u8(buf, 0); // TODO: timing accuracy
     ws_wp_schedule_write(buf, hopping_schedule, fhss_config, true);
@@ -431,9 +431,9 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_BS, true);
-    iobuf_push_le32(buf, fhss_config->fhss_broadcast_interval);
+    iobuf_push_le32(buf, fhss_config->broadcast_interval);
     iobuf_push_le16(buf, fhss_config->bsi);
-    iobuf_push_u8(buf, fhss_config->fhss_bc_dwell_interval);
+    iobuf_push_u8(buf, fhss_config->bc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
     iobuf_push_u8(buf, 0); // TODO: timing accuracy
     ws_wp_schedule_write(buf, hopping_schedule, fhss_config, false);
