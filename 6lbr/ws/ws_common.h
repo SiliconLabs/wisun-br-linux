@@ -52,7 +52,7 @@ typedef struct fhss_ws_configuration {
     uint8_t regulatory_domain;
     uint8_t operating_class;
     uint8_t chan_plan_id;
-    uint8_t number_of_channels;
+    uint8_t chan_count;
     uint32_t chan_spacing;
     uint24_t chan0_freq;
     uint8_t chan_plan;

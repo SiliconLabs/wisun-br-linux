@@ -149,13 +149,13 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 
     INFO("  channel 0 frequency: %.1fMHz", fhss_configuration->chan0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", fhss_configuration->chan_spacing / 1000);
-    INFO("  channel count: %d", fhss_configuration->number_of_channels);
+    INFO("  channel count: %d", fhss_configuration->chan_count);
     INFO("  channel masks:");
 
-    length = -roundup(fhss_configuration->number_of_channels, 8) / 8 * 3;
+    length = -roundup(fhss_configuration->chan_count, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    ws_common_generate_channel_list(fhss_configuration, domain_channel_mask, fhss_configuration->number_of_channels,
+    ws_common_generate_channel_list(fhss_configuration, domain_channel_mask, fhss_configuration->chan_count,
                                     fhss_configuration->regulatory_domain, fhss_configuration->operating_class,
                                     fhss_configuration->chan_plan_id);
 
@@ -163,34 +163,34 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_configuration->uc_chan_mask,
-                                 domain_channel_mask, fhss_configuration->number_of_channels);
+                                 domain_channel_mask, fhss_configuration->chan_count);
 
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
     } else {
         INFO("     unicast   %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->number_of_channels),
-             length, tr_channel_mask(fhss_configuration->uc_chan_mask, fhss_configuration->number_of_channels));
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->chan_count),
+             length, tr_channel_mask(fhss_configuration->uc_chan_mask, fhss_configuration->chan_count));
     }
 
     fixed_channel = ws_common_get_fixed_channel(fhss_configuration->bc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_configuration->bc_chan_mask,
-                                 domain_channel_mask, fhss_configuration->number_of_channels);
+                                 domain_channel_mask, fhss_configuration->chan_count);
 
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     broadcast %*s BIT(%d)", length, "--", fixed_channel);
     } else {
         INFO("     broadcast %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->number_of_channels),
-             length, tr_channel_mask(fhss_configuration->bc_chan_mask, fhss_configuration->number_of_channels));
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->chan_count),
+             length, tr_channel_mask(fhss_configuration->bc_chan_mask, fhss_configuration->chan_count));
     }
 
     INFO("     async     %*s %*s", length, "--",
-            length, tr_channel_mask(domain_channel_mask, fhss_configuration->number_of_channels));
+            length, tr_channel_mask(domain_channel_mask, fhss_configuration->chan_count));
 }
 
 static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)

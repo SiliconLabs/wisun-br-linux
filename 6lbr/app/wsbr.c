@@ -228,12 +228,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (!chan_params) {
         ctxt->net_if.ws_info.fhss_conf.chan0_freq = ctxt->config.ws_chan0_freq;
         ctxt->net_if.ws_info.fhss_conf.chan_spacing = ctxt->config.ws_chan_spacing;
-        ctxt->net_if.ws_info.fhss_conf.number_of_channels = ctxt->config.ws_chan_count;
+        ctxt->net_if.ws_info.fhss_conf.chan_count = ctxt->config.ws_chan_count;
         ctxt->net_if.ws_info.fhss_conf.chan_plan = 1;
     } else {
         ctxt->net_if.ws_info.fhss_conf.chan0_freq = chan_params->chan0_freq;
         ctxt->net_if.ws_info.fhss_conf.chan_spacing = chan_params->chan_spacing;
-        ctxt->net_if.ws_info.fhss_conf.number_of_channels = chan_params->chan_count;
+        ctxt->net_if.ws_info.fhss_conf.chan_count = chan_params->chan_count;
         if (ctxt->config.ws_chan_plan_id)
             ctxt->net_if.ws_info.fhss_conf.chan_plan = 2;
         else
@@ -247,12 +247,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
 
     ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.uc_chan_mask,
-                                    ctxt->net_if.ws_info.fhss_conf.number_of_channels,
+                                    ctxt->net_if.ws_info.fhss_conf.chan_count,
                                     ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_conf.operating_class,
                                     ctxt->net_if.ws_info.fhss_conf.chan_plan_id);
     ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.bc_chan_mask,
-                                    ctxt->net_if.ws_info.fhss_conf.number_of_channels,
+                                    ctxt->net_if.ws_info.fhss_conf.chan_count,
                                     ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_conf.operating_class,
                                     ctxt->net_if.ws_info.fhss_conf.chan_plan_id);
