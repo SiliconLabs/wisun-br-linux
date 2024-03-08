@@ -41,7 +41,7 @@ typedef struct ws_pending_key_index {
 
 struct ws_fhss_config {
     uint8_t  regulatory_domain;
-    int      regulation;
+    int      regional_regulation;
     uint8_t  op_class;
     uint8_t  chan_plan_id;
     uint8_t  chan_count;

@@ -63,7 +63,7 @@ int8_t ws_common_generate_channel_list(const struct ws_fhss_config *fhss_config,
     memset(channel_mask, 0xFF, 32);
     if (chan_params && chan_params->chan_allowed)
         parse_bitmask(channel_mask, 32, chan_params->chan_allowed);
-    if (fhss_config->regulation == HIF_REG_ARIB) {
+    if (fhss_config->regional_regulation == HIF_REG_ARIB) {
         // For now, ARIB is not supported for custom channel plans
         BUG_ON(!chan_params);
         // For now, ARIB is not supported outside of Japan
