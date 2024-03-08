@@ -265,7 +265,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
-    ctxt->net_if.ws_info.fhss_config.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
+    ctxt->net_if.ws_info.fhss_config.async_frag_duration_ms = ctxt->config.ws_async_frag_duration;
 
     ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_config.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
                              &ctxt->net_if.ws_info.pan_information.pan_version,

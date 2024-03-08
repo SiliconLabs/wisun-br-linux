@@ -55,7 +55,7 @@ struct ws_fhss_config {
     uint8_t  bc_dwell_interval;
     uint32_t lfn_bc_interval;
     uint8_t  lfn_bc_sync_period;
-    uint32_t async_tx_duration_ms;
+    uint32_t async_frag_duration_ms;
     int      bsi;
 };
 

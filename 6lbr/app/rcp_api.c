@@ -439,7 +439,7 @@ void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
                                     cfg->op_class, cfg->chan_plan_id);
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);
-    hif_push_u32(&buf, cfg->async_tx_duration_ms);
+    hif_push_u32(&buf, cfg->async_frag_duration_ms);
     hif_push_u8(&buf, sizeof(domain_channel_mask));
     hif_push_fixed_u8_array(&buf, domain_channel_mask, sizeof(domain_channel_mask));
     rcp_tx(rcp, &buf);
