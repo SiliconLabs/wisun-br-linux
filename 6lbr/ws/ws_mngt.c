@@ -436,12 +436,13 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
         return;
     }
 
-    ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                 data->hif.timestamp_us, data->SrcAddr);
-    if (has_lus)
+    if (has_lus) {
+        ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
+                            data->hif.timestamp_us, data->SrcAddr);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+    }
 
     ws_mngt_lpc_send(net_if, data->SrcAddr);
 }

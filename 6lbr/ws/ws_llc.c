@@ -384,12 +384,9 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
             }
-            if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
+            if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt))
                 if (mlme_status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-                ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                    confirm->hif.timestamp_us, ws_neigh->mac64);
-            }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
                 ws_neigh->rsl_out_dbm = ws_common_rsl_calc(ws_neigh->rsl_out_dbm, ie_rsl);
             break;
@@ -681,13 +678,14 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in ULAD frame from LFN");
-    ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                 data->hif.timestamp_us, data->SrcAddr);
-    if (has_lus)
+    if (has_lus) {
+        ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
+                            data->hif.timestamp_us, data->SrcAddr);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config,
                                                                  &ws_neigh->fhss_data,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+    }
 
     if (data->DstAddrMode == ADDR_802_15_4_LONG)
         ws_neigh->unicast_data_rx = true;
@@ -822,12 +820,13 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
-    ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                        data->hif.timestamp_us, data->SrcAddr);
-    if (has_lus)
+    if (has_lus) {
+        ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
+                            data->hif.timestamp_us, data->SrcAddr);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+    }
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;

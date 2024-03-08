@@ -171,6 +171,11 @@ void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t
     fhss_data->ffn.ufsi             = ufsi;
 }
 
+// Wi-SUN FAN 1.1v08 - 6.3.4.6.4.2.6 Maintaining FFN / LFN Synchronization
+//   When the FFN receives a LUTT-IE from a LFN it does not adjust any time
+//   difference relative to the expected LFN’s unicast listening reference point.
+// In fact, the LUTT information must only be updated when combined with an
+// LUS-IE which indicates a change in timing offset and/or interval.
 void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8])
