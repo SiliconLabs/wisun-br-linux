@@ -246,7 +246,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;
     ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
 
-    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask,
+    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.uc_channel_mask,
                                     ctxt->net_if.ws_info.fhss_conf.number_of_channels,
                                     ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_conf.operating_class,
@@ -256,9 +256,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                     ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_conf.operating_class,
                                     ctxt->net_if.ws_info.fhss_conf.channel_plan_id);
-    bitand(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, ctxt->config.ws_allowed_channels, 256);
+    bitand(ctxt->net_if.ws_info.fhss_conf.uc_channel_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(ctxt->net_if.ws_info.fhss_conf.bc_channel_mask, ctxt->config.ws_allowed_channels, 256);
-    if (!memzcmp(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask, sizeof(ctxt->net_if.ws_info.fhss_conf.unicast_channel_mask)))
+    if (!memzcmp(ctxt->net_if.ws_info.fhss_conf.uc_channel_mask, sizeof(ctxt->net_if.ws_info.fhss_conf.uc_channel_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
 
     rail_fill_pom(ctxt);

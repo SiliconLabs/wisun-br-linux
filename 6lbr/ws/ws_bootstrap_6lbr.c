@@ -159,10 +159,10 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
                                     fhss_configuration->regulatory_domain, fhss_configuration->operating_class,
                                     fhss_configuration->channel_plan_id);
 
-    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->unicast_channel_mask);
+    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->uc_channel_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
-        ws_common_calc_chan_excl(&excl, fhss_configuration->unicast_channel_mask,
+        ws_common_calc_chan_excl(&excl, fhss_configuration->uc_channel_mask,
                                  domain_channel_mask, fhss_configuration->number_of_channels);
 
     if (!chan_func) {
@@ -171,7 +171,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     } else {
         INFO("     unicast   %*s %*s",
              length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->number_of_channels),
-             length, tr_channel_mask(fhss_configuration->unicast_channel_mask, fhss_configuration->number_of_channels));
+             length, tr_channel_mask(fhss_configuration->uc_channel_mask, fhss_configuration->number_of_channels));
     }
 
     fixed_channel = ws_common_get_fixed_channel(fhss_configuration->bc_channel_mask);
