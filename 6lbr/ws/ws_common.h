@@ -39,7 +39,7 @@ typedef struct ws_pending_key_index {
     uint8_t index;
 } ws_pending_key_index_t;
 
-typedef struct fhss_ws_configuration {
+struct fhss_ws_configuration {
     uint8_t  regulatory_domain;
     int      regulation;
     uint8_t  op_class;
@@ -57,7 +57,7 @@ typedef struct fhss_ws_configuration {
     uint8_t  lfn_bc_sync_period;
     uint32_t async_tx_duration_ms;
     int      bsi;
-} fhss_ws_configuration_t;
+};
 
 
 typedef struct ws_info {
