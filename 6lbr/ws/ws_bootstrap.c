@@ -344,7 +344,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
-    chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->operating_class);
+    chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->op_class);
 
     rf_config.rcp_config_index = hopping_schedule->rcp_rail_config_index;
     if (hopping_schedule->phy_op_modes[0])

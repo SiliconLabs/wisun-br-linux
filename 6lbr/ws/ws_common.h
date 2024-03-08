@@ -50,7 +50,7 @@ typedef struct fhss_ws_configuration {
     uint8_t bc_chan_mask[32];
     uint32_t async_tx_duration_ms;
     uint8_t regulatory_domain;
-    uint8_t operating_class;
+    uint8_t op_class;
     uint8_t chan_plan_id;
     uint8_t chan_count;
     uint32_t chan_spacing;

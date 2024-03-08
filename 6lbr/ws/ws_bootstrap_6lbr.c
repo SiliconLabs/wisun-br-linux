@@ -128,7 +128,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     if (fhss_configuration->chan_plan_id && fhss_configuration->chan_plan_id != 255)
         INFO("  channel plan id: %d", fhss_configuration->chan_plan_id);
     else
-        INFO("  class: 0x%x", fhss_configuration->operating_class);
+        INFO("  class: 0x%x", fhss_configuration->op_class);
 
     if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
         INFO("  phy mode id: 0x%02x", hopping_schedule->phy_mode_id);
@@ -156,7 +156,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
     ws_common_generate_channel_list(fhss_configuration, domain_channel_mask, fhss_configuration->chan_count,
-                                    fhss_configuration->regulatory_domain, fhss_configuration->operating_class,
+                                    fhss_configuration->regulatory_domain, fhss_configuration->op_class,
                                     fhss_configuration->chan_plan_id);
 
     fixed_channel = ws_common_get_fixed_channel(fhss_configuration->uc_chan_mask);

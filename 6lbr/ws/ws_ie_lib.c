@@ -119,7 +119,7 @@ static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config
     uint8_t domain_channel_mask[32];
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->chan_count, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->chan_plan_id);
+                                    fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
@@ -320,7 +320,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
     uint8_t tmp8 = 0;
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->chan_count, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->chan_plan_id);
+                                    fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
@@ -338,7 +338,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_
     switch (fhss_config->chan_plan) {
     case 0:
         iobuf_push_u8(buf, fhss_config->regulatory_domain);
-        iobuf_push_u8(buf, fhss_config->operating_class);
+        iobuf_push_u8(buf, fhss_config->op_class);
         break;
     case 1:
         iobuf_push_le24(buf, fhss_config->chan0_freq / 1000);
@@ -378,7 +378,7 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_
     uint8_t domain_channel_mask[32];
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->chan_count, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->chan_plan_id);
+                                    fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
