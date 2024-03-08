@@ -497,7 +497,7 @@ void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message)
 
 void ws_mngt_pa_send(struct net_if *cur)
 {
-    const struct ws_hopping_schedule *schedule = &cur->ws_info.hopping_schedule;
+    const struct ws_phy_config *schedule = &cur->ws_info.phy_config;
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PA,
         .wh_ies.utt     = true,

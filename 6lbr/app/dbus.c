@@ -470,10 +470,10 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
         .pom_ie.mdr_command_capable = true,
     };
 
-    while (ctxt->net_if.ws_info.hopping_schedule.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
+    while (ctxt->net_if.ws_info.phy_config.phy_op_modes[neigh.pom_ie.phy_op_mode_number])
         neigh.pom_ie.phy_op_mode_number++;
     memcpy(neigh.pom_ie.phy_op_mode_id,
-           ctxt->net_if.ws_info.hopping_schedule.phy_op_modes,
+           ctxt->net_if.ws_info.phy_config.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
     dbus_message_append_node(m, property, ctxt->rcp.eui64, true, false, &neigh);
 }

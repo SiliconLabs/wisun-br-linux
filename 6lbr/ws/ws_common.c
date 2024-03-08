@@ -173,7 +173,7 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 
 uint32_t ws_common_datarate_get(struct net_if *cur)
 {
-    return ws_common_datarate_get_from_phy_mode(cur->ws_info.hopping_schedule.phy_mode_id, cur->ws_info.hopping_schedule.op_mode);
+    return ws_common_datarate_get_from_phy_mode(cur->ws_info.phy_config.phy_mode_id, cur->ws_info.phy_config.op_mode);
 }
 
 bool ws_common_is_valid_nr(uint8_t node_role)

@@ -217,9 +217,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
     ctxt->net_if.ws_info.fhss_conf.regulatory_domain = ctxt->config.ws_domain;
-    ctxt->net_if.ws_info.hopping_schedule.phy_mode_id = ctxt->config.ws_phy_mode_id;
+    ctxt->net_if.ws_info.phy_config.phy_mode_id = ctxt->config.ws_phy_mode_id;
     ctxt->net_if.ws_info.fhss_conf.chan_plan_id = ctxt->config.ws_chan_plan_id;
-    ctxt->net_if.ws_info.hopping_schedule.op_mode = ctxt->config.ws_mode;
+    ctxt->net_if.ws_info.phy_config.op_mode = ctxt->config.ws_mode;
     ctxt->net_if.ws_info.fhss_conf.op_class = ctxt->config.ws_class;
 
     chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.fhss_conf.regulatory_domain,

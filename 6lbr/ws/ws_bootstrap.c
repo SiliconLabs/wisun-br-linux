@@ -339,15 +339,15 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
-    struct ws_hopping_schedule *hopping_schedule = &cur->ws_info.hopping_schedule;
+    struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     struct fhss_ws_configuration *fhss_config = &cur->ws_info.fhss_conf;
     phy_rf_channel_configuration_t rf_config = { };
 
-    phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->op_mode);
+    phy_params = ws_regdb_phy_params(phy_config->phy_mode_id, phy_config->op_mode);
     chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->op_class);
 
-    rf_config.rcp_config_index = hopping_schedule->rcp_rail_config_index;
-    if (hopping_schedule->phy_op_modes[0])
+    rf_config.rcp_config_index = phy_config->rcp_rail_config_index;
+    if (phy_config->phy_op_modes[0])
         rf_config.use_phy_op_modes = true;
     // We don't worry of the case where phy_params == NULL, the RCP will return
     // an error anyway.
@@ -372,7 +372,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
         rf_config.number_of_channels = chan_params->chan_count;
     }
 
-    hopping_schedule->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
+    phy_config->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
     rcp_set_radio(cur->rcp,
                   rf_config.rcp_config_index,
                   rf_config.ofdm_mcs,

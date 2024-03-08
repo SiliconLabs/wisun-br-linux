@@ -69,9 +69,9 @@ typedef struct ws_info {
     unsigned int key_index_mask;  // Bitmask of installed key indices
     ws_pending_key_index_t pending_key_index_info;
     struct ws_pan_information pan_information;
-    struct ws_hopping_schedule hopping_schedule;
+    struct ws_phy_config phy_config;
     struct ws_neigh_table neighbor_storage;
-    // FIXME: fhss_conf is redundant with hopping_schedule
+    // FIXME: fhss_conf is redundant with phy_config
     struct fhss_ws_configuration fhss_conf;
 } ws_info_t;
 

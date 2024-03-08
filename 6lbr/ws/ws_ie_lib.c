@@ -310,7 +310,7 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
     int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
@@ -403,16 +403,16 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_
     }
 }
 
-static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
                                  const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    ws_wp_schedule_base_write(buf, hopping_schedule, fhss_config, unicast);
+    ws_wp_schedule_base_write(buf, phy_config, fhss_config, unicast);
     ws_wp_chan_plan_write(buf, fhss_config);
     ws_wp_chan_func_write(buf, fhss_config, unicast);
     ws_wp_chan_excl_write(buf, fhss_config, unicast);
 }
 
-void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
                            const struct fhss_ws_configuration *fhss_config)
 {
     int offset;
@@ -421,11 +421,11 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, fhss_config->uc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
     iobuf_push_u8(buf, 0); // TODO: timing accuracy
-    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, true);
+    ws_wp_schedule_write(buf, phy_config, fhss_config, true);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
+void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
                            const struct fhss_ws_configuration *fhss_config)
 {
     int offset;
@@ -436,7 +436,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, fhss_config->bc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
     iobuf_push_u8(buf, 0); // TODO: timing accuracy
-    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, false);
+    ws_wp_schedule_write(buf, phy_config, fhss_config, false);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -540,14 +540,14 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
 }
 
 void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
-                            struct ws_hopping_schedule *hopping_schedule,
+                            struct ws_phy_config *phy_config,
                             const struct fhss_ws_configuration *fhss_config)
 {
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_LCP, true);
     iobuf_push_u8(buf, tag);
-    ws_wp_schedule_write(buf, hopping_schedule, fhss_config, true); // Write unicast schedule
+    ws_wp_schedule_write(buf, phy_config, fhss_config, true); // Write unicast schedule
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 

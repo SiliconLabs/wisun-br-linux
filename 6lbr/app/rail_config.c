@@ -57,12 +57,12 @@ static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
 
     if (!config)
         FATAL(1, "can't match any RAIL configuration");
-    ctxt->net_if.ws_info.hopping_schedule.rcp_rail_config_index = config->index;
+    ctxt->net_if.ws_info.phy_config.rcp_rail_config_index = config->index;
 }
 
 static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 {
-    struct ws_hopping_schedule *hopping_schedule = &ctxt->net_if.ws_info.hopping_schedule;
+    struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
     const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct chan_params *chan_params;
@@ -84,18 +84,18 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
         return;
     }
     i = 1;
-    hopping_schedule->rcp_rail_config_index = base_rail_params->index;
-    hopping_schedule->phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
+    phy_config->rcp_rail_config_index = base_rail_params->index;
+    phy_config->phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
     for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
             for (phy_mode = chan_params->valid_phy_modes; *phy_mode; phy_mode++) {
                 phy_params = ws_regdb_phy_params(*phy_mode, 0);
-                if (i >= ARRAY_SIZE(hopping_schedule->phy_op_modes) - 1)
+                if (i >= ARRAY_SIZE(phy_config->phy_op_modes) - 1)
                     continue;
                 // Ignore FAN1.0
                 if (!chan_params->chan_plan_id)
                     continue;
-                if (strchr((char *)hopping_schedule->phy_op_modes, *phy_mode))
+                if (strchr((char *)phy_config->phy_op_modes, *phy_mode))
                     continue;
                 if (chan_params->reg_domain != ctxt->config.ws_domain)
                     continue;
@@ -109,7 +109,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
                     continue;
                 if (base_phy_params->phy_mode_id == phy_params->phy_mode_id)
                     continue;
-                hopping_schedule->phy_op_modes[i++] = *phy_mode;
+                phy_config->phy_op_modes[i++] = *phy_mode;
             }
         }
     }
@@ -117,7 +117,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 
 static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
 {
-    struct ws_hopping_schedule *hopping_schedule = &ctxt->net_if.ws_info.hopping_schedule;
+    struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
     const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct phy_params *phy_params;
@@ -133,8 +133,8 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
         if (!base_rail_params->phy_mode_group)
             continue;
         i = 1;
-        hopping_schedule->rcp_rail_config_index = base_rail_params->index;
-        hopping_schedule->phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
+        phy_config->rcp_rail_config_index = base_rail_params->index;
+        phy_config->phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
         for (phy_mode = ctxt->config.ws_phy_op_modes; *phy_mode; phy_mode++) {
             phy_params = ws_regdb_phy_params(*phy_mode, 0);
             found = 0;
@@ -150,13 +150,13 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
                 break;
             if (found > 1)
                 ERROR("ambiguous RAIL configuration");
-            BUG_ON(i >= ARRAY_SIZE(hopping_schedule->phy_op_modes) - 1);
-            hopping_schedule->phy_op_modes[i++] = *phy_mode;
+            BUG_ON(i >= ARRAY_SIZE(phy_config->phy_op_modes) - 1);
+            phy_config->phy_op_modes[i++] = *phy_mode;
         }
         // It may exist other possible configurations (eg. user may define NA
         // and BZ with the same parameters set). We stop on the first found.
         if (!*phy_mode) {
-            BUG_ON(hopping_schedule->phy_op_modes[i] != 0);
+            BUG_ON(phy_config->phy_op_modes[i] != 0);
             return;
         }
     }

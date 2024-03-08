@@ -112,7 +112,7 @@ static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
 
 static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
-    struct ws_hopping_schedule *hopping_schedule = &cur->ws_info.hopping_schedule;
+    struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     const struct fhss_ws_configuration *fhss_configuration = &cur->ws_info.fhss_conf;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
@@ -130,21 +130,21 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     else
         INFO("  class: 0x%x", fhss_configuration->op_class);
 
-    if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
-        INFO("  phy mode id: 0x%02x", hopping_schedule->phy_mode_id);
+    if (phy_config->phy_mode_id && phy_config->phy_mode_id != 255)
+        INFO("  phy mode id: 0x%02x", phy_config->phy_mode_id);
     else
-        INFO("  mode: 0x%x", hopping_schedule->op_mode);
+        INFO("  mode: 0x%x", phy_config->op_mode);
 
-    if (!hopping_schedule->phy_op_modes[0])
+    if (!phy_config->phy_op_modes[0])
         INFO("  phy operating modes: disabled");
     else
-        INFO("  phy operating modes: %s", tr_bytes(hopping_schedule->phy_op_modes,
-                                                   strlen((char *)hopping_schedule->phy_op_modes),
+        INFO("  phy operating modes: %s", tr_bytes(phy_config->phy_op_modes,
+                                                   strlen((char *)phy_config->phy_op_modes),
                                                    NULL, 80, FMT_DEC | DELIM_COMMA | ELLIPSIS_ABRT));
-    if (hopping_schedule->rcp_rail_config_index < 0)
+    if (phy_config->rcp_rail_config_index < 0)
         INFO("  RCP configuration index: not supported");
     else
-        INFO("  RCP configuration index: %d", hopping_schedule->rcp_rail_config_index);
+        INFO("  RCP configuration index: %d", phy_config->rcp_rail_config_index);
 
 
     INFO("  channel 0 frequency: %.1fMHz", fhss_configuration->chan0_freq / 1000000.);

@@ -619,7 +619,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
-        if (has_pom && base->interface_ptr->ws_info.hopping_schedule.phy_op_modes[0])
+        if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0])
             ws_neigh->pom_ie = ie_pom;
     }
 
@@ -1079,7 +1079,7 @@ static uint8_t ws_llc_find_phy_mode_id(const uint8_t phy_mode_id_list[],
 
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
-    struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
+    struct ws_phy_config *schedule = &base->interface_ptr->ws_info.phy_config;
     struct ws_neigh *ws_neigh;
     uint8_t ms_phy_mode_id = 0;
 
@@ -1200,14 +1200,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
                           &base->interface_ptr->ws_info.fhss_conf);
     if (!data->TxAckReq)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
                               &base->interface_ptr->ws_info.fhss_conf);
     // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (ws_info->hopping_schedule.phy_op_modes[0] && ws_info->hopping_schedule.phy_op_modes[1])
-        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->hopping_schedule.phy_op_modes, true);
+    if (ws_info->phy_config.phy_op_modes[0] && ws_info->phy_config.phy_op_modes[1])
+        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->phy_config.phy_op_modes, true);
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
@@ -1310,10 +1310,10 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
                           &base->interface_ptr->ws_info.fhss_conf);
     if (eapol_handshake_first_msg)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule,
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
                               &base->interface_ptr->ws_info.fhss_conf);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
@@ -1417,7 +1417,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 // Mode Switch rate management function
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor)
 {
-    struct ws_hopping_schedule *schedule = &base->interface_ptr->ws_info.hopping_schedule;
+    struct ws_phy_config *schedule = &base->interface_ptr->ws_info.phy_config;
     uint8_t i;
 
     if (data->success_phy_mode_id == schedule->phy_mode_id_ms_base)
@@ -1578,10 +1578,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies->us)
-            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule,
+            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->phy_config,
                                   &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->bs)
-            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule,
+            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->phy_config,
                                   &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
@@ -1593,10 +1593,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->gtkhash)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
         if (wp_ies->pom)
-            ws_wp_nested_pom_write(&msg->ie_buf_payload, info->hopping_schedule.phy_op_modes, true);
+            ws_wp_nested_pom_write(&msg->ie_buf_payload, info->phy_config.phy_op_modes, true);
         if (wp_ies->lcp)
             // Only unicast schedule using tag 0 is supported
-            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule,
+            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.phy_config,
                                    &base->interface_ptr->ws_info.fhss_conf);
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
@@ -1745,7 +1745,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
-    struct ws_hopping_schedule *schedule = &llc->interface_ptr->ws_info.hopping_schedule;
+    struct ws_phy_config *schedule = &llc->interface_ptr->ws_info.phy_config;
     struct ws_neigh *ws_neigh;
     uint8_t peer_phy_mode_id;
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };

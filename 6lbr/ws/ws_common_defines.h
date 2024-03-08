@@ -66,7 +66,7 @@ typedef struct ws_excluded_channel_data {
     uint8_t channel_mask[32];
 } ws_excluded_channel_data_t;
 
-struct ws_hopping_schedule {
+struct ws_phy_config {
     uint8_t op_mode;
     uint8_t phy_mode_id;
     uint8_t phy_op_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
