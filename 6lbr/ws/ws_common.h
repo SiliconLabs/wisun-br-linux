@@ -39,23 +39,14 @@ typedef struct ws_pending_key_index {
     uint8_t index;
 } ws_pending_key_index_t;
 
-/**
- * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
- */
 typedef struct fhss_ws_configuration {
-    /** Broadcast schedule identifier. */
     int bsi;
-    /** Unicast dwell interval. Range: 15-250 milliseconds. */
     uint8_t fhss_uc_dwell_interval;
-    /** Broadcast interval. Duration between broadcast dwell intervals. Range: 0-16777216 milliseconds. */
     uint32_t fhss_broadcast_interval;
     uint32_t lfn_bc_interval;
     uint8_t lfn_bc_sync_period;
-    /** Broadcast dwell interval. Range: 15-250 milliseconds. */
     uint8_t fhss_bc_dwell_interval;
-    /** Wi-SUN specific unicast channel mask */
     uint8_t unicast_channel_mask[32];
-    /** Wi-SUN specific broadcast channel mask */
     uint8_t broadcast_channel_mask[32];
     uint32_t async_tx_duration_ms;
     uint8_t regulatory_domain;
