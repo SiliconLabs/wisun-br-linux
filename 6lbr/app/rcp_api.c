@@ -350,7 +350,7 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
 
 void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    int fixed_channel = ws_common_get_fixed_channel(cfg->uc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(cfg->uc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
@@ -363,8 +363,8 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->uc_channel_mask));
-        hif_push_fixed_u8_array(&buf, cfg->uc_channel_mask, sizeof(cfg->uc_channel_mask));
+        hif_push_u8(&buf, sizeof(cfg->uc_chan_mask));
+        hif_push_fixed_u8_array(&buf, cfg->uc_chan_mask, sizeof(cfg->uc_chan_mask));
         break;
     default:
         BUG("unsupported channel function");
@@ -376,7 +376,7 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 
 void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
@@ -391,8 +391,8 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->bc_channel_mask));
-        hif_push_fixed_u8_array(&buf, cfg->bc_channel_mask, sizeof(cfg->bc_channel_mask));
+        hif_push_u8(&buf, sizeof(cfg->bc_chan_mask));
+        hif_push_fixed_u8_array(&buf, cfg->bc_chan_mask, sizeof(cfg->bc_chan_mask));
         break;
     default:
         BUG("unsupported channel function");
@@ -404,7 +404,7 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
 
 void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
 {
-    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(cfg->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
@@ -419,8 +419,8 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->bc_channel_mask));
-        hif_push_fixed_u8_array(&buf, cfg->bc_channel_mask, sizeof(cfg->bc_channel_mask));
+        hif_push_u8(&buf, sizeof(cfg->bc_chan_mask));
+        hif_push_fixed_u8_array(&buf, cfg->bc_chan_mask, sizeof(cfg->bc_chan_mask));
         break;
     default:
         BUG("unsupported channel function");
@@ -436,7 +436,7 @@ void rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg
     struct iobuf_write buf = { };
 
     ws_common_generate_channel_list(cfg, domain_channel_mask, cfg->number_of_channels, cfg->regulatory_domain,
-                                    cfg->operating_class, cfg->channel_plan_id);
+                                    cfg->operating_class, cfg->chan_plan_id);
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);
     hif_push_u32(&buf, cfg->async_tx_duration_ms);

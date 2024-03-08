@@ -85,7 +85,7 @@ static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
 
 static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config)
 {
-    switch (fhss_config->channel_plan) {
+    switch (fhss_config->chan_plan) {
     case 0:
         return 2; // reg domain, op class
     case 1:
@@ -93,13 +93,13 @@ static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config
     case 2:
         return 2; // reg domain, chan plan id
     default:
-        BUG("Unsupported channel plan: %u", fhss_config->channel_plan);
+        BUG("Unsupported channel plan: %u", fhss_config->chan_plan);
     }
 }
 
 static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_channel_mask : fhss_config->bc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
@@ -119,12 +119,12 @@ static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config
     uint8_t domain_channel_mask[32];
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->number_of_channels, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->channel_plan_id);
+                                    fhss_config->operating_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
@@ -313,21 +313,21 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule,
                                       const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_channel_mask : fhss_config->bc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
     uint8_t tmp8 = 0;
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->number_of_channels, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->channel_plan_id);
+                                    fhss_config->operating_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
 
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, fhss_config->channel_plan);
+    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, fhss_config->chan_plan);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK, func);
     tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, excl.excluded_channel_ctrl);
     iobuf_push_u8(buf, tmp8);
@@ -335,28 +335,28 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_h
 
 static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config)
 {
-    switch (fhss_config->channel_plan) {
+    switch (fhss_config->chan_plan) {
     case 0:
         iobuf_push_u8(buf, fhss_config->regulatory_domain);
         iobuf_push_u8(buf, fhss_config->operating_class);
         break;
     case 1:
-        iobuf_push_le24(buf, fhss_config->ch0_freq / 1000);
-        iobuf_push_u8(buf, ws_regdb_chan_spacing_id(fhss_config->channel_spacing));
+        iobuf_push_le24(buf, fhss_config->chan0_freq / 1000);
+        iobuf_push_u8(buf, ws_regdb_chan_spacing_id(fhss_config->chan_spacing));
         iobuf_push_le16(buf, fhss_config->number_of_channels);
         break;
     case 2:
         iobuf_push_u8(buf, fhss_config->regulatory_domain);
-        iobuf_push_u8(buf, fhss_config->channel_plan_id);
+        iobuf_push_u8(buf, fhss_config->chan_plan_id);
         break;
     default:
-        BUG("Unsupported channel plan: %u", fhss_config->channel_plan);
+        BUG("Unsupported channel plan: %u", fhss_config->chan_plan);
     }
 }
 
 static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
 {
-    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_channel_mask : fhss_config->bc_channel_mask);
+    int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
 
     switch (chan_func) {
@@ -378,12 +378,12 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_
     uint8_t domain_channel_mask[32];
 
     ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->number_of_channels, fhss_config->regulatory_domain,
-                                    fhss_config->operating_class, fhss_config->channel_plan_id);
+                                    fhss_config->operating_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_channel_mask, domain_channel_mask, fhss_config->number_of_channels);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->number_of_channels);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:

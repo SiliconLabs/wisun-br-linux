@@ -344,7 +344,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
-    chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->channel_plan_id, fhss_config->operating_class);
+    chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->operating_class);
 
     rf_config.rcp_config_index = hopping_schedule->rcp_rail_config_index;
     if (hopping_schedule->phy_op_modes[0])
@@ -361,8 +361,8 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     }
 
     if (!chan_params) {
-        rf_config.channel_0_center_frequency = fhss_config->ch0_freq;
-        rf_config.channel_spacing = fhss_config->channel_spacing;
+        rf_config.channel_0_center_frequency = fhss_config->chan0_freq;
+        rf_config.channel_spacing = fhss_config->chan_spacing;
         rf_config.number_of_channels = fhss_config->number_of_channels;
     } else {
         WARN_ON(!ws_regdb_check_phy_chan_compat(phy_params, chan_params),

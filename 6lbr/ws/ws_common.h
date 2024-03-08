@@ -46,16 +46,16 @@ typedef struct fhss_ws_configuration {
     uint32_t lfn_bc_interval;
     uint8_t lfn_bc_sync_period;
     uint8_t bc_dwell_interval;
-    uint8_t uc_channel_mask[32];
-    uint8_t bc_channel_mask[32];
+    uint8_t uc_chan_mask[32];
+    uint8_t bc_chan_mask[32];
     uint32_t async_tx_duration_ms;
     uint8_t regulatory_domain;
     uint8_t operating_class;
-    uint8_t channel_plan_id;
+    uint8_t chan_plan_id;
     uint8_t number_of_channels;
-    uint32_t channel_spacing;
-    uint24_t ch0_freq;
-    uint8_t channel_plan;
+    uint32_t chan_spacing;
+    uint24_t chan0_freq;
+    uint8_t chan_plan;
     int regulation;
 } fhss_ws_configuration_t;
 
