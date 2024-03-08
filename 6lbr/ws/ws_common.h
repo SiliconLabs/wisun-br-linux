@@ -40,23 +40,23 @@ typedef struct ws_pending_key_index {
 } ws_pending_key_index_t;
 
 typedef struct fhss_ws_configuration {
-    int bsi;
-    uint8_t uc_dwell_interval;
-    uint32_t bc_interval;
-    uint32_t lfn_bc_interval;
-    uint8_t lfn_bc_sync_period;
-    uint8_t bc_dwell_interval;
-    uint8_t uc_chan_mask[32];
-    uint8_t bc_chan_mask[32];
-    uint32_t async_tx_duration_ms;
-    uint8_t regulatory_domain;
-    uint8_t op_class;
-    uint8_t chan_plan_id;
-    uint8_t chan_count;
+    uint8_t  regulatory_domain;
+    int      regulation;
+    uint8_t  op_class;
+    uint8_t  chan_plan_id;
+    uint8_t  chan_count;
     uint32_t chan_spacing;
     uint24_t chan0_freq;
-    uint8_t chan_plan;
-    int regulation;
+    uint8_t  chan_plan;
+    uint8_t  uc_chan_mask[32];
+    uint8_t  bc_chan_mask[32];
+    uint8_t  uc_dwell_interval;
+    uint32_t bc_interval;
+    uint8_t  bc_dwell_interval;
+    uint32_t lfn_bc_interval;
+    uint8_t  lfn_bc_sync_period;
+    uint32_t async_tx_duration_ms;
+    int      bsi;
 } fhss_ws_configuration_t;
 
 
