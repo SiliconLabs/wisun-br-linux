@@ -133,7 +133,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
@@ -159,7 +159,7 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
@@ -213,7 +213,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
+    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
                        data->SrcAddr);
 }
 
@@ -244,7 +244,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
@@ -293,7 +293,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
-    int fixed_channel = ws_common_get_fixed_channel(net_if->ws_info.fhss_conf.uc_chan_mask);
+    int fixed_channel = ws_common_get_fixed_channel(net_if->ws_info.fhss_config.uc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
@@ -368,7 +368,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
 
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
+    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
                                                              ie_lus.listen_interval, &ws_neigh->lto_info);
     ws_neigh_lnd_update(&ws_neigh->fhss_data_unsecured, &ie_lnd, data->hif.timestamp_us);
 
@@ -439,7 +439,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 
@@ -593,7 +593,7 @@ void ws_mngt_pan_version_increase(struct net_if *cur)
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(cur);
-    ws_pan_info_storage_write(cur->ws_info.fhss_conf.bsi, cur->ws_info.pan_information.pan_id,
+    ws_pan_info_storage_write(cur->ws_info.fhss_config.bsi, cur->ws_info.pan_information.pan_id,
                               cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
                               cur->ws_info.network_name);
 }

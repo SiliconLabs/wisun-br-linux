@@ -20,7 +20,7 @@
 
 // TODO: drop legacy structures
 struct fhss_ws_neighbor_timing_info;
-struct fhss_ws_configuration;
+struct ws_fhss_config;
 struct mcps_data_cnf;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
@@ -75,10 +75,10 @@ void rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, b
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
 
-void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg);
-void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg);
-void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg);
-void rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg);
+void rcp_set_fhss_uc(struct rcp *rcp, const struct ws_fhss_config *cfg);
+void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg);
+void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg);
+void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg);
 
 void rcp_set_sec_key(struct rcp *rcp,
                      uint8_t key_index,

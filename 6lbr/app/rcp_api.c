@@ -348,7 +348,7 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_uc(struct rcp *rcp, const struct ws_fhss_config *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->uc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -374,7 +374,7 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -402,7 +402,7 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg)
 {
     int fixed_channel = ws_common_get_fixed_channel(cfg->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -430,7 +430,7 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configuration *cf
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_async(struct rcp *rcp, const struct fhss_ws_configuration *cfg)
+void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
 {
     uint8_t domain_channel_mask[32];
     struct iobuf_write buf = { };

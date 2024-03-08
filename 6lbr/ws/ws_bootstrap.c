@@ -340,7 +340,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
-    struct fhss_ws_configuration *fhss_config = &cur->ws_info.fhss_conf;
+    struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(phy_config->phy_mode_id, phy_config->op_mode);

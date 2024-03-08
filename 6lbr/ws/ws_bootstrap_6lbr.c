@@ -62,10 +62,10 @@
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
-    rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_conf);
-    rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_conf);
-    rcp_set_fhss_lfn_bc(cur->rcp, &cur->ws_info.fhss_conf);
-    rcp_set_fhss_async(cur->rcp, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_config);
+    rcp_set_fhss_ffn_bc(cur->rcp, &cur->ws_info.fhss_config);
+    rcp_set_fhss_lfn_bc(cur->rcp, &cur->ws_info.fhss_config);
+    rcp_set_fhss_async(cur->rcp, &cur->ws_info.fhss_config);
 
     return 0;
 }
@@ -113,22 +113,22 @@ static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
 static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
-    const struct fhss_ws_configuration *fhss_configuration = &cur->ws_info.fhss_conf;
+    const struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
     uint8_t chan_func;
     int fixed_channel;
     int length;
 
-    if (fhss_configuration->regulatory_domain == REG_DOMAIN_UNDEF)
+    if (fhss_config->regulatory_domain == REG_DOMAIN_UNDEF)
         INFO("  domain: custom");
     else
-        INFO("  domain: %s", val_to_str(fhss_configuration->regulatory_domain, valid_ws_domains, "??"));
+        INFO("  domain: %s", val_to_str(fhss_config->regulatory_domain, valid_ws_domains, "??"));
 
-    if (fhss_configuration->chan_plan_id && fhss_configuration->chan_plan_id != 255)
-        INFO("  channel plan id: %d", fhss_configuration->chan_plan_id);
+    if (fhss_config->chan_plan_id && fhss_config->chan_plan_id != 255)
+        INFO("  channel plan id: %d", fhss_config->chan_plan_id);
     else
-        INFO("  class: 0x%x", fhss_configuration->op_class);
+        INFO("  class: 0x%x", fhss_config->op_class);
 
     if (phy_config->phy_mode_id && phy_config->phy_mode_id != 255)
         INFO("  phy mode id: 0x%02x", phy_config->phy_mode_id);
@@ -147,50 +147,50 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         INFO("  RCP configuration index: %d", phy_config->rcp_rail_config_index);
 
 
-    INFO("  channel 0 frequency: %.1fMHz", fhss_configuration->chan0_freq / 1000000.);
-    INFO("  channel spacing: %dkHz", fhss_configuration->chan_spacing / 1000);
-    INFO("  channel count: %d", fhss_configuration->chan_count);
+    INFO("  channel 0 frequency: %.1fMHz", fhss_config->chan0_freq / 1000000.);
+    INFO("  channel spacing: %dkHz", fhss_config->chan_spacing / 1000);
+    INFO("  channel count: %d", fhss_config->chan_count);
     INFO("  channel masks:");
 
-    length = -roundup(fhss_configuration->chan_count, 8) / 8 * 3;
+    length = -roundup(fhss_config->chan_count, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    ws_common_generate_channel_list(fhss_configuration, domain_channel_mask, fhss_configuration->chan_count,
-                                    fhss_configuration->regulatory_domain, fhss_configuration->op_class,
-                                    fhss_configuration->chan_plan_id);
+    ws_common_generate_channel_list(fhss_config, domain_channel_mask, fhss_config->chan_count,
+                                    fhss_config->regulatory_domain, fhss_config->op_class,
+                                    fhss_config->chan_plan_id);
 
-    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->uc_chan_mask);
+    fixed_channel = ws_common_get_fixed_channel(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
-        ws_common_calc_chan_excl(&excl, fhss_configuration->uc_chan_mask,
-                                 domain_channel_mask, fhss_configuration->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask,
+                                 domain_channel_mask, fhss_config->chan_count);
 
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
     } else {
         INFO("     unicast   %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->chan_count),
-             length, tr_channel_mask(fhss_configuration->uc_chan_mask, fhss_configuration->chan_count));
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_config->chan_count),
+             length, tr_channel_mask(fhss_config->uc_chan_mask, fhss_config->chan_count));
     }
 
-    fixed_channel = ws_common_get_fixed_channel(fhss_configuration->bc_chan_mask);
+    fixed_channel = ws_common_get_fixed_channel(fhss_config->bc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
-        ws_common_calc_chan_excl(&excl, fhss_configuration->bc_chan_mask,
-                                 domain_channel_mask, fhss_configuration->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask,
+                                 domain_channel_mask, fhss_config->chan_count);
 
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     broadcast %*s BIT(%d)", length, "--", fixed_channel);
     } else {
         INFO("     broadcast %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_configuration->chan_count),
-             length, tr_channel_mask(fhss_configuration->bc_chan_mask, fhss_configuration->chan_count));
+             length, tr_excl_channel_mask(excl.channel_mask, fhss_config->chan_count),
+             length, tr_channel_mask(fhss_config->bc_chan_mask, fhss_config->chan_count));
     }
 
     INFO("     async     %*s %*s", length, "--",
-            length, tr_channel_mask(domain_channel_mask, fhss_configuration->chan_count));
+            length, tr_channel_mask(domain_channel_mask, fhss_config->chan_count));
 }
 
 static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
@@ -202,7 +202,7 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
     INFO("Nodes join ability:");
     INFO("  rank    FFN1.0    FFN1.1    LFN");
 
-    chan_plan_id = cur->ws_info.fhss_conf.chan_plan_id;
+    chan_plan_id = cur->ws_info.fhss_config.chan_plan_id;
     if (chan_plan_id && chan_plan_id != 255) {
         sprintf(ffn10, "no");
         sprintf(lfn, cur->ws_info.enable_lfn ? "yes" : "no");

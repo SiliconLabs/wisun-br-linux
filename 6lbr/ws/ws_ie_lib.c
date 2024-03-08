@@ -83,7 +83,7 @@ static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
     return offset;
 }
 
-static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config)
+static uint16_t ws_chan_plan_len(const struct ws_fhss_config *fhss_config)
 {
     switch (fhss_config->chan_plan) {
     case 0:
@@ -97,7 +97,7 @@ static uint16_t ws_chan_plan_len(const struct fhss_ws_configuration *fhss_config
     }
 }
 
-static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
+static uint16_t ws_chan_func_len(const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -113,7 +113,7 @@ static uint16_t ws_chan_func_len(const struct fhss_ws_configuration *fhss_config
     }
 }
 
-static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config, bool unicast)
+static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool unicast)
 {
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
@@ -138,7 +138,7 @@ static uint16_t ws_chan_excl_len(const struct fhss_ws_configuration *fhss_config
     }
 }
 
-uint16_t ws_wp_nested_hopping_schedule_length(const struct fhss_ws_configuration *fhss_config, bool unicast)
+uint16_t ws_wp_nested_hopping_schedule_length(const struct ws_fhss_config *fhss_config, bool unicast)
 {
     uint16_t length = unicast ? 3 : 9;
 
@@ -311,7 +311,7 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 }
 
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
-                                      const struct fhss_ws_configuration *fhss_config, bool unicast)
+                                      const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -333,7 +333,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_p
     iobuf_push_u8(buf, tmp8);
 }
 
-static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config)
+static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config)
 {
     switch (fhss_config->chan_plan) {
     case 0:
@@ -354,7 +354,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct fhss_ws_
     }
 }
 
-static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
+static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_common_get_fixed_channel(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -372,7 +372,7 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct fhss_ws_
     }
 }
 
-static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_configuration *fhss_config, bool unicast)
+static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[32];
@@ -404,7 +404,7 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct fhss_ws_
 }
 
 static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
-                                 const struct fhss_ws_configuration *fhss_config, bool unicast)
+                                 const struct ws_fhss_config *fhss_config, bool unicast)
 {
     ws_wp_schedule_base_write(buf, phy_config, fhss_config, unicast);
     ws_wp_chan_plan_write(buf, fhss_config);
@@ -413,7 +413,7 @@ static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_phy_co
 }
 
 void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
-                           const struct fhss_ws_configuration *fhss_config)
+                           const struct ws_fhss_config *fhss_config)
 {
     int offset;
 
@@ -426,7 +426,7 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_phy_config *
 }
 
 void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config,
-                           const struct fhss_ws_configuration *fhss_config)
+                           const struct ws_fhss_config *fhss_config)
 {
     int offset;
 
@@ -541,7 +541,7 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
 
 void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
                             struct ws_phy_config *phy_config,
-                            const struct fhss_ws_configuration *fhss_config)
+                            const struct ws_fhss_config *fhss_config)
 {
     int offset;
 

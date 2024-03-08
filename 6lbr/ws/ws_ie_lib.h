@@ -24,7 +24,7 @@
 #include "security/protocols/sec_prot.h"
 
 struct iobuf_write;
-struct fhss_ws_configuration;
+struct ws_fhss_config;
 struct ws_phy_config;
 
 struct ws_utt_ie {
@@ -260,19 +260,19 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
-void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config, const struct fhss_ws_configuration *fhss_config);
-void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config, const struct fhss_ws_configuration *fhss_config);
+void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config, const struct ws_fhss_config *fhss_config);
+void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_phy_config *phy_config, const struct ws_fhss_config *fhss_config);
 void      ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uint16_t routing_cost, uint8_t tps_version);
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, const char *netname);
 void   ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version);
 void  ws_wp_nested_gtkhash_write(struct iobuf_write *buf, const gtkhash_t gtkhash[4]);
-uint16_t ws_wp_nested_hopping_schedule_length(const struct fhss_ws_configuration *fhss_config, bool unicast_schedule);
+uint16_t ws_wp_nested_hopping_schedule_length(const struct ws_fhss_config *fhss_config, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 void      ws_wp_nested_pom_write(struct iobuf_write *buf, const uint8_t phy_op_modes[16], bool mdr_cmd_capable);
 void    ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
 void   ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version);
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, const gtkhash_t lgtkhash[3], uint8_t active_lgtk_index);
-void      ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag, struct ws_phy_config *phy_config, const struct fhss_ws_configuration *fhss_config);
+void      ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag, struct ws_phy_config *phy_config, const struct ws_fhss_config *fhss_config);
 void       ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm);
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);

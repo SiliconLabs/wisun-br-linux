@@ -117,7 +117,7 @@ struct wsbr_ctxt g_ctxt = {
 
     .net_if.ws_info.neighbor_storage.on_expire = ws_bootstrap_neighbor_del,
     .net_if.ws_info.pan_information.pan_id = -1,
-    .net_if.ws_info.fhss_conf.bsi = -1,
+    .net_if.ws_info.fhss_config.bsi = -1,
 };
 
 static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
@@ -216,58 +216,58 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     const struct chan_params *chan_params;
 
     ctxt->net_if.ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
-    ctxt->net_if.ws_info.fhss_conf.regulatory_domain = ctxt->config.ws_domain;
+    ctxt->net_if.ws_info.fhss_config.regulatory_domain = ctxt->config.ws_domain;
     ctxt->net_if.ws_info.phy_config.phy_mode_id = ctxt->config.ws_phy_mode_id;
-    ctxt->net_if.ws_info.fhss_conf.chan_plan_id = ctxt->config.ws_chan_plan_id;
+    ctxt->net_if.ws_info.fhss_config.chan_plan_id = ctxt->config.ws_chan_plan_id;
     ctxt->net_if.ws_info.phy_config.op_mode = ctxt->config.ws_mode;
-    ctxt->net_if.ws_info.fhss_conf.op_class = ctxt->config.ws_class;
+    ctxt->net_if.ws_info.fhss_config.op_class = ctxt->config.ws_class;
 
-    chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
-                                       ctxt->net_if.ws_info.fhss_conf.chan_plan_id,
-                                       ctxt->net_if.ws_info.fhss_conf.op_class);
+    chan_params = ws_regdb_chan_params(ctxt->net_if.ws_info.fhss_config.regulatory_domain,
+                                       ctxt->net_if.ws_info.fhss_config.chan_plan_id,
+                                       ctxt->net_if.ws_info.fhss_config.op_class);
     if (!chan_params) {
-        ctxt->net_if.ws_info.fhss_conf.chan0_freq = ctxt->config.ws_chan0_freq;
-        ctxt->net_if.ws_info.fhss_conf.chan_spacing = ctxt->config.ws_chan_spacing;
-        ctxt->net_if.ws_info.fhss_conf.chan_count = ctxt->config.ws_chan_count;
-        ctxt->net_if.ws_info.fhss_conf.chan_plan = 1;
+        ctxt->net_if.ws_info.fhss_config.chan0_freq = ctxt->config.ws_chan0_freq;
+        ctxt->net_if.ws_info.fhss_config.chan_spacing = ctxt->config.ws_chan_spacing;
+        ctxt->net_if.ws_info.fhss_config.chan_count = ctxt->config.ws_chan_count;
+        ctxt->net_if.ws_info.fhss_config.chan_plan = 1;
     } else {
-        ctxt->net_if.ws_info.fhss_conf.chan0_freq = chan_params->chan0_freq;
-        ctxt->net_if.ws_info.fhss_conf.chan_spacing = chan_params->chan_spacing;
-        ctxt->net_if.ws_info.fhss_conf.chan_count = chan_params->chan_count;
+        ctxt->net_if.ws_info.fhss_config.chan0_freq = chan_params->chan0_freq;
+        ctxt->net_if.ws_info.fhss_config.chan_spacing = chan_params->chan_spacing;
+        ctxt->net_if.ws_info.fhss_config.chan_count = chan_params->chan_count;
         if (ctxt->config.ws_chan_plan_id)
-            ctxt->net_if.ws_info.fhss_conf.chan_plan = 2;
+            ctxt->net_if.ws_info.fhss_config.chan_plan = 2;
         else
-            ctxt->net_if.ws_info.fhss_conf.chan_plan = 0;
+            ctxt->net_if.ws_info.fhss_config.chan_plan = 0;
     }
 
-    ctxt->net_if.ws_info.fhss_conf.uc_dwell_interval = ctxt->config.uc_dwell_interval;
-    ctxt->net_if.ws_info.fhss_conf.bc_dwell_interval = ctxt->config.bc_dwell_interval;
-    ctxt->net_if.ws_info.fhss_conf.bc_interval = ctxt->config.bc_interval;
-    ctxt->net_if.ws_info.fhss_conf.lfn_bc_interval = ctxt->config.lfn_bc_interval;
-    ctxt->net_if.ws_info.fhss_conf.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
+    ctxt->net_if.ws_info.fhss_config.uc_dwell_interval = ctxt->config.uc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_config.bc_dwell_interval = ctxt->config.bc_dwell_interval;
+    ctxt->net_if.ws_info.fhss_config.bc_interval = ctxt->config.bc_interval;
+    ctxt->net_if.ws_info.fhss_config.lfn_bc_interval = ctxt->config.lfn_bc_interval;
+    ctxt->net_if.ws_info.fhss_config.lfn_bc_sync_period = ctxt->config.lfn_bc_sync_period;
 
-    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.uc_chan_mask,
-                                    ctxt->net_if.ws_info.fhss_conf.chan_count,
-                                    ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
-                                    ctxt->net_if.ws_info.fhss_conf.op_class,
-                                    ctxt->net_if.ws_info.fhss_conf.chan_plan_id);
-    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_conf, ctxt->net_if.ws_info.fhss_conf.bc_chan_mask,
-                                    ctxt->net_if.ws_info.fhss_conf.chan_count,
-                                    ctxt->net_if.ws_info.fhss_conf.regulatory_domain,
-                                    ctxt->net_if.ws_info.fhss_conf.op_class,
-                                    ctxt->net_if.ws_info.fhss_conf.chan_plan_id);
-    bitand(ctxt->net_if.ws_info.fhss_conf.uc_chan_mask, ctxt->config.ws_allowed_channels, 256);
-    bitand(ctxt->net_if.ws_info.fhss_conf.bc_chan_mask, ctxt->config.ws_allowed_channels, 256);
-    if (!memzcmp(ctxt->net_if.ws_info.fhss_conf.uc_chan_mask, sizeof(ctxt->net_if.ws_info.fhss_conf.uc_chan_mask)))
+    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_config, ctxt->net_if.ws_info.fhss_config.uc_chan_mask,
+                                    ctxt->net_if.ws_info.fhss_config.chan_count,
+                                    ctxt->net_if.ws_info.fhss_config.regulatory_domain,
+                                    ctxt->net_if.ws_info.fhss_config.op_class,
+                                    ctxt->net_if.ws_info.fhss_config.chan_plan_id);
+    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_config, ctxt->net_if.ws_info.fhss_config.bc_chan_mask,
+                                    ctxt->net_if.ws_info.fhss_config.chan_count,
+                                    ctxt->net_if.ws_info.fhss_config.regulatory_domain,
+                                    ctxt->net_if.ws_info.fhss_config.op_class,
+                                    ctxt->net_if.ws_info.fhss_config.chan_plan_id);
+    bitand(ctxt->net_if.ws_info.fhss_config.uc_chan_mask, ctxt->config.ws_allowed_channels, 256);
+    bitand(ctxt->net_if.ws_info.fhss_config.bc_chan_mask, ctxt->config.ws_allowed_channels, 256);
+    if (!memzcmp(ctxt->net_if.ws_info.fhss_config.uc_chan_mask, sizeof(ctxt->net_if.ws_info.fhss_config.uc_chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
 
     rail_fill_pom(ctxt);
 
     g_timers[WS_TIMER_LTS].period_ms =
         rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
-    ctxt->net_if.ws_info.fhss_conf.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
+    ctxt->net_if.ws_info.fhss_config.async_tx_duration_ms = ctxt->config.ws_async_frag_duration;
 
-    ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_conf.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
+    ws_pan_info_storage_read(&ctxt->net_if.ws_info.fhss_config.bsi, &ctxt->net_if.ws_info.pan_information.pan_id,
                              &ctxt->net_if.ws_info.pan_information.pan_version,
                              &ctxt->net_if.ws_info.pan_information.lfn_version,
                              ctxt->net_if.ws_info.network_name);
@@ -284,8 +284,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.pan_information.pan_id = ctxt->config.ws_pan_id;
     if (ctxt->net_if.ws_info.pan_information.pan_id == -1)
         ctxt->net_if.ws_info.pan_information.pan_id = rand_get_random_in_range(0, 0xfffe);
-    if (ctxt->net_if.ws_info.fhss_conf.bsi == -1)
-        ctxt->net_if.ws_info.fhss_conf.bsi = rand_get_random_in_range(0, 0xffff);
+    if (ctxt->net_if.ws_info.fhss_config.bsi == -1)
+        ctxt->net_if.ws_info.fhss_config.bsi = rand_get_random_in_range(0, 0xffff);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
@@ -307,7 +307,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
-        ctxt->net_if.ws_info.fhss_conf.regulation = ctxt->config.ws_regional_regulation;
+        ctxt->net_if.ws_info.fhss_config.regulation = ctxt->config.ws_regional_regulation;
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
 }
@@ -546,7 +546,7 @@ int wsbr_main(int argc, char *argv[])
         drop_privileges(&ctxt->config);
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
-    ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_conf.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
+    ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
     ws_bootstrap_6lbr_init(&ctxt->net_if);

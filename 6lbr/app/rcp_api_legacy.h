@@ -20,7 +20,7 @@
 #include "common/log.h"
 
 struct fhss_ws_neighbor_timing_info;
-struct fhss_ws_configuration;
+struct ws_fhss_config;
 struct ws_neigh;
 struct iobuf_write;
 struct iobuf_read;

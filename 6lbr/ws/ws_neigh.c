@@ -230,7 +230,7 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
     }
 }
 
-static void ws_neigh_set_chan_list(const struct fhss_ws_configuration *fhss_config,
+static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
                                    struct ws_channel_mask *chan_list,
                                    const struct ws_generic_channel_info *chan_info,
                                    uint16_t *chan_cnt)
@@ -269,7 +269,7 @@ static void ws_neigh_set_chan_list(const struct fhss_ws_configuration *fhss_conf
         ws_neigh_excluded_mask_by_mask(chan_list, &chan_info->excluded_channels.mask, *chan_cnt);
 }
 
-void ws_neigh_us_update(const struct fhss_ws_configuration *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
@@ -412,7 +412,7 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
     return LFN_SCHEDULE_GUARD_TIME_MS * rand_get_random_in_range(1, max_offset_ms / LFN_SCHEDULE_GUARD_TIME_MS);
 }
 
-bool ws_neigh_lus_update(const struct fhss_ws_configuration *fhss_config,
+bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
                          struct fhss_ws_neighbor_timing_info *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms, const struct lto_info *lto_info)

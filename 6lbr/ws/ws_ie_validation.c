@@ -19,7 +19,7 @@
 #include "ws_ie_validation.h"
 
 static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_plan,
-                                     const struct fhss_ws_configuration *fhss_config)
+                                     const struct ws_fhss_config *fhss_config)
 {
     const struct ws_channel_plan_zero *plan0 = &rx_plan->plan.zero;
     const struct ws_channel_plan_one *plan1 = &rx_plan->plan.one;
@@ -48,7 +48,7 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
                                     const struct ws_generic_channel_info *chan_info,
                                     const char *ie_str)
 {
-    if (!ws_ie_validate_chan_plan(chan_info, &ws_info->fhss_conf)) {
+    if (!ws_ie_validate_chan_plan(chan_info, &ws_info->fhss_config)) {
         TRACE(TR_DROP, "drop %-9s: %s channel plan mismatch", "15.4", ie_str);
         return false;
     }

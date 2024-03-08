@@ -39,7 +39,7 @@ typedef struct ws_pending_key_index {
     uint8_t index;
 } ws_pending_key_index_t;
 
-struct fhss_ws_configuration {
+struct ws_fhss_config {
     uint8_t  regulatory_domain;
     int      regulation;
     uint8_t  op_class;
@@ -80,12 +80,11 @@ typedef struct ws_info {
     struct ws_pan_information pan_information;
     struct ws_phy_config phy_config;
     struct ws_neigh_table neighbor_storage;
-    // FIXME: fhss_conf is redundant with phy_config
-    struct fhss_ws_configuration fhss_conf;
+    struct ws_fhss_config fhss_config;
 } ws_info_t;
 
 
-int8_t ws_common_generate_channel_list(const struct fhss_ws_configuration *fhss_config, uint8_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
+int8_t ws_common_generate_channel_list(const struct ws_fhss_config *fhss_config, uint8_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
 void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
                               const uint8_t chan_mask_reg[], uint16_t chan_count);

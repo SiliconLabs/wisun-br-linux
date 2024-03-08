@@ -604,7 +604,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             BUG("missing UTT-IE in data frame from FFN");
         ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         if (has_us)
-            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data, &ie_us.chan_plan,
+            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             ws_neigh->unicast_data_rx = true;
@@ -684,7 +684,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_conf,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config,
                                                                  &ws_neigh->fhss_data,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
@@ -766,7 +766,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us)
-        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
@@ -825,7 +825,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                         data->hif.timestamp_us, data->SrcAddr);
     if (has_lus)
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_conf, &ws_neigh->fhss_data_unsecured,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
 
@@ -1010,13 +1010,13 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, true) +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, false);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_conf, true);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true);
     }
     return header_size;
 }
@@ -1181,12 +1181,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // The MAC then reads these information and calculates the actual offset to
     // be applied based on the target's current broadcast schedule offset.
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
-        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval,
+        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_config.lfn_bc_interval,
                                                                                    ws_neigh->fhss_data.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->lto_info.uc_interval_min_ms,
                                                                                    ws_neigh->lto_info.uc_interval_max_ms);
         adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
-                                                   base->interface_ptr->ws_info.fhss_conf.lfn_bc_interval);
+                                                   base->interface_ptr->ws_info.fhss_config.lfn_bc_interval);
         if ((adjusted_listening_interval != ws_neigh->fhss_data.lfn.uc_listen_interval_ms ||
             !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
@@ -1201,10 +1201,10 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                          &base->interface_ptr->ws_info.fhss_conf);
+                          &base->interface_ptr->ws_info.fhss_config);
     if (!data->TxAckReq)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                              &base->interface_ptr->ws_info.fhss_conf);
+                              &base->interface_ptr->ws_info.fhss_config);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (ws_info->phy_config.phy_op_modes[0] && ws_info->phy_config.phy_op_modes[1])
         ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->phy_config.phy_op_modes, true);
@@ -1311,10 +1311,10 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                          &base->interface_ptr->ws_info.fhss_conf);
+                          &base->interface_ptr->ws_info.fhss_config);
     if (eapol_handshake_first_msg)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                              &base->interface_ptr->ws_info.fhss_conf);
+                              &base->interface_ptr->ws_info.fhss_config);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1545,13 +1545,13 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
     if (wh_ies->flus)
         // Only a single chan plan tag is supported. (0)
-        ws_wh_flus_write(&msg->ie_buf_header, info->fhss_conf.uc_dwell_interval, 0);
+        ws_wh_flus_write(&msg->ie_buf_header, info->fhss_config.uc_dwell_interval, 0);
     if (wh_ies->lbs)
         // Only a single chan plan tag is supported. (0)
         // TODO: use a separate LFN BSI
-        ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
-                        info->fhss_conf.bsi, 0,
-                        info->fhss_conf.lfn_bc_sync_period);
+        ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
+                        info->fhss_config.bsi, 0,
+                        info->fhss_config.lfn_bc_sync_period);
     if (wh_ies->lnd)
         ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
     if (wh_ies->lto)
@@ -1560,8 +1560,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
     if (wh_ies->lbc)
-        ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_conf.lfn_bc_interval,
-                        info->fhss_conf.lfn_bc_sync_period);
+        ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
+                        info->fhss_config.lfn_bc_sync_period);
     SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
         if (!(ie_custom->frame_type_mask & (1 << msg->message_type)))
             continue;
@@ -1579,10 +1579,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies->us)
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->phy_config,
-                                  &base->interface_ptr->ws_info.fhss_conf);
+                                  &base->interface_ptr->ws_info.fhss_config);
         if (wp_ies->bs)
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->phy_config,
-                                  &base->interface_ptr->ws_info.fhss_conf);
+                                  &base->interface_ptr->ws_info.fhss_config);
         if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
@@ -1597,7 +1597,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->lcp)
             // Only unicast schedule using tag 0 is supported
             ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.phy_config,
-                                   &base->interface_ptr->ws_info.fhss_conf);
+                                   &base->interface_ptr->ws_info.fhss_config);
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
         if (wp_ies->lgtkhash)

@@ -682,7 +682,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
 {
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
-    int lfn_bc_interval_s = cur->ws_info.fhss_conf.lfn_bc_interval / 1000;
+    int lfn_bc_interval_s = cur->ws_info.fhss_config.lfn_bc_interval / 1000;
     struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
