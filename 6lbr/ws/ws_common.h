@@ -59,6 +59,15 @@ struct fhss_ws_configuration {
     int      bsi;
 };
 
+struct ws_phy_config {
+    uint8_t op_mode;
+    uint8_t phy_mode_id;
+    uint8_t phy_op_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
+    uint8_t ms_mode;
+    uint8_t phy_mode_id_ms_tx;
+    uint8_t phy_mode_id_ms_base;
+    int     rcp_rail_config_index; // Index number in rcp.rail_config_list. Needed to configure the RCP.
+};
 
 typedef struct ws_info {
     char network_name[33];
