@@ -133,7 +133,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
         INFO("  phy mode id: 0x%02x", hopping_schedule->phy_mode_id);
     else
-        INFO("  mode: 0x%x", hopping_schedule->operating_mode);
+        INFO("  mode: 0x%x", hopping_schedule->op_mode);
 
     if (!hopping_schedule->phy_op_modes[0])
         INFO("  phy operating modes: disabled");

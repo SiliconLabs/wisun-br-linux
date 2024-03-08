@@ -70,7 +70,7 @@ typedef struct ws_excluded_channel_data {
  * @brief ws_hopping_schedule_t Chanel hopping schedule information
  */
 typedef struct ws_hopping_schedule {
-    uint8_t operating_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
+    uint8_t op_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
     uint8_t phy_mode_id;                /**< PHY mode ID, default to 255 */
     uint8_t phy_op_modes[16];           /**< 15 possible phy_mode_id + 1 sentinel value */
     uint8_t ms_mode;
