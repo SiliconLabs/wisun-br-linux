@@ -25,7 +25,7 @@ import wsbrd
 with open('api.yaml') as f:
     g_api = yaml.safe_load(f)
     g_api = utils.resolve_refs(g_api)
-config = None
+config = dict()
 
 
 #   Wi-SUN TBU REST API
