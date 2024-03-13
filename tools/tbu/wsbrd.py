@@ -2,30 +2,33 @@ import sdbus
 import typing
 
 
+TMPDIR = '/tmp/wstbu'
+
+
 config = None
 
 
 def config_default(wstbu_config):
     config = dict(
-        uart_device    = wstbu_config.uart_device,
-        tun_device     = wstbu_config.tun_device,
-        ipv6_prefix    = wstbu_config.ipv6_prefix,
+        uart_device    = wstbu_config['uart_device'],
+        tun_device     = 'tunwstbu',
+        ipv6_prefix    = wstbu_config['ipv6_prefix'],
         size           = 'CERT',
         enable_lfn     = False,
         enable_ffn10   = True,
         internal_dhcp  = 'n',
-        storage_prefix = wstbu_config.nvm_dir,
-        fan_version    = wstbu_config.fan_version,
+        storage_prefix = TMPDIR + '/nvm/',
+        fan_version    = wstbu_config['fan_version'],
         gtk_new_install_required  = 0,
         lgtk_new_install_required = 0,
-        pcap_file      = wstbu_config.fifo_path,
+        pcap_file      = TMPDIR + '/fifo.pcap',
         join_metrics   = 'none',
         trace          = '15.4,eap,icmp,dhcp,drop',
     )
-    if wstbu_config.radius_server:
-        config['radius_server'] = wstbu_config.radius_server
-    if wstbu_config.radius_secret:
-        config['radius_secret'] = wstbu_config.radius_secret
+    if 'radius_server' in wstbu_config:
+        config['radius_server'] = wstbu_config['radius_server']
+    if 'radius_secret' in wstbu_config:
+        config['radius_secret'] = wstbu_config['radius_secret']
     return config
 
 

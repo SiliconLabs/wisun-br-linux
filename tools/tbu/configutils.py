@@ -1,32 +1,6 @@
 import configparser
-import dataclasses
-import ipaddress
 
 import utils
-
-
-@dataclasses.dataclass
-class WstbuConfig:
-    wstbu_port:    int
-    uart_device:   str
-    ipv6_prefix:   ipaddress.IPv6Network
-    fan_version:   str
-    radius_server: ipaddress.IPv6Address = None
-    radius_secret: str = None
-    dhcpv6_server: ipaddress.IPv6Address = None
-
-    @property
-    def tun_device(self):
-        return 'tunwstbu'
-    @property
-    def tmp_dir(self):
-        return f'/tmp/wstbu'
-    @property
-    def nvm_dir(self):
-        return f'{self.tmp_dir}/nvm/'
-    @property
-    def fifo_path(self):
-        return f'{self.tmp_dir}/fifo.pcap'
 
 
 def read_wstbu(filename: str) -> dict:
@@ -55,7 +29,7 @@ def read_wstbu(filename: str) -> dict:
             utils.fatal(f'load config {filename}: missing parameter {missing_param}')
         if invalid_param := next(filter(lambda x: x not in KW + KW_OPT, cfg), None):
             utils.fatal(f'load config {filename}: invalid parameter {invalid_param}')
-        return WstbuConfig(**cfg)
+        return dict(**cfg)
     except Exception as e:
         utils.fatal(f'load config {filename}: {e}')
 

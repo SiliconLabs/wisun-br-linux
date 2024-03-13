@@ -205,9 +205,9 @@ def put_run_mode(mode: int):
         jm_list = dict()
         jm_version = 0
     elif mode == 1:
-        if not config.dhcpv6_server:
+        if 'dhcpv6_server' not in config:
             return error(500, WSTBU_ERR_UNKNOWN, 'missing DHCPv6 server')
-        configutils.write('/etc/wstbu-dhcpv6-relay.conf', dhcpv6_server=config.dhcpv6_server)
+        configutils.write('/etc/wstbu-dhcpv6-relay.conf', dhcpv6_server=config['dhcpv6_server'])
         configutils.write('/etc/wsbrd.conf', **wsbrd.config)
         wsbrd.service.start('fail')
         while wsbrd.service.active_state == 'activating':
@@ -615,9 +615,10 @@ def put_config_border_router_external_resources():
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     json = flask.request.get_json(force=True, silent=True)
-    config.dhcpv6_server = utils.parse_ipv6(json['dhcpServerAddress'])
-    if not config.dhcpv6_server:
+    dhcpv6_server = utils.parse_ipv6(json['dhcpServerAddress'])
+    if not dhcpv6_server:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid dhcpServerAddress')
+    config['dhcpv6_server'] = dhcpv6_server
     wsbrd.config['radius_server'] = json['authServerAddress']
     wsbrd.config['radius_secret'] = json['authServerSecret']
     return success()
@@ -670,7 +671,7 @@ def subscription_frame_forward(family, sockaddr):
     global sub_fifo
 
     sub_running = True
-    sub_fifo = os.open(config.fifo_path, os.O_RDONLY)
+    sub_fifo = os.open(wsbrd.config['pcap_file'], os.O_RDONLY)
     poll = select.poll()
     poll.register(sub_fifo,    select.POLLIN)
     poll.register(sub_eventfd, select.POLLIN)
@@ -750,7 +751,7 @@ def transmitter_sendmsg(
     dst_port: int  = 0,
     cmsg:     list = [],
 ):
-    ifname = config.tun_device
+    ifname = wsbrd.config['tun_device']
     try:
         sck.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, bytes(ifname, 'ascii'))
     except OSError as e:
@@ -938,16 +939,16 @@ def main():
     if len(sys.argv) != 2:
         utils.fatal(f'usage: {sys.argv[0]} config.ini')
 
-    config = configutils.read_wstbu(sys.argv[1])
-    shutil.rmtree(config.tmp_dir, ignore_errors=True)
-    os.mkdir(config.tmp_dir)
-    os.mkdir(config.nvm_dir)
-    os.mkfifo(config.fifo_path)
-    wsbrd.config = wsbrd.config_default(config)
     wsbrd.service.stop('fail')
+    config = configutils.read_wstbu(sys.argv[1])
+    wsbrd.config = wsbrd.config_default(config)
+    shutil.rmtree(wsbrd.TMPDIR, ignore_errors=True)
+    os.mkdir(wsbrd.TMPDIR)
+    os.mkdir(wsbrd.config['storage_prefix'])
+    os.mkfifo(wsbrd.config['pcap_file'])
 
     app = app_build()
-    app.run(host='0.0.0.0', port=config.wstbu_port)
+    app.run(host='0.0.0.0', port=config['wstbu_port'])
 
 
 if __name__ == '__main__':
