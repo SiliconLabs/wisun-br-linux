@@ -483,9 +483,12 @@ def put_config_border_router_gtks():
             for i, key in enumerate(keys):
                 if key:
                     wsbrd.config[f'{key_name}[{i}]'] = utils.format_key(key)
+        return None
     json = flask.request.get_json(force=True, silent=True)
-    set_keys(json, 'gtk', 4)
-    set_keys(json, 'lgtk', 3)
+    if err := set_keys(json, 'gtk', 4):
+        return err
+    if err := set_keys(json, 'lgtk', 3):
+        return err
     return success()
 
 
