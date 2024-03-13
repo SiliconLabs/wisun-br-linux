@@ -464,7 +464,7 @@ def put_config_border_router_gtks():
         for i in range(key_count):
             if f'{key_name}{i}' in json:
                 keys[i] = utils.parse_key(json[f'{key_name}{i}'])
-                if not keys[i]:
+                if not keys[i] or keys[i] == bytes(16):
                     return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
         if wsbrd.service.active_state == 'active':
             i = -1
