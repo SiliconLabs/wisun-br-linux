@@ -1,5 +1,6 @@
 import functools
 import ipaddress
+import operator
 import os
 import select
 import shutil
@@ -465,20 +466,30 @@ def put_config_border_router_gtks():
                 if not keys[i] or keys[i] == bytes(16):
                     return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
         if wsbrd.service.active_state == 'active':
-            i = -1
-            for j, key in enumerate(keys):
-                if key:
-                    if i > 0:
-                        return error(500, WSTBU_ERR_UNKNOWN, f'unsupported runtime operation: more than 1 {key_name}')
-                    i = j
-            if i < 0:
-                return
-            keys_cur = getattr(wsbrd.dbus(), f'{key_name}s')
-            if keys_cur[i] != bytes(16):
-                return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: key already installed')
-            if keys_cur[(i + key_count - 1) % key_count] == bytes(16):
-                return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation: previous key not installed')
-            getattr(wsbrd.dbus(), f'install_{key_name}')(keys[i])
+            keys_installed = getattr(wsbrd.dbus(), f'{key_name}s')
+            keys_installed = tuple(map(lambda key: key if key != bytes(16) else None, keys_installed))
+            assert functools.reduce(operator.__or__, map(bool, keys_installed)) # At least 1 key is installed
+
+            for i in range(key_count):
+                if keys[i] and keys_installed[i]:
+                    return error(500, WSTBU_ERR_UNKNOWN, f'unsupported runtime operation: {key_name}{i} already installed')
+
+            key_index_next = 0
+            while not keys_installed[key_index_next]:
+                key_index_next += 1
+            while keys_installed[key_index_next]:
+                key_index_next = (key_index_next + 1) % key_count
+
+            key_queue = [] # Only insert keys once all indices are sanitized
+            while functools.reduce(operator.__or__, map(bool, keys)):
+                if not keys[key_index_next]:
+                    return error(500, WSTBU_ERR_UNKNOWN, f'unsupported runtime operation: key index out of order (expected {key_name}{key_index_next})')
+                key_queue.append(keys[key_index_next])
+                keys[key_index_next] = None
+                key_index_next = (key_index_next + 1) % key_count
+
+            for key in key_queue:
+                getattr(wsbrd.dbus(), f'install_{key_name}')(key)
         else:
             for i, key in enumerate(keys):
                 if key:
