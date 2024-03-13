@@ -9,6 +9,7 @@ import struct
 import sys
 import time
 import threading
+import typing
 
 import flask
 import jsonschema
@@ -25,7 +26,7 @@ import wsbrd
 with open('api.yaml') as f:
     g_api = yaml.safe_load(f)
     g_api = utils.resolve_refs(g_api)
-config = dict()
+config: dict[str, typing.Any] = dict()
 
 
 #   Wi-SUN TBU REST API
@@ -567,7 +568,7 @@ def config_border_router_information_elements():
 
 
 # Dict from JM-ID to tuple (len, data)
-jm_list = dict()
+jm_list: dict[int, tuple[int, bytes]] = dict()
 jm_version = 0
 
 

@@ -1,8 +1,8 @@
 import ipaddress
-import socket
+import typing
 
 
-def fatal(msg):
+def fatal(msg: str) -> typing.NoReturn:
     print(f'\x1b[31mfatal: {msg}\x1b[0m')
     exit(1)
 
@@ -36,7 +36,7 @@ def format_key(key: bytes) -> str:
     return ':'.join(f'{b:02x}' for b in key)
 
 
-def parse_hexstr(string: str, separators=[], len_check=0) -> bytes:
+def parse_hexstr(string: str, separators=[], len_check=0) -> bytes | None:
     if not isinstance(string, str):
         return None
     try:
@@ -53,22 +53,22 @@ def parse_hexstr(string: str, separators=[], len_check=0) -> bytes:
     return None
 
 
-def parse_key(key: str) -> bytes:
+def parse_key(key: str) -> bytes | None:
     return parse_hexstr(key, [':', '-'], 16)
 
 
-def parse_eui64(eui64: str) -> bytes:
+def parse_eui64(eui64: str) -> bytes | None:
     return parse_hexstr(eui64, [':', '-'], 8)
 
 
-def parse_ipv6(addr: str) -> ipaddress.IPv6Address:
+def parse_ipv6(addr: str) -> ipaddress.IPv6Address | None:
     try:
         return ipaddress.IPv6Address(addr)
     except ipaddress.AddressValueError:
         return None
 
 
-def parse_int(val):
+def parse_int(val) -> int | None:
     try:
         return int(val)
     except ValueError:

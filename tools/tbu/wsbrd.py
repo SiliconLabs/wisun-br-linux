@@ -5,7 +5,7 @@ import typing
 TMPDIR = '/tmp/wstbu'
 
 
-config = dict()
+config: dict[str, typing.Any] = dict()
 
 
 def config_default(wstbu_config):
