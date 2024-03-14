@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 #include <inttypes.h>
 #include <limits.h>
-
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/ws_regdb.h"
@@ -30,10 +30,10 @@
 #include "common/rand.h"
 #include "common/log.h"
 #include "common/bits.h"
+#include "common/specs/ws.h"
 
 #include "6lbr/ws/ws_common.h"
 
-#include "app/rcp_api_legacy.h"
 
 #include "ws_neigh.h"
 
