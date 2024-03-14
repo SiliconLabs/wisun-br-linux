@@ -197,7 +197,7 @@ static size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in
 int uart_legacy_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(CRC_INIT_LEGACY, buf, buf_len) ^ CRC_XOROUT_LEGACY;
-    uint8_t *frame = malloc(buf_len * 2 + 3);
+    uint8_t *frame = xalloc(buf_len * 2 + 3);
     int frame_len;
     int ret;
 
