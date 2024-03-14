@@ -652,7 +652,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     // FIXME: It is not clear how ARO and EARO are differentiated.
     // This hack is based on the Wi-SUN specification.
     if (cur->ipv6_neighbour_cache.omit_na_aro_success && earo &&
-        !earo->t && earo->status == ARO_SUCCESS) {
+        earo->status == ARO_SUCCESS && (!earo->t || !earo->lifetime)) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
