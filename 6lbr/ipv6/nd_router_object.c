@@ -86,9 +86,6 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
                 || cur->type == IP_NEIGHBOUR_TENTATIVE)
                 && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
-            if (!IN6_IS_ADDR_MULTICAST(cur->ip_address))
-                ipv6_route_delete(cur->ip_address, 128, cur_interface->id,
-                                  cur->ip_address, ROUTE_ARO);
             ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache,
                                         cur);
         }

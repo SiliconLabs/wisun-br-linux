@@ -141,6 +141,8 @@ ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uin
 
 void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
+    struct net_if *net_if = container_of(cache, struct net_if, ipv6_neighbour_cache);
+
     /* Remove entry from cache first - avoids weird garbage collection issues, like
      * it being pushed out while generating ICMP errors, or ICMP errors actually using
      * the entry.
@@ -158,6 +160,8 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
             break;
     }
     ipv6_destination_cache_forget_neighbour(entry);
+    if (!IN6_IS_ADDR_MULTICAST(entry->ip_address))
+        ipv6_route_delete(entry->ip_address, 128, net_if->id, entry->ip_address, ROUTE_ARO);
     TRACE(TR_NEIGH_IPV6, "IPv6 neighbor del %s / %s",
         tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
