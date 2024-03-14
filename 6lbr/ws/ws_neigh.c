@@ -442,9 +442,9 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
 
 bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)
 {
-    if (neigh->last_DSN != mac_dsn) {
+    if (neigh->last_dsn != mac_dsn) {
         // New packet always accepted
-        neigh->last_DSN = mac_dsn;
+        neigh->last_dsn = mac_dsn;
         return true;
     }
 

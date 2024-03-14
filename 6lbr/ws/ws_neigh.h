@@ -93,7 +93,7 @@ typedef struct ws_neigh {
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
-    uint8_t last_DSN;
+    uint8_t last_dsn;
     int rx_power_dbm;
     int rx_power_dbm_unsecured;
     int lqi;
