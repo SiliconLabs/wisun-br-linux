@@ -77,7 +77,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
-        ws_llc_mac_confirm_cb(cur->id, &cnf_fail, &cnf_fail_ie);
+        ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
         return;
     }
 
@@ -101,7 +101,7 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf)
         ret = wsbr_data_cnf_parse(cnf->frame, cnf->frame_len, &mcps_cnf, &mcps_ie);
         WARN_ON(ret < 0, "invalid ack frame");
     }
-    ws_llc_mac_confirm_cb(ctxt->net_if.id, &mcps_cnf, &mcps_ie);
+    ws_llc_mac_confirm_cb(&ctxt->net_if, &mcps_cnf, &mcps_ie);
 }
 
 void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind)
@@ -116,5 +116,5 @@ void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind)
                               ctxt->net_if.ws_info.pan_information.pan_id);
     if (ret < 0)
         return;
-    ws_llc_mac_indication_cb(ctxt->net_if.id, &mcps_ind, &mcps_ie);
+    ws_llc_mac_indication_cb(&ctxt->net_if, &mcps_ind, &mcps_ie);
 }

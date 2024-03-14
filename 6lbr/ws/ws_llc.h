@@ -128,11 +128,11 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 const char *tr_ws_frame(uint8_t frame_type);
 
 typedef struct mcps_data_cnf         mcps_data_cnf_t;
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
+void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
                            const struct mcps_data_rx_ie_list *conf_data);
 
 typedef struct mcps_data_ind         mcps_data_ind_t;
-void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
+void ws_llc_mac_indication_cb(struct net_if *net_if, const mcps_data_ind_t *data,
                               const struct mcps_data_rx_ie_list *ie_ext);
 
 #endif

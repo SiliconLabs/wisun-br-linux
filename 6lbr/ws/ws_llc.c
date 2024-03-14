@@ -490,10 +490,9 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
     return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
 
-void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
+void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
                            const struct mcps_data_rx_ie_list *conf_data)
 {
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neigh *ws_neigh = NULL;
     struct mcps_data_cnf data_cpy = *data;
     struct llc_data_base *base;
@@ -508,7 +507,7 @@ void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_cnf_t *data,
         return;
 
     if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
-        ws_pae_controller_nw_frame_counter_indication_cb(net_if_id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
+        ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
     if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
@@ -1023,10 +1022,9 @@ static inline bool ws_is_frame_mngt(uint8_t frame_type)
 }
 
 /** WS LLC MAC data extension indication  */
-void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data,
+void ws_llc_mac_indication_cb(struct net_if *net_if, const mcps_data_ind_t *data,
                               const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     struct ws_neigh *neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_utt_ie ie_utt;
