@@ -213,7 +213,10 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
+                       data->SrcAddr);
+    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval,
                        data->SrcAddr);
 }
 
