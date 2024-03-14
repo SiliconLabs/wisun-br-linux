@@ -28,7 +28,6 @@
 struct net_if;
 struct mcps_data_ind;
 struct mcps_data_rx_ie_list;
-struct ws_pan_information;
 struct ws_phy_config;
 struct ws_neigh;
 struct ws_neighbor_temp_class;

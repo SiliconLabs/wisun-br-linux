@@ -29,20 +29,6 @@
 #define WS_CHAN_PLAN_TAG_CURRENT 255
 
 /**
- * @brief ws_pan_information_t PAN information
- */
-typedef struct ws_pan_information {
-    int pan_id;
-    int test_pan_size;
-    uint16_t max_pan_size;
-    struct ws_jm_ie jm;
-    uint16_t routing_cost;      /**< ETX to border Router. */
-    uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
-    uint16_t lfn_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */
-    unsigned version: 3;        /**< Pan version support. */
-} ws_pan_information_t;
-
-/**
  * @brief ws_excluded_channel_range_data_t Excludd Chanel range information
  */
 typedef struct ws_excluded_channel_range_data {
