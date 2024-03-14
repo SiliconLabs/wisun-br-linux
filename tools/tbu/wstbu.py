@@ -629,11 +629,15 @@ def put_config_border_router_rpl_increment_dodag_version():
 @json_errcheck('/config/whitelist')
 def put_config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
-    if wsbrd.service.active_state == 'active':
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     if 'macAddressList' not in json:
         return
-    wsbrd.config['allowed_mac64'] = json['macAddressList']
+    eui64_list_bytes = list(map(utils.parse_eui64, json['macAddressList']))
+    if None in eui64_list_bytes:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid macAddressList')
+    if wsbrd.service.active_state == 'active':
+        wsbrd.dbus().allow_mac64(eui64_list_bytes)
+    else:
+        wsbrd.config['allowed_mac64'] = json['macAddressList']
     return success()
 
 

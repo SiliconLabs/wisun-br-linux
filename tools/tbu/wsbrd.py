@@ -109,6 +109,9 @@ class WsbrdDbusInterface(
     def increment_rpl_dodag_version_number(self) -> None:
         raise NotImplementedError
 
+    @sdbus.dbus_method('aay')
+    def allow_mac64(self, eui64: list[bytes]) -> None:
+        raise NotImplementedError
 
 # For some reason, storing an instance of WsbrdDbusInterface in a global
 # variable (as for SystemdUnitDbusInterface) results in the error 'Transport
