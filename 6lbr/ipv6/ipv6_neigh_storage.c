@@ -155,12 +155,6 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         // the neighbor state is set to stale
         ipv6_neighbour_entry_update_unsolicited(cache, ipv6_neigh, ll_addr.addr_type, ll_addr.address);
         ipv6_neigh->type = IP_NEIGHBOUR_REGISTERED;
-        if (!IN6_IS_ADDR_MULTICAST(ipv6_neigh->ip_address)) {
-            ipv6_route_add_metric(ipv6_neigh->ip_address, 128, cur->id, ipv6_neigh->ip_address, ROUTE_ARO,
-                                  NULL, 0, ipv6_neigh->lifetime_s - 2, 32);
-            tun_add_node_to_proxy_neightbl(cur, ipv6_neigh->ip_address);
-            tun_add_ipv6_direct_route(cur, ipv6_neigh->ip_address);
-        }
     }
 
     storage_close(nvm);

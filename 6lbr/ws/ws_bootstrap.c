@@ -138,6 +138,7 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
     if (ipv6_neighbor) {
         ws_neigh_trust(ws_neigh);
         ws_neigh_refresh(ws_neigh, ipv6_neighbor->lifetime_s);
+        nd_restore_aro_routes_by_eui64(net_if, eui64);
     }
     return ws_neigh;
 }

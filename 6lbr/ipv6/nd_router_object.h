@@ -31,5 +31,6 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
                         struct ipv6_nd_opt_earo *na_earo);
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro);
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
+void nd_restore_aro_routes_by_eui64(struct net_if *cur_interface, const uint8_t *eui64);
 
 #endif

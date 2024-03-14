@@ -37,6 +37,14 @@
 
 #include "ipv6/nd_router_object.h"
 
+static void nd_add_ipv6_neigh_route(struct net_if *net_if, struct ipv6_neighbour *neigh)
+{
+    ipv6_route_add_metric(neigh->ip_address, 128, net_if->id, neigh->ip_address,
+                          ROUTE_ARO, NULL, 0, neigh->lifetime_s - 2, 32);
+    tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
+    tun_add_ipv6_direct_route(net_if, neigh->ip_address);
+}
+
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
     const uint8_t *eui64 = ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh);
@@ -56,11 +64,8 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
-        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime_s - 2, 32);
-            tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
-            tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
-        }
+        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address))
+            nd_add_ipv6_neigh_route(cur_interface, neigh);
     } else {
         // Both ws_neighbor and ipv6_neighbor entries will be released by garbage collectors
         neigh->lifetime_s = 0;
@@ -88,6 +93,15 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
                                         cur);
         }
     }
+}
+
+void nd_restore_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
+{
+    ns_list_foreach_safe(ipv6_neighbour_t, neigh, &net_if->ipv6_neighbour_cache.list)
+        if ((neigh->type == IP_NEIGHBOUR_REGISTERED || neigh->type == IP_NEIGHBOUR_TENTATIVE) &&
+            !memcmp(ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, neigh), eui64, 8) &&
+            !IN6_IS_ADDR_MULTICAST(neigh->ip_address))
+            nd_add_ipv6_neigh_route(net_if, neigh);
 }
 
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505 + draft-ietf-6lo-multicast-registration-15) EARO. */
