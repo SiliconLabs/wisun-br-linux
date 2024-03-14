@@ -75,7 +75,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
 }
 
-void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
+void nd_remove_aro_routes_by_eui64(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
         if ((cur->type == IP_NEIGHBOUR_REGISTERED || cur->type == IP_NEIGHBOUR_TENTATIVE) &&

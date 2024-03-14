@@ -154,7 +154,7 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
     write_be16(temp_ll, cur->ws_info.pan_information.pan_id);
     memcpy(&temp_ll[2], mac64, 8);
-    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
+    nd_remove_aro_routes_by_eui64(cur, ADDR_802_15_4_LONG, temp_ll);
     ws_bootstrap_neighbor_delete(cur, ws_neigh);
 }
 
