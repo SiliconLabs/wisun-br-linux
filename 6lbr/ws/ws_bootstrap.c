@@ -149,8 +149,6 @@ static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct ne
     uint8_t *ptr = temp_ll;
     ptr = write_be16(ptr, cur->ws_info.pan_information.pan_id);
     memcpy(ptr, mac64, 8);
-    ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
-                                      ADDR_802_15_4_LONG, temp_ll);
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 
