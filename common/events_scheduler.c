@@ -20,6 +20,7 @@
 
 #include "common/ns_list.h"
 #include "common/log.h"
+#include "common/memutils.h"
 
 #include "events_scheduler.h"
 
@@ -52,7 +53,7 @@ static int8_t event_tasklet_get_free_id(void)
 int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *))
 {
     struct events_scheduler *ctxt = g_event_scheduler;
-    struct event_tasklet *new = malloc(sizeof(struct event_tasklet));
+    struct event_tasklet *new = zalloc(sizeof(struct event_tasklet));
 
     BUG_ON(!ctxt);
     new->id = event_tasklet_get_free_id();
