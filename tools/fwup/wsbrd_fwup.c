@@ -101,13 +101,13 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
 static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
                         int (*rx)(struct bus *bus, void *buf, unsigned int buf_len))
 {
-    int len, ret;
     struct pollfd pollfd = {
         .fd = bus->fd,
         .events = POLLIN,
     };
+    int ret;
 
-    do {
+    while (1) {
         if (!bus->uart.data_ready) {
             ret = poll(&pollfd, 1, 5000);
             if (ret < 0)
@@ -116,10 +116,12 @@ static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || bus->uart.data_ready)
-            len = rx(bus, buf, buf_len);
-    } while (!len);
-    return len;
+        if (pollfd.revents & POLLIN || bus->uart.data_ready) {
+            ret = rx(bus, buf, buf_len);
+            if (ret)
+                return ret;
+        }
+    }
 }
 
 static void send_btl_update(struct bus *bus)
