@@ -68,20 +68,9 @@ typedef struct tls_sec_prot_int {
     bool                          timer_running : 1; /**< TLS timer running */
     bool                          finished : 1;      /**< TLS finished */
     bool                          calculating : 1;   /**< TLS is calculating */
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-    bool                          queued : 1;        /**< TLS is queued */
-#endif
     bool                          library_init : 1;  /**< TLS library has been initialized */
     tls_sec_prot_lib_int_t        *tls_sec_inst;     /**< TLS security library storage, SHALL BE THE LAST FIELD */
 } tls_sec_prot_int_t;
-
-// TLS server EC queue is currently disabled, since EC calculation is made on server in one go
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-typedef struct tls_sec_prot_queue {
-    ns_list_link_t link;                             /**< Link */
-    sec_prot_t *prot;                                /**< Protocol instance */
-} tls_sec_prot_queue_t;
-#endif
 
 static uint16_t tls_sec_prot_size(void);
 static int8_t server_tls_sec_prot_init(sec_prot_t *prot);
@@ -103,22 +92,12 @@ static int8_t tls_sec_prot_tls_get_timer(void *handle);
 
 static int8_t tls_sec_prot_tls_configure_and_connect(sec_prot_t *prot, bool is_server);
 
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-static bool tls_sec_prot_queue_check(sec_prot_t *prot);
-static bool tls_sec_prot_queue_process(sec_prot_t *prot);
-static void tls_sec_prot_queue_remove(sec_prot_t *prot);
-#else
 #define tls_sec_prot_queue_process(prot) true
 #define tls_sec_prot_queue_remove(prot)
-#endif /* SERVER_TLS_EC_CALC_QUEUE */
 
 static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot);
 
 #define tls_sec_prot_get(prot) (tls_sec_prot_int_t *) &prot->data
-
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-static NS_LIST_DEFINE(tls_sec_prot_queue, tls_sec_prot_queue_t, link);
-#endif
 
 int8_t server_tls_sec_prot_register(kmp_service_t *service)
 {
@@ -163,9 +142,6 @@ static int8_t server_tls_sec_prot_init(sec_prot_t *prot)
     data->fin_timer_timeout = false;
     data->timer_running = false;
     data->calculating = false;
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-    data->queued = false;
-#endif
     data->library_init = false;
     return 0;
 }
@@ -240,11 +216,7 @@ static void tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
         if (data->fin_timer_timeout) {
             data->fin_timer_timeout = false;
             prot->state_machine(prot);
-        } else if (data->calculating
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-                   || data->queued
-#endif
-                  ) {
+        } else if (data->calculating) {
             prot->state_machine(prot);
         }
     }
@@ -256,9 +228,6 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
 {
     tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
     int8_t result;
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-    bool client_hello = false;
-#endif
 
     switch (sec_prot_state_get(&data->common)) {
         case TLS_STATE_INIT:
@@ -272,11 +241,6 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
         // Wait EAP request, Identity (starts handshake on supplicant)
         case TLS_STATE_CLIENT_HELLO:
             tr_debug("TLS: start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
-
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-            client_hello = true;
-#endif
-
             sec_prot_state_set(prot, &data->common, TLS_STATE_CREATE_RESP);
 
             // Send KMP-CREATE.indication
@@ -305,16 +269,6 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case TLS_STATE_PROCESS:
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-            // If not client hello, reserves slot on TLS queue
-            if (!client_hello && !tls_sec_prot_queue_check(prot)) {
-                data->queued = true;
-                return;
-            } else {
-                data->queued = false;
-            }
-#endif
-
             result = tls_sec_prot_lib_process((tls_security_t *) &data->tls_sec_inst);
 
             if (result == TLS_SEC_PROT_LIB_CALCULATING) {
@@ -514,76 +468,6 @@ static int8_t tls_sec_prot_tls_configure_and_connect(sec_prot_t *prot, bool is_s
 
     return 0;
 }
-
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-static bool tls_sec_prot_queue_check(sec_prot_t *prot)
-{
-    bool queue_add = true;
-    bool queue_continue = false;
-    uint8_t entry_index = 0;
-
-    // Checks if TLS queue is empty or this instance is the first entry
-    if (ns_list_is_empty(&tls_sec_prot_queue)) {
-        queue_continue = true;
-    } else {
-        ns_list_foreach(tls_sec_prot_queue_t, entry, &tls_sec_prot_queue) {
-            if (entry->prot == prot) {
-                queue_add = false;
-                if (entry_index < 3) {
-                    queue_continue = true;
-                    break;
-                } else {
-                    queue_continue = false;
-                }
-            }
-            entry_index++;
-        }
-    }
-
-    // Adds entry to queue if not there already
-    if (queue_add) {
-        tr_debug("TLS QUEUE add index: %i, eui-64: %s", entry_index, tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
-        tls_sec_prot_queue_t *entry = malloc(sizeof(tls_sec_prot_queue_t));
-        if (entry) {
-            entry->prot = prot;
-            ns_list_add_to_end(&tls_sec_prot_queue, entry);
-        }
-    }
-
-    return queue_continue;
-}
-
-static bool tls_sec_prot_queue_process(sec_prot_t *prot)
-{
-    if (ns_list_is_empty(&tls_sec_prot_queue)) {
-        return true;
-    }
-
-    uint8_t entry_index = 0;
-    ns_list_foreach(tls_sec_prot_queue_t, entry, &tls_sec_prot_queue) {
-        if (entry->prot == prot) {
-            return true;
-        }
-        if (entry_index > 2) {
-            return false;
-        }
-        entry_index++;
-    }
-
-    return false;
-}
-
-static void tls_sec_prot_queue_remove(sec_prot_t *prot)
-{
-    ns_list_foreach_safe(tls_sec_prot_queue_t, entry, &tls_sec_prot_queue) {
-        if (entry->prot == prot) {
-            ns_list_remove(&tls_sec_prot_queue, entry);
-            free(entry);
-            tr_debug("TLS QUEUE remove%s, eui-64: %s", ns_list_is_empty(&tls_sec_prot_queue) ? " last" : "", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
-        }
-    }
-}
-#endif
 
 static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot)
 {
