@@ -65,10 +65,10 @@ typedef struct tls_sec_prot_int {
     uint32_t                      int_timer;         /**< TLS intermediate timer timeout */
     uint32_t                      fin_timer;         /**< TLS final timer timeout */
     bool                          fin_timer_timeout; /**< TLS final timer has timeouted */
-    bool                          timer_running : 1; /**< TLS timer running */
-    bool                          finished : 1;      /**< TLS finished */
-    bool                          calculating : 1;   /**< TLS is calculating */
-    bool                          library_init : 1;  /**< TLS library has been initialized */
+    bool                          timer_running;     /**< TLS timer running */
+    bool                          finished;          /**< TLS finished */
+    bool                          calculating;       /**< TLS is calculating */
+    bool                          library_init;      /**< TLS library has been initialized */
     tls_sec_prot_lib_int_t        *tls_sec_inst;     /**< TLS security library storage, SHALL BE THE LAST FIELD */
 } tls_sec_prot_int_t;
 
