@@ -335,6 +335,40 @@ int dbus_increment_rpl_dodag_version_number(sd_bus_message *m, void *userdata, s
     return 0;
 }
 
+static int dbus_set_filter_src64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool allow)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    struct iobuf_write buf = { };
+    const uint8_t *eui64;
+    size_t eui64_len;
+
+    sd_bus_message_enter_container(m, 'a', "ay");
+    while (sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len) > 0) {
+        if (eui64_len != 8) {
+            iobuf_free(&buf);
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+        }
+        iobuf_push_data(&buf, eui64, eui64_len);
+    }
+    sd_bus_message_close_container(m);
+
+    // When given an empty list, 'allow' must be reversed
+    rcp_set_filter_src64(&ctxt->rcp, (uint8_t (*)[8])buf.data, buf.len / 8, buf.len ? allow : !allow);
+    iobuf_free(&buf);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+int dbus_allow_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_set_filter_src64(m, userdata, ret_error, true);
+}
+
+int dbus_deny_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_set_filter_src64(m, userdata, ret_error, false);
+}
+
 void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
 {
     sd_bus_emit_properties_changed(ctxt->dbus,
@@ -645,6 +679,8 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("IeCustomClear",       NULL,     NULL, dbus_ie_custom_clear,       0),
         SD_BUS_METHOD("IncrementRplDtsn",    NULL,     NULL, dbus_increment_rpl_dtsn,    0),
         SD_BUS_METHOD("IncrementRplDodagVersionNumber", NULL, NULL, dbus_increment_rpl_dodag_version_number, 0),
+        SD_BUS_METHOD("AllowMac64",          "aay",    NULL, dbus_allow_mac64, 0),
+        SD_BUS_METHOD("DenyMac64",           "aay",    NULL, dbus_deny_mac64, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

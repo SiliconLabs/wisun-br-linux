@@ -139,6 +139,24 @@ of the DODAG. See section 8.2.2.1 of [`RFC 6550`][7] for more details.
 
 [7]: https://datatracker.ietf.org/doc/html/rfc6550
 
+### `AllowMac64` (`aay`)
+
+Replace the list of allowed mac64. If the 'denied' list was set, it is cleared.
+
+For more details about these lists, see `wsbrd.conf`.
+
+- `aay`: list of mac64 to 'allow'
+
+### `DenyMac64` (`aay`)
+
+Replace the list of allowed mac64. If the 'allowed' list was set, it is cleared.
+
+When given an empty list, this method will simply clear both lists.
+
+For more details about these lists, see `wsbrd.conf`.
+
+- `aay`: list of mac64 to 'deny'
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)
