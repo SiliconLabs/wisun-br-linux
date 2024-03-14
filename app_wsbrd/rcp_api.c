@@ -483,6 +483,8 @@ static void __rcp_set_fhss_uc(struct rcp *rcp, const struct fhss_ws_configuratio
     hif_push_u8(&buf, cfg->ws_uc_channel_function);
     switch (cfg->ws_uc_channel_function) {
     case WS_CHAN_FUNC_FIXED:
+        if (version_older_than(rcp->version_api, 2, 1, 1))
+            FATAL(3, "fixed channel requires RCP API > 2.1.1");
         hif_push_u16(&buf, cfg->unicast_fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
@@ -508,6 +510,8 @@ static void __rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct fhss_ws_configur
     hif_push_u8(&buf,  cfg->ws_bc_channel_function);
     switch (cfg->ws_bc_channel_function) {
     case WS_CHAN_FUNC_FIXED:
+        if (version_older_than(rcp->version_api, 2, 1, 1))
+            FATAL(3, "fixed channel requires RCP API > 2.1.1");
         hif_push_u16(&buf, cfg->broadcast_fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
@@ -533,6 +537,8 @@ static void __rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct fhss_ws_configur
     hif_push_u8(&buf,  cfg->ws_bc_channel_function);
     switch (cfg->ws_bc_channel_function) {
     case WS_CHAN_FUNC_FIXED:
+        if (version_older_than(rcp->version_api, 2, 1, 1))
+            FATAL(3, "fixed channel requires RCP API > 2.1.1");
         hif_push_u16(&buf, cfg->broadcast_fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
