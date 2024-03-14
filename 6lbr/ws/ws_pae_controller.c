@@ -624,11 +624,8 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller)
     /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
        full authentication to update keys with new EUI-64 and in case of authenticator to update new
        authenticator EUI-64 to the network. */
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(controller->interface_ptr->id);
-    if (!cur)
-        return 0;
-    if (memcmp(nvm_gtk_eui64, cur->mac, 8) != 0) {
-        WARN("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(cur->mac), tr_eui64(nvm_gtk_eui64));
+    if (memcmp(nvm_gtk_eui64, controller->interface_ptr->mac, 8) != 0) {
+        WARN("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(controller->interface_ptr->mac), tr_eui64(nvm_gtk_eui64));
         memset(controller->sec_keys_nw_info.gtks, 0, sizeof(sec_prot_gtk_keys_t));
         memset(controller->sec_keys_nw_info.lgtks, 0, sizeof(sec_prot_gtk_keys_t));
     } else {
