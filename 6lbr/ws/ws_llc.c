@@ -1144,25 +1144,18 @@ static uint8_t ws_llc_find_phy_mode_id(const uint8_t phy_mode_id_list[],
     return 0;
 }
 
-uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
+uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
+                                const struct ws_neigh *ws_neigh)
 {
-    struct ws_phy_config *schedule = &base->interface_ptr->ws_info.phy_config;
-    struct ws_neigh *ws_neigh;
     uint8_t ms_phy_mode_id = 0;
 
-    if (!data->TxAckReq)
-        return 0;
-
-    ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, data->DstAddr);
-    if (!ws_neigh)
-        return 0;
     switch (ws_neigh->ms_mode) {
     case SL_WISUN_MODE_SWITCH_ENABLED:
         ms_phy_mode_id = ws_neigh->ms_phy_mode_id;
         break;
     case SL_WISUN_MODE_SWITCH_DEFAULT:
-        if (schedule->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
-            ms_phy_mode_id = schedule->phy_mode_id_ms_tx;
+        if (phy_config->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
+            ms_phy_mode_id = phy_config->phy_mode_id_ms_tx;
         break;
     }
     return ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
@@ -1205,11 +1198,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
     }
+    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, message->dst_address);
+
     data_req = *data;
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
-    data_req.phy_id = ws_llc_mdr_phy_mode_get(base, data);
+    if (ws_neigh && data_req.TxAckReq)
+        data_req.phy_id = ws_llc_mdr_phy_mode_get(&ws_info->phy_config, ws_neigh);
     message->phy_mode_id = data_req.phy_id ? : ws_info->phy_config.phy_mode_id_ms_base;
     data_req.frame_type = WS_FT_DATA;
 
@@ -1227,9 +1223,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         }
     }
 
-    ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, message->dst_address);
     node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
-
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
     else
