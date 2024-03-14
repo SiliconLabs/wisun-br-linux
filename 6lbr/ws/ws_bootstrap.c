@@ -119,6 +119,22 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     ws_mngt_async_trickle_stop(cur);
 }
 
+/**
+ * Neighbor management logic:
+ * - 15.4 neigh and IPv6 neigh have independant lifetimes
+ * - There is 1 ARO route per IPv6 neigh except for multicast ipv6 neigh
+ * - when an IPv6 neigh is restored, its ARO route is not created
+ * - when a 15.4 neigh is added and one or several corresponding IPv6 neigh(s)
+ *   with GUA already exists, all associated ARO routes are restored and the
+ *   lifetime of the 15.4 neighbor is set to the lifetime of the first
+ *   associated IPv6 neigh with GUA found in cache.
+ * - when a 15.4 neigh expires/is deleted, all ARO routes of corresponding IPv6
+ *   neighs are deleted. All corresponding IPv6 neighs remain in the cache
+ *   until expiration.
+ * - when an IPv6 neigh expires/is deleted, the ARO route associated to the
+ *   IPv6 neigh is deleted. The corresponding 15.4 neigh remains in cache until
+ *   expiration.
+ */
 struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
 {
     struct ws_neigh *ws_neigh;
