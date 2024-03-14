@@ -65,11 +65,4 @@ typedef struct ws_excluded_channel_data {
 
 #define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 600
 
-/*
- * EAPOL relay and PAE authenticator socket settings
- */
-#define EAPOL_RELAY_SOCKET_PORT               10253
-#define BR_EAPOL_RELAY_SOCKET_PORT            10255
-#define PAE_AUTH_SOCKET_PORT                  10254
-
 #endif

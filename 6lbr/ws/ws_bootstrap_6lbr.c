@@ -60,6 +60,10 @@
 
 #define TRACE_GROUP "wsbs"
 
+#define EAPOL_RELAY_SOCKET_PORT               10253
+#define BR_EAPOL_RELAY_SOCKET_PORT            10255
+#define PAE_AUTH_SOCKET_PORT                  10254
+
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     rcp_set_fhss_uc(cur->rcp, &cur->ws_info.fhss_config);
