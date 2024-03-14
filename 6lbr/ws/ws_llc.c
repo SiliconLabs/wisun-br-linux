@@ -1832,7 +1832,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
-    struct ws_phy_config *schedule = &llc->interface_ptr->ws_info.phy_config;
+    struct ws_phy_config *schedule;
     struct ws_neigh *ws_neigh;
     uint8_t peer_phy_mode_id;
     uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -1840,6 +1840,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
     if (!llc) // Invalid LLC context
         return -1;
 
+    schedule = &llc->interface_ptr->ws_info.phy_config;
     if (mode != SL_WISUN_MODE_SWITCH_DISABLED &&
         mode != SL_WISUN_MODE_SWITCH_ENABLED &&
         mode != SL_WISUN_MODE_SWITCH_DEFAULT)
