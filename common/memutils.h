@@ -19,17 +19,25 @@
  */
 
 /*
- * A wrapper around malloc(). However, the memory is initialized and it never
- * return NULL (if it fail, an error is raised to the user).
+ * Wrappers around malloc(). However, it never return NULL (if it fail, an error
+ * is raised to the user).
  *
- * Prefer this macro to allocate structs, thus it garantee no bug will be
- * introduced if a field is inserted in the struct. However, plain buffers
- * should be allocated using plain malloc(). Thus, Valgrind and related tools
- * can eaily detect overflows.
+ * In addition, zalloc() initialize memory. Prefer zalloc() to allocate structs,
+ * thus it garantee no bug will be introduced if a field is inserted in the
+ * struct.
+ *
+ * Plain buffers should be allocated using xalloc(). Thus, Valgrind and related
+ * tools can easily detect use of uninitialized data.
  */
 // Defined as a macro, so FATAL_ON will display the name of the caller
 #define zalloc(size) ({ \
     void *_ptr = calloc(1, size);                               \
+    FATAL_ON(!_ptr, 2, "%s: cannot allocate memory", __func__); \
+    _ptr;                                                       \
+})
+
+#define xalloc(size) ({ \
+    void *_ptr = malloc(size);                                  \
     FATAL_ON(!_ptr, 2, "%s: cannot allocate memory", __func__); \
     _ptr;                                                       \
 })
