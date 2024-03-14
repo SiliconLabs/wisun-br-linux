@@ -255,10 +255,13 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
     }
 
     if (params)
-        ws_common_generate_channel_list(fhss_config, chan_mask, *chan_cnt,
+        ws_common_generate_channel_list(chan_mask, params->chan_count,
+                                        fhss_config->regional_regulation,
                                         params->reg_domain, params->op_class, params->chan_plan_id);
     else
-        ws_common_generate_channel_list(fhss_config, chan_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
+        ws_common_generate_channel_list(chan_mask, chan_info->plan.one.number_of_channel,
+                                        fhss_config->regional_regulation,
+                                        REG_DOMAIN_UNDEF, 0, 0);
 
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
         ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, *chan_cnt);

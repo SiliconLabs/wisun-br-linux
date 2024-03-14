@@ -96,8 +96,12 @@ typedef struct ws_info {
     int tx_power_dbm;
 } ws_info_t;
 
-
-int8_t ws_common_generate_channel_list(const struct ws_fhss_config *fhss_config, uint8_t channel_mask[32], uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
+int8_t ws_common_generate_channel_list(uint8_t chan_mask[32],
+                                       uint16_t chan_count,
+                                       uint8_t regional_regulation,
+                                       uint8_t regulatory_domain,
+                                       uint8_t op_class,
+                                       uint8_t chan_plan_id);
 
 void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
                               const uint8_t chan_mask_reg[], uint16_t chan_count);

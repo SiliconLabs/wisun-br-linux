@@ -441,7 +441,8 @@ void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
     uint8_t domain_channel_mask[32];
     struct iobuf_write buf = { };
 
-    ws_common_generate_channel_list(cfg, domain_channel_mask, cfg->chan_count, cfg->regulatory_domain,
+    ws_common_generate_channel_list(domain_channel_mask, cfg->chan_count,
+                                    cfg->regional_regulation, cfg->regulatory_domain,
                                     cfg->op_class, cfg->chan_plan_id);
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);

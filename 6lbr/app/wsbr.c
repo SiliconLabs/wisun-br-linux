@@ -257,13 +257,15 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
 
-    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_config, ctxt->net_if.ws_info.fhss_config.uc_chan_mask,
+    ws_common_generate_channel_list(ctxt->net_if.ws_info.fhss_config.uc_chan_mask,
                                     ctxt->net_if.ws_info.fhss_config.chan_count,
+                                    ctxt->net_if.ws_info.fhss_config.regional_regulation,
                                     ctxt->net_if.ws_info.fhss_config.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_config.op_class,
                                     ctxt->net_if.ws_info.fhss_config.chan_plan_id);
-    ws_common_generate_channel_list(&ctxt->net_if.ws_info.fhss_config, ctxt->net_if.ws_info.fhss_config.bc_chan_mask,
+    ws_common_generate_channel_list(ctxt->net_if.ws_info.fhss_config.bc_chan_mask,
                                     ctxt->net_if.ws_info.fhss_config.chan_count,
+                                    ctxt->net_if.ws_info.fhss_config.regional_regulation,
                                     ctxt->net_if.ws_info.fhss_config.regulatory_domain,
                                     ctxt->net_if.ws_info.fhss_config.op_class,
                                     ctxt->net_if.ws_info.fhss_config.chan_plan_id);
