@@ -143,24 +143,18 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
     return ws_neigh;
 }
 
-static void ws_neighbor_entry_remove_long_link_address_from_neighcache(struct net_if *cur, const uint8_t *mac64)
-{
-    uint8_t temp_ll[10];
-    uint8_t *ptr = temp_ll;
-    ptr = write_be16(ptr, cur->ws_info.pan_information.pan_id);
-    memcpy(ptr, mac64, 8);
-    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
-}
-
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
     struct ws_neigh *ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, mac64);
+    uint8_t temp_ll[10];
 
     BUG_ON(!ws_neigh);
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
-    ws_neighbor_entry_remove_long_link_address_from_neighcache(cur, mac64);
+    write_be16(temp_ll, cur->ws_info.pan_information.pan_id);
+    memcpy(&temp_ll[2], mac64, 8);
+    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
     ws_bootstrap_neighbor_delete(cur, ws_neigh);
 }
 
