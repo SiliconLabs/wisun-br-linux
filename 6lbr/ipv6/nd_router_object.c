@@ -78,10 +78,9 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
-        if ((cur->type == IP_NEIGHBOUR_REGISTERED
-                || cur->type == IP_NEIGHBOUR_TENTATIVE)
-                && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address) &&
-                !IN6_IS_ADDR_MULTICAST(cur->ip_address))
+        if ((cur->type == IP_NEIGHBOUR_REGISTERED || cur->type == IP_NEIGHBOUR_TENTATIVE) &&
+            ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address) &&
+            !IN6_IS_ADDR_MULTICAST(cur->ip_address))
             ipv6_route_delete(cur->ip_address, 128, cur_interface->id, cur->ip_address, ROUTE_ARO);
     }
 }
