@@ -24,11 +24,6 @@
 
 #include "ws/ws_ie_lib.h"
 
-/* WS excluded channel Control */
-#define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
-#define WS_EXC_CHAN_CTRL_RANGE 1            /**< Excluded channels are in 1 or multiple channel range */
-#define WS_EXC_CHAN_CTRL_BITMASK 2          /**< Excluded channels are marked to bitmask which length based on configured channels */
-
 #define WS_EXCLUDED_MAX_RANGE_TO_SEND 3
 
 #define WS_CHAN_PLAN_TAG_CURRENT 255

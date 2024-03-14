@@ -119,12 +119,20 @@ enum {
 };
 
 // Wi-SUN FAN 1.1v06
-//   6.3.2.3.2.1.3 Field Definitions
+//   6.3.2.3.2.1.3 Field Definitions (Channel Function)
 enum ws_channel_functions {
     WS_CHAN_FUNC_FIXED          = 0,
     WS_CHAN_FUNC_TR51CF         = 1,
     WS_CHAN_FUNC_DH1CF          = 2,
     WS_CHAN_FUNC_VENDOR_DEFINED = 3,
+};
+
+// Wi-SUN FAN 1.1v06
+//   6.3.2.3.2.1.3 Field Definitions (Excluded Channel Control)
+enum {
+    WS_EXC_CHAN_CTRL_NONE    = 0,
+    WS_EXC_CHAN_CTRL_RANGE   = 1,
+    WS_EXC_CHAN_CTRL_BITMASK = 2,
 };
 
 #endif
