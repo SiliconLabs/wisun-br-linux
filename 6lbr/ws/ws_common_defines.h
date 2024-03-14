@@ -61,70 +61,9 @@ typedef struct ws_excluded_channel_data {
     uint8_t channel_mask[32];
 } ws_excluded_channel_data_t;
 
-/*
- * Wi-SUN MPX MTU size
- *
- */
-
-#define WS_MPX_MAX_MTU 1576
-
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 
 #define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 600
-#define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE 520
-#define WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL 260
-
-#define WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT 330
-#define WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT
-#define WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT 750
-
-/*
- * Threshold (referenced to DEVICE_MIN_SENS) above which a neighbor node may be considered for inclusion into candidate parent set
- */
-#define CAND_PARENT_THRESHOLD 10
-/*
- * Hysteresis factor to be applied to CAND_PARENT_THRESHOLD when admitting or dropping nodes from the candidate parent set.
- */
-#define CAND_PARENT_HYSTERISIS 3
-
-/* WS requires at least 19 MAC retransmissions (total 1+19=20 attempts). Default 802.15.4 macMaxFrameRetries is 3 (total 1+3=4 attempts).
- * At least 4 request restarts must be used: (Initial channel + WS_TX_REQUEST_RESTART_MAX) * MAC attempts = (1+4)*4=20 attempts
- *
- * Valid settings could be for example:
- * WS_MAX_FRAME_RETRIES     WS_TX_REQUEST_RESTART_MAX       Total attempts
- * 0                        19                              1+0*1+19=20
- * 1                        9                               1+1*1+9=20
- * 2                        6                               1+2*1+6=21
- * 3                        4                               1+3*1+4=20
- *
- */
-// This configuration is used when bootstrap is ready
-#define WS_MAX_FRAME_RETRIES            3
-
-// Configuring data request restart allows MAC to push failed packet back to MAC TX queue up to WS_CCA_REQUEST_RESTART_MAX times for CCA failure and WS_TX_REQUEST_RESTART_MAX for TX failure.
-// Packet cannot be taken back to transmission before it has finished the blacklist period.
-#define WS_CCA_REQUEST_RESTART_MAX          4
-#define WS_TX_REQUEST_RESTART_MAX           4
-#define WS_REQUEST_RESTART_BLACKLIST_MIN    20
-#define WS_REQUEST_RESTART_BLACKLIST_MAX    300
-
-#if (1 + WS_MAX_FRAME_RETRIES) * (1 + WS_TX_REQUEST_RESTART_MAX) < 20
-#warning "MAX frame retries set too low"
-#endif
-
-// Total CCA attempts: 1 + WS_MAX_CSMA_BACKOFFS
-#define WS_MAX_CSMA_BACKOFFS    3
-
-// Default 802.15.4 values
-#define WS_MAC_MIN_BE   3
-#define WS_MAC_MAX_BE   5
-
-/*
- * Automatic CCA threshold: default threshold and range in dBm.
- */
-#define CCA_DEFAULT_DBM -60
-#define CCA_HIGH_LIMIT  -60
-#define CCA_LOW_LIMIT   -100
 
 /*
  * EAPOL relay and PAE authenticator socket settings
