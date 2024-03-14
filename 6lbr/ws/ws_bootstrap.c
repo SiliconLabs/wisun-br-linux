@@ -312,7 +312,7 @@ int ws_bootstrap_init(int8_t interface_id)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_KEY_MANAGEMENT_ENC_USER_ID != 0)) {
+    if (ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_KEY_MANAGEMENT_ENC_USER_ID)) {
         ret_val =  -4;
         // add deallocs
         goto init_fail;
