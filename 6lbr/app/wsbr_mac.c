@@ -57,7 +57,6 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
-    struct fhss_ws_neighbor_timing_info fhss_data;
     struct ws_neigh *neighbor_ws;
     struct hif_rate_info rate_list[4] = {
         {
@@ -88,35 +87,11 @@ void wsbr_data_req_ext(struct net_if *cur,
         ws_llc_mac_confirm_cb(cur->id, &cnf_fail, &cnf_fail_ie);
         return;
     }
-    if (neighbor_ws) {
-        // After a reboot we may not have secured fhss data yet
-        if (data->fhss_type == HIF_FHSS_TYPE_FFN_UC)
-            fhss_data = neighbor_ws->fhss_data.ffn.uc_dwell_interval_ms ? neighbor_ws->fhss_data : neighbor_ws->fhss_data_unsecured;
-        if (data->fhss_type == HIF_FHSS_TYPE_LFN_UC) {
-            fhss_data = neighbor_ws->fhss_data.lfn.uc_listen_interval_ms ? neighbor_ws->fhss_data : neighbor_ws->fhss_data_unsecured;
-
-            // We may not have received any LCP-IE along with secured frames,
-            // if that's the case, we use unsecured information by default.
-            // This is necessary as an LFN MUST send this IE in LPAS only.
-            // Note that this is a potential security issue, an attacker could
-            // easily send this IE in an LPAS and change the information of an
-            // authenticated LFN that has never sent a secured frame with LCP-IE.
-            if (!fhss_data.uc_chan_count) {
-                fhss_data.uc_chan_count = neighbor_ws->fhss_data_unsecured.uc_chan_count;
-                fhss_data.uc_chan_func = neighbor_ws->fhss_data_unsecured.uc_chan_func;
-                fhss_data.uc_chan_fixed = neighbor_ws->fhss_data_unsecured.uc_chan_fixed;
-                fhss_data.uc_channel_list = neighbor_ws->fhss_data_unsecured.uc_channel_list;
-            }
-        }
-        // This is necessary to handle potential reconnection
-        if (data->frame_type == WS_FT_EAPOL || data->frame_type == WS_FT_LPA || data->frame_type == WS_FT_LPC)
-            fhss_data = neighbor_ws->fhss_data_unsecured;
-    }
 
     wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
     BUG_ON(data->ExtendedFrameExchange);
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
-                    data->msduHandle,  data->fhss_type, neighbor_ws ? &fhss_data : NULL,
+                    data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
                     data->phy_id ? rate_list : NULL);
     iobuf_free(&frame);
