@@ -1334,6 +1334,10 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         .bs  = !data->TxAckReq,
         .pom = ws_info->phy_config.phy_op_modes[0] &&
                ws_info->phy_config.phy_op_modes[1],
+        // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
+        .jm  = ws_info->pan_information.jm.mask &&
+               data->DstAddrMode == MAC_ADDR_MODE_NONE &&
+               ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_params.k,
     };
     uint24_t adjusted_offset_ms = 0;
     uint24_t adjusted_listening_interval = 0;
