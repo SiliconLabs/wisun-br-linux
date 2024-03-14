@@ -88,6 +88,7 @@ static const struct name_value hif_fatal_names[] = {
     ENTRY(EINVAL_ADDR_MODE),
     ENTRY(EINVAL_SCF),
     ENTRY(EINVAL_FRAME),
+    ENTRY(EINVAL_CHAN_FIXED),
     ENTRY(ENOTSUP),
     ENTRY(ENOTSUP_FHSS_DEFAULT),
     { 0 }

@@ -79,6 +79,7 @@ enum hif_fatal_code {
     HIF_EINVAL_ADDR_MODE     = 0x100e,
     HIF_EINVAL_SCF           = 0x100f,
     HIF_EINVAL_FRAME         = 0x1010,
+    HIF_EINVAL_CHAN_FIXED    = 0x1011,
     HIF_ENOTSUP              = 0x2000,
     HIF_ENOTSUP_FHSS_DEFAULT = 0x2001,
 };
