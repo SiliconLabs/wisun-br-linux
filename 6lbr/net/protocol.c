@@ -51,6 +51,9 @@ void icmp_fast_timer(int ticks)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
 
+    if (!cur)
+        return;
+
     /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
     cur->icmp_tokens += ticks;
     if (cur->icmp_tokens > 10) {
@@ -70,6 +73,8 @@ void update_reachable_time(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
 
+    if (!cur)
+        return;
     if (cur->reachable_time_ttl > seconds) {
         cur->reachable_time_ttl -= seconds;
     } else {
