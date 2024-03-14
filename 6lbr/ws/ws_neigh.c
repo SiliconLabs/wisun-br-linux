@@ -214,8 +214,7 @@ static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info
         range_ptr += 2;
         range_stop = MIN(read_le16(range_ptr), number_of_channels);
         range_ptr += 2;
-        for (int channel = range_start; channel <= range_stop; channel++)
-            bitclr(channel_info->channel_mask, channel);
+        bitfill(channel_info->channel_mask, false, range_start, range_stop);
     }
 }
 
