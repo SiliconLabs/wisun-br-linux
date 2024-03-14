@@ -260,15 +260,6 @@ static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_e ll_type
     return false;
 }
 
-void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_e ll_type, const uint8_t *ll_address)
-{
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
-            ipv6_neighbour_entry_remove(cache, cur);
-        }
-    }
-}
-
 bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list)
