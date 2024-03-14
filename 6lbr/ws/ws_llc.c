@@ -119,7 +119,7 @@ typedef struct llc_message {
     mcps_data_req_ie_list_t ie_ext;
     time_t tx_time;
     struct mlme_security security;
-    uint8_t phy_mode_id;
+    struct hif_rate_info rate_list[4];
     ns_list_link_t  link;               /**< List link entry */
 } llc_message_t;
 
@@ -414,6 +414,17 @@ static void ws_llc_update_txpow(const struct ws_info *ws_info,
                                                    rsl_dbm, 1); // 1dB margin
 }
 
+static const struct hif_rate_info *ws_llc_success_rate(const struct hif_rate_info rate_list[4],
+                                                       uint8_t tx_attempts)
+{
+    for (int i = 0; i < 4; i++) {
+        if (tx_attempts <= rate_list[i].tx_attempts)
+            return &rate_list[i];
+        tx_attempts -= rate_list[i].tx_attempts;
+    }
+    BUG();
+}
+
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
                                 const struct mcps_data_cnf *confirm,
                                 const struct mcps_data_rx_ie_list *confirm_data,
@@ -421,6 +432,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
 {
     const uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
+    const struct hif_rate_info *rate;
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
@@ -446,7 +458,8 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_common_rsl_calc(ws_neigh->rsl_out_dbm, ie_rsl);
-                ws_llc_update_txpow(ws_info, ws_neigh, msg->phy_mode_id, ie_rsl);
+                rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
+                ws_llc_update_txpow(ws_info, ws_neigh, rate->phy_mode_id, ie_rsl);
             }
             break;
         }
@@ -1163,6 +1176,23 @@ uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
                                    ms_phy_mode_id);
 }
 
+static void ws_llc_fill_rates(const struct ws_info *ws_info,
+                              const struct ws_neigh *ws_neigh,
+                              struct hif_rate_info rate_list[4])
+{
+    uint8_t phy_mode_id;
+
+    memset(rate_list, 0, 4 * sizeof(struct hif_rate_info));
+
+    phy_mode_id = ws_llc_mdr_phy_mode_get(&ws_info->phy_config, ws_neigh);
+    if (!phy_mode_id)
+        phy_mode_id = ws_info->phy_config.phy_mode_id_ms_base;
+
+    rate_list[0].phy_mode_id = phy_mode_id;
+    rate_list[0].tx_attempts = 20;
+    rate_list[0].tx_power_dbm = ws_info->tx_power_dbm;
+}
+
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
@@ -1204,9 +1234,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
-    if (ws_neigh && data_req.TxAckReq)
-        data_req.phy_id = ws_llc_mdr_phy_mode_get(&ws_info->phy_config, ws_neigh);
-    message->phy_mode_id = data_req.phy_id ? : ws_info->phy_config.phy_mode_id_ms_base;
+    if (ws_neigh && data_req.TxAckReq) {
+        ws_llc_fill_rates(ws_info, ws_neigh, message->rate_list);
+        // Do not send default params to the RCP to save some bytes
+        if (data_req.rate_list[0].phy_mode_id != ws_info->phy_config.phy_mode_id_ms_base)
+            memcpy(data_req.rate_list, message->rate_list, sizeof(data_req.rate_list));
+        else
+            memset(data_req.rate_list, 0, sizeof(data_req.rate_list));
+    }
     data_req.frame_type = WS_FT_DATA;
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {

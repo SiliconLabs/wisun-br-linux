@@ -58,13 +58,6 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
     struct ws_neigh *neighbor_ws;
-    struct hif_rate_info rate_list[4] = {
-        {
-            .phy_mode_id  = data->phy_id,
-            .tx_attempts  = 20,
-            .tx_power_dbm = INT8_MAX,
-        },
-    };
     struct mcps_data_rx_ie_list cnf_fail_ie = { };
     struct mcps_data_cnf cnf_fail = {
         .hif.handle = data->msduHandle,
@@ -93,7 +86,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
                     data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
-                    data->phy_id ? rate_list : NULL);
+                    data->rate_list[0].phy_mode_id ? data->rate_list : NULL);
     iobuf_free(&frame);
 }
 
