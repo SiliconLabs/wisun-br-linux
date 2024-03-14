@@ -657,11 +657,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     }
     if (add_neighbor) {
         ws_neigh = ws_bootstrap_neighbor_add(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
-        if (!ws_neigh) {
-            TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s",
-                tr_ws_frame(ie_utt.message_type), tr_eui64(data->SrcAddr));
-            return;
-        }
+        BUG_ON(!ws_neigh);
     }
 
     if (ws_neigh) {

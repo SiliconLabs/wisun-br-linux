@@ -130,8 +130,7 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
                                 eui64, role, net_if->ws_info.tx_power_dbm,
                                 net_if->ws_info.key_index_mask);
 
-    if (!ws_neigh)
-        return NULL;
+    BUG_ON(!ws_neigh);
     if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
 
