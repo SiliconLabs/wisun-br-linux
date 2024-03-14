@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
+#include "common/memutils.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
@@ -141,10 +142,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_i
         return 0;
     }
 
-    kmp_api_t *kmp = malloc(sizeof(kmp_api_t) + sec_size);
-    if (!kmp) {
-        return 0;
-    }
+    kmp_api_t *kmp = zalloc(sizeof(kmp_api_t) + sec_size);
 
     kmp->type = type;
     kmp->app_data_ptr = 0;
@@ -157,9 +155,6 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_i
     kmp->service = service;
     kmp->timer_start_pending = false;
     kmp->receive_disable = false;
-
-    memset(&kmp->sec_prot, 0, sec_size + offsetof(sec_prot_t, data));
-
     kmp->sec_prot.header_size = msg_if_entry->header_size;
     kmp->sec_prot.receive_peer_hdr_size = msg_if_entry->header_size;
     kmp->sec_prot.number_of_conn = msg_if_entry->number_of_conn;
