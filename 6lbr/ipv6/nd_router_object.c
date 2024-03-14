@@ -75,14 +75,13 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
 }
 
-void nd_remove_aro_routes_by_eui64(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
+void nd_remove_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
 {
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
-        if ((cur->type == IP_NEIGHBOUR_REGISTERED || cur->type == IP_NEIGHBOUR_TENTATIVE) &&
-            ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address) &&
-            !IN6_IS_ADDR_MULTICAST(cur->ip_address))
-            ipv6_route_delete(cur->ip_address, 128, cur_interface->id, cur->ip_address, ROUTE_ARO);
-    }
+    ns_list_foreach_safe(ipv6_neighbour_t, neigh, &net_if->ipv6_neighbour_cache.list)
+        if ((neigh->type == IP_NEIGHBOUR_REGISTERED || neigh->type == IP_NEIGHBOUR_TENTATIVE) &&
+            !memcmp(ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, neigh), eui64, 8) &&
+            !IN6_IS_ADDR_MULTICAST(neigh->ip_address))
+            ipv6_route_delete(neigh->ip_address, 128, net_if->id, neigh->ip_address, ROUTE_ARO);
 }
 
 void nd_restore_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)

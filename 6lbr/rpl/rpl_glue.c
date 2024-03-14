@@ -54,7 +54,7 @@ void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t pre
     if (ipv6_neigh) {
         neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, ipv6_neigh));
         if (neigh && neigh->node_role == WS_NR_ROLE_LFN)
-            nd_remove_aro_routes_by_eui64(net_if, ipv6_neigh->ll_type, ipv6_neigh->ll_address);
+            nd_remove_aro_routes_by_eui64(net_if, ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, ipv6_neigh));
     }
 }
 

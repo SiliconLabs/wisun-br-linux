@@ -163,14 +163,11 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 {
     struct net_if *cur = protocol_stack_interface_info_get();
     struct ws_neigh *ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, mac64);
-    uint8_t temp_ll[10];
 
     BUG_ON(!ws_neigh);
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
-    write_be16(temp_ll, cur->ws_info.pan_information.pan_id);
-    memcpy(&temp_ll[2], mac64, 8);
-    nd_remove_aro_routes_by_eui64(cur, ADDR_802_15_4_LONG, temp_ll);
+    nd_remove_aro_routes_by_eui64(cur, mac64);
     ws_bootstrap_neighbor_delete(cur, ws_neigh);
 }
 
