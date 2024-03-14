@@ -72,7 +72,7 @@ int8_t event_send(const struct event_payload *event)
     if (!event_tasklet_handler_get(event->receiver))
         return -1;
 
-    event_dup = malloc(sizeof(struct event_payload));
+    event_dup = xalloc(sizeof(struct event_payload));
     memcpy(event_dup, event, sizeof(struct event_payload));
     ns_list_add_to_end(&ctxt->event_queue, event_dup);
     event_scheduler_signal();
