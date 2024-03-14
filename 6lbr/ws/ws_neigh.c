@@ -41,7 +41,7 @@
 
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                          const uint8_t mac64[8],
-                         uint8_t role,
+                         uint8_t role, int8_t tx_power_dbm,
                          unsigned int key_index_mask)
 {
     ws_neigh_t *neigh = zalloc(sizeof(struct ws_neigh));
@@ -60,6 +60,8 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     neigh->rx_power_dbm_unsecured = INT_MAX;
     neigh->lqi = INT_MAX;
     neigh->lqi_unsecured = INT_MAX;
+    neigh->apc_txpow_dbm = tx_power_dbm;
+    neigh->apc_txpow_dbm_ofdm = tx_power_dbm;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
     return neigh;

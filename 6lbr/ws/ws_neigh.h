@@ -115,6 +115,16 @@ typedef struct ws_neigh {
     uint8_t ms_mode;                                       /*!< Mode switch mode */
     uint32_t ms_tx_count;                                  /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t ms_retries_count;                             /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
+
+    /*
+     * TX power used for Adaptive Power Control (APC).
+     * - Different Power Amplifiers (PA) can be used for different modulations.
+     * - RAIL sets the average TX power, but APC controls the peak power, and
+     *   average-to-peak varies greatly with the modulation used.
+     */
+    int8_t apc_txpow_dbm;
+    int8_t apc_txpow_dbm_ofdm;
+
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
     struct eapol_temporary_info eapol_temp_info;
     SLIST_ENTRY(ws_neigh) link;
@@ -169,7 +179,7 @@ int ws_neigh_lfn_count(ws_neigh_table_t *table);
 
 ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
                              const uint8_t mac64[8],
-                             uint8_t role,
+                             uint8_t role, int8_t tx_power_dbm,
                              unsigned int key_index_mask);
 
 void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);

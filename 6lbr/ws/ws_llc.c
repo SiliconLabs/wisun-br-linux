@@ -33,6 +33,7 @@
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
+#include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
@@ -118,6 +119,7 @@ typedef struct llc_message {
     mcps_data_req_ie_list_t ie_ext;
     time_t tx_time;
     struct mlme_security security;
+    uint8_t phy_mode_id;
     ns_list_link_t  link;               /**< List link entry */
 } llc_message_t;
 
@@ -359,12 +361,66 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     }
 }
 
+// ETSI EN 300 220-1 v3.1.1 - 5.13 Adaptive Power Control
+#define ETSI_APC_ATTENUATION_DB 75
+#define ETSI_APC_POWER_LIMIT_DBM 7
+
+/*
+ * Adapt TX power linearly based on the measured attenuation.
+ *
+ *  TX   ^
+ * power |                ,---------
+ *       |  1dBm per dB  /   configured
+ *       |            \ /       power
+ *       |             /
+ *  7dBm +   ---------'
+ *       |  APC limit
+ *       +------------+---------------->
+ *                  75dB           attenuation
+ *
+ * Some margins are applied for safety. One reason for this is that RAIL
+ * reports the average power and not the peak.
+ */
+static int etsi_apc_calc_txpow(int conf_txpow_dbm, // TX power configured in wsbrd.conf
+                               int real_txpow_dbm, // TX power used for this transmission
+                               int rsl_dbm,        // RX power from neighbor
+                               int margin_db)
+{
+    const int attenuation_threshold_db = ETSI_APC_ATTENUATION_DB + 1; // Safety margin
+    const int limit_dbm = ETSI_APC_POWER_LIMIT_DBM - margin_db;
+    const int attenuation_db = real_txpow_dbm - rsl_dbm;
+
+    if (attenuation_db < attenuation_threshold_db)
+        return MIN(conf_txpow_dbm, limit_dbm);
+    else
+        return MIN(conf_txpow_dbm, limit_dbm + attenuation_db - attenuation_threshold_db);
+}
+
+static void ws_llc_update_txpow(const struct ws_info *ws_info,
+                                struct ws_neigh *neigh,
+                                uint8_t phy_mode_id,
+                                int8_t rsl_dbm)
+{
+    const struct phy_params *phy_params;
+
+    phy_params = ws_regdb_phy_params(phy_mode_id, 0);
+    if (phy_params && phy_params->modulation == MODULATION_OFDM)
+        neigh->apc_txpow_dbm_ofdm = etsi_apc_calc_txpow(ws_info->tx_power_dbm,
+                                                        ws_info->tx_power_dbm, // TODO: get from CNF_DATA_TX
+                                                        rsl_dbm, 11); // 10dB average-to-peak + 1dB margin
+    else
+        neigh->apc_txpow_dbm = etsi_apc_calc_txpow(ws_info->tx_power_dbm,
+                                                   ws_info->tx_power_dbm, // TODO: get from CNF_DATA_TX
+                                                   rsl_dbm, 1); // 1dB margin
+}
+
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
                                 const struct mcps_data_cnf *confirm,
                                 const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neigh *ws_neigh)
 {
     const uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
+    struct ws_info *ws_info = &base->interface_ptr->ws_info;
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
@@ -388,8 +444,10 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt))
                 if (mlme_status == MLME_SUCCESS)
                     ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-            if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
+            if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_common_rsl_calc(ws_neigh->rsl_out_dbm, ie_rsl);
+                ws_llc_update_txpow(ws_info, ws_neigh, msg->phy_mode_id, ie_rsl);
+            }
             break;
         }
     }
@@ -1152,6 +1210,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
     data_req.phy_id = ws_llc_mdr_phy_mode_get(base, data);
+    message->phy_mode_id = data_req.phy_id ? : ws_info->phy_config.phy_mode_id_ms_base;
     data_req.frame_type = WS_FT_DATA;
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {

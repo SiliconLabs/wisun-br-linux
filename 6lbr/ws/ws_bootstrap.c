@@ -127,7 +127,7 @@ struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t 
     ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, eui64);
     if (!ws_neigh)
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
-                                eui64, role,
+                                eui64, role, net_if->ws_info.tx_power_dbm,
                                 net_if->ws_info.key_index_mask);
 
     if (!ws_neigh)

@@ -81,6 +81,7 @@ typedef struct ws_info {
     struct ws_phy_config phy_config;
     struct ws_neigh_table neighbor_storage;
     struct ws_fhss_config fhss_config;
+    int tx_power_dbm;
 } ws_info_t;
 
 

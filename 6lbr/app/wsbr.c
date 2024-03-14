@@ -306,6 +306,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.ws_info.enable_ffn10 = ctxt->config.enable_ffn10;
 
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
+    ctxt->net_if.ws_info.tx_power_dbm = ctxt->config.tx_power;
 
     wsbr_pae_controller_configure(ctxt);
 
