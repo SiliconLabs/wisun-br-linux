@@ -47,11 +47,7 @@ static void nd_add_ipv6_neigh_route(struct net_if *net_if, struct ipv6_neighbour
 
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
-    const uint8_t *eui64 = ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh);
-    struct ws_neigh *ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage, eui64);
     struct rpl_target *target;
-
-    BUG_ON(!ws_neigh);
 
     TRACE(TR_NEIGH_IPV6, "IPv6 neighbor refresh %s / %s / %ds",
           tr_eui64(ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh)),
@@ -67,14 +63,13 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address))
             nd_add_ipv6_neigh_route(cur_interface, neigh);
     } else {
-        // Both ws_neighbor and ipv6_neighbor entries will be released by garbage collectors
+        // ipv6_neighbor entry will be released by garbage collector
         neigh->lifetime_s = 0;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
             target = rpl_target_get(&cur_interface->rpl_root, neigh->ip_address);
             if (target)
                 rpl_target_del(&cur_interface->rpl_root, target);
-            ws_neigh_refresh(ws_neigh, aro->lifetime);
         }
     }
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
