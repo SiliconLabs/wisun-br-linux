@@ -738,13 +738,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     if (fragmented_needed) {
         // If fragmentation TX buffer not allocated, do it now.
         if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
-            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_parameters.mtu);
-            if (interface_ptr->fragment_indirect_tx_buffer) {
-                interface_ptr->mtu_size = cur->mac_parameters.mtu;
-            } else {
-                tr_error("Failed to allocate fragmentation buffer");
-                goto tx_error_handler;
-            }
+            interface_ptr->fragment_indirect_tx_buffer = xalloc(cur->mac_parameters.mtu);
+            interface_ptr->mtu_size = cur->mac_parameters.mtu;
         }
     }
     bool is_unicast = buf->link_specific.ieee802_15_4.requestAck;
