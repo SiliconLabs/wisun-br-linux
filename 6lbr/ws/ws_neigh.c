@@ -214,12 +214,8 @@ static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info
         range_ptr += 2;
         range_stop = MIN(read_le16(range_ptr), number_of_channels);
         range_ptr += 2;
-        for (int channel = range_start; channel <= range_stop; channel++) {
-            if (bittest(channel_info->channel_mask, channel)) {
-                bitclr(channel_info->channel_mask, channel);
-                channel_info->channel_count--;
-            }
-        }
+        for (int channel = range_start; channel <= range_stop; channel++)
+            bitclr(channel_info->channel_mask, channel);
     }
 }
 
@@ -229,12 +225,9 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
 {
     int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 
-    for (int i = 0; i < nchan; i++) {
-        if (bittest(channel_info->channel_mask, i) && bittest(mask_info->channel_mask, i)) {
+    for (int i = 0; i < nchan; i++)
+        if (bittest(mask_info->channel_mask, i))
             bitclr(channel_info->channel_mask, i);
-            channel_info->channel_count--;
-        }
-    }
 }
 
 static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
@@ -267,8 +260,6 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
                                         params->reg_domain, params->op_class, params->chan_plan_id);
     else
         ws_common_generate_channel_list(fhss_config, chan_list->channel_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
-
-    chan_list->channel_count = bitcnt(chan_list->channel_mask, *chan_cnt);
 
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
         ws_neigh_excluded_mask_by_range(chan_list, &chan_info->excluded_channels.range, *chan_cnt);

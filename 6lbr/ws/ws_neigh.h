@@ -29,7 +29,6 @@
 struct ws_fhss_config;
 
 struct ws_channel_mask {
-    uint16_t channel_count;                     // Active channels at mask
     uint8_t channel_mask[32];                   // Supported channels
 };
 
