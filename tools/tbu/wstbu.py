@@ -629,8 +629,6 @@ def put_config_border_router_rpl_increment_dodag_version():
 @json_errcheck('/config/whitelist')
 def put_config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
-    if 'macAddressList' not in json:
-        return
     eui64_list_bytes = list(map(utils.parse_eui64, json['macAddressList']))
     if None in eui64_list_bytes:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid macAddressList')
