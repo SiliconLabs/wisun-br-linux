@@ -256,14 +256,12 @@ static void addr_policy_table_reset(void)
 
 static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[16])
 {
-    ns_list_foreach(const addr_policy_table_entry_t, entry, &addr_policy_table) {
-        if (!bitcmp(entry->prefix, addr, entry->prefix_len)) {
+    ns_list_foreach(const addr_policy_table_entry_t, entry, &addr_policy_table)
+        if (!bitcmp(entry->prefix, addr, entry->prefix_len))
             return entry;
-        }
-    }
 
     /* Shouldn't happen - should always have a default entry */
-    return NULL;
+    BUG();
 }
 
 /* RFC 6724 CommonPrefixLen(S, D) */
