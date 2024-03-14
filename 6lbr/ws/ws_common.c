@@ -49,7 +49,7 @@
 int DEVICE_MIN_SENS = -93;
 
 int8_t ws_common_generate_channel_list(const struct ws_fhss_config *fhss_config,
-                                       uint8_t *channel_mask,
+                                       uint8_t channel_mask[32],
                                        uint16_t number_of_channels,
                                        uint8_t regulatory_domain,
                                        uint8_t operating_class,
