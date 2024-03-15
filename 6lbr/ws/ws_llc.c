@@ -344,7 +344,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     if (ws_neigh && mlme_status == MLME_SUCCESS)
         ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
 
-    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
+    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
     if (mpx_usr && mpx_usr->data_confirm) {
         mpx_confirm = *confirm;
         mpx_confirm.hif.handle = msg->mpx_user_handle;
@@ -468,7 +468,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         }
     }
 
-    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_LOWPAN_ENC_USER_ID);
+    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_6LOWPAN);
     if (mpx_usr && mpx_usr->data_confirm) {
         mpx_confirm = *confirm;
         mpx_confirm.hif.handle = msg->mpx_user_handle;
@@ -1198,14 +1198,14 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 {
     //TODO add IEEE802154_IE_ID_WP support
     uint16_t header_size = 0;
-    if (user_id == MPX_LOWPAN_ENC_USER_ID) {
+    if (user_id == MPX_ID_6LOWPAN) {
         header_size += 7 + 8 + 5 + 2; //UTT+BTT+ MPX + Padding
 
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true) +
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, false);
-    } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
+    } else if (MPX_ID_KMP) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
@@ -1429,7 +1429,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
-    ws_llc_lowpan_mpx_header_write(message, MPX_LOWPAN_ENC_USER_ID);
+    ws_llc_lowpan_mpx_header_write(message, MPX_ID_6LOWPAN);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
     message->ie_ext.payloadIeVectorList = message->ie_iov_payload;
@@ -1462,7 +1462,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
     data_req->frame_type = message->message_type;
-    ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
+    ws_llc_lowpan_mpx_header_write(message, MPX_ID_KMP);
 }
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
@@ -1550,9 +1550,9 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
         return;
     }
 
-    if (user_id == MPX_KEY_MANAGEMENT_ENC_USER_ID) {
+    if (user_id == MPX_ID_KMP) {
         ws_llc_mpx_eapol_request(base, user_cb, data);
-    } else if (user_id == MPX_LOWPAN_ENC_USER_ID) {
+    } else if (user_id == MPX_ID_6LOWPAN) {
         ws_llc_lowpan_mpx_data_request(base, user_cb, data);
     }
 }
@@ -1586,8 +1586,8 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
 static void ws_llc_mpx_init(mpx_class_t *mpx_class)
 {
     //Init Mbed Class and API
-    mpx_class->mpx_user_table[0].user_id = MPX_LOWPAN_ENC_USER_ID;
-    mpx_class->mpx_user_table[1].user_id = MPX_KEY_MANAGEMENT_ENC_USER_ID;
+    mpx_class->mpx_user_table[0].user_id = MPX_ID_6LOWPAN;
+    mpx_class->mpx_user_table[1].user_id = MPX_ID_KMP;
     mpx_class->mpx_api.mpx_headroom_size_get = &ws_llc_mpx_header_size_get;
     mpx_class->mpx_api.mpx_user_registration = &ws_llc_mpx_data_cb_register;
     mpx_class->mpx_api.mpx_data_request = &ws_llc_mpx_data_request;

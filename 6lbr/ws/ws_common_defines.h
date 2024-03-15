@@ -61,9 +61,6 @@ typedef struct ws_excluded_channel_data {
     uint8_t channel_mask[32];
 } ws_excluded_channel_data_t;
 
-#define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
-#define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */
-
 /*
  * Wi-SUN MPX MTU size
  *

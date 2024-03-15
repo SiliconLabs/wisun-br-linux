@@ -287,7 +287,7 @@ int ws_bootstrap_init(int8_t interface_id)
     }
 
     //Register MPXUser to adapatation layer
-    if (lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_LOWPAN_ENC_USER_ID) != 0) {
+    if (lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN) != 0) {
         ret_val =  -4;
         goto init_fail;
     }
@@ -312,7 +312,7 @@ int ws_bootstrap_init(int8_t interface_id)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_KEY_MANAGEMENT_ENC_USER_ID)) {
+    if (ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_ID_KMP) != 0) {
         ret_val =  -4;
         // add deallocs
         goto init_fail;
