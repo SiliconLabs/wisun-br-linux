@@ -765,20 +765,6 @@ def put_transmitter_icmpv6():
     if not src_addr or not dst_addr:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
 
-    dst_eui64 = bytes()
-    for eui64, properties in wsbrd.dbus().nodes:
-        if not properties.get('is_neighbor', ('b', False))[1]:
-            continue
-        if 'ipv6' not in properties:
-            continue
-        assert properties['ipv6'][0] == 'aay'
-        for addr in properties['ipv6'][1]:
-            if ipaddress.IPv6Address(addr) == dst_addr:
-                dst_eui64 = eui64
-                break
-    if not dst_eui64:
-        utils.warn(f'no known EUI-64 for destAddress={dst_addr}: mode switch configured globally')
-
     ms_mode = json.get('modeSwitch', WSTBU_MODE_SWITCH_DISABLED)
     if ms_mode == WSTBU_MODE_SWITCH_PHY:
         if 'phyModeID' not in json:
@@ -789,7 +775,7 @@ def put_transmitter_icmpv6():
     else:
         return error(500, WSTBU_ERR_UNKNOWN, f'unsupported modeSwitch={ms_mode}')
     try:
-        wsbrd.dbus().set_mode_switch(dst_eui64, phy_mode_id)
+        wsbrd.dbus().set_mode_switch(bytes(), phy_mode_id)
     except sdbus.dbus_exceptions.DbusInvalidArgsError:
         return error(400, WSTBU_ERR_UNKNOWN, f'invalid phyModeID')
 
