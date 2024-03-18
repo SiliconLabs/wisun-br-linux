@@ -11,6 +11,7 @@ import threading
 
 import flask
 import jsonschema
+import netifaces
 import sdbus
 import systemd.journal
 import yaml
@@ -809,20 +810,11 @@ def put_transmitter_icmpv6():
     return success()
 
 
-@dbus_errcheck
 def get_config_ip_addresses():
-    # Wi-SUN FAN 1.1v06 6.3.2.3.1.10 Node Role Information Element (NR-IE)
-    WS_NODE_ROLE_BR     = 0
-    WS_NODE_ROLE_ROUTER = 1
-    WS_NODE_ROLE_LFN    = 2
-
-    for _, properties in wsbrd.dbus().nodes:
-        if properties.get('node_role') != WS_NODE_ROLE_BR:
-            continue
-        if 'ipv6' in properties:
-            assert properties['ipv6'][0] == 'aay'
-            return [str(ipaddress.IPv6Address(addr)) for addr in properties['ipv6'][1]]
-    return []
+    if wsbrd.config['tun_device'] not in netifaces.interfaces():
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported operation in stopped state')
+    addr_list = netifaces.ifaddresses(wsbrd.config['tun_device']).get(netifaces.AF_INET6, [])
+    return [str(ipaddress.IPv6Address(e['addr'])).split('%')[0] for e in addr_list]
 
 
 @dbus_errcheck
