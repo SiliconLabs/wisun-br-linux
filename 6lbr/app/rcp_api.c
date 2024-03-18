@@ -173,7 +173,7 @@ void rcp_req_data_tx(struct rcp *rcp,
             uint8_t chan_mask_len = roundup(fhss_data->uc_chan_count, 8) / 8;
 
             hif_push_u8(&buf, chan_mask_len);
-            hif_push_fixed_u8_array(&buf, fhss_data->uc_channel_list.channel_mask, chan_mask_len);
+            hif_push_fixed_u8_array(&buf, fhss_data->uc_channel_list, chan_mask_len);
             break;
         }
         default:

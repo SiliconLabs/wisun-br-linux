@@ -28,10 +28,6 @@
 
 struct ws_fhss_config;
 
-struct ws_channel_mask {
-    uint8_t channel_mask[32];                   // Supported channels
-};
-
 struct fhss_ws_neighbor_timing_info {
     uint8_t clock_drift;                        // Neighbor clock drift
     uint8_t timing_accuracy;                    // Neighbor timing accuracy
@@ -57,7 +53,7 @@ struct fhss_ws_neighbor_timing_info {
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
     uint16_t uc_chan_count; // from US-IE or LUS-IE/LCP-IE
     uint16_t uc_chan_fixed; // from US-IE or LUS-IE/LCP-IE
-    struct ws_channel_mask uc_channel_list;          // Neighbor unicast channel list
+    uint8_t  uc_channel_list[32];           // Neighbor unicast channel list
 };
 
 typedef struct eapol_temporary_info {

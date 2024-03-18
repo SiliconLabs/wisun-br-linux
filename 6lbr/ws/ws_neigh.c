@@ -202,7 +202,7 @@ void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie)
     neigh->lto_info.uc_interval_max_ms = nr_ie->listen_interval_max;
 }
 
-static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info,
+static void ws_neigh_excluded_mask_by_range(uint8_t channel_mask[32],
                                             const struct ws_excluded_channel_range *range_info,
                                             uint16_t number_of_channels)
 {
@@ -214,11 +214,11 @@ static void ws_neigh_excluded_mask_by_range(struct ws_channel_mask *channel_info
         range_ptr += 2;
         range_stop = MIN(read_le16(range_ptr), number_of_channels);
         range_ptr += 2;
-        bitfill(channel_info->channel_mask, false, range_start, range_stop);
+        bitfill(channel_mask, false, range_start, range_stop);
     }
 }
 
-static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
+static void ws_neigh_excluded_mask_by_mask(uint8_t channel_mask[32],
                                            const struct ws_excluded_channel_mask *mask_info,
                                            uint16_t number_of_channels)
 {
@@ -226,11 +226,11 @@ static void ws_neigh_excluded_mask_by_mask(struct ws_channel_mask *channel_info,
 
     for (int i = 0; i < nchan; i++)
         if (bittest(mask_info->channel_mask, i))
-            bitclr(channel_info->channel_mask, i);
+            bitclr(channel_mask, i);
 }
 
 static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
-                                   struct ws_channel_mask *chan_list,
+                                   uint8_t chan_mask[32],
                                    const struct ws_generic_channel_info *chan_info,
                                    uint16_t *chan_cnt)
 {
@@ -255,15 +255,15 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
     }
 
     if (params)
-        ws_common_generate_channel_list(fhss_config, chan_list->channel_mask, *chan_cnt,
+        ws_common_generate_channel_list(fhss_config, chan_mask, *chan_cnt,
                                         params->reg_domain, params->op_class, params->chan_plan_id);
     else
-        ws_common_generate_channel_list(fhss_config, chan_list->channel_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
+        ws_common_generate_channel_list(fhss_config, chan_mask, *chan_cnt, REG_DOMAIN_UNDEF, 0, 0);
 
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
-        ws_neigh_excluded_mask_by_range(chan_list, &chan_info->excluded_channels.range, *chan_cnt);
+        ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, *chan_cnt);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK)
-        ws_neigh_excluded_mask_by_mask(chan_list, &chan_info->excluded_channels.mask, *chan_cnt);
+        ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, *chan_cnt);
 }
 
 void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
@@ -275,7 +275,7 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws
         fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
         fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(fhss_config, &fhss_data->uc_channel_list, chan_info,
+        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,
                                   &fhss_data->uc_chan_count);
     }
     fhss_data->ffn.uc_dwell_interval_ms = dwell_interval;
@@ -434,7 +434,7 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
         fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
         fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(fhss_config, &fhss_data->uc_channel_list, chan_info,
+        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,
                                &fhss_data->uc_chan_count);
     }
     return offset_adjusted;
