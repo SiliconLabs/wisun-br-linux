@@ -840,16 +840,10 @@ def get_config_security_keys():
 @dbus_errcheck
 def get_config_dodag_routes():
     routes = []
-    for _, properties in wsbrd.dbus().nodes:
-        if 'parent' not in properties:
+    for addr, _, parents in wsbrd.dbus().routing_graph:
+        if not parents:
             continue
-        if 'ipv6' not in properties:
-            continue
-        assert properties['ipv6'][0] == 'aay'
-        for addr in properties['ipv6'][1]:
-            addr = ipaddress.IPv6Address(addr)
-            if not addr.is_link_local:
-                routes.append({'route': str(addr)})
+        routes.append({'route': str(ipaddress.IPv6Address(addr))})
     return routes
 
 
