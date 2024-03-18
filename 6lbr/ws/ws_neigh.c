@@ -39,12 +39,12 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
-ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
+struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                          const uint8_t mac64[8],
                          uint8_t role, int8_t tx_power_dbm,
                          unsigned int key_index_mask)
 {
-    ws_neigh_t *neigh = zalloc(sizeof(struct ws_neigh));
+    struct ws_neigh *neigh = zalloc(sizeof(struct ws_neigh));
 
     neigh->node_role = role;
     for (uint8_t key_index = 1; key_index <= 7; key_index++)
@@ -67,7 +67,7 @@ ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
     return neigh;
 }
 
-ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
+struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64)
 {
     struct ws_neigh *neigh;
 
@@ -78,9 +78,9 @@ ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64)
     return NULL;
 }
 
-void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64)
+void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
 {
-    ws_neigh_t *neigh = ws_neigh_get(table, mac64);
+    struct ws_neigh *neigh = ws_neigh_get(table, mac64);
 
     if (neigh) {
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
@@ -100,7 +100,7 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
                 table->on_expire(neigh->mac64);
 }
 
-size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table)
+size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
 {
     return SLIST_SIZE(&table->neigh_list, link);
 }
@@ -196,7 +196,7 @@ void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const s
     fhss_data->lfn.lnd_rx_tstamp_us      = tstamp_us;
 }
 
-void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie)
+void ws_neigh_nr_update(struct ws_neigh *neigh, struct ws_nr_ie *nr_ie)
 {
     neigh->lto_info.uc_interval_min_ms = nr_ie->listen_interval_min;
     neigh->lto_info.uc_interval_max_ms = nr_ie->listen_interval_max;
@@ -440,7 +440,7 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
     return offset_adjusted;
 }
 
-bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)
+bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)
 {
     if (neigh->last_dsn != mac_dsn) {
         // New packet always accepted
@@ -465,7 +465,7 @@ bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_
     return true;
 }
 
-int ws_neigh_lfn_count(ws_neigh_table_t *table)
+int ws_neigh_lfn_count(struct ws_neigh_table *table)
 {
     struct ws_neigh *neigh;
     int cnt = 0;

@@ -67,7 +67,7 @@ struct lto_info {
     bool offset_adjusted;
 };
 
-typedef struct ws_neigh {
+struct ws_neigh {
     /**
      * Theses fields were introduced to differentiate FHSS data read in secured
      * frames and FHSS data read in unsecured frames.
@@ -123,22 +123,20 @@ typedef struct ws_neigh {
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
     struct eapol_temporary_info eapol_temp_info;
     SLIST_ENTRY(ws_neigh) link;
-} ws_neigh_t;
-
+};
 SLIST_HEAD(ws_neigh_list, ws_neigh);
-typedef void ws_neigh_remove_notify(const uint8_t *mac64);
 
 /**
  * Neighbor hopping info data base
  */
-typedef struct ws_neigh_table {
+struct ws_neigh_table {
     struct ws_neigh_list neigh_list;
     void (*on_expire)(const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
-} ws_neigh_table_t;
+};
 
-ws_neigh_t *ws_neigh_get(ws_neigh_table_t *table, const uint8_t *mac64);
+struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64);
 
-void ws_neigh_del(ws_neigh_table_t *table, const uint8_t *mac64);
+void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64);
 
 // Unicast Timing update
 void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
@@ -166,20 +164,20 @@ uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_i
 uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
 
 // Node Role update (LFN only)
-void ws_neigh_nr_update(ws_neigh_t *neigh, struct ws_nr_ie *nr_ie);
+void ws_neigh_nr_update(struct ws_neigh *neigh, struct ws_nr_ie *nr_ie);
 
-bool ws_neigh_duplicate_packet_check(ws_neigh_t *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
+bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, uint64_t rx_timestamp);
 
-int ws_neigh_lfn_count(ws_neigh_table_t *table);
+int ws_neigh_lfn_count(struct ws_neigh_table *table);
 
-ws_neigh_t *ws_neigh_add(ws_neigh_table_t *table,
+struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                              const uint8_t mac64[8],
                              uint8_t role, int8_t tx_power_dbm,
                              unsigned int key_index_mask);
 
 void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);
 
-size_t ws_neigh_get_neigh_count(ws_neigh_table_t *table);
+size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 
 void ws_neigh_trust(struct ws_neigh *neigh);
 

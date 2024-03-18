@@ -450,7 +450,7 @@ static int dbus_message_append_node(
     return 0;
 }
 
-static const ws_neigh_t *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
+static const struct ws_neigh *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
                                                                const uint8_t eui64[8])
 {
     return ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
