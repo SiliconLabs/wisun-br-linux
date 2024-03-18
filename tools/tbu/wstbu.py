@@ -852,27 +852,13 @@ def get_config_preferred_parent():
     addr = utils.parse_ipv6(flask.request.args.get('ipAddress'))
     if not addr:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
-    nodes = wsbrd.dbus().nodes
-    parent_eui64 = None
-    for _, properties in nodes:
-        if 'ipv6' not in properties:
+    for addr_bytes, _, parents in wsbrd.dbus().routing_graph:
+        if addr_bytes != addr.packed:
             continue
-        assert properties['ipv6'][0] == 'aay'
-        if addr.packed not in properties['ipv6'][1]:
+        if not parents:
             continue
-        parent_eui64 = properties.get('parent', ('ay', bytes()))[1]
-    if not parent_eui64:
-        return error(500, WSTBU_ERR_UNKNOWN, 'no known parent')
-    for eui64, properties in nodes:
-        if eui64 != parent_eui64:
-            continue
-        # Parent should always have an IPv6 address
-        assert properties['ipv6'][0] == 'aay'
-        for addr in properties['ipv6'][1]:
-            addr = ipaddress.IPv6Address(addr)
-            if not addr.is_link_local:
-                return flask.json.jsonify(str(addr))
-    return error(500, WSTBU_ERR_UNKNOWN, 'parent has no address')
+        return flask.json.jsonify(str(ipaddress.IPv6Address(parents[0])))
+    return error(500, WSTBU_ERR_UNKNOWN, 'no known parent')
 
 
 def get_config_neighbor_table():
