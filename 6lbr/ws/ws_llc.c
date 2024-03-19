@@ -335,11 +335,11 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     struct mpx_user *mpx_usr;
     uint8_t mlme_status;
 
-    BUG_ON(!ws_neigh);
+    WARN_ON(!ws_neigh);
     base->temp_entries.active_eapol_session = false;
 
     mlme_status = mlme_status_from_hif(confirm->hif.status);
-    if (mlme_status == MLME_SUCCESS)
+    if (ws_neigh && mlme_status == MLME_SUCCESS)
         ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
