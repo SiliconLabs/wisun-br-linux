@@ -1180,7 +1180,9 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
                               const struct ws_neigh *ws_neigh,
                               struct hif_rate_info rate_list[4])
 {
+    const struct phy_params *phy_params;
     uint8_t phy_mode_id;
+    int8_t tx_power_dbm;
 
     memset(rate_list, 0, 4 * sizeof(struct hif_rate_info));
 
@@ -1188,9 +1190,17 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
     if (!phy_mode_id)
         phy_mode_id = ws_info->phy_config.phy_mode_id_ms_base;
 
+    phy_params = ws_regdb_phy_params(phy_mode_id, 0);
+    if (!ws_neigh || ws_info->fhss_config.regional_regulation != HIF_REG_WPC)
+        tx_power_dbm = ws_info->tx_power_dbm;
+    else if (phy_params && phy_params->modulation == MODULATION_OFDM)
+        tx_power_dbm = ws_neigh->apc_txpow_dbm_ofdm;
+    else
+        tx_power_dbm = ws_neigh->apc_txpow_dbm;
+
     rate_list[0].phy_mode_id = phy_mode_id;
     rate_list[0].tx_attempts = 20;
-    rate_list[0].tx_power_dbm = ws_info->tx_power_dbm;
+    rate_list[0].tx_power_dbm = tx_power_dbm;
 }
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
@@ -1237,7 +1247,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (ws_neigh && data_req.TxAckReq) {
         ws_llc_fill_rates(ws_info, ws_neigh, message->rate_list);
         // Do not send default params to the RCP to save some bytes
-        if (data_req.rate_list[0].phy_mode_id != ws_info->phy_config.phy_mode_id_ms_base)
+        if (data_req.rate_list[0].phy_mode_id != ws_info->phy_config.phy_mode_id_ms_base ||
+            data_req.rate_list[0].tx_power_dbm != ws_info->tx_power_dbm)
             memcpy(data_req.rate_list, message->rate_list, sizeof(data_req.rate_list));
         else
             memset(data_req.rate_list, 0, sizeof(data_req.rate_list));
