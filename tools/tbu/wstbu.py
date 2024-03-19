@@ -429,6 +429,7 @@ def put_config_chan_plan_bcast_lfn():
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     wsbrd.config['lfn_broadcast_interval']    = json['bcastInterval']
     wsbrd.config['lfn_broadcast_sync_period'] = json['bcastSyncPeriod']
+    return success()
 
 
 @dbus_errcheck
