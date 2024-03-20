@@ -31,7 +31,11 @@
 
 #define TRACE_GROUP "wsrl"
 
-int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *eui_64, const ns_address_t *dest_addr, const void *data, uint16_t data_len)
+int8_t ws_eapol_relay_lib_send_to_relay(int socket_id,
+                                        const uint8_t *eui_64,
+                                        const ns_address_t *dest_addr,
+                                        const void *data,
+                                        uint16_t data_len)
 {
     struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_port = htons(dest_addr->identifier) };
     struct msghdr msghdr = { };

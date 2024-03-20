@@ -22,6 +22,10 @@
 
 struct ns_address;
 
-int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *eui_64, const struct ns_address *dest_addr, const void *data, uint16_t data_len);
+int8_t ws_eapol_relay_lib_send_to_relay(int socket_id,
+                                        const uint8_t *eui_64,
+                                        const struct ns_address *dest_addr,
+                                        const void *data,
+                                        uint16_t data_len);
 
 #endif
