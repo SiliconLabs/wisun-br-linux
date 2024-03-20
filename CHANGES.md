@@ -1,3 +1,11 @@
+v1.8.3
+------
+  - Fix use-after-free in neighbor handling.
+  - Fix MAC filtering (no more excessive RSL values reported).
+  - Fix TBU error handling in `/config/borderRouter/gtks`.
+  - Support TBU runtime key insersion in `/config/borderRouter/gtks`.
+  - Make TBU `/subscription/frames` more resilient to start/stop.
+
 v1.8.2
 ------
   - Fix crash on full neighbor table.
