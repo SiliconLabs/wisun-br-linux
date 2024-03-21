@@ -81,24 +81,32 @@ void ipv6_neigh_storage_save(struct ipv6_neighbour_cache *cache, const uint8_t *
 static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, const char *filename)
 {
     struct net_if *cur = container_of(cache, struct net_if, ipv6_neighbour_cache);
-    struct storage_parse_info *nvm = storage_open(filename, "r");
     struct ipv6_neighbour *ipv6_neighbors;
     struct ipv6_neighbour *ipv6_neigh;
+    struct storage_parse_info *nvm;
     const char *strptr;
     sockaddr_t ll_addr;
     int array_len = 2;
     uint8_t eui64[8];
     int ret;
 
-    FATAL_ON(!nvm, 2, "%s %s", __func__, filename);
+    strptr = strrchr(filename, '-');
+    if (!strptr) {
+        WARN("%s %s failure", __func__, filename);
+        return;
+    }
+    if (parse_byte_array(eui64, sizeof(eui64), strptr + 1)) {
+        WARN("%s %s failure", __func__, filename);
+        return;
+    }
+    nvm = storage_open(filename, "r");
+    if (!nvm) {
+        WARN("%s %s failure", __func__, filename);
+        return;
+    }
+
     ipv6_neighbors = calloc(array_len, sizeof(struct ipv6_neighbour));
     FATAL_ON(!ipv6_neighbors, 2, "%s %s", __func__, filename);
-
-    strptr = strrchr(filename, '-');
-    if (!strptr)
-        return;
-    if (parse_byte_array(eui64, sizeof(eui64), strptr + 1))
-        return;
 
     while (true) {
         ret = storage_parse_line(nvm);
