@@ -166,6 +166,7 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
     }
 
     storage_close(nvm);
+    free(ipv6_neighbors);
 }
 
 void ipv6_neigh_storage_load(struct ipv6_neighbour_cache *cache)
