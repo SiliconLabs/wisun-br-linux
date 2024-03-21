@@ -140,12 +140,6 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_SUCCESS;
     }
 
-    //Validate Is EUI64 already allocated for any address
-    if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
-        ws_neigh_refresh(ws_neigh, lifetime_s);
-        return ARO_SUCCESS;
-    }
-
     ws_neigh_refresh(ws_neigh, lifetime_s);
     return ARO_SUCCESS;
 }
