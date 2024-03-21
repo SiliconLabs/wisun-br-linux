@@ -283,6 +283,8 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
     if (rcp->rail_config_list)
         while (rcp->rail_config_list[i].chan0_freq)
             i++;
+    else
+        rcp->rail_config_list = xalloc(sizeof(struct rcp_rail_config));
     group_bit_prev = true;
     while (iobuf_remaining_size(buf)) {
         rcp->rail_config_list = reallocarray(rcp->rail_config_list, i + 2, sizeof(struct rcp_rail_config));
