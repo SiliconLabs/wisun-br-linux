@@ -36,19 +36,10 @@
 
 #define TRACE_GROUP "6lo"
 
-static bool protocol_buffer_valid(buffer_t *b, struct net_if *cur)
-{
-    if (!cur)
-        return false;
-    if ((b->info & B_TO_MAC_MLME_MASK) == B_TO_MAC_FROM_MAC)
-        return true;
-    return true;
-}
-
 static void protocol_6lowpan_stack(buffer_t *b)
 {
     struct net_if *cur = b->interface;
-    if (!protocol_buffer_valid(b, cur)) {
+    if (!cur) {
         tr_debug("Drop Packets");
         buffer_free(b);
         return;
