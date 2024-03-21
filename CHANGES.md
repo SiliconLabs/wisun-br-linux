@@ -1,3 +1,19 @@
+v2.0
+------
+  - Drop support for legacy RCP API (< 2.0):
+    * Neighbor count no longer limited by the RCP memory.
+    * Drop `parent` and `ipv6` from the D-Bus `Ǹodes` property,
+      developers are now responsible for querying the DHCP server
+      in order to map between EUI-64 and IPv6 addresses.
+    * `wsbrd_cli` reports the RPL graph using IPv6 addresses (instead of
+      EUI-64).
+  - Implement Adaptive Power Control (APC) for the Indian regulation (WPC).
+  - Prevent LFN desynchronization due to drift over-correction.
+  - Fix use-after-free in neighbor handling.
+  - Fix some build warnings.
+  - `--capture` is now part of the main `wsbrd` executable (no need to
+    compile `wsbrd-fuzz`).
+
 v1.9
 ------
   - Support RCP API version 2.0 (released with GSDK 4.4.1):
