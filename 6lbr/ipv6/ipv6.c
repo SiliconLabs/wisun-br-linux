@@ -894,8 +894,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
             buf->interface = cur;
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_SRC_FAILED_POLICY, 0);
         }
-        if (addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL ||
-                addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL) {
+        if (addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL) {
             buf->interface = cur;
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_ADM_PROHIB, 0);
         }
