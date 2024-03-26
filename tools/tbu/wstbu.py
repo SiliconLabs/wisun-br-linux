@@ -643,6 +643,8 @@ def subscription_frame_forward(family, sockaddr):
     with socket.socket(family, socket.SOCK_DGRAM) as sck:
         while True:
             data = os.read(sub_fifo, 2000)
+            if not data:
+                break
             sck.sendto(data, sockaddr)
 
 
