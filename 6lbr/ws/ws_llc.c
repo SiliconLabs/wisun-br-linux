@@ -422,7 +422,8 @@ static const struct hif_rate_info *ws_llc_success_rate(const struct hif_rate_inf
             return &rate_list[i];
         tx_attempts -= rate_list[i].tx_attempts;
     }
-    BUG();
+    WARN("%s(): unexpected retry count", __func__);
+    return NULL;
 }
 
 static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
@@ -459,7 +460,9 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_common_rsl_calc(ws_neigh->rsl_out_dbm, ie_rsl);
                 rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
-                ws_llc_update_txpow(ws_info, ws_neigh, rate->phy_mode_id, ie_rsl);
+                ws_llc_update_txpow(ws_info, ws_neigh,
+                                    rate ? rate->phy_mode_id : ws_info->phy_config.phy_mode_id_ms_base,
+                                    ie_rsl);
             }
             break;
         }
