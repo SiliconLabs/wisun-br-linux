@@ -1100,6 +1100,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         }
     }
 
+    if (wh_ies->fc)
+        ws_wh_fc_write(&msg->ie_buf_header, 50, 255);
     if (wh_ies->utt)
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->bt)
@@ -1317,9 +1319,22 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
-    struct ws_neigh *ws_neigh;
-    int node_role;
-    int ie_offset;
+    struct ws_neigh *ws_neigh = data->DstAddrMode == MAC_ADDR_MODE_64_BIT ?
+                                ws_neigh_get(&ws_info->neighbor_storage, data->DstAddr) :
+                                NULL;
+    uint8_t node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+        .bt  = true,
+        .fc  = data->ExtendedFrameExchange && data->TxAckReq,
+        .lbt = node_role == WS_NR_ROLE_LFN || data->lfn_multicast,
+    };
+    struct wp_ie_list wp_ies = {
+        .us  = true,
+        .bs  = !data->TxAckReq,
+        .pom = ws_info->phy_config.phy_op_modes[0] &&
+               ws_info->phy_config.phy_op_modes[1],
+    };
     uint24_t adjusted_offset_ms = 0;
     uint24_t adjusted_listening_interval = 0;
 
@@ -1380,20 +1395,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         }
     }
 
-    node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
     else
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
 
-    if (data->ExtendedFrameExchange && data->TxAckReq)
-        //Write Flow control for 1 packet send this will be modified at real data send
-        ws_wh_fc_write(&message->ie_buf_header, 50, 255); // No data at initial frame
-    ws_wh_utt_write(&message->ie_buf_header, message->message_type);
-    ws_wh_bt_write(&message->ie_buf_header);
-
-    if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
-        ws_wh_lbt_write(&message->ie_buf_header);
+    ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
 
     // Adding another parameter to the MAC's API just for LTO was not a good idea.
     // The chosen solution is to write the computed LTO information in the LTO-IE.
@@ -1408,29 +1415,16 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
                                                    base->interface_ptr->ws_info.fhss_config.lfn_bc_interval);
         if ((adjusted_listening_interval != ws_neigh->fhss_data.lfn.uc_listen_interval_ms ||
             !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
+            // FIXME: insert LTO-IE in ws_llc_prepare_ie()
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
             ws_neigh->lto_info.offset_adjusted = true;
+            message->ie_iov_header.iov_base = message->ie_buf_header.data;
+            message->ie_iov_header.iov_len = message->ie_buf_header.len;
         }
     }
 
-    message->ie_iov_header.iov_base = message->ie_buf_header.data;
-    message->ie_iov_header.iov_len = message->ie_buf_header.len;
-    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
-    message->ie_ext.headerIovLength = 1;
-
-    ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                          &base->interface_ptr->ws_info.fhss_config);
-    if (!data->TxAckReq)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.phy_config,
-                              &base->interface_ptr->ws_info.fhss_config);
-    // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (ws_info->phy_config.phy_op_modes[0] && ws_info->phy_config.phy_op_modes[1])
-        ws_wp_nested_pom_write(&message->ie_buf_payload, ws_info->phy_config.phy_op_modes, true);
-
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
-    ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     ws_llc_lowpan_mpx_header_write(message, MPX_LOWPAN_ENC_USER_ID);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;

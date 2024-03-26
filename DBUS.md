@@ -99,13 +99,14 @@ contents.
 - `ay`: list of Wi-SUN frame types that the IE should be included in, only a
   subset of frames are supported:
 
-|Frame Type ID| Description         |Abbreviation|
-|-------------|---------------------|------------|
-|      `0x00` |PAN Advertisement    | PA         |
-|      `0x02` |PAN Configuration    | PC         |
-|      `0x06` |EAP over LAN         | EAPOL      |
-|      `0x09` |LFN PAN Advertisement| LPA        |
-|      `0x0b` |LFN PAN Configuration| LPC        |
+|Frame Type ID| Description                |Abbreviation|
+|-------------|----------------------------|------------|
+|      `0x00` |PAN Advertisement           | PA         |
+|      `0x02` |PAN Configuration           | PC         |
+|      `0x04` |Upper Layer Application Data| ULAD       |
+|      `0x06` |EAP over LAN                | EAPOL      |
+|      `0x09` |LFN PAN Advertisement       | LPA        |
+|      `0x0b` |LFN PAN Configuration       | LPC        |
 
 Example:
 
