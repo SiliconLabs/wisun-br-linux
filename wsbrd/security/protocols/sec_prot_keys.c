@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "common/string_extra.h"
 #include "common/ns_list.h"
 #include "common/specs/ws.h"
@@ -284,7 +285,7 @@ uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks)
 
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (sec_prot_keys_gtk_status_is_live(gtks, i)) {
-            gtkl |= 1u << i;
+            gtkl |= BIT(i);
         }
     }
 
@@ -297,7 +298,7 @@ bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_t *sec_gtks, uint8_t index)
         return false;
     }
 
-    if (sec_gtks->gtkl & (1u << index)) {
+    if (sec_gtks->gtkl & BIT(index)) {
         return true;
     }
 
@@ -310,7 +311,7 @@ int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_gtk_t *sec_gtks, uint8_t index)
         return -1;
     }
 
-    sec_gtks->gtkl |= (1u << index);
+    sec_gtks->gtkl |= BIT(index);
 
     return 0;
 }
@@ -758,15 +759,15 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_t *sec_gtks, bool is_
          * initiated instead of GKH.
          */
         memcpy(sec_gtks->ins_gtk_hash[sec_gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
-        sec_gtks->ins_gtk_hash_set |= (1u << sec_gtks->gtk_set_index);
+        sec_gtks->ins_gtk_hash_set |= BIT(sec_gtks->gtk_set_index);
     }
 }
 
 bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_gtk_t *sec_gtks, uint8_t gtk_index)
 {
     // If not set or the key has been inserted by 4WH then there is no mismatch
-    if ((sec_gtks->ins_gtk_hash_set & (1u << sec_gtks->gtk_set_index)) == 0 ||
-            (sec_gtks->ins_gtk_hash_set & (1u << sec_gtks->gtk_set_index)) == 1) {
+    if ((sec_gtks->ins_gtk_hash_set & BIT(sec_gtks->gtk_set_index)) == 0 ||
+        (sec_gtks->ins_gtk_hash_set & BIT(sec_gtks->gtk_set_index)) == 1) {
         return false;
     }
 

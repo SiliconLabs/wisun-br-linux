@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/bits.h"
 #include "common/hif.h"
 #include "common/log.h"
 #include "common/ws_regdb.h"
@@ -94,7 +95,7 @@ const struct name_value valid_traces[] = {
 
 const struct name_value valid_join_metrics[] = {
     { "none", 0 },
-    { "plf",  1u << WS_JM_PLF },
+    { "plf",  BIT(WS_JM_PLF) },
 };
 
 const struct name_value valid_ws_regional_regulations[] = {

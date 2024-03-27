@@ -436,7 +436,7 @@ static void rpl_transit_update(struct rpl_root *root,
     target->external = opt_transit->external;
 
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
-        if (!(opt_transit->path_ctl & (1 << (7 - i))))
+        if (!(opt_transit->path_ctl & BIT(7 - i)))
             continue;
         if (memzcmp(target->transits + i, sizeof(struct rpl_transit)) &&
             memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)) && !root->compat)

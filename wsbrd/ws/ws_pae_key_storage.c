@@ -24,6 +24,7 @@
 #include <glob.h>
 #include <fnmatch.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/parsers.h"
@@ -88,7 +89,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         fprintf(info->file, "ptk.lifetime = %" PRIu64 "\n", current_time + pae_supp->sec_keys.ptk_lifetime);
     }
     for (i = 0; i < GTK_NUM; i++) {
-        if (pae_supp->sec_keys.gtks.ins_gtk_hash_set & (1 << i)) {
+        if (pae_supp->sec_keys.gtks.ins_gtk_hash_set & BIT(i)) {
             str_key(pae_supp->sec_keys.gtks.ins_gtk_hash[i].hash,
                       sizeof(pae_supp->sec_keys.gtks.ins_gtk_hash[i].hash),
                       str_buf, sizeof(str_buf));
@@ -96,7 +97,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         }
     }
     for (i = 0; i < LGTK_NUM; i++) {
-        if (pae_supp->sec_keys.lgtks.ins_gtk_hash_set & (1 << i)) {
+        if (pae_supp->sec_keys.lgtks.ins_gtk_hash_set & BIT(i)) {
             str_key(pae_supp->sec_keys.lgtks.ins_gtk_hash[i].hash,
                       sizeof(pae_supp->sec_keys.lgtks.ins_gtk_hash[i].hash),
                       str_buf, sizeof(str_buf));
@@ -160,12 +161,12 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
             if (parse_byte_array(pae_supp->sec_keys.gtks.ins_gtk_hash[info->key_array_index].hash, INS_GTK_HASH_LEN, info->value))
                 WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
             else
-                pae_supp->sec_keys.gtks.ins_gtk_hash_set |= 1 << strtoull(info->value, NULL, 0);
+                pae_supp->sec_keys.gtks.ins_gtk_hash_set |= BIT(strtoull(info->value, NULL, 0));
         } else if (!fnmatch("lgtk\\[*].installed_hash", info->key, 0) && info->key_array_index < 3) {
             if (parse_byte_array(pae_supp->sec_keys.lgtks.ins_gtk_hash[info->key_array_index].hash, INS_GTK_HASH_LEN, info->value))
                 WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
             else
-                pae_supp->sec_keys.lgtks.ins_gtk_hash_set |= 1 << strtoull(info->value, NULL, 0);
+                pae_supp->sec_keys.lgtks.ins_gtk_hash_set |= BIT(strtoull(info->value, NULL, 0));
         } else if (!fnmatch("node_role", info->key, 0)) {
             pae_supp->sec_keys.node_role = str_to_val(info->value, nr_values);
         } else {

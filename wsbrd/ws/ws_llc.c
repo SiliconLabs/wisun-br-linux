@@ -1035,7 +1035,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     int ie_offset;
     uint8_t plf;
 
-    if (info->pan_information.jm.mask & (1 << WS_JM_PLF)) {
+    if (info->pan_information.jm.mask & BIT(WS_JM_PLF)) {
         plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
         if (plf != info->pan_information.jm.plf) {
             info->pan_information.jm.plf = plf;
@@ -1081,7 +1081,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
                         info->fhss_config.lfn_bc_sync_period);
     SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
-        if (!(ie_custom->frame_type_mask & (1 << msg->message_type)))
+        if (!(ie_custom->frame_type_mask & BIT(msg->message_type)))
             continue;
         if (ie_custom->ie_type == WS_IE_CUSTOM_TYPE_HEADER)
             iobuf_push_data(&msg->ie_buf_header, ie_custom->buf.data, ie_custom->buf.len);
@@ -1123,7 +1123,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
-            if (ie_custom->frame_type_mask & (1 << msg->message_type) &&
+            if (ie_custom->frame_type_mask & BIT(msg->message_type) &&
                 ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
                 iobuf_push_data(&msg->ie_buf_payload, ie_custom->buf.data, ie_custom->buf.len);
         ieee802154_ie_fill_len_payload(&msg->ie_buf_payload, ie_offset);

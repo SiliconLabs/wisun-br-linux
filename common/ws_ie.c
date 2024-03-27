@@ -534,7 +534,7 @@ void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm)
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_JM, false);
     iobuf_push_u8(buf, jm->version);
-    if (jm->mask & (1 << WS_JM_PLF)) {
+    if (jm->mask & BIT(WS_JM_PLF)) {
         tmp8 = 0;
         tmp8 |= FIELD_PREP(WS_MASK_JM_ID,  WS_JM_PLF);
         tmp8 |= FIELD_PREP(WS_MASK_JM_LEN, 1);
@@ -905,7 +905,7 @@ bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, uint8_t lg
     valid_hashs = FIELD_GET(WS_MASK_LGTKHASH_LGTK0 | WS_MASK_LGTKHASH_LGTK1 | WS_MASK_LGTKHASH_LGTK2, *data);
     *active_lgtk_index = FIELD_GET(WS_MASK_LGTKHASH_INDEX, *data);
     for (int i = 0; i < 3; i++) {
-        if (valid_hashs & (1 << i))
+        if (valid_hashs & BIT(i))
             iobuf_pop_data(&ie_buf, lgtkhash[i], 8);
         else
             memset(lgtkhash[i], 0, 8);

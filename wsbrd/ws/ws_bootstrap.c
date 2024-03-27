@@ -169,9 +169,9 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
     rcp_set_sec_key(cur->rcp, key_index, key, frame_counter);
     if (key) {
         dbus_emit_keys_change(&g_ctxt);
-        cur->ws_info.key_index_mask |= 1u << key_index;
+        cur->ws_info.key_index_mask |= BIT(key_index);
     } else {
-        cur->ws_info.key_index_mask &= ~(1u << key_index);
+        cur->ws_info.key_index_mask &= ~BIT(key_index);
     }
     SLIST_FOREACH(neigh, & cur->ws_info.neighbor_storage.neigh_list, link)
         neigh->frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;

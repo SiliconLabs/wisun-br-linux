@@ -189,7 +189,7 @@ void rcp_req_data_tx(struct rcp *rcp,
     if (frame_counters_min) {
         for (uint8_t i = 0; i < 7; i++) {
             if (frame_counters_min[i] != UINT32_MAX) {
-                bitfield |= FIELD_PREP(HIF_MASK_FRAME_COUNTERS, 1u << i);
+                bitfield |= FIELD_PREP(HIF_MASK_FRAME_COUNTERS, BIT(i));
                 hif_push_u32(&buf, frame_counters_min[i]);
             }
         }

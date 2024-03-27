@@ -45,6 +45,8 @@
 #define FIELD_PREP(mask, val) (((val) << __CTZ(mask)) & (mask))
 #define FIELD_MAX(mask) ((mask) >> __CTZ(mask))
 
+#define BIT(n) (1ul << (n))
+
 /*
  * Functions bit*() allow to work on array of bytes. So they can work on bits
  * > 64. In these functions, start, end, i, etc... are always expressed as a

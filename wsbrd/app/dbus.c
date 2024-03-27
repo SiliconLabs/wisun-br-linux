@@ -17,6 +17,7 @@
 #include <systemd/sd-bus.h>
 #include <math.h>
 #include "app/tun.h"
+#include "common/bits.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/memutils.h"
@@ -368,7 +369,7 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
         default:
             return sd_bus_error_set_errno(ret_error, -EINVAL);
         }
-        frame_type_mask |= 1 << frame_type_list[i];
+        frame_type_mask |= BIT(frame_type_list[i]);
     }
     ret = ws_ie_custom_update(&ctxt->net_if.ws_info.ie_custom_list, ie_type, ie_id,
                               content, content_len, frame_type_mask);
