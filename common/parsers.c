@@ -16,20 +16,10 @@
 #include <errno.h>
 #include <netdb.h>
 
+#include "common/bits.h"
 #include "common/log.h"
 
 #include "parsers.h"
-
-static int set_bitmask(uint8_t *out, int size, int shift)
-{
-    int word_nr = shift / 8;
-    int bit_nr = shift % 8;
-
-    if (word_nr >= size)
-        return -ERANGE;
-    out[word_nr] |= 1u << bit_nr;
-    return 0;
-}
 
 /*
  * Accepted input string is more or less the same than pages selection for
@@ -56,9 +46,9 @@ int parse_bitmask(uint8_t *out, int size, const char *str)
             return -EINVAL;
         if (cur > end)
             return -EINVAL;
-        for (; cur <= end; cur++)
-            if (set_bitmask(out, size, cur) < 0)
-                return -ERANGE;
+        if (end / 8 >= size)
+            return -ERANGE;
+        bitfill(out, true, cur, end);
         str = endptr + 1;
     } while (*endptr != '\0');
     return 0;
