@@ -226,7 +226,6 @@ add_library(libwsbrd STATIC
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     6lbr/
-    stack/
 )
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_options(libwsbrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
@@ -313,7 +312,6 @@ if(COMPILE_DEVTOOLS)
     )
     target_include_directories(wsbrd-fuzz PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        stack/
         6lbr/
     )
     add_dependencies(wsbrd-fuzz libwsbrd)
