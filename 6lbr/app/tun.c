@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <errno.h>
 #include <ifaddrs.h>
 #include <string.h>
 #include <unistd.h>
@@ -112,7 +113,6 @@ int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[16])
 void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    char ipv6_addr_to_str[128] = { };
     struct rtnl_neigh *nl_neigh;
     struct nl_addr *src_ipv6_nl_addr;
     struct nl_cache *cache;
@@ -121,8 +121,6 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
-
-    inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
 
     ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
     if (!ifindex) {
@@ -137,8 +135,8 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
 
     err = rtnl_neigh_alloc_cache(sock, &cache);
     FATAL_ON(err < 0, 2, "rtnl_neigh_alloc_cache: %s", nl_geterror(err));
-    err = nl_addr_parse(ipv6_addr_to_str, AF_INET6, &src_ipv6_nl_addr);
-    FATAL_ON(err < 0, 2, "nl_addr_parse: %s", nl_geterror(err));
+    src_ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
+    FATAL_ON(!src_ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
     nl_neigh = rtnl_neigh_get(cache, ifindex, src_ipv6_nl_addr);
     if (nl_neigh)
         goto ret_free_addr;
@@ -161,7 +159,6 @@ ret_free_addr:
 void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    char ipv6_addr_to_str[128] = { };
     struct rtnl_nexthop* nl_nexthop;
     struct rtnl_route *nl_route;
     struct nl_addr *ipv6_nl_addr;
@@ -170,8 +167,6 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
-
-    inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
 
     ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
     if (!ifindex) {
@@ -184,8 +179,8 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     err = nl_connect(sock, NETLINK_ROUTE);
     FATAL_ON(err < 0, 2, "nl_connect: %s", nl_geterror(err));
 
-    err = nl_addr_parse(ipv6_addr_to_str, AF_INET6, &ipv6_nl_addr);
-    FATAL_ON(err < 0, 2, "nl_addr_parse: %s", nl_geterror(err));
+    ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
+    FATAL_ON(!ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
     nl_route = rtnl_route_alloc();
     BUG_ON(!nl_route);
     nl_nexthop = rtnl_route_nh_alloc();
@@ -208,30 +203,25 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
 static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[8], const uint8_t hw_mac_addr[8], bool register_proxy_ndp)
 {
     int err = 0;
-    char ipv6_addr_str[128] = { };
     uint8_t ipv6_addr_buf[16] = { };
     struct rtnl_addr *ipv6_addr = NULL;
     struct nl_addr* lo_ipv6_addr = NULL;
 
     memcpy(ipv6_addr_buf, ipv6_prefix, 8);
     memcpy(ipv6_addr_buf + 8, hw_mac_addr, 8);
-    inet_ntop(AF_INET6, ipv6_addr_buf, ipv6_addr_str, INET6_ADDRSTRLEN);
-    if (register_proxy_ndp) {
+    if (register_proxy_ndp)
         tun_add_node_to_proxy_neightbl(NULL, ipv6_addr_buf);
-        strcat(ipv6_addr_str, "/128");
-    } else {
-        strcat(ipv6_addr_str, "/64");
-    }
-    err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr);
-    FATAL_ON(err < 0, 2, "nl_addr_parse %s: %s", ipv6_addr_str, nl_geterror(err));
+    lo_ipv6_addr = nl_addr_build(AF_INET6, ipv6_addr_buf, sizeof(ipv6_addr_buf));
+    FATAL_ON(!lo_ipv6_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
+    nl_addr_set_prefixlen(lo_ipv6_addr, register_proxy_ndp ? 128 : 64);
     ipv6_addr = rtnl_addr_alloc();
     err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr);
-    FATAL_ON(err < 0, 2, "rtnl_addr_set_local %s: %s", ipv6_addr_str, nl_geterror(err));
+    FATAL_ON(err < 0, 2, "rtnl_addr_set_local %s: %s", tr_ipv6(ipv6_addr_buf), nl_geterror(err));
     rtnl_addr_set_ifindex(ipv6_addr, ifindex);
     rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
     err = rtnl_addr_add(sock, ipv6_addr, 0);
     if (err < 0 && err != -NLE_EXIST)
-        FATAL(2, "rtnl_addr_add %s: %s", ipv6_addr_str, nl_geterror(err));
+        FATAL(2, "rtnl_addr_add %s: %s", tr_ipv6(ipv6_addr_buf), nl_geterror(err));
     nl_addr_put(lo_ipv6_addr);
     rtnl_addr_put(ipv6_addr);
 }
