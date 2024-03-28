@@ -1,8 +1,21 @@
-// MTU: Maximum Transmission Unit
+/*
+ * Copyright (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
+ *
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
+ */
 #ifndef LOWPAN_MTU_H
 #define LOWPAN_MTU_H
 
 #include "common/specs/ieee802154.h"
+
+// MTU: Maximum Transmission Unit
 
 // FCS is handled by the RCP
 #define LOWPAN_MTU_MAX (MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE - 4)
