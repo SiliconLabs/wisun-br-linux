@@ -71,6 +71,22 @@ enum {
     ICMPV6_CODE_DST_UNREACH_SRH                  = 7,
 };
 
+// RFC 4443: Error codes for "Time Exceeded".
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-codes-4
+enum {
+    ICMPV6_CODE_TME_EXCD_HOP_LIM_EXCD          = 0,
+    ICMPV6_CODE_TME_EXCD_FRG_REASS_TME_EXCD    = 1,
+};
+
+// RFC 4443: Error codes for "Parameter Problem".
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-codes-5
+enum {
+    ICMPV6_CODE_PARAM_PRB_HDR_ERR              = 0,
+    ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR       = 1,
+    ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT       = 2,
+    ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR  = 3,
+};
+
 // RFC 4861: "IPv6 Neighbor Discovery Option Formats".
 // https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-5
 enum {

@@ -20,14 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ICMPV6_CODE_TME_EXCD_HOP_LIM_EXCD           0
-#define ICMPV6_CODE_TME_EXCD_FRG_REASS_TME_EXCD     1
-
-#define ICMPV6_CODE_PARAM_PRB_HDR_ERR               0
-#define ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR        1
-#define ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT        2
-#define ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR   3
-
 /* Neighbour Advertisement flags */
 #define NA_R    0x80
 #define NA_S    0x40
