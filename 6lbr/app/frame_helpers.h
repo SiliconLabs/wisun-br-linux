@@ -14,6 +14,7 @@
 #define FRAME_HELPERS_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 struct iobuf_write;
 struct rcp;

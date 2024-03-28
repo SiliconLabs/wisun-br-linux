@@ -14,6 +14,7 @@
 #define WS_IE_VALIDATION_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 struct ws_wp_netname;
 struct ws_lcp_ie;

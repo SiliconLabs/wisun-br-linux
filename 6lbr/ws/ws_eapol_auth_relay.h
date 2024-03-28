@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef WS_EAPOL_AUTH_RELAY_H_
 #define WS_EAPOL_AUTH_RELAY_H_
 
@@ -29,6 +28,8 @@
  * (set by remote address and port parameters).
  *
  */
+
+struct net_if;
 
 int ws_eapol_auth_relay_get_socket_fd();
 void ws_eapol_auth_relay_socket_cb(int fd);

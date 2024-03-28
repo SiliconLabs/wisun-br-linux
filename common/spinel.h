@@ -26,6 +26,9 @@
  */
 #ifndef SPINEL_DEFS_H
 #define SPINEL_DEFS_H
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 struct iobuf_read;
 struct iobuf_write;

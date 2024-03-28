@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include "security/protocols/sec_prot.h"
+#include "security/protocols/sec_prot_keys.h"
 
 struct net_if;
 struct sec_prot_gtk_keys;

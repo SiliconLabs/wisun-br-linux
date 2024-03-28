@@ -12,6 +12,7 @@
  */
 #ifndef MATHUTILS_H
 #define MATHUTILS_H
+#include <stdint.h>
 #include <stddef.h>
 
 #define MIN(x, y) ({ \

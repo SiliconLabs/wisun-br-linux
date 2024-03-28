@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "common/seqno.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 
 /*
