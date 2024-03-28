@@ -18,13 +18,9 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "common/log_legacy.h"
 #include "common/endian.h"
 
 #include "security/eapol/kde_helper.h"
-
-
-#define TRACE_GROUP "kdeh"
 
 #define IEEE_802_11_OUI          ieee_802_11_oui
 #define WISUN_OUI                wisun_oui

@@ -12,11 +12,12 @@
  */
 #include <errno.h>
 #include <stdlib.h>
-
+#include "common/log.h"
 #include "common/bits.h"
 #include "common/ieee802154_ie.h"
 #include "common/sys_queue_extra.h"
 #include "common/specs/ieee802154.h"
+
 #include "ws_ie_custom.h"
 
 void ws_ie_custom_clear(struct ws_ie_custom_list *list)

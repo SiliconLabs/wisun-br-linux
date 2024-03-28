@@ -15,13 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "common/bits.h"
 #include "common/endian.h"
 #include "common/string_extra.h"
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"

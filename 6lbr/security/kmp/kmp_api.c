@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
 #include "common/memutils.h"
 #include "common/ns_list.h"
 
@@ -34,8 +33,6 @@
 #include "security/protocols/sec_prot.h"
 
 #include "security/kmp/kmp_api.h"
-
-#define TRACE_GROUP "kmap"
 
 struct kmp_api {
     void                         *app_data_ptr;           /**< Opaque pointer for application data */

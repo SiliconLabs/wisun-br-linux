@@ -25,7 +25,6 @@
 #include "common/ws_regdb.h"
 #include "common/trickle.h"
 #include "common/named_values.h"
-#include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/events_scheduler.h"
 #include "common/version.h"
@@ -57,8 +56,6 @@
 #include "ws/ws_eapol_auth_relay.h"
 #include "ws/ws_eapol_relay.h"
 #include "ws/ws_mngt.h"
-
-#define TRACE_GROUP "wsbs"
 
 #define EAPOL_RELAY_SOCKET_PORT               10253
 #define BR_EAPOL_RELAY_SOCKET_PORT            10255

@@ -18,12 +18,9 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "common/log_legacy.h"
 #include "common/endian.h"
 
 #include "security/protocols/radius_sec_prot/avp_helper.h"
-
-#define TRACE_GROUP "avp"
 
 // RFC 2865
 

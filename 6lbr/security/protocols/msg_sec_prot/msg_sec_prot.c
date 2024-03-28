@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
@@ -36,8 +35,6 @@
 #include "security/protocols/sec_prot_lib.h"
 
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
-
-#define TRACE_GROUP "msep"
 
 typedef enum {
     MSG_STATE_INIT = SEC_STATE_INIT,

@@ -26,7 +26,6 @@
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/string_extra.h"
-#include "common/log_legacy.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
 

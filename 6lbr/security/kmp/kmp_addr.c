@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
@@ -27,9 +26,6 @@
 #include "ws/ws_config.h"
 
 #include "security/kmp/kmp_addr.h"
-
-
-#define TRACE_GROUP "kmar"
 
 void kmp_address_init(kmp_addr_type_e type, kmp_addr_t *addr, const uint8_t *eui_64)
 {

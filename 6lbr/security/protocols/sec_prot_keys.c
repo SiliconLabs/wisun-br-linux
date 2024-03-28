@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/string_extra.h"
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/specs/ws.h"
 
@@ -38,8 +37,6 @@
 #include "security/protocols/sec_prot_lib.h"
 
 #include "security/protocols/sec_prot_keys.h"
-
-#define TRACE_GROUP "spke"
 
 sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {

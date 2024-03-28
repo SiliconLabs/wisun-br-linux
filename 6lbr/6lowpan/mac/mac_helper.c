@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "common/log_legacy.h"
+#include "common/log.h"
 #include "common/endian.h"
 #include "common/specs/ieee802154.h"
 
@@ -28,8 +28,6 @@
 #include "net/protocol.h"
 
 #include "6lowpan/mac/mac_helper.h"
-
-#define TRACE_GROUP "MACh"
 
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);

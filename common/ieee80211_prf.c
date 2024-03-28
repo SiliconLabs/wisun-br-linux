@@ -18,8 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
-
-#include "common/log_legacy.h"
+#include "common/log.h"
 #include "common/hmac_md.h"
 #include "common/mathutils.h"
 

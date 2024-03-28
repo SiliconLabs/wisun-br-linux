@@ -19,12 +19,10 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/endian.h"
-#include "common/log_legacy.h"
 
 #include "security/pana/pana_eap_header.h"
 
 #include "security/eapol/eapol_helper.h"
-
 
 #define KEY_INFO_VERSION_BIT_MASK   0x0007
 #define KEY_INFO_VERSION_BIT_SHIFT  0

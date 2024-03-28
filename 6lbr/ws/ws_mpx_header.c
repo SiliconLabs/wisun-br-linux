@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "common/bits.h"
 #include "common/endian.h"
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/iobuf.h"
 

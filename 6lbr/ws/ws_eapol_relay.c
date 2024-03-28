@@ -25,7 +25,7 @@
 #include <net/if.h>
 
 #include "common/capture.h"
-#include "common/log_legacy.h"
+#include "common/log.h"
 #include "common/ns_list.h"
 #include "common/specs/ipv6.h"
 
@@ -39,8 +39,6 @@
 
 #include "ws/ws_eapol_relay.h"
 #include "app/wsbr.h"
-
-#define TRACE_GROUP "wser"
 
 typedef struct eapol_relay {
     struct net_if *interface_ptr;         /**< Interface pointer */

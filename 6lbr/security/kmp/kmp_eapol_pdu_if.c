@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
@@ -31,8 +30,6 @@
 #include "security/kmp/kmp_api.h"
 
 #include "security/kmp/kmp_eapol_pdu_if.h"
-
-#define TRACE_GROUP "kmep"
 
 #define EAPOL_PDU_IF_HEADER_SIZE                 1
 

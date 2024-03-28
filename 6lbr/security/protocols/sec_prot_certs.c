@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/log_legacy.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
@@ -28,8 +27,6 @@
 #include "security/protocols/sec_prot_keys.h"
 
 #include "security/protocols/sec_prot_certs.h"
-
-#define TRACE_GROUP "spce"
 
 // Length for PEM coded certificate's begin and end certificate text strings
 #define SEC_PROT_CERT_PEM_HEADER_FOOTER_LEN                52

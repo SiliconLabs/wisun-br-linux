@@ -26,7 +26,7 @@
 #include "common/parsers.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
-#include "common/log_legacy.h"
+#include "common/log.h"
 #include "common/endian.h"
 #include "common/ns_list.h"
 #include "common/specs/icmpv6.h"
@@ -43,8 +43,6 @@
 #include "ws/ws_ie_lib.h"
 
 #include "ws/ws_common.h"
-
-#define TRACE_GROUP "wscm"
 
 int DEVICE_MIN_SENS = -93;
 
