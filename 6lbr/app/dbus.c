@@ -45,6 +45,7 @@
 
 int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
+    uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     struct wsbr_ctxt *ctxt = userdata;
     int ret;
     uint8_t *eui64;
@@ -61,6 +62,8 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
         eui64 = NULL;
     else if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
+    else if (!memcmp(eui64, wisun_broadcast_mac_addr, 8))
+        eui64 = NULL;
 
     if (phy_mode_id > 0)
         ret = ws_llc_set_mode_switch(&ctxt->net_if, WS_MODE_SWITCH_PHY, phy_mode_id, eui64); // mode switch enabled

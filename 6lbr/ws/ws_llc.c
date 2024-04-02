@@ -1826,14 +1826,12 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t phy_mode_id,
                               uint8_t *neighbor_mac_address)
 {
-    uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    bool is_default = !neighbor_mac_address || !memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8);
     struct ws_neigh *ws_neigh;
     uint8_t peer_phy_mode_id;
     uint8_t i;
 
     // Can't set default to default
-    if (mode == WS_MODE_SWITCH_DEFAULT && is_default)
+    if (mode == WS_MODE_SWITCH_DEFAULT && !neighbor_mac_address)
         return -EINVAL;
 
     if (mode == WS_MODE_SWITCH_PHY) {
@@ -1844,7 +1842,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
             return -EINVAL;
     }
 
-    if (is_default) {
+    if (!neighbor_mac_address) {
         interface->ws_info.phy_config.phy_mode_id_ms_tx = phy_mode_id;
         interface->ws_info.phy_config.ms_mode = mode;
     } else {
