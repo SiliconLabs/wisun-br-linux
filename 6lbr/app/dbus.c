@@ -81,6 +81,39 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
     return 0;
 }
 
+int dbus_set_link_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    uint32_t phy_mode_id;
+    size_t eui64_len;
+    uint8_t ms_mode;
+    uint8_t *eui64;
+    int ret;
+
+    sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
+    sd_bus_message_read_basic(m, 'u', &phy_mode_id);
+    sd_bus_message_read_basic(m, 'y', &ms_mode);
+
+    if (eui64_len == 0)
+        eui64 = NULL;
+    else if (eui64_len != 8)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    if (ms_mode > WS_MODE_SWITCH_MAC)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (ms_mode > WS_MODE_SWITCH_DISABLED && !phy_mode_id)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (ms_mode == WS_MODE_SWITCH_DEFAULT && phy_mode_id)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ret = ws_llc_set_mode_switch(&ctxt->net_if, ms_mode, phy_mode_id, eui64);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    sd_bus_reply_method_return(m, NULL);
+
+    return 0;
+}
+
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
@@ -673,7 +706,8 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
         SD_BUS_METHOD("JoinMulticastGroup",  "ay",     NULL, dbus_join_multicast_group,  0),
         SD_BUS_METHOD("LeaveMulticastGroup", "ay",     NULL, dbus_leave_multicast_group, 0),
-        SD_BUS_METHOD("SetModeSwitch",       "ayi",    NULL, dbus_set_mode_switch,       0),
+        SD_BUS_METHOD("SetModeSwitch",       "ayi",    NULL, dbus_set_mode_switch,       SD_BUS_VTABLE_DEPRECATED),
+        SD_BUS_METHOD("SetLinkModeSwitch",   "ayuy",   NULL, dbus_set_link_mode_switch,  0),
         SD_BUS_METHOD("RevokePairwiseKeys",  "ay",     NULL, dbus_revoke_pairwise_keys,  0),
         SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, dbus_revoke_group_keys,     0),
         SD_BUS_METHOD("InstallGtk",          "ay",     NULL, dbus_install_gtk,           0),

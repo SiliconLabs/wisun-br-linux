@@ -1265,10 +1265,11 @@ uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
 
     switch (ws_neigh->ms_mode) {
     case WS_MODE_SWITCH_PHY:
+    case WS_MODE_SWITCH_MAC:
         ms_phy_mode_id = ws_neigh->ms_phy_mode_id;
         break;
     case WS_MODE_SWITCH_DEFAULT:
-        if (phy_config->ms_mode == WS_MODE_SWITCH_PHY)
+        if (phy_config->ms_mode == WS_MODE_SWITCH_PHY || phy_config->ms_mode == WS_MODE_SWITCH_MAC)
             ms_phy_mode_id = phy_config->phy_mode_id_ms_tx;
         break;
     }
@@ -1833,8 +1834,12 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
     // Can't set default to default
     if (mode == WS_MODE_SWITCH_DEFAULT && !neighbor_mac_address)
         return -EINVAL;
+    if (phy_mode_id > 0 && version_older_than(interface->rcp->version_api, 2, 0, 1))
+        return -ENOTSUP;
+    if (phy_mode_id > 0 && mode == WS_MODE_SWITCH_MAC && version_older_than(interface->rcp->version_api, 2, 1, 0))
+        return -ENOTSUP;
 
-    if (mode == WS_MODE_SWITCH_PHY) {
+    if (mode == WS_MODE_SWITCH_PHY || mode == WS_MODE_SWITCH_MAC) {
         for (i = 0; interface->ws_info.phy_config.phy_op_modes[i]; i++)
             if (phy_mode_id == interface->ws_info.phy_config.phy_op_modes[i])
                 break;
@@ -1850,7 +1855,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
         if (!ws_neigh)
             return -EINVAL;
 
-        if (mode == WS_MODE_SWITCH_PHY) {
+        if (mode == WS_MODE_SWITCH_PHY || mode == WS_MODE_SWITCH_MAC) {
             peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
                                                        ws_neigh->pom_ie.phy_op_mode_number,
                                                        phy_mode_id);

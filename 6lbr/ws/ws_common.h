@@ -63,6 +63,7 @@ enum ws_mode_switch_mode {
     WS_MODE_SWITCH_DEFAULT  = 0,
     WS_MODE_SWITCH_DISABLED = 1,
     WS_MODE_SWITCH_PHY      = 2,
+    WS_MODE_SWITCH_MAC      = 3,
 };
 
 struct ws_phy_config {
