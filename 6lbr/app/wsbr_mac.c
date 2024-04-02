@@ -86,7 +86,8 @@ void wsbr_data_req_ext(struct net_if *cur,
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
                     data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
-                    data->rate_list[0].phy_mode_id ? data->rate_list : NULL);
+                    data->rate_list[0].phy_mode_id ? data->rate_list : NULL,
+                    data->ms_mode == WS_MODE_SWITCH_MAC ? HIF_MODE_SWITCH_TYPE_MAC : HIF_MODE_SWITCH_TYPE_PHY);
     iobuf_free(&frame);
 }
 

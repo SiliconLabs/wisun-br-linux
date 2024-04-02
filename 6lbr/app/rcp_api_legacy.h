@@ -67,6 +67,7 @@ typedef struct mcps_data_req {
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
     struct mlme_security Key;       /**< Security key */
     struct hif_rate_info rate_list[4];
+    uint8_t ms_mode;
     uint8_t fhss_type;              /**< FHSS policy to send that frame */
     uint8_t frame_type;
 } mcps_data_req_t;

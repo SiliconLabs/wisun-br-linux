@@ -109,6 +109,11 @@ enum hif_fhss_type {
     HIF_FHSS_TYPE_LFN_PA = 0x06,
 };
 
+enum hif_mode_switch_type {
+    HIF_MODE_SWITCH_TYPE_PHY  = 0x00,
+    HIF_MODE_SWITCH_TYPE_MAC  = 0x01,
+};
+
 struct hif_rate_info {
     uint8_t phy_mode_id;
     uint8_t tx_attempts;

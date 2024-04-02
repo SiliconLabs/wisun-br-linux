@@ -1372,6 +1372,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         else
             memset(data_req.rate_list, 0, sizeof(data_req.rate_list));
     }
+    if (ws_neigh)
+        data_req.ms_mode = ws_neigh->ms_mode == WS_MODE_SWITCH_DEFAULT ? ws_info->phy_config.ms_mode : ws_neigh->ms_mode;
     data_req.frame_type = WS_FT_DATA;
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {

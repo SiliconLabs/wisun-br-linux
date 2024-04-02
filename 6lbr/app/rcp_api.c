@@ -105,13 +105,14 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 #define HIF_MASK_FHSS_DEFAULT   0x0010
 #define HIF_MASK_MODE_SWITCH    0x0020
 #define HIF_MASK_FRAME_COUNTERS 0x1fc0
+#define HIF_MASK_MODE_SWITCH_TYPE 0x2000
 
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
                      const struct fhss_ws_neighbor_timing_info *fhss_data,
                      const uint32_t frame_counters_min[7],
-                     const struct hif_rate_info rate_list[4])
+                     const struct hif_rate_info rate_list[4], uint8_t ms_mode)
 {
     struct iobuf_write buf = { };
     int bitfield_offset;
@@ -196,6 +197,9 @@ void rcp_req_data_tx(struct rcp *rcp,
             hif_push_i8(&buf, rate_list[i].tx_power_dbm);
         }
     }
+
+    bitfield |= FIELD_PREP(HIF_MASK_MODE_SWITCH_TYPE, ms_mode);
+
     write_le16(buf.data + bitfield_offset, bitfield);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
