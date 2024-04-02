@@ -93,10 +93,6 @@ class WsbrdDbusInterface(
     def routing_graph(self) -> list[tuple[bytes, bool, list[bytes]]]:
         raise NotImplementedError
 
-    @sdbus.dbus_method('ayi')
-    def set_mode_switch(self, eui64: bytes, phy_mode_id: int) -> None:
-        raise NotImplementedError
-
     @sdbus.dbus_method('ayuy')
     def set_link_mode_switch(self, eui64: bytes, phy_mode_id: int, ms_mode: int) -> None:
         raise NotImplementedError
