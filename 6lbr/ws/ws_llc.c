@@ -94,13 +94,6 @@ typedef struct llc_ie_params {
     struct ws_lbats_ie      *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
 
-/// Enumeration for Mode Switch mode
-typedef enum {
-    SL_WISUN_MODE_SWITCH_DISABLED     = -1,    /// Mode switch is not allowed
-    SL_WISUN_MODE_SWITCH_ENABLED      = 1,     /// Mode switch is allowed for all unicast data frames. PhyModeId is neighbor specific
-    SL_WISUN_MODE_SWITCH_DEFAULT      = 0,     /// Mode switch is allowed for all unicast data frames. PhyModeId is global.
-} sl_wisun_mode_switch_mode_t;
-
 // FIXME: This contains many redundant information with mcps_data_req_t.
 typedef struct llc_message {
     uint8_t dst_address[8];             /**< Destination address */
