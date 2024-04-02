@@ -170,6 +170,16 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
         .new_install_req         = ctxt->config.ws_lgtk_new_install_required,
         .revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction,
     };
+    struct arm_certificate_entry tls_br = {
+        .cert     = ctxt->config.br_cert.iov_base,
+        .cert_len = ctxt->config.br_cert.iov_len,
+        .key      = ctxt->config.br_key.iov_base,
+        .key_len  = ctxt->config.br_key.iov_len,
+    };
+    struct arm_certificate_entry tls_ca = {
+        .cert     = ctxt->config.ca_cert.iov_base,
+        .cert_len = ctxt->config.ca_cert.iov_len,
+    };
     uint8_t *lgtks[3] = { };
     bool lgtk_force = false;
     uint8_t *gtks[4] = { };
@@ -209,9 +219,9 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
         WARN_ON(ret);
     }
 
-    ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
+    ret = ws_pae_controller_own_certificate_add(&tls_br);
     WARN_ON(ret);
-    ret = ws_pae_controller_trusted_certificate_add(&ctxt->config.tls_ca);
+    ret = ws_pae_controller_trusted_certificate_add(&tls_ca);
     WARN_ON(ret);
 }
 

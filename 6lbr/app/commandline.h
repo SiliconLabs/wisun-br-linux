@@ -18,9 +18,8 @@
 #include <stdint.h>
 #include <limits.h>
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
+#include <sys/types.h>
 #include <net/if.h>
-
-#include "ws/ws_pae_controller.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
@@ -62,8 +61,9 @@ struct wsbrd_conf {
     char storage_prefix[PATH_MAX];
     bool storage_delete;
     bool storage_exit;
-    arm_certificate_entry_s tls_own;
-    arm_certificate_entry_s tls_ca;
+    struct iovec br_key;
+    struct iovec br_cert;
+    struct iovec ca_cert;
     uint8_t ws_gtk[4][16];
     bool ws_gtk_force[4];
     uint8_t ws_lgtk[4][16];

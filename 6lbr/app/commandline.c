@@ -422,26 +422,15 @@ static int read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
-static void conf_set_cert(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_pem(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    arm_certificate_entry_s *dest = raw_dest;
+    struct iovec *dest = raw_dest;
     int ret;
 
     BUG_ON(raw_param);
-    ret = read_cert(info->value, &dest->cert);
+    ret = read_cert(info->value, (const uint8_t **)&dest->iov_base);
     FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
-    dest->cert_len = ret;
-}
-
-static void conf_set_key(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    arm_certificate_entry_s *dest = raw_dest;
-    int ret;
-
-    BUG_ON(raw_param);
-    ret = read_cert(info->value, &dest->key);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
-    dest->key_len = ret;
+    dest->iov_len = ret;
 }
 
 static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
@@ -503,9 +492,9 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
         { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
         { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
-        { "key",                           &config->tls_own,                          conf_set_key,         NULL },
-        { "certificate",                   &config->tls_own,                          conf_set_cert,        NULL },
-        { "authority",                     &config->tls_ca,                           conf_set_cert,        NULL },
+        { "key",                           &config->br_key,                           conf_set_pem,         NULL },
+        { "certificate",                   &config->br_cert,                          conf_set_pem,         NULL },
+        { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
         { "network_name",                  config->ws_name,                           conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          &config->ws_size,                          conf_set_enum,        &valid_ws_size },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
@@ -716,15 +705,15 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_key(config, &info, &config->tls_own, NULL);
+                conf_set_pem(config, &info, &config->br_key, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_cert(config, &info, &config->tls_own, NULL);
+                conf_set_pem(config, &info, &config->br_cert, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_cert(config, &info, &config->tls_ca, NULL);
+                conf_set_pem(config, &info, &config->ca_cert, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
@@ -815,14 +804,14 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (storage_check_access(config->storage_prefix))
         FATAL(1, "%s: %m", config->storage_prefix);
     if (config->radius_server.ss_family == AF_UNSPEC) {
-        if (!config->tls_own.key)
+        if (!config->br_key.iov_base)
             FATAL(1, "missing \"key\" (or \"radius_server\") parameter");
-        if (!config->tls_own.cert)
+        if (!config->br_cert.iov_base)
             FATAL(1, "missing \"certificate\" (or \"radius_server\") parameter");
-        if (!config->tls_ca.cert)
+        if (!config->ca_cert.iov_base)
             FATAL(1, "missing \"authority\" (or \"radius_server\") parameter");
     } else {
-        if (config->tls_own.cert_len != 0 || config->tls_own.key_len != 0 || config->tls_ca.cert_len != 0)
+        if (config->br_key.iov_len || config->br_cert.iov_len || config->ca_cert.iov_len)
             WARN("ignore certificates and key since an external radius server is in use");
     }
     if (!config->enable_lfn)
