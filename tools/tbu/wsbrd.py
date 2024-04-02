@@ -16,6 +16,11 @@ import typing
 
 TMPDIR = '/tmp/wstbu'
 
+# wsbrd SetLinkModeSwitch DBUS API
+WSBRD_MODE_SWITCH_DEFAULT  = 0
+WSBRD_MODE_SWITCH_DISABLED = 1
+WSBRD_MODE_SWITCH_PHY      = 2
+WSBRD_MODE_SWITCH_MAC      = 3
 
 config: dict[str, typing.Any] = dict()
 
@@ -90,6 +95,10 @@ class WsbrdDbusInterface(
 
     @sdbus.dbus_method('ayi')
     def set_mode_switch(self, eui64: bytes, phy_mode_id: int) -> None:
+        raise NotImplementedError
+
+    @sdbus.dbus_method('ayuy')
+    def set_link_mode_switch(self, eui64: bytes, phy_mode_id: int, ms_mode: int) -> None:
         raise NotImplementedError
 
     @sdbus.dbus_method('ay')

@@ -816,16 +816,21 @@ def put_transmitter_icmpv6():
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid address')
 
     ms_mode = json.get('modeSwitch', WSTBU_MODE_SWITCH_DISABLED)
-    if ms_mode == WSTBU_MODE_SWITCH_PHY:
+    if ms_mode == WSTBU_MODE_SWITCH_PHY or ms_mode == WSTBU_MODE_SWITCH_MAC:
         if 'phyModeID' not in json:
             return error(400, WSTBU_ERR_UNKNOWN, 'missing phyModeID')
         phy_mode_id = json['phyModeID']
     elif ms_mode == WSTBU_MODE_SWITCH_DISABLED:
-        phy_mode_id = -1
+        phy_mode_id = 0
     else:
         return error(500, WSTBU_ERR_UNKNOWN, f'unsupported modeSwitch={ms_mode}')
     try:
-        wsbrd.dbus().set_mode_switch(bytes(), phy_mode_id)
+        if ms_mode == WSTBU_MODE_SWITCH_DISABLED:
+            wsbrd.dbus().set_link_mode_switch(bytes(), phy_mode_id, wsbrd.WSBRD_MODE_SWITCH_DISABLED)
+        elif ms_mode == WSTBU_MODE_SWITCH_PHY:
+            wsbrd.dbus().set_link_mode_switch(bytes(), phy_mode_id, wsbrd.WSBRD_MODE_SWITCH_PHY)
+        else:
+            wsbrd.dbus().set_link_mode_switch(bytes(), phy_mode_id, wsbrd.WSBRD_MODE_SWITCH_MAC)
     except sdbus.dbus_exceptions.DbusInvalidArgsError:
         return error(400, WSTBU_ERR_UNKNOWN, f'invalid phyModeID')
 
