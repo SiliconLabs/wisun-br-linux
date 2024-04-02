@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <errno.h>
 #include <math.h>
 #include "common/log.h"
 #include "common/bits.h"
@@ -1822,67 +1823,47 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     return 0;
 }
 
-int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
+int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t phy_mode_id,
+                              uint8_t *neighbor_mac_address)
 {
-    llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
-    struct ws_phy_config *schedule;
+    uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+    bool is_default = !neighbor_mac_address || !memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8);
     struct ws_neigh *ws_neigh;
     uint8_t peer_phy_mode_id;
-    uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+    uint8_t i;
 
-    if (!llc) // Invalid LLC context
-        return -1;
-
-    schedule = &llc->interface_ptr->ws_info.phy_config;
+    // Can't set default to default
+    if (mode == WS_MODE_SWITCH_DEFAULT && is_default)
+        return -EINVAL;
 
     if (mode == WS_MODE_SWITCH_PHY) {
-        bool found = false;
-        uint8_t i;
-
-        // Check Mode Switch PhyModeId is valid in our own phy list
-        for (i = 0; schedule->phy_op_modes[i]; i++) {
-            if (phy_mode_id == schedule->phy_op_modes[i]) {
-                found = true;
+        for (i = 0; interface->ws_info.phy_config.phy_op_modes[i]; i++)
+            if (phy_mode_id == interface->ws_info.phy_config.phy_op_modes[i])
                 break;
-            }
-        }
-
-        if (!found) // Invalid PhyModeId
-            return -3;
+        if (!interface->ws_info.phy_config.phy_op_modes[i])
+            return -EINVAL;
     }
 
-    if (!neighbor_mac_address || !memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8)) {
-        if (mode == WS_MODE_SWITCH_DEFAULT)
-            return -6;
-
-        // Configure default mode switch rate
-        schedule->phy_mode_id_ms_tx = phy_mode_id;
-        schedule->ms_mode = mode;
+    if (is_default) {
+        interface->ws_info.phy_config.phy_mode_id_ms_tx = phy_mode_id;
+        interface->ws_info.phy_config.ms_mode = mode;
     } else {
-        // Specific neighbor address
-        ws_neigh = ws_neigh_get(&llc->interface_ptr->ws_info.neighbor_storage, neighbor_mac_address);
-        if (!ws_neigh) {
-            // Wrong peer
-            return -5;
-        } else {
-            if (mode == WS_MODE_SWITCH_PHY) {
-                // Check Mode Switch PhyModeId is valid in the neighbor list
-                peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
-                                                           ws_neigh->pom_ie.phy_op_mode_number,
-                                                           phy_mode_id);
-                if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
-                    return -4;
-                ws_neigh->ms_phy_mode_id = phy_mode_id;
-            } else {
-                ws_neigh->ms_phy_mode_id = 0;
-            }
+        ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, neighbor_mac_address);
+        if (!ws_neigh)
+            return -EINVAL;
 
-            ws_neigh->ms_mode = mode;
-
-            // Reset counters
-            ws_neigh->ms_tx_count = 0;
-            ws_neigh->ms_retries_count = 0;
+        if (mode == WS_MODE_SWITCH_PHY) {
+            peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
+                                                       ws_neigh->pom_ie.phy_op_mode_number,
+                                                       phy_mode_id);
+            if (peer_phy_mode_id != phy_mode_id)
+                return -EINVAL;
         }
+
+        ws_neigh->ms_phy_mode_id = peer_phy_mode_id;
+        ws_neigh->ms_mode = mode;
+        ws_neigh->ms_tx_count = 0;
+        ws_neigh->ms_retries_count = 0;
     }
 
     return 0;

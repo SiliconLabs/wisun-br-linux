@@ -72,7 +72,7 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
         ret = -EINVAL;
 
     if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
+        return sd_bus_error_set_errno(ret_error, -ret);
     sd_bus_reply_method_return(m, NULL);
 
     return 0;
