@@ -60,11 +60,11 @@ struct ws_fhss_config {
 };
 
 /// Enumeration for Mode Switch mode
-typedef enum {
+enum ws_mode_switch_mode {
     WS_MODE_SWITCH_DISABLED     = -1,    /// Mode switch is not allowed
     WS_MODE_SWITCH_ENABLED      = 1,     /// Mode switch is allowed for all unicast data frames. PhyModeId is neighbor specific
     WS_MODE_SWITCH_DEFAULT      = 0,     /// Mode switch is allowed for all unicast data frames. PhyModeId is global.
-} ws_mode_switch_mode_t;
+};
 
 struct ws_phy_config {
     uint8_t op_mode;
