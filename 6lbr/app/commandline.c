@@ -388,49 +388,33 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
     free(tmp);
 }
 
-static int read_cert(const char *filename, const uint8_t **ptr)
-{
-    uint8_t *tmp;
-    int fd, ret;
-    struct stat st;
-
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-        return -1;
-    ret = fstat(fd, &st);
-    if (ret < 0)
-        return -1;
-
-    /* See https://github.com/ARMmbed/mbedtls/issues/3896 and
-     * mbedtls_x509_crt_parse()
-     */
-    tmp = malloc(st.st_size + 1);
-    tmp[st.st_size] = 0;
-    ret = read(fd, tmp, st.st_size);
-    if (ret != st.st_size)
-        return -1;
-    close(fd);
-    if (*ptr)
-        free((uint8_t *)*ptr);
-    *ptr = tmp;
-
-    if (strstr((char *)tmp, "-----BEGIN CERTIFICATE-----"))
-        return st.st_size + 1;
-    else if (strstr((char *)tmp, "-----BEGIN PRIVATE KEY-----"))
-        return st.st_size + 1;
-    else
-        return st.st_size;
-}
-
 static void conf_set_pem(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct iovec *dest = raw_dest;
-    int ret;
+    char *dest_str;
+    struct stat st;
+    ssize_t ret;
+    int fd;
 
     BUG_ON(raw_param);
-    ret = read_cert(info->value, (const uint8_t **)&dest->iov_base);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
+    fd = open(info->value, O_RDONLY);
+    FATAL_ON(fd < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
+    ret = fstat(fd, &st);
+    FATAL_ON(fd < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
+    dest->iov_base = realloc(dest->iov_base, st.st_size + 1);
+    FATAL_ON(!dest->iov_base, 2, "%s: realloc(): %m", __func__);
+    dest_str = (char *)dest->iov_base;
+    // See https://github.com/ARMmbed/mbedtls/issues/3896 and mbedtls_x509_crt_parse()
+    dest_str[st.st_size] = '\0';
+    ret = read(fd, dest->iov_base, st.st_size);
+    if (ret != st.st_size)
+        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value,
+              ret < 0 ? strerror(errno) : "Short read");
     dest->iov_len = ret;
+    if (strstr(dest_str, "-----BEGIN CERTIFICATE-----") ||
+        strstr(dest_str, "-----BEGIN PRIVATE KEY-----"))
+        dest->iov_len++;
+    close(fd);
 }
 
 static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
