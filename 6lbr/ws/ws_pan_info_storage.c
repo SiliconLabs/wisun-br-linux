@@ -22,8 +22,7 @@
 #include "common/memutils.h"
 #include "common/parsers.h"
 #include "common/log.h"
-
-#include "app/version.h"
+#include "common/version.h"
 
 #include "ws_pan_info_storage.h"
 

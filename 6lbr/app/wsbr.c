@@ -55,7 +55,6 @@
 #include "drop_privileges.h"
 #include "commandline.h"
 #include "wsbr_cfg.h"
-#include "version.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "libwsbrd.h"

@@ -38,7 +38,6 @@
 #include "ws/ws_llc.h"
 
 #include "frame_helpers.h"
-#include "version.h"
 #include "wsbr.h"
 #include "rcp_api.h"
 #include "wsbr_mac.h"
