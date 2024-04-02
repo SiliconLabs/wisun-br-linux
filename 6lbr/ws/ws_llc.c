@@ -1263,11 +1263,11 @@ uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
     uint8_t ms_phy_mode_id = 0;
 
     switch (ws_neigh->ms_mode) {
-    case WS_MODE_SWITCH_ENABLED:
+    case WS_MODE_SWITCH_PHY:
         ms_phy_mode_id = ws_neigh->ms_phy_mode_id;
         break;
     case WS_MODE_SWITCH_DEFAULT:
-        if (phy_config->ms_mode == WS_MODE_SWITCH_ENABLED)
+        if (phy_config->ms_mode == WS_MODE_SWITCH_PHY)
             ms_phy_mode_id = phy_config->phy_mode_id_ms_tx;
         break;
     }
@@ -1834,12 +1834,8 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         return -1;
 
     schedule = &llc->interface_ptr->ws_info.phy_config;
-    if (mode != WS_MODE_SWITCH_DISABLED &&
-        mode != WS_MODE_SWITCH_ENABLED &&
-        mode != WS_MODE_SWITCH_DEFAULT)
-        BUG();
 
-    if (mode == WS_MODE_SWITCH_ENABLED) {
+    if (mode == WS_MODE_SWITCH_PHY) {
         bool found = false;
         uint8_t i;
 
@@ -1869,7 +1865,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
             // Wrong peer
             return -5;
         } else {
-            if (mode == WS_MODE_SWITCH_ENABLED) {
+            if (mode == WS_MODE_SWITCH_PHY) {
                 // Check Mode Switch PhyModeId is valid in the neighbor list
                 peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
                                                            ws_neigh->pom_ie.phy_op_mode_number,
