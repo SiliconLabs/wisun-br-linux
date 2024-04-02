@@ -266,6 +266,24 @@ add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(wsrd
+    wsrd/app/wsrd.c
+    common/bits.c
+    common/log.c
+    version.c
+)
+target_include_directories(wsrd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+if(BACKTRACE_FOUND)
+    target_compile_definitions(wsrd PRIVATE HAVE_BACKTRACE)
+    target_sources(wsrd PRIVATE common/backtrace_show.c)
+    target_link_libraries(wsrd PRIVATE backtrace)
+endif()
+if(LIBDL_FOUND)
+    target_compile_definitions(wsrd PRIVATE HAVE_LIBDL)
+    target_link_libraries(wsrd PRIVATE ${CMAKE_DL_LIBS})
+endif()
+install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 
     string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
