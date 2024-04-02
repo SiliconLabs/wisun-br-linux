@@ -1263,11 +1263,11 @@ uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
     uint8_t ms_phy_mode_id = 0;
 
     switch (ws_neigh->ms_mode) {
-    case SL_WISUN_MODE_SWITCH_ENABLED:
+    case WS_MODE_SWITCH_ENABLED:
         ms_phy_mode_id = ws_neigh->ms_phy_mode_id;
         break;
-    case SL_WISUN_MODE_SWITCH_DEFAULT:
-        if (phy_config->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
+    case WS_MODE_SWITCH_DEFAULT:
+        if (phy_config->ms_mode == WS_MODE_SWITCH_ENABLED)
             ms_phy_mode_id = phy_config->phy_mode_id_ms_tx;
         break;
     }
@@ -1627,7 +1627,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
     if (neighbor->ms_tx_count + neighbor->ms_retries_count > MS_FALLBACK_MIN_SAMPLE) {
         if (neighbor->ms_retries_count > 4 * neighbor->ms_tx_count) {
             // Fallback: disable mode switch
-            schedule->ms_mode = SL_WISUN_MODE_SWITCH_DISABLED;
+            schedule->ms_mode = WS_MODE_SWITCH_DISABLED;
 
             WARN("mode switch disabled for %s with phy_mode_id %d", tr_eui64(neighbor->mac64), neighbor->ms_phy_mode_id);
 
@@ -1834,12 +1834,12 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         return -1;
 
     schedule = &llc->interface_ptr->ws_info.phy_config;
-    if (mode != SL_WISUN_MODE_SWITCH_DISABLED &&
-        mode != SL_WISUN_MODE_SWITCH_ENABLED &&
-        mode != SL_WISUN_MODE_SWITCH_DEFAULT)
+    if (mode != WS_MODE_SWITCH_DISABLED &&
+        mode != WS_MODE_SWITCH_ENABLED &&
+        mode != WS_MODE_SWITCH_DEFAULT)
         BUG();
 
-    if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
+    if (mode == WS_MODE_SWITCH_ENABLED) {
         bool found = false;
         uint8_t i;
 
@@ -1856,7 +1856,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
     }
 
     if (!neighbor_mac_address || !memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8)) {
-        if (mode == SL_WISUN_MODE_SWITCH_DEFAULT)
+        if (mode == WS_MODE_SWITCH_DEFAULT)
             return -6;
 
         // Configure default mode switch rate
@@ -1869,7 +1869,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
             // Wrong peer
             return -5;
         } else {
-            if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
+            if (mode == WS_MODE_SWITCH_ENABLED) {
                 // Check Mode Switch PhyModeId is valid in the neighbor list
                 peer_phy_mode_id = ws_llc_find_phy_mode_id(ws_neigh->pom_ie.phy_op_mode_id,
                                                            ws_neigh->pom_ie.phy_op_mode_number,
