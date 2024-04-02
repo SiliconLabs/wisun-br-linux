@@ -1,15 +1,15 @@
-[<img align="right" src="misc/wisun-logo.png" width="300" alt="Wi-SUN Logo">][0]
+[<img align="right" src="misc/wisun-logo.png" width="300" alt="Wi-SUN Logo">][wisun]
 
 Wi-SUN Linux Border Router
 ==========================
 
-The goal of this project is to implement the [Wi-SUN protocol][0] on Linux
+The goal of this project is to implement the [Wi-SUN protocol][wisun] on Linux
 devices and allow the use of Linux hosts as Border Routers for Wi-SUN networks.
 For the time being, the implementation is mostly a port of Silicon Labs'
 embedded stack on a Linux host. However, the ultimate goal is to replace
 services currently provided by the stack with native Linux services.
 
-[0]: https://wi-sun.org/
+[wisun]: https://wi-sun.org/
 
 # Quick Start Guide
 
@@ -23,20 +23,21 @@ EFR32ZG28.
 
 The RCP needs to be flashed with a specific firmware to communicate with the
 daemon. This firmware is provided in binary format. To help users deploy and
-evaluate the solution, a [wisun-br-linux-docker][1] repository is provided. It
-contains a bundle of all the necessary software components (including a compiled
-RCP firmware image) to run the Linux Wi-SUN border router.
+evaluate the solution, a [wisun-br-linux-docker][docker] repository is
+provided. It contains a bundle of all the necessary software components
+(including a compiled RCP firmware image) to run the Linux Wi-SUN border
+router.
 
-Alternatively, [Application Note 1332][2] explains how to build RCP firmware and
-flash it.
+Alternatively, [Application Note 1332][an1332] explains how to build RCP
+firmware and flash it.
 
 The communication between the Linux host and the RCP is supported through a
 serial link (UART). On Silicon Labs mainboards, this serial link is provided
 over USB. The `/dev/ttyACMx` device should appear when you connect the
 mainboard.
 
-[1]: https://github.com/SiliconLabs/wisun-br-linux-docker
-[2]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
+[docker]: https://github.com/SiliconLabs/wisun-br-linux-docker
+[an1332]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
 
 ## Cloning wisun-br-linux
 
@@ -131,15 +132,15 @@ more detail, refer to the `README.md` present in the relevant source folder
 Some of these are not compiled by default and require setting
 `COMPILE_DEVTOOLS=ON` when configuring the project with CMake.
 
-| Application  | Description                                                 |
-|--------------|-------------------------------------------------------------|
-| `wsbrd_cli`  | A simple application for querying the D-Bus interface       |
-| `wsbrd-fwup` | A tool for updating the RCP firmware                        |
-| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`                    |
-| `wshwping`   | A tool for testing the serial link                          |
-| `wstbu`      | An implementation of the [Wi-SUN Test Bed Unit REST API][5] |
+| Application  | Description                                                   |
+|--------------|---------------------------------------------------------------|
+| `wsbrd_cli`  | A simple application for querying the D-Bus interface         |
+| `wsbrd-fwup` | A tool for updating the RCP firmware                          |
+| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`                      |
+| `wshwping`   | A tool for testing the serial link                            |
+| `wstbu`      | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |
 
-[5]: https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
+[tbu]: https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
@@ -154,9 +155,9 @@ specification. It uses the standard X.509 certificate format. Some fields and
 algorithms are enforced.
 
 The process to get official certificates is described on the [Wi-SUN alliance
-Web site][7] (restricted access).
+Web site][cert] (restricted access).
 
-[7]: https://wi-sun.org/cyber-security-certificates/
+[cert]: https://wi-sun.org/cyber-security-certificates/
 
 # Using an External DHCPv6 Server
 
@@ -179,9 +180,9 @@ at least several dozen seconds) or [create the interface before launching
 
 ## Using `dnsmasq`
 
-Because of [this issue][9], `dnsmasq` is supported from the version 2.87.
+Because of [this issue][dnsmasq], `dnsmasq` is supported from the version 2.87.
 
-[9]: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg16394.html
+[dnsmasq]: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg16394.html
 
 ### Using `dnsmasq` as DHCP Server
 
@@ -223,11 +224,11 @@ for details:
 To start the DHCP relay, you have to provide the `wsbrd` network interface
 (`tun0`), the address of the DHCP server (`2001:db8::1` in the example below),
 and the network interface associated with this address (see [dhcprelay
-manpage][8]):
+manpage][dhcrelay]):
 
     sudo dhcrelay -6 --no-pid -l tun0 -u 2001:db8::1%eth0
 
-[8]: https://linux.die.net/man/8/dhcrelay
+[dhcrelay]: https://linux.die.net/man/8/dhcrelay
 
 # Running `wsbrd` Without Root Privilege
 
@@ -312,7 +313,7 @@ To enable this feature:
      network.
    - IPv6 forward must be enabled on the host (with `sysctl
      net.ipv6.conf.all.forwarding=1`). Note that [enabling forwarding per
-     interface does not work][1].
+     interface does not work][ip-fwd].
 
 
 Under the hood, when `neighbor_proxy` is in use:
@@ -325,7 +326,7 @@ Under the hood, when `neighbor_proxy` is in use:
      (`/proc/sys/net/ipv6/neigh/*/proxy_delay`) is set to 0.
 
 
-[9]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
+[ip-fwd]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
 
 # Bugs and Limitations
 
@@ -351,15 +352,15 @@ their configuration in order to connect legacy devices.
 ## I get `error inflating zlib stream; class=Zlib (5)` During Compilation
 
 The last update of GitHub seems incompatible with the git version bundled with
-Rust 1.45. The issue and the workaround are described [here][1] and the root
-cause is solved [here][2].
+Rust 1.45. The issue and the workaround are described [here][zlib-issue] and
+the root cause is solved [here][zlib-solve].
 
 Before launching `cmake`, you can run:
 
    export CARGO_NET_GIT_FETCH_WITH_CLI=true
 
-[10]: https://github.com/rust-lang/cargo/issues/10303
-[11]: https://github.com/libgit2/libgit2/pull/5740
+[zlib-issue]: https://github.com/rust-lang/cargo/issues/10303
+[zlib-solve]: https://github.com/libgit2/libgit2/pull/5740
 
 ## I Cannot Connect to DBus Interface
 
@@ -433,8 +434,8 @@ options:
 
 On the receiver, the buffer must be large enough (up to 64 kB) to handle the
 fragmented packet. This feature is sometimes limited on embedded devices.
-[IPv6][12] requires at least 1500 bytes available during reception, and warns
-on sending more:
+[IPv6][rfc8200-5] requires at least 1500 bytes available during reception, and
+warns on sending more:
 
 > A node must be able to accept a fragmented packet that, after reassembly, is
 > as large as 1500 octets.  A node is permitted to accept fragmented packets
@@ -455,9 +456,9 @@ frame size (or to enable `IPV6_DONTFRAG`).
 
 Therefore, sending UDP packets with `IPV6_DONTFRAG` is recommended. Use
 `IPV6_PATHMTU` and `IPV6_RECVPATHMTU` to determine the optimal packet size.
-Read [RFC 8900][13] for more insights on the question.
+Read [RFC 8900][rfc8900] for more insights on the question.
 
-[12]: https://www.rfc-editor.org/rfc/rfc8200.html#section-5
-[13]: https://www.rfc-editor.org/rfc/rfc8900.html
+[rfc8200-5]: https://www.rfc-editor.org/rfc/rfc8200.html#section-5
+[rfc8900]: https://www.rfc-editor.org/rfc/rfc8900.html
 
 <br clear="right"/><!-- Right align the Wi-SUN Logo -->
