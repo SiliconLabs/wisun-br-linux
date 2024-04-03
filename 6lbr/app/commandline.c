@@ -50,7 +50,7 @@
 struct option_struct {
     const char *key;
     void *dest_hint;
-    void (*fn)(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
+    void (*fn)(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
     const void *param;
 };
 
@@ -200,12 +200,12 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
-static void conf_deprecated(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_deprecated(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->linenr, info->key);
 }
 
-static void conf_set_bool(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_bool(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     bool *dest = raw_dest;
 
@@ -213,7 +213,7 @@ static void conf_set_bool(struct wsbrd_conf *config, const struct storage_parse_
     *dest = str_to_val(info->value, valid_booleans);
 }
 
-static void conf_set_enum(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_enum(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct name_value *specs = raw_param;
     int *dest = raw_dest;
@@ -221,7 +221,7 @@ static void conf_set_enum(struct wsbrd_conf *config, const struct storage_parse_
     *dest = str_to_val(info->value, specs);
 }
 
-static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_enum_int_hex(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const int *specs = raw_param;
     int *dest = raw_dest;
@@ -238,7 +238,7 @@ static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct storag
     FATAL(1, "%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
 }
 
-static void conf_set_enum_int(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_enum_int(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const int *specs = raw_param;
     int *dest = raw_dest;
@@ -255,7 +255,7 @@ static void conf_set_enum_int(struct wsbrd_conf *config, const struct storage_pa
     FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
-static void conf_set_number(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_number(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct number_limit *specs = raw_param;
     int *dest = raw_dest;
@@ -268,16 +268,15 @@ static void conf_set_number(struct wsbrd_conf *config, const struct storage_pars
         FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
-static void conf_set_seconds_from_minutes(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest,
-                                          const void *raw_param)
+static void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     int *dest = raw_dest;
 
-    conf_set_number(config, info, raw_dest, raw_param);
+    conf_set_number(info, raw_dest, raw_param);
     *dest *= 60;
 }
 
-static void conf_set_string(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_string(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     uintptr_t max_len = (uintptr_t)raw_param;
     char *dest = raw_dest;
@@ -293,7 +292,7 @@ static void conf_set_string(struct wsbrd_conf *config, const struct storage_pars
         FATAL(1, "%s:%d: parsing error", info->filename, info->linenr);
 }
 
-static void conf_set_netmask(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_netmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     char mask[STR_MAX_LEN_IPV6];
     int len;
@@ -309,7 +308,7 @@ static void conf_set_netmask(struct wsbrd_conf *config, const struct storage_par
         FATAL(1, "%s:%d: invalid prefix not global unicast: %s", info->filename, info->linenr, mask);
 }
 
-static void conf_set_netaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct sockaddr *dest = raw_dest;
     struct addrinfo *results;
@@ -324,16 +323,14 @@ static void conf_set_netaddr(struct wsbrd_conf *config, const struct storage_par
     freeaddrinfo(results);
 }
 
-static void conf_set_bitmask(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_bitmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     BUG_ON(raw_param);
-    BUG_ON(raw_dest != config->ws_allowed_channels);
-    BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 32);
-    if (parse_bitmask(config->ws_allowed_channels, 32, info->value) < 0)
+    if (parse_bitmask(raw_dest, 32, info->value) < 0)
         FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, info->value);
 }
 
-static void conf_add_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_add_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct name_value *specs = raw_param;
     unsigned int *dest = raw_dest;
@@ -347,15 +344,15 @@ static void conf_add_flags(struct wsbrd_conf *config, const struct storage_parse
     free(tmp);
 }
 
-static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     unsigned int *dest = raw_dest;
 
     *dest = 0;
-    conf_add_flags(config, info, dest, raw_param);
+    conf_add_flags(info, dest, raw_param);
 }
 
-static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storage_parse_info *info,
+static void conf_set_phy_op_modes(const struct storage_parse_info *info,
                                   void *raw_dest, const void *raw_param)
 {
     struct storage_parse_info sub_info = *info; // Copy struct to reuse conf_set_enum_int
@@ -364,9 +361,7 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
     int phy_mode_id;
     int i;
 
-    BUG_ON(raw_dest != config->ws_phy_op_modes);
-    BUG_ON(raw_param != &valid_ws_phy_mode_ids);
-    memset(dest, 0, sizeof(config->ws_phy_op_modes));
+    memset(dest, 0, FIELD_MAX(WS_MASK_POM_COUNT) + 1 - 1);
     // FIXME: expect trouble if 0xFF become valid PHY IDs.
     if (!strcmp(info->value, "auto")) {
         dest[0] = -1;
@@ -377,18 +372,18 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
     substr = strtok(tmp, ",");
     do {
         // Keep room for sentinel
-        FATAL_ON(i >= ARRAY_SIZE(config->ws_phy_op_modes) - 1, 1,
-                 "%s:%d: too many entries (max: %zu)",
+        FATAL_ON(i >= FIELD_MAX(WS_MASK_POM_COUNT) - 1, 1,
+                 "%s:%d: too many entries (max: %u)",
                  info->filename, info->linenr,
-                 ARRAY_SIZE(config->ws_phy_op_modes) - 1);
+                 FIELD_MAX(WS_MASK_POM_COUNT) - 1);
         strcpy(sub_info.value, substr);
-        conf_set_enum_int(config, &sub_info, &phy_mode_id, raw_param);
+        conf_set_enum_int(&sub_info, &phy_mode_id, raw_param);
         dest[i++] = phy_mode_id;
     } while ((substr = strtok(NULL, ",")));
     free(tmp);
 }
 
-static void conf_set_pem(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct iovec *dest = raw_dest;
     char *dest_str;
@@ -417,7 +412,7 @@ static void conf_set_pem(struct wsbrd_conf *config, const struct storage_parse_i
     close(fd);
 }
 
-static void conf_set_macaddr(struct wsbrd_conf *_config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct wsbrd_conf *config = raw_dest;
     bool allow = *(bool *)raw_param;
@@ -441,7 +436,7 @@ static void conf_set_macaddr(struct wsbrd_conf *_config, const struct storage_pa
     (*macaddr_count)++;
 }
 
-static void conf_set_gtk(struct wsbrd_conf *_config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct wsbrd_conf *config = raw_dest;
     bool is_lgtk = *(bool *)raw_param;
@@ -539,7 +534,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
 
     for (i = 0; i < ARRAY_SIZE(options); i++)
         if (!fnmatch(options[i].key, info->key, 0))
-            return options[i].fn(config, info, options[i].dest_hint, options[i].param);
+            return options[i].fn(info, options[i].dest_hint, options[i].param);
     FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
 }
 
@@ -675,38 +670,38 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'T':
                 strcpy(info.key, "trace");
-                conf_add_flags(config, &info, &g_enabled_traces, valid_traces);
+                conf_add_flags(&info, &g_enabled_traces, valid_traces);
                 break;
             case 'n':
                 snprintf(config->ws_name, sizeof(config->ws_name), "%s", optarg); // safe strncpy()
                 break;
             case 'd':
                 strcpy(info.key, "domain");
-                conf_set_enum(config, &info, &config->ws_domain, valid_ws_domains);
+                conf_set_enum(&info, &config->ws_domain, valid_ws_domains);
                 break;
             case 'm':
                 strcpy(info.key, "mode");
-                conf_set_enum_int_hex(config, &info, &config->ws_mode, valid_ws_modes);
+                conf_set_enum_int_hex(&info, &config->ws_mode, valid_ws_modes);
                 break;
             case 'c':
                 strcpy(info.key, "class");
-                conf_set_enum_int(config, &info, &config->ws_class, valid_ws_classes);
+                conf_set_enum_int(&info, &config->ws_class, valid_ws_classes);
                 break;
             case 'S':
                 strcpy(info.key, "size");
-                conf_set_enum(config, &info, &config->ws_size, valid_ws_size);
+                conf_set_enum(&info, &config->ws_size, valid_ws_size);
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_pem(config, &info, &config->br_key, NULL);
+                conf_set_pem(&info, &config->br_key, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_pem(config, &info, &config->br_cert, NULL);
+                conf_set_pem(&info, &config->br_cert, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_pem(config, &info, &config->ca_cert, NULL);
+                conf_set_pem(&info, &config->ca_cert, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
