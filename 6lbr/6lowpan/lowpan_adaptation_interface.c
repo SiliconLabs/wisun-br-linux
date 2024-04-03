@@ -747,6 +747,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     if (!lowpan_buffer_tx_allowed(interface_ptr, buf)) {
 
         if (red_congestion_check(&cur->random_early_detection)) {
+            WARN("congestion detected: dropping oldest packet");
             // If we need to drop packet we drop oldest normal Priority packet.
             buffer_t *dropped = ns_list_get_first(&interface_ptr->directTxQueue);
             if (dropped) {

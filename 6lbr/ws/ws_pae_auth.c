@@ -1075,7 +1075,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
 
         // Checks if active supplicant list has space for new supplicants
         if (ws_pae_auth_active_limit_reached(pae_auth)) {
-            tr_debug("PAE: active limit reached, eui-64: %s", tr_eui64(kmp_address_eui_64_get(addr)));
+            WARN("%s: congestion detected, moving supplicant to waiting list", __func__);
             // If there is no space, add supplicant entry to the start of the waiting supplicant list
             supp_entry = ws_pae_auth_waiting_supp_list_add(pae_auth, supp_entry, addr);
             if (!supp_entry) {
@@ -1444,6 +1444,7 @@ static void ws_pae_auth_active_supp_deleted(void *pae_auth_ptr)
     tr_info("Supplicant deleted");
 
     if (ws_pae_auth_active_limit_reached(pae_auth)) {
+        WARN("%s: congestion detected, leaving supplicant waiting list as is", __func__);
         return;
     }
 
