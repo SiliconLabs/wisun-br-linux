@@ -61,8 +61,6 @@
 #define WAIT_FOR_AUTHENTICATION_TICKS          2 * 60 * 10  // 2 minutes
 // Wait after authentication has completed before supplicant entry goes inactive
 #define WAIT_AFTER_AUTHENTICATION_TICKS        15 * 10      // 15 seconds
-// Waiting for authentication supplicant list maximum size
-#define WAITING_SUPPLICANT_LIST_MAX_SIZE       50
 
 // Default for maximum number of supplicants
 #define SUPPLICANT_MAX_NUMBER                  5000
@@ -993,37 +991,13 @@ static bool ws_pae_auth_active_limit_reached(pae_auth_t *pae_auth)
     return pae_auth->congestion_get(pae_auth->interface_ptr);
 }
 
-static void ws_pae_auth_waiting_supp_remove_oldest(pae_auth_t *pae_auth, const kmp_addr_t *addr)
-{
-    supp_entry_t *delete_supp = ns_list_get_last(&pae_auth->waiting_supp_list);
-    if (!delete_supp) {
-        return;
-    }
-    tr_info("PAE: waiting list full, eui-64: %s, deleted eui-64: %s", tr_eui64(addr->eui_64), tr_eui64(delete_supp->addr.eui_64));
-    // Create new instance
-    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, MSG_PROT, pae_auth->relay_socked_msg_if_instance_id, delete_supp, pae_auth->sec_cfg);
-    if (!new_kmp) {
-        return;
-    }
-    kmp_api_create_request(new_kmp, MSG_PROT, &delete_supp->addr, &delete_supp->sec_keys);
-    (void) ws_pae_lib_supp_list_remove(pae_auth, &pae_auth->waiting_supp_list, delete_supp, ws_pae_auth_waiting_supp_deleted);
-}
-
 static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, supp_entry_t *supp_entry, const kmp_addr_t *addr)
 {
     // Entry is already allocated
     if (supp_entry) {
-        // If the waiting list if full removes the oldest entry from the list
-        if (pae_auth->waiting_supp_list_size >= WAITING_SUPPLICANT_LIST_MAX_SIZE) {
-            ws_pae_auth_waiting_supp_remove_oldest(pae_auth, addr);
-        }
         ns_list_add_to_start(&pae_auth->waiting_supp_list, supp_entry);
         pae_auth->waiting_supp_list_size++;
     } else {
-        // If the waiting list if full removes the oldest entry from the list
-        if (pae_auth->waiting_supp_list_size >= WAITING_SUPPLICANT_LIST_MAX_SIZE) {
-            ws_pae_auth_waiting_supp_remove_oldest(pae_auth, addr);
-        }
         supp_entry = ws_pae_lib_supp_list_add(&pae_auth->waiting_supp_list, addr);
         if (!supp_entry) {
             tr_info("PAE: waiting list no memory, eui-64: %s", tr_eui64(addr->eui_64));
