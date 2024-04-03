@@ -417,26 +417,28 @@ static void conf_set_pem(struct wsbrd_conf *config, const struct storage_parse_i
     close(fd);
 }
 
-static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_macaddr(struct wsbrd_conf *_config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    BUG_ON(raw_param);
-    BUG_ON(raw_dest != config->ws_allowed_mac_addresses);
-    if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
-        FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, info->value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    config->ws_allowed_mac_address_count++;
-}
+    struct wsbrd_conf *config = raw_dest;
+    bool allow = *(bool *)raw_param;
+    uint8_t (*macaddr_list)[8];
+    uint8_t macaddr_maxcount;
+    uint8_t *macaddr_count;
 
-static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    BUG_ON(raw_param);
-    BUG_ON(raw_dest != config->ws_denied_mac_addresses);
-    if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
+    if (allow) {
+        macaddr_list = config->ws_allowed_mac_addresses;
+        macaddr_count = &config->ws_allowed_mac_address_count;
+        macaddr_maxcount = ARRAY_SIZE(config->ws_allowed_mac_addresses);
+    } else {
+        macaddr_list = config->ws_denied_mac_addresses;
+        macaddr_count = &config->ws_denied_mac_address_count;
+        macaddr_maxcount = ARRAY_SIZE(config->ws_denied_mac_addresses);
+    }
+    if (*macaddr_count >= macaddr_maxcount)
         FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, info->value))
+    if (parse_byte_array(macaddr_list[*macaddr_count], 8, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    config->ws_denied_mac_address_count++;
+    (*macaddr_count)++;
 }
 
 static void conf_set_gtk(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
@@ -518,8 +520,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
-        { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
-        { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
+        { "allowed_mac64",                 config,                                    conf_set_macaddr,     (bool[1]){ true } },
+        { "denied_mac64",                  config,                                    conf_set_macaddr,     (bool[1]){ false } },
         { "async_frag_duration",           &config->ws_async_frag_duration,           conf_set_number,      &valid_async_frag_duration },
         { "join_metrics",                  &config->ws_join_metrics,                  conf_set_flags,       &valid_join_metrics },
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
