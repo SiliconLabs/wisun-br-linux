@@ -262,12 +262,11 @@ typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr);
  * ws_pae_controller_congestion_get get congestion information
  *
  * \param interface_ptr interface
- * \param active_supp active supplicants
  *
  * \return TRUE reject, FALSE accept
  *
  */
-typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
+typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_cb_register register controller callbacks

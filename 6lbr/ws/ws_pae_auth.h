@@ -229,12 +229,11 @@ typedef void ws_pae_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *addr
  * ws_pae_auth_congestion_get get congestion information
  *
  * \param interface_ptr interface
- * \param active_supp active supplicants
  *
  * \return TRUE reject, FALSE accept
  *
  */
-typedef bool ws_pae_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
+typedef bool ws_pae_auth_congestion_get(struct net_if *interface_ptr);
 
 /**
  *  ws_pae_auth_cb_register register PAE authenticator callbacks

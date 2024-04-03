@@ -110,7 +110,7 @@ typedef struct pae_controller_config {
 static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr);
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
-static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
+static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr);
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
@@ -289,7 +289,7 @@ static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uin
     controller->ip_addr_get(interface_ptr, address);
 }
 
-static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp)
+static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return 0;
@@ -300,7 +300,7 @@ static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, 
         return 0;
     }
 
-    return controller->congestion_get(interface_ptr, active_supp);
+    return controller->congestion_get(interface_ptr);
 }
 
 void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter)

@@ -138,7 +138,7 @@ static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth);
 static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static void ws_pae_auth_kmp_service_ip_addr_get(kmp_service_t *service, kmp_api_t *kmp, uint8_t *address);
 static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
-static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *pae_auth);
+static bool ws_pae_auth_active_limit_reached(pae_auth_t *pae_auth);
 static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t msg_if_instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static void ws_pae_auth_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
@@ -988,9 +988,9 @@ static kmp_api_t *ws_pae_auth_kmp_service_api_get(kmp_service_t *service, kmp_ap
     return ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, type);
 }
 
-static bool ws_pae_auth_active_limit_reached(uint16_t active_supp, pae_auth_t *pae_auth)
+static bool ws_pae_auth_active_limit_reached(pae_auth_t *pae_auth)
 {
-    return pae_auth->congestion_get(pae_auth->interface_ptr, active_supp);
+    return pae_auth->congestion_get(pae_auth->interface_ptr);
 }
 
 static void ws_pae_auth_waiting_supp_remove_oldest(pae_auth_t *pae_auth, const kmp_addr_t *addr)
@@ -1059,8 +1059,6 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
     supp_entry_t *supp_entry = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->active_supp_list, kmp_address_eui_64_get(addr));
 
     if (!supp_entry) {
-        uint16_t active_supp = ns_list_count(&pae_auth->active_supp_list);
-
         // Check if supplicant is already on the the waiting supplicant list
         supp_entry = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->waiting_supp_list, kmp_address_eui_64_get(addr));
         if (supp_entry) {
@@ -1076,7 +1074,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
         }
 
         // Checks if active supplicant list has space for new supplicants
-        if (ws_pae_auth_active_limit_reached(active_supp, pae_auth)) {
+        if (ws_pae_auth_active_limit_reached(pae_auth)) {
             tr_debug("PAE: active limit reached, eui-64: %s", tr_eui64(kmp_address_eui_64_get(addr)));
             // If there is no space, add supplicant entry to the start of the waiting supplicant list
             supp_entry = ws_pae_auth_waiting_supp_list_add(pae_auth, supp_entry, addr);
@@ -1445,8 +1443,7 @@ static void ws_pae_auth_active_supp_deleted(void *pae_auth_ptr)
 
     tr_info("Supplicant deleted");
 
-    uint16_t active_supp = ns_list_count(&pae_auth->active_supp_list);
-    if (ws_pae_auth_active_limit_reached(active_supp, pae_auth)) {
+    if (ws_pae_auth_active_limit_reached(pae_auth)) {
         return;
     }
 

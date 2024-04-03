@@ -217,7 +217,7 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         cur->mac_parameters.mac_default_lfn_key_index = index + 1;
 }
 
-static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)
+static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur)
 {
     if (cur == NULL) {
         return false;
@@ -228,21 +228,6 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     uint16_t llc_average = 0;
     uint16_t llc_eapol_average = 0;
     uint16_t average_sum = 0;
-    uint32_t active_max = 0;
-    uint32_t heap_size = UINT32_MAX;
-
-    /*
-      * For different memory sizes the max simultaneous authentications will be
-      * 32k:    (32k / 50k) * 2 + 1 = 1
-      * 65k:    (65k / 50k) * 2 + 1 = 3
-      * 250k:   (250k / 50k) * 2 + 1 = 11
-      * 1000k:  (1000k / 50k) * 2 + 1 = 41
-      * 2000k:  (2000k / 50k) * 2 + 1 = 50 (upper limit)
-      */
-    active_max = (heap_size / 50000) * 2 + 1;
-    if (active_max > 50) {
-        active_max = 50;
-    }
 
     // Read the values for adaptation and LLC queues
     adaptation_average = red_aq_get(&cur->random_early_detection);
@@ -250,24 +235,11 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     llc_eapol_average  = red_aq_get(&cur->llc_eapol_random_early_detection);
     // Calculate combined average
     average_sum = adaptation_average + llc_average + llc_eapol_average;
-
-    // Maximum for active supplicants based on memory reached, fail
-    if (active_supp >= active_max) {
-        return_value = true;
-        goto congestion_get_end;
-    }
-
-    // Always allow at least five negotiations (if memory does not limit)
-    if (active_supp < 5) {
-        goto congestion_get_end;
-    }
-
     // Check drop probability
     average_sum = red_aq_calc(&cur->pae_random_early_detection, average_sum);
     return_value = red_congestion_check(&cur->pae_random_early_detection);
 
-congestion_get_end:
-    tr_info("Active supplicant limit, active: %i max: %i summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", active_supp, active_max, average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
+    tr_info("Congestion check, summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
 
     return return_value;
 }
