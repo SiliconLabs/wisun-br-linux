@@ -441,21 +441,28 @@ static void conf_set_macaddr(struct wsbrd_conf *_config, const struct storage_pa
     (*macaddr_count)++;
 }
 
-static void conf_set_gtk(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_set_gtk(struct wsbrd_conf *_config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    int max_key_index = (raw_dest == config->ws_lgtk) ? 3 : 4;
-    uint8_t (*dest)[16] = raw_dest;
+    struct wsbrd_conf *config = raw_dest;
+    bool is_lgtk = *(bool *)raw_param;
+    uint8_t (*gtk)[16];
+    uint8_t gtk_count;
+    bool *gtk_force;
 
-    BUG_ON(raw_param);
-    BUG_ON(raw_dest != config->ws_gtk && raw_dest != config->ws_lgtk);
-    if (info->key_array_index < 0 || info->key_array_index >= max_key_index)
+    if (is_lgtk) {
+        gtk = config->ws_lgtk;
+        gtk_force = config->ws_lgtk_force;
+        gtk_count = 3;
+    } else {
+        gtk = config->ws_gtk;
+        gtk_force = config->ws_gtk_force;
+        gtk_count = 4;
+    }
+    if (info->key_array_index < 0 || info->key_array_index >= gtk_count)
         FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
-    if (parse_byte_array(dest[info->key_array_index], 16, info->value))
+    if (parse_byte_array(gtk[info->key_array_index], 16, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    if (raw_dest == config->ws_gtk)
-        config->ws_gtk_force[info->key_array_index] = true;
-    if (raw_dest == config->ws_lgtk)
-        config->ws_lgtk_force[info->key_array_index] = true;
+    gtk_force[info->key_array_index] = true;
 }
 
 static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_info *info)
@@ -500,8 +507,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { "rpl_rpi_ignorable",             &config->rpl_rpi_ignorable,                conf_set_bool,        NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
-        { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
-        { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
+        { "gtk\\[*]",                      config,                                    conf_set_gtk,         (bool[1]){ false } },
+        { "lgtk\\[*]",                     config,                                    conf_set_gtk,         (bool[1]){ true } },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
