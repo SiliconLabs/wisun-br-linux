@@ -228,7 +228,7 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
     uint16_t llc_average = 0;
     uint16_t llc_eapol_average = 0;
     uint16_t average_sum = 0;
-    uint8_t active_max = 0;
+    uint32_t active_max = 0;
     uint32_t heap_size = UINT32_MAX;
 
     /*
