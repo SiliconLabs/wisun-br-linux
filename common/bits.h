@@ -60,7 +60,6 @@ void *bitcpy0(void *dst, const void *src, size_t nbits);
 int bitcmp(const void *s1, const void *s2, size_t nbits);
 bool bitcmp0(const void *s1, size_t len);
 void bitand(uint8_t *dst, const uint8_t *src, int nbits);
-int bitcnt(const uint8_t *bits, int nbits);
 bool bittest(const uint8_t *bits, int i);
 void bitset(uint8_t *bits, int i);
 void bitclr(uint8_t *bits, int i);

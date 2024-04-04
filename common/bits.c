@@ -110,16 +110,6 @@ void bitand(uint8_t *dst, const uint8_t *src, int nbits)
         dst[i] &= src[i];
 }
 
-int bitcnt(const uint8_t *bits, int nbits)
-{
-    int cnt = 0;
-
-    for (int i = 0; i < nbits; i++)
-        if (bittest(bits, i))
-            cnt++;
-    return cnt;
-}
-
 bool bittest(const uint8_t *bits, int i)
 {
     return bits[i / 8] & (1 << (i % 8));
