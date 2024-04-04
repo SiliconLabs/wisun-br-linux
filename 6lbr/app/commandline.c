@@ -460,9 +460,36 @@ static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, 
     gtk_force[info->key_array_index] = true;
 }
 
-static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_info *info)
+static void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info)
 {
-    const struct option_struct options[] = {
+    for (const struct option_struct *opt = opts; opt->key; opt++)
+        if (!fnmatch(opt->key, info->key, 0))
+            return opt->fn(info, opt->dest_hint, opt->param);
+    FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
+}
+
+static void parse_config_file(const struct option_struct opts[], const char *filename)
+{
+    struct storage_parse_info *info = storage_open(filename, "r");
+    int ret;
+
+    if (!info)
+        FATAL(1, "%s: %m", filename);
+    for (;;) {
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret)
+            FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
+        parse_config_line(opts, info);
+    }
+    storage_close(info);
+}
+
+void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
+                       void (*print_help)(FILE *stream))
+{
+    const struct option_struct opts_conf[] = {
         { "uart_device",                   config->uart_dev,                          conf_set_string,      (void *)sizeof(config->uart_dev) },
         { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
         { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
@@ -529,36 +556,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
         { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
         { "pcap_file",                     config->pcap_file,                         conf_set_string,      (void *)sizeof(config->pcap_file) },
+        { }
     };
-    int i;
-
-    for (i = 0; i < ARRAY_SIZE(options); i++)
-        if (!fnmatch(options[i].key, info->key, 0))
-            return options[i].fn(info, options[i].dest_hint, options[i].param);
-    FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
-}
-
-static void parse_config_file(struct wsbrd_conf *config, const char *filename)
-{
-    struct storage_parse_info *info = storage_open(filename, "r");
-    int ret;
-
-    if (!info)
-        FATAL(1, "%s: %m", filename);
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret)
-            FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
-        parse_config_line(config, info);
-    }
-    storage_close(info);
-}
-
-void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
-                       void (*print_help)(FILE *stream))
-{
     static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
@@ -634,7 +633,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
-                parse_config_file(config, optarg);
+                parse_config_file(opts_conf, optarg);
                 break;
             case '?':
                 print_help(stderr);
@@ -660,7 +659,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
                     info.key_array_index = UINT_MAX;
-                parse_config_line(config, &info);
+                parse_config_line(opts_conf, &info);
                 break;
             case 'l':
                 config->list_rf_configs = true;
