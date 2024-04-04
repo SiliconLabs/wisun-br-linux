@@ -422,16 +422,18 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg)
+void rcp_set_fhss_lfn_bc(struct rcp *rcp,
+                         uint24_t interval_ms,
+                         uint16_t bsi,
+                         const uint8_t chan_mask[WS_CHAN_MASK_LEN])
 {
-    int fixed_channel = ws_chan_mask_get_fixed(cfg->bc_chan_mask);
+    int fixed_channel = ws_chan_mask_get_fixed(chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
-    // FIXME: Some parameters are shared with FFN broadcast
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_LFN_BC);
-    hif_push_u24(&buf, cfg->lfn_bc_interval);
-    hif_push_u16(&buf, cfg->bsi);
+    hif_push_u24(&buf, interval_ms);
+    hif_push_u16(&buf, bsi);
     hif_push_u8(&buf,  chan_func);
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -441,8 +443,8 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg)
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->bc_chan_mask));
-        hif_push_fixed_u8_array(&buf, cfg->bc_chan_mask, sizeof(cfg->bc_chan_mask));
+        hif_push_u8(&buf, WS_CHAN_MASK_LEN);
+        hif_push_fixed_u8_array(&buf, chan_mask, WS_CHAN_MASK_LEN);
         break;
     default:
         BUG("unsupported channel function");

@@ -84,7 +84,10 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
                          uint16_t bsi,
                          uint8_t  dwell_interval_ms,
                          const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
-void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg);
+void rcp_set_fhss_lfn_bc(struct rcp *rcp,
+                         uint24_t interval_ms,
+                         uint16_t bsi,
+                         const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg);
 
 void rcp_set_sec_key(struct rcp *rcp,
