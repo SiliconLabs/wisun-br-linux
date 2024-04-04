@@ -21,6 +21,9 @@
 #include <sys/types.h>
 #include <net/if.h>
 
+#include "common/specs/ws.h"
+#include "common/bits.h"
+
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
     bool list_rf_configs;
@@ -49,7 +52,8 @@ struct wsbrd_conf {
     uint8_t ws_allowed_channels[32];
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
-    uint8_t ws_phy_op_modes[15];
+    // -1 for base mode +1 for sentinel
+    uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1];
 
     char user[LOGIN_NAME_MAX];
     char group[LOGIN_NAME_MAX];

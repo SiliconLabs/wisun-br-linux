@@ -390,6 +390,8 @@ if(COMPILE_DEVTOOLS)
             tools/fuzz/rand.c
             tools/fuzz/wsbrd_fuzz.c
         )
+        # Prevent conflict with bitand()
+        target_compile_options(wsbrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
             6lbr/

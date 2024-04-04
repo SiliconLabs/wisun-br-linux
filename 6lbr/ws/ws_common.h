@@ -76,7 +76,7 @@ enum ws_mode_switch_mode {
 struct ws_phy_config {
     uint8_t op_mode;
     uint8_t phy_mode_id;
-    uint8_t phy_op_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
+    uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1]; // +1 for sentinel
     uint8_t ms_mode;
     uint8_t phy_mode_id_ms_tx;
     uint8_t phy_mode_id_ms_base;

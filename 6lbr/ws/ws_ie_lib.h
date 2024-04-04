@@ -23,6 +23,8 @@
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h"
 
+#include "common/bits.h"
+
 struct iobuf_write;
 struct ws_fhss_config;
 struct ws_phy_config;
@@ -95,7 +97,7 @@ struct ws_pom_ie {
     uint8_t phy_op_mode_number: 4;
     uint8_t mdr_command_capable: 1;
     uint8_t reserved: 3;
-    uint8_t phy_op_mode_id[15];
+    uint8_t phy_op_mode_id[FIELD_MAX(WS_MASK_POM_COUNT)];
 };
 
 struct ws_bt_ie {
@@ -268,7 +270,7 @@ void   ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version);
 void  ws_wp_nested_gtkhash_write(struct iobuf_write *buf, const gtkhash_t gtkhash[4]);
 uint16_t ws_wp_nested_hopping_schedule_length(const struct ws_fhss_config *fhss_config, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
-void      ws_wp_nested_pom_write(struct iobuf_write *buf, const uint8_t phy_op_modes[16], bool mdr_cmd_capable);
+void      ws_wp_nested_pom_write(struct iobuf_write *buf, const uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1], bool mdr_cmd_capable);
 void    ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
 void   ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version);
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, const gtkhash_t lgtkhash[3], uint8_t active_lgtk_index);

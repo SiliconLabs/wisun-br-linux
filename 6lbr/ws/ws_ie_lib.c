@@ -464,7 +464,7 @@ void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
 }
 
 void ws_wp_nested_pom_write(struct iobuf_write *buf,
-                            const uint8_t phy_op_modes[16],
+                            const uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1],
                             bool mdr_cmd_capable)
 {
     int offset_bitfield;
