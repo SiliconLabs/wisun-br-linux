@@ -215,24 +215,24 @@ static void ws_neigh_excluded_mask_by_mask(uint8_t channel_mask[WS_CHAN_MASK_LEN
 
 static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
                                    uint8_t chan_mask[WS_CHAN_MASK_LEN],
-                                   const struct ws_generic_channel_info *chan_info,
-                                   uint16_t *chan_cnt)
+                                   const struct ws_generic_channel_info *chan_info)
 {
     const struct chan_params *params = NULL;
+    uint16_t chan_count;
 
     switch (chan_info->channel_plan) {
     case 0:
         params = ws_regdb_chan_params(chan_info->plan.zero.regulatory_domain, 0, chan_info->plan.zero.operating_class);
         BUG_ON(!params);
-        *chan_cnt = params->chan_count;
+        chan_count = params->chan_count;
         break;
     case 1:
-        *chan_cnt = chan_info->plan.one.number_of_channel;
+        chan_count = chan_info->plan.one.number_of_channel;
         break;
     case 2:
         params = ws_regdb_chan_params(chan_info->plan.two.regulatory_domain, chan_info->plan.two.channel_plan_id, 0);
         BUG_ON(!params);
-        *chan_cnt = params->chan_count;
+        chan_count = params->chan_count;
         break;
     default:
         BUG("unsupported channel plan: %d", chan_info->channel_plan);
@@ -248,9 +248,9 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
                               REG_DOMAIN_UNDEF, 0, 0);
 
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
-        ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, *chan_cnt);
+        ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, chan_count);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK)
-        ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, *chan_cnt);
+        ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, chan_count);
 }
 
 void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
@@ -261,10 +261,8 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
         memset(fhss_data->uc_channel_list, 0, sizeof(fhss_data->uc_channel_list));
         bitset(fhss_data->uc_channel_list, chan_info->function.zero.fixed_channel);
-        fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,
-                                  &fhss_data->uc_chan_count);
+        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info);
     }
     fhss_data->ffn.uc_dwell_interval_ms = dwell_interval;
 }
@@ -421,10 +419,8 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
         memset(fhss_data->uc_channel_list, 0, sizeof(fhss_data->uc_channel_list));
         bitset(fhss_data->uc_channel_list, chan_info->function.zero.fixed_channel);
-        fhss_data->uc_chan_count = 1;
     } else {
-        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,
-                               &fhss_data->uc_chan_count);
+        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info);
     }
     return offset_adjusted;
 }
