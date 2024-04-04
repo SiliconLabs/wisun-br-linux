@@ -175,7 +175,7 @@ void rcp_req_data_tx(struct rcp *rcp,
             break;
         }
         case WS_CHAN_FUNC_DH1CF: {
-            uint8_t chan_mask_len = roundup(fhss_data->uc_chan_count, 8) / 8;
+            uint8_t chan_mask_len = ws_chan_mask_width(fhss_data->uc_channel_list);
 
             hif_push_u8(&buf, chan_mask_len);
             hif_push_fixed_u8_array(&buf, fhss_data->uc_channel_list, chan_mask_len);

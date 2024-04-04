@@ -22,6 +22,14 @@ int ws_chan_mask_get_fixed(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
     return val;
 }
 
+int ws_chan_mask_width(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+{
+    for (int i = WS_CHAN_MASK_LEN - 1; i >= 0; i--)
+        if (chan_mask[i])
+            return i + 1;
+    return 0;
+}
+
 void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
                            uint16_t chan_count,
                            uint8_t  regional_regulation,
