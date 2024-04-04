@@ -238,7 +238,7 @@ void ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
     int offset;
 
     offset = ws_wh_header_base_write(buf, WS_WHIE_NR);
-    iobuf_push_u8(buf, FIELD_PREP(WS_WHIE_NR_NODE_ROLE_ID_MASK, node_role));
+    iobuf_push_u8(buf, FIELD_PREP(WS_MASK_NR_ID, node_role));
     iobuf_push_u8(buf, clock_drift);
     iobuf_push_u8(buf, timing_accuracy);
     if (node_role == WS_NR_ROLE_LFN) {
@@ -299,9 +299,9 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_p
     else
         ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->chan_count);
 
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK, fhss_config->chan_plan);
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK, func);
-    tmp8 |= FIELD_PREP(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, excl.excluded_channel_ctrl);
+    tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_PLAN, fhss_config->chan_plan);
+    tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_FUNC, func);
+    tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_EXCL, excl.excluded_channel_ctrl);
     iobuf_push_u8(buf, tmp8);
 }
 
@@ -424,10 +424,10 @@ void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size,
     iobuf_push_le16(buf, pan_size);
     iobuf_push_le16(buf, routing_cost);
     tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, 1); // use parent BS
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_ROUTING_METHOD_MASK,   1); // RPL routed
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, 0); // LFN managed tx
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  tps_version);
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_PARENT_BS, 1); // use parent BS
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_ROUTING,   1); // RPL routed
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_LFN_STYLE, 0); // LFN managed tx
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_TPS, tps_version);
     iobuf_push_u8(buf, tmp8);
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
@@ -478,8 +478,8 @@ void ws_wp_nested_pom_write(struct iobuf_write *buf,
     for (i = 0; phy_op_modes[i]; i++)
         iobuf_push_u8(buf, phy_op_modes[i]);
     bitfield = 0;
-    bitfield |= FIELD_PREP(WS_WPIE_POM_PHY_OP_MODE_NUMBER_MASK, i);
-    bitfield |= FIELD_PREP(WS_WPIE_POM_MDR_CAPABLE_MASK,        mdr_cmd_capable);
+    bitfield |= FIELD_PREP(WS_MASK_POM_COUNT, i);
+    bitfield |= FIELD_PREP(WS_MASK_POM_MDR, mdr_cmd_capable);
     buf->data[offset_bitfield] = bitfield;
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
@@ -502,10 +502,10 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_LGTKHASH, false);
     tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_WPIE_LGTKHASH_INCLUDE_LGTK0_MASK, (bool)memzcmp(lgtkhash[0], 8));
-    tmp8 |= FIELD_PREP(WS_WPIE_LGTKHASH_INCLUDE_LGTK1_MASK, (bool)memzcmp(lgtkhash[1], 8));
-    tmp8 |= FIELD_PREP(WS_WPIE_LGTKHASH_INCLUDE_LGTK2_MASK, (bool)memzcmp(lgtkhash[2], 8));
-    tmp8 |= FIELD_PREP(WS_WPIE_LGTKHASH_ACTIVE_INDEX_MASK,  active_lgtk_index);
+    tmp8 |= FIELD_PREP(WS_MASK_LGTKHASH_LGTK0, !!memzcmp(lgtkhash[0], 8));
+    tmp8 |= FIELD_PREP(WS_MASK_LGTKHASH_LGTK1, !!memzcmp(lgtkhash[1], 8));
+    tmp8 |= FIELD_PREP(WS_MASK_LGTKHASH_LGTK2, !!memzcmp(lgtkhash[2], 8));
+    tmp8 |= FIELD_PREP(WS_MASK_LGTKHASH_INDEX, active_lgtk_index);
     iobuf_push_u8(buf, tmp8);
     for (int i = 0; i < 3; i++)
         if (memzcmp(lgtkhash[i], 8))
@@ -544,8 +544,8 @@ void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm)
     iobuf_push_u8(buf, jm->version);
     if (jm->mask & (1 << WS_JM_PLF)) {
         tmp8 = 0;
-        tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_ID_MASK,  WS_JM_PLF);
-        tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_LEN_MASK, 1);
+        tmp8 |= FIELD_PREP(WS_MASK_JM_ID,  WS_JM_PLF);
+        tmp8 |= FIELD_PREP(WS_MASK_JM_LEN, 1);
         iobuf_push_u8(buf, tmp8);
         iobuf_push_u8(buf, jm->plf);
     }
@@ -677,7 +677,7 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
     struct iobuf_read ie_buf;
 
     ws_wh_find_subid(data, length, WS_WHIE_NR, &ie_buf);
-    nr_ie->node_role       = FIELD_GET(WS_WHIE_NR_NODE_ROLE_ID_MASK, iobuf_pop_u8(&ie_buf));
+    nr_ie->node_role       = FIELD_GET(WS_MASK_NR_ID, iobuf_pop_u8(&ie_buf));
     nr_ie->clock_drift     = iobuf_pop_u8(&ie_buf);
     nr_ie->timing_accuracy = iobuf_pop_u8(&ie_buf);
     if (nr_ie->node_role == WS_NR_ROLE_LFN) {
@@ -806,9 +806,9 @@ bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie 
     us_ie->clock_drift     = iobuf_pop_u8(&ie_buf);
     us_ie->timing_accuracy = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    us_ie->chan_plan.channel_plan          = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK,     tmp8);
-    us_ie->chan_plan.channel_function      = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK,     tmp8);
-    us_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, tmp8);
+    us_ie->chan_plan.channel_plan          = FIELD_GET(WS_MASK_SCHEDULE_CHAN_PLAN,     tmp8);
+    us_ie->chan_plan.channel_function      = FIELD_GET(WS_MASK_SCHEDULE_CHAN_FUNC,     tmp8);
+    us_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_MASK_SCHEDULE_CHAN_EXCL, tmp8);
     ws_channel_plan_read(&ie_buf, &us_ie->chan_plan);
     ws_channel_function_read(&ie_buf, &us_ie->chan_plan);
     ws_channel_excluded_read(&ie_buf, &us_ie->chan_plan);
@@ -827,9 +827,9 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
     bs_ie->clock_drift                   = iobuf_pop_u8(&ie_buf);
     bs_ie->timing_accuracy               = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    bs_ie->chan_plan.channel_plan          = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK,     tmp8);
-    bs_ie->chan_plan.channel_function      = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK,     tmp8);
-    bs_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, tmp8);
+    bs_ie->chan_plan.channel_plan          = FIELD_GET(WS_MASK_SCHEDULE_CHAN_PLAN, tmp8);
+    bs_ie->chan_plan.channel_function      = FIELD_GET(WS_MASK_SCHEDULE_CHAN_FUNC, tmp8);
+    bs_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_MASK_SCHEDULE_CHAN_EXCL, tmp8);
     ws_channel_plan_read(&ie_buf, &bs_ie->chan_plan);
     ws_channel_function_read(&ie_buf, &bs_ie->chan_plan);
     ws_channel_excluded_read(&ie_buf, &bs_ie->chan_plan);
@@ -845,10 +845,10 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
     pan_ie->pan_size = iobuf_pop_le16(&ie_buf);
     pan_ie->routing_cost = iobuf_pop_le16(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    pan_ie->use_parent_bs_ie = FIELD_GET(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, tmp8);
-    pan_ie->routing_method = FIELD_GET(WS_WPIE_PAN_ROUTING_METHOD_MASK, tmp8);
-    pan_ie->lfn_window_style = FIELD_GET(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, tmp8);
-    pan_ie->fan_tps_version = FIELD_GET(WS_WPIE_PAN_FAN_TPS_VERSION_MASK, tmp8);
+    pan_ie->use_parent_bs_ie = FIELD_GET(WS_MASK_PAN_PARENT_BS, tmp8);
+    pan_ie->routing_method   = FIELD_GET(WS_MASK_PAN_ROUTING,   tmp8);
+    pan_ie->lfn_window_style = FIELD_GET(WS_MASK_PAN_LFN_STYLE, tmp8);
+    pan_ie->fan_tps_version  = FIELD_GET(WS_MASK_PAN_TPS,       tmp8);
     return !ie_buf.err;
 }
 
@@ -889,8 +889,8 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_POM, &ie_buf, false);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    pom_ie->phy_op_mode_number  = FIELD_GET(WS_WPIE_POM_PHY_OP_MODE_NUMBER_MASK, tmp8);
-    pom_ie->mdr_command_capable = FIELD_GET(WS_WPIE_POM_MDR_CAPABLE_MASK,        tmp8);
+    pom_ie->phy_op_mode_number  = FIELD_GET(WS_MASK_POM_COUNT, tmp8);
+    pom_ie->mdr_command_capable = FIELD_GET(WS_MASK_POM_MDR,   tmp8);
     iobuf_pop_data(&ie_buf, pom_ie->phy_op_mode_id, pom_ie->phy_op_mode_number);
     return !ie_buf.err;
 }
@@ -910,10 +910,8 @@ bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t 
     unsigned valid_hashs;
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_LGTKHASH, &ie_buf, false);
-    valid_hashs = FIELD_GET(WS_WPIE_LGTKHASH_INCLUDE_LGTK0_MASK |
-                            WS_WPIE_LGTKHASH_INCLUDE_LGTK1_MASK |
-                            WS_WPIE_LGTKHASH_INCLUDE_LGTK2_MASK, *data);
-    *active_lgtk_index = FIELD_GET(WS_WPIE_LGTKHASH_ACTIVE_INDEX_MASK, *data);
+    valid_hashs = FIELD_GET(WS_MASK_LGTKHASH_LGTK0 | WS_MASK_LGTKHASH_LGTK1 | WS_MASK_LGTKHASH_LGTK2, *data);
+    *active_lgtk_index = FIELD_GET(WS_MASK_LGTKHASH_INDEX, *data);
     for (int i = 0; i < 3; i++) {
         if (valid_hashs & (1 << i))
             iobuf_pop_data(&ie_buf, lgtkhash[i], 8);
@@ -960,9 +958,9 @@ bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, st
     ws_wp_nested_lcp_find_tag(data, length, tag, &ie_buf);
     ws_lcp->lfn_channel_plan_tag = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
-    ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_PLAN_MASK,     tmp8);
-    ws_lcp->chan_plan.channel_function      = FIELD_GET(WS_WPIE_SCHEDULE_CHAN_FUNC_MASK,     tmp8);
-    ws_lcp->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WPIE_SCHEDULE_EXCL_CHAN_CTL_MASK, tmp8);
+    ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_MASK_SCHEDULE_CHAN_PLAN, tmp8);
+    ws_lcp->chan_plan.channel_function      = FIELD_GET(WS_MASK_SCHEDULE_CHAN_FUNC, tmp8);
+    ws_lcp->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_MASK_SCHEDULE_CHAN_EXCL, tmp8);
     ws_channel_plan_read(&ie_buf, &ws_lcp->chan_plan);
     ws_channel_function_read(&ie_buf, &ws_lcp->chan_plan);
     ws_channel_excluded_read(&ie_buf, &ws_lcp->chan_plan);
