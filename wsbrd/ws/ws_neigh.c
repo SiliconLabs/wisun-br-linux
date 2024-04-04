@@ -275,7 +275,8 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws
 {
     fhss_data->uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
-        fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        memset(fhss_data->uc_channel_list, 0, sizeof(fhss_data->uc_channel_list));
+        bitset(fhss_data->uc_channel_list, chan_info->function.zero.fixed_channel);
         fhss_data->uc_chan_count = 1;
     } else {
         ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,
@@ -434,7 +435,8 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
         return offset_adjusted; // Support chan plan tag 255 (reuse previous schedule)
     fhss_data->uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
-        fhss_data->uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        memset(fhss_data->uc_channel_list, 0, sizeof(fhss_data->uc_channel_list));
+        bitset(fhss_data->uc_channel_list, chan_info->function.zero.fixed_channel);
         fhss_data->uc_chan_count = 1;
     } else {
         ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info,

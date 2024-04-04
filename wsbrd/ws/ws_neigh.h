@@ -54,7 +54,6 @@ struct fhss_ws_neighbor_timing_info {
     };
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
     uint16_t uc_chan_count; // from US-IE or LUS-IE/LCP-IE
-    uint16_t uc_chan_fixed; // from US-IE or LUS-IE/LCP-IE
     uint8_t  uc_channel_list[WS_CHAN_MASK_LEN]; // Neighbor unicast channel list
 };
 

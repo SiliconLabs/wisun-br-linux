@@ -167,9 +167,13 @@ void rcp_req_data_tx(struct rcp *rcp,
     if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
         hif_push_u8(&buf, fhss_data->uc_chan_func);
         switch (fhss_data->uc_chan_func) {
-        case WS_CHAN_FUNC_FIXED:
-            hif_push_u16(&buf, fhss_data->uc_chan_fixed);
+        case WS_CHAN_FUNC_FIXED: {
+            int chan_fixed = ws_chan_mask_get_fixed(fhss_data->uc_channel_list);
+
+            BUG_ON(chan_fixed < 0);
+            hif_push_u16(&buf, chan_fixed);
             break;
+        }
         case WS_CHAN_FUNC_DH1CF: {
             uint8_t chan_mask_len = roundup(fhss_data->uc_chan_count, 8) / 8;
 
