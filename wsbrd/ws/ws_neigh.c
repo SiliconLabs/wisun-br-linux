@@ -114,9 +114,6 @@ static void ws_neigh_calculate_ufsi_drift(struct fhss_ws_neighbor_timing_info *f
             return;
         }
         double seq_length = 0x10000;
-        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_TR51CF) {
-            seq_length = fhss_data->uc_chan_count;
-        }
         double ufsi_prev_tmp = fhss_data->ffn.ufsi;
         double ufsi_cur_tmp = ufsi;
         if (fhss_data->uc_chan_func == WS_CHAN_FUNC_DH1CF) {
@@ -128,19 +125,6 @@ static void ws_neigh_calculate_ufsi_drift(struct fhss_ws_neighbor_timing_info *f
         double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
         double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
         uint64_t time_since_last_ufsi_us = timestamp - fhss_data->ffn.utt_rx_tstamp_us;
-
-        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_TR51CF) {
-            uint32_t full_uc_schedule_ms = fhss_data->ffn.uc_dwell_interval_ms * fhss_data->uc_chan_count;
-            uint32_t temp_ms;
-
-            if (!full_uc_schedule_ms)
-                return;
-            temp_ms = (time_since_last_ufsi_us / 1000) / full_uc_schedule_ms;
-            if (time_since_seq_start_cur_ms >= time_since_seq_start_prev_ms) {
-                temp_ms--;
-            }
-            time_since_seq_start_cur_ms += temp_ms * full_uc_schedule_ms + (full_uc_schedule_ms - time_since_seq_start_prev_ms) + time_since_seq_start_prev_ms;
-        }
 
         double ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
         if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
