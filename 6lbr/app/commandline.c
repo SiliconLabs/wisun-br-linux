@@ -14,19 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <fnmatch.h>
 #include <limits.h>
 #include <getopt.h>
-#include <libgen.h>
-#include <sys/stat.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
+#include "common/commandline.h"
 #include "common/key_value_storage.h"
 #include "common/named_values.h"
 #include "common/bus.h"
@@ -34,7 +25,6 @@
 #include "common/parsers.h"
 #include "common/memutils.h"
 #include "common/log.h"
-#include "common/netinet_in_extra.h"
 #include "common/specs/ws.h"
 #include "common/string_extra.h"
 
@@ -46,34 +36,6 @@
 #include "wsbr.h"
 
 #include "commandline.h"
-
-struct option_struct {
-    const char *key;
-    void *dest_hint;
-    void (*fn)(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
-    const void *param;
-};
-
-struct number_limit {
-    int min;
-    int max;
-};
-
-static const struct number_limit valid_unsigned = {
-    0, INT_MAX
-};
-
-static const struct number_limit valid_positive = {
-    1, INT_MAX
-};
-
-static const struct number_limit valid_int8 = {
-    INT8_MIN, INT8_MAX
-};
-
-static const struct number_limit valid_uint16 = {
-    0, UINT16_MAX
-};
 
 static const struct number_limit valid_gtk_new_install_required = {
     0, 100
@@ -200,218 +162,6 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
-static void conf_deprecated(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->linenr, info->key);
-}
-
-static void conf_set_bool(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    bool *dest = raw_dest;
-
-    BUG_ON(raw_param);
-    *dest = str_to_val(info->value, valid_booleans);
-}
-
-static void conf_set_enum(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    const struct name_value *specs = raw_param;
-    int *dest = raw_dest;
-
-    *dest = str_to_val(info->value, specs);
-}
-
-static void conf_set_enum_int_hex(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    const int *specs = raw_param;
-    int *dest = raw_dest;
-    char *end;
-    int i;
-
-    *dest = strtol(info->value, &end, 16);
-    if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
-
-    for (i = 0; specs[i] != INT_MIN; i++)
-        if (specs[i] == *dest)
-            return;
-    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-}
-
-static void conf_set_enum_int(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    const int *specs = raw_param;
-    int *dest = raw_dest;
-    char *end;
-    int i;
-
-    *dest = strtol(info->value, &end, 0);
-    if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
-
-    for (i = 0; specs[i] != INT_MIN; i++)
-        if (specs[i] == *dest)
-            return;
-    FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
-}
-
-static void conf_set_number(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    const struct number_limit *specs = raw_param;
-    int *dest = raw_dest;
-    char *end;
-
-    *dest = strtol(info->value, &end, 0);
-    if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
-    if (specs && (specs->min > *dest || specs->max < *dest))
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
-}
-
-static void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    int *dest = raw_dest;
-
-    conf_set_number(info, raw_dest, raw_param);
-    *dest *= 60;
-}
-
-static void conf_set_string(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    uintptr_t max_len = (uintptr_t)raw_param;
-    char *dest = raw_dest;
-    int ret;
-
-    ret = parse_escape_sequences(dest, info->value, max_len);
-    if (ret == -EINVAL)
-        FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->linenr);
-    else if (ret == -ERANGE)
-        FATAL(1, "%s:%d: maximum length for '%s' is %zu characters",
-              info->filename, info->linenr, info->key, max_len - 1);
-    else if (ret < 0)
-        FATAL(1, "%s:%d: parsing error", info->filename, info->linenr);
-}
-
-static void conf_set_netmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    char mask[STR_MAX_LEN_IPV6];
-    int len;
-
-    BUG_ON(raw_param);
-    if (sscanf(info->value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
-    if (len != 64)
-        FATAL(1, "%s:%d: invalid prefix length: %d", info->filename, info->linenr, len);
-    if (inet_pton(AF_INET6, mask, raw_dest) != 1)
-        FATAL(1, "%s:%d: invalid prefix: %s", info->filename, info->linenr, mask);
-    if (!IN6_IS_ADDR_UC_GLOBAL(raw_dest))
-        FATAL(1, "%s:%d: invalid prefix not global unicast: %s", info->filename, info->linenr, mask);
-}
-
-static void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    struct sockaddr *dest = raw_dest;
-    struct addrinfo *results;
-    int err;
-
-    BUG_ON(raw_param);
-    err = getaddrinfo(info->value, NULL, NULL, &results);
-    if (err != 0)
-        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value, gai_strerror(err));
-    BUG_ON(!results);
-    memcpy(dest, results->ai_addr, results->ai_addrlen);
-    freeaddrinfo(results);
-}
-
-static void conf_set_bitmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    BUG_ON(raw_param);
-    if (parse_bitmask(raw_dest, 32, info->value) < 0)
-        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, info->value);
-}
-
-static void conf_add_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    const struct name_value *specs = raw_param;
-    unsigned int *dest = raw_dest;
-    char *tmp, *substr;
-
-    tmp = strdup(info->value);
-    substr = strtok(tmp, ",");
-    do {
-        *dest |= str_to_val(substr, specs);
-    } while ((substr = strtok(NULL, ",")));
-    free(tmp);
-}
-
-static void conf_set_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    unsigned int *dest = raw_dest;
-
-    *dest = 0;
-    conf_add_flags(info, dest, raw_param);
-}
-
-static void conf_set_phy_op_modes(const struct storage_parse_info *info,
-                                  void *raw_dest, const void *raw_param)
-{
-    struct storage_parse_info sub_info = *info; // Copy struct to reuse conf_set_enum_int
-    uint8_t *dest = raw_dest;
-    char *tmp, *substr;
-    int phy_mode_id;
-    int i;
-
-    memset(dest, 0, FIELD_MAX(WS_MASK_POM_COUNT) + 1 - 1);
-    // FIXME: expect trouble if 0xFF become valid PHY IDs.
-    if (!strcmp(info->value, "auto")) {
-        dest[0] = -1;
-        return;
-    }
-    i = 0;
-    tmp = strdup(info->value);
-    substr = strtok(tmp, ",");
-    do {
-        // Keep room for sentinel
-        FATAL_ON(i >= FIELD_MAX(WS_MASK_POM_COUNT) - 1, 1,
-                 "%s:%d: too many entries (max: %u)",
-                 info->filename, info->linenr,
-                 FIELD_MAX(WS_MASK_POM_COUNT) - 1);
-        strcpy(sub_info.value, substr);
-        conf_set_enum_int(&sub_info, &phy_mode_id, raw_param);
-        dest[i++] = phy_mode_id;
-    } while ((substr = strtok(NULL, ",")));
-    free(tmp);
-}
-
-static void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    struct iovec *dest = raw_dest;
-    char *dest_str;
-    struct stat st;
-    ssize_t ret;
-    int fd;
-
-    BUG_ON(raw_param);
-    fd = open(info->value, O_RDONLY);
-    FATAL_ON(fd < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
-    ret = fstat(fd, &st);
-    FATAL_ON(fd < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
-    dest->iov_base = realloc(dest->iov_base, st.st_size + 1);
-    FATAL_ON(!dest->iov_base, 2, "%s: realloc(): %m", __func__);
-    dest_str = (char *)dest->iov_base;
-    // See https://github.com/ARMmbed/mbedtls/issues/3896 and mbedtls_x509_crt_parse()
-    dest_str[st.st_size] = '\0';
-    ret = read(fd, dest->iov_base, st.st_size);
-    if (ret != st.st_size)
-        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value,
-              ret < 0 ? strerror(errno) : "Short read");
-    dest->iov_len = ret;
-    if (strstr(dest_str, "-----BEGIN CERTIFICATE-----") ||
-        strstr(dest_str, "-----BEGIN PRIVATE KEY-----"))
-        dest->iov_len++;
-    close(fd);
-}
-
 static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct wsbrd_conf *config = raw_dest;
@@ -458,32 +208,6 @@ static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, 
     if (parse_byte_array(gtk[info->key_array_index], 16, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
     gtk_force[info->key_array_index] = true;
-}
-
-static void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info)
-{
-    for (const struct option_struct *opt = opts; opt->key; opt++)
-        if (!fnmatch(opt->key, info->key, 0))
-            return opt->fn(info, opt->dest_hint, opt->param);
-    FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
-}
-
-static void parse_config_file(const struct option_struct opts[], const char *filename)
-{
-    struct storage_parse_info *info = storage_open(filename, "r");
-    int ret;
-
-    if (!info)
-        FATAL(1, "%s: %m", filename);
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret)
-            FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
-        parse_config_line(opts, info);
-    }
-    storage_close(info);
 }
 
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],

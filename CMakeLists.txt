@@ -135,6 +135,7 @@ add_library(libwsbrd STATIC
     common/crc.c
     common/bus_uart.c
     common/capture.c
+    common/commandline.c
     common/events_scheduler.c
     common/log.c
     common/bits.c
