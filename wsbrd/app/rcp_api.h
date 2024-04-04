@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include "common/bus.h"
 #include "common/hif.h"
+#include "common/ws_chan_mask.h"
 
 // TODO: drop legacy structures
 struct fhss_ws_neighbor_timing_info;
@@ -75,7 +76,9 @@ void rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, b
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
 
-void rcp_set_fhss_uc(struct rcp *rcp, const struct ws_fhss_config *cfg);
+void rcp_set_fhss_uc(struct rcp *rcp,
+                     uint8_t dwell_interval_ms,
+                     const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 void rcp_set_fhss_ffn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg);
 void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg);
 void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg);

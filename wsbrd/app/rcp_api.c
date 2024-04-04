@@ -358,14 +358,16 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_uc(struct rcp *rcp, const struct ws_fhss_config *cfg)
+void rcp_set_fhss_uc(struct rcp *rcp,
+                     uint8_t dwell_interval_ms,
+                     const uint8_t chan_mask[WS_CHAN_MASK_LEN])
 {
-    int fixed_channel = ws_chan_mask_get_fixed(cfg->uc_chan_mask);
+    int fixed_channel = ws_chan_mask_get_fixed(chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_SET_FHSS_UC);
-    hif_push_u8(&buf, cfg->uc_dwell_interval);
+    hif_push_u8(&buf, dwell_interval_ms);
     hif_push_u8(&buf, chan_func);
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
@@ -375,8 +377,8 @@ void rcp_set_fhss_uc(struct rcp *rcp, const struct ws_fhss_config *cfg)
         hif_push_u16(&buf, fixed_channel);
         break;
     case WS_CHAN_FUNC_DH1CF:
-        hif_push_u8(&buf, sizeof(cfg->uc_chan_mask));
-        hif_push_fixed_u8_array(&buf, cfg->uc_chan_mask, sizeof(cfg->uc_chan_mask));
+        hif_push_u8(&buf, WS_CHAN_MASK_LEN);
+        hif_push_fixed_u8_array(&buf, chan_mask, WS_CHAN_MASK_LEN);
         break;
     default:
         BUG("unsupported channel function");
