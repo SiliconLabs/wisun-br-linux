@@ -267,9 +267,14 @@ target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(wsrd
+    wsrd/app/commandline.c
     wsrd/app/wsrd.c
     common/bits.c
+    common/commandline.c
+    common/key_value_storage.c
     common/log.c
+    common/named_values.c
+    common/parsers.c
     version.c
 )
 target_include_directories(wsrd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

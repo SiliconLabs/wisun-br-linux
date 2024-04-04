@@ -10,22 +10,13 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <stdlib.h>
+#ifndef WSRD_H
+#define WSRD_H
 
 #include "wsrd/app/commandline.h"
-#include "common/log.h"
-#include "common/version.h"
-#include "wsrd.h"
 
-int main(int argc, char *argv[])
-{
-    struct wsrd wsrd = { };
+struct wsrd {
+    struct wsrd_conf config;
+};
 
-    INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
-
-    parse_commandline(&wsrd.config, argc, argv);
-    if (wsrd.config.color_output != -1)
-        g_enable_color_traces = wsrd.config.color_output;
-
-    return EXIT_SUCCESS;
-}
+#endif
