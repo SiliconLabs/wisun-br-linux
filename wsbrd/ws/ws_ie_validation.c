@@ -55,6 +55,12 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
 
     switch (chan_info->channel_function) {
     case WS_CHAN_FUNC_FIXED:
+        if (chan_info->function.zero.fixed_channel >= 8 * WS_CHAN_MASK_LEN) {
+            TRACE(TR_DROP, "drop %-9s: %s fixed channel >= %u",
+                  "15.4", ie_str, 8 * WS_CHAN_FUNC_FIXED);
+            return false;
+        }
+        break;
     case WS_CHAN_FUNC_TR51CF:
     case WS_CHAN_FUNC_DH1CF:
         break;
