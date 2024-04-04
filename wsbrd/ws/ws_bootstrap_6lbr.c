@@ -64,6 +64,7 @@
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     const struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
+    uint8_t chan_mask_async[WS_CHAN_MASK_LEN];
 
     rcp_set_fhss_uc(cur->rcp,
                     fhss->uc_dwell_interval,
@@ -78,7 +79,10 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                         fhss->lfn_bc_interval,
                         fhss->bsi,
                         fhss->bc_chan_mask);
-    rcp_set_fhss_async(cur->rcp, &cur->ws_info.fhss_config);
+
+    BUG_ON(!fhss->chan_params);
+    ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params, fhss->regional_regulation);
+    rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
     return 0;
 }

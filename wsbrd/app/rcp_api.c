@@ -454,18 +454,16 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp,
     iobuf_free(&buf);
 }
 
-void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
+void rcp_set_fhss_async(struct rcp *rcp,
+                        uint32_t tx_duration_ms,
+                        const uint8_t chan_mask[WS_CHAN_MASK_LEN])
 {
-    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
     struct iobuf_write buf = { };
 
-    BUG_ON(!cfg->chan_params);
-    ws_chan_mask_calc_reg(domain_channel_mask, cfg->chan_params, cfg->regional_regulation);
-
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);
-    hif_push_u32(&buf, cfg->async_frag_duration_ms);
-    hif_push_u8(&buf, sizeof(domain_channel_mask));
-    hif_push_fixed_u8_array(&buf, domain_channel_mask, sizeof(domain_channel_mask));
+    hif_push_u32(&buf, tx_duration_ms);
+    hif_push_u8(&buf, 32);
+    hif_push_fixed_u8_array(&buf, chan_mask, WS_CHAN_MASK_LEN);
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
 }
