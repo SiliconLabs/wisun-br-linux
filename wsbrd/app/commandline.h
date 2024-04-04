@@ -23,6 +23,7 @@
 
 #include "common/specs/ws.h"
 #include "common/bits.h"
+#include "common/ws_chan_mask.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
@@ -49,7 +50,7 @@ struct wsbrd_conf {
     int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;
-    uint8_t ws_allowed_channels[32];
+    uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
     // -1 for base mode +1 for sentinel

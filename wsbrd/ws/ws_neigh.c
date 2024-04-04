@@ -202,7 +202,7 @@ void ws_neigh_nr_update(struct ws_neigh *neigh, struct ws_nr_ie *nr_ie)
     neigh->lto_info.uc_interval_max_ms = nr_ie->listen_interval_max;
 }
 
-static void ws_neigh_excluded_mask_by_range(uint8_t channel_mask[32],
+static void ws_neigh_excluded_mask_by_range(uint8_t channel_mask[WS_CHAN_MASK_LEN],
                                             const struct ws_excluded_channel_range *range_info,
                                             uint16_t number_of_channels)
 {
@@ -218,7 +218,7 @@ static void ws_neigh_excluded_mask_by_range(uint8_t channel_mask[32],
     }
 }
 
-static void ws_neigh_excluded_mask_by_mask(uint8_t channel_mask[32],
+static void ws_neigh_excluded_mask_by_mask(uint8_t channel_mask[WS_CHAN_MASK_LEN],
                                            const struct ws_excluded_channel_mask *mask_info,
                                            uint16_t number_of_channels)
 {
@@ -230,7 +230,7 @@ static void ws_neigh_excluded_mask_by_mask(uint8_t channel_mask[32],
 }
 
 static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
-                                   uint8_t chan_mask[32],
+                                   uint8_t chan_mask[WS_CHAN_MASK_LEN],
                                    const struct ws_generic_channel_info *chan_info,
                                    uint16_t *chan_cnt)
 {

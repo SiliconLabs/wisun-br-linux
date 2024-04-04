@@ -444,7 +444,7 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp, const struct ws_fhss_config *cfg)
 
 void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
 {
-    uint8_t domain_channel_mask[32];
+    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
     struct iobuf_write buf = { };
 
     ws_common_generate_channel_list(domain_channel_mask, cfg->chan_count,

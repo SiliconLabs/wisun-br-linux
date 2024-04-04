@@ -48,8 +48,8 @@ struct ws_fhss_config {
     uint32_t chan_spacing;
     uint24_t chan0_freq;
     uint8_t  chan_plan;
-    uint8_t  uc_chan_mask[32];
-    uint8_t  bc_chan_mask[32];
+    uint8_t  uc_chan_mask[WS_CHAN_MASK_LEN];
+    uint8_t  bc_chan_mask[WS_CHAN_MASK_LEN];
     uint8_t  uc_dwell_interval;
     uint32_t bc_interval;
     uint8_t  bc_dwell_interval;
@@ -111,7 +111,7 @@ typedef struct ws_info {
     int tx_power_dbm;
 } ws_info_t;
 
-int8_t ws_common_generate_channel_list(uint8_t chan_mask[32],
+int8_t ws_common_generate_channel_list(uint8_t chan_mask[WS_CHAN_MASK_LEN],
                                        uint16_t chan_count,
                                        uint8_t regional_regulation,
                                        uint8_t regulatory_domain,
@@ -139,6 +139,6 @@ bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);
 
-int ws_common_get_fixed_channel(const uint8_t bitmask[32]);
+int ws_common_get_fixed_channel(const uint8_t bitmask[WS_CHAN_MASK_LEN]);
 
 #endif //WS_COMMON_H_

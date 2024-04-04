@@ -46,7 +46,7 @@
 
 int DEVICE_MIN_SENS = -93;
 
-int8_t ws_common_generate_channel_list(uint8_t chan_mask[32],
+int8_t ws_common_generate_channel_list(uint8_t chan_mask[WS_CHAN_MASK_LEN],
                                        uint16_t chan_count,
                                        uint8_t regional_regulation,
                                        uint8_t regulatory_domain,
@@ -197,7 +197,7 @@ float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm)
         return (rx_power_dbm + 7 * rsl_dbm) / 8;
 }
 
-int ws_common_get_fixed_channel(const uint8_t bitmask[32])
+int ws_common_get_fixed_channel(const uint8_t bitmask[WS_CHAN_MASK_LEN])
 {
     int val = -EINVAL;
 

@@ -92,8 +92,8 @@ static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
 
 static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
 {
-    uint8_t tmp[32] = { };
     int num_bytes = roundup(num_chans, 8) / 8;
+    uint8_t tmp[WS_CHAN_MASK_LEN] = { };
     int i;
 
     bitcpy(tmp, chan_mask, num_chans);
@@ -115,8 +115,8 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     const struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
+    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
     ws_excluded_channel_data_t excl;
-    uint8_t domain_channel_mask[32];
     uint8_t chan_func;
     int fixed_channel;
     int length;

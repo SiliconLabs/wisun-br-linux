@@ -20,7 +20,9 @@
 #define WS_COMMON_DEFINES_H_
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "common/int24.h"
+#include "common/ws_chan_mask.h"
 
 #include "ws/ws_ie_lib.h"
 
@@ -44,7 +46,7 @@ typedef struct ws_excluded_channel_data {
     unsigned excluded_range_length: 3;
     ws_excluded_channel_range_data_t excluded_range[WS_EXCLUDED_MAX_RANGE_TO_SEND];
     uint8_t channel_mask_bytes_inline;
-    uint8_t channel_mask[32];
+    uint8_t channel_mask[WS_CHAN_MASK_LEN];
 } ws_excluded_channel_data_t;
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
