@@ -22,7 +22,7 @@
 #include "common/string_extra.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
-#include "6lbr/ws/ws_common.h"
+#include "wsbrd/ws/ws_common.h"
 #include "rcp_api.h"
 
 uint8_t rcp_rx_buf[4096];

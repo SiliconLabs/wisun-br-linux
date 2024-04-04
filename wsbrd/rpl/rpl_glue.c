@@ -22,7 +22,7 @@
 #include "ipv6/ipv6.h"
 #include "ipv6/nd_router_object.h"
 #include "net/ns_address_internal.h"
-#include "6lbr/net/protocol.h"
+#include "wsbrd/net/protocol.h"
 #include "rpl_glue.h"
 #include "rpl_srh.h"
 #include "rpl.h"

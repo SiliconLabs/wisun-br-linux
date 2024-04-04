@@ -24,7 +24,7 @@
 #include <time.h>
 #include "common/int24.h"
 
-#include "6lbr/ws/ws_ie_lib.h"
+#include "wsbrd/ws/ws_ie_lib.h"
 
 struct ws_fhss_config;
 

@@ -15,7 +15,7 @@
 #include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
-#include "6lbr/app/wsbr.h"
+#include "wsbrd/app/wsbr.h"
 #include "common/log.h"
 #include "common/bus.h"
 }

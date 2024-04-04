@@ -32,7 +32,7 @@
 #include "common/bits.h"
 #include "common/specs/ws.h"
 
-#include "6lbr/ws/ws_common.h"
+#include "wsbrd/ws/ws_common.h"
 
 
 #include "ws_neigh.h"

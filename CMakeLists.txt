@@ -120,18 +120,18 @@ add_custom_target(check_git
 
 add_library(libwsbrd STATIC
     version.c
-    6lbr/app/wsbr.c
-    6lbr/app/wsbr_cfg.c
-    6lbr/app/wsbr_mac.c
-    6lbr/app/wsbr_pcapng.c
-    6lbr/app/frame_helpers.c
-    6lbr/app/rail_config.c
-    6lbr/app/rcp_api.c
-    6lbr/app/timers.c
-    6lbr/app/tun.c
-    6lbr/app/commandline.c
-    6lbr/app/commandline_values.c
-    6lbr/app/mbedtls_config_check.c
+    wsbrd/app/wsbr.c
+    wsbrd/app/wsbr_cfg.c
+    wsbrd/app/wsbr_mac.c
+    wsbrd/app/wsbr_pcapng.c
+    wsbrd/app/frame_helpers.c
+    wsbrd/app/rail_config.c
+    wsbrd/app/rcp_api.c
+    wsbrd/app/timers.c
+    wsbrd/app/tun.c
+    wsbrd/app/commandline.c
+    wsbrd/app/commandline_values.c
+    wsbrd/app/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -159,74 +159,74 @@ add_library(libwsbrd STATIC
     common/ieee80211_prf.c
     common/time_extra.c
     common/random_early_detection.c
-    6lbr/6lowpan/lowpan_adaptation_interface.c
-    6lbr/6lowpan/bootstraps/protocol_6lowpan.c
-    6lbr/6lowpan/fragmentation/cipv6_fragmenter.c
-    6lbr/6lowpan/iphc_decode/cipv6.c
-    6lbr/6lowpan/iphc_decode/iphc_compress.c
-    6lbr/6lowpan/iphc_decode/iphc_decompress.c
-    6lbr/6lowpan/iphc_decode/lowpan_context.c
-    6lbr/6lowpan/mac/mac_helper.c
-    6lbr/ipv6/nd_router_object.c
-    6lbr/ws/ws_pan_info_storage.c
-    6lbr/ws/ws_bootstrap.c
-    6lbr/ws/ws_bootstrap_6lbr.c
-    6lbr/ws/ws_common.c
-    6lbr/ws/ws_eapol_auth_relay.c
-    6lbr/ws/ws_eapol_pdu.c
-    6lbr/ws/ws_eapol_relay.c
-    6lbr/ws/ws_eapol_relay_lib.c
-    6lbr/ws/ws_ie_lib.c
-    6lbr/ws/ws_ie_custom.c
-    6lbr/ws/ws_ie_validation.c
-    6lbr/ws/ws_llc.c
-    6lbr/ws/ws_mngt.c
-    6lbr/ws/ws_mpx_header.c
-    6lbr/ws/ws_neigh.c
-    6lbr/ws/ws_pae_auth.c
-    6lbr/ws/ws_pae_controller.c
-    6lbr/ws/ws_pae_key_storage.c
-    6lbr/ws/ws_pae_lib.c
-    6lbr/ipv6/icmpv6.c
-    6lbr/ipv6/ipv6.c
-    6lbr/ipv6/ipv6_resolution.c
-    6lbr/net/timers.c
-    6lbr/net/ns_address_internal.c
-    6lbr/net/ns_buffer.c
-    6lbr/ipv6/ipv6_neigh_storage.c
-    6lbr/ipv6/ipv6_routing_table.c
-    6lbr/mpl/mpl.c
-    6lbr/net/protocol.c
-    6lbr/net/protocol_abstract.c
-    6lbr/rpl/rpl_glue.c
-    6lbr/rpl/rpl_storage.c
-    6lbr/rpl/rpl_srh.c
-    6lbr/rpl/rpl.c
-    6lbr/security/eapol/eapol_helper.c
-    6lbr/security/eapol/kde_helper.c
-    6lbr/security/kmp/kmp_addr.c
-    6lbr/security/kmp/kmp_api.c
-    6lbr/security/kmp/kmp_eapol_pdu_if.c
-    6lbr/security/kmp/kmp_socket_if.c
-    6lbr/security/pana/pana_eap_header.c
-    6lbr/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
-    6lbr/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-    6lbr/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-    6lbr/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-    6lbr/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-    6lbr/security/protocols/key_sec_prot/key_sec_prot.c
-    6lbr/security/protocols/msg_sec_prot/msg_sec_prot.c
-    6lbr/security/protocols/radius_sec_prot/avp_helper.c
-    6lbr/security/protocols/radius_sec_prot/radius_client_sec_prot.c
-    6lbr/security/protocols/sec_prot_certs.c
-    6lbr/security/protocols/sec_prot_keys.c
-    6lbr/security/protocols/sec_prot_lib.c
-    6lbr/security/protocols/tls_sec_prot/tls_sec_prot.c
-    6lbr/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
+    wsbrd/6lowpan/lowpan_adaptation_interface.c
+    wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
+    wsbrd/6lowpan/fragmentation/cipv6_fragmenter.c
+    wsbrd/6lowpan/iphc_decode/cipv6.c
+    wsbrd/6lowpan/iphc_decode/iphc_compress.c
+    wsbrd/6lowpan/iphc_decode/iphc_decompress.c
+    wsbrd/6lowpan/iphc_decode/lowpan_context.c
+    wsbrd/6lowpan/mac/mac_helper.c
+    wsbrd/ipv6/nd_router_object.c
+    wsbrd/ws/ws_pan_info_storage.c
+    wsbrd/ws/ws_bootstrap.c
+    wsbrd/ws/ws_bootstrap_6lbr.c
+    wsbrd/ws/ws_common.c
+    wsbrd/ws/ws_eapol_auth_relay.c
+    wsbrd/ws/ws_eapol_pdu.c
+    wsbrd/ws/ws_eapol_relay.c
+    wsbrd/ws/ws_eapol_relay_lib.c
+    wsbrd/ws/ws_ie_lib.c
+    wsbrd/ws/ws_ie_custom.c
+    wsbrd/ws/ws_ie_validation.c
+    wsbrd/ws/ws_llc.c
+    wsbrd/ws/ws_mngt.c
+    wsbrd/ws/ws_mpx_header.c
+    wsbrd/ws/ws_neigh.c
+    wsbrd/ws/ws_pae_auth.c
+    wsbrd/ws/ws_pae_controller.c
+    wsbrd/ws/ws_pae_key_storage.c
+    wsbrd/ws/ws_pae_lib.c
+    wsbrd/ipv6/icmpv6.c
+    wsbrd/ipv6/ipv6.c
+    wsbrd/ipv6/ipv6_resolution.c
+    wsbrd/net/timers.c
+    wsbrd/net/ns_address_internal.c
+    wsbrd/net/ns_buffer.c
+    wsbrd/ipv6/ipv6_neigh_storage.c
+    wsbrd/ipv6/ipv6_routing_table.c
+    wsbrd/mpl/mpl.c
+    wsbrd/net/protocol.c
+    wsbrd/net/protocol_abstract.c
+    wsbrd/rpl/rpl_glue.c
+    wsbrd/rpl/rpl_storage.c
+    wsbrd/rpl/rpl_srh.c
+    wsbrd/rpl/rpl.c
+    wsbrd/security/eapol/eapol_helper.c
+    wsbrd/security/eapol/kde_helper.c
+    wsbrd/security/kmp/kmp_addr.c
+    wsbrd/security/kmp/kmp_api.c
+    wsbrd/security/kmp/kmp_eapol_pdu_if.c
+    wsbrd/security/kmp/kmp_socket_if.c
+    wsbrd/security/pana/pana_eap_header.c
+    wsbrd/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
+    wsbrd/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
+    wsbrd/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
+    wsbrd/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
+    wsbrd/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
+    wsbrd/security/protocols/key_sec_prot/key_sec_prot.c
+    wsbrd/security/protocols/msg_sec_prot/msg_sec_prot.c
+    wsbrd/security/protocols/radius_sec_prot/avp_helper.c
+    wsbrd/security/protocols/radius_sec_prot/radius_client_sec_prot.c
+    wsbrd/security/protocols/sec_prot_certs.c
+    wsbrd/security/protocols/sec_prot_keys.c
+    wsbrd/security/protocols/sec_prot_lib.c
+    wsbrd/security/protocols/tls_sec_prot/tls_sec_prot.c
+    wsbrd/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
 )
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    6lbr/
+    wsbrd/
 )
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_options(libwsbrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
@@ -234,12 +234,12 @@ target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 if(LIBCAP_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBCAP)
-    target_sources(libwsbrd PRIVATE 6lbr/app/drop_privileges.c)
+    target_sources(libwsbrd PRIVATE wsbrd/app/drop_privileges.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBCAP)
 endif()
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(libwsbrd PRIVATE 6lbr/app/dbus.c)
+    target_sources(libwsbrd PRIVATE wsbrd/app/dbus.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)
@@ -258,7 +258,7 @@ if(LIBCPC_FOUND)
 endif()
 set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
 
-add_executable(wsbrd 6lbr/app/wsbrd.c)
+add_executable(wsbrd wsbrd/app/wsbrd.c)
 add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -313,7 +313,7 @@ if(COMPILE_DEVTOOLS)
     )
     target_include_directories(wsbrd-fuzz PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        6lbr/
+        wsbrd/
     )
     add_dependencies(wsbrd-fuzz libwsbrd)
     target_link_libraries(wsbrd-fuzz libwsbrd)
@@ -361,7 +361,7 @@ if(COMPILE_DEVTOOLS)
     )
     target_include_directories(wshwping PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        6lbr/
+        wsbrd/
     )
     if(LIBCPC_FOUND)
         target_compile_definitions(wshwping PRIVATE HAVE_LIBCPC)
@@ -395,7 +395,7 @@ if(COMPILE_DEVTOOLS)
         target_compile_options(wsbrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
-            6lbr/
+            wsbrd/
             ${NS3_INCLUDE_DIRECTORIES}
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)

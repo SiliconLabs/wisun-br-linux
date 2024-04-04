@@ -48,7 +48,7 @@
 #include "rpl/rpl.h"
 #include "rpl/rpl_lollipop.h"
 #include "security/kmp/kmp_socket_if.h"
-#include "6lbr/mpl/mpl.h"
+#include "wsbrd/mpl/mpl.h"
 
 #include "mbedtls_config_check.h"
 #include "commandline_values.h"

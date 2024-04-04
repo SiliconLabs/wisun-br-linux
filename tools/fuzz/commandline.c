@@ -16,8 +16,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "6lbr/app/commandline.h"
-#include "6lbr/app/wsbr.h"
+#include "wsbrd/app/commandline.h"
+#include "wsbrd/app/wsbr.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "wsbrd_fuzz.h"

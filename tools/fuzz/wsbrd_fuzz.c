@@ -11,13 +11,13 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <netinet/in.h>
-#include "6lbr/net/netaddr_types.h"
-#include "6lbr/net/timers.h"
-#include "6lbr/app/rcp_api_legacy.h"
-#include "6lbr/app/libwsbrd.h"
-#include "6lbr/app/wsbr_mac.h"
-#include "6lbr/app/wsbr.h"
-#include "6lbr/app/tun.h"
+#include "wsbrd/net/netaddr_types.h"
+#include "wsbrd/net/timers.h"
+#include "wsbrd/app/rcp_api_legacy.h"
+#include "wsbrd/app/libwsbrd.h"
+#include "wsbrd/app/wsbr_mac.h"
+#include "wsbrd/app/wsbr.h"
+#include "wsbrd/app/tun.h"
 #include "tools/fuzz/commandline.h"
 #include "tools/fuzz/interfaces.h"
 #include "tools/fuzz/replay.h"
