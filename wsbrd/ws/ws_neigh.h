@@ -31,8 +31,6 @@
 struct ws_fhss_config;
 
 struct fhss_ws_neighbor_timing_info {
-    uint8_t clock_drift;                        // Neighbor clock drift
-    uint8_t timing_accuracy;                    // Neighbor timing accuracy
     union {
         struct {
             uint8_t  uc_dwell_interval_ms;  // from US-IE
