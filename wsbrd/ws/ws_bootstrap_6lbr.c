@@ -162,7 +162,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
                                     fhss_config->op_class,
                                     fhss_config->chan_plan_id);
 
-    fixed_channel = ws_common_get_fixed_channel(fhss_config->uc_chan_mask);
+    fixed_channel = ws_chan_mask_get_fixed(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask,
@@ -177,7 +177,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_channel_mask(fhss_config->uc_chan_mask, fhss_config->chan_count));
     }
 
-    fixed_channel = ws_common_get_fixed_channel(fhss_config->bc_chan_mask);
+    fixed_channel = ws_chan_mask_get_fixed(fhss_config->bc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     if (chan_func)
         ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask,

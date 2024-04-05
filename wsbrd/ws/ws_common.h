@@ -139,6 +139,4 @@ bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);
 
-int ws_common_get_fixed_channel(const uint8_t bitmask[WS_CHAN_MASK_LEN]);
-
 #endif //WS_COMMON_H_

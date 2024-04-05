@@ -153,6 +153,7 @@ add_library(libwsbrd STATIC
     common/hif.c
     common/spinel.c
     common/trickle.c
+    common/ws_chan_mask.c
     common/ws_regdb.c
     common/key_value_storage.c
     common/ieee802154_ie.c

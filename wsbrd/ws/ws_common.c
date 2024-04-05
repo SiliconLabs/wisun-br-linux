@@ -196,17 +196,3 @@ float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm)
     else
         return (rx_power_dbm + 7 * rsl_dbm) / 8;
 }
-
-int ws_common_get_fixed_channel(const uint8_t bitmask[WS_CHAN_MASK_LEN])
-{
-    int val = -EINVAL;
-
-    for (int i = 0; i < 256; i++) {
-        if (bittest(bitmask, i)) {
-            if (val >= 0)
-                return -EINVAL;
-            val = i;
-        }
-    }
-    return val;
-}

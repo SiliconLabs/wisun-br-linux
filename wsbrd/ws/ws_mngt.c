@@ -296,7 +296,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
-    int fixed_channel = ws_common_get_fixed_channel(net_if->ws_info.fhss_config.uc_chan_mask);
+    int fixed_channel = ws_chan_mask_get_fixed(net_if->ws_info.fhss_config.uc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
