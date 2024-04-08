@@ -14,9 +14,11 @@
 #define WSRD_H
 
 #include "wsrd/app/commandline.h"
+#include "common/rcp_api.h"
 
 struct wsrd {
     struct wsrd_conf config;
+    struct rcp rcp;
 };
 
 #endif

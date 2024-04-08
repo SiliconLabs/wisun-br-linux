@@ -37,6 +37,7 @@ void print_help(FILE *stream) {
     fprintf(stream, "  wsrd [OPTIONS]\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
+    fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hif, hif-extra\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
@@ -49,11 +50,15 @@ void print_help(FILE *stream) {
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 {
     const struct option_struct opts_conf[] = {
+        { "uart_device",                   config->uart_dev,                          conf_set_string,      (void *)sizeof(config->uart_dev) },
+        { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
+        { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
+        { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      (void *)sizeof(config->cpc_instance) },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
     };
-    static const char *opts_short = "F:o:T:hv";
+    static const char *opts_short = "F:o:u:T:hv";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -67,6 +72,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
+    config->uart_baudrate = 115200;
     config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -96,6 +102,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                     info.key_array_index = UINT_MAX;
                 parse_config_line(opts_conf, &info);
                 break;
+            case 'u':
+                strcpy(info.key, "uart_device");
+                conf_set_string(&info, &config->uart_dev, (void *)sizeof(config->uart_dev));
+                break;
             case 'T':
                 strcpy(info.key, "trace");
                 conf_add_flags(&info, &g_enabled_traces, valid_traces);
@@ -113,4 +123,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
+    if (!config->uart_dev[0] && !config->cpc_instance[0])
+        FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
+    if (config->uart_dev[0] && config->cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
 }

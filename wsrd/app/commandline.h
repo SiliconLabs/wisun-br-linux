@@ -13,8 +13,16 @@
 #ifndef WSRD_COMMANDLINE_H
 #define WSRD_COMMANDLINE_H
 
+#include <limits.h>
+#include <stdbool.h>
+
 // This struct is filled by parse_commandline() and never modified after.
 struct wsrd_conf {
+    char uart_dev[PATH_MAX];
+    int  uart_baudrate;
+    bool uart_rtscts;
+    char cpc_instance[PATH_MAX];
+
     int  color_output;
 };
 

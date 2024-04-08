@@ -270,7 +270,11 @@ add_executable(wsrd
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
     common/bits.c
+    common/bus_uart.c
     common/commandline.c
+    common/crc.c
+    common/endian.c
+    common/iobuf.c
     common/key_value_storage.c
     common/log.c
     common/named_values.c
@@ -286,6 +290,11 @@ endif()
 if(LIBDL_FOUND)
     target_compile_definitions(wsrd PRIVATE HAVE_LIBDL)
     target_link_libraries(wsrd PRIVATE ${CMAKE_DL_LIBS})
+endif()
+if(LIBCPC_FOUND)
+    target_compile_definitions(wsrd PRIVATE HAVE_LIBCPC)
+    target_sources(wsrd PRIVATE common/bus_cpc.c)
+    target_link_libraries(wsrd PRIVATE cpc)
 endif()
 install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
