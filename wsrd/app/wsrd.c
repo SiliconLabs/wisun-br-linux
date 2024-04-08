@@ -126,6 +126,8 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     ws_chan_mask_calc_reg(chan_mask, wsrd->ws_fhss.chan_params, HIF_REG_NONE);
     rcp_set_fhss_uc(&wsrd->rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
     rcp_set_fhss_async(&wsrd->rcp, 500, chan_mask);
+
+    rcp_req_radio_enable(&wsrd->rcp);
 }
 
 int main(int argc, char *argv[])
