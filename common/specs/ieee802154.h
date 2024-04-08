@@ -13,6 +13,17 @@
 #ifndef SPECS_IEEE802154_H
 #define SPECS_IEEE802154_H
 
+// IEEE 802.15.4-2020 Table 7-1 Values of the Frame Type field
+enum {
+    IEEE802154_FRAME_TYPE_BEACON = 0b000, // Unused
+    IEEE802154_FRAME_TYPE_DATA   = 0b001,
+    IEEE802154_FRAME_TYPE_ACK    = 0b010,
+    IEEE802154_FRAME_TYPE_CMD    = 0b011,
+    IEEE802154_FRAME_TYPE_MPX    = 0b101, // Unused
+    IEEE802154_FRAME_TYPE_FRAG   = 0b110, // Unused
+    IEEE802154_FRAME_TYPE_EXT    = 0b111, // Unused
+};
+
 // 802.15.4 ANA database - IE Header
 // https://mentor.ieee.org/802.15/documents?is_dcn=257&is_group=0000
 enum {
