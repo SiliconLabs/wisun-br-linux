@@ -414,7 +414,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         rcp_rx(&ctxt->rcp);
 
     if (ctxt->config.list_rf_configs) {
-        rail_print_config_list(ctxt);
+        rail_print_config_list(&ctxt->rcp);
         exit(0);
     }
 }

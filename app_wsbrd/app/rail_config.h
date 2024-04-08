@@ -18,8 +18,9 @@
  */
 
 struct wsbr_ctxt;
+struct rcp;
 
 void rail_fill_pom(struct wsbr_ctxt *ctxt);
-void rail_print_config_list(struct wsbr_ctxt *ctxt);
+void rail_print_config_list(struct rcp *rcp);
 
 #endif

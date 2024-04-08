@@ -173,8 +173,7 @@ void rail_fill_pom(struct wsbr_ctxt *ctxt)
         rail_fill_pom_disabled(ctxt);
 }
 
-static void rail_print_config(struct wsbr_ctxt *ctxt,
-                              const struct phy_params *phy_params, const struct chan_params *chan_params,
+static void rail_print_config(const struct phy_params *phy_params, const struct chan_params *chan_params,
                               const struct rcp_rail_config *rail_params, uint8_t phy_mode_id)
 {
     char str[256];
@@ -282,7 +281,7 @@ static void rail_print_config(struct wsbr_ctxt *ctxt,
     INFO("%s", str);
 }
 
-void rail_print_config_list(struct wsbr_ctxt *ctxt)
+void rail_print_config_list(struct rcp *rcp)
 {
     const struct rcp_rail_config *rail_params;
     const struct chan_params *chan_params;
@@ -294,7 +293,7 @@ void rail_print_config_list(struct wsbr_ctxt *ctxt)
     INFO("-ain grp -ss plan mode      -tion                       mode   mode  idx    rate    base    space        std allowed");
 
     for (domain = REG_DOMAIN_WW; domain < REG_DOMAIN_UNDEF; domain++) {
-        for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+        for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
             for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
                 if (chan_params->reg_domain != domain ||
                     chan_params->chan0_freq != rail_params->chan0_freq ||
@@ -305,17 +304,15 @@ void rail_print_config_list(struct wsbr_ctxt *ctxt)
                 for (phy_params = phy_params_table; phy_params->phy_mode_id; phy_params++) {
                     if (phy_params->rail_phy_mode_id == rail_params->rail_phy_mode_id) {
                         entry_found = true;
-                        rail_print_config(ctxt, phy_params, chan_params,
-                                        rail_params, phy_params->phy_mode_id);
+                        rail_print_config(phy_params, chan_params, rail_params, phy_params->phy_mode_id);
                     }
                 }
                 if (!entry_found)
-                    rail_print_config(ctxt, NULL, chan_params,
-                                    rail_params, rail_params->rail_phy_mode_id);
+                    rail_print_config(NULL, chan_params, rail_params, rail_params->rail_phy_mode_id);
             }
         }
     }
-    for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+    for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++)
             if (chan_params->chan0_freq == rail_params->chan0_freq &&
                 chan_params->chan_spacing == rail_params->chan_spacing &&
@@ -327,12 +324,10 @@ void rail_print_config_list(struct wsbr_ctxt *ctxt)
         for (phy_params = phy_params_table; phy_params->phy_mode_id; phy_params++) {
             if (phy_params->rail_phy_mode_id == rail_params->rail_phy_mode_id) {
                 entry_found = true;
-                rail_print_config(ctxt, phy_params, NULL,
-                                rail_params, phy_params->phy_mode_id);
+                rail_print_config(phy_params, NULL, rail_params, phy_params->phy_mode_id);
             }
         }
         if (!entry_found)
-            rail_print_config(ctxt, NULL, NULL,
-                            rail_params, rail_params->rail_phy_mode_id);
+            rail_print_config(NULL, NULL, rail_params, rail_params->rail_phy_mode_id);
     }
 }
