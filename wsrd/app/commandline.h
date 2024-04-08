@@ -23,6 +23,7 @@ struct wsrd_conf {
     bool uart_rtscts;
     char cpc_instance[PATH_MAX];
 
+    bool list_rf_configs;
     int  color_output;
 };
 

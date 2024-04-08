@@ -35,6 +35,7 @@ void print_help(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wsrd [OPTIONS]\n");
+    fprintf(stream, "  wsrd [OPTIONS] --list-rf-configs\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
@@ -43,6 +44,8 @@ void print_help(FILE *stream) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from the RCP then exit. Most\n");
+    fprintf(stream, "                          of parameters are ignored in this mode\n");
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
 }
@@ -58,11 +61,12 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
     };
-    static const char *opts_short = "F:o:u:T:hv";
+    static const char *opts_short = "F:o:u:T:lhv";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
         { "trace",       required_argument, 0,  'T' },
+        { "list-rf-configs", no_argument,   0,  'l' },
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
         { 0,             0,                 0,   0  }
@@ -109,6 +113,9 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
             case 'T':
                 strcpy(info.key, "trace");
                 conf_add_flags(&info, &g_enabled_traces, valid_traces);
+                break;
+            case 'l':
+                config->list_rf_configs = true;
                 break;
             case 'h':
                 print_help(stdout);

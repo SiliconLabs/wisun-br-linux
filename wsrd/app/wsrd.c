@@ -17,6 +17,7 @@
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/rail_config.h"
 #include "common/version.h"
 #include "wsrd.h"
 
@@ -74,6 +75,15 @@ static void wsrd_init_rcp(struct wsrd *wsrd)
     wsrd->rcp.bus.uart.init_phase = false;
 
     rcp_set_host_api(&wsrd->rcp, version_daemon_api);
+
+    rcp_req_radio_list(&wsrd->rcp);
+    while (!wsrd->rcp.has_rf_list)
+        rcp_rx(&wsrd->rcp);
+
+    if (wsrd->config.list_rf_configs) {
+        rail_print_config_list(&wsrd->rcp);
+        exit(0);
+    }
 }
 
 int main(int argc, char *argv[])
