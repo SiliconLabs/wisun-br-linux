@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Silicon Laboratories Inc. (www.silabs.com)
+ * Copyright (c) 2023-2024 Silicon Laboratories Inc. (www.silabs.com)
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
  * software is governed by the terms of the Silicon Labs Master Software License
@@ -10,17 +10,11 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef RAIL_CONFIG_H
-#define RAIL_CONFIG_H
+#ifndef COMMON_RAIL_CONFIG_H
+#define COMMON_RAIL_CONFIG_H
 
-/*
- * Helpers for RAdio Interface Library (RAIL) configuration.
- */
+struct rcp;
 
-struct wsbr_ctxt;
-
-#include "common/rail_config.h"
-
-void rail_fill_pom(struct wsbr_ctxt *ctxt);
+void rail_print_config_list(struct rcp *rcp);
 
 #endif
