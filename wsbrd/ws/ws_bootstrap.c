@@ -302,42 +302,18 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     const struct phy_params *phy_params;
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
-    phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(phy_config->phy_mode_id, phy_config->op_mode);
     chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->op_class);
 
-    rf_config.rcp_config_index = phy_config->rcp_rail_config_index;
-    if (phy_config->phy_op_modes[0])
-        rf_config.use_phy_op_modes = true;
-    // We don't worry of the case where phy_params == NULL, the RCP will return
-    // an error anyway.
-    if (phy_params) {
-        rf_config.datarate = phy_params->datarate;
-        rf_config.modulation = phy_params->modulation;
-        rf_config.modulation_index = phy_params->fsk_modulation_index;
-        rf_config.fec = phy_params->fec;
-        rf_config.ofdm_option = phy_params->ofdm_option;
-        rf_config.ofdm_mcs = phy_params->ofdm_mcs;
-    }
-
-    if (!chan_params) {
-        rf_config.channel_0_center_frequency = fhss_config->chan0_freq;
-        rf_config.channel_spacing = fhss_config->chan_spacing;
-        rf_config.number_of_channels = fhss_config->chan_count;
-    } else {
-        WARN_ON(!ws_regdb_check_phy_chan_compat(phy_params, chan_params),
-                "non standard RF configuration in use");
-        rf_config.channel_0_center_frequency = chan_params->chan0_freq;
-        rf_config.channel_spacing = chan_params->chan_spacing;
-        rf_config.number_of_channels = chan_params->chan_count;
-    }
+    if (chan_params && !ws_regdb_check_phy_chan_compat(phy_params, chan_params))
+        WARN("non standard RF configuration in use");
 
     phy_config->phy_mode_id_ms_base = phy_params ? phy_params->phy_mode_id : 0;
     rcp_set_radio(cur->rcp,
-                  rf_config.rcp_config_index,
-                  rf_config.ofdm_mcs,
-                  rf_config.use_phy_op_modes);
+                  phy_config->rcp_rail_config_index,
+                  phy_params ? phy_params->ofdm_mcs : 0,
+                  phy_config->phy_op_modes[0] != 0);
     return 0;
 }
 

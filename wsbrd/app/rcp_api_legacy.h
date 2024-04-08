@@ -29,20 +29,6 @@ struct bus;
 struct net_if;
 struct rcp;
 
-typedef struct phy_rf_channel_configuration {
-    uint32_t channel_0_center_frequency;
-    uint32_t channel_spacing;
-    uint32_t datarate;
-    uint16_t number_of_channels;
-    uint8_t  modulation;
-    uint8_t  modulation_index;
-    bool     fec;
-    uint8_t  ofdm_option;
-    uint8_t  ofdm_mcs;
-    int      rcp_config_index;
-    bool     use_phy_op_modes;
-} phy_rf_channel_configuration_t;
-
 struct mlme_security {
     unsigned SecurityLevel: 3;      /**< Security level */
     uint8_t KeyIndex;               /**< Key index */
