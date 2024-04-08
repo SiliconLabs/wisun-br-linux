@@ -95,6 +95,10 @@ struct chan_params {
     const char *chan_allowed;
 };
 
+extern const int valid_ws_modes[];
+extern const int valid_ws_phy_mode_ids[];
+extern const int valid_ws_classes[];
+extern const int valid_ws_chan_plan_ids[];
 extern const struct name_value valid_ws_domains[];
 extern const struct name_value valid_fsk_modulation_indexes[];
 
