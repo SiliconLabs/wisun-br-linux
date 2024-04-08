@@ -45,7 +45,6 @@ typedef struct mcps_data_req {
     uint8_t *msdu;                  /**< Service data unit */
     uint8_t msduHandle;             /**< Handle associated with MSDU */
     bool TxAckReq: 1;               /**< Specifies whether ACK is needed or not */
-    bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
     bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
@@ -101,7 +100,6 @@ typedef struct mcps_data_ind {
     unsigned DstAddrMode: 2;    /**< Destination address mode */
     bool DSN_suppressed: 1;     /**< Indicate when DSN not include valid sequency id */
     bool TxAckReq: 1;           /**< Is ACK needed */
-    bool PendingBit: 1;         /**< Are there more fragments to be sent */
     bool PanIdSuppressed: 1;    /**< Suppress PAN-ID if possible. 2015 extension only */
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */

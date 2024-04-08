@@ -103,7 +103,6 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
     BUG_ON(ind->msduLength);
     fcf = FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA)
         | FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   false)
-        | FIELD_PREP(IEEE802154_FCF_FRAME_PENDING,      ind->PendingBit)
         | FIELD_PREP(IEEE802154_FCF_ACK_REQ,            ind->TxAckReq)
         | FIELD_PREP(IEEE802154_FCF_PAN_ID_COMPRESSION, ind->PanIdSuppressed)
         | FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      ind->DSN_suppressed)
@@ -243,7 +242,8 @@ int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
         TRACE(TR_DROP, "drop %-9s: unsupported frame version", "15.4");
         return -ENOTSUP;
     }
-    ind->PendingBit      = FIELD_GET(IEEE802154_FCF_FRAME_PENDING,      fcf);
+    if (FIELD_GET(IEEE802154_FCF_FRAME_PENDING, fcf))
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported pending bit", "15.4");
     ind->TxAckReq        = FIELD_GET(IEEE802154_FCF_ACK_REQ,            fcf);
     ind->PanIdSuppressed = FIELD_GET(IEEE802154_FCF_PAN_ID_COMPRESSION, fcf);
     ind->DSN_suppressed  = FIELD_GET(IEEE802154_FCF_SEQ_NUM_SUPPR,      fcf);
@@ -417,7 +417,6 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     fcf = 0;
     fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA);
     fcf |= FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   !!req->Key.SecurityLevel);
-    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_PENDING,      req->PendingBit);
     fcf |= FIELD_PREP(IEEE802154_FCF_ACK_REQ,            req->TxAckReq);
     fcf |= FIELD_PREP(IEEE802154_FCF_PAN_ID_COMPRESSION, req->PanIdSuppressed);
     fcf |= FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      req->SeqNumSuppressed);
