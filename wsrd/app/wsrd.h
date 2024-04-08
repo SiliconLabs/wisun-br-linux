@@ -15,10 +15,12 @@
 
 #include "wsrd/app/commandline.h"
 #include "common/rcp_api.h"
+#include "common/ws_types.h"
 
 struct wsrd {
     struct wsrd_conf config;
     struct rcp rcp;
+    struct ws_phy_config ws_phy;
 };
 
 #endif

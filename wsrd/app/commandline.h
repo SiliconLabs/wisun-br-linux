@@ -23,6 +23,15 @@ struct wsrd_conf {
     bool uart_rtscts;
     char cpc_instance[PATH_MAX];
 
+    int  ws_domain;
+    int  ws_phy_mode_id;
+    int  ws_chan_plan_id;
+    int  ws_mode;
+    int  ws_class;
+    int  ws_chan0_freq;
+    int  ws_chan_spacing;
+    int  ws_chan_count;
+
     bool list_rf_configs;
     int  color_output;
 };
