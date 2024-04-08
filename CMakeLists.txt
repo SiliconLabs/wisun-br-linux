@@ -154,6 +154,7 @@ add_library(libwsbrd STATIC
     common/trickle.c
     common/ws_regdb.c
     common/key_value_storage.c
+    common/ieee802154_frame.c
     common/ieee802154_ie.c
     common/ieee80211_prf.c
     common/time_extra.c
