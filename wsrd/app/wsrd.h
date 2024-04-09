@@ -21,6 +21,7 @@ struct wsrd {
     struct wsrd_conf config;
     struct rcp rcp;
     struct ws_phy_config ws_phy;
+    struct ws_fhss_config ws_fhss;
 };
 
 #endif

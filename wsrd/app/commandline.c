@@ -30,6 +30,11 @@ const struct name_value valid_traces[] = {
     { NULL },
 };
 
+// Wi-SUN FAN 1.1v08 6.3.2.3.2.1.3 Field Definitions
+static const struct number_limit valid_uc_dwell_interval = {
+    15, 255
+};
+
 void print_help(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN router\n");
@@ -66,6 +71,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
+        { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
@@ -87,6 +93,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 
     config->uart_baudrate = 115200;
     config->ws_domain = REG_DOMAIN_UNDEF;
+    config->ws_uc_dwell_interval_ms = 255;
     config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {

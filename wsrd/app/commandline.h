@@ -32,6 +32,8 @@ struct wsrd_conf {
     int  ws_chan_spacing;
     int  ws_chan_count;
 
+    int  ws_uc_dwell_interval_ms;
+
     bool list_rf_configs;
     int  color_output;
 };

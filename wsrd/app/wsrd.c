@@ -90,29 +90,42 @@ static void wsrd_init_rcp(struct wsrd *wsrd)
 static void wsrd_init_radio(struct wsrd *wsrd)
 {
     const struct rcp_rail_config *rail_config;
-    const struct chan_params *chan_params;
-    uint32_t chan0_freq, chan_spacing;
-    uint16_t chan_count;
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    struct chan_params *chan_params;
 
     wsrd->ws_phy.params = ws_regdb_phy_params(wsrd->config.ws_phy_mode_id,
                                               wsrd->config.ws_mode);
     BUG_ON(!wsrd->ws_phy.params);
-    chan_params = ws_regdb_chan_params(wsrd->config.ws_domain,
-                                       wsrd->config.ws_chan_plan_id,
-                                       wsrd->config.ws_class);
-    chan0_freq   = chan_params ? chan_params->chan0_freq   : wsrd->config.ws_chan0_freq;
-    chan_spacing = chan_params ? chan_params->chan_spacing : wsrd->config.ws_chan_spacing;
-    chan_count   = chan_params ? chan_params->chan_count   : wsrd->config.ws_chan_count;
+    wsrd->ws_fhss.chan_params = ws_regdb_chan_params(wsrd->config.ws_domain,
+                                                     wsrd->config.ws_chan_plan_id,
+                                                     wsrd->config.ws_class);
+    if (!wsrd->ws_fhss.chan_params) {
+        chan_params = zalloc(sizeof(*chan_params));
+        chan_params->reg_domain   = wsrd->config.ws_domain;
+        chan_params->chan0_freq   = wsrd->config.ws_chan0_freq;
+        chan_params->chan_spacing = wsrd->config.ws_chan_spacing;
+        chan_params->chan_count   = wsrd->config.ws_chan_count;
+        wsrd->ws_fhss.chan_params = chan_params;
+        wsrd->ws_fhss.chan_plan = 1;
+    } else {
+        wsrd->ws_fhss.chan_plan = wsrd->config.ws_chan_plan_id ? 2 : 0;
+    }
+    wsrd->ws_fhss.uc_dwell_interval = wsrd->config.ws_uc_dwell_interval_ms;
+    memset(wsrd->ws_fhss.uc_chan_mask, 0xff, sizeof(wsrd->ws_fhss.uc_chan_mask));
 
     for (rail_config = wsrd->rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
         if (rail_config->rail_phy_mode_id == wsrd->ws_phy.params->rail_phy_mode_id &&
-            rail_config->chan0_freq       == chan0_freq   &&
-            rail_config->chan_spacing     == chan_spacing &&
-            rail_config->chan_count       == chan_count)
+            rail_config->chan0_freq       == wsrd->ws_fhss.chan_params->chan0_freq      &&
+            rail_config->chan_spacing     == wsrd->ws_fhss.chan_params->chan_spacing    &&
+            rail_config->chan_count       == wsrd->ws_fhss.chan_params->chan_count)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio(&wsrd->rcp, rail_config->index, wsrd->ws_phy.params->ofdm_mcs, false);
+
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws_fhss.chan_params, HIF_REG_NONE);
+    rcp_set_fhss_uc(&wsrd->rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
+    rcp_set_fhss_async(&wsrd->rcp, 500, chan_mask);
 }
 
 int main(int argc, char *argv[])
