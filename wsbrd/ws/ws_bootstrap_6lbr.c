@@ -115,8 +115,8 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     const struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
-    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
     uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
+    uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
     uint8_t chan_func;
     int fixed_channel;
     int length;
@@ -156,7 +156,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     length = -roundup(fhss_config->chan_count, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class,
@@ -168,7 +168,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
     } else {
-        ws_chan_mask_calc_excl(chan_mask_excl, domain_channel_mask, fhss_config->uc_chan_mask);
+        ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, fhss_config->uc_chan_mask);
         INFO("     unicast   %*s %*s",
              length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_count),
              length, tr_channel_mask(fhss_config->uc_chan_mask, fhss_config->chan_count));
@@ -180,14 +180,14 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         BUG_ON(fixed_channel < 0);
         INFO("     broadcast %*s BIT(%d)", length, "--", fixed_channel);
     } else {
-        ws_chan_mask_calc_excl(chan_mask_excl, domain_channel_mask, fhss_config->bc_chan_mask);
+        ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, fhss_config->bc_chan_mask);
         INFO("     broadcast %*s %*s",
              length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_count),
              length, tr_channel_mask(fhss_config->bc_chan_mask, fhss_config->chan_count));
     }
 
     INFO("     async     %*s %*s", length, "--",
-            length, tr_channel_mask(domain_channel_mask, fhss_config->chan_count));
+            length, tr_channel_mask(chan_mask_reg, fhss_config->chan_count));
 }
 
 static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)

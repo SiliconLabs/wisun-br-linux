@@ -81,18 +81,18 @@ static uint16_t ws_chan_func_len(const struct ws_fhss_config *fhss_config, bool 
 
 static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool unicast)
 {
+    uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
     ws_excluded_channel_data_t excl;
-    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
 
-    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
@@ -282,19 +282,19 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_f
 {
     int fixed_channel = ws_chan_mask_get_fixed(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
     uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
-    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
+    uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
     ws_excluded_channel_data_t excl;
     uint8_t tmp8 = 0;
 
-    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
 
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_PLAN, fhss_config->chan_plan);
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_FUNC, func);
@@ -343,18 +343,18 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_fhss_
 
 static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
-    uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
+    uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
     ws_excluded_channel_data_t excl;
 
-    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
     else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, domain_channel_mask, fhss_config->chan_count);
+        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
 
     switch (excl.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
