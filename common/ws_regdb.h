@@ -84,7 +84,7 @@ struct phy_params {
 struct chan_params {
     uint8_t reg_domain;
     uint8_t op_class;           // 0 if not specified by FAN 1.0
-    uint8_t regional_reg;       // Unused for now
+    uint8_t regional_reg_hint;  // Unused for now
     uint8_t chan_plan_id;       // 0 if not specified by FAN 1.1
     uint32_t chan0_freq;
     uint32_t chan_spacing;
