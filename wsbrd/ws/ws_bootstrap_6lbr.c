@@ -116,7 +116,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     const struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
     uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
-    ws_excluded_channel_data_t excl;
+    uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
     uint8_t chan_func;
     int fixed_channel;
     int length;
@@ -164,31 +164,25 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
-    if (chan_func)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask,
-                                 domain_channel_mask, fhss_config->chan_count);
-
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
     } else {
+        ws_chan_mask_calc_excl(chan_mask_excl, domain_channel_mask, fhss_config->uc_chan_mask);
         INFO("     unicast   %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_config->chan_count),
+             length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_count),
              length, tr_channel_mask(fhss_config->uc_chan_mask, fhss_config->chan_count));
     }
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->bc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
-    if (chan_func)
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask,
-                                 domain_channel_mask, fhss_config->chan_count);
-
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     broadcast %*s BIT(%d)", length, "--", fixed_channel);
     } else {
+        ws_chan_mask_calc_excl(chan_mask_excl, domain_channel_mask, fhss_config->bc_chan_mask);
         INFO("     broadcast %*s %*s",
-             length, tr_excl_channel_mask(excl.channel_mask, fhss_config->chan_count),
+             length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_count),
              length, tr_channel_mask(fhss_config->bc_chan_mask, fhss_config->chan_count));
     }
 

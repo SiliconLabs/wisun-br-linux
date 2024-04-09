@@ -61,3 +61,11 @@ void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
     }
     bitfill(chan_mask, false, chan_count, 255);
 }
+
+void ws_chan_mask_calc_excl(uint8_t chan_mask_excl[WS_CHAN_MASK_LEN],
+                            const uint8_t chan_mask_reg[WS_CHAN_MASK_LEN],
+                            const uint8_t chan_mask_custom[WS_CHAN_MASK_LEN])
+{
+    for (int i = 0; i < WS_CHAN_MASK_LEN; i++)
+        chan_mask_excl[i] = chan_mask_reg[i] & ~chan_mask_custom[i];
+}

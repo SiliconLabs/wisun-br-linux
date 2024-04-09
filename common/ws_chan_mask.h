@@ -33,4 +33,9 @@ void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
                            uint8_t  op_class,
                            uint8_t  chan_plan_id);
 
+// Compute a mask of excluded channels for advertising in schedule IEs.
+void ws_chan_mask_calc_excl(uint8_t chan_mask[WS_CHAN_MASK_LEN],
+                            const uint8_t chan_mask_reg[WS_CHAN_MASK_LEN],
+                            const uint8_t chan_mask_custom[WS_CHAN_MASK_LEN]);
+
 #endif
