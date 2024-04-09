@@ -29,8 +29,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 
-#include "security/protocols/sec_prot.h"
-
 #include "ws/ws_common_defines.h"
 #include "ws/ws_common.h"
 
@@ -453,7 +451,7 @@ void ws_wp_nested_panver_write(struct iobuf_write *buf, uint16_t pan_version)
 }
 
 void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
-                                const gtkhash_t gtkhash[4])
+                                const uint8_t gtkhash[4][8])
 {
     int offset;
 
@@ -494,7 +492,7 @@ void ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version)
 }
 
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
-                                 const gtkhash_t lgtkhash[3],
+                                 const uint8_t lgtkhash[3][8],
                                  uint8_t active_lgtk_index)
 {
     uint8_t tmp8;
@@ -861,7 +859,7 @@ bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pa
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t gtkhash[4])
+bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, uint8_t gtkhash[4][8])
 {
     struct iobuf_read ie_buf;
 
@@ -904,7 +902,7 @@ bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lf
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t lgtkhash[3], unsigned *active_lgtk_index)
+bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, uint8_t lgtkhash[3][8], unsigned *active_lgtk_index)
 {
     struct iobuf_read ie_buf;
     unsigned valid_hashs;
