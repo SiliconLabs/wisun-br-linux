@@ -38,4 +38,8 @@ void ws_chan_mask_calc_excl(uint8_t chan_mask[WS_CHAN_MASK_LEN],
                             const uint8_t chan_mask_reg[WS_CHAN_MASK_LEN],
                             const uint8_t chan_mask_custom[WS_CHAN_MASK_LEN]);
 
+// Count the number of ranges present in the mask. For example 01110011
+// contains 2 ranges.
+int ws_chan_mask_ranges(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
+
 #endif

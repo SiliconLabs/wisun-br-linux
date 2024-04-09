@@ -81,29 +81,20 @@ static uint16_t ws_chan_func_len(const struct ws_fhss_config *fhss_config, bool 
 
 static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool unicast)
 {
+    const uint8_t *chan_mask_custom = unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask;
+    uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
-    ws_excluded_channel_data_t excl;
 
     ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
+    ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
-    if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
-    else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
-
-    switch (excl.excluded_channel_ctrl) {
-    case WS_EXC_CHAN_CTRL_RANGE:
-        return 1 + 4 * excl.excluded_range_length;
-    case WS_EXC_CHAN_CTRL_BITMASK:
-        return excl.channel_mask_bytes_inline;
-    case WS_EXC_CHAN_CTRL_NONE:
+    if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
         return 0;
-    default:
-        BUG("Unsupported excluded channel control: %u", excl.excluded_channel_ctrl);
-    }
+    return MIN(ws_chan_mask_width(chan_mask_excl),
+               1 + 4 * ws_chan_mask_ranges(chan_mask_excl));
 }
 
 uint16_t ws_wp_nested_hopping_schedule_length(const struct ws_fhss_config *fhss_config, bool unicast)
@@ -281,24 +272,28 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_chan_mask_get_fixed(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
+    const uint8_t *chan_mask_custom = unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask;
     uint8_t func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
-    ws_excluded_channel_data_t excl;
     uint8_t tmp8 = 0;
 
     ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
-
-    if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
-    else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
+    ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_PLAN, fhss_config->chan_plan);
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_FUNC, func);
-    tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_EXCL, excl.excluded_channel_ctrl);
+
+    if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
+        tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_EXCL, WS_EXC_CHAN_CTRL_NONE);
+    else if (ws_chan_mask_width(chan_mask_excl) < 1 + 4 * ws_chan_mask_ranges(chan_mask_excl))
+        tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_EXCL, WS_EXC_CHAN_CTRL_BITMASK);
+    else
+        tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_EXCL, WS_EXC_CHAN_CTRL_RANGE);
+
     iobuf_push_u8(buf, tmp8);
 }
 

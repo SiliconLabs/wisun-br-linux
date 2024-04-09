@@ -69,3 +69,17 @@ void ws_chan_mask_calc_excl(uint8_t chan_mask_excl[WS_CHAN_MASK_LEN],
     for (int i = 0; i < WS_CHAN_MASK_LEN; i++)
         chan_mask_excl[i] = chan_mask_reg[i] & ~chan_mask_custom[i];
 }
+
+int ws_chan_mask_ranges(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+{
+    bool in_range = false;
+    int cnt = 0;
+
+    for (int i = 0; i < 8 * WS_CHAN_MASK_LEN; i++) {
+        if (in_range != bittest(chan_mask, i)) {
+            in_range = !in_range;
+            cnt += in_range;
+        }
+    }
+    return cnt;
+}
