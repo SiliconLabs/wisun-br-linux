@@ -46,44 +46,6 @@
 
 int DEVICE_MIN_SENS = -93;
 
-void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
-                              const uint8_t chan_mask_reg[], uint16_t chan_count)
-{
-    bool in_range = false;
-    int range_cnt = 0;
-
-    memset(chan_excl, 0, sizeof(ws_excluded_channel_data_t));
-    for (uint16_t i = 0; i < chan_count; i++) {
-        if (!bittest(chan_mask_reg, i) || bittest(chan_mask_custom, i)) {
-            if (in_range)
-                in_range = false;
-            continue;
-        }
-
-        bitset(chan_excl->channel_mask, i);
-
-        if (!in_range) {
-            in_range = true;
-            range_cnt++;
-            if (range_cnt < WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-                chan_excl->excluded_range[range_cnt - 1].range_start = i;
-                chan_excl->excluded_range_length = range_cnt;
-            }
-        }
-        if (range_cnt <= WS_EXCLUDED_MAX_RANGE_TO_SEND)
-            chan_excl->excluded_range[range_cnt - 1].range_end = i;
-    }
-    chan_excl->channel_mask_bytes_inline = roundup(chan_count, 8) / 8;
-
-    if (!range_cnt)
-        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
-    else if (range_cnt <= WS_EXCLUDED_MAX_RANGE_TO_SEND &&
-             1 + range_cnt * 4 < chan_excl->channel_mask_bytes_inline)
-        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
-    else
-        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
-}
-
 void ws_common_seconds_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();

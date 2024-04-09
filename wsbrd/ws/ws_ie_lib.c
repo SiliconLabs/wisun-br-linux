@@ -29,7 +29,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 
-#include "ws/ws_common_defines.h"
 #include "ws/ws_common.h"
 
 #include "ws/ws_ie_lib.h"
@@ -338,34 +337,45 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_fhss_
 
 static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
+    const uint8_t *chan_mask_custom = unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask;
+    uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
-    ws_excluded_channel_data_t excl;
+    int mask_len, range_cnt;
+    int range_start;
 
     ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
                           fhss_config->regional_regulation,
                           fhss_config->regulatory_domain,
                           fhss_config->op_class, fhss_config->chan_plan_id);
+    ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
-    if (unicast)
-        ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, chan_mask_reg, fhss_config->chan_count);
-    else
-        ws_common_calc_chan_excl(&excl, fhss_config->bc_chan_mask, chan_mask_reg, fhss_config->chan_count);
+    if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
+        return;
 
-    switch (excl.excluded_channel_ctrl) {
-    case WS_EXC_CHAN_CTRL_RANGE:
-        iobuf_push_u8(buf, excl.excluded_range_length);
-        for (int i = 0; i < excl.excluded_range_length; i++) {
-            iobuf_push_le16(buf, excl.excluded_range[i].range_start);
-            iobuf_push_le16(buf, excl.excluded_range[i].range_end);
+    mask_len = ws_chan_mask_width(chan_mask_excl);
+    range_cnt = ws_chan_mask_ranges(chan_mask_excl);
+
+    if (mask_len < 1 + 4 * range_cnt) {
+        iobuf_push_data(buf, chan_mask_excl, mask_len);
+    } else {
+        iobuf_push_u8(buf, range_cnt);
+        range_start = -1;
+        for (int i = 0; i < 8 * WS_CHAN_MASK_LEN; i++) {
+            if (range_start < 0) {
+                if (bittest(chan_mask_excl, i))
+                    range_start = i;
+            } else {
+                if (!bittest(chan_mask_excl, i)) {
+                    iobuf_push_le16(buf, range_start);
+                    iobuf_push_le16(buf, i - 1);
+                    range_start = -1;
+                }
+            }
         }
-        break;
-    case WS_EXC_CHAN_CTRL_BITMASK:
-        iobuf_push_data(buf, excl.channel_mask, excl.channel_mask_bytes_inline);
-        break;
-    case WS_EXC_CHAN_CTRL_NONE:
-        break;
-    default:
-        BUG("Unsupported excluded channel control: %u", excl.excluded_channel_ctrl);
+        if (range_start >= 0) {
+            iobuf_push_le16(buf, range_start);
+            iobuf_push_le16(buf, WS_CHAN_MASK_LEN - 1);
+        }
     }
 }
 

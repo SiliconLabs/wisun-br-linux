@@ -26,28 +26,7 @@
 
 #include "ws/ws_ie_lib.h"
 
-#define WS_EXCLUDED_MAX_RANGE_TO_SEND 3
-
 #define WS_CHAN_PLAN_TAG_CURRENT 255
-
-/**
- * @brief ws_excluded_channel_range_data_t Excludd Chanel range information
- */
-typedef struct ws_excluded_channel_range_data {
-    uint16_t range_start;
-    uint16_t range_end;
-} ws_excluded_channel_range_data_t;
-
-/**
- * @brief ws_excluded_channel_data_t Excludd Chanel information
- */
-typedef struct ws_excluded_channel_data {
-    unsigned excluded_channel_ctrl: 2;
-    unsigned excluded_range_length: 3;
-    ws_excluded_channel_range_data_t excluded_range[WS_EXCLUDED_MAX_RANGE_TO_SEND];
-    uint8_t channel_mask_bytes_inline;
-    uint8_t channel_mask[WS_CHAN_MASK_LEN];
-} ws_excluded_channel_data_t;
 
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 

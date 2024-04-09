@@ -111,9 +111,6 @@ typedef struct ws_info {
     int tx_power_dbm;
 } ws_info_t;
 
-void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
-                              const uint8_t chan_mask_reg[], uint16_t chan_count);
-
 void ws_common_seconds_timer(int seconds);
 
 uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
