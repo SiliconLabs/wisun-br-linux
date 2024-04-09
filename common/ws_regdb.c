@@ -226,18 +226,6 @@ const struct chan_params * ws_regdb_chan_params(int reg_domain, int chan_plan_id
     return chan_params;
 }
 
-const struct chan_params *ws_regdb_chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid)
-{
-    int i;
-
-    for (i = 0; chan_params_table[i].chan0_freq; i++)
-        if (chan_params_table[i].chan0_freq == chan0_freq &&
-            chan_params_table[i].chan_spacing == chan_spacing &&
-            chan_params_table[i].chan_count_valid == chan_count_valid)
-            return &chan_params_table[i];
-    return NULL;
-}
-
 static const struct {
     int val;
     int id;
