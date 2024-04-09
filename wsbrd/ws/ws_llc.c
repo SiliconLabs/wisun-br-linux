@@ -1141,11 +1141,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies->us)
-            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->phy_config,
-                                  &base->interface_ptr->ws_info.fhss_config);
+            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->fhss_config);
         if (wp_ies->bs)
-            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->phy_config,
-                                  &base->interface_ptr->ws_info.fhss_config);
+            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->fhss_config);
         if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size,
                                    info->pan_information.routing_cost, info->pan_information.version);
@@ -1159,8 +1157,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_pom_write(&msg->ie_buf_payload, info->phy_config.phy_op_modes, true);
         if (wp_ies->lcp)
             // Only unicast schedule using tag 0 is supported
-            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.phy_config,
-                                   &base->interface_ptr->ws_info.fhss_config);
+            ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &info->fhss_config);
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
         if (wp_ies->lgtkhash)
