@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/int24.h"
+#include "common/specs/ws.h"
 
 #include "common/bits.h"
 

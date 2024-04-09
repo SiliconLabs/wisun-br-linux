@@ -11,9 +11,9 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "ws/ws_common.h"
-#include "ws/ws_ie_lib.h"
 #include "ws/ws_llc.h"
 #include "common/log.h"
+#include "common/ws_ie.h"
 #include "common/ws_regdb.h"
 
 #include "ws_ie_validation.h"

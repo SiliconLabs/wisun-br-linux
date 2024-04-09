@@ -39,6 +39,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
+#include "common/ws_ie.h"
 
 #include "app/wsbr.h"
 #include "app/wsbr_mac.h"
@@ -51,7 +52,6 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
-#include "ws/ws_ie_lib.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_neigh.h"
 #include "ws/ws_mpx_header.h"

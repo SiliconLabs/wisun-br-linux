@@ -17,6 +17,7 @@
 #include "common/trickle.h"
 #include "common/specs/ieee802154.h"
 #include "common/mathutils.h"
+#include "common/ws_ie.h"
 #include "common/specs/ws.h"
 
 #include "net/timers.h"
@@ -25,7 +26,6 @@
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"
-#include "ws/ws_ie_lib.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_llc.h"
 #include "net/protocol.h"

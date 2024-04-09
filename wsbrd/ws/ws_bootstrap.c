@@ -35,6 +35,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
+#include "common/ws_ie.h"
 
 #include "app/dbus.h"
 #include "app/wsbr.h"
@@ -60,7 +61,6 @@
 #include "ws/ws_eapol_auth_relay.h"
 #include "ws/ws_eapol_pdu.h"
 #include "ws/ws_eapol_relay.h"
-#include "ws/ws_ie_lib.h"
 #include "ws/ws_llc.h"
 #include "ws/ws_neigh.h"
 #include "ws/ws_pae_controller.h"

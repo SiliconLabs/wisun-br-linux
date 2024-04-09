@@ -33,6 +33,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
+#include "common/ws_ie.h"
 
 #include "app/rcp_api_legacy.h"
 #include "app/commandline_values.h"
@@ -50,7 +51,6 @@
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_llc.h"
 #include "ws/ws_neigh.h"
-#include "ws/ws_ie_lib.h"
 #include "ws/ws_pae_controller.h"
 #include "ws/ws_eapol_pdu.h"
 #include "ws/ws_eapol_auth_relay.h"

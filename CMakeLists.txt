@@ -160,6 +160,7 @@ add_library(libwsbrd STATIC
     common/ieee80211_prf.c
     common/time_extra.c
     common/random_early_detection.c
+    common/ws_ie.c
     wsbrd/6lowpan/lowpan_adaptation_interface.c
     wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
     wsbrd/6lowpan/fragmentation/cipv6_fragmenter.c
@@ -177,7 +178,6 @@ add_library(libwsbrd STATIC
     wsbrd/ws/ws_eapol_pdu.c
     wsbrd/ws/ws_eapol_relay.c
     wsbrd/ws/ws_eapol_relay_lib.c
-    wsbrd/ws/ws_ie_lib.c
     wsbrd/ws/ws_ie_custom.c
     wsbrd/ws/ws_ie_validation.c
     wsbrd/ws/ws_llc.c

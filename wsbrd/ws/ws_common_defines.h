@@ -23,8 +23,7 @@
 
 #include "common/int24.h"
 #include "common/ws_chan_mask.h"
-
-#include "ws/ws_ie_lib.h"
+#include "common/ws_ie.h"
 
 #define WS_CHAN_PLAN_TAG_CURRENT 255
 

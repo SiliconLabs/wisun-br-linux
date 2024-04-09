@@ -30,7 +30,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 
-#include "ws/ws_ie_lib.h"
+#include "ws_ie.h"
 
 // Wi-SUN FAN 1.1v07 - 6.2.3.1.6.1 Link Metrics
 #define WS_RSL_NORMALIZE_OFFSET 174

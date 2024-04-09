@@ -33,6 +33,7 @@
 #include "common/mathutils.h"
 #include "common/specs/ws.h"
 #include "common/events_scheduler.h"
+#include "common/ws_ie.h"
 
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_config.h"
@@ -40,7 +41,6 @@
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_pae_controller.h"
-#include "ws/ws_ie_lib.h"
 
 #include "ws/ws_common.h"
 
