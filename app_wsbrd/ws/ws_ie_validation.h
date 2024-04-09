@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct ws_wp_netname;
+struct ws_netname_ie;
 struct ws_lcp_ie;
 struct ws_us_ie;
 struct ws_bs_ie;
@@ -25,6 +25,6 @@ struct ws_info;
 bool ws_ie_validate_us(const struct ws_info *ws_info, const struct ws_us_ie *ie_us);
 bool ws_ie_validate_bs(const struct ws_info *ws_info, const struct ws_bs_ie *ie_us);
 bool ws_ie_validate_lcp(const struct ws_info *ws_info, const struct ws_lcp_ie *ie_lcp);
-bool ws_ie_validate_netname(const struct ws_info *ws_info, const struct ws_wp_netname *ie_netname);
+bool ws_ie_validate_netname(const struct ws_info *ws_info, const struct ws_netname_ie *ie_netname);
 
 #endif

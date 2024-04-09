@@ -218,9 +218,11 @@ struct ws_bs_ie {
     struct ws_generic_channel_info chan_plan;
 };
 
-struct ws_wp_netname {
-    uint8_t network_name_length;
-    const uint8_t *network_name;
+// Wi-SUN FAN 1.1v08 6.3.2.3.2.4 Network Name Information Element (NETNAME-IE)
+#define WS_NETNAME_LEN 32
+
+struct ws_netname_ie {
+    char netname[WS_NETNAME_LEN + 1];
 };
 
 /* WS_WH HEADER IE */
@@ -281,7 +283,7 @@ bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie 
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
 bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_ie *pan_ie);
 bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
-bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_wp_netname *network_name);
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_netname_ie *netname);
 bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, uint8_t gtkhash[4][8]);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);

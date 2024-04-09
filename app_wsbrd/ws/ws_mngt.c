@@ -55,7 +55,7 @@ static bool ws_mngt_ie_netname_validate(struct ws_info *ws_info,
                                         const struct mcps_data_rx_ie_list *ie_ext,
                                         uint8_t frame_type)
 {
-    struct ws_wp_netname ie_netname;
+    struct ws_netname_ie ie_netname;
 
     // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_netname)) {

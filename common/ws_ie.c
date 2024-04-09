@@ -862,15 +862,15 @@ bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, uint8_t gtk
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_wp_netname *network_name)
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, struct ws_netname_ie *netname)
 {
     struct iobuf_read ie_buf;
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_NETNAME, &ie_buf, false);
-    network_name->network_name_length = iobuf_remaining_size(&ie_buf);
-    network_name->network_name = iobuf_ptr(&ie_buf);
-    if (network_name->network_name_length > 32)
+    if (iobuf_remaining_size(&ie_buf) > WS_NETNAME_LEN)
         return false;
+    memset(netname->netname, 0, sizeof(netname->netname));
+    memcpy(netname->netname, iobuf_ptr(&ie_buf), iobuf_remaining_size(&ie_buf));
     return !ie_buf.err;
 }
 
