@@ -89,7 +89,6 @@ struct chan_params {
     uint32_t chan0_freq;
     uint32_t chan_spacing;
     uint16_t chan_count;
-    uint16_t chan_count_valid;  // number of channels after chan_mask applied
     uint8_t valid_phy_modes[8];
     const char *chan_allowed;
 };
