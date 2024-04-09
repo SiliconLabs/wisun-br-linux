@@ -101,6 +101,7 @@ const struct phy_params *ws_regdb_phy_params(int phy_mode_id, int operating_mode
 const struct chan_params *ws_regdb_chan_params(int domain, int chan_plan_id, int operating_class);
 
 int ws_regdb_chan_spacing_id(int val);
+int ws_regdb_chan_spacing_from_id(int id);
 
 bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id);
 
