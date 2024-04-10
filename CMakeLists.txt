@@ -466,6 +466,25 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=__tr_printf
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+        set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
+        add_library(wsrd-ns3 SHARED
+            tools/simulation/wsrd_ns3.cpp
+            tools/simulation/wsrd_uart.cpp
+        )
+        # Prevent conflict with bitand()
+        target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
+        target_include_directories(wsrd-ns3 PRIVATE ${NS3_INCLUDE_DIRECTORIES})
+        target_link_libraries(wsrd-ns3 libwsrd)
+        target_link_libraries(wsrd-ns3 Threads::Threads)
+        target_link_options(wsrd-ns3 PRIVATE
+            -Wl,--wrap=uart_open
+            -Wl,--wrap=writev
+            -Wl,--wrap=signal
+            -Wl,--wrap=exit
+            -Wl,--wrap=__tr_printf
+        )
+        install(TARGETS wsrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
 endif()
 
