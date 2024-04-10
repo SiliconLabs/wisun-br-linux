@@ -21,7 +21,7 @@
 #include <vector>
 
 #include <ns3/abort.h>
-#include <ns3/libwsbrd-ns3.hpp>
+#include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
 #include "app_wsbrd/app/libwsbrd.h"
@@ -33,7 +33,7 @@ extern "C" {
 #include "common/version.h"
 }
 
-#if LIBWSBRD_NS3_VERSION < VERSION(2, 1, 0) || LIBWSBRD_NS3_VERSION >= VERSION(3, 0, 0)
+#if SL_NS3_WISUN_LINUX_VERSION < VERSION(2, 2, 0) || SL_NS3_WISUN_LINUX_VERSION >= VERSION(3, 0, 0)
 #error "Incompatible ns-3 version"
 #endif
 
