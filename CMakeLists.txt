@@ -271,6 +271,7 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_executable(wsrd
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
+    wsrd/ws/ws.c
     common/bits.c
     common/bus_uart.c
     common/capture.c
@@ -278,6 +279,8 @@ add_executable(wsrd
     common/crc.c
     common/endian.c
     common/hif.c
+    common/ieee802154_frame.c
+    common/ieee802154_ie.c
     common/iobuf.c
     common/key_value_storage.c
     common/log.c
@@ -286,6 +289,7 @@ add_executable(wsrd
     common/rail_config.c
     common/rcp_api.c
     common/ws_chan_mask.c
+    common/ws_ie.c
     common/ws_regdb.c
     version.c
 )

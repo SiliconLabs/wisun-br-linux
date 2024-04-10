@@ -38,6 +38,13 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
         FATAL(3, "RCP API < 2.0.0 (too old)");
 }
 
+static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
+{
+    struct wsrd *wsrd = container_of(rcp, struct wsrd, rcp);
+
+    ws_recv_ind(&wsrd->ws, ind);
+}
+
 static void wsrd_init_rcp(struct wsrd *wsrd)
 {
     struct pollfd pfd = { };
@@ -141,6 +148,7 @@ int main(int argc, char *argv[])
     struct wsrd wsrd = {
         .rcp.bus.fd = -1,
         .rcp.on_reset = wsrd_on_rcp_reset,
+        .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
     };
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);

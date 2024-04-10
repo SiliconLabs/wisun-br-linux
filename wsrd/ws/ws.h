@@ -16,10 +16,14 @@
 #include "common/ws_ie.h"
 #include "common/ws_types.h"
 
+struct rcp_rx_ind;
+
 struct ws_ctx {
     char netname[WS_NETNAME_LEN];
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;
 };
+
+void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);
 
 #endif
