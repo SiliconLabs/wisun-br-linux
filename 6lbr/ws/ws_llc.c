@@ -1830,7 +1830,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
                               uint8_t *neighbor_mac_address)
 {
     struct ws_neigh *ws_neigh;
-    uint8_t peer_phy_mode_id;
+    uint8_t peer_phy_mode_id = 0;
     uint8_t i;
 
     // Can't set default to default
