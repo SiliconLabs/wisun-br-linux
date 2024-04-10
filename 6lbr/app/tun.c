@@ -122,9 +122,9 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
 
-    ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
+    ifindex = if_nametoindex(ctxt->config.tun_dev);
     if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
+        ERROR("if_nametoindex %s: %m", ctxt->config.tun_dev);
         return;
     }
 
@@ -168,9 +168,9 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
 
-    ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
+    ifindex = if_nametoindex(ctxt->config.tun_dev);
     if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
+        ERROR("if_nametoindex %s: %m", ctxt->config.tun_dev);
         return;
     }
 
