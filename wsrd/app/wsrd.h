@@ -25,4 +25,6 @@ struct wsrd {
     struct timer_ctxt timer_ctx;
 };
 
+int wsrd_main(int argc, char *argv[]);
+
 #endif

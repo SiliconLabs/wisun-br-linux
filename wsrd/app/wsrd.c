@@ -149,7 +149,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 }
 
-int main(int argc, char *argv[])
+int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
     struct wsrd wsrd = {

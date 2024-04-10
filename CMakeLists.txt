@@ -268,7 +268,7 @@ add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(wsrd
+add_library(libwsrd STATIC
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
     wsrd/ws/ws.c
@@ -294,22 +294,26 @@ add_executable(wsrd
     common/ws_regdb.c
     version.c
 )
-target_include_directories(wsrd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_options(wsrd PRIVATE -Wl,--wrap=time) # Required by common/capture.c
+target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_options(libwsrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
 if(BACKTRACE_FOUND)
-    target_compile_definitions(wsrd PRIVATE HAVE_BACKTRACE)
-    target_sources(wsrd PRIVATE common/backtrace_show.c)
-    target_link_libraries(wsrd PRIVATE backtrace)
+    target_compile_definitions(libwsrd PRIVATE HAVE_BACKTRACE)
+    target_sources(libwsrd PRIVATE common/backtrace_show.c)
+    target_link_libraries(libwsrd PUBLIC backtrace)
 endif()
 if(LIBDL_FOUND)
-    target_compile_definitions(wsrd PRIVATE HAVE_LIBDL)
-    target_link_libraries(wsrd PRIVATE ${CMAKE_DL_LIBS})
+    target_compile_definitions(libwsrd PRIVATE HAVE_LIBDL)
+    target_link_libraries(libwsrd PUBLIC ${CMAKE_DL_LIBS})
 endif()
 if(LIBCPC_FOUND)
-    target_compile_definitions(wsrd PRIVATE HAVE_LIBCPC)
-    target_sources(wsrd PRIVATE common/bus_cpc.c)
-    target_link_libraries(wsrd PRIVATE cpc)
+    target_compile_definitions(libwsrd PRIVATE HAVE_LIBCPC)
+    target_sources(libwsrd PRIVATE common/bus_cpc.c)
+    target_link_libraries(libwsrd PUBLIC cpc)
 endif()
+
+add_executable(wsrd wsrd/app/main.c)
+add_dependencies(wsrd libwsrd)
+target_link_libraries(wsrd libwsrd)
 install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
