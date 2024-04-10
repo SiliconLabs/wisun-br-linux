@@ -23,6 +23,11 @@
 #include "common/ws_regdb.h"
 #include "wsrd.h"
 
+enum {
+    POLLFD_RCP,
+    POLLFD_COUNT,
+};
+
 static void wsrd_on_rcp_reset(struct rcp *rcp)
 {
     if (rcp->has_rf_list)
@@ -145,11 +150,13 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
 int main(int argc, char *argv[])
 {
+    struct pollfd pfd[POLLFD_COUNT] = { };
     struct wsrd wsrd = {
         .rcp.bus.fd = -1,
         .rcp.on_reset = wsrd_on_rcp_reset,
         .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
     };
+    int ret;
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
 
@@ -160,6 +167,16 @@ int main(int argc, char *argv[])
     wsrd_init_rcp(&wsrd);
     wsrd_init_radio(&wsrd);
     wsrd_init_ws(&wsrd);
+
+    pfd[POLLFD_RCP].fd = wsrd.rcp.bus.fd;
+    pfd[POLLFD_RCP].events = POLLIN;
+    while (true) {
+        ret = poll(pfd, POLLFD_COUNT, wsrd.rcp.bus.uart.data_ready ? 0 : -1);
+        FATAL_ON(ret < 0, 2, "poll: %m");
+        if (wsrd.rcp.bus.uart.data_ready ||
+            pfd[POLLFD_RCP].revents & POLLIN)
+            rcp_rx(&wsrd.rcp);
+    }
 
     return EXIT_SUCCESS;
 }
