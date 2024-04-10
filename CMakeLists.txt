@@ -437,9 +437,9 @@ if(COMPILE_DEVTOOLS)
         set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsbrd-ns3 SHARED
             tools/simulation/wsbrd_ns3.cpp
-            tools/simulation/rand.cpp
-            tools/simulation/time.cpp
-            tools/simulation/uart.cpp
+            tools/simulation/wsbrd_rand.cpp
+            tools/simulation/wsbrd_time.cpp
+            tools/simulation/wsbrd_uart.cpp
             tools/fuzz/commandline.c
             tools/fuzz/rand.c
             tools/fuzz/wsbrd_fuzz.c
