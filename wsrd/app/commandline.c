@@ -63,6 +63,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
         { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
         { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      (void *)sizeof(config->cpc_instance) },
+        { "network_name",                  config->ws_netname,                        conf_set_string,      (void *)sizeof(config->ws_netname) },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
@@ -151,6 +152,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->uart_dev[0] && config->cpc_instance[0])
         FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
+    if (!config->ws_netname[0])
+        FATAL(1, "missing \"network_name\" parameter");
     if (config->ws_chan0_freq || config->ws_chan_spacing || config->ws_chan_count) {
         if (config->ws_domain != REG_DOMAIN_UNDEF || config->ws_class || config->ws_chan_plan_id)
             FATAL(1, "custom channel plan is exclusive with \"class\", \"chan_plan_id\" and \"domain\"");

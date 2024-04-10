@@ -16,12 +16,16 @@
 #include <limits.h>
 #include <stdbool.h>
 
+#include "common/ws_ie.h"
+
 // This struct is filled by parse_commandline() and never modified after.
 struct wsrd_conf {
     char uart_dev[PATH_MAX];
     int  uart_baudrate;
     bool uart_rtscts;
     char cpc_instance[PATH_MAX];
+
+    char ws_netname[WS_NETNAME_LEN];
 
     int  ws_domain;
     int  ws_phy_mode_id;

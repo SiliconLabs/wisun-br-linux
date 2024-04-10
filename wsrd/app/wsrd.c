@@ -12,6 +12,7 @@
  */
 #include <poll.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "wsrd/app/commandline.h"
 #include "common/bits.h"
@@ -130,6 +131,11 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     rcp_req_radio_enable(&wsrd->rcp);
 }
 
+static void wsrd_init_ws(struct wsrd *wsrd)
+{
+    strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
+}
+
 int main(int argc, char *argv[])
 {
     struct wsrd wsrd = {
@@ -145,6 +151,7 @@ int main(int argc, char *argv[])
 
     wsrd_init_rcp(&wsrd);
     wsrd_init_radio(&wsrd);
+    wsrd_init_ws(&wsrd);
 
     return EXIT_SUCCESS;
 }

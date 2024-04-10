@@ -13,9 +13,11 @@
 #ifndef WSRD_WS_H
 #define WSRD_WS_H
 
+#include "common/ws_ie.h"
 #include "common/ws_types.h"
 
 struct ws_ctx {
+    char netname[WS_NETNAME_LEN];
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;
 };
