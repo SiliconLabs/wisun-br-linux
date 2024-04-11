@@ -28,6 +28,7 @@
 #include "common/string_extra.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
+#include "common/rcp_api.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -60,7 +61,6 @@
 #include "libwsbrd.h"
 #include "wsbr.h"
 #include "timers.h"
-#include "rcp_api.h"
 #include "rail_config.h"
 #include "dbus.h"
 #include "tun.h"

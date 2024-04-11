@@ -16,8 +16,8 @@
 #include <stdbool.h>
 #include <sys/uio.h>
 
-#include "app/rcp_api.h"
 #include "common/log.h"
+#include "common/rcp_api.h"
 
 struct ws_fhss_config;
 struct ws_neigh;

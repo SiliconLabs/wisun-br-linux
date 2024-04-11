@@ -20,8 +20,10 @@
 #include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/version.h"
+#include "common/ws_neigh.h"
 #include "common/ws_regdb.h"
-#include "wsbrd/ws/ws_common.h"
+#include "common/specs/ws.h"
+
 #include "rcp_api.h"
 
 uint8_t rcp_rx_buf[4096];

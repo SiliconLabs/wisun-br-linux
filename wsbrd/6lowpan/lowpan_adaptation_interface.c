@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/endian.h"
+#include "common/rcp_api.h"
 #include "common/rand.h"
 #include "common/dhcp_server.h"
 #include "common/log_legacy.h"
@@ -35,7 +36,6 @@
 
 #include "app/wsbr.h"
 #include "app/wsbr_mac.h"
-#include "app/rcp_api.h"
 #include "net/timers.h"
 #include "net/netaddr_types.h"
 #include "net/ns_buffer.h"

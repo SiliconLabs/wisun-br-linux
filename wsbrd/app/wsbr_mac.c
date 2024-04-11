@@ -20,6 +20,7 @@
 #include "common/log.h"
 #include "common/bus.h"
 #include "common/named_values.h"
+#include "common/rcp_api.h"
 #include "common/parsers.h"
 #include "common/pcapng.h"
 #include "common/spinel.h"
@@ -39,7 +40,6 @@
 
 #include "frame_helpers.h"
 #include "wsbr.h"
-#include "rcp_api.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
