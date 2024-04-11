@@ -46,39 +46,6 @@
 
 int DEVICE_MIN_SENS = -93;
 
-int8_t ws_common_generate_channel_list(uint8_t chan_mask[WS_CHAN_MASK_LEN],
-                                       uint16_t chan_count,
-                                       uint8_t regional_regulation,
-                                       uint8_t regulatory_domain,
-                                       uint8_t op_class,
-                                       uint8_t chan_plan_id)
-{
-    const struct chan_params *chan_params;
-
-    chan_params = ws_regdb_chan_params(regulatory_domain, chan_plan_id, op_class);
-    WARN_ON(chan_params && chan_params->chan_count != chan_count);
-
-    memset(chan_mask, 0xFF, 32);
-    if (chan_params && chan_params->chan_allowed)
-        parse_bitmask(chan_mask, 32, chan_params->chan_allowed);
-    if (regional_regulation == HIF_REG_ARIB) {
-        // For now, ARIB is not supported for custom channel plans
-        BUG_ON(!chan_params);
-        // For now, ARIB is not supported outside of Japan
-        BUG_ON(chan_params->reg_domain != REG_DOMAIN_JP);
-        // Note: if user specify a FAN1.1 channel plan, these mask are already
-        // applied
-        if (chan_params->op_class == 1)
-            bitfill(chan_mask, false, 0, 8); // Allowed channels: "9-255"
-        if (chan_params->op_class == 2)
-            bitfill(chan_mask, false, 0, 3); // Allowed channels: "4-255"
-        if (chan_params->op_class == 3)
-            bitfill(chan_mask, false, 0, 2); // Allowed channels: "3-255"
-    }
-    bitfill(chan_mask, false, chan_count, 255);
-    return 0;
-}
-
 void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
                               const uint8_t chan_mask_reg[], uint16_t chan_count)
 {

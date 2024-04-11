@@ -111,13 +111,6 @@ typedef struct ws_info {
     int tx_power_dbm;
 } ws_info_t;
 
-int8_t ws_common_generate_channel_list(uint8_t chan_mask[WS_CHAN_MASK_LEN],
-                                       uint16_t chan_count,
-                                       uint8_t regional_regulation,
-                                       uint8_t regulatory_domain,
-                                       uint8_t op_class,
-                                       uint8_t chan_plan_id);
-
 void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
                               const uint8_t chan_mask_reg[], uint16_t chan_count);
 

@@ -22,4 +22,12 @@
 // Get the channel number from a channel mask containing extactly 1 channel.
 int ws_chan_mask_get_fixed(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 
+// Compute the channel mask based on regulation parameters.
+void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
+                           uint16_t chan_count,
+                           uint8_t  regional_regulation,
+                           uint8_t  regulatory_domain,
+                           uint8_t  op_class,
+                           uint8_t  chan_plan_id);
+
 #endif

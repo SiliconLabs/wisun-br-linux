@@ -86,10 +86,10 @@ static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool 
     ws_excluded_channel_data_t excl;
     uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
 
-    ws_common_generate_channel_list(domain_channel_mask, fhss_config->chan_count,
-                                    fhss_config->regional_regulation,
-                                    fhss_config->regulatory_domain,
-                                    fhss_config->op_class, fhss_config->chan_plan_id);
+    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+                          fhss_config->regional_regulation,
+                          fhss_config->regulatory_domain,
+                          fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
@@ -289,10 +289,10 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_p
     ws_excluded_channel_data_t excl;
     uint8_t tmp8 = 0;
 
-    ws_common_generate_channel_list(domain_channel_mask, fhss_config->chan_count,
-                                    fhss_config->regional_regulation,
-                                    fhss_config->regulatory_domain,
-                                    fhss_config->op_class, fhss_config->chan_plan_id);
+    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+                          fhss_config->regional_regulation,
+                          fhss_config->regulatory_domain,
+                          fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
@@ -349,10 +349,10 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_
     uint8_t domain_channel_mask[WS_CHAN_MASK_LEN];
     ws_excluded_channel_data_t excl;
 
-    ws_common_generate_channel_list(domain_channel_mask, fhss_config->chan_count,
-                                    fhss_config->regional_regulation,
-                                    fhss_config->regulatory_domain,
-                                    fhss_config->op_class, fhss_config->chan_plan_id);
+    ws_chan_mask_calc_reg(domain_channel_mask, fhss_config->chan_count,
+                          fhss_config->regional_regulation,
+                          fhss_config->regulatory_domain,
+                          fhss_config->op_class, fhss_config->chan_plan_id);
 
     if (unicast)
         ws_common_calc_chan_excl(&excl, fhss_config->uc_chan_mask, domain_channel_mask, fhss_config->chan_count);
