@@ -161,6 +161,7 @@ add_library(libwsbrd STATIC
     common/time_extra.c
     common/random_early_detection.c
     common/rcp_api.c
+    common/timer.c
     common/ws_ie.c
     common/ws_neigh.c
     wsbrd/6lowpan/lowpan_adaptation_interface.c

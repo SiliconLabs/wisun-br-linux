@@ -26,6 +26,7 @@ typedef struct sd_bus sd_bus;
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/rcp_api.h"
+#include "common/timer.h"
 #include "net/protocol.h"
 
 #include "commandline.h"
@@ -38,6 +39,7 @@ enum {
     POLLFD_DBUS,
     POLLFD_EVENT,
     POLLFD_TIMER,
+    POLLFD_TIMER_LEGACY,
     POLLFD_DHCP_SERVER,
     POLLFD_RPL,
     POLLFD_BR_EAPOL_RELAY,
@@ -50,6 +52,7 @@ enum {
 
 struct wsbr_ctxt {
     struct pollfd fds[POLLFD_COUNT];
+    struct timer_ctxt timer_ctxt;
     struct events_scheduler scheduler;
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;

@@ -460,8 +460,10 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_TUN].events = POLLIN;
     ctxt->fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
     ctxt->fds[POLLFD_EVENT].events = POLLIN;
-    ctxt->fds[POLLFD_TIMER].fd = ctxt->timerfd;
+    ctxt->fds[POLLFD_TIMER].fd = ctxt->timer_ctxt.fd;
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
+    ctxt->fds[POLLFD_TIMER_LEGACY].fd = ctxt->timerfd;
+    ctxt->fds[POLLFD_TIMER_LEGACY].events = POLLIN;
     ctxt->fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
     ctxt->fds[POLLFD_DHCP_SERVER].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
@@ -513,6 +515,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
         ctxt->rcp.bus.uart.data_ready)
         rcp_rx(&ctxt->rcp);
     if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
+        timer_ctxt_process(&ctxt->timer_ctxt);
+    if (ctxt->fds[POLLFD_TIMER_LEGACY].revents & POLLIN)
         wsbr_common_timer_process(ctxt);
     if (ctxt->fds[POLLFD_PCAP].revents & POLLERR)
         wsbr_pcapng_closed(ctxt);
@@ -539,6 +543,7 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
+    timer_ctxt_init(&ctxt->timer_ctxt);
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete) {
