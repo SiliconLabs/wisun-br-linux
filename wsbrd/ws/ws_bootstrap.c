@@ -369,7 +369,10 @@ static uint16_t ws_bootstrap_define_congestion_max_threshold(uint32_t heap_total
 
 static uint16_t ws_bootstrap_packet_per_seconds(struct net_if *cur, uint16_t packet_size)
 {
-    uint32_t data_rate = ws_common_datarate_get(cur);
+    uint32_t data_rate;
+
+    BUG_ON(!cur->ws_info.phy_config.params->datarate);
+    data_rate = cur->ws_info.phy_config.params->datarate;
 
     //calculate how many packet is possible send in paper
     data_rate /= 8 * packet_size;

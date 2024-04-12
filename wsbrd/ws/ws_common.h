@@ -92,10 +92,6 @@ uint32_t ws_common_version_timeout_get(uint8_t config);
 
 uint32_t ws_common_latency_estimate_get(struct net_if *cur);
 
-uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode);
-
-uint32_t ws_common_datarate_get(struct net_if *cur);
-
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);

@@ -82,23 +82,6 @@ bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
     return true;
 }
 
-uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode)
-{
-    const struct phy_params *phy_params;
-
-    phy_params = ws_regdb_phy_params(phy_mode_id, operating_mode);
-    if (!phy_params)
-        return 0;
-    return phy_params->datarate;
-}
-
-uint32_t ws_common_datarate_get(struct net_if *cur)
-{
-    BUG_ON(!cur->ws_info.phy_config.params);
-    return ws_common_datarate_get_from_phy_mode(cur->ws_info.phy_config.params->phy_mode_id,
-                                                cur->ws_info.phy_config.params->op_mode);
-}
-
 bool ws_common_is_valid_nr(uint8_t node_role)
 {
     switch (node_role) {
