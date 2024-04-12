@@ -83,10 +83,11 @@ static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool 
     uint8_t chan_mask_excl[WS_CHAN_MASK_LEN];
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
 
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
+    BUG_ON(!fhss_config->chan_params);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
                           fhss_config->regional_regulation,
-                          fhss_config->regulatory_domain,
-                          fhss_config->op_class, fhss_config->chan_plan_id);
+                          fhss_config->chan_params->reg_domain,
+                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
@@ -276,10 +277,11 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_f
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
     uint8_t tmp8 = 0;
 
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
+    BUG_ON(!fhss_config->chan_params);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
                           fhss_config->regional_regulation,
-                          fhss_config->regulatory_domain,
-                          fhss_config->op_class, fhss_config->chan_plan_id);
+                          fhss_config->chan_params->reg_domain,
+                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_PLAN, fhss_config->chan_plan);
@@ -297,19 +299,20 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_f
 
 static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config)
 {
+    BUG_ON(!fhss_config->chan_params);
     switch (fhss_config->chan_plan) {
     case 0:
-        iobuf_push_u8(buf, fhss_config->regulatory_domain);
-        iobuf_push_u8(buf, fhss_config->op_class);
+        iobuf_push_u8(buf, fhss_config->chan_params->reg_domain);
+        iobuf_push_u8(buf, fhss_config->chan_params->op_class);
         break;
     case 1:
-        iobuf_push_le24(buf, fhss_config->chan0_freq / 1000);
-        iobuf_push_u8(buf, ws_regdb_chan_spacing_id(fhss_config->chan_spacing));
-        iobuf_push_le16(buf, fhss_config->chan_count);
+        iobuf_push_le24(buf, fhss_config->chan_params->chan0_freq / 1000);
+        iobuf_push_u8(buf, ws_regdb_chan_spacing_id(fhss_config->chan_params->chan_spacing));
+        iobuf_push_le16(buf, fhss_config->chan_params->chan_count);
         break;
     case 2:
-        iobuf_push_u8(buf, fhss_config->regulatory_domain);
-        iobuf_push_u8(buf, fhss_config->chan_plan_id);
+        iobuf_push_u8(buf, fhss_config->chan_params->reg_domain);
+        iobuf_push_u8(buf, fhss_config->chan_params->chan_plan_id);
         break;
     default:
         BUG("Unsupported channel plan: %u", fhss_config->chan_plan);
@@ -342,10 +345,11 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_
     int mask_len, range_cnt;
     int range_start;
 
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_count,
+    BUG_ON(!fhss_config->chan_params);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
                           fhss_config->regional_regulation,
-                          fhss_config->regulatory_domain,
-                          fhss_config->op_class, fhss_config->chan_plan_id);
+                          fhss_config->chan_params->reg_domain,
+                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))

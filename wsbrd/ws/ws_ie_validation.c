@@ -27,10 +27,11 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
     int plan_nr = rx_plan->channel_plan;
     const struct chan_params *parms = NULL;
 
+    BUG_ON(!fhss_config->chan_params);
     if (plan_nr == 1)
-        return plan1->ch0 * 1000 == fhss_config->chan0_freq &&
-               plan1->channel_spacing == ws_regdb_chan_spacing_id(fhss_config->chan_spacing) &&
-               plan1->number_of_channel == fhss_config->chan_count;
+        return plan1->ch0 * 1000 == fhss_config->chan_params->chan0_freq &&
+               plan1->channel_spacing == ws_regdb_chan_spacing_id(fhss_config->chan_params->chan_spacing) &&
+               plan1->number_of_channel == fhss_config->chan_params->chan_count;
     if (plan_nr == 0)
         parms = ws_regdb_chan_params(plan0->regulatory_domain,
                                      0, plan0->operating_class);
@@ -39,9 +40,9 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
                                      plan2->channel_plan_id, 0);
     if (!parms)
         return false;
-    return parms->chan0_freq == fhss_config->chan0_freq &&
-           parms->chan_count == fhss_config->chan_count &&
-           parms->chan_spacing == fhss_config->chan_spacing;
+    return parms->chan0_freq   == fhss_config->chan_params->chan0_freq &&
+           parms->chan_count   == fhss_config->chan_params->chan_count &&
+           parms->chan_spacing == fhss_config->chan_params->chan_spacing;
 }
 
 static bool ws_ie_validate_schedule(const struct ws_info *ws_info,

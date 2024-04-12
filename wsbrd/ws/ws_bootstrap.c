@@ -298,14 +298,12 @@ init_fail:
 
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
-    const struct chan_params *chan_params;
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
     struct ws_fhss_config *fhss_config = &cur->ws_info.fhss_config;
 
     BUG_ON(!phy_config->params);
-    chan_params = ws_regdb_chan_params(fhss_config->regulatory_domain, fhss_config->chan_plan_id, fhss_config->op_class);
-
-    if (chan_params && !ws_regdb_check_phy_chan_compat(phy_config->params, chan_params))
+    BUG_ON(!fhss_config->chan_params);
+    if (!ws_regdb_check_phy_chan_compat(phy_config->params, fhss_config->chan_params))
         WARN("non standard RF configuration in use");
 
     phy_config->phy_mode_id_ms_base = phy_config->params->phy_mode_id;

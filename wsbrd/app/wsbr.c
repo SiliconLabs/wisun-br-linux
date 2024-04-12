@@ -230,33 +230,29 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     struct ws_info *ws_info = &ctxt->net_if.ws_info;
     struct ws_fhss_config *fhss = &ws_info->fhss_config;
-    const struct chan_params *chan_params;
+    struct chan_params *chan_params;
 
     ws_info->phy_config.params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id,
                                                      ctxt->config.ws_mode);
     BUG_ON(!ws_info->phy_config.params);
 
     ws_info->pan_information.jm.mask = ctxt->config.ws_join_metrics;
-    fhss->regulatory_domain          = ctxt->config.ws_domain;
-    fhss->chan_plan_id               = ctxt->config.ws_chan_plan_id;
-    fhss->op_class                   = ctxt->config.ws_class;
 
-    chan_params = ws_regdb_chan_params(fhss->regulatory_domain,
-                                       fhss->chan_plan_id,
-                                       fhss->op_class);
-    if (!chan_params) {
-        fhss->chan0_freq   = ctxt->config.ws_chan0_freq;
-        fhss->chan_spacing = ctxt->config.ws_chan_spacing;
-        fhss->chan_count   = ctxt->config.ws_chan_count;
-        fhss->chan_plan    = 1;
+    fhss->chan_params = ws_regdb_chan_params(ctxt->config.ws_domain,
+                                             ctxt->config.ws_chan_plan_id,
+                                             ctxt->config.ws_class);
+    if (!fhss->chan_params) {
+        chan_params = zalloc(sizeof(*fhss->chan_params));
+        chan_params->reg_domain   = ctxt->config.ws_domain;
+        chan_params->chan0_freq   = ctxt->config.ws_chan0_freq;
+        chan_params->chan_spacing = ctxt->config.ws_chan_spacing;
+        chan_params->chan_count   = ctxt->config.ws_chan_count;
+        fhss->chan_params = chan_params;
+        fhss->chan_plan = 1;
+    } else if (ctxt->config.ws_chan_plan_id) {
+        fhss->chan_plan = 2;
     } else {
-        fhss->chan0_freq   = chan_params->chan0_freq;
-        fhss->chan_spacing = chan_params->chan_spacing;
-        fhss->chan_count   = chan_params->chan_count;
-        if (ctxt->config.ws_chan_plan_id)
-            fhss->chan_plan = 2;
-        else
-            fhss->chan_plan = 0;
+        fhss->chan_plan = 0;
     }
 
     fhss->uc_dwell_interval  = ctxt->config.uc_dwell_interval;
@@ -271,17 +267,17 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     ws_chan_mask_calc_reg(fhss->uc_chan_mask,
-                          fhss->chan_count,
+                          fhss->chan_params->chan_count,
                           fhss->regional_regulation,
-                          fhss->regulatory_domain,
-                          fhss->op_class,
-                          fhss->chan_plan_id);
+                          fhss->chan_params->reg_domain,
+                          fhss->chan_params->op_class,
+                          fhss->chan_params->chan_plan_id);
     ws_chan_mask_calc_reg(fhss->bc_chan_mask,
-                          fhss->chan_count,
+                          fhss->chan_params->chan_count,
                           fhss->regional_regulation,
-                          fhss->regulatory_domain,
-                          fhss->op_class,
-                          fhss->chan_plan_id);
+                          fhss->chan_params->reg_domain,
+                          fhss->chan_params->op_class,
+                          fhss->chan_params->chan_plan_id);
     bitand(fhss->uc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(fhss->bc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     if (!memzcmp(fhss->uc_chan_mask, sizeof(fhss->uc_chan_mask)))

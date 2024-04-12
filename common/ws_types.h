@@ -21,13 +21,8 @@
 #include "common/specs/ws.h"
 
 struct ws_fhss_config {
-    uint8_t  regulatory_domain;
+    const struct chan_params *chan_params;
     int      regional_regulation;
-    uint8_t  op_class;
-    uint8_t  chan_plan_id;
-    uint8_t  chan_count;
-    uint32_t chan_spacing;
-    uint24_t chan0_freq;
     uint8_t  chan_plan;
     uint8_t  uc_chan_mask[WS_CHAN_MASK_LEN];
     uint8_t  bc_chan_mask[WS_CHAN_MASK_LEN];
