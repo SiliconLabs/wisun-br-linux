@@ -87,9 +87,9 @@ static struct ws_neigh *ws_mngt_neigh_fetch(struct net_if *net_if, const uint8_t
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, mac64);
 
-    if (!ws_neigh && ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, mac64))
-        ws_neigh = ws_bootstrap_neighbor_add(&net_if->ws_info.neighbor_storage, mac64, role);
-    return ws_neigh;
+    if (ws_neigh)
+        return ws_neigh;
+    return ws_bootstrap_neighbor_add(&net_if->ws_info.neighbor_storage, mac64, role);
 }
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
