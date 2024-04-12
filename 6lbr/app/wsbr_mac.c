@@ -82,7 +82,6 @@ void wsbr_data_req_ext(struct net_if *cur,
     }
 
     wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
-    BUG_ON(data->ExtendedFrameExchange);
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
                     data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,

@@ -1315,7 +1315,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .fc  = data->ExtendedFrameExchange && data->TxAckReq,
         .lbt = node_role == WS_NR_ROLE_LFN || data->lfn_multicast,
     };
     struct wp_ie_list wp_ies = {
@@ -1376,18 +1375,11 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         data_req.ms_mode = ws_neigh->ms_mode == WS_MODE_SWITCH_DEFAULT ? ws_info->phy_config.ms_mode : ws_neigh->ms_mode;
     data_req.frame_type = WS_FT_DATA;
 
-    if (data->ExtendedFrameExchange && data->TxAckReq) {
-        data_req.SeqNumSuppressed = true;
-        data_req.PanIdSuppressed = true;
-        data_req.TxAckReq = true; // This will be changed inside MAC
+    if (!data->TxAckReq) {
+        data_req.PanIdSuppressed = false;
+        data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
     } else {
-        data_req.ExtendedFrameExchange = false; //Do not accept EDFE for non unicast traffic
-        if (!data->TxAckReq) {
-            data_req.PanIdSuppressed = false;
-            data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
-        } else {
-            data_req.PanIdSuppressed = true;
-        }
+        data_req.PanIdSuppressed = true;
     }
 
     if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
@@ -1424,7 +1416,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
     message->ie_ext.payloadIeVectorList = message->ie_iov_payload;
-    message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
+    message->ie_ext.payloadIovLength = 2;
 
     message->tx_time = time_current(CLOCK_MONOTONIC);
 
@@ -1438,7 +1430,6 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->TxAckReq = message->ack_requested;
     data_req->DstPANId = message->pan_id;
     data_req->SrcAddrMode = message->src_address_type;
-    data_req->ExtendedFrameExchange = false;
     if (!data_req->TxAckReq) {
         data_req->PanIdSuppressed = false;
         data_req->DstAddrMode = MAC_ADDR_MODE_NONE;
@@ -1748,7 +1739,6 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     data_req.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
-    data_req.ExtendedFrameExchange = false;
     data_req.frame_type = request->frame_type;
     if (request->frame_type == WS_FT_PAS)
         data_req.PanIdSuppressed = true;

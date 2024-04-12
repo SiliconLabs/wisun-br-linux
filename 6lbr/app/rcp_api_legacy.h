@@ -63,7 +63,6 @@ typedef struct mcps_data_req {
     bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
     bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
-    bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
     struct mlme_security Key;       /**< Security key */
     struct hif_rate_info rate_list[4];
