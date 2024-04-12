@@ -47,6 +47,38 @@ Example:
     # Reset neighbor 00:00:5e:ef:10:00:00:00 mode switch to global
     SetLinkModeSwitch 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 0 0
 
+### `SetLinkEdfe` (`ayy`)
+
+Extended Directed Frame Exchange (EDFE) can be configured either globally or
+per neighbor.
+
+By default, all neighbors are set to follow global configuration.
+
+Note that EDFE is currently a very limited feature that can only be used for
+certification (TBU) or experimental purposes.
+
+- `ay`: EUI-64 of a neighbor node on which to configure EDFE, or empty array to
+set the global configuration
+- `y`: EDFE mode
+  - `0`: Default (use global configuration)
+  - `1`: Disabled
+  - `2`: Enabled
+
+Example:
+
+    # Globally enable EDFE
+    SetLinkEDFE 0 1
+
+    # Configure neighbor 00:00:5e:ef:10:00:00:00 to use EDFE instead of global
+    # config
+    SetLinkEDFE 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 2
+
+    # Disable EDFE on neighbor 00:00:5e:ef:10:00:00:01
+    SetLinkEDFE 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x01 1
+
+    # Reset neighbor 00:00:5e:ef:10:00:00:00 EDFE to global
+    SetLinkEDFE 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 0
+
 ### `JoinMulticastGroup` and `LeaveMulticastGroup` (`ay`)
 
 In order to send or receive multicast traffic from outside the Wi-SUN network,

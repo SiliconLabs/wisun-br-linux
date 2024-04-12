@@ -120,6 +120,7 @@ struct ws_neigh {
     int8_t apc_txpow_dbm;
     int8_t apc_txpow_dbm_ofdm;
 
+    uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
     struct eapol_temporary_info eapol_temp_info;
     SLIST_ENTRY(ws_neigh) link;

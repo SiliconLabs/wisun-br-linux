@@ -23,6 +23,7 @@
 #include "common/ns_list.h"
 #include "app/rcp_api_legacy.h"
 
+#include "ws/ws_common.h"
 #include "ws/ws_neigh.h"
 
 struct net_if;
@@ -125,6 +126,8 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
 
 int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t phy_mode_id,
                               uint8_t *neighbor_mac_address);
+
+int ws_llc_set_edfe(struct net_if *interface, enum ws_edfe_mode mode, uint8_t *neighbor_mac_address);
 
 const char *tr_ws_frame(uint8_t frame_type);
 

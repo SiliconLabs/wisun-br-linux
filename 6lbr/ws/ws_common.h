@@ -59,6 +59,13 @@ struct ws_fhss_config {
     int      bsi;
 };
 
+enum ws_edfe_mode {
+    WS_EDFE_DEFAULT  = 0,
+    WS_EDFE_DISABLED = 1,
+    WS_EDFE_ENABLED  = 2,
+    WS_EDFE_MAX      = 3,
+};
+
 enum ws_mode_switch_mode {
     WS_MODE_SWITCH_DEFAULT  = 0,
     WS_MODE_SWITCH_DISABLED = 1,
@@ -94,6 +101,7 @@ typedef struct ws_info {
     struct ws_ie_custom_list ie_custom_list;
     bool enable_lfn;
     bool enable_ffn10;
+    enum ws_edfe_mode edfe_mode;
     unsigned int key_index_mask;  // Bitmask of installed key indices
     ws_pending_key_index_t pending_key_index_info;
     struct ws_pan_information pan_information;

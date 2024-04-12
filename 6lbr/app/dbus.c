@@ -114,6 +114,37 @@ int dbus_set_link_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *r
     return 0;
 }
 
+int dbus_set_link_edfe(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    uint8_t edfe_mode;
+    size_t eui64_len;
+    uint8_t *eui64;
+    int ret;
+
+    sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
+    sd_bus_message_read_basic(m, 'y', &edfe_mode);
+
+    if (eui64_len == 0)
+        eui64 = NULL;
+    else if (eui64_len != 8)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    if (edfe_mode >= WS_EDFE_MAX)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (edfe_mode == WS_EDFE_DEFAULT && !eui64)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (edfe_mode == WS_EDFE_ENABLED && version_older_than(ctxt->rcp.version_api, 2, 2, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+
+    ret = ws_llc_set_edfe(&ctxt->net_if, edfe_mode, eui64);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    sd_bus_reply_method_return(m, NULL);
+
+    return 0;
+}
+
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
@@ -708,6 +739,7 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD("LeaveMulticastGroup", "ay",     NULL, dbus_leave_multicast_group, 0),
         SD_BUS_METHOD("SetModeSwitch",       "ayi",    NULL, dbus_set_mode_switch,       SD_BUS_VTABLE_DEPRECATED),
         SD_BUS_METHOD("SetLinkModeSwitch",   "ayuy",   NULL, dbus_set_link_mode_switch,  0),
+        SD_BUS_METHOD("SetLinkEdfe",         "ayy",    NULL, dbus_set_link_edfe,         0),
         SD_BUS_METHOD("RevokePairwiseKeys",  "ay",     NULL, dbus_revoke_pairwise_keys,  0),
         SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, dbus_revoke_group_keys,     0),
         SD_BUS_METHOD("InstallGtk",          "ay",     NULL, dbus_install_gtk,           0),

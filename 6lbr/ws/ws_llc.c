@@ -1874,6 +1874,21 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
     return 0;
 }
 
+int ws_llc_set_edfe(struct net_if *interface, enum ws_edfe_mode mode, uint8_t *neighbor_mac_address)
+{
+    struct ws_neigh *ws_neigh;
+
+    if (!neighbor_mac_address) {
+        interface->ws_info.edfe_mode = mode;
+    } else {
+        ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, neighbor_mac_address);
+        if (!ws_neigh)
+            return -1;
+        ws_neigh->edfe_mode = mode;
+    }
+    return 0;
+}
+
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
