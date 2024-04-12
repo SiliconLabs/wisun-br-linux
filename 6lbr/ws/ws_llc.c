@@ -1355,12 +1355,27 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (ws_neigh) {
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
+        if (ws_neigh->edfe_mode == WS_EDFE_DEFAULT)
+            wh_ies.fc = ws_info->edfe_mode == WS_EDFE_ENABLED;
+        else
+            wh_ies.fc = ws_neigh->edfe_mode == WS_EDFE_ENABLED;
     }
 
     data_req = *data;
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
+
+    /**
+     * Wi-SUN FAN 1.1v08 - 6.3.4.3.1.2 Extended Directed Frame Exchange
+     * All EDFE frames are ULAD frames populated as described in section
+     * 6.3.2.1.6. The AR field MUST be set to 0.
+     */
+    if (wh_ies.fc) {
+        data_req.TxAckReq = false;
+        message->ack_requested = false;
+    }
+
     if (ws_neigh) {
         ws_llc_fill_rates(ws_info, ws_neigh, message->rate_list);
         // Do not send default params to the RCP to save some bytes
