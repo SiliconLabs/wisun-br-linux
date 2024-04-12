@@ -114,7 +114,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.pae_random_early_detection.drop_max_probability = 100,
 
     .net_if.ws_info.neighbor_storage.on_add = ws_bootstrap_neighbor_add_cb,
-    .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del,
+    .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del_cb,
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_config.bsi = -1,
 };

@@ -145,7 +145,7 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
     }
 }
 
-void ws_bootstrap_neighbor_del(struct ws_neigh_table *table, const uint8_t *mac64)
+void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, const uint8_t *mac64)
 {
     struct net_if *cur = container_of(table, struct net_if, ws_info.neighbor_storage);
 
