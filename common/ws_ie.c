@@ -84,10 +84,7 @@ static uint16_t ws_chan_excl_len(const struct ws_fhss_config *fhss_config, bool 
     uint8_t chan_mask_reg[WS_CHAN_MASK_LEN];
 
     BUG_ON(!fhss_config->chan_params);
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
-                          fhss_config->regional_regulation,
-                          fhss_config->chan_params->reg_domain,
-                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
@@ -278,10 +275,7 @@ static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_f
     uint8_t tmp8 = 0;
 
     BUG_ON(!fhss_config->chan_params);
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
-                          fhss_config->regional_regulation,
-                          fhss_config->chan_params->reg_domain,
-                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     tmp8 |= FIELD_PREP(WS_MASK_SCHEDULE_CHAN_PLAN, fhss_config->chan_plan);
@@ -346,10 +340,7 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_
     int range_start;
 
     BUG_ON(!fhss_config->chan_params);
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
-                          fhss_config->regional_regulation,
-                          fhss_config->chan_params->reg_domain,
-                          fhss_config->chan_params->op_class, fhss_config->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);
     ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, chan_mask_custom);
 
     if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))

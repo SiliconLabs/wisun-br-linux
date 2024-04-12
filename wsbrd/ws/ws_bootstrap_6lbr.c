@@ -158,11 +158,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     length = -roundup(fhss_config->chan_params->chan_count, 8) / 8 * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params->chan_count,
-                          fhss_config->regional_regulation,
-                          fhss_config->chan_params->reg_domain,
-                          fhss_config->chan_params->op_class,
-                          fhss_config->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;

@@ -15,6 +15,8 @@
 
 #include <stdint.h>
 
+struct chan_params;
+
 // Arbitrary value used internally. There can theoretically be more than 256
 // channels, but this is currently not supported (eg. the 2.4GHz PHY).
 #define WS_CHAN_MASK_LEN 32
@@ -27,11 +29,8 @@ int ws_chan_mask_width(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 
 // Compute the channel mask based on regulation parameters.
 void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
-                           uint16_t chan_count,
-                           uint8_t  regional_regulation,
-                           uint8_t  regulatory_domain,
-                           uint8_t  op_class,
-                           uint8_t  chan_plan_id);
+                           const struct chan_params *chan_params,
+                           uint8_t  regional_regulation);
 
 // Compute a mask of excluded channels for advertising in schedule IEs.
 void ws_chan_mask_calc_excl(uint8_t chan_mask[WS_CHAN_MASK_LEN],

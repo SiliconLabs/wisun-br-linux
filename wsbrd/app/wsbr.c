@@ -266,18 +266,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
 
-    ws_chan_mask_calc_reg(fhss->uc_chan_mask,
-                          fhss->chan_params->chan_count,
-                          fhss->regional_regulation,
-                          fhss->chan_params->reg_domain,
-                          fhss->chan_params->op_class,
-                          fhss->chan_params->chan_plan_id);
-    ws_chan_mask_calc_reg(fhss->bc_chan_mask,
-                          fhss->chan_params->chan_count,
-                          fhss->regional_regulation,
-                          fhss->chan_params->reg_domain,
-                          fhss->chan_params->op_class,
-                          fhss->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(fhss->uc_chan_mask, fhss->chan_params, fhss->regional_regulation);
+    ws_chan_mask_calc_reg(fhss->bc_chan_mask, fhss->chan_params, fhss->regional_regulation);
     bitand(fhss->uc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(fhss->bc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     if (!memzcmp(fhss->uc_chan_mask, sizeof(fhss->uc_chan_mask)))

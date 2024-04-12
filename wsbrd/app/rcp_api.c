@@ -452,9 +452,7 @@ void rcp_set_fhss_async(struct rcp *rcp, const struct ws_fhss_config *cfg)
     struct iobuf_write buf = { };
 
     BUG_ON(!cfg->chan_params);
-    ws_chan_mask_calc_reg(domain_channel_mask, cfg->chan_params->chan_count,
-                          cfg->regional_regulation, cfg->chan_params->reg_domain,
-                          cfg->chan_params->op_class, cfg->chan_params->chan_plan_id);
+    ws_chan_mask_calc_reg(domain_channel_mask, cfg->chan_params, cfg->regional_regulation);
 
     hif_push_u8(&buf,  HIF_CMD_SET_FHSS_ASYNC);
     hif_push_u32(&buf, cfg->async_frag_duration_ms);
