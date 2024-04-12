@@ -1356,7 +1356,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
     }
-    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, message->dst_address);
 
     data_req = *data;
     data_req.msdu = NULL;
