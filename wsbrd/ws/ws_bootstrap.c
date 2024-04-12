@@ -70,12 +70,6 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_neighbor_delete(struct net_if *interface)
-{
-    if (!ws_neigh_lfn_count(&interface->ws_info.neighbor_storage))
-        ws_timer_stop(WS_TIMER_LTS);
-}
-
 bool ws_bootstrap_nd_ns_transmit(struct net_if *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
 {
     (void)cur;
@@ -157,7 +151,8 @@ void ws_bootstrap_neighbor_del(const uint8_t *mac64)
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
     nd_remove_aro_routes_by_eui64(cur, mac64);
-    ws_bootstrap_neighbor_delete(cur);
+    if (!ws_neigh_lfn_count(&cur->ws_info.neighbor_storage))
+        ws_timer_stop(WS_TIMER_LTS);
 }
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur,
