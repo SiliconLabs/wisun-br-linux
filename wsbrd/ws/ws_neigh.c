@@ -88,8 +88,8 @@ void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         free(neigh);
-        if (table->on_expire)
-            table->on_expire(table, mac64);
+        if (table->on_del)
+            table->on_del(table, mac64);
     }
 }
 

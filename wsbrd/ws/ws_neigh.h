@@ -132,7 +132,7 @@ SLIST_HEAD(ws_neigh_list, ws_neigh);
 struct ws_neigh_table {
     struct ws_neigh_list neigh_list;
     void (*on_add)(struct ws_neigh_table *table, struct ws_neigh *neigh);
-    void (*on_expire)(struct ws_neigh_table *table, const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
+    void (*on_del)(struct ws_neigh_table *table, const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
 };
 
 struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64);
