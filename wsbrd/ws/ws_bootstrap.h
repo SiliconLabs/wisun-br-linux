@@ -29,6 +29,7 @@ struct ws_stack_info;
 struct ws_llc_mngt_req;
 struct ws_neighbour_info;
 struct mcps_data_rx_ie_list;
+struct ws_neigh_table;
 struct mcps_data_ind;
 
 int ws_bootstrap_init(int8_t interface_id);
@@ -37,7 +38,7 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 
 void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
-struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role);
+struct ws_neigh *ws_bootstrap_neighbor_add(struct ws_neigh_table *table, const uint8_t eui64[8], uint8_t role);
 void ws_bootstrap_neighbor_del(const uint8_t *mac64);
 
 

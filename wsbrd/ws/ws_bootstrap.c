@@ -35,6 +35,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
+#include "common/memutils.h"
 #include "common/ws_ie.h"
 
 #include "app/dbus.h"
@@ -135,8 +136,9 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
  *   IPv6 neigh is deleted. The corresponding 15.4 neigh remains in cache until
  *   expiration.
  */
-struct ws_neigh *ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], uint8_t role)
+struct ws_neigh *ws_bootstrap_neighbor_add(struct ws_neigh_table *table, const uint8_t eui64[8], uint8_t role)
 {
+    struct net_if *net_if = container_of(table, struct net_if, ws_info.neighbor_storage);
     struct ws_neigh *ws_neigh;
     struct ipv6_neighbour *ipv6_neighbor;
 
