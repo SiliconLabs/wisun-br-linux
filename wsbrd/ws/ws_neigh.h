@@ -27,6 +27,8 @@
 #include "common/ws_chan_mask.h"
 #include "common/ws_ie.h"
 
+#define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 600
+
 struct ws_fhss_config;
 
 struct fhss_ws_neighbor_timing_info {
