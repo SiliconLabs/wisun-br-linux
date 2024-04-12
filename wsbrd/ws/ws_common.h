@@ -23,6 +23,7 @@
 
 #include "common/specs/ws.h"
 #include "common/ns_list.h"
+#include "common/ws_types.h"
 
 #include "ws/ws_config.h"
 #include "ws/ws_neigh.h"
@@ -39,26 +40,6 @@ typedef struct ws_pending_key_index {
     uint8_t index;
 } ws_pending_key_index_t;
 
-struct ws_fhss_config {
-    uint8_t  regulatory_domain;
-    int      regional_regulation;
-    uint8_t  op_class;
-    uint8_t  chan_plan_id;
-    uint8_t  chan_count;
-    uint32_t chan_spacing;
-    uint24_t chan0_freq;
-    uint8_t  chan_plan;
-    uint8_t  uc_chan_mask[WS_CHAN_MASK_LEN];
-    uint8_t  bc_chan_mask[WS_CHAN_MASK_LEN];
-    uint8_t  uc_dwell_interval;
-    uint32_t bc_interval;
-    uint8_t  bc_dwell_interval;
-    uint32_t lfn_bc_interval;
-    uint8_t  lfn_bc_sync_period;
-    uint32_t async_frag_duration_ms;
-    int      bsi;
-};
-
 enum ws_edfe_mode {
     WS_EDFE_DEFAULT  = 0,
     WS_EDFE_DISABLED = 1,
@@ -71,16 +52,6 @@ enum ws_mode_switch_mode {
     WS_MODE_SWITCH_DISABLED = 1,
     WS_MODE_SWITCH_PHY      = 2,
     WS_MODE_SWITCH_MAC      = 3,
-};
-
-struct ws_phy_config {
-    uint8_t op_mode;
-    uint8_t phy_mode_id;
-    uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1]; // +1 for sentinel
-    uint8_t ms_mode;
-    uint8_t phy_mode_id_ms_tx;
-    uint8_t phy_mode_id_ms_base;
-    int     rcp_rail_config_index; // Index number in rcp.rail_config_list. Needed to configure the RCP.
 };
 
 struct ws_pan_information {

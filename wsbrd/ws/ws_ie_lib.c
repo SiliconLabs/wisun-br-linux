@@ -26,10 +26,9 @@
 #include "common/iobuf.h"
 #include "common/mathutils.h"
 #include "common/ws_regdb.h"
+#include "common/ws_types.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
-
-#include "ws/ws_common.h"
 
 #include "ws/ws_ie_lib.h"
 
