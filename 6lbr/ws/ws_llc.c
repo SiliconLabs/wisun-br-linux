@@ -1352,7 +1352,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ack_requested = data->TxAckReq;
     message->message_type = WS_FT_DATA;
     message->security = data->Key;
-    if (data->TxAckReq) {
+    if (ws_neigh) {
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
     }
@@ -1361,7 +1361,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
-    if (ws_neigh && data_req.TxAckReq) {
+    if (ws_neigh) {
         ws_llc_fill_rates(ws_info, ws_neigh, message->rate_list);
         // Do not send default params to the RCP to save some bytes
         if (data_req.rate_list[0].phy_mode_id != ws_info->phy_config.phy_mode_id_ms_base ||
@@ -1369,12 +1369,11 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
             memcpy(data_req.rate_list, message->rate_list, sizeof(data_req.rate_list));
         else
             memset(data_req.rate_list, 0, sizeof(data_req.rate_list));
-    }
-    if (ws_neigh)
         data_req.ms_mode = ws_neigh->ms_mode == WS_MODE_SWITCH_DEFAULT ? ws_info->phy_config.ms_mode : ws_neigh->ms_mode;
+    }
     data_req.frame_type = WS_FT_DATA;
 
-    if (!data->TxAckReq) {
+    if (!ws_neigh) {
         data_req.PanIdSuppressed = false;
         data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
     } else {
