@@ -121,6 +121,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     int fixed_channel;
     int length;
 
+    BUG_ON(!phy_config->params);
     if (fhss_config->regulatory_domain == REG_DOMAIN_UNDEF)
         INFO("  domain: custom");
     else
@@ -131,10 +132,10 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     else
         INFO("  class: 0x%x", fhss_config->op_class);
 
-    if (phy_config->phy_mode_id && phy_config->phy_mode_id != 255)
-        INFO("  phy mode id: 0x%02x", phy_config->phy_mode_id);
+    if (phy_config->params->phy_mode_id && phy_config->params->phy_mode_id != 255)
+        INFO("  phy mode id: 0x%02x", phy_config->params->phy_mode_id);
     else
-        INFO("  mode: 0x%x", phy_config->op_mode);
+        INFO("  mode: 0x%x", phy_config->params->op_mode);
 
     if (!phy_config->phy_op_modes[0])
         INFO("  phy operating modes: disabled");

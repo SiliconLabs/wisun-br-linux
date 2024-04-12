@@ -17,6 +17,7 @@
 #include "common/bits.h"
 #include "common/int24.h"
 #include "common/ws_chan_mask.h"
+#include "common/ws_regdb.h"
 #include "common/specs/ws.h"
 
 struct ws_fhss_config {
@@ -40,8 +41,7 @@ struct ws_fhss_config {
 };
 
 struct ws_phy_config {
-    uint8_t op_mode;
-    uint8_t phy_mode_id;
+    const struct phy_params *params;
     uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1]; // +1 for sentinel
     uint8_t ms_mode;
     uint8_t phy_mode_id_ms_tx;

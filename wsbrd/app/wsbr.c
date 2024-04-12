@@ -232,11 +232,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     struct ws_fhss_config *fhss = &ws_info->fhss_config;
     const struct chan_params *chan_params;
 
+    ws_info->phy_config.params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id,
+                                                     ctxt->config.ws_mode);
+    BUG_ON(!ws_info->phy_config.params);
+
     ws_info->pan_information.jm.mask = ctxt->config.ws_join_metrics;
     fhss->regulatory_domain          = ctxt->config.ws_domain;
-    ws_info->phy_config.phy_mode_id  = ctxt->config.ws_phy_mode_id;
     fhss->chan_plan_id               = ctxt->config.ws_chan_plan_id;
-    ws_info->phy_config.op_mode      = ctxt->config.ws_mode;
     fhss->op_class                   = ctxt->config.ws_class;
 
     chan_params = ws_regdb_chan_params(fhss->regulatory_domain,
