@@ -751,8 +751,6 @@ def transmitter_sendmsg(
 @json_errcheck('/transmitter/udp')
 def put_transmitter_udp():
     json = flask.request.get_json(force=True, silent=True)
-    if json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported frame exchange pattern')
     src_addr = utils.parse_ipv6(json['srcAddress'])
     dst_addr = utils.parse_ipv6(json['destAddress'])
     if not src_addr or not dst_addr:
@@ -760,6 +758,15 @@ def put_transmitter_udp():
     src_port = json['srcPort']
     dst_port = json['destPort']
     data = bytes(json['data'], 'utf-8')
+
+    frame_echange_pattern = json['frameExchangePattern']
+    try:
+        if frame_echange_pattern == WSTBU_FRAME_EXCHANGE_EDFE:
+            wsbrd.dbus().set_link_edfe(bytes(), wsbrd.WSBRD_EDFE_ENABLED)
+        else:
+            wsbrd.dbus().set_link_edfe(bytes(), wsbrd.WSBRD_EDFE_DISABLED)
+    except:
+        return error(400, WSTBU_ERR_UNKNOWN, f'unsupported frameExchangePattern={frame_echange_pattern}')
 
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sck:
         if err := transmitter_sendmsg(sck, src_addr, dst_addr, data, src_port, dst_port):
