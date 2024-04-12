@@ -48,7 +48,7 @@ def format_key(key: bytes) -> str:
     return ':'.join(f'{b:02x}' for b in key)
 
 
-def parse_hexstr(string: str, separators=[], len_check=0) -> bytes | None:
+def parse_hexstr(string: str, separators=[], len_check=0) -> typing.Optional[bytes]:
     if not isinstance(string, str):
         return None
     try:
@@ -65,22 +65,22 @@ def parse_hexstr(string: str, separators=[], len_check=0) -> bytes | None:
     return None
 
 
-def parse_key(key: str) -> bytes | None:
+def parse_key(key: str) -> typing.Optional[bytes]:
     return parse_hexstr(key, [':', '-'], 16)
 
 
-def parse_eui64(eui64: str) -> bytes | None:
+def parse_eui64(eui64: str) -> typing.Optional[bytes]:
     return parse_hexstr(eui64, [':', '-'], 8)
 
 
-def parse_ipv6(addr: str) -> ipaddress.IPv6Address | None:
+def parse_ipv6(addr: str) -> typing.Optional[ipaddress.IPv6Address]:
     try:
         return ipaddress.IPv6Address(addr)
     except ipaddress.AddressValueError:
         return None
 
 
-def parse_int(val) -> int | None:
+def parse_int(val) -> typing.Optional[int]:
     try:
         return int(val)
     except ValueError:
