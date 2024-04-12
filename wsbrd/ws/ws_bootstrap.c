@@ -136,29 +136,20 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
  *   IPv6 neigh is deleted. The corresponding 15.4 neigh remains in cache until
  *   expiration.
  */
-struct ws_neigh *ws_bootstrap_neighbor_add(struct ws_neigh_table *table, const uint8_t eui64[8], uint8_t role)
+void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh *ws_neigh)
 {
     struct net_if *net_if = container_of(table, struct net_if, ws_info.neighbor_storage);
-    struct ws_neigh *ws_neigh;
     struct ipv6_neighbour *ipv6_neighbor;
 
-    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, eui64);
-    if (!ws_neigh)
-        ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
-                                eui64, role, net_if->ws_info.tx_power_dbm,
-                                net_if->ws_info.key_index_mask);
-
-    BUG_ON(!ws_neigh);
-    if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
         ws_timer_start(WS_TIMER_LTS);
 
-    ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, eui64);
+    ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, ws_neigh->mac64);
     if (ipv6_neighbor) {
         ws_neigh_trust(ws_neigh);
         ws_neigh_refresh(ws_neigh, ipv6_neighbor->lifetime_s);
-        nd_restore_aro_routes_by_eui64(net_if, eui64);
+        nd_restore_aro_routes_by_eui64(net_if, ws_neigh->mac64);
     }
-    return ws_neigh;
 }
 
 void ws_bootstrap_neighbor_del(const uint8_t *mac64)

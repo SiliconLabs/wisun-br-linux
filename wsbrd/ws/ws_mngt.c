@@ -89,7 +89,8 @@ static struct ws_neigh *ws_mngt_neigh_fetch(struct net_if *net_if, const uint8_t
 
     if (ws_neigh)
         return ws_neigh;
-    return ws_bootstrap_neighbor_add(&net_if->ws_info.neighbor_storage, mac64, role);
+    return ws_neigh_add(&net_if->ws_info.neighbor_storage, mac64, role, net_if->ws_info.tx_power_dbm,
+                        net_if->ws_info.key_index_mask);
 }
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
@@ -362,7 +363,8 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         add_neighbor = true;
     }
     if (add_neighbor) {
-        ws_neigh = ws_bootstrap_neighbor_add(&net_if->ws_info.neighbor_storage, data->SrcAddr, WS_NR_ROLE_LFN);
+        ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage, data->SrcAddr, WS_NR_ROLE_LFN,
+                                net_if->ws_info.tx_power_dbm, net_if->ws_info.key_index_mask);
         if (!ws_neigh) {
             TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
             return;
