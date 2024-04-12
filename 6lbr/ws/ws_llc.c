@@ -1388,6 +1388,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     }
     data_req.frame_type = WS_FT_DATA;
 
+    /**
+     * Wi-SUN FAN 1.1v08 - 6.3.2.1.6 Upper Layer Application Data Frame
+     * For unicast ULAD frames:
+     *   2. PAN ID Compression field MUST be set to 1.
+     * For broadcast ULAD frames:
+     *   2. PAN ID Compression field MUST be set to 0.
+     *   3. Destination Addressing Mode field MUST be set to 0.
+     */
     if (!ws_neigh) {
         data_req.PanIdSuppressed = false;
         data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
