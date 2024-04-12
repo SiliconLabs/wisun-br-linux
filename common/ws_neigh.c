@@ -31,9 +31,7 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/specs/ws.h"
-
-#include "wsbrd/ws/ws_common.h"
-
+#include "common/ws_types.h"
 
 #include "ws_neigh.h"
 

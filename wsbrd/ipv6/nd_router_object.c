@@ -26,13 +26,13 @@
 #include "common/bits.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
+#include "common/ws_neigh.h"
 
 #include "app/tun.h" // FIXME
 #include "net/protocol.h"
 #include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "ipv6/ipv6_neigh_storage.h"
-#include "ws/ws_neigh.h"
 #include "ipv6/ipv6_routing_table.h"
 
 #include "ipv6/nd_router_object.h"

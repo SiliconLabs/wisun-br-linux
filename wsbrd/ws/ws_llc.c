@@ -53,7 +53,6 @@
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_ie_validation.h"
-#include "ws/ws_neigh.h"
 #include "ws/ws_mpx_header.h"
 #include "ws/ws_pae_controller.h"
 

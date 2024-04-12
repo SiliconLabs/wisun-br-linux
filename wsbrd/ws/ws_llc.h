@@ -21,10 +21,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common/ns_list.h"
+#include "common/ws_neigh.h"
 #include "app/rcp_api_legacy.h"
 
 #include "ws/ws_common.h"
-#include "ws/ws_neigh.h"
 
 struct net_if;
 struct mcps_data_ind;

@@ -161,6 +161,7 @@ add_library(libwsbrd STATIC
     common/time_extra.c
     common/random_early_detection.c
     common/ws_ie.c
+    common/ws_neigh.c
     wsbrd/6lowpan/lowpan_adaptation_interface.c
     wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
     wsbrd/6lowpan/fragmentation/cipv6_fragmenter.c
@@ -183,7 +184,6 @@ add_library(libwsbrd STATIC
     wsbrd/ws/ws_llc.c
     wsbrd/ws/ws_mngt.c
     wsbrd/ws/ws_mpx_header.c
-    wsbrd/ws/ws_neigh.c
     wsbrd/ws/ws_pae_auth.c
     wsbrd/ws/ws_pae_controller.c
     wsbrd/ws/ws_pae_key_storage.c

@@ -36,6 +36,7 @@
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 #include "common/memutils.h"
+#include "common/ws_neigh.h"
 #include "common/ws_ie.h"
 
 #include "app/dbus.h"
@@ -63,7 +64,6 @@
 #include "ws/ws_eapol_pdu.h"
 #include "ws/ws_eapol_relay.h"
 #include "ws/ws_llc.h"
-#include "ws/ws_neigh.h"
 #include "ws/ws_pae_controller.h"
 
 #include "ws/ws_bootstrap.h"
