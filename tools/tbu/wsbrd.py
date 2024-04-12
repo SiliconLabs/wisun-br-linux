@@ -22,6 +22,11 @@ WSBRD_MODE_SWITCH_DISABLED = 1
 WSBRD_MODE_SWITCH_PHY      = 2
 WSBRD_MODE_SWITCH_MAC      = 3
 
+# wsbrd SetLinkEDFE DBUS API
+WSBRD_EDFE_DEFAULT  = 0
+WSBRD_EDFE_DISABLED = 1
+WSBRD_EDFE_ENABLED  = 2
+
 config: dict[str, typing.Any] = dict()
 
 
@@ -95,6 +100,10 @@ class WsbrdDbusInterface(
 
     @sdbus.dbus_method('ayuy')
     def set_link_mode_switch(self, eui64: bytes, phy_mode_id: int, ms_mode: int) -> None:
+        raise NotImplementedError
+
+    @sdbus.dbus_method('ayy')
+    def set_link_edfe(self, eui64: bytes, ms_mode: int) -> None:
         raise NotImplementedError
 
     @sdbus.dbus_method('ay')

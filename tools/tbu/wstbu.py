@@ -771,8 +771,6 @@ def put_transmitter_udp():
 @json_errcheck('/transmitter/icmpv6Echo')
 def put_transmitter_icmpv6():
     json = flask.request.get_json(force=True, silent=True)
-    if json['frameExchangePattern'] != WSTBU_FRAME_EXCHANGE_DFE:
-        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported frame exchange pattern')
     src_addr = utils.parse_ipv6(json['srcAddress'])
     dst_addr = utils.parse_ipv6(json['destAddress'])
     if not src_addr or not dst_addr:
@@ -796,6 +794,15 @@ def put_transmitter_icmpv6():
             wsbrd.dbus().set_link_mode_switch(bytes(), phy_mode_id, wsbrd.WSBRD_MODE_SWITCH_MAC)
     except sdbus.dbus_exceptions.DbusInvalidArgsError:
         return error(400, WSTBU_ERR_UNKNOWN, f'invalid phyModeID')
+
+    frame_echange_pattern = json['frameExchangePattern']
+    try:
+        if frame_echange_pattern == WSTBU_FRAME_EXCHANGE_EDFE:
+            wsbrd.dbus().set_link_edfe(bytes(), wsbrd.WSBRD_EDFE_ENABLED)
+        else:
+            wsbrd.dbus().set_link_edfe(bytes(), wsbrd.WSBRD_EDFE_DISABLED)
+    except:
+        return error(400, WSTBU_ERR_UNKNOWN, f'unsupported frameExchangePattern={frame_echange_pattern}')
 
     # RFC 4443 - 4.1. Echo Request Message
     data = struct.pack('!BBHHH',
