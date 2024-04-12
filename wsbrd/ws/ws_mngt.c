@@ -23,7 +23,6 @@
 #include "net/timers.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_pan_info_storage.h"
-#include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
 #include "ws/ws_mngt.h"
 #include "ws/ws_ie_validation.h"
@@ -359,7 +358,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         add_neighbor = true;
     } else if (ws_neigh->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(ws_neigh->mac64);
+        ws_neigh_del(&net_if->ws_info.neighbor_storage, ws_neigh->mac64);
         add_neighbor = true;
     }
     if (add_neighbor) {

@@ -646,7 +646,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
     } else if (ws_neigh->node_role != WS_NR_ROLE_ROUTER) {
         WARN("node changed role");
-        ws_bootstrap_neighbor_del(ws_neigh->mac64);
+        ws_neigh_del(&net_if->ws_info.neighbor_storage, ws_neigh->mac64);
         add_neighbor = true;
     }
     if (add_neighbor) {

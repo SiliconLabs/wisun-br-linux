@@ -88,6 +88,8 @@ void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         free(neigh);
+        if (table->on_expire)
+            table->on_expire(mac64);
     }
 }
 
@@ -98,8 +100,7 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
 
     SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
         if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
-            if (table->on_expire)
-                table->on_expire(neigh->mac64);
+            ws_neigh_del(table, neigh->mac64);
 }
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
