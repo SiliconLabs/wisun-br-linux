@@ -116,5 +116,7 @@ void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind)
                               ctxt->net_if.ws_info.pan_information.pan_id);
     if (ret < 0)
         return;
+    if (ctxt->config.pcap_file[0])
+        wsbr_pcapng_write_frame(ctxt, &mcps_ind, &mcps_ie);
     ws_llc_mac_indication_cb(&ctxt->net_if, &mcps_ind, &mcps_ie);
 }
