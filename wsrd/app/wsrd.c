@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <mbedtls/sha256.h>
+
 #include "wsrd/app/commandline.h"
 #include "common/bits.h"
 #include "common/log.h"
@@ -164,6 +166,37 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
 }
 
+//   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
+// GAK = Truncate-128(SHA-256(Network Name || L/GTK[X])
+static void wsrd_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16])
+{
+    mbedtls_sha256_context ctx;
+    uint8_t hash[32];
+    int ret;
+
+    mbedtls_sha256_init(&ctx);
+    ret = mbedtls_sha256_starts(&ctx, 0);
+    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_starts: %s", __func__, tr_mbedtls_err(ret));
+    ret = mbedtls_sha256_update(&ctx, (void *)netname, strlen(netname));
+    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_update: %s", __func__, tr_mbedtls_err(ret));
+    ret = mbedtls_sha256_update(&ctx, gtk, 16);
+    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_update: %s", __func__, tr_mbedtls_err(ret));
+    ret = mbedtls_sha256_finish(&ctx, hash);
+    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_finish: %s", __func__, tr_mbedtls_err(ret));
+    mbedtls_sha256_free(&ctx);
+    memcpy(gak, hash, 16);
+}
+
+static void wsrd_init_key(struct wsrd *wsrd)
+{
+    static const uint8_t gtk[16] = { [0 ... 15] = 0x11 };
+    uint8_t gak[16];
+
+    wsrd_generate_gak(wsrd->config.ws_netname, gtk, gak);
+    DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), 1);
+    rcp_set_sec_key(&wsrd->rcp, 1, gak, 0);
+}
+
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
@@ -181,6 +214,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
+    wsrd_init_key(wsrd);
 
     pfd[POLLFD_RCP].fd = wsrd->rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
