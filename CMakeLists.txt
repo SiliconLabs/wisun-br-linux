@@ -237,6 +237,7 @@ target_include_directories(libwsbrd PRIVATE
 target_link_options(libwsbrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+target_compile_definitions(libwsbrd PUBLIC HAVE_MBEDTLS)
 if(LIBCAP_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBCAP)
     target_sources(libwsbrd PRIVATE app_wsbrd/app/drop_privileges.c)

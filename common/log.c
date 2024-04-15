@@ -12,10 +12,24 @@
  */
 #include <arpa/inet.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <ctype.h>
+
+#ifdef HAVE_MBEDTLS
+#include <mbedtls/build_info.h>
+#endif
+
+#ifdef MBEDTLS_ERROR_C
+#include <mbedtls/error.h>
+#else
+static inline void mbedtls_strerror(int err, char *out, size_t out_len)
+{
+    snprintf(out, out_len, "-0x%04x", -err);
+}
+#endif
 
 #include "common/bits.h"
 
@@ -309,6 +323,16 @@ const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len)
     if (trace_idx + STR_MAX_LEN_IPV6_NET > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv6_prefix(in, prefix_len, out);
+    trace_idx += strlen(out) + 1;
+    BUG_ON(trace_idx > sizeof(trace_buffer));
+    return out;
+}
+
+const char *tr_mbedtls_err(int err)
+{
+    char *out = trace_buffer + trace_idx;
+
+    mbedtls_strerror(err, out, sizeof(trace_buffer) - trace_idx);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
