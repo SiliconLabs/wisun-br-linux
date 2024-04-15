@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "common/named_values.h"
+
 enum {
     // Value of domains is specified by the Wi-SUN specification
     REG_DOMAIN_WW =   0x00, // World Wide
@@ -92,6 +94,9 @@ struct chan_params {
     uint8_t valid_phy_modes[8];
     const char *chan_allowed;
 };
+
+extern const struct name_value valid_ws_domains[];
+extern const struct name_value valid_fsk_modulation_indexes[];
 
 extern const struct phy_params phy_params_table[];
 extern const struct chan_params chan_params_table[];

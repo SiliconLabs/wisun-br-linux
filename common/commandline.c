@@ -26,6 +26,7 @@
 #include "common/named_values.h"
 #include "common/netinet_in_extra.h"
 #include "common/parsers.h"
+#include "common/ws_regdb.h"
 
 #include "commandline.h"
 

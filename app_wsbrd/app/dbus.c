@@ -27,6 +27,7 @@
 #include "common/ns_list.h"
 #include "common/mathutils.h"
 #include "common/ws_neigh.h"
+#include "common/ws_regdb.h"
 
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"

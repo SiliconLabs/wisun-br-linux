@@ -16,6 +16,33 @@
 #include "common/memutils.h"
 #include "ws_regdb.h"
 
+const struct name_value valid_ws_domains[] = {
+    { "WW", REG_DOMAIN_WW }, // World wide
+    { "NA", REG_DOMAIN_NA }, // North America
+    { "JP", REG_DOMAIN_JP }, // Japan
+    { "EU", REG_DOMAIN_EU }, // European Union
+    { "CN", REG_DOMAIN_CN }, // China
+    { "IN", REG_DOMAIN_IN }, // India
+    { "MX", REG_DOMAIN_MX }, // Mexico
+    { "BZ", REG_DOMAIN_BZ }, // Brazil
+    { "AZ", REG_DOMAIN_AZ }, // Australia
+    { "NZ", REG_DOMAIN_NZ }, // New Zealand (share its ID with Australia)
+    { "KR", REG_DOMAIN_KR }, // Korea
+    { "PH", REG_DOMAIN_PH }, // Philippines
+    { "MY", REG_DOMAIN_MY }, // Malaysia
+    { "HK", REG_DOMAIN_HK }, // Hong Kong
+    { "SG", REG_DOMAIN_SG }, // Singapore
+    { "TH", REG_DOMAIN_TH }, // Thailand
+    { "VN", REG_DOMAIN_VN }, // Vietnam
+    { NULL },
+};
+
+const struct name_value valid_fsk_modulation_indexes[] = {
+    { "0.5", MODULATION_INDEX_0_5 },
+    { "1.0", MODULATION_INDEX_1_0 },
+    { NULL },
+};
+
 const struct phy_params phy_params_table[] = {
     /*                                                                                     ,- oqpsk_chip_rate
        ,- rail_phy_mode_id                                                                 |  ,- oqpsk_rate_mode
