@@ -112,7 +112,7 @@ void rcp_req_data_tx(struct rcp *rcp,
                      uint8_t handle, uint8_t fhss_type,
                      const struct ws_neigh_fhss *fhss_data,
                      const uint32_t frame_counters_min[7],
-                     const struct hif_rate_info rate_list[4], uint8_t ms_mode)
+                     const struct rcp_rate_info rate_list[4], uint8_t ms_mode)
 {
     struct iobuf_write buf = { };
     int bitfield_offset;
@@ -221,7 +221,7 @@ void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
 
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 {
-    struct hif_tx_cnf cnf = { };
+    struct rcp_tx_cnf cnf = { };
 
     cnf.handle        = hif_pop_u8(buf);
     cnf.status        = hif_pop_u8(buf);
@@ -240,7 +240,7 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 
 static void rcp_ind_data_rx(struct rcp *rcp, struct iobuf_read *buf)
 {
-    struct hif_rx_ind ind = { };
+    struct rcp_rx_ind ind = { };
 
     ind.frame_len    = hif_pop_data_ptr(buf, &ind.frame);
     ind.timestamp_us = hif_pop_u64(buf);

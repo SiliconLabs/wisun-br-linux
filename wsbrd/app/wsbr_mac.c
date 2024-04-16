@@ -89,7 +89,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     iobuf_free(&frame);
 }
 
-void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf)
+void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     struct mcps_data_cnf mcps_cnf = { .hif = *cnf };
@@ -103,7 +103,7 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct hif_tx_cnf *cnf)
     ws_llc_mac_confirm_cb(&ctxt->net_if, &mcps_cnf, &mcps_ie);
 }
 
-void wsbr_rx_ind(struct rcp *rcp, const struct hif_rx_ind *ind)
+void wsbr_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     struct mcps_data_ind mcps_ind = { .hif = *ind };

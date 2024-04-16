@@ -112,7 +112,7 @@ typedef struct llc_message {
     mcps_data_req_ie_list_t ie_ext;
     time_t tx_time;
     struct mlme_security security;
-    struct hif_rate_info rate_list[4];
+    struct rcp_rate_info rate_list[4];
     ns_list_link_t  link;               /**< List link entry */
 } llc_message_t;
 
@@ -407,7 +407,7 @@ static void ws_llc_update_txpow(const struct ws_info *ws_info,
                                                    rsl_dbm, 1); // 1dB margin
 }
 
-static const struct hif_rate_info *ws_llc_success_rate(const struct hif_rate_info rate_list[4],
+static const struct rcp_rate_info *ws_llc_success_rate(const struct rcp_rate_info rate_list[4],
                                                        uint8_t tx_attempts)
 {
     for (int i = 0; i < 4; i++) {
@@ -426,7 +426,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
 {
     const uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
-    const struct hif_rate_info *rate;
+    const struct rcp_rate_info *rate;
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
     struct ws_lutt_ie ie_lutt;
@@ -1278,13 +1278,13 @@ uint8_t ws_llc_mdr_phy_mode_get(const struct ws_phy_config *phy_config,
 
 static void ws_llc_fill_rates(const struct ws_info *ws_info,
                               const struct ws_neigh *ws_neigh,
-                              struct hif_rate_info rate_list[4])
+                              struct rcp_rate_info rate_list[4])
 {
     const struct phy_params *phy_params;
     uint8_t phy_mode_id;
     int8_t tx_power_dbm;
 
-    memset(rate_list, 0, 4 * sizeof(struct hif_rate_info));
+    memset(rate_list, 0, 4 * sizeof(struct rcp_rate_info));
 
     phy_mode_id = ws_llc_mdr_phy_mode_get(&ws_info->phy_config, ws_neigh);
     if (!phy_mode_id)

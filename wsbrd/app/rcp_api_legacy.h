@@ -50,7 +50,7 @@ typedef struct mcps_data_req {
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
     bool lfn_multicast: 1;          /**< Multicast packet for LFN */
     struct mlme_security Key;       /**< Security key */
-    struct hif_rate_info rate_list[4];
+    struct rcp_rate_info rate_list[4];
     uint8_t ms_mode;
     uint8_t fhss_type;              /**< FHSS policy to send that frame */
     uint8_t frame_type;
@@ -82,7 +82,7 @@ enum mcps_data_cnf_status {
 // Used by on_tx_cnf()
 // See IEEE standard 802.15.4-2006 (table 42) for more details
 typedef struct mcps_data_cnf {
-    struct hif_tx_cnf hif;
+    struct rcp_tx_cnf hif;
     struct mlme_security sec; // Auxiliary security header of the ACK frame (if any)
     struct {
         uint8_t phy_mode_id;
@@ -94,7 +94,7 @@ typedef struct mcps_data_cnf {
 // Used by on_rx_ind()
 // See IEEE standard 802.15.4-2006 (table 43) for more details
 typedef struct mcps_data_ind {
-    struct hif_rx_ind hif;
+    struct rcp_rx_ind hif;
     unsigned SrcAddrMode: 2;    /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     uint16_t SrcPANId;          /**< Source PAN ID */
     uint8_t SrcAddr[8];         /**< Source address */

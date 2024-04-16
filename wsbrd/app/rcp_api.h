@@ -38,13 +38,13 @@ struct rcp_rail_config {
     int      phy_mode_group;
 };
 
-struct hif_rate_info {
+struct rcp_rate_info {
     uint8_t phy_mode_id;
     uint8_t tx_attempts;
     int8_t  tx_power_dbm;
 };
 
-struct hif_tx_cnf {
+struct rcp_tx_cnf {
     uint8_t  handle;
     enum hif_data_status status;
     const uint8_t *frame;
@@ -58,7 +58,7 @@ struct hif_tx_cnf {
     uint32_t frame_counter;
 };
 
-struct hif_rx_ind {
+struct rcp_rx_ind {
     const uint8_t *frame;
     size_t   frame_len;
     uint64_t timestamp_us;
@@ -72,8 +72,8 @@ struct rcp {
     struct bus bus;
 
     void (*on_reset)(struct rcp *rcp);
-    void (*on_tx_cnf)(struct rcp *rcp, const struct hif_tx_cnf *cnf);
-    void (*on_rx_ind)(struct rcp *rcp, const struct hif_rx_ind *ind);
+    void (*on_tx_cnf)(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
+    void (*on_rx_ind)(struct rcp *rcp, const struct rcp_rx_ind *ind);
 
     bool has_reset;
     bool has_rf_list;
@@ -97,7 +97,7 @@ void rcp_req_data_tx(struct rcp *rcp,
                      uint8_t handle, uint8_t fhss_type,
                      const struct ws_neigh_fhss *fhss_data,
                      const uint32_t frame_counters_min[7],
-                     const struct hif_rate_info rate_list[4], uint8_t ms_mode);
+                     const struct rcp_rate_info rate_list[4], uint8_t ms_mode);
 void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle);
 
 void rcp_req_radio_enable(struct rcp *rcp);
