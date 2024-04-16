@@ -30,7 +30,7 @@
 #define MPX_IE_TRANSFER_TYPE_MASK  0b00000111
 #define MPX_IE_TRANSACTION_ID_MASK 0b11111000
 
-bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg)
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *msg)
 {
     struct iobuf_read ie_buf = {
         .data_size = length,
@@ -41,7 +41,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
     bool fragment_total_size = false;
     uint8_t tmp8;
 
-    memset(msg, 0, sizeof(mpx_msg_t));
+    memset(msg, 0, sizeof(struct mpx_ie));
     tmp8 = iobuf_pop_u8(&ie_buf);
     msg->transfer_type  = FIELD_GET(MPX_IE_TRANSFER_TYPE_MASK,  tmp8);
     msg->transaction_id = FIELD_GET(MPX_IE_TRANSACTION_ID_MASK, tmp8);
@@ -78,7 +78,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
     return !ie_buf.err;
 }
 
-void ws_llc_mpx_header_write(struct iobuf_write *buf, const mpx_msg_t *msg)
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg)
 {
     bool fragmented_number_present = false;
     bool multiplex_id_present = false;

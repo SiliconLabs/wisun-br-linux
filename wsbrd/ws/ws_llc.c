@@ -570,7 +570,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
 
 static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base,
                                            const struct mcps_data_rx_ie_list *ie_ext,
-                                           mpx_msg_t *mpx_frame)
+                                           struct mpx_ie *mpx_frame)
 {
     struct iobuf_read ie_buf;
     struct mpx_user *mpx_usr;
@@ -613,7 +613,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
-    mpx_msg_t mpx_frame;
+    struct mpx_ie mpx_frame;
     bool add_neighbor;
 
     if (!base)
@@ -708,7 +708,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     struct ws_lcp_ie ie_lcp;
     struct ws_pom_ie ie_pom;
     mpx_user_t *mpx_user;
-    mpx_msg_t mpx_frame;
+    struct mpx_ie mpx_frame;
 
     if (!base)
         return;
@@ -807,7 +807,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
-    mpx_msg_t mpx_frame;
+    struct mpx_ie mpx_frame;
     bool has_us, has_bs;
 
     if (!base)
@@ -857,7 +857,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     struct ws_lcp_ie ie_lcp;
     bool has_lus, has_lcp;
     mpx_user_t *mpx_user;
-    mpx_msg_t mpx_frame;
+    struct mpx_ie mpx_frame;
 
     if (!base)
         return;
@@ -1230,7 +1230,7 @@ static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct n
 // message->ie_iov_payload[1].iov_len must be set prior to calling this function
 static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user_id)
 {
-    mpx_msg_t mpx_header = {
+    struct mpx_ie mpx_header = {
         .transfer_type = MPX_FT_FULL_FRAME,
         .transaction_id = message->mpx_id,
         .multiplex_id = user_id,

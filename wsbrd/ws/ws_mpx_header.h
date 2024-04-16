@@ -29,7 +29,7 @@ struct iobuf_write;
 #define MPX_FT_LAST_FRAGMENT                4
 #define MPX_FT_ABORT                        6
 
-typedef struct mpx_msg {
+struct mpx_ie {
     unsigned    transfer_type: 3;
     unsigned    transaction_id: 5;
     uint8_t     fragment_number;
@@ -37,10 +37,10 @@ typedef struct mpx_msg {
     uint16_t    multiplex_id;
     const uint8_t *frame_ptr;
     uint16_t    frame_length;
-} mpx_msg_t;
+};
 
-bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg);
-void ws_llc_mpx_header_write(struct iobuf_write *buf, const mpx_msg_t *msg);
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *msg);
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg);
 
 
 #endif
