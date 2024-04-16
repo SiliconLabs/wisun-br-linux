@@ -303,12 +303,8 @@ static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t use
 
 static llc_data_base_t *ws_llc_base_allocate(void)
 {
-    llc_data_base_t *base = malloc(sizeof(llc_data_base_t));
-    if (!base) {
-        free(base);
-        return NULL;
-    }
-    memset(base, 0, sizeof(llc_data_base_t));
+    llc_data_base_t *base = zalloc(sizeof(llc_data_base_t));
+
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
     ns_list_init(&base->llc_message_list);
     ns_list_add_to_end(&llc_data_base_list, base);
