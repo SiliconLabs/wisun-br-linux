@@ -110,7 +110,7 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
-                     const struct fhss_ws_neighbor_timing_info *fhss_data,
+                     const struct ws_neigh_fhss *fhss_data,
                      const uint32_t frame_counters_min[7],
                      const struct hif_rate_info rate_list[4], uint8_t ms_mode)
 {

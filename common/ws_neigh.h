@@ -31,7 +31,7 @@
 
 struct ws_fhss_config;
 
-struct fhss_ws_neighbor_timing_info {
+struct ws_neigh_fhss {
     union {
         struct {
             uint8_t  uc_dwell_interval_ms;  // from US-IE
@@ -86,8 +86,8 @@ struct ws_neigh {
      * other security breaches exist and creates other issues linked to
      * conception issues.
      */
-    struct fhss_ws_neighbor_timing_info fhss_data;
-    struct fhss_ws_neighbor_timing_info fhss_data_unsecured;
+    struct ws_neigh_fhss fhss_data;
+    struct ws_neigh_fhss fhss_data_unsecured;
 
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
@@ -140,22 +140,22 @@ struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64
 void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64);
 
 // Unicast Timing update
-void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
+void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Unicast timing update
-void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_lut_update(struct ws_neigh_fhss *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8]);
 // LFN Network Discovery update
-void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
+void ws_neigh_lnd_update(struct ws_neigh_fhss *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
-void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8]);
 // LFN Unicast Schedule update
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
-                         struct fhss_ws_neighbor_timing_info *fhss_data,
+                         struct ws_neigh_fhss *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms, const struct lto_info *lto_info);
 

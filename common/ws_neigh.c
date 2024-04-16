@@ -106,7 +106,7 @@ size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
     return SLIST_SIZE(&table->neigh_list, link);
 }
 
-static void ws_neigh_calculate_ufsi_drift(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
+static void ws_neigh_calculate_ufsi_drift(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
                                           uint64_t timestamp, const uint8_t address[8])
 {
     if (fhss_data->ffn.utt_rx_tstamp_us && fhss_data->ffn.ufsi) {
@@ -145,7 +145,7 @@ static void ws_neigh_calculate_ufsi_drift(struct fhss_ws_neighbor_timing_info *f
     }
 }
 
-void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t ufsi,
+void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
                         uint64_t tstamp_us, const uint8_t eui64[8])
 {
     ws_neigh_calculate_ufsi_drift(fhss_data, ufsi, tstamp_us, eui64);
@@ -163,7 +163,7 @@ void ws_neigh_ut_update(struct fhss_ws_neighbor_timing_info *fhss_data, uint24_t
 //   difference relative to the expected LFN’s unicast listening reference point.
 // In fact, the LUTT information must only be updated when combined with an
 // LUS-IE which indicates a change in timing offset and/or interval.
-void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_lut_update(struct ws_neigh_fhss *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
                          uint64_t tstamp_us, const uint8_t eui64[8])
 {
@@ -172,7 +172,7 @@ void ws_neigh_lut_update(struct fhss_ws_neighbor_timing_info *fhss_data,
     fhss_data->lfn.uc_interval_offset_ms = interval_offset;
 }
 
-void ws_neigh_lnd_update(struct fhss_ws_neighbor_timing_info *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
+void ws_neigh_lnd_update(struct ws_neigh_fhss *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us)
 {
     fhss_data->lfn.lpa_response_delay_ms = ie_lnd->response_delay;
     fhss_data->lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
@@ -252,7 +252,7 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
         ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, chan_count);
 }
 
-void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws_neighbor_timing_info *fhss_data,
+void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval, const uint8_t eui64[8])
 {
@@ -395,7 +395,7 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 }
 
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
-                         struct fhss_ws_neighbor_timing_info *fhss_data,
+                         struct ws_neigh_fhss *fhss_data,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms, const struct lto_info *lto_info)
 {

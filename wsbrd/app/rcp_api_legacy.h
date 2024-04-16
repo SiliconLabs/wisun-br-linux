@@ -19,7 +19,6 @@
 #include "app/rcp_api.h"
 #include "common/log.h"
 
-struct fhss_ws_neighbor_timing_info;
 struct ws_fhss_config;
 struct ws_neigh;
 struct iobuf_write;
