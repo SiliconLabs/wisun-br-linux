@@ -127,7 +127,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     lowpan_adaptation_interface_init(entry->id);
     reassembly_interface_init(entry->id, 8, 5);
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
-    entry->mac_parameters.mac_default_ffn_key_index = 0;
+    entry->ws_info.mac_default_ffn_key_index = 0;
     entry->mac_parameters.mtu = mtu;
     entry->rcp = rcp;
     entry->icmp_tokens = 10;

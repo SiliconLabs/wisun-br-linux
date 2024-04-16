@@ -37,8 +37,6 @@ void protocol_core_init(void);
 typedef struct arm_15_4_mac_parameters {
     uint16_t mtu;
     /* Security API USE */
-    uint8_t mac_default_ffn_key_index;
-    uint8_t mac_default_lfn_key_index;
 } arm_15_4_mac_parameters_t;
 
 struct net_if {
