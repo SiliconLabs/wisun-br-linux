@@ -545,9 +545,9 @@ void ws_mngt_async_trickle_stop(struct net_if *cur)
     trickle_stop(&cur->ws_info.mngt.trickle_pc);
 }
 
-void ws_mngt_async_trickle_reset_pc(struct net_if *cur)
+void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
 {
-    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
+    trickle_inconsistent_heard(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params);
 }
 
 void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks)
@@ -586,7 +586,7 @@ void ws_mngt_pan_version_increase(struct net_if *cur)
     // Version number is not periodically increased forcing nodes to check Border router availability using DAO
     cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
-    ws_mngt_async_trickle_reset_pc(cur);
+    ws_mngt_async_trickle_reset_pc(&cur->ws_info);
     ws_pan_info_storage_write(cur->ws_info.fhss_config.bsi, cur->ws_info.pan_information.pan_id,
                               cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
                               cur->ws_info.network_name);
