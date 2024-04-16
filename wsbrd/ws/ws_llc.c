@@ -34,6 +34,7 @@
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
+#include "common/mpx.h"
 #include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
@@ -53,7 +54,6 @@
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_ie_validation.h"
-#include "ws/ws_mpx_header.h"
 #include "ws/ws_pae_controller.h"
 
 #include "ws/ws_llc.h"

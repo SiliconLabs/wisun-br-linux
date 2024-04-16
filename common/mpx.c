@@ -15,16 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include "common/bits.h"
-#include "common/endian.h"
-#include "common/ns_list.h"
 #include "common/iobuf.h"
 
-#include "ws/ws_mpx_header.h"
+#include "mpx.h"
 
 // IEEE-802.15.9 Figure 10 Transaction Control field
 #define MPX_IE_TRANSFER_TYPE_MASK  0b00000111

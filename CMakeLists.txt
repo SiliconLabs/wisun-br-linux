@@ -158,6 +158,7 @@ add_library(libwsbrd STATIC
     common/key_value_storage.c
     common/ieee802154_ie.c
     common/ieee80211_prf.c
+    common/mpx.c
     common/time_extra.c
     common/random_early_detection.c
     common/ws_ie.c
@@ -183,7 +184,6 @@ add_library(libwsbrd STATIC
     wsbrd/ws/ws_ie_validation.c
     wsbrd/ws/ws_llc.c
     wsbrd/ws/ws_mngt.c
-    wsbrd/ws/ws_mpx_header.c
     wsbrd/ws/ws_pae_auth.c
     wsbrd/ws/ws_pae_controller.c
     wsbrd/ws/ws_pae_key_storage.c

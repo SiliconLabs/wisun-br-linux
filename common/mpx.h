@@ -15,19 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef WS_MPX_HEADER_H_
-#define WS_MPX_HEADER_H_
+#ifndef MPX_H
+#define MPX_H
 #include <stdint.h>
 #include <stdbool.h>
 
 struct iobuf_write;
 
-#define MPX_FT_FULL_FRAME                   0
-#define MPX_FT_FULL_FRAME_SMALL_MULTILEX_ID 1
-#define MPX_FT_FIRST_OR_SUB_FRAGMENT        2
-#define MPX_FT_LAST_FRAGMENT                4
-#define MPX_FT_ABORT                        6
+enum {
+    MPX_FT_FULL_FRAME                   = 0b000,
+    MPX_FT_FULL_FRAME_SMALL_MULTILEX_ID = 0b001,
+    MPX_FT_FIRST_OR_SUB_FRAGMENT        = 0b010,
+    MPX_FT_LAST_FRAGMENT                = 0b100,
+    MPX_FT_ABORT                        = 0b110,
+};
 
 struct mpx_ie {
     unsigned    transfer_type: 3;
