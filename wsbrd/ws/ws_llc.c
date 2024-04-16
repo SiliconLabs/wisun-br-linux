@@ -159,7 +159,6 @@ static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interf
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
-static llc_data_base_t *ws_llc_base_allocate(void);
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id);
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
@@ -299,16 +298,6 @@ static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t use
         }
     }
     return NULL;
-}
-
-static llc_data_base_t *ws_llc_base_allocate(void)
-{
-    llc_data_base_t *base = zalloc(sizeof(llc_data_base_t));
-
-    ns_list_init(&base->temp_entries.llc_eap_pending_list);
-    ns_list_init(&base->llc_message_list);
-    ns_list_add_to_end(&llc_data_base_list, base);
-    return base;
 }
 
 static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
@@ -1661,11 +1650,10 @@ int8_t ws_llc_create(struct net_if *interface,
         return 0;
     }
 
-    //Allocate Data base
-    base = ws_llc_base_allocate();
-    if (!base) {
-        return -2;
-    }
+    base = zalloc(sizeof(llc_data_base_t));
+    ns_list_init(&base->temp_entries.llc_eap_pending_list);
+    ns_list_init(&base->llc_message_list);
+    ns_list_add_to_end(&llc_data_base_list, base);
 
     base->interface_ptr = interface;
     base->mngt_ind = mngt_ind;
