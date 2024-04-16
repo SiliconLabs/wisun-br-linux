@@ -551,7 +551,7 @@ void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks)
         ws_mngt_pc_send(cur);
 }
 
-static void ws_mngt_lts_send(struct net_if *net_if)
+void ws_mngt_lts_send(struct ws_info *ws_info)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LTS,
@@ -560,17 +560,10 @@ static void ws_mngt_lts_send(struct net_if *net_if)
         .wh_ies.lbt    = true,
         .wp_ies.lfnver = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex      = net_if->ws_info.lfn_gtk_index,
+        .security.KeyIndex      = ws_info->lfn_gtk_index,
     };
 
     ws_llc_mngt_lfn_request(&req, NULL);
-}
-
-void ws_mngt_lts_timer_cb(int ticks)
-{
-    struct net_if *net_if = protocol_stack_interface_info_get();
-
-    ws_mngt_lts_send(net_if);
 }
 
 void ws_mngt_pan_version_increase(struct net_if *cur)

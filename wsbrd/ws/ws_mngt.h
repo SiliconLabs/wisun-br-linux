@@ -56,7 +56,7 @@ void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info);
 void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks);
 
 void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8]);
-void ws_mngt_lts_timer_cb(int ticks);
+void ws_mngt_lts_send(struct ws_info *ws_info);
 
 // Broadcast an LPC frame on LGTK hash, or active LGTK index change
 void ws_mngt_lpc_pae_cb(struct net_if *net_if);
