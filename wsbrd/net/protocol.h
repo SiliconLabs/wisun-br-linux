@@ -52,8 +52,6 @@ struct net_if {
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
-    bool pan_advert_running: 1;
-    bool pan_config_running: 1;
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
     uint16_t reachable_time_ttl;        // s

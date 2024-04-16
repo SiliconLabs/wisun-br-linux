@@ -26,6 +26,8 @@ struct ws_mngt {
     trickle_t trickle_pa;
     trickle_t trickle_pc;
     uint8_t lpa_dst[8];
+    bool pan_advert_running;
+    bool pan_config_running;
 };
 
 /* Processing of Wi-SUN management frames

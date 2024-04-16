@@ -490,9 +490,9 @@ void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
 void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message)
 {
     if (asynch_message == WS_FT_PA)
-        interface->pan_advert_running = false;
+        interface->ws_info.mngt.pan_advert_running = false;
     else if (asynch_message == WS_FT_PC)
-        interface->pan_config_running = false;
+        interface->ws_info.mngt.pan_config_running = false;
 }
 
 void ws_mngt_pa_send(struct net_if *cur)
