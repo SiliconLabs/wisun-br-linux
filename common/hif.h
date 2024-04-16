@@ -114,36 +114,6 @@ enum hif_mode_switch_type {
     HIF_MODE_SWITCH_TYPE_MAC  = 0x01,
 };
 
-struct hif_rate_info {
-    uint8_t phy_mode_id;
-    uint8_t tx_attempts;
-    int8_t  tx_power_dbm;
-};
-
-struct hif_tx_cnf {
-    uint8_t  handle;
-    enum hif_data_status status;
-    const uint8_t *frame;
-    size_t   frame_len;
-    uint64_t timestamp_us;
-    uint8_t  lqi;
-    int8_t   rx_power_dbm;
-    uint16_t chan_num;
-    uint8_t  cca_retries;
-    uint8_t  tx_retries;
-    uint32_t frame_counter;
-};
-
-struct hif_rx_ind {
-    const uint8_t *frame;
-    size_t   frame_len;
-    uint64_t timestamp_us;
-    uint8_t  lqi;
-    int8_t   rx_power_dbm;
-    uint8_t  phy_mode_id;
-    uint16_t chan_num;
-};
-
 const char *hif_cmd_str(uint8_t cmd);
 const char *hif_fatal_str(uint16_t code);
 
