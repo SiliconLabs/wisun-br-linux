@@ -155,7 +155,6 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 /** LLC interface sepesific local functions */
-static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface);
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
@@ -253,11 +252,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
     memset(&message->ie_buf_payload, 0, sizeof(struct iobuf_write));
     return message;
-}
-
-static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface)
-{
-    return &g_llc_base;
 }
 
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api)
@@ -461,15 +455,12 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
 void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
                            const struct mcps_data_rx_ie_list *conf_data)
 {
+    struct llc_data_base *base = &g_llc_base;
     struct ws_neigh *ws_neigh = NULL;
     struct mcps_data_cnf data_cpy = *data;
-    struct llc_data_base *base;
     struct llc_message *msg;
     time_t tx_confirm_duration;
 
-    base = ws_llc_discover_by_interface(net_if);
-    if (!base)
-        return;
     msg = llc_message_discover_by_mac_handle(data_cpy.hif.handle, &base->llc_message_list);
     if (!msg)
         return;
@@ -523,11 +514,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
 
 static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *net_if, const mcps_data_ind_t *data, uint8_t frame_type)
 {
-    struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
-
-    if (!base) {
-        return NULL;
-    }
+    struct llc_data_base *base = &g_llc_base;
 
     if (data->SrcAddrMode != ADDR_802_15_4_LONG) {
         TRACE(TR_DROP, "drop %-9s: invalid source address mode", tr_ws_frame(frame_type));
@@ -882,11 +869,11 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
 static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
                             const struct mcps_data_rx_ie_list *ie_ext, uint8_t frame_type)
 {
-    struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
+    struct llc_data_base *base = &g_llc_base;
     struct mcps_data_rx_ie_list ie_list;
     struct iobuf_read ie_buf;
 
-    if (!base || !base->mngt_ind)
+    if (!base->mngt_ind)
         return;
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
@@ -1634,7 +1621,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cn
 int8_t ws_llc_create(struct net_if *interface,
                      ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    struct llc_data_base *base = &g_llc_base;
 
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
     ns_list_init(&base->llc_message_list);
@@ -1648,7 +1635,7 @@ int8_t ws_llc_create(struct net_if *interface,
 
 int8_t ws_llc_delete(struct net_if *interface)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    struct llc_data_base *base = &g_llc_base;
 
     ws_llc_clean(base);
     return 0;
@@ -1658,27 +1645,21 @@ int8_t ws_llc_delete(struct net_if *interface)
 
 void ws_llc_reset(struct net_if *interface)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
+    struct llc_data_base *base = &g_llc_base;
+
     ws_llc_clean(base);
 }
 
 mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return NULL;
-    }
+    struct llc_data_base *base = &g_llc_base;
+
     return &base->mpx_data_base.mpx_api;
 }
 
 int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base)
-        return -1;
+    struct llc_data_base *base = &g_llc_base;
 
     if (base->high_priority_mode) {
         //Drop asynch messages at High Priority mode
@@ -1740,7 +1721,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
 int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
                             const uint8_t dst[8])
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    struct llc_data_base *base = &g_llc_base;
     mcps_data_req_t data_req = {
         .SeqNumSuppressed = true,
         .PanIdSuppressed  = true,
@@ -1750,9 +1731,6 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
         .Key = req->security,
     };
     llc_message_t *msg;
-
-    if (!base)
-        return -1;
 
     msg = llc_message_allocate(base);
     if (!msg) {
@@ -1861,12 +1839,7 @@ int ws_llc_set_edfe(struct net_if *interface, enum ws_edfe_mode mode, uint8_t *n
 
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     struct ws_neigh *entry;
-
-    if (!base) {
-        return;
-    }
 
     SLIST_FOREACH(entry, &interface->ws_info.neighbor_storage.neigh_list, link) {
         if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
@@ -1886,11 +1859,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
                                        uint8_t mac_sequency, uint64_t rx_timestamp)
 {
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     struct ws_neigh *tmp_neigh;
-
-    if (!base)
-        return false;
 
     tmp_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, joiner_eui64);
     if (!tmp_neigh)
