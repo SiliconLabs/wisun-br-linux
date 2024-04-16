@@ -251,7 +251,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
-static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
+void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPA,
@@ -266,17 +266,10 @@ static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.lcp     = true,
-        .wp_ies.jm      = net_if->ws_info.pan_information.jm.mask,
+        .wp_ies.jm      = ws_info->pan_information.jm.mask,
     };
 
     ws_llc_mngt_lfn_request(&req, dst);
-}
-
-void ws_mngt_lpa_timer_cb(int ticks)
-{
-    struct net_if *net_if = protocol_stack_interface_info_get();
-
-    ws_mngt_lpa_send(net_if, net_if->ws_info.mngt.lpa_dst);
 }
 
 static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
