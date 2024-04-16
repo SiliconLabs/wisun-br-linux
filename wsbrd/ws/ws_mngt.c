@@ -493,11 +493,6 @@ void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message)
         interface->pan_advert_running = false;
     else if (asynch_message == WS_FT_PC)
         interface->pan_config_running = false;
-    if (asynch_message == WS_FT_PC && interface->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
-        interface->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
-        /* Deprecated: Unused by the RCP. */
-        interface->mac_parameters.mac_default_ffn_key_index = interface->ws_info.pending_key_index_info.index + 1;
-    }
 }
 
 void ws_mngt_pa_send(struct net_if *cur)
@@ -532,14 +527,8 @@ void ws_mngt_pc_send(struct net_if *cur)
         .wp_ies.lgtkhash = cur->ws_info.enable_lfn,
         .wp_ies.lfnver   = cur->ws_info.enable_lfn,
         .security.SecurityLevel = SEC_ENC_MIC64,
+        .security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index
     };
-
-    if (cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
-        req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
-        cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
-    } else {
-        req.security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
-    }
 
     ws_llc_asynch_request(cur, &req);
 }

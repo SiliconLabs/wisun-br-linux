@@ -179,15 +179,6 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
-    if (cur->mac_parameters.mac_default_ffn_key_index != 0 &&
-        cur->mac_parameters.mac_default_ffn_key_index != index + 1 &&
-        index < 4) {
-        /* Update the active key in the PAN Configs */
-        tr_info("New Pending key Request %u", index);
-        cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
-        cur->ws_info.pending_key_index_info.index = index;
-        return;
-    }
     if (cur->mac_parameters.mac_default_lfn_key_index != 0 &&
         cur->mac_parameters.mac_default_lfn_key_index != index + 1 &&
         index >= 4 && index < 7)

@@ -35,11 +35,6 @@
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
 
-typedef struct ws_pending_key_index {
-    unsigned state: 2;
-    uint8_t index;
-} ws_pending_key_index_t;
-
 enum ws_edfe_mode {
     WS_EDFE_DEFAULT  = 0,
     WS_EDFE_DISABLED = 1,
@@ -74,7 +69,6 @@ typedef struct ws_info {
     bool enable_ffn10;
     enum ws_edfe_mode edfe_mode;
     unsigned int key_index_mask;  // Bitmask of installed key indices
-    ws_pending_key_index_t pending_key_index_info;
     struct ws_pan_information pan_information;
     struct ws_phy_config phy_config;
     struct ws_neigh_table neighbor_storage;
