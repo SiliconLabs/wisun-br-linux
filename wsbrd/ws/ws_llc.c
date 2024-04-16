@@ -1701,8 +1701,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
 // TODO: Factorize this with MPX and EAPOL
 // The Wi-SUN spec uses the term "directed frames" for LPA and LPC, but it
 // seems to just mean unicast.
-int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
-                            const uint8_t dst[8])
+int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst[8])
 {
     struct llc_data_base *base = &g_llc_base;
     mcps_data_req_t data_req = {
@@ -1725,7 +1724,7 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     // Add To active list
     llc_message_id_allocate(msg, base, false);
     base->llc_message_list_size++;
-    red_aq_calc(&interface->llc_random_early_detection, base->llc_message_list_size);
+    red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, msg);
     msg->message_type = req->frame_type;
     msg->security     = req->security;

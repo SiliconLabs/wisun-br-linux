@@ -269,7 +269,7 @@ static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.jm      = net_if->ws_info.pan_information.jm.mask,
     };
 
-    ws_llc_mngt_lfn_request(net_if, &req, dst);
+    ws_llc_mngt_lfn_request(&req, dst);
 }
 
 void ws_mngt_lpa_timer_cb(int ticks)
@@ -393,7 +393,7 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
         .security.KeyIndex      = net_if->mac_parameters.mac_default_lfn_key_index,
     };
 
-    ws_llc_mngt_lfn_request(net_if, &req, dst);
+    ws_llc_mngt_lfn_request(&req, dst);
 }
 
 void ws_mngt_lpc_pae_cb(struct net_if *net_if)
@@ -570,7 +570,7 @@ static void ws_mngt_lts_send(struct net_if *net_if)
         .security.KeyIndex      = net_if->mac_parameters.mac_default_lfn_key_index,
     };
 
-    ws_llc_mngt_lfn_request(net_if, &req, NULL);
+    ws_llc_mngt_lfn_request(&req, NULL);
 }
 
 void ws_mngt_lts_timer_cb(int ticks)
