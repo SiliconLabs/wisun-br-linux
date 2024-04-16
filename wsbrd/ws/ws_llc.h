@@ -33,6 +33,7 @@ struct ws_phy_config;
 struct ws_neigh;
 struct ws_neighbor_temp_class;
 struct mpx_api;
+struct ws_info;
 
 struct wh_ie_list {
     bool utt:   1;
@@ -75,7 +76,7 @@ struct ws_llc_mngt_req {
 };
 
 typedef void ws_llc_mngt_ind_cb(struct net_if *net_if, const struct mcps_data_ind *data, const struct mcps_data_rx_ie_list *ie, uint8_t frame_type);
-typedef void ws_llc_mngt_cnf_cb(struct net_if *net_if, uint8_t frame_type);
+typedef void ws_llc_mngt_cnf_cb(struct ws_info *ws_info, uint8_t frame_type);
 
 int8_t ws_llc_create(struct net_if *interface,
                      ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf);

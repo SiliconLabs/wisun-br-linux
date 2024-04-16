@@ -19,6 +19,7 @@
 
 struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
+struct ws_info;
 struct net_if;
 
 struct ws_mngt {
@@ -44,7 +45,7 @@ struct ws_mngt {
 void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
                  const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type);
 
-void ws_mngt_cnf(struct net_if *interface, uint8_t asynch_message);
+void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message);
 
 void ws_mngt_pa_send(struct net_if *cur);
 void ws_mngt_pc_send(struct net_if *cur);

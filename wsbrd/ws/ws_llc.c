@@ -497,7 +497,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     case WS_FT_PAS:
     case WS_FT_PC:
     case WS_FT_PCS:
-        base->mngt_cnf(net_if, msg->message_type);
+        base->mngt_cnf(&net_if->ws_info, msg->message_type);
         break;
     }
 
@@ -1664,7 +1664,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
         if (base->mngt_cnf) {
-            base->mngt_cnf(interface, request->frame_type);
+            base->mngt_cnf(&interface->ws_info, request->frame_type);
         }
         return 0;
     }
