@@ -31,6 +31,8 @@
 #include "ws/ws_common_defines.h"
 #include "ws/ws_ie_custom.h"
 
+struct net_if;
+
 #define NO_PENDING_PROCESS 0
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2

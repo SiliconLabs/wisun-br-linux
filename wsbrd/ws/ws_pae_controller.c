@@ -505,9 +505,9 @@ static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interfac
     // Do not update PAN version for initial key index set
     if (gtks->key_index_set) {
         if (!is_lgtk && controller->pan_ver_increment)
-            controller->pan_ver_increment(interface_ptr);
+            controller->pan_ver_increment(&interface_ptr->ws_info);
         if (is_lgtk && controller->lpan_ver_increment)
-            controller->lpan_ver_increment(interface_ptr);
+            controller->lpan_ver_increment(&interface_ptr->ws_info);
     } else {
         gtks->key_index_set = true;
     }
@@ -1154,16 +1154,16 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
     // Do not update PAN version for initial hash set
     if (gtk_struct->gtkhash_set) {
         if (!is_lgtk && controller->pan_ver_increment) {
-            controller->pan_ver_increment(interface_ptr);
+            controller->pan_ver_increment(&interface_ptr->ws_info);
         }
         if (is_lgtk && controller->lpan_ver_increment) {
-            controller->lpan_ver_increment(interface_ptr);
+            controller->lpan_ver_increment(&interface_ptr->ws_info);
         }
     } else {
         gtk_struct->gtkhash_set = true;
     }
     if (is_lgtk)
-        ws_mngt_lpc_pae_cb(interface_ptr);
+        ws_mngt_lpc_pae_cb(&interface_ptr->ws_info);
 }
 
 gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)

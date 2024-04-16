@@ -110,7 +110,7 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
 void ws_bootstrap_configuration_reset(struct net_if *cur)
 {
-    ws_mngt_async_trickle_stop(cur);
+    ws_mngt_async_trickle_stop(&cur->ws_info);
 }
 
 /**
@@ -183,7 +183,7 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         cur->ws_info.lfn_gtk_index != index + 1 &&
         index >= 4 && index < 7)
         // Notify LFNs that a new LGTK has been activated.
-        ws_mngt_lpc_pae_cb(cur);
+        ws_mngt_lpc_pae_cb(&cur->ws_info);
 
     /* Deprecated: Unused by the RCP. */
     if (index < 4)

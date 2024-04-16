@@ -42,6 +42,7 @@ typedef enum auth_result {
 } auth_result_e;
 
 struct net_if;
+struct ws_info;
 struct nvm_tlv_entry;
 struct ws_sec_timer_cfg;
 struct ws_sec_prot_cfg;
@@ -243,11 +244,8 @@ typedef void ws_pae_controller_nw_send_key_index_set(struct net_if *interface_pt
 
 /**
  * ws_pae_controller_pan_ver_increment PAN version increment callback
- *
- * \param interface_ptr interface
- *
  */
-typedef void ws_pae_controller_pan_ver_increment(struct net_if *interface_ptr);
+typedef void ws_pae_controller_pan_ver_increment(struct ws_info *ws_info);
 
 /**
  * ws_pae_controller_nw_info_updated network information is updated (read from memory)

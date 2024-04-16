@@ -75,7 +75,7 @@ struct ws_llc_mngt_req {
     struct mlme_security security;
 };
 
-typedef void ws_llc_mngt_ind_cb(struct net_if *net_if, const struct mcps_data_ind *data, const struct mcps_data_rx_ie_list *ie, uint8_t frame_type);
+typedef void ws_llc_mngt_ind_cb(struct ws_info *ws_info, const struct mcps_data_ind *data, const struct mcps_data_rx_ie_list *ie, uint8_t frame_type);
 typedef void ws_llc_mngt_cnf_cb(struct ws_info *ws_info, uint8_t frame_type);
 
 int8_t ws_llc_create(struct net_if *interface,

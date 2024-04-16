@@ -880,7 +880,7 @@ static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *
     // the content of the WP-IE instead.
     ie_list.payloadIeList       = ie_buf.data;
     ie_list.payloadIeListLength = ie_buf.data_size;
-    base->mngt_ind(base->interface_ptr, data, &ie_list, frame_type);
+    base->mngt_ind(&base->interface_ptr->ws_info, data, &ie_list, frame_type);
 }
 
 static const struct name_value ws_frames[] = {

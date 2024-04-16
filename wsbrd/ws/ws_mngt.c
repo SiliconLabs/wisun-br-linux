@@ -27,7 +27,6 @@
 #include "ws/ws_mngt.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_llc.h"
-#include "net/protocol.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,
@@ -41,7 +40,7 @@ static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
     return true;
 }
 
-static bool ws_mngt_ie_us_validate(struct net_if *net_if,
+static bool ws_mngt_ie_us_validate(struct ws_info *ws_info,
                                    const struct mcps_data_rx_ie_list *ie_ext,
                                    struct ws_us_ie *ie_us,
                                    uint8_t frame_type)
@@ -51,10 +50,10 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing US-IE", tr_ws_frame(frame_type));
         return false;
     }
-    return ws_ie_validate_us(&net_if->ws_info, ie_us);
+    return ws_ie_validate_us(ws_info, ie_us);
 }
 
-static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
+static bool ws_mngt_ie_netname_validate(struct ws_info *ws_info,
                                         const struct mcps_data_rx_ie_list *ie_ext,
                                         uint8_t frame_type)
 {
@@ -65,14 +64,14 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing NETNAME-IE", tr_ws_frame(frame_type));
         return false;
     }
-    return ws_ie_validate_netname(&net_if->ws_info, &ie_netname);
+    return ws_ie_validate_netname(ws_info, &ie_netname);
 }
 
-static void ws_mngt_ie_pom_handle(struct net_if *net_if,
+static void ws_mngt_ie_pom_handle(struct ws_info *ws_info,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_rx_ie_list *ie_ext)
 {
-    struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    struct ws_neigh *ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, data->SrcAddr);
     struct ws_pom_ie ie_pom;
 
     if (!ws_neigh)
@@ -82,17 +81,17 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
     ws_neigh->pom_ie = ie_pom;
 }
 
-static struct ws_neigh *ws_mngt_neigh_fetch(struct net_if *net_if, const uint8_t *mac64, uint8_t role)
+static struct ws_neigh *ws_mngt_neigh_fetch(struct ws_info *ws_info, const uint8_t *mac64, uint8_t role)
 {
-    struct ws_neigh *ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, mac64);
+    struct ws_neigh *ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, mac64);
 
     if (ws_neigh)
         return ws_neigh;
-    return ws_neigh_add(&net_if->ws_info.neighbor_storage, mac64, role, net_if->ws_info.tx_power_dbm,
-                        net_if->ws_info.key_index_mask);
+    return ws_neigh_add(&ws_info->neighbor_storage, mac64, role, ws_info->tx_power_dbm,
+                        ws_info->key_index_mask);
 }
 
-void ws_mngt_pa_analyze(struct net_if *net_if,
+void ws_mngt_pa_analyze(struct ws_info *ws_info,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
@@ -103,22 +102,22 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PA))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PA))
+    if (!ws_mngt_ie_us_validate(ws_info, ie_ext, &ie_us, WS_FT_PA))
         return;
     // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pan)) {
         TRACE(TR_DROP, "drop %-9s: missing PAN-IE", tr_ws_frame(WS_FT_PA));
         return;
     }
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PA))
+    if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_PA))
         return;
 
-    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
+    if (data->SrcPANId != ws_info->pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PA));
         return;
     }
 
-    ws_mngt_ie_pom_handle(net_if, data, ie_ext);
+    ws_mngt_ie_pom_handle(ws_info, data, ie_ext);
     if (!ie_pan.use_parent_bs_ie)
         TRACE(TR_IGNORE, "ignore %-9s: unsupported local BS-IE", "15.4");
     if (!ie_pan.routing_method)
@@ -128,16 +127,16 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
     if (ie_pan.routing_cost != 0xFFFF)
-        trickle_consistent_heard(&net_if->ws_info.mngt.trickle_pa);
-    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+        trickle_consistent_heard(&ws_info->mngt.trickle_pa);
+    ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
-void ws_mngt_pas_analyze(struct net_if *net_if,
+void ws_mngt_pas_analyze(struct ws_info *ws_info,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
@@ -147,23 +146,23 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAS))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAS))
+    if (!ws_mngt_ie_us_validate(ws_info, ie_ext, &ie_us, WS_FT_PAS))
         return;
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PAS))
+    if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_PAS))
         return;
 
-    ws_mngt_ie_pom_handle(net_if, data, ie_ext);
-    trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pa,
-                               &net_if->ws_info.mngt.trickle_params);
-    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    ws_mngt_ie_pom_handle(ws_info, data, ie_ext);
+    trickle_inconsistent_heard(&ws_info->mngt.trickle_pa,
+                               &ws_info->mngt.trickle_params);
+    ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
-void ws_mngt_pc_analyze(struct net_if *net_if,
+void ws_mngt_pc_analyze(struct ws_info *ws_info,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
@@ -185,7 +184,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing BT-IE", tr_ws_frame(WS_FT_PC));
         return;
     }
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PC))
+    if (!ws_mngt_ie_us_validate(ws_info, ie_ext, &ie_us, WS_FT_PC))
         return;
     // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_bs)) {
@@ -198,29 +197,29 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         return;
     }
 
-    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
+    if (data->SrcPANId != ws_info->pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PC));
         return;
     }
 
-    if (net_if->ws_info.pan_information.pan_version == ws_pan_version)
-        trickle_consistent_heard(&net_if->ws_info.mngt.trickle_pc);
+    if (ws_info->pan_information.pan_version == ws_pan_version)
+        trickle_consistent_heard(&ws_info->mngt.trickle_pc);
     else
-        trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
-                                   &net_if->ws_info.mngt.trickle_params);
+        trickle_inconsistent_heard(&ws_info->mngt.trickle_pc,
+                                   &ws_info->mngt.trickle_params);
 
-    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
                        data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval,
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval,
                        data->SrcAddr);
 }
 
-void ws_mngt_pcs_analyze(struct net_if *net_if,
+void ws_mngt_pcs_analyze(struct ws_info *ws_info,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_rx_ie_list *ie_ext)
 {
@@ -230,24 +229,24 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PCS))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PCS))
+    if (!ws_mngt_ie_us_validate(ws_info, ie_ext, &ie_us, WS_FT_PCS))
         return;
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
+    if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_PCS))
         return;
 
-    if (data->SrcPANId != net_if->ws_info.pan_information.pan_id) {
+    if (data->SrcPANId != ws_info->pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PCS));
         return;
     }
 
-    trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
-                               &net_if->ws_info.mngt.trickle_params);
+    trickle_inconsistent_heard(&ws_info->mngt.trickle_pc,
+                               &ws_info->mngt.trickle_params);
 
-    ws_neigh = ws_mngt_neigh_fetch(net_if, data->SrcAddr, WS_NR_ROLE_ROUTER);
+    ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval, data->SrcAddr);
 }
 
@@ -272,7 +271,7 @@ void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
     ws_llc_mngt_lfn_request(&req, dst);
 }
 
-static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
+static void ws_mngt_lpa_schedule(struct ws_mngt *mngt, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
 {
     const uint16_t slot = rand_get_random_in_range(0, ie_lnd->discovery_slots);
     const int timeout = slot * ie_lnd->discovery_slot_time + ie_lnd->response_delay;
@@ -280,16 +279,16 @@ static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd
     // FIXME: The LPA slot should be chosen by the RCP. UART transmission
     // delays likely implies that the slot is missed and one of the later
     // slots is used instead (if any).
-    memcpy(net_if->ws_info.mngt.lpa_dst, eui64, 8);
+    memcpy(mngt->lpa_dst, eui64, 8);
     // Start timer
     g_timers[WS_TIMER_LPA].timeout = timeout / WS_TIMER_GLOBAL_PERIOD_MS;
 }
 
-void ws_mngt_lpas_analyze(struct net_if *net_if,
+void ws_mngt_lpas_analyze(struct ws_info *ws_info,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
-    int fixed_channel = ws_chan_mask_get_fixed(net_if->ws_info.fhss_config.uc_chan_mask);
+    int fixed_channel = ws_chan_mask_get_fixed(ws_info->fhss_config.uc_chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
     struct ws_neigh *ws_neigh;
     struct ws_lutt_ie ie_lutt;
@@ -301,7 +300,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
 
     if (g_timers[WS_TIMER_LPA].timeout) {
         TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
-              tr_ws_frame(WS_FT_LPAS), tr_eui64(net_if->ws_info.mngt.lpa_dst));
+              tr_ws_frame(WS_FT_LPAS), tr_eui64(ws_info->mngt.lpa_dst));
         return;
     }
 
@@ -331,9 +330,9 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: LUS-IE/LCP-IE channel function mismatch", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    if (!ws_ie_validate_lcp(&net_if->ws_info, &ie_lcp))
+    if (!ws_ie_validate_lcp(ws_info, &ie_lcp))
         return;
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPAS))
+    if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_LPAS))
         return;
 
     // [...] an FFN MUST ignore the LPAS if [...]
@@ -345,18 +344,18 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     }
 
     add_neighbor = false;
-    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, data->SrcAddr);
 
     if (!ws_neigh) {
         add_neighbor = true;
     } else if (ws_neigh->node_role != WS_NR_ROLE_LFN) {
         WARN("node changed role");
-        ws_neigh_del(&net_if->ws_info.neighbor_storage, ws_neigh->mac64);
+        ws_neigh_del(&ws_info->neighbor_storage, ws_neigh->mac64);
         add_neighbor = true;
     }
     if (add_neighbor) {
-        ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage, data->SrcAddr, WS_NR_ROLE_LFN,
-                                net_if->ws_info.tx_power_dbm, net_if->ws_info.key_index_mask);
+        ws_neigh = ws_neigh_add(&ws_info->neighbor_storage, data->SrcAddr, WS_NR_ROLE_LFN,
+                                ws_info->tx_power_dbm, ws_info->key_index_mask);
         if (!ws_neigh) {
             TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
             return;
@@ -365,16 +364,16 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
 
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                                  data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
+    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
                                                              ie_lus.listen_interval, &ws_neigh->lto_info);
     ws_neigh_lnd_update(&ws_neigh->fhss_data_unsecured, &ie_lnd, data->hif.timestamp_us);
 
     ws_neigh_nr_update(ws_neigh, &ie_nr);
 
-    ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
+    ws_mngt_lpa_schedule(&ws_info->mngt, &ie_lnd, data->SrcAddr);
 }
 
-static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
+static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPC,
@@ -383,19 +382,19 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.lfnver   = true,
         .wp_ies.lgtkhash = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex      = net_if->ws_info.lfn_gtk_index,
+        .security.KeyIndex      = ws_info->lfn_gtk_index,
     };
 
     ws_llc_mngt_lfn_request(&req, dst);
 }
 
-void ws_mngt_lpc_pae_cb(struct net_if *net_if)
+void ws_mngt_lpc_pae_cb(struct ws_info *ws_info)
 {
-    if (ws_neigh_lfn_count(&net_if->ws_info.neighbor_storage))
-        ws_mngt_lpc_send(net_if, NULL);
+    if (ws_neigh_lfn_count(&ws_info->neighbor_storage))
+        ws_mngt_lpc_send(ws_info, NULL);
 }
 
-void ws_mngt_lpcs_analyze(struct net_if *net_if,
+void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_rx_ie_list *ie_ext)
 {
@@ -410,7 +409,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
         return;
     }
     BUG_ON(ie_lutt.message_type != WS_FT_LPCS);
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPCS))
+    if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_LPCS))
         return;
 
     // TODO: Factorize this code with EAPOL and MPX LFN indication
@@ -423,11 +422,11 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
             TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPCS));
             return;
         }
-        if (!ws_ie_validate_lcp(&net_if->ws_info, &ie_lcp))
+        if (!ws_ie_validate_lcp(ws_info, &ie_lcp))
             return;
     }
 
-    ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, data->SrcAddr);
+    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, data->SrcAddr);
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
         return;
@@ -436,15 +435,15 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
     if (has_lus) {
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us, data->SrcAddr);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
     }
 
-    ws_mngt_lpc_send(net_if, data->SrcAddr);
+    ws_mngt_lpc_send(ws_info, data->SrcAddr);
 }
 
-void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
+void ws_mngt_ind(struct ws_info *ws_info, const struct mcps_data_ind *data,
                  const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type)
 {
     if (data->SrcAddrMode != MAC_ADDR_MODE_64_BIT) {
@@ -454,22 +453,22 @@ void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
     //Handle Message's
     switch (message_type) {
         case WS_FT_PA:
-            ws_mngt_pa_analyze(cur, data, ie_ext);
+            ws_mngt_pa_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_PAS:
-            ws_mngt_pas_analyze(cur, data, ie_ext);
+            ws_mngt_pas_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_PC:
-            ws_mngt_pc_analyze(cur, data, ie_ext);
+            ws_mngt_pc_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_PCS:
-            ws_mngt_pcs_analyze(cur, data, ie_ext);
+            ws_mngt_pcs_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_LPAS:
-            ws_mngt_lpas_analyze(cur, data, ie_ext);
+            ws_mngt_lpas_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_LPCS:
-            ws_mngt_lpcs_analyze(cur, data, ie_ext);
+            ws_mngt_lpcs_analyze(ws_info, data, ie_ext);
             break;
         case WS_FT_LPA:
         case WS_FT_LPC:
@@ -488,9 +487,9 @@ void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message)
         ws_info->mngt.pan_config_running = false;
 }
 
-void ws_mngt_pa_send(struct net_if *cur)
+void ws_mngt_pa_send(struct ws_info *ws_info)
 {
-    const struct ws_phy_config *schedule = &cur->ws_info.phy_config;
+    const struct ws_phy_config *schedule = &ws_info->phy_config;
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PA,
         .wh_ies.utt     = true,
@@ -498,44 +497,44 @@ void ws_mngt_pa_send(struct net_if *cur)
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
-        .wp_ies.jm      = cur->ws_info.pan_information.jm.mask,
+        .wp_ies.jm      = ws_info->pan_information.jm.mask,
     };
 
-    cur->ws_info.pan_information.routing_cost = 0;
+    ws_info->pan_information.routing_cost = 0;
 
-    ws_llc_asynch_request(&cur->ws_info, &req);
+    ws_llc_asynch_request(ws_info, &req);
 }
 
-void ws_mngt_pc_send(struct net_if *cur)
+void ws_mngt_pc_send(struct ws_info *ws_info)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PC,
         .wh_ies.utt      = true,
         .wh_ies.bt       = true,
-        .wh_ies.lbc      = cur->ws_info.enable_lfn,
+        .wh_ies.lbc      = ws_info->enable_lfn,
         .wp_ies.us       = true,
         .wp_ies.bs       = true,
         .wp_ies.panver   = true,
         .wp_ies.gtkhash  = true,
-        .wp_ies.lgtkhash = cur->ws_info.enable_lfn,
-        .wp_ies.lfnver   = cur->ws_info.enable_lfn,
+        .wp_ies.lgtkhash = ws_info->enable_lfn,
+        .wp_ies.lfnver   = ws_info->enable_lfn,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex = cur->ws_info.ffn_gtk_index
+        .security.KeyIndex = ws_info->ffn_gtk_index
     };
 
-    ws_llc_asynch_request(&cur->ws_info, &req);
+    ws_llc_asynch_request(ws_info, &req);
 }
 
-void ws_mngt_async_trickle_start(struct net_if *cur)
+void ws_mngt_async_trickle_start(struct ws_info *ws_info)
 {
-    trickle_start(&cur->ws_info.mngt.trickle_pa, "ADV", &cur->ws_info.mngt.trickle_params);
-    trickle_start(&cur->ws_info.mngt.trickle_pc, "CFG", &cur->ws_info.mngt.trickle_params);
+    trickle_start(&ws_info->mngt.trickle_pa, "ADV", &ws_info->mngt.trickle_params);
+    trickle_start(&ws_info->mngt.trickle_pc, "CFG", &ws_info->mngt.trickle_params);
 }
 
-void ws_mngt_async_trickle_stop(struct net_if *cur)
+void ws_mngt_async_trickle_stop(struct ws_info *ws_info)
 {
-    trickle_stop(&cur->ws_info.mngt.trickle_pa);
-    trickle_stop(&cur->ws_info.mngt.trickle_pc);
+    trickle_stop(&ws_info->mngt.trickle_pa);
+    trickle_stop(&ws_info->mngt.trickle_pc);
 }
 
 void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
@@ -543,12 +542,12 @@ void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
     trickle_inconsistent_heard(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params);
 }
 
-void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks)
+void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks)
 {
-    if (trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks))
-        ws_mngt_pa_send(cur);
-    if (trickle_timer(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params, ticks))
-        ws_mngt_pc_send(cur);
+    if (trickle_timer(&ws_info->mngt.trickle_pa, &ws_info->mngt.trickle_params, ticks))
+        ws_mngt_pa_send(ws_info);
+    if (trickle_timer(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params, ticks))
+        ws_mngt_pc_send(ws_info);
 }
 
 void ws_mngt_lts_send(struct ws_info *ws_info)
@@ -566,28 +565,28 @@ void ws_mngt_lts_send(struct ws_info *ws_info)
     ws_llc_mngt_lfn_request(&req, NULL);
 }
 
-void ws_mngt_pan_version_increase(struct net_if *cur)
+void ws_mngt_pan_version_increase(struct ws_info *ws_info)
 {
     INFO("PAN version number update");
     // Version number is not periodically increased forcing nodes to check Border router availability using DAO
-    cur->ws_info.pan_information.pan_version++;
+    ws_info->pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
-    ws_mngt_async_trickle_reset_pc(&cur->ws_info);
-    ws_pan_info_storage_write(cur->ws_info.fhss_config.bsi, cur->ws_info.pan_information.pan_id,
-                              cur->ws_info.pan_information.pan_version, cur->ws_info.pan_information.lfn_version,
-                              cur->ws_info.network_name);
+    ws_mngt_async_trickle_reset_pc(ws_info);
+    ws_pan_info_storage_write(ws_info->fhss_config.bsi, ws_info->pan_information.pan_id,
+                              ws_info->pan_information.pan_version, ws_info->pan_information.lfn_version,
+                              ws_info->network_name);
 }
 
-void ws_mngt_lfn_version_increase(struct net_if *cur)
+void ws_mngt_lfn_version_increase(struct ws_info *ws_info)
 {
     INFO("LFN version number update");
     // ws_mngt_pan_version_increase() will reset the PC trickle and update the
     // storage
-    cur->ws_info.pan_information.lfn_version++;
+    ws_info->pan_information.lfn_version++;
 
     //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
     // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
     // the following occurs:
     // d. A change in LFN Version.
-    ws_mngt_pan_version_increase(cur);
+    ws_mngt_pan_version_increase(ws_info);
 }

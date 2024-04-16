@@ -20,7 +20,6 @@
 struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
 struct ws_info;
-struct net_if;
 
 struct ws_mngt {
     trickle_params_t trickle_params;
@@ -42,26 +41,26 @@ struct ws_mngt {
  *   - LFN PAN Configuration Solicit (LPCS)
  *   - LFN Time Sync (LTS)
  */
-void ws_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data,
+void ws_mngt_ind(struct ws_info *ws_info, const struct mcps_data_ind *data,
                  const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type);
 
 void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message);
 
-void ws_mngt_pa_send(struct net_if *cur);
-void ws_mngt_pc_send(struct net_if *cur);
+void ws_mngt_pa_send(struct ws_info *ws_info);
+void ws_mngt_pc_send(struct ws_info *ws_info);
 
-void ws_mngt_async_trickle_start(struct net_if *cur);
-void ws_mngt_async_trickle_stop(struct net_if *cur);
+void ws_mngt_async_trickle_start(struct ws_info *ws_info);
+void ws_mngt_async_trickle_stop(struct ws_info *ws_info);
 void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info);
-void ws_mngt_async_trickle_timer_cb(struct net_if *cur, uint16_t ticks);
+void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks);
 
 void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8]);
 void ws_mngt_lts_send(struct ws_info *ws_info);
 
 // Broadcast an LPC frame on LGTK hash, or active LGTK index change
-void ws_mngt_lpc_pae_cb(struct net_if *net_if);
+void ws_mngt_lpc_pae_cb(struct ws_info *ws_info);
 
-void ws_mngt_pan_version_increase(struct net_if *cur);
-void ws_mngt_lfn_version_increase(struct net_if *cur);
+void ws_mngt_pan_version_increase(struct ws_info *ws_info);
+void ws_mngt_lfn_version_increase(struct ws_info *ws_info);
 
 #endif
