@@ -74,8 +74,8 @@ typedef struct ws_info {
     struct ws_neigh_table neighbor_storage;
     struct ws_fhss_config fhss_config;
     int tx_power_dbm;
-    uint8_t mac_default_ffn_key_index;
-    uint8_t mac_default_lfn_key_index;
+    uint8_t ffn_gtk_index;
+    uint8_t lfn_gtk_index;
 } ws_info_t;
 
 void ws_common_seconds_timer(int seconds);

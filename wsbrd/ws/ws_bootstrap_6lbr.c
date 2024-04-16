@@ -252,8 +252,8 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
     //Clear Pending Key Index State
-    cur->ws_info.mac_default_ffn_key_index = 0;
-    cur->ws_info.mac_default_lfn_key_index = 0;
+    cur->ws_info.ffn_gtk_index = 0;
+    cur->ws_info.lfn_gtk_index = 0;
 
     ipv6_destination_cache_clean(cur->id);
 

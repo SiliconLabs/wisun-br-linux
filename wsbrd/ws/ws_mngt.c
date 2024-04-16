@@ -383,7 +383,7 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
         .wp_ies.lfnver   = true,
         .wp_ies.lgtkhash = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex      = net_if->ws_info.mac_default_lfn_key_index,
+        .security.KeyIndex      = net_if->ws_info.lfn_gtk_index,
     };
 
     ws_llc_mngt_lfn_request(&req, dst);
@@ -520,7 +520,7 @@ void ws_mngt_pc_send(struct net_if *cur)
         .wp_ies.lgtkhash = cur->ws_info.enable_lfn,
         .wp_ies.lfnver   = cur->ws_info.enable_lfn,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex = cur->ws_info.mac_default_ffn_key_index
+        .security.KeyIndex = cur->ws_info.ffn_gtk_index
     };
 
     ws_llc_asynch_request(&cur->ws_info, &req);
@@ -560,7 +560,7 @@ static void ws_mngt_lts_send(struct net_if *net_if)
         .wh_ies.lbt    = true,
         .wp_ies.lfnver = true,
         .security.SecurityLevel = SEC_ENC_MIC64,
-        .security.KeyIndex      = net_if->ws_info.mac_default_lfn_key_index,
+        .security.KeyIndex      = net_if->ws_info.lfn_gtk_index,
     };
 
     ws_llc_mngt_lfn_request(&req, NULL);

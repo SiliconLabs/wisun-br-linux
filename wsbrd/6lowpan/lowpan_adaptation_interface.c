@@ -613,9 +613,9 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, dataReq->DstAddr);
 
         if ((ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
-            dataReq->Key.KeyIndex = cur->ws_info.mac_default_lfn_key_index;
+            dataReq->Key.KeyIndex = cur->ws_info.lfn_gtk_index;
         else
-            dataReq->Key.KeyIndex = cur->ws_info.mac_default_ffn_key_index;
+            dataReq->Key.KeyIndex = cur->ws_info.ffn_gtk_index;
     }
 }
 

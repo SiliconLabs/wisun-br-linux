@@ -179,17 +179,17 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
-    if (cur->ws_info.mac_default_lfn_key_index != 0 &&
-        cur->ws_info.mac_default_lfn_key_index != index + 1 &&
+    if (cur->ws_info.lfn_gtk_index != 0 &&
+        cur->ws_info.lfn_gtk_index != index + 1 &&
         index >= 4 && index < 7)
         // Notify LFNs that a new LGTK has been activated.
         ws_mngt_lpc_pae_cb(cur);
 
     /* Deprecated: Unused by the RCP. */
     if (index < 4)
-        cur->ws_info.mac_default_ffn_key_index = index + 1;
+        cur->ws_info.ffn_gtk_index = index + 1;
     else if (index >= 4 && index < 7)
-        cur->ws_info.mac_default_lfn_key_index = index + 1;
+        cur->ws_info.lfn_gtk_index = index + 1;
 }
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur)
