@@ -55,7 +55,6 @@ typedef int8_t ws_pae_delete(struct net_if *interface_ptr);
 typedef void ws_pae_timer(uint16_t ticks);
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
-typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 
 typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -97,7 +96,6 @@ typedef struct pae_controller {
     ws_pae_timer *pae_slow_timer;                                    /**< PAE slow timer callback */
     ws_pae_gtks_updated *pae_gtks_updated;                           /**< PAE GTKs updated */
     ws_pae_gtk_hash_update *pae_gtk_hash_update;                     /**< PAE GTK HASH update */
-    ws_pae_nw_key_index_update *pae_nw_key_index_update;             /**< PAE NW key index update */
     bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
 
@@ -583,7 +581,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->pae_slow_timer = NULL;
     controller->pae_gtks_updated = NULL;
     controller->pae_gtk_hash_update = NULL;
-    controller->pae_nw_key_index_update = NULL;
     controller->gtks.gtks_set = false;
     controller->gtks.gtkhash_set = false;
     controller->gtks.key_index_set = false;
@@ -839,14 +836,13 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
     controller->pae_fast_timer = ws_pae_auth_fast_timer;
     controller->pae_slow_timer = ws_pae_auth_slow_timer;
     controller->pae_gtks_updated = ws_pae_auth_gtks_updated;
-    controller->pae_nw_key_index_update = ws_pae_auth_nw_key_index_update;
 
     ws_pae_controller_nw_info_read(controller);
     if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // If application has set GTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr, false);
         if (controller->gtks.gtk_index >= 0) {
-            controller->pae_nw_key_index_update(interface_ptr, controller->gtks.gtk_index, false);
+            ws_pae_auth_nw_key_index_update(interface_ptr, controller->gtks.gtk_index, false);
         }
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
     }
@@ -854,7 +850,7 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
         // If application has set LGTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr, true);
         if (controller->lgtks.gtk_index >= 0) {
-            controller->pae_nw_key_index_update(interface_ptr, controller->lgtks.gtk_index, true);
+            ws_pae_auth_nw_key_index_update(interface_ptr, controller->lgtks.gtk_index, true);
         }
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
     }
