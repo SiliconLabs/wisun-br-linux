@@ -12,21 +12,19 @@
  */
 #include <time.h>
 #include "common/log.h"
-#include "common/named_values.h"
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/specs/ieee802154.h"
-#include "common/mathutils.h"
 #include "common/ws_ie.h"
 #include "common/specs/ws.h"
 
 #include "net/timers.h"
-#include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_pan_info_storage.h"
 #include "ws/ws_common.h"
-#include "ws/ws_mngt.h"
 #include "ws/ws_ie_validation.h"
 #include "ws/ws_llc.h"
+
+#include "ws_mngt.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,
