@@ -145,7 +145,7 @@ typedef struct llc_data_base {
     struct net_if *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
-static NS_LIST_DEFINE(llc_data_base_list, llc_data_base_t, link);
+static llc_data_base_t g_llc_base;
 
 /** LLC message local functions */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list);
@@ -257,22 +257,12 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
 
 static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface)
 {
-    ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
-        if (base->interface_ptr == interface) {
-            return base;
-        }
-    }
-    return NULL;
+    return &g_llc_base;
 }
 
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api)
 {
-    ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
-        if (&base->mpx_data_base.mpx_api == api) {
-            return base;
-        }
-    }
-    return NULL;
+    return &g_llc_base;
 }
 
 static inline bool ws_wp_ie_is_empty(const struct wp_ie_list *wp_ies)
@@ -1645,16 +1635,9 @@ int8_t ws_llc_create(struct net_if *interface,
                      ws_llc_mngt_ind_cb *mngt_ind, ws_llc_mngt_cnf_cb *mngt_cnf)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (base) {
-        ws_llc_clean(base);
-        return 0;
-    }
 
-    base = zalloc(sizeof(llc_data_base_t));
     ns_list_init(&base->temp_entries.llc_eap_pending_list);
     ns_list_init(&base->llc_message_list);
-    ns_list_add_to_end(&llc_data_base_list, base);
-
     base->interface_ptr = interface;
     base->mngt_ind = mngt_ind;
     base->mngt_cnf = mngt_cnf;
@@ -1666,14 +1649,8 @@ int8_t ws_llc_create(struct net_if *interface,
 int8_t ws_llc_delete(struct net_if *interface)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return -1;
-    }
 
     ws_llc_clean(base);
-
-    ns_list_remove(&llc_data_base_list, base);
-    free(base);
     return 0;
 }
 
