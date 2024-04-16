@@ -19,15 +19,8 @@
 #include "common/hif.h"
 #include "common/ws_chan_mask.h"
 
-// TODO: drop legacy structures
-struct ws_neigh_fhss;
-struct ws_fhss_config;
-struct mcps_data_cnf;
-struct mcps_data_ind;
-struct mcps_data_rx_ie_list;
 struct bus;
-struct phy_rf_channel_configuration;
-struct wsbr_ctxt;
+struct ws_neigh_fhss;
 
 struct rcp_rail_config {
     int      index;
