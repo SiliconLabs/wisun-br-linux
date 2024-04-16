@@ -510,7 +510,7 @@ void ws_mngt_pa_send(struct net_if *cur)
 
     cur->ws_info.pan_information.routing_cost = 0;
 
-    ws_llc_asynch_request(cur, &req);
+    ws_llc_asynch_request(&cur->ws_info, &req);
 }
 
 void ws_mngt_pc_send(struct net_if *cur)
@@ -530,7 +530,7 @@ void ws_mngt_pc_send(struct net_if *cur)
         .security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index
     };
 
-    ws_llc_asynch_request(cur, &req);
+    ws_llc_asynch_request(&cur->ws_info, &req);
 }
 
 void ws_mngt_async_trickle_start(struct net_if *cur)

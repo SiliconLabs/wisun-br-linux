@@ -107,7 +107,6 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
 
 /**
  * @brief ws_llc_asynch_request ws asynch message request to all giving channels
- * @param interface Interface pointer
  * @param request Asynch message parameters: type, IE and channel list
  *
  * @return 0 Asynch message pushed to MAC
@@ -115,7 +114,7 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
  * @return -2 Parameter problem
  *
  */
-int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request);
+int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *request);
 
 int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
                             const uint8_t dst[8]);
