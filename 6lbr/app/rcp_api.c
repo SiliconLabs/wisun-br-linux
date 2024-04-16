@@ -509,6 +509,15 @@ struct rcp_cmd rcp_cmd_table[] = {
     { 0 }
 };
 
+static bool rcp_init_state_is_valid(struct rcp *rcp, uint8_t cmd)
+{
+    if (!rcp->has_reset)
+        return cmd == HIF_CMD_IND_RESET;
+    if (!rcp->has_rf_list)
+        return cmd == HIF_CMD_CNF_RADIO_LIST;
+    return true;
+}
+
 void rcp_rx(struct rcp *rcp)
 {
     struct iobuf_read buf = { .data = rcp_rx_buf };
@@ -525,6 +534,10 @@ void rcp_rx(struct rcp *rcp)
         TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(cmd),
               tr_bytes(iobuf_ptr(&buf), iobuf_remaining_size(&buf),
                        NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    if (!rcp_init_state_is_valid(rcp, cmd)) {
+        TRACE(TR_DROP, "drop %-9s: unexpected command during reset sequence", "hif");
+        return;
+    }
     for (int i = 0; i < ARRAY_SIZE(rcp_cmd_table); i++)
         if (rcp_cmd_table[i].cmd == cmd)
             return rcp_cmd_table[i].fn(rcp, &buf);
