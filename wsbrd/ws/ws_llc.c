@@ -154,9 +154,6 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base);
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user);
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
-/** LLC interface sepesific local functions */
-static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
-
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id);
@@ -252,11 +249,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
     memset(&message->ie_buf_payload, 0, sizeof(struct iobuf_write));
     return message;
-}
-
-static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api)
-{
-    return &g_llc_base;
 }
 
 static inline bool ws_wp_ie_is_empty(const struct wp_ie_list *wp_ies)
@@ -1503,12 +1495,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
 
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id)
 {
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return;
-    }
-
+    struct llc_data_base *base = &g_llc_base;
     mpx_user_t *user_cb = ws_llc_mpx_user_discover(&base->mpx_data_base, user_id);
+
     if (!user_cb || !user_cb->data_confirm || !user_cb->data_ind) {
         return;
     }
@@ -1522,12 +1511,9 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
 
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id)
 {
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return -1;
-    }
-
+    struct llc_data_base *base = &g_llc_base;
     mpx_user_t *user_cb = ws_llc_mpx_user_discover(&base->mpx_data_base, user_id);
+
     if (!user_cb) {
         return -1;
     }
@@ -1538,10 +1524,7 @@ static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm
 
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id)
 {
-    llc_data_base_t *base = ws_llc_discover_by_mpx(api);
-    if (!base) {
-        return 0;
-    }
+    struct llc_data_base *base = &g_llc_base;
 
     return ws_mpx_header_size_get(base, user_id);
 }
