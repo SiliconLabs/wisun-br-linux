@@ -30,7 +30,7 @@
 #define MPX_IE_TRANSFER_TYPE_MASK  0b00000111
 #define MPX_IE_TRANSACTION_ID_MASK 0b11111000
 
-bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *ie)
+bool mpx_ie_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *ie)
 {
     struct iobuf_read ie_buf = {
         .data_size = length,
@@ -78,7 +78,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct m
     return !ie_buf.err;
 }
 
-void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *ie)
+void mpx_ie_write(struct iobuf_write *buf, const struct mpx_ie *ie)
 {
     bool fragmented_number_present = false;
     bool multiplex_id_present = false;

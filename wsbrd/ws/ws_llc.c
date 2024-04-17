@@ -580,7 +580,7 @@ static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base,
         TRACE(TR_DROP, "drop %-9s: missing MPX-IE", "15.4");
         return NULL;
     }
-    if (!ws_llc_mpx_header_frame_parse(ie_buf.data, ie_buf.data_size, mpx_frame)) {
+    if (!mpx_ie_parse(ie_buf.data, ie_buf.data_size, mpx_frame)) {
         TRACE(TR_DROP, "drop %-9s: malformed MPX-IE", "15.4");
         return NULL;
     }
@@ -1239,7 +1239,7 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
     int ie_offset;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_MPX);
-    ws_llc_mpx_header_write(&message->ie_buf_payload, &mpx_header);
+    mpx_ie_write(&message->ie_buf_payload, &mpx_header);
     ie_len = message->ie_buf_payload.len - ie_offset - 2 + message->ie_iov_payload[1].iov_len;
     ieee802154_ie_set_len(&message->ie_buf_payload, ie_offset, ie_len, IEEE802154_IE_PAYLOAD_LEN_MASK);
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
