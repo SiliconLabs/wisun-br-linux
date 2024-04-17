@@ -209,9 +209,6 @@ void buffer_free_list(buffer_list_t *list);
 /** Free any routing info in the buffer, returning the buffer pointer */
 buffer_t *buffer_free_route(buffer_t *buf);
 
-/** Compute IPv6 checksum for buffer data + IPv6 pseudo-header */
-uint16_t buffer_ipv6_fcf(const buffer_t *buf, uint8_t next_header);
-
 /** Check for corrupt buffers should only be used when testing.*/
 uint8_t *buffer_corrupt_check(buffer_t *buf);
 

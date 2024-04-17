@@ -24,6 +24,7 @@
 #include "common/bits.h"
 #include "common/named_values.h"
 #include "common/iobuf.h"
+#include "common/ipv6_cksum.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/specs/icmpv6.h"
@@ -469,7 +470,11 @@ buffer_t *icmpv6_up(buffer_t *buf)
         return buffer_free(buf);
     }
 
-    if (buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6)) {
+    if (ipv6_cksum((struct in6_addr *)buf->src_sa.address,
+                   (struct in6_addr *)buf->dst_sa.address,
+                   IPV6_NH_ICMPV6,
+                   buffer_data_pointer(buf),
+                   buffer_data_length(buf))) {
         TRACE(TR_DROP, "drop %-9s: invalid checksum", "icmpv6");
         return buffer_free(buf);
     }
@@ -513,7 +518,11 @@ buffer_t *icmpv6_down(buffer_t *buf)
         *dptr++ = buf->options.type;
         *dptr++ = buf->options.code;
         write_be16(dptr, 0);
-        write_be16(dptr, buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6));
+        write_be16(dptr, ipv6_cksum((struct in6_addr *)buf->src_sa.address,
+                                    (struct in6_addr *)buf->dst_sa.address,
+                                    IPV6_NH_ICMPV6,
+                                    buffer_data_pointer(buf),
+                                    buffer_data_length(buf)));
         buf->options.type = IPV6_NH_ICMPV6;
         buf->options.code = 0;
         buf->options.traffic_class &= ~IP_TCLASS_ECN_MASK;
