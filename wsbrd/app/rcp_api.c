@@ -18,7 +18,6 @@
 #include "common/log.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
-#include "common/spinel.h"
 #include "common/string_extra.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
@@ -537,12 +536,9 @@ void rcp_rx(struct rcp *rcp)
         return;
     capture_record_hif(buf.data, buf.data_size);
     cmd = hif_pop_u8(&buf);
-    if (cmd == 0xff)
-        spinel_trace(buf.data, buf.data_size, "hif rx: ");
-    else
-        TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(cmd),
-              tr_bytes(iobuf_ptr(&buf), iobuf_remaining_size(&buf),
-                       NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    TRACE(TR_HIF, "hif rx: %s %s", hif_cmd_str(cmd),
+          tr_bytes(iobuf_ptr(&buf), iobuf_remaining_size(&buf),
+                   NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
     if (!rcp_init_state_is_valid(rcp, cmd)) {
         TRACE(TR_DROP, "drop %-9s: unexpected command during reset sequence", "hif");
         return;
