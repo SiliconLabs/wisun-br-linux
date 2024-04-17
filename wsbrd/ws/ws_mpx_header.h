@@ -39,8 +39,8 @@ struct mpx_ie {
     uint16_t    frame_length;
 };
 
-bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *msg);
-void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg);
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *ie);
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *ie);
 
 
 #endif

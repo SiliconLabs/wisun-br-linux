@@ -30,7 +30,7 @@
 #define MPX_IE_TRANSFER_TYPE_MASK  0b00000111
 #define MPX_IE_TRANSACTION_ID_MASK 0b11111000
 
-bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *msg)
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct mpx_ie *ie)
 {
     struct iobuf_read ie_buf = {
         .data_size = length,
@@ -41,12 +41,12 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct m
     bool fragment_total_size = false;
     uint8_t tmp8;
 
-    memset(msg, 0, sizeof(struct mpx_ie));
+    memset(ie, 0, sizeof(struct mpx_ie));
     tmp8 = iobuf_pop_u8(&ie_buf);
-    msg->transfer_type  = FIELD_GET(MPX_IE_TRANSFER_TYPE_MASK,  tmp8);
-    msg->transaction_id = FIELD_GET(MPX_IE_TRANSACTION_ID_MASK, tmp8);
+    ie->transfer_type  = FIELD_GET(MPX_IE_TRANSFER_TYPE_MASK,  tmp8);
+    ie->transaction_id = FIELD_GET(MPX_IE_TRANSACTION_ID_MASK, tmp8);
 
-    switch (msg->transfer_type) {
+    switch (ie->transfer_type) {
     case MPX_FT_FULL_FRAME:
         multiplex_id_present = true;
         break;
@@ -63,22 +63,22 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, struct m
         return false;
     }
     if (fragmented_number_present) {
-        msg->fragment_number = iobuf_pop_u8(&ie_buf);
-        if (msg->fragment_number == 0) { // First fragment
+        ie->fragment_number = iobuf_pop_u8(&ie_buf);
+        if (ie->fragment_number == 0) { // First fragment
             fragment_total_size = true;
             multiplex_id_present = true;
         }
     }
     if (fragment_total_size)
-        msg->total_upper_layer_size = iobuf_pop_le16(&ie_buf);
+        ie->total_upper_layer_size = iobuf_pop_le16(&ie_buf);
     if (multiplex_id_present)
-        msg->multiplex_id = iobuf_pop_le16(&ie_buf);
-    msg->frame_ptr = iobuf_ptr(&ie_buf);
-    msg->frame_length = iobuf_remaining_size(&ie_buf);
+        ie->multiplex_id = iobuf_pop_le16(&ie_buf);
+    ie->frame_ptr = iobuf_ptr(&ie_buf);
+    ie->frame_length = iobuf_remaining_size(&ie_buf);
     return !ie_buf.err;
 }
 
-void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg)
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *ie)
 {
     bool fragmented_number_present = false;
     bool multiplex_id_present = false;
@@ -86,11 +86,11 @@ void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg)
     uint8_t tmp8;
 
     tmp8 = 0;
-    tmp8 |= FIELD_PREP(MPX_IE_TRANSFER_TYPE_MASK,  msg->transfer_type);
-    tmp8 |= FIELD_PREP(MPX_IE_TRANSACTION_ID_MASK, msg->transaction_id);
+    tmp8 |= FIELD_PREP(MPX_IE_TRANSFER_TYPE_MASK,  ie->transfer_type);
+    tmp8 |= FIELD_PREP(MPX_IE_TRANSACTION_ID_MASK, ie->transaction_id);
     iobuf_push_u8(buf, tmp8);
 
-    switch (msg->transfer_type) {
+    switch (ie->transfer_type) {
         case MPX_FT_FULL_FRAME:
             multiplex_id_present = true;
             break;
@@ -99,13 +99,13 @@ void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg)
         case MPX_FT_FIRST_OR_SUB_FRAGMENT:
         case MPX_FT_LAST_FRAGMENT:
             fragmented_number_present = true;
-            if (msg->fragment_number == 0) {
+            if (ie->fragment_number == 0) {
                 fragment_total_size = true;
                 multiplex_id_present = true;
             }
             break;
         case MPX_FT_ABORT:
-            if (msg->total_upper_layer_size) {
+            if (ie->total_upper_layer_size) {
                 fragment_total_size = true;
             }
             break;
@@ -113,9 +113,9 @@ void ws_llc_mpx_header_write(struct iobuf_write *buf, const struct mpx_ie *msg)
             break;
     }
     if (fragmented_number_present)
-        iobuf_push_u8(buf, msg->fragment_number);
+        iobuf_push_u8(buf, ie->fragment_number);
     if (fragment_total_size)
-        iobuf_push_le16(buf, msg->total_upper_layer_size);
+        iobuf_push_le16(buf, ie->total_upper_layer_size);
     if (multiplex_id_present)
-        iobuf_push_le16(buf, msg->multiplex_id);
+        iobuf_push_le16(buf, ie->multiplex_id);
 }
