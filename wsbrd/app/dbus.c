@@ -148,7 +148,7 @@ int dbus_set_link_edfe(sd_bus_message *m, void *userdata, sd_bus_error *ret_erro
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    const uint8_t *ipv6;
+    const struct in6_addr *ipv6;
     size_t len;
     int ret;
 
@@ -156,10 +156,12 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = wsbr_tun_join_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, errno);
-    addr_add_group(&ctxt->net_if, ipv6);
+    ret = tun_addr_add_mc(&ctxt->tun, ipv6);
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return sd_bus_error_set_errno(ret_error, -ret);
+    }
+    addr_add_group(&ctxt->net_if, ipv6->s6_addr);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -167,7 +169,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    const uint8_t *ipv6;
+    const struct in6_addr *ipv6;
     size_t len;
     int ret;
 
@@ -175,10 +177,12 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, errno);
-    addr_remove_group(&ctxt->net_if, ipv6);
+    ret = tun_addr_del_mc(&ctxt->tun, ipv6);
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return sd_bus_error_set_errno(ret_error, -ret);
+    }
+    addr_remove_group(&ctxt->net_if, ipv6->s6_addr);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }

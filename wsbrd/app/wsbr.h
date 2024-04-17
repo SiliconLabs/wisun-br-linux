@@ -27,6 +27,7 @@ typedef struct sd_bus sd_bus;
 #include "common/events_scheduler.h"
 #include "common/rcp_api.h"
 #include "common/timer.h"
+#include "common/tun.h"
 #include "net/protocol.h"
 
 #include "commandline.h"
@@ -61,9 +62,7 @@ struct wsbr_ctxt {
 
     int timerfd;
 
-    int  tun_fd;
-    int  sock_mcast;
-
+    struct tun_ctx tun;
     struct rcp rcp;
 
     int spinel_tid;

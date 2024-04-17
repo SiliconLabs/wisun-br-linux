@@ -35,6 +35,7 @@
 #include "common/endian.h"
 #include "common/iobuf.h"
 #include "common/netinet_in_extra.h"
+#include "common/tun.h"
 #include "common/specs/icmpv6.h"
 
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -54,7 +55,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     ssize_t ret;
 
-    ret = xwrite(ctxt->tun_fd, buf, len);
+    ret = xwrite(ctxt->tun.fd, buf, len);
     TRACE(TR_TUN, "tx-tun: %u bytes", len);
     if (ret < 0)
         WARN("%s: write: %m", __func__);
@@ -200,185 +201,52 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     nl_socket_free(sock);
 }
 
-static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[8], const uint8_t hw_mac_addr[8], bool register_proxy_ndp)
-{
-    int err = 0;
-    uint8_t ipv6_addr_buf[16] = { };
-    struct rtnl_addr *ipv6_addr = NULL;
-    struct nl_addr* lo_ipv6_addr = NULL;
-
-    memcpy(ipv6_addr_buf, ipv6_prefix, 8);
-    memcpy(ipv6_addr_buf + 8, hw_mac_addr, 8);
-    if (register_proxy_ndp)
-        tun_add_node_to_proxy_neightbl(NULL, ipv6_addr_buf);
-    lo_ipv6_addr = nl_addr_build(AF_INET6, ipv6_addr_buf, sizeof(ipv6_addr_buf));
-    FATAL_ON(!lo_ipv6_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
-    nl_addr_set_prefixlen(lo_ipv6_addr, register_proxy_ndp ? 128 : 64);
-    ipv6_addr = rtnl_addr_alloc();
-    err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr);
-    FATAL_ON(err < 0, 2, "rtnl_addr_set_local %s: %s", tr_ipv6(ipv6_addr_buf), nl_geterror(err));
-    rtnl_addr_set_ifindex(ipv6_addr, ifindex);
-    rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
-    err = rtnl_addr_add(sock, ipv6_addr, 0);
-    if (err < 0 && err != -NLE_EXIST)
-        FATAL(2, "rtnl_addr_add %s: %s", tr_ipv6(ipv6_addr_buf), nl_geterror(err));
-    nl_addr_put(lo_ipv6_addr);
-    rtnl_addr_put(ipv6_addr);
-}
-
-static int wsbr_tun_open(char *devname, const uint8_t hw_mac[8], uint8_t ipv6_prefix[16], bool tun_autoconf, bool register_proxy_ndp)
-{
-    struct rtnl_link *link;
-    struct nl_sock *sock;
-    struct ifreq ifr = {
-        .ifr_flags = IFF_TUN | IFF_NO_PI,
-    };
-    int fd, ifindex;
-    uint8_t hw_mac_slaac[8];
-    bool is_user_configured;
-    uint8_t mode;
-    int err;
-
-    memcpy(hw_mac_slaac, hw_mac, 8);
-    hw_mac_slaac[0] ^= 2;
-
-    if (devname && *devname)
-        strcpy(ifr.ifr_name, devname);
-    fd = open("/dev/net/tun", O_RDWR);
-    if (fd < 0)
-        FATAL(2, "tun open: %m");
-    if (ioctl(fd, TUNSETIFF, &ifr))
-        FATAL(2, "tun ioctl: %m");
-    capture_register_netfd(fd);
-    if (devname)
-        strcpy(devname, ifr.ifr_name);
-    sock = nl_socket_alloc();
-    if (nl_connect(sock, NETLINK_ROUTE))
-        FATAL(2, "nl_connect");
-
-    if (rtnl_link_get_kernel(sock, 0, ifr.ifr_name, &link))
-        FATAL(2, "rtnl_link_get_kernel %s", ifr.ifr_name);
-    is_user_configured = (rtnl_link_get_operstate(link) == IF_OPER_UP) && (rtnl_link_get_flags(link) & IFF_UP);
-    ifindex = rtnl_link_get_ifindex(link);
-    if (is_user_configured) {
-        err = rtnl_link_inet6_get_addr_gen_mode(link, &mode);
-        if (err < 0 || mode != 1)
-            WARN("%s: unexpected addr_gen_mode", devname);
-        if (rtnl_link_get_mtu(link) > 1280)
-            WARN("%s: mtu is above 1280 (not 15.4 compliant)", devname);
-        if (rtnl_link_get_txqlen(link) > 10)
-            WARN("%s: txqlen is above 10", devname);
-    }
-    rtnl_link_put(link);
-
-    link = rtnl_link_alloc();
-    rtnl_link_set_ifindex(link, ifindex);
-    if (!is_user_configured) {
-        rtnl_link_set_mtu(link, 1280);
-        rtnl_link_set_txqlen(link, 10);
-        rtnl_link_inet6_set_addr_gen_mode(link, rtnl_link_inet6_str2addrgenmode("none"));
-        err = rtnl_link_add(sock, link, NLM_F_CREATE);
-        FATAL_ON(err < 0, 2, "rtnl_link_add %s: %s", ifr.ifr_name, nl_geterror(err));
-    }
-    // Addresses must be set after set_addr_gen_mode() and before IFF_UP.
-    if (tun_autoconf) {
-        tun_addr_add(sock, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac, false);
-        tun_addr_add(sock, ifindex, ipv6_prefix, hw_mac_slaac, register_proxy_ndp);
-    }
-    if (!is_user_configured) {
-        rtnl_link_set_operstate(link, IF_OPER_UP);
-        rtnl_link_set_flags(link, IFF_UP);
-        err = rtnl_link_add(sock, link, NLM_F_CREATE);
-        FATAL_ON(err < 0, 2, "rtnl_link_add %s: %s", ifr.ifr_name, nl_geterror(err));
-    }
-    rtnl_link_put(link);
-
-    nl_socket_free(sock);
-    return fd;
-}
-
-static void wsbr_sysctl_set(const char *path, const char *devname, const char *option, char wanted_value)
-{
-    char buf[256];
-    char content;
-    int fd;
-
-    BUG_ON(!path || !option);
-
-    if (devname)
-        snprintf(buf, sizeof(buf), "%s/%s/%s", path, devname, option);
-    else
-        snprintf(buf, sizeof(buf), "%s/%s", path, option);
-    fd = open(buf, O_RDONLY);
-    if (fd < 0)
-        FATAL(2, "open %s: %m", buf);
-    if (read(fd, &content, 1) <= 0)
-        FATAL(2, "read %s: %m", buf);
-    close(fd);
-    // Don't try to write the file if not necessary so wsrbd can launched
-    // without root permissions.
-    if (content != wanted_value) {
-        fd = open(buf, O_WRONLY);
-        if (fd < 0) {
-            WARN("%s: cannot set %s to %c (%m)", devname ? devname : "ipv6", option, wanted_value);
-            close(fd);
-            return;
-        }
-        if (write(fd, &wanted_value, 1) <= 0)
-            FATAL(2, "write %s: %m", buf);
-        close(fd);
-    }
-}
-
-static void wsbr_tun_mcast_init(int * sock_ptr, const char * if_name)
-{
-    *sock_ptr = socket(AF_INET6, SOCK_DGRAM | SOCK_CLOEXEC, 0);
-    if (*sock_ptr < 0)
-        FATAL(1, "%s: socket: %m", __func__);
-    // ff02::1 and ff02::2 are automatically joined by Linux when the interface is brought up
-    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_LINK_LOCAL_ALL_RPL_NODES);   // ff02::1a
-    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_REALM_LOCAL_ALL_NODES);      // ff03::1
-    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_REALM_LOCAL_ALL_ROUTERS);    // ff03::2
-    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_ALL_MPL_FORWARDERS);         // ff03::fc
-}
-
-int wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
-{
-    struct ipv6_mreq mreq;
-    int ret;
-
-    mreq.ipv6mr_interface = if_nametoindex(if_name);
-    memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
-    ret = setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq));
-    WARN_ON(ret < 0, "ipv6 join group \"%s\": %m", tr_ipv6(mcast_group));
-    return ret;
-}
-
-int wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
-{
-    struct ipv6_mreq mreq;
-    int ret;
-
-    mreq.ipv6mr_interface = if_nametoindex(if_name);
-    memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
-    ret = setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq));
-    WARN_ON(ret < 0, "ipv6 leave group \"%s\": %m", tr_ipv6(mcast_group));
-    return ret;
-}
-
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->rcp.eui64,
-                                 ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf,
-                                 strlen(ctxt->config.neighbor_proxy));
+    struct in6_addr addr;
+    int ret;
+
+    strcpy(ctxt->tun.ifname, ctxt->config.tun_dev);
+    tun_init(&ctxt->tun, ctxt->config.tun_autoconf);
+    strcpy(ctxt->config.tun_dev, ctxt->tun.ifname);
+    capture_register_netfd(ctxt->tun.fd);
+
+    if (ctxt->config.tun_autoconf) {
+        memcpy(addr.s6_addr + 8, ctxt->rcp.eui64, 8);
+        addr.s6_addr[8] ^= 0x02;
+
+        memcpy(addr.s6_addr, ADDR_LINK_LOCAL_PREFIX, 8);
+        tun_addr_add(&ctxt->tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
+        if (ctxt->config.neighbor_proxy[0])
+            tun_add_node_to_proxy_neightbl(NULL, addr.s6_addr);
+
+        memcpy(addr.s6_addr, ctxt->config.ipv6_prefix, 8);
+        tun_addr_add(&ctxt->tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
+        if (ctxt->config.neighbor_proxy[0])
+            tun_add_node_to_proxy_neightbl(NULL, addr.s6_addr);
+    }
+
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
-    wsbr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
     if (strlen(ctxt->config.neighbor_proxy)) {
-        wsbr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
-        wsbr_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
+        tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
+        tun_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
     }
-    wsbr_tun_mcast_init(&ctxt->sock_mcast, ctxt->config.tun_dev);
+
+    // ff02::1 and ff02::2 are automatically joined by Linux when the interface is brought up
+    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_LINK_LOCAL_ALL_RPL_NODES); // ff02::1a
+    if (ret < 0 && ret != -EADDRINUSE)
+        FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_LINK_LOCAL_ALL_RPL_NODES), strerror(-ret));
+    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_NODES);    // ff03::1
+    if (ret < 0 && ret != -EADDRINUSE)
+        FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_REALM_LOCAL_ALL_NODES), strerror(-ret));
+    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_ROUTERS);  // ff03::2
+    if (ret < 0 && ret != -EADDRINUSE)
+        FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_REALM_LOCAL_ALL_ROUTERS), strerror(-ret));
+    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_ALL_MPL_FORWARDERS);       // ff03::fc
+    if (ret < 0 && ret != -EADDRINUSE)
+        FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_ALL_MPL_FORWARDERS), strerror(-ret));
 }
 
 static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
@@ -407,7 +275,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 
     if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
         return;
-    iobuf.data_size = xread(ctxt->tun_fd, buf, sizeof(buf));
+    iobuf.data_size = xread(ctxt->tun.fd, buf, sizeof(buf));
     if (iobuf.data_size < 0) {
         WARN("%s: read: %m", __func__);
         return;

@@ -93,7 +93,7 @@ ssize_t __wrap_write(int fd, const void *buf, size_t count)
     if (fd == ctxt->wsbrd->rcp.bus.fd && ctxt->replay_count)
         return count;
 
-    if (fd == ctxt->wsbrd->tun_fd && ctxt->replay_count)
+    if (fd == ctxt->wsbrd->tun.fd && ctxt->replay_count)
         return count;
 
     return __real_write(fd, buf, count);

@@ -77,7 +77,7 @@ struct wsbr_ctxt g_ctxt = {
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,
-    .tun_fd = -1,
+    .tun.fd = -1,
     .pcapng_fd = -1,
     .rcp.bus.fd = -1,
     .dhcp_server.fd = -1,
@@ -456,7 +456,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_DBUS].events = POLLIN;
     ctxt->fds[POLLFD_RCP].fd = ctxt->rcp.bus.fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
-    ctxt->fds[POLLFD_TUN].fd = ctxt->tun_fd;
+    ctxt->fds[POLLFD_TUN].fd = ctxt->tun.fd;
     ctxt->fds[POLLFD_TUN].events = POLLIN;
     ctxt->fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
     ctxt->fds[POLLFD_EVENT].events = POLLIN;
