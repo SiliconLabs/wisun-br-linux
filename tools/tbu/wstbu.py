@@ -465,7 +465,15 @@ def put_config_border_router():
     if 'sixLowpanMtu' in json:
         wsbrd.config['lowpan_mtu'] = json['sixLowpanMtu']
     wsbrd.config['enable_lfn'] = json.get('lfnJoinEnabled', False)
-    wsbrd.config['enable_ffn10'] = not wsbrd.config['enable_lfn']
+    if 'mplSeedLength' in json:
+        if json['mplSeedLength'] == 0:
+            wsbrd.config['enable_ffn10'] = False
+        elif json['mplSeedLength'] == 3:
+            wsbrd.config['enable_ffn10'] = True
+        else:
+            return error(400, WSTBU_ERR_UNSUPPORTED, 'invalid mplSeedLength')
+    else:
+        wsbrd.config['enable_ffn10'] = not wsbrd.config['enable_lfn']
     return success()
 
 
