@@ -16,6 +16,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/mpx.h"
 #include "common/named_values.h"
 #include "common/rcp_api.h"
 #include "common/ws_ie.h"
@@ -275,6 +276,49 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
                         bc_chan_mask);
 }
 
+void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    struct ws_neigh *neigh;
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
+    struct mpx_ie ie_mpx;
+
+    if (ws->pan_id == 0xffff) {
+        TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
+        return;
+    }
+    if (!memcmp(ind->hdr.dst, ieee802154_addr_bc, 8) && ind->hdr.pan_id != ws->pan_id) {
+        TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
+        return;
+    }
+    if (!ind->hdr.key_index) {
+        TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
+        return;
+    }
+
+    if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
+        ie_mpx.multiplex_id  != MPX_ID_6LOWPAN ||
+        ie_mpx.transfer_type != MPX_FT_FULL_FRAME) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
+        return;
+    }
+
+    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
+    if (!neigh)
+        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
+    else
+        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
+
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+
+    if (ws_ie_validate_us(ws, &ind->ie_wp, &ie_us)) {
+        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    }
+}
+
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 {
     unsigned int tr_domain;
@@ -324,6 +368,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
         break;
     case WS_FT_PC:
         ws_recv_pc(ws, &ind);
+        break;
+    case WS_FT_DATA:
+        ws_recv_data(ws, &ind);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");

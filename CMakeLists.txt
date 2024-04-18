@@ -285,6 +285,7 @@ add_library(libwsrd STATIC
     common/iobuf.c
     common/key_value_storage.c
     common/log.c
+    common/mpx.c
     common/named_values.c
     common/parsers.c
     common/rail_config.c
