@@ -35,7 +35,6 @@ void protocol_push(buffer_t *buf);
 void protocol_core_init(void);
 
 typedef enum multicast_mpl_seed_id_mode {
-    MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
     MULTICAST_MPL_SEED_ID_MAC_SHORT = -1,               /** Use short MAC address if available (eg IEEE 802.15.4 interface's macShortAddress (16-bit)), else full MAC */
     MULTICAST_MPL_SEED_ID_MAC = -2,                     /** Use MAC padded to 64-bit (eg IEEE 802.15.4 interface's macExtendedAddress, or 48-bit Ethernet MAC followed by 2 zero pad bytes) */
     MULTICAST_MPL_SEED_ID_IID_EUI64 = -3,               /** Use 64-bit IPv6 IID based on EUI-64 (eg 02:11:22:ff:fe:00:00:00 for an Ethernet interface with MAC 00:11:22:00:00:00) */

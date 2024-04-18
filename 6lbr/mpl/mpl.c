@@ -187,11 +187,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
         return NULL;
     }
 
-    if (seed_id_mode == MULTICAST_MPL_SEED_ID_DEFAULT) {
-        seed_id_mode = MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN;
-        seed_id = NULL;
-    }
-
     uint8_t seed_id_len;
     if (seed_id_mode > 0) {
         seed_id_len = seed_id_mode;
