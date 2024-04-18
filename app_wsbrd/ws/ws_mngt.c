@@ -171,7 +171,7 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
 
-    if (data->Key.SecurityLevel != SEC_ENC_MIC64) {
+    if (data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64) {
         TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(WS_FT_PC));
         return;
     }
@@ -379,7 +379,7 @@ static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])
         .wh_ies.lbt      = true,
         .wp_ies.lfnver   = true,
         .wp_ies.lgtkhash = true,
-        .security.SecurityLevel = SEC_ENC_MIC64,
+        .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .security.KeyIndex      = ws_info->lfn_gtk_index,
     };
 
@@ -444,7 +444,7 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
 void ws_mngt_ind(struct ws_info *ws_info, const struct mcps_data_ind *data,
                  const struct mcps_data_rx_ie_list *ie_ext, uint8_t message_type)
 {
-    if (data->SrcAddrMode != MAC_ADDR_MODE_64_BIT) {
+    if (data->SrcAddrMode != IEEE802154_ADDR_MODE_64_BIT) {
         // Not from long address
         return;
     }
@@ -516,7 +516,7 @@ void ws_mngt_pc_send(struct ws_info *ws_info)
         .wp_ies.gtkhash  = true,
         .wp_ies.lgtkhash = ws_info->enable_lfn,
         .wp_ies.lfnver   = ws_info->enable_lfn,
-        .security.SecurityLevel = SEC_ENC_MIC64,
+        .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .security.KeyIndex = ws_info->ffn_gtk_index
     };
 
@@ -556,7 +556,7 @@ void ws_mngt_lts_send(struct ws_info *ws_info)
         .wh_ies.bt     = true,
         .wh_ies.lbt    = true,
         .wp_ies.lfnver = true,
-        .security.SecurityLevel = SEC_ENC_MIC64,
+        .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .security.KeyIndex      = ws_info->lfn_gtk_index,
     };
 

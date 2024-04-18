@@ -460,7 +460,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
         ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
-    if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
+    if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT)
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, msg->dst_address);
 
     if (ws_neigh) {
@@ -577,7 +577,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (!mpx_user)
         return;
 
-    if (data->Key.SecurityLevel != SEC_ENC_MIC64) {
+    if (data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64) {
         TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(WS_FT_DATA));
         return;
     }
@@ -1280,7 +1280,7 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
-    struct ws_neigh *ws_neigh = data->DstAddrMode == MAC_ADDR_MODE_64_BIT ?
+    struct ws_neigh *ws_neigh = data->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT ?
                                 ws_neigh_get(&ws_info->neighbor_storage, data->DstAddr) :
                                 NULL;
     uint8_t node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
@@ -1296,7 +1296,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
                ws_info->phy_config.phy_op_modes[1],
         // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
         .jm  = ws_info->pan_information.jm.mask &&
-               data->DstAddrMode == MAC_ADDR_MODE_NONE &&
+               data->DstAddrMode == IEEE802154_ADDR_MODE_NONE &&
                ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_params.k,
     };
     uint24_t adjusted_offset_ms = 0;
@@ -1370,7 +1370,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
      */
     if (!ws_neigh) {
         data_req.PanIdSuppressed = false;
-        data_req.DstAddrMode = MAC_ADDR_MODE_NONE;
+        data_req.DstAddrMode = IEEE802154_ADDR_MODE_NONE;
     } else {
         data_req.PanIdSuppressed = true;
     }
@@ -1425,7 +1425,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->SrcAddrMode = message->src_address_type;
     if (!data_req->TxAckReq) {
         data_req->PanIdSuppressed = false;
-        data_req->DstAddrMode = MAC_ADDR_MODE_NONE;
+        data_req->DstAddrMode = IEEE802154_ADDR_MODE_NONE;
     } else {
         data_req->PanIdSuppressed = true;
         data_req->DstAddrMode = message->dst_address_type;
@@ -1451,7 +1451,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries.active_eapol_session = true;
-    BUG_ON(data_req.DstAddrMode != MAC_ADDR_MODE_64_BIT); // EAPOL frames are unicast
+    BUG_ON(data_req.DstAddrMode != IEEE802154_ADDR_MODE_64_BIT); // EAPOL frames are unicast
     if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     else
@@ -1700,7 +1700,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     mcps_data_req_t data_req;
     memset(&data_req, 0, sizeof(mcps_data_req_t));
     data_req.SeqNumSuppressed = true;
-    data_req.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
+    data_req.SrcAddrMode = IEEE802154_ADDR_MODE_64_BIT;
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
     data_req.frame_type = request->frame_type;
@@ -1727,8 +1727,8 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     mcps_data_req_t data_req = {
         .SeqNumSuppressed = true,
         .PanIdSuppressed  = true,
-        .SrcAddrMode = MAC_ADDR_MODE_64_BIT,
-        .DstAddrMode = dst ? MAC_ADDR_MODE_64_BIT : MAC_ADDR_MODE_NONE,
+        .SrcAddrMode = IEEE802154_ADDR_MODE_64_BIT,
+        .DstAddrMode = dst ? IEEE802154_ADDR_MODE_64_BIT : IEEE802154_ADDR_MODE_NONE,
         .frame_type = req->frame_type,
         .Key = req->security,
     };

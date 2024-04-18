@@ -65,9 +65,9 @@ void wsbr_data_req_ext(struct net_if *cur,
     struct iobuf_write frame = { };
 
     BUG_ON(data->TxAckReq && data->fhss_type == HIF_FHSS_TYPE_ASYNC);
-    BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_NONE &&
+    BUG_ON(data->DstAddrMode != IEEE802154_ADDR_MODE_NONE &&
            (data->fhss_type == HIF_FHSS_TYPE_FFN_BC || data->fhss_type == HIF_FHSS_TYPE_LFN_BC || data->fhss_type == HIF_FHSS_TYPE_ASYNC));
-    BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_64_BIT &&
+    BUG_ON(data->DstAddrMode != IEEE802154_ADDR_MODE_64_BIT &&
            (data->fhss_type == HIF_FHSS_TYPE_FFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_PA));
     BUG_ON(!ie_ext);
     BUG_ON(ie_ext->payloadIovLength > 2);

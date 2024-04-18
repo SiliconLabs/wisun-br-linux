@@ -99,8 +99,8 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
         length += 4;
     }
 
-    length += mac_helper_header_security_aux_header_length(MAC_KEY_ID_MODE_IDX);
-    length += mac_helper_security_mic_length_get(SEC_ENC_MIC64);
+    length += mac_helper_header_security_aux_header_length(IEEE802154_KEY_ID_MODE_IDX);
+    length += mac_helper_security_mic_length_get(IEEE802154_SEC_LEVEL_ENC_MIC64);
 
     return length;
 }
@@ -109,20 +109,20 @@ static uint8_t mac_helper_security_mic_length_get(uint8_t security_level)
 {
     uint8_t mic_length;
     switch (security_level) {
-        case SEC_MIC32:
-        case SEC_ENC_MIC32:
+        case IEEE802154_SEC_LEVEL_MIC32:
+        case IEEE802154_SEC_LEVEL_ENC_MIC32:
             mic_length = 4;
             break;
-        case SEC_MIC64:
-        case SEC_ENC_MIC64:
+        case IEEE802154_SEC_LEVEL_MIC64:
+        case IEEE802154_SEC_LEVEL_ENC_MIC64:
             mic_length = 8;
             break;
-        case SEC_MIC128:
-        case SEC_ENC_MIC128:
+        case IEEE802154_SEC_LEVEL_MIC128:
+        case IEEE802154_SEC_LEVEL_ENC_MIC128:
             mic_length = 16;
             break;
-        case SEC_NONE:
-        case SEC_ENC:
+        case IEEE802154_SEC_LEVEL_NONE:
+        case IEEE802154_SEC_LEVEL_ENC:
         default:
             mic_length = 0;
             break;
@@ -136,13 +136,13 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode)
 
     uint8_t header_length = 5; //Header + 32-bit counter
     switch (keyIdmode) {
-        case MAC_KEY_ID_MODE_SRC8_IDX:
+        case IEEE802154_KEY_ID_MODE_SRC8_IDX:
             header_length += 4; //64-bit key source first part
         /* fall through  */
-        case MAC_KEY_ID_MODE_SRC4_IDX:
+        case IEEE802154_KEY_ID_MODE_SRC4_IDX:
             header_length += 4; //32-bit key source inline
         /* fall through  */
-        case MAC_KEY_ID_MODE_IDX:
+        case IEEE802154_KEY_ID_MODE_IDX:
             header_length += 1;
             break;
         default:

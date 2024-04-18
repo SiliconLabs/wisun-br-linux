@@ -608,7 +608,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     dataReq->msduHandle = buf->seq;
 
     //Set Messages
-    dataReq->Key.SecurityLevel = SEC_ENC_MIC64;
+    dataReq->Key.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, dataReq->DstAddr);
 
@@ -941,7 +941,7 @@ static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_
     // HACK: nanostack uses 0xffff as a broadcast address instead of supporting
     // no address like Wi-SUN. Short address support should be dropped
     // altogether.
-    if (data_ind->DstAddrMode != MAC_ADDR_MODE_NONE) {
+    if (data_ind->DstAddrMode != IEEE802154_ADDR_MODE_NONE) {
         memcpy(ptr, data_ind->DstAddr, 8);
         buf->dst_sa.addr_type = data_ind->DstAddrMode;
     } else {

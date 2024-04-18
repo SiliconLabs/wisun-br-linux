@@ -91,24 +91,24 @@ static const struct {
     bool src_pan_id;
     bool pan_id_compression;
 } ieee802154_table_pan_id_comp[] = {
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_NONE,   false, false, 0 },
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_NONE,   true,  false, 1 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_NONE,   true,  false, 0 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_NONE,   true,  false, 0 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_NONE,   false, false, 1 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_NONE,   false, false, 1 },
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_16_BIT, false, true,  0 },
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_64_BIT, false, true,  0 },
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_16_BIT, false, false, 1 },
-    { MAC_ADDR_MODE_NONE,   MAC_ADDR_MODE_64_BIT, false, false, 1 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_64_BIT, true,  false, 0 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_64_BIT, false, false, 1 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_16_BIT, true,  true,  0 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_64_BIT, true,  true,  0 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_16_BIT, true,  true,  0 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_64_BIT, true,  false, 1 },
-    { MAC_ADDR_MODE_64_BIT, MAC_ADDR_MODE_16_BIT, true,  false, 1 },
-    { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_16_BIT, true,  false, 1 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_NONE,   false, false, 0 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_NONE,   true,  false, 1 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_NONE,   true,  false, 0 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_NONE,   true,  false, 0 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_NONE,   false, false, 1 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_NONE,   false, false, 1 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_16_BIT, false, true,  0 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_64_BIT, false, true,  0 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_16_BIT, false, false, 1 },
+    { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_64_BIT, false, false, 1 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_64_BIT, true,  false, 0 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_64_BIT, false, false, 1 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  true,  0 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_64_BIT, true,  true,  0 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  true,  0 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_64_BIT, true,  false, 1 },
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  false, 1 },
+    { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  false, 1 },
 };
 
 int wsbr_data_ind_rebuild(uint8_t frame[],
@@ -128,7 +128,7 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
         | FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      ind->DSN_suppressed)
         | FIELD_PREP(IEEE802154_FCF_IE_PRESENT,         ie->headerIeListLength || ie->payloadIeListLength)
         | FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      ind->DstAddrMode)
-        | FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      MAC_FRAME_VERSION_2015)
+        | FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      IEEE802154_FRAME_VERSION_2015)
         | FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      ind->SrcAddrMode);
     frame = write_le16(frame, fcf);
     if (!ind->DSN_suppressed)
@@ -142,19 +142,19 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
     BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
         frame = write_le16(frame, ind->DstPANId);
-    if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (ind->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         memrcpy(frame, ind->DstAddr, 8);
         frame += 8;
-    } else if (ind->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
+    } else if (ind->DstAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
         memrcpy(frame, ind->DstAddr, 2);
         frame += 2;
     }
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         frame = write_le16(frame, ind->SrcPANId);
-    if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (ind->SrcAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         memrcpy(frame, ind->SrcAddr, 8);
         frame += 8;
-    } else if (ind->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
+    } else if (ind->SrcAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
         memrcpy(frame, ind->SrcAddr, 2);
         frame += 2;
     }
@@ -175,11 +175,11 @@ static int wsbr_data_sec_parse(struct iobuf_read *iobuf, struct mlme_security *s
 
     scf = iobuf_pop_u8(iobuf);
     sec->SecurityLevel = FIELD_GET(IEEE802154_SECURITY_LEVEL, scf);
-    if (sec->SecurityLevel != SEC_ENC_MIC64) {
+    if (sec->SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64) {
         TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
         return -ENOTSUP;
     }
-    if (FIELD_GET(IEEE802154_SECURITY_KEY_MODE, scf) != MAC_KEY_ID_MODE_IDX) {
+    if (FIELD_GET(IEEE802154_SECURITY_KEY_MODE, scf) != IEEE802154_KEY_ID_MODE_IDX) {
         TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
         return -ENOTSUP;
     }
@@ -258,7 +258,7 @@ int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
         return -ENOTSUP;
     }
-    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != MAC_FRAME_VERSION_2015) {
+    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != IEEE802154_FRAME_VERSION_2015) {
         TRACE(TR_DROP, "drop %-9s: unsupported frame version", "15.4");
         return -ENOTSUP;
     }
@@ -287,9 +287,9 @@ int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
     else
         ind->DstPANId = pan_id;
 
-    if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (ind->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         write_be64(ind->DstAddr, iobuf_pop_le64(&iobuf));
-    } else if (ind->DstAddrMode != MAC_ADDR_MODE_NONE) {
+    } else if (ind->DstAddrMode != IEEE802154_ADDR_MODE_NONE) {
         TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
         return -ENOTSUP;
     }
@@ -299,9 +299,9 @@ int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
     else
         ind->SrcPANId = ind->DstPANId;
 
-    if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (ind->SrcAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         write_be64(ind->SrcAddr, iobuf_pop_le64(&iobuf));
-    } else if (ind->SrcAddrMode != MAC_ADDR_MODE_NONE) {
+    } else if (ind->SrcAddrMode != IEEE802154_ADDR_MODE_NONE) {
         TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
         return -ENOTSUP;
     }
@@ -355,7 +355,7 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
         return -ENOTSUP;
     }
-    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != MAC_FRAME_VERSION_2015) {
+    if (FIELD_GET(IEEE802154_FCF_FRAME_VERSION, fcf) != IEEE802154_FRAME_VERSION_2015) {
         TRACE(TR_DROP, "drop %-9s: unsupported frame version", "15.4");
         return -ENOTSUP;
     }
@@ -379,9 +379,9 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
         iobuf_pop_le16(&iobuf);
 
-    if (dst_addr_mode == MAC_ADDR_MODE_64_BIT) {
+    if (dst_addr_mode == IEEE802154_ADDR_MODE_64_BIT) {
         iobuf_pop_le64(&iobuf);
-    } else if (dst_addr_mode != MAC_ADDR_MODE_NONE) {
+    } else if (dst_addr_mode != IEEE802154_ADDR_MODE_NONE) {
         TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
         return -ENOTSUP;
     }
@@ -389,9 +389,9 @@ int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         iobuf_pop_le16(&iobuf);
 
-    if (src_addr_mode == MAC_ADDR_MODE_64_BIT) {
+    if (src_addr_mode == IEEE802154_ADDR_MODE_64_BIT) {
         iobuf_pop_le64(&iobuf);
-    } else if (src_addr_mode != MAC_ADDR_MODE_NONE) {
+    } else if (src_addr_mode != IEEE802154_ADDR_MODE_NONE) {
         TRACE(TR_DROP, "drop %-9s: unsupported address mode", "15.4");
         return -ENOTSUP;
     }
@@ -442,7 +442,7 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     fcf |= FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      req->SeqNumSuppressed);
     fcf |= FIELD_PREP(IEEE802154_FCF_IE_PRESENT,         ie->headerIovLength || ie->payloadIovLength);
     fcf |= FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      req->DstAddrMode);
-    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      MAC_FRAME_VERSION_2015);
+    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      IEEE802154_FRAME_VERSION_2015);
     fcf |= FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      req->SrcAddrMode);
     iobuf_push_le16(frame, fcf);
     if (!req->SeqNumSuppressed)
@@ -456,25 +456,25 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
         iobuf_push_le16(frame, req->DstPANId);
-    if (req->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (req->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         memrcpy(tmp, req->DstAddr, 8);
         iobuf_push_data(frame, tmp, 8);
-    } else if (req->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
+    } else if (req->DstAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
         memrcpy(tmp, req->DstAddr, 2);
         iobuf_push_data(frame, tmp, 2);
     }
 
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         iobuf_push_le16(frame, pan_id);
-    if (req->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+    if (req->SrcAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         memrcpy(tmp, rcp->eui64, 8);
         iobuf_push_data(frame, tmp, 8);
-    } else if (req->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
+    } else if (req->SrcAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
         BUG("unsupported");
     }
 
     if (req->Key.SecurityLevel) {
-        iobuf_push_u8(frame, FIELD_PREP(IEEE802154_SECURITY_KEY_MODE, MAC_KEY_ID_MODE_IDX) |
+        iobuf_push_u8(frame, FIELD_PREP(IEEE802154_SECURITY_KEY_MODE, IEEE802154_KEY_ID_MODE_IDX) |
                              FIELD_PREP(IEEE802154_SECURITY_LEVEL, req->Key.SecurityLevel));
         iobuf_push_data_reserved(frame, 4);  // Frame counter (never suppressed)
         iobuf_push_u8(frame, req->Key.KeyIndex);
@@ -494,10 +494,10 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     BUG_ON(ie->payloadIovLength > 2);
 
     // MIC
-    if (req->Key.SecurityLevel == SEC_MIC32 || req->Key.SecurityLevel == SEC_ENC_MIC32)
+    if (req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_MIC32 || req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC32)
         iobuf_push_data_reserved(frame, 4);
-    if (req->Key.SecurityLevel == SEC_MIC64 || req->Key.SecurityLevel == SEC_ENC_MIC64)
+    if (req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_MIC64 || req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64)
         iobuf_push_data_reserved(frame, 8);
-    if (req->Key.SecurityLevel == SEC_MIC128 || req->Key.SecurityLevel == SEC_ENC_MIC128)
+    if (req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_MIC128 || req->Key.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC128)
         iobuf_push_data_reserved(frame, 16);
 }
