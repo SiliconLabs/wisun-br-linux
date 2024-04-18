@@ -36,6 +36,7 @@
 #include "common/iobuf.h"
 #include "common/netinet_in_extra.h"
 #include "common/tun.h"
+#include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
 
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -44,11 +45,6 @@
 #include "net/ns_buffer.h"
 #include "tun.h"
 #include "wsbr.h"
-
-// IPv6 header (RFC8200 section 3)
-#define IPV6_VERSION_MASK       0b11110000000000000000000000000000
-#define IPV6_TRAFFIC_CLASS_MASK 0b00001111111100000000000000000000
-#define IPV6_FLOW_LABEL_MASK    0b00000000000011111111111111111111
 
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
 {
@@ -222,7 +218,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     }
     TRACE(TR_TUN, "rx-tun: %i bytes", iobuf.data_size);
 
-    ip_version = FIELD_GET(IPV6_VERSION_MASK, iobuf_pop_be32(&iobuf));
+    ip_version = FIELD_GET(IPV6_MASK_VERSION, iobuf_pop_be32(&iobuf));
     if (ip_version != 6) {
         TRACE(TR_DROP, "drop %-9s: unsupported IPv%u", "tun", ip_version);
         return;

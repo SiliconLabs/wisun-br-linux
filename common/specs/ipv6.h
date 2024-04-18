@@ -18,6 +18,11 @@
 #ifndef SPECS_IPV6_H
 #define SPECS_IPV6_H
 
+// RFC 8200 3. IPv6 Header Format
+#define IPV6_MASK_VERSION 0xf0000000
+#define IPV6_MASK_TCLASS  0x0ff00000
+#define IPV6_MASK_FLOW    0x000fffff
+
 #define IPV6_MIN_LINK_MTU   1280    /* All links can transfer 1280-octet IP packets */
 #define IPV6_MIN_FRAG_MRU   1500    /* All hosts can receive 1500-octet fragmented datagrams */
 
