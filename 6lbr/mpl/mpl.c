@@ -88,8 +88,6 @@ struct mpl_domain {
     NS_LIST_HEAD(mpl_seed_t, link) seeds;
     trickle_params_t data_trickle_params;
     ns_list_link_t link;
-    multicast_mpl_seed_id_mode_e seed_id_mode;
-    uint8_t seed_id[];
 };
 
 static NS_LIST_DEFINE(mpl_domains, mpl_domain_t, link);
@@ -165,7 +163,6 @@ static int mpl_domain_count_on_interface(struct net_if *cur)
 }
 
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
-                                const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_mode,
                                 uint16_t seed_set_entry_lifetime,
                                 const trickle_params_t *data_trickle_params)
 {
@@ -187,14 +184,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
         return NULL;
     }
 
-    uint8_t seed_id_len;
-    if (seed_id_mode > 0) {
-        seed_id_len = seed_id_mode;
-    } else {
-        seed_id_len = 0;
-    }
-
-    domain = zalloc(sizeof(struct mpl_domain) + seed_id_len);
+    domain = zalloc(sizeof(struct mpl_domain));
     memcpy(domain->address, address, 16);
     domain->interface = cur;
     domain->sequence = rand_get_8bit();
@@ -202,9 +192,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     ns_list_init(&domain->seeds);
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime;
     domain->data_trickle_params = *data_trickle_params;
-    domain->seed_id_mode = seed_id_mode;
-    if (seed_id)
-        memcpy(domain->seed_id, seed_id, seed_id_len);
     ns_list_add_to_end(&mpl_domains, domain);
 
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
@@ -629,6 +616,8 @@ void mpl_timer(int seconds)
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     mpl_domain_t *domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
+    const uint8_t *seed_id;
+    uint8_t seed_id_len;
 
     /* Deal with simpler modify-already-created-header case first. Note that no error returns. */
     if (stage == IPV6_EXTHDR_MODIFY) {
@@ -669,35 +658,8 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
         return buf;
     }
 
-    const uint8_t *seed_id;
-    uint8_t seed_id_len;
-    if (domain->seed_id_mode > 0) {
-        seed_id_len = domain->seed_id_mode;
-        seed_id = domain->seed_id;
-    } else {
-        switch (domain->seed_id_mode) {
-        case MULTICAST_MPL_SEED_ID_MAC_SHORT: // Not supported
-        case MULTICAST_MPL_SEED_ID_MAC:
-            seed_id = buf->interface->mac;
-            seed_id_len = 8;
-            break;
-
-        case MULTICAST_MPL_SEED_ID_IID_EUI64:
-            seed_id = buf->interface->iid_eui64;
-            seed_id_len = 8;
-            break;
-
-        case MULTICAST_MPL_SEED_ID_IID_SLAAC:
-            seed_id = buf->interface->iid_slaac;
-            seed_id_len = 8;
-            break;
-        default:
-        case MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN:
-            seed_id = addr_select_source(buf->interface, domain->address, 0);
-            seed_id_len = 16;
-            break;
-        }
-    }
+    seed_id = addr_select_source(buf->interface, domain->address, 0);
+    seed_id_len = 16;
 
     if (!seed_id) {
         tr_error("No MPL Seed ID");

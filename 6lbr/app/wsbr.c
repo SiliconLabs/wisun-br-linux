@@ -301,7 +301,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
-                                                NULL, MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN,
                                                 size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
     ctxt->net_if.ws_info.mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
