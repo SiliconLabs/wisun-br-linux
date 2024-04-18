@@ -10,19 +10,15 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WSRD_IPV6_H
-#define WSRD_IPV6_H
+#include <string.h>
 
-#include <netinet/in.h>
+#include "ipv6_addr.h"
 
-#include "common/tun.h"
+struct in6_addr ipv6_prefix_linklocal = { .s6_addr = { 0xfe, 0x80 } }; // fe80::
 
-struct ipv6_ctx {
-    struct tun_ctx tun;
-    struct in6_addr addr_linklocal;
-    uint8_t eui64[8];
-};
-
-void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8]);
-
-#endif
+// RFC 4291 Appendix A: Creating Modified EUI-64 Format Interface Identifiers
+void ipv6_addr_conv_iid_eui64(uint8_t out[8], const uint8_t in[8])
+{
+    memcpy(out, in, 8);
+    out[0] ^= 0x02;
+}

@@ -273,6 +273,7 @@ add_library(libwsrd STATIC
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
     wsrd/ipv6/ipv6.c
+    wsrd/ipv6/ipv6_addr.c
     wsrd/ws/ws.c
     common/bits.c
     common/bus_uart.c

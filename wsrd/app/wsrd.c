@@ -17,6 +17,7 @@
 #include <mbedtls/sha256.h>
 
 #include "wsrd/app/commandline.h"
+#include "wsrd/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -164,7 +165,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
-    ipv6_init(&wsrd->ws.ipv6);
+    ipv6_init(&wsrd->ws.ipv6, wsrd->rcp.eui64);
 }
 
 //   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
