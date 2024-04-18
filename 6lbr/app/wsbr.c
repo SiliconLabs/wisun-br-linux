@@ -300,8 +300,17 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ctxt->net_if.ws_info.fhss_config.bsi = rand_get_random_in_range(0, 0xffff);
 
     BUG_ON(ctxt->config.ws_size >= ARRAY_SIZE(size_params));
+    /*
+     *   Wi-SUN FAN 1.1v08 6.2.3.1.8 Multicast Forwarding
+     * For networks operating only with FAN 1.1 nodes, it is RECOMMENDED to set
+     * the S field to 0 and elide the seed-id field (source address is the FFN
+     * seed address). Otherwise by default, the S field value MUST be set to 3
+     * with the seed-id field set to the GUA\ULA of the FFN seed (this for
+     * backwards compatibility with FAN 1.0).
+     */
     ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
                                                 size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
+                                                ctxt->config.enable_ffn10 ? MPL_SEED_128_BIT : MPL_SEED_IPV6_SRC,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
     ctxt->net_if.ws_info.mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
 

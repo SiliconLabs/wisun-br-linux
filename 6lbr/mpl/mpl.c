@@ -45,11 +45,6 @@
 #define MPL_OPT_M           0x20
 #define MPL_OPT_V           0x10
 
-#define MPL_SEED_IPV6_SRC   0
-#define MPL_SEED_16_BIT     1
-#define MPL_SEED_64_BIT     2
-#define MPL_SEED_128_BIT    3
-
 #define MAX_BUFFERED_MESSAGES_SIZE 8192
 #define MAX_BUFFERED_MESSAGE_LIFETIME 600 // 1/10 s ticks
 
@@ -88,6 +83,7 @@ struct mpl_domain {
     NS_LIST_HEAD(mpl_seed_t, link) seeds;
     trickle_params_t data_trickle_params;
     ns_list_link_t link;
+    uint8_t seed_id_mode;
 };
 
 static NS_LIST_DEFINE(mpl_domains, mpl_domain_t, link);
@@ -163,7 +159,7 @@ static int mpl_domain_count_on_interface(struct net_if *cur)
 }
 
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
-                                uint16_t seed_set_entry_lifetime,
+                                uint16_t seed_set_entry_lifetime, uint8_t seed_id_mode,
                                 const trickle_params_t *data_trickle_params)
 {
     mpl_domain_t *domain;
@@ -193,6 +189,8 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime;
     domain->data_trickle_params = *data_trickle_params;
     ns_list_add_to_end(&mpl_domains, domain);
+    BUG_ON(seed_id_mode != MPL_SEED_IPV6_SRC && seed_id_mode != MPL_SEED_128_BIT);
+    domain->seed_id_mode = seed_id_mode;
 
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
     addr_add_group(cur, address);
@@ -659,7 +657,12 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
     }
 
     seed_id = addr_select_source(buf->interface, domain->address, 0);
-    seed_id_len = 16;
+    if (domain->seed_id_mode == MPL_SEED_IPV6_SRC)
+        seed_id_len = 0;
+    else if (domain->seed_id_mode == MPL_SEED_128_BIT)
+        seed_id_len = 16;
+    else
+        BUG();
 
     if (!seed_id) {
         tr_error("No MPL Seed ID");

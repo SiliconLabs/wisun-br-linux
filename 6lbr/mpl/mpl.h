@@ -27,6 +27,14 @@ struct net_if;
 struct trickle_params;
 typedef struct buffer buffer_t;
 
+// RFC 7731 6.1. MPL Option
+enum {
+    MPL_SEED_IPV6_SRC = 0,
+    MPL_SEED_16_BIT   = 1,
+    MPL_SEED_64_BIT   = 2,
+    MPL_SEED_128_BIT  = 3,
+};
+
 typedef struct mpl_domain mpl_domain_t;
 bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len);
 bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data);
@@ -37,7 +45,7 @@ void mpl_timer(int seconds);
 
 /* Time units for trickle parameters is 50 ms (1/20 s) ticks */
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
-                                uint16_t seed_set_entry_lifetime,
+                                uint16_t seed_set_entry_lifetime, uint8_t seed_id_mode,
                                 const struct trickle_params *data_trickle_params);
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
 bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);
