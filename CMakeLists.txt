@@ -470,6 +470,7 @@ if(COMPILE_DEVTOOLS)
         set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsrd-ns3 SHARED
             tools/simulation/wsrd_ns3.cpp
+            tools/simulation/wsrd_time.cpp
             tools/simulation/wsrd_uart.cpp
         )
         # Prevent conflict with bitand()
@@ -480,6 +481,9 @@ if(COMPILE_DEVTOOLS)
         target_link_options(wsrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=writev
+            -Wl,--wrap=timerfd_create
+            -Wl,--wrap=timerfd_settime
+            -Wl,--wrap=clock_gettime
             -Wl,--wrap=signal
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
