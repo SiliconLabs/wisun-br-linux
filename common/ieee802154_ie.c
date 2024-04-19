@@ -82,7 +82,7 @@ void ieee802154_ie_set_len(struct iobuf_write *buf, int offset, uint16_t len, ui
     uint16_t hdr;
 
     hdr = read_le16(ptr);
-    if (len >= (1u << __builtin_popcount(len_mask)))
+    if (len > FIELD_MAX(len_mask))
         BUG("IE length too big (%d)", len);
     BUG_ON(hdr & len_mask, "IE length already set");
     write_le16(ptr, hdr | FIELD_PREP(len_mask, len));
