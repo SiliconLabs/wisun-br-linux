@@ -116,9 +116,9 @@ static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params 
     memset(params, 0, sizeof(struct trickle_params));
     //   RFC 6550 - 8.3.1. Trickle Parameters
     // Imin: learned from the DIO message as (2^DIOIntervalMin) ms.
-    params->Imin = roundup(1ull << root->dio_i_min,
+    params->Imin = roundup(POW2(root->dio_i_min),
                            g_timers[WS_TIMER_RPL].period_ms) / g_timers[WS_TIMER_RPL].period_ms;
-    params->Imax = roundup(1ull << (root->dio_i_min + root->dio_i_doublings),
+    params->Imax = roundup(POW2(root->dio_i_min + root->dio_i_doublings),
                            g_timers[WS_TIMER_RPL].period_ms) / g_timers[WS_TIMER_RPL].period_ms;
     params->k    = root->dio_redundancy;
     params->TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;

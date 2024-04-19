@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "common/mathutils.h"
+
 #include "bits.h"
 
 void *bitfill(void *dst, bool val, size_t start, size_t end)
@@ -34,7 +36,7 @@ void *bitcpy(void *dst, const void *src, size_t len)
     uint8_t *dst8 = dst;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    uint8_t mask = (1u << nb_bits) - 1;
+    uint8_t mask = POW2(nb_bits) - 1;
 
     memcpy(dst8, src8, nb_bytes);
     if (!nb_bits)
@@ -53,7 +55,7 @@ void *bitcpy0(void *dst, const void *src, size_t len)
     uint8_t *dst8 = dst;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    uint8_t mask = (1u << nb_bits) - 1;
+    uint8_t mask = POW2(nb_bits) - 1;
 
     memcpy(dst8, src8, nb_bytes);
     if (!nb_bits)
@@ -71,7 +73,7 @@ int bitcmp(const void *s1, const void *s2, size_t len)
     const uint8_t *s2_8 = s2;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    uint8_t mask = (1u << nb_bits) - 1;
+    uint8_t mask = POW2(nb_bits) - 1;
     int ret;
 
     ret = memcmp(s1, s2, nb_bytes);
@@ -90,7 +92,7 @@ bool bitcmp0(const void *s1, size_t len)
     const uint8_t *s1_8 = s1;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    uint8_t mask = (1u << nb_bits) - 1;
+    uint8_t mask = POW2(nb_bits) - 1;
     int i;
 
     for (i = 0; i < nb_bytes; i++)

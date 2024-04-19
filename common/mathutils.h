@@ -37,6 +37,8 @@
     __x - (__x % (y));   \
 })
 
+#define POW2(n) (1ul << (n))
+
 // 32bit addition with saturation
 static inline uint32_t add32sat(uint32_t a, uint32_t b)
 {
