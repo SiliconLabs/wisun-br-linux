@@ -25,6 +25,7 @@
 
 enum {
     POLLFD_RCP,
+    POLLFD_TIMER,
     POLLFD_COUNT,
 };
 
@@ -155,6 +156,8 @@ int main(int argc, char *argv[])
         .rcp.bus.fd = -1,
         .rcp.on_reset = wsrd_on_rcp_reset,
         .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
+
+        .timer_ctx.fd = -1,
     };
     int ret;
 
@@ -164,18 +167,24 @@ int main(int argc, char *argv[])
     if (wsrd.config.color_output != -1)
         g_enable_color_traces = wsrd.config.color_output;
 
+    timer_ctxt_init(&wsrd.timer_ctx);
+
     wsrd_init_rcp(&wsrd);
     wsrd_init_radio(&wsrd);
     wsrd_init_ws(&wsrd);
 
     pfd[POLLFD_RCP].fd = wsrd.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
+    pfd[POLLFD_TIMER].fd = wsrd.timer_ctx.fd;
+    pfd[POLLFD_TIMER].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, wsrd.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
         if (wsrd.rcp.bus.uart.data_ready ||
             pfd[POLLFD_RCP].revents & POLLIN)
             rcp_rx(&wsrd.rcp);
+        if (pfd[POLLFD_TIMER].revents & POLLIN)
+            timer_ctxt_process(&wsrd.timer_ctx);
     }
 
     return EXIT_SUCCESS;

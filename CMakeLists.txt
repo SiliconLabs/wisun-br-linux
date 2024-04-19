@@ -288,6 +288,7 @@ add_executable(wsrd
     common/parsers.c
     common/rail_config.c
     common/rcp_api.c
+    common/timer.c
     common/ws_chan_mask.c
     common/ws_ie.c
     common/ws_regdb.c
