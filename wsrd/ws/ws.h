@@ -13,13 +13,16 @@
 #ifndef WSRD_WS_H
 #define WSRD_WS_H
 
+#include <stdint.h>
+
 #include "common/ws_ie.h"
 #include "common/ws_types.h"
 
 struct rcp_rx_ind;
 
 struct ws_ctx {
-    char netname[WS_NETNAME_LEN];
+    char     netname[WS_NETNAME_LEN];
+    uint16_t pan_id; // 0xffff if not set
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;
 };

@@ -38,6 +38,8 @@ struct wsrd g_wsrd = {
     .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
 
     .timer_ctx.fd = -1,
+
+    .ws.pan_id = 0xffff,
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)

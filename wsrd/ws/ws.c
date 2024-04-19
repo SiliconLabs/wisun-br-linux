@@ -19,6 +19,7 @@
 #include "common/named_values.h"
 #include "common/rcp_api.h"
 #include "common/ws_ie.h"
+#include "common/ws_regdb.h"
 #include "common/ws_types.h"
 
 #include "ws.h"
@@ -50,6 +51,134 @@ static const struct name_value ws_frames[] = {
 static const char *tr_ws_frame(uint8_t type)
 {
     return val_to_str(type, ws_frames, "unknown");
+}
+
+static bool ws_ie_validate_chan_plan(struct ws_ctx *ws, const struct ws_generic_channel_info *schedule)
+{
+    const struct ws_channel_plan_zero *plan0 = &schedule->plan.zero;
+    const struct ws_channel_plan_one *plan1 = &schedule->plan.one;
+    const struct ws_channel_plan_two *plan2 = &schedule->plan.two;
+    const struct chan_params *parms = NULL;
+    int plan_nr = schedule->channel_plan;
+
+    if (plan_nr == 1)
+        return plan1->ch0 * 1000      == ws->fhss.chan_params->chan0_freq &&
+               plan1->channel_spacing == ws_regdb_chan_spacing_id(ws->fhss.chan_params->chan_spacing);
+    if (plan_nr == 0)
+        parms = ws_regdb_chan_params(plan0->regulatory_domain,
+                                     0, plan0->operating_class);
+    if (plan_nr == 2)
+        parms = ws_regdb_chan_params(plan2->regulatory_domain,
+                                     plan2->channel_plan_id, 0);
+    if (!parms)
+        return false;
+    return parms->chan0_freq   == ws->fhss.chan_params->chan0_freq &&
+           parms->chan_spacing == ws->fhss.chan_params->chan_spacing;
+}
+
+static bool ws_ie_validate_schedule(struct ws_ctx *ws, const struct ws_generic_channel_info *schedule)
+{
+    if (!ws_ie_validate_chan_plan(ws, schedule)) {
+        TRACE(TR_DROP, "drop %-9s: invalid channel plan", "15.4");
+        return false;
+    }
+
+    switch (schedule->channel_function) {
+    case WS_CHAN_FUNC_FIXED:
+        if (schedule->function.zero.fixed_channel >= 8 * WS_CHAN_MASK_LEN) {
+            TRACE(TR_DROP, "drop %-9s: fixed channel >= %u", "15.4", 8 * WS_CHAN_MASK_LEN);
+            return false;
+        }
+        break;
+    case WS_CHAN_FUNC_TR51CF:
+    case WS_CHAN_FUNC_DH1CF:
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported channel function", "15.4");
+        return false;
+    }
+
+    switch (schedule->excluded_channel_ctrl) {
+    case WS_EXC_CHAN_CTRL_NONE:
+    case WS_EXC_CHAN_CTRL_RANGE:
+    case WS_EXC_CHAN_CTRL_BITMASK:
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported excluded channel control", "15.4");
+        return false;
+    }
+    return true;
+}
+
+static bool ws_ie_validate_us(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_us_ie *ie_us)
+{
+    if (!ws_wp_nested_us_read(ie_wp->data, ie_wp->data_size, ie_us)) {
+        TRACE(TR_DROP, "drop %-9s: missing US-IE", "15.4");
+        return false;
+    }
+    if (ie_us->chan_plan.channel_function != WS_CHAN_FUNC_FIXED && !ie_us->dwell_interval) {
+        TRACE(TR_DROP, "drop %-9s: invalid dwell interval", "15.4");
+        return false;
+    }
+    return ws_ie_validate_schedule(ws, &ie_us->chan_plan);
+}
+
+static bool ws_ie_validate_netname(struct ws_ctx *ws, const struct iobuf_read *ie_wp)
+{
+    struct ws_netname_ie ie_netname;
+
+    if (!ws_wp_nested_netname_read(ie_wp->data, ie_wp->data_size, &ie_netname)) {
+        TRACE(TR_DROP, "drop %-9s: missing NETNAME-IE", "15.4");
+        return false;
+    }
+    if (strcmp(ws->netname, ie_netname.netname)) {
+        TRACE(TR_DROP, "drop %-9s: NETNAME-IE mismatch", "15.4");
+        return false;
+    }
+    return true;
+}
+
+static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_pan_ie *ie_pan)
+{
+    if (!ws_wp_nested_pan_read(ie_wp->data, ie_wp->data_size, ie_pan)) {
+        TRACE(TR_DROP, "drop %-9s: missing PAN-IE", "15.4");
+        return false;
+    }
+    if (!ie_pan->routing_method) {
+        TRACE(TR_DROP, "drop %-9s: unsupported routing method", "15.4");
+        return false;
+    }
+    if (!ie_pan->use_parent_bs_ie)
+        TRACE(TR_IGNORE, "ignore %-9s: unsupported local broadcast", "15.4");
+    return true;
+}
+
+void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    struct ws_utt_ie ie_utt;
+    struct ws_pan_ie ie_pan;
+    struct ws_us_ie ie_us;
+
+    if (ind->hdr.pan_id == 0xffff) {
+        TRACE(TR_DROP, "drop %s: missing PAN ID", "15.4");
+        return;
+    }
+    if (ws->pan_id != 0xffff && ws->pan_id != ind->hdr.pan_id) {
+        TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
+        return;
+    }
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    if (!ws_ie_validate_netname(ws, &ind->ie_wp))
+        return;
+    if (!ws_ie_validate_pan(ws, &ind->ie_wp, &ie_pan))
+        return;
+    if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
+        return;
+
+    // TODO: POM-IE
+    // TODO: Create neighbor entry
+    // TODO: Select between several PANs
+    ws->pan_id = ind->hdr.pan_id;
 }
 
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)
@@ -96,6 +225,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     ws_print_ind(&ind, ie_utt.message_type);
 
     switch (ie_utt.message_type) {
+    case WS_FT_PA:
+        ws_recv_pa(ws, &ind);
+        break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
         return;
