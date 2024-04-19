@@ -155,6 +155,7 @@ static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp
 
 void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 {
+    struct ws_neigh *neigh;
     struct ws_utt_ie ie_utt;
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
@@ -175,8 +176,17 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
         return;
 
+    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
+    if (!neigh)
+        // TODO: TX power (APC)
+        // TODO: active key indices
+        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
+    else
+        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
+    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+
     // TODO: POM-IE
-    // TODO: Create neighbor entry
     // TODO: Select between several PANs
     ws->pan_id = ind->hdr.pan_id;
 }
