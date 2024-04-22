@@ -72,18 +72,6 @@ int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *m
 int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr);
 
 /**
- *  ws_eapol_pdu_address_check check incoming EAPOL PDU address
- *
- * \param interface_ptr interface
- * \param eui_64 source EUI-64
- *
- * \return < 0 address does not match
- * \return >= 0 address matches, call the PDU receive callback
- *
- */
-typedef int8_t ws_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
-
-/**
  *  ws_eapol_pdu_receive receive EAPOL PDU
  *
  * \param interface_ptr interface
@@ -99,7 +87,6 @@ typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t 
 
 typedef struct eapol_pdu_recv_cb_data {
     bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
-    ws_eapol_pdu_address_check *addr_check;    /**< Address check callback */
     ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
 } eapol_pdu_recv_cb_data_t;
 

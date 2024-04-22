@@ -47,7 +47,6 @@ typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 
 typedef struct eapol_pdu_recv_cb {
     bool filter_requsted: 1;
-    ws_eapol_pdu_address_check *addr_check;
     ws_eapol_pdu_receive *receive;
 } eapol_pdu_recv_cb_t;
 
@@ -132,7 +131,6 @@ int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_re
     }
 
     eapol_pdu_data->recv_cb = zalloc(sizeof(eapol_pdu_recv_cb_t));
-    eapol_pdu_data->recv_cb->addr_check = cb_data->addr_check;
     eapol_pdu_data->recv_cb->receive = cb_data->receive;
     eapol_pdu_data->recv_cb->filter_requsted = cb_data->filter_requsted;
 
@@ -264,17 +262,13 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
         return;
     }
 
-    if (eapol_pdu_data->recv_cb)
-        if (eapol_pdu_data->recv_cb->addr_check(eapol_pdu_data->interface_ptr, data->SrcAddr) >= 0) {
-            if (eapol_pdu_data->recv_cb->filter_requsted &&
-                !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr,
-                                                   data->SrcAddr, data->DSN,
-                                                   data->hif.timestamp_us)) {
-                tr_info("EAPOL relay filter drop");
-                return;
-            }
-            eapol_pdu_data->recv_cb->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
-        }
+    if (eapol_pdu_data->recv_cb && eapol_pdu_data->recv_cb->filter_requsted &&
+        !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr, data->SrcAddr, data->DSN,
+                                           data->hif.timestamp_us)) {
+        tr_info("EAPOL relay filter drop");
+        return;
+    }
+    eapol_pdu_data->recv_cb->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
 }
 
 static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr)

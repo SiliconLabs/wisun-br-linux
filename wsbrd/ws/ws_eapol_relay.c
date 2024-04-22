@@ -48,12 +48,10 @@ typedef struct eapol_relay {
 } eapol_relay_t;
 
 static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr);
-static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size);
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .filter_requsted = true,
-    .addr_check = ws_eapol_relay_eapol_pdu_address_check,
     .receive = ws_eapol_relay_eapol_pdu_receive
 };
 
@@ -122,15 +120,6 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
 static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr)
 {
     return g_eapol_relay;
-}
-
-static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64)
-{
-    (void) eui_64;
-    (void) interface_ptr;
-
-    // Low priority, always route all here if asked
-    return 0;
 }
 
 static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size)
