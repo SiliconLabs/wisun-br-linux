@@ -564,6 +564,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
     struct ws_pom_ie ie_pom;
+    bool duplicated = false;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
@@ -609,17 +610,14 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     }
 
     if (ws_neigh) {
-        if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed &&
-            !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us)) {
-            tr_info("Drop duplicate message");
-            return;
-        }
+        if (data->DstAddrMode == ADDR_802_15_4_LONG && !data->DSN_suppressed)
+            duplicated = !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us);
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
         ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-        if (has_us) {
+        if (has_us && !duplicated) {
             ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,
                                         ie_us.dwell_interval, data->SrcAddr);
             ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
@@ -638,8 +636,12 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
-        if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0])
+        if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0] && !duplicated)
             ws_neigh->pom_ie = ie_pom;
+        if (duplicated) {
+            TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
+            return;
+        }
     }
 
     if (!ws_neigh)
@@ -661,6 +663,7 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     struct ws_lus_ie ie_lus;
     struct ws_lcp_ie ie_lcp;
     struct ws_pom_ie ie_pom;
+    bool duplicated = false;
     mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
 
@@ -692,15 +695,12 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
         return;
     }
 
-    if (!data->DstAddrMode && !data->DSN_suppressed &&
-        !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us)) {
-        TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
-        return;
-    }
+    if (!data->DstAddrMode && !data->DSN_suppressed)
+        duplicated = !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us);
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in ULAD frame from LFN");
-    if (has_lus) {
+    if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us, data->SrcAddr);
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
@@ -731,8 +731,12 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
         ws_neigh_refresh(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
     else
         ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
-    if (has_pom)
+    if (has_pom && !duplicated)
         ws_neigh->pom_ie = ie_pom;
+    if (duplicated) {
+        TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
+        return;
+    }
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -758,6 +762,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mcps_data_ind_t data_ind = *data;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
+    bool duplicated = false;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
@@ -787,12 +792,19 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;
 
+    if (!data->DSN_suppressed)
+        duplicated = !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us);
+
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    if (has_us)
+    if (has_us && !duplicated)
         ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
+    if (duplicated) {
+        TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
+        return;
+    }
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
@@ -809,6 +821,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     struct ws_lus_ie ie_lus;
     struct iobuf_read ie_wp;
     struct ws_lcp_ie ie_lcp;
+    bool duplicated = false;
     bool has_lus, has_lcp;
     mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
@@ -843,14 +856,21 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;
 
+    if (!data->DSN_suppressed)
+        duplicated = !ws_neigh_duplicate_packet_check(ws_neigh, data->DSN, data->hif.timestamp_us);
+
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
-    if (has_lus) {
+    if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us, data->SrcAddr);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+    }
+    if (duplicated) {
+        TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
+        return;
     }
 
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
