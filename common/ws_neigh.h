@@ -55,10 +55,6 @@ struct ws_neigh_fhss {
     uint8_t  uc_channel_list[WS_CHAN_MASK_LEN]; // Neighbor unicast channel list
 };
 
-typedef struct eapol_temporary_info {
-    uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
-} eapol_temporary_info_t;
-
 struct lto_info {
     uint24_t uc_interval_min_ms;    // from NR-IE
     uint24_t uc_interval_max_ms;    // from NR-IE
@@ -120,7 +116,6 @@ struct ws_neigh {
 
     uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
-    struct eapol_temporary_info eapol_temp_info;
     SLIST_ENTRY(ws_neigh) link;
 };
 SLIST_HEAD(ws_neigh_list, ws_neigh);
