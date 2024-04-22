@@ -84,10 +84,6 @@ void ws_common_seconds_timer(int seconds);
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);
 
-uint32_t ws_common_version_timeout_get(uint8_t config);
-
-uint32_t ws_common_latency_estimate_get(struct net_if *cur);
-
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);
