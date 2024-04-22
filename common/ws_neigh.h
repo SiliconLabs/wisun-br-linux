@@ -56,7 +56,6 @@ struct ws_neigh_fhss {
 };
 
 typedef struct eapol_temporary_info {
-    uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
     uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
 } eapol_temporary_info_t;
 
