@@ -48,7 +48,6 @@ typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 typedef struct eapol_pdu_data {
     ws_eapol_pdu_receive *recv_cb;
     eapol_pdu_msdu_list_t msdu_list;                       /**< MSDU list */
-    ws_eapol_pdu_receive *receive;                         /**< data receive callback */
     struct net_if *interface_ptr;        /**< Interface pointer */
     mpx_api_t *mpx_api;                                    /**< MPX api */
     uint16_t mpx_user_id;                                  /**< MPX user identifier */
