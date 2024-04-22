@@ -22,14 +22,8 @@ currently supported are EFR32FG12, EFR32MG12, EFR32FG25, EFR32FG28, and
 EFR32ZG28.
 
 The RCP needs to be flashed with a specific firmware to communicate with the
-daemon. This firmware is provided in binary format. To help users deploy and
-evaluate the solution, a [wisun-br-linux-docker][docker] repository is
-provided. It contains a bundle of all the necessary software components
-(including a compiled RCP firmware image) to run the Linux Wi-SUN border
-router.
-
-Alternatively, [Application Note 1332][an1332] explains how to build RCP
-firmware and flash it.
+daemon. This firmware is provided in binary format. [Application Note 1332][an1332]
+explains how to build RCP firmware and flash it.
 
 The communication between the Linux host and the RCP is supported through a
 serial link (UART). On Silicon Labs mainboards, this serial link is provided
