@@ -39,6 +39,7 @@
 #include "ws/ws_llc.h"
 #include "ws/ws_pae_controller.h"
 #include "ws/ws_eapol_relay.h"
+#include "ws/ws_config.h"
 #include "ws/ws_eapol_auth_relay.h"
 #include "net/timers.h"
 #include "net/ns_address_internal.h"

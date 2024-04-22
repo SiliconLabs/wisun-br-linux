@@ -16,33 +16,13 @@
  * limitations under the License.
  */
 
-#include <string.h>
+#include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <errno.h>
 #include <math.h>
-#include "common/log.h"
-#include "common/bits.h"
-#include "common/parsers.h"
-#include "common/rand.h"
-#include "common/ws_regdb.h"
-#include "common/log.h"
-#include "common/endian.h"
-#include "common/ns_list.h"
-#include "common/specs/icmpv6.h"
-#include "common/mathutils.h"
+
 #include "common/specs/ws.h"
-#include "common/events_scheduler.h"
-#include "common/ws_ie.h"
 
-#include "6lowpan/mac/mpx_api.h"
-#include "ws/ws_config.h"
-#include "ws/ws_llc.h"
-#include "ws/ws_bootstrap.h"
-#include "ws/ws_bootstrap_6lbr.h"
-#include "ws/ws_pae_controller.h"
-
-#include "ws/ws_common.h"
+#include "ws_common.h"
 
 int DEVICE_MIN_SENS = -93;
 
