@@ -45,12 +45,8 @@ typedef struct eapol_pdu_msdu {
 
 typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 
-typedef struct eapol_pdu_recv_cb {
-    ws_eapol_pdu_receive *receive;
-} eapol_pdu_recv_cb_t;
-
 typedef struct eapol_pdu_data {
-    eapol_pdu_recv_cb_t *recv_cb;
+    ws_eapol_pdu_receive *recv_cb;
     eapol_pdu_msdu_list_t msdu_list;                       /**< MSDU list */
     ws_eapol_pdu_receive *receive;                         /**< data receive callback */
     struct net_if *interface_ptr;        /**< Interface pointer */
@@ -104,8 +100,6 @@ int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr)
         return -1;
     }
 
-    free(eapol_pdu_data->recv_cb);
-
     ns_list_foreach_safe(eapol_pdu_msdu_t, msdu_entry, &eapol_pdu_data->msdu_list) {
         ns_list_remove(&eapol_pdu_data->msdu_list, msdu_entry);
         free(msdu_entry);
@@ -117,9 +111,9 @@ int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
+int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, ws_eapol_pdu_receive *recv_cb)
 {
-    if (!interface_ptr || !cb_data) {
+    if (!interface_ptr || !recv_cb) {
         return -1;
     }
 
@@ -129,8 +123,7 @@ int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_re
         return -1;
     }
 
-    eapol_pdu_data->recv_cb = zalloc(sizeof(eapol_pdu_recv_cb_t));
-    eapol_pdu_data->recv_cb->receive = cb_data->receive;
+    eapol_pdu_data->recv_cb = recv_cb;
 
     return 0;
 }
@@ -261,7 +254,7 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
     }
 
     if (eapol_pdu_data->recv_cb)
-        eapol_pdu_data->recv_cb->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
+        eapol_pdu_data->recv_cb(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
 }
 
 static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr)

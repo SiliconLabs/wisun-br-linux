@@ -50,10 +50,6 @@ typedef struct eapol_relay {
 static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr);
 static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size);
 
-static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
-    .receive = ws_eapol_relay_eapol_pdu_receive
-};
-
 static eapol_relay_t * g_eapol_relay = NULL;
 
 int ws_eapol_relay_get_socket_fd()
@@ -106,7 +102,7 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
     if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
         FATAL(1, "%s: bind: %m", __func__);
 
-    if (ws_eapol_pdu_cb_register(interface_ptr, &eapol_pdu_recv_cb_data) < 0) {
+    if (ws_eapol_pdu_cb_register(interface_ptr, &ws_eapol_relay_eapol_pdu_receive) < 0) {
         free(eapol_relay);
         return -1;
     }

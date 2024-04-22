@@ -85,10 +85,6 @@ int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr);
  */
 typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *data, uint16_t size);
 
-typedef struct eapol_pdu_recv_cb_data {
-    ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
-} eapol_pdu_recv_cb_data_t;
-
 /**
  *  ws_eapol_pdu_cb_register register an incoming EAPOL PDU callback
  *
@@ -99,7 +95,7 @@ typedef struct eapol_pdu_recv_cb_data {
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
+int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, ws_eapol_pdu_receive *recv_cb);
 
 typedef enum {
     EAPOL_PDU_TX_OK = 0,                 // Successful
