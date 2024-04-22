@@ -45,7 +45,8 @@ static void nd_add_ipv6_neigh_route(struct net_if *net_if, struct ipv6_neighbour
     tun_add_ipv6_direct_route(net_if, neigh->ip_address);
 }
 
-void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
+void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro,
+                            struct ws_neigh *ws_neigh)
 {
     struct rpl_target *target;
 
@@ -60,8 +61,11 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
-        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address))
+        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
             nd_add_ipv6_neigh_route(cur_interface, neigh);
+            BUG_ON(!ws_neigh);
+            ws_neigh_refresh(ws_neigh, aro->lifetime * UINT32_C(60));
+        }
     } else {
         // ipv6_neighbor entry will be released by garbage collector
         neigh->lifetime_s = 0;
@@ -103,6 +107,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         .data_size = earo_len,
         .data = earo_ptr,
     };
+    struct ws_neigh *ws_neigh;
     ipv6_neighbour_t *neigh;
     sockaddr_t ll_addr;
     uint8_t flags;
@@ -202,9 +207,9 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
             return true;
         }
 
-        /* TODO - check hard upper limit on registrations? */
-        na_earo->status = ws_common_allow_child_registration(cur_interface, na_earo->eui64, na_earo->lifetime);
-        if (na_earo->status != ARO_SUCCESS) {
+        ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage, na_earo->eui64);
+        if (!ws_neigh) {
+            na_earo->status = ARO_TOPOLOGICALLY_INCORRECT;
             na_earo->present = true;
             return true;
         }
@@ -259,6 +264,6 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     na_earo->status = ARO_SUCCESS;
     na_earo->present = true;
     // Todo: this might not be needed...
-    nd_update_registration(cur_interface, neigh, na_earo);
+    nd_update_registration(cur_interface, neigh, na_earo, ws_neigh);
     return true;
 }
