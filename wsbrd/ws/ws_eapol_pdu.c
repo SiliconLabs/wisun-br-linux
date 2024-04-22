@@ -262,13 +262,8 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
         return;
     }
 
-    if (eapol_pdu_data->recv_cb && eapol_pdu_data->recv_cb->filter_requsted &&
-        !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr, data->SrcAddr, data->DSN,
-                                           data->hif.timestamp_us)) {
-        tr_info("EAPOL relay filter drop");
-        return;
-    }
-    eapol_pdu_data->recv_cb->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
+    if (eapol_pdu_data->recv_cb)
+        eapol_pdu_data->recv_cb->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
 }
 
 static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr)

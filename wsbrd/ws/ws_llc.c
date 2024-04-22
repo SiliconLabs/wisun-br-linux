@@ -1838,14 +1838,3 @@ int ws_llc_set_edfe(struct net_if *interface, enum ws_edfe_mode mode, uint8_t *n
     }
     return 0;
 }
-
-bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64,
-                                       uint8_t mac_sequency, uint64_t rx_timestamp)
-{
-    struct ws_neigh *tmp_neigh;
-
-    tmp_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, joiner_eui64);
-    if (!tmp_neigh)
-        return false;
-    return ws_neigh_duplicate_packet_check(tmp_neigh, mac_sequency, rx_timestamp);
-}
