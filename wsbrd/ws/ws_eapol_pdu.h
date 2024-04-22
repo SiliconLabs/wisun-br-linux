@@ -86,7 +86,6 @@ int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr);
 typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *data, uint16_t size);
 
 typedef struct eapol_pdu_recv_cb_data {
-    bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
     ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
 } eapol_pdu_recv_cb_data_t;
 

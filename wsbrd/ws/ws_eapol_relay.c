@@ -51,7 +51,6 @@ static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr);
 static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size);
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
-    .filter_requsted = true,
     .receive = ws_eapol_relay_eapol_pdu_receive
 };
 
