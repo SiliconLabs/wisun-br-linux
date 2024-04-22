@@ -31,10 +31,6 @@
 #include "ws/ws_common_defines.h"
 #include "ws/ws_ie_custom.h"
 
-#define NO_PENDING_PROCESS 0
-#define PENDING_KEY_INDEX_ADVERTISMENT 1
-#define PENDING_KEY_INDEX_ACTIVATE 2
-
 enum ws_edfe_mode {
     WS_EDFE_DEFAULT  = 0,
     WS_EDFE_DISABLED = 1,
