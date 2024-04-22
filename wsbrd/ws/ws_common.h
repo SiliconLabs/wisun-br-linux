@@ -30,6 +30,8 @@
 #include "ws/ws_mngt.h"
 #include "ws/ws_ie_custom.h"
 
+extern int DEVICE_MIN_SENS;
+
 enum ws_edfe_mode {
     WS_EDFE_DEFAULT  = 0,
     WS_EDFE_DISABLED = 1,

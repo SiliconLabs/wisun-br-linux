@@ -20,12 +20,6 @@
 #define WS_CONFIG_H_
 #include <stdint.h>
 
-/* Device min sensitivity. This value is dynamically configured and depends on radio
- *
- * Default value for us is -93
- */
-extern int DEVICE_MIN_SENS;
-
 /* Multicast MPL data message parameters
  */
 #define MPL_SAFE_HOP_COUNT 6
