@@ -28,7 +28,6 @@
 
 #include "ws/ws_config.h"
 #include "ws/ws_mngt.h"
-#include "ws/ws_common_defines.h"
 #include "ws/ws_ie_custom.h"
 
 enum ws_edfe_mode {

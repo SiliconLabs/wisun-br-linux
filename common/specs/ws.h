@@ -179,4 +179,7 @@ enum {
 #define WS_MASK_JM_ID  0b00111111
 #define WS_MASK_JM_LEN 0b11000000
 
+// Wi-SUN FAN 1.1v08 Figure 6-44 LFN Unicast Schedule IE
+#define WS_CHAN_PLAN_TAG_CURRENT 255
+
 #endif
