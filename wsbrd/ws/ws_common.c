@@ -54,23 +54,6 @@ void ws_common_seconds_timer(int seconds)
     ws_mngt_async_trickle_timer_cb(&cur->ws_info, seconds);
 }
 
-uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
-{
-    struct ws_neigh *ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, eui64);
-    uint32_t lifetime_s = aro_timeout * 60;
-
-    if (!ws_neigh)
-        return ARO_TOPOLOGICALLY_INCORRECT;
-
-    if (aro_timeout == 0) {
-        //DeRegister Address Reg
-        return ARO_SUCCESS;
-    }
-
-    ws_neigh_refresh(ws_neigh, lifetime_s);
-    return ARO_SUCCESS;
-}
-
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
     struct ws_neigh *ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, eui64);
