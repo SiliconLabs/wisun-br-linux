@@ -54,17 +54,6 @@ void ws_common_seconds_timer(int seconds)
     ws_mngt_async_trickle_timer_cb(&cur->ws_info, seconds);
 }
 
-bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
-{
-    struct ws_neigh *ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, eui64);
-
-    if (!ws_neigh)
-        return false;
-
-    ws_neigh_refresh(ws_neigh, WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME);
-    return true;
-}
-
 bool ws_common_is_valid_nr(uint8_t node_role)
 {
     switch (node_role) {

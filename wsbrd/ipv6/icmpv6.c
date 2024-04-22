@@ -751,13 +751,6 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         memcpy(ptr, earo->eui64, 8);
         ptr += 8;
     }
-    if (earo && (earo->status != ARO_SUCCESS && earo->status != ARO_TOPOLOGICALLY_INCORRECT)) {
-        /*If Aro failed we will kill the neigbour after we have succeeded in sending message*/
-        if (!ws_common_negative_aro_mark(cur, earo->eui64)) {
-            tr_debug("Neighbour removed for negative response send");
-            return buffer_free(buf);
-        }
-    }
 
     //Force Next Hop is destination
     ipv6_buffer_route_to(buf, buf->dst_sa.address, cur);

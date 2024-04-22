@@ -31,8 +31,6 @@
 #include "ws/ws_common_defines.h"
 #include "ws/ws_ie_custom.h"
 
-struct net_if;
-
 #define NO_PENDING_PROCESS 0
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
@@ -81,8 +79,6 @@ typedef struct ws_info {
 } ws_info_t;
 
 void ws_common_seconds_timer(int seconds);
-
-bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);
 
 bool ws_common_is_valid_nr(uint8_t node_role);
 
