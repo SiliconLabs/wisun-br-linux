@@ -102,7 +102,7 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_6LOWPAN_CONTEXT);
     ws_timer_start(WS_TIMER_6LOWPAN_REACHABLE_TIME);
     ws_timer_start(WS_TIMER_WS_COMMON_FAST);
-    ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
+    ws_timer_start(WS_TIMER_ASYNC);
 }
 
 static void protocol_set_eui64(struct net_if *cur, uint8_t eui64[8])

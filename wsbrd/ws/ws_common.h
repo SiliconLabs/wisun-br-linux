@@ -78,8 +78,6 @@ typedef struct ws_info {
     uint8_t lfn_gtk_index;
 } ws_info_t;
 
-void ws_common_seconds_timer(int seconds);
-
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);

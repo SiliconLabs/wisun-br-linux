@@ -46,13 +46,6 @@
 
 int DEVICE_MIN_SENS = -93;
 
-void ws_common_seconds_timer(int seconds)
-{
-    struct net_if *cur = protocol_stack_interface_info_get();
-
-    ws_mngt_async_trickle_timer_cb(&cur->ws_info, seconds);
-}
-
 bool ws_common_is_valid_nr(uint8_t node_role)
 {
     switch (node_role) {

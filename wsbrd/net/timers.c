@@ -52,6 +52,12 @@ static void timer_send_lts(int time_update)
     ws_mngt_lts_send(&interface->ws_info);
 }
 
+static void timer_update_async(int time_update)
+{
+    struct net_if *interface = protocol_stack_interface_info_get();
+    ws_mngt_async_trickle_timer_cb(&interface->ws_info, time_update);
+}
+
 #define timer_entry(name, callback, period_ms, is_periodic) \
     [WS_TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 struct ws_timer g_timers[] = {
@@ -64,7 +70,7 @@ struct ws_timer g_timers[] = {
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
-    timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                    true),
+    timer_entry(ASYNC,                  timer_update_async,                         1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
