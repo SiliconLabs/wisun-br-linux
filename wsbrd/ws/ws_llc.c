@@ -1846,16 +1846,5 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
     tmp_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage, joiner_eui64);
     if (!tmp_neigh)
         return false;
-
-    if (tmp_neigh->lifetime_s != WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-        return ws_neigh_duplicate_packet_check(tmp_neigh, mac_sequency, rx_timestamp);
-
-    if (tmp_neigh->eapol_temp_info.eapol_rx_relay_filter &&
-        tmp_neigh->eapol_temp_info.last_rx_mac_sequency == mac_sequency)
-        return false;
-
-    tmp_neigh->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
-    tmp_neigh->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
-    return true;
-
+    return ws_neigh_duplicate_packet_check(tmp_neigh, mac_sequency, rx_timestamp);
 }
