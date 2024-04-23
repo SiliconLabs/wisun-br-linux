@@ -18,12 +18,14 @@
 #include <netinet/in.h>
 #include <stdint.h>
 
+#include "common/endian.h"
+
 // RFC 8200 8.1. Upper-Layer Checksums
 // RFC 4443 2.3. Message Checksum Calculation
 // RFC 768 User Datagram Protocol
 // RFC 1071 Computing the Internet Checksum
-static inline uint16_t ipv6_cksum(const struct in6_addr *src, const struct in6_addr *dst,
-                                  uint8_t nxthdr, const void *buf, uint16_t buf_len)
+static inline be16_t ipv6_cksum(const struct in6_addr *src, const struct in6_addr *dst,
+                                uint8_t nxthdr, const void *buf, uint16_t buf_len)
 {
     const uint16_t *buf16 = buf;
     const uint8_t *buf8 = buf;
