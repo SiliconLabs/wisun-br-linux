@@ -517,12 +517,12 @@ buffer_t *icmpv6_down(buffer_t *buf)
 
         *dptr++ = buf->options.type;
         *dptr++ = buf->options.code;
-        write_be16(dptr, 0);
-        write_be16(dptr, ipv6_cksum((struct in6_addr *)buf->src_sa.address,
-                                    (struct in6_addr *)buf->dst_sa.address,
-                                    IPV6_NH_ICMPV6,
-                                    buffer_data_pointer(buf),
-                                    buffer_data_length(buf)));
+        *(be16_t *)dptr = 0;
+        *(be16_t *)dptr = ipv6_cksum((struct in6_addr *)buf->src_sa.address,
+                                     (struct in6_addr *)buf->dst_sa.address,
+                                     IPV6_NH_ICMPV6,
+                                     buffer_data_pointer(buf),
+                                     buffer_data_length(buf));
         buf->options.type = IPV6_NH_ICMPV6;
         buf->options.code = 0;
         buf->options.traffic_class &= ~IP_TCLASS_ECN_MASK;
