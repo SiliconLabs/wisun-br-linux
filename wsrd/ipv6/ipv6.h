@@ -15,6 +15,7 @@
 
 #include <netinet/in.h>
 
+#include "wsrd/ipv6/ndp.h"
 #include "common/timer.h"
 #include "common/tun.h"
 
@@ -25,6 +26,10 @@ struct ipv6_ctx {
     struct in6_addr addr_linklocal;
     struct in6_addr *addr_list_mc;
     int addr_list_mc_len;
+
+    int reach_base_ms;  // BaseReachableTime
+    int probe_delay_ms; // RetransDelay
+    struct ipv6_neigh_cache neigh_cache;
     uint8_t eui64[8];
 
     struct timer_group timer_group;

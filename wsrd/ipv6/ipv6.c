@@ -34,6 +34,16 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
     tun_addr_add(&ipv6->tun, &ipv6->addr_linklocal, 64);
 
     timer_group_init(timer_ctx, &ipv6->timer_group);
+
+    // FIXME: BaseReachableTime and RetransTimer can be overritten by Router
+    // Advertisements in normal NDP, but Wi-SUN disables RAs without providing
+    // any sensible default values.
+
+    // RFC 4861 10. Protocol Constants
+    if (!ipv6->reach_base_ms)
+        ipv6->reach_base_ms  = 30000; // REACHABLE_TIME  30,000 milliseconds
+    if (!ipv6->probe_delay_ms)
+        ipv6->probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
 }
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
