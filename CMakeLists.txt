@@ -272,6 +272,7 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_library(libwsrd STATIC
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
+    wsrd/ipv6/ipv6.c
     wsrd/ws/ws.c
     common/bits.c
     common/bus_uart.c
@@ -292,6 +293,7 @@ add_library(libwsrd STATIC
     common/rand.c
     common/rcp_api.c
     common/timer.c
+    common/tun.c
     common/ws_chan_mask.c
     common/ws_ie.c
     common/ws_neigh.c
@@ -300,7 +302,7 @@ add_library(libwsrd STATIC
 )
 target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_options(libwsrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
-target_link_libraries(libwsrd PUBLIC MbedTLS::mbedtls)
+target_link_libraries(libwsrd PUBLIC MbedTLS::mbedtls PkgConfig::LIBNL_ROUTE)
 target_compile_definitions(libwsbrd PUBLIC HAVE_MBEDTLS)
 if(BACKTRACE_FOUND)
     target_compile_definitions(libwsrd PRIVATE HAVE_BACKTRACE)

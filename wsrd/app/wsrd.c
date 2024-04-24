@@ -164,6 +164,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
+    ipv6_init(&wsrd->ws.ipv6);
 }
 
 //   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
