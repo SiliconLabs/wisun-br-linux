@@ -25,6 +25,9 @@ uint64_t rand_get_64bit(void);
 void rand_get_n_bytes_random(void *data_ptr, uint8_t count);
 uint16_t rand_get_random_in_range(uint16_t min, uint16_t max);
 
+float randf_uniform(void);               // float in [0, 1]
+float randf_range(float min, float max); // float in [min, max]
+
 /*
  * Randomise a base 32-bit number by a jitter factor
  *

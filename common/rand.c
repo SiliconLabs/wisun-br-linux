@@ -106,6 +106,18 @@ uint16_t rand_get_random_in_range(uint16_t min, uint16_t max)
     return min + (uint16_t)(result / band_size);
 }
 
+float randf_uniform(void)
+{
+    // Generate 24-bit integer so cast to float is exact
+    return (float)(rand_get_32bit() & 0x00ffffff) / 0x00ffffff;
+}
+
+float randf_range(float min, float max)
+{
+    BUG_ON(min > max);
+    return (max - min) * randf_uniform() + min;
+}
+
 uint32_t rand_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor)
 {
     uint16_t random_factor = rand_get_random_in_range(min_factor, max_factor);
