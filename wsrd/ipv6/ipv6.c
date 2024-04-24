@@ -19,6 +19,7 @@
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/pktbuf.h"
+#include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
@@ -44,6 +45,8 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
         ipv6->reach_base_ms  = 30000; // REACHABLE_TIME  30,000 milliseconds
     if (!ipv6->probe_delay_ms)
         ipv6->probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
+
+    rpl_start(ipv6);
 }
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
@@ -79,6 +82,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         case ICMP6_PARAM_PROB:
         case ICMP6_ECHO_REQUEST:
         case ICMP6_ECHO_REPLY:
+        case ICMPV6_TYPE_RPL:
             break;
         // TODO: NS/NA
         default:

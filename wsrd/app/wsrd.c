@@ -18,6 +18,7 @@
 
 #include "wsrd/app/commandline.h"
 #include "wsrd/ipv6/ipv6_addr.h"
+#include "wsrd/ipv6/rpl.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -29,6 +30,7 @@
 enum {
     POLLFD_RCP,
     POLLFD_TIMER,
+    POLLFD_RPL,
     POLLFD_COUNT,
 };
 
@@ -228,6 +230,8 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = wsrd->timer_ctx.fd;
     pfd[POLLFD_TIMER].events = POLLIN;
+    pfd[POLLFD_RPL].fd = wsrd->ws.ipv6.rpl.fd;
+    pfd[POLLFD_RPL].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, wsrd->rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -236,6 +240,8 @@ int wsrd_main(int argc, char *argv[])
             rcp_rx(&wsrd->rcp);
         if (pfd[POLLFD_TIMER].revents & POLLIN)
             timer_ctxt_process(&wsrd->timer_ctx);
+        if (pfd[POLLFD_RPL].revents & POLLIN)
+            rpl_recv(&wsrd->ws.ipv6);
     }
 
     return EXIT_SUCCESS;

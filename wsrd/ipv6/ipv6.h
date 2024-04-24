@@ -16,6 +16,7 @@
 #include <netinet/in.h>
 
 #include "wsrd/ipv6/ndp.h"
+#include "wsrd/ipv6/rpl.h"
 #include "common/timer.h"
 #include "common/tun.h"
 
@@ -33,6 +34,7 @@ struct ipv6_ctx {
     uint8_t eui64[8];
 
     struct timer_group timer_group;
+    struct rpl_ctx rpl;
 };
 
 void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8]);

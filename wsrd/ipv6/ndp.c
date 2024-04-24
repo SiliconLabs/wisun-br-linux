@@ -15,6 +15,7 @@
 #include "common/named_values.h"
 #include "common/rand.h"
 #include "wsrd/ipv6/ipv6.h"
+#include "wsrd/ipv6/rpl.h"
 
 #include "ndp.h"
 
@@ -133,5 +134,7 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(neigh->ipv6_addr.s6_addr), tr_eui64(neigh->eui64));
+    if (neigh->rpl_neigh)
+        rpl_neigh_del(ipv6, neigh);
     free(neigh);
 }
