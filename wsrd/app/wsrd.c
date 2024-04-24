@@ -160,6 +160,8 @@ static void wsrd_init_radio(struct wsrd *wsrd)
 static void wsrd_init_ws(struct wsrd *wsrd)
 {
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
+
+    timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
 }
 
 int wsrd_main(int argc, char *argv[])

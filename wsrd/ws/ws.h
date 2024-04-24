@@ -16,6 +16,7 @@
 #include <stdint.h>
 
 #include "common/ws_ie.h"
+#include "common/ws_neigh.h"
 #include "common/ws_types.h"
 
 struct rcp_rx_ind;
@@ -25,6 +26,7 @@ struct ws_ctx {
     uint16_t pan_id; // 0xffff if not set
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;
+    struct ws_neigh_table neigh_table;
 };
 
 void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);

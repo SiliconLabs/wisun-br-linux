@@ -287,10 +287,12 @@ add_library(libwsrd STATIC
     common/named_values.c
     common/parsers.c
     common/rail_config.c
+    common/rand.c
     common/rcp_api.c
     common/timer.c
     common/ws_chan_mask.c
     common/ws_ie.c
+    common/ws_neigh.c
     common/ws_regdb.c
     version.c
 )
