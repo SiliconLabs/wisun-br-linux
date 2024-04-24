@@ -25,6 +25,9 @@ struct wsrd {
     struct timer_ctxt timer_ctx;
 };
 
+// Necessary for simulation and fuzzing, prefer passing a pointer when possible.
+extern struct wsrd g_wsrd;
+
 int wsrd_main(int argc, char *argv[]);
 
 #endif
