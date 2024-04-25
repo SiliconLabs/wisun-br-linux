@@ -34,12 +34,6 @@ static void timer_update_monotonic_time(int ticks)
     g_monotonic_time_100ms += ticks;
 }
 
-static void timer_refresh_neighbors(int time_update)
-{
-    struct net_if *interface = protocol_stack_interface_info_get();
-    ws_neigh_table_expire(&interface->ws_info.neighbor_storage, time_update);
-}
-
 static void timer_send_lpa(int time_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();
@@ -71,7 +65,6 @@ struct ws_timer g_timers[] = {
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
     timer_entry(ASYNC,                  timer_update_async,                         1000,                    true),
-    timer_entry(6LOWPAN_NEIGHBOR,       timer_refresh_neighbors,                    1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),

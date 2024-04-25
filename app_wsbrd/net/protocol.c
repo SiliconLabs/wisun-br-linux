@@ -96,7 +96,6 @@ void protocol_core_init(void)
     ws_timer_start(WS_TIMER_6LOWPAN_MLD_SLOW);
     ws_timer_start(WS_TIMER_6LOWPAN_ND);
     ws_timer_start(WS_TIMER_6LOWPAN_ADAPTATION);
-    ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR);
     ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_SLOW);
     ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_FAST);
     ws_timer_start(WS_TIMER_6LOWPAN_CONTEXT);

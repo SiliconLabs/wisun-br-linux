@@ -328,6 +328,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     wsbr_pae_controller_configure(ctxt);
 
     ws_enable_mac_filtering(ctxt);
+
+    timer_group_init(&ctxt->timer_ctxt, &ws_info->neighbor_storage.timer_group);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)

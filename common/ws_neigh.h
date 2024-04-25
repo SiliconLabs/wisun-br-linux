@@ -24,6 +24,7 @@
 #include <time.h>
 
 #include "common/int24.h"
+#include "common/timer.h"
 #include "common/ws_chan_mask.h"
 #include "common/ws_ie.h"
 
@@ -117,6 +118,7 @@ struct ws_neigh {
 
     uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
+    struct timer_entry timer;
     SLIST_ENTRY(ws_neigh) link;
 };
 SLIST_HEAD(ws_neigh_list, ws_neigh);
@@ -125,6 +127,7 @@ SLIST_HEAD(ws_neigh_list, ws_neigh);
  * Neighbor hopping info data base
  */
 struct ws_neigh_table {
+    struct timer_group timer_group;
     struct ws_neigh_list neigh_list;
     void (*on_add)(struct ws_neigh_table *table, struct ws_neigh *neigh);
     void (*on_del)(struct ws_neigh_table *table, const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
@@ -170,8 +173,6 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                              const uint8_t mac64[8],
                              uint8_t role, int8_t tx_power_dbm,
                              unsigned int key_index_mask);
-
-void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 

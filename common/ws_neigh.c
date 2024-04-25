@@ -37,6 +37,14 @@
 
 #define LFN_SCHEDULE_GUARD_TIME_MS 300
 
+static void ws_neigh_timer_cb(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
+    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, timer);
+
+    ws_neigh_del(table, neigh->mac64);
+}
+
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                          const uint8_t mac64[8],
                          uint8_t role, int8_t tx_power_dbm,
@@ -50,7 +58,8 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
             neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
     memcpy(neigh->mac64, mac64, 8);
     neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
-    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
+    neigh->timer.callback = ws_neigh_timer_cb;
+    timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     neigh->rsl_in_dbm = NAN;
     neigh->rsl_in_dbm_unsecured = NAN;
     neigh->rsl_out_dbm = NAN;
@@ -83,22 +92,13 @@ void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
     struct ws_neigh *neigh = ws_neigh_get(table, mac64);
 
     if (neigh) {
+        timer_stop(&table->timer_group, &neigh->timer);
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         free(neigh);
         if (table->on_del)
             table->on_del(table, mac64);
     }
-}
-
-void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update)
-{
-    struct ws_neigh *neigh;
-    struct ws_neigh *tmp;
-
-    SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
-        if (time_current(CLOCK_MONOTONIC) >= neigh->expiration_s)
-            ws_neigh_del(table, neigh->mac64);
 }
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
@@ -465,7 +465,7 @@ void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh)
     if (neigh->trusted_device)
         return;
 
-    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
+    timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     neigh->trusted_device = true;
     TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
 }
@@ -473,6 +473,6 @@ void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh)
 void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s)
 {
     neigh->lifetime_s = lifetime_s;
-    neigh->expiration_s = time_current(CLOCK_MONOTONIC) + lifetime_s;
+    timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
 }
