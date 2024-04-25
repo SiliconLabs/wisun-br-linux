@@ -143,14 +143,14 @@ void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
 // LFN Unicast timing update
 void ws_neigh_lut_update(struct ws_neigh_fhss *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
-                         uint64_t tstamp_us, const uint8_t eui64[8]);
+                         uint64_t tstamp_us);
 // LFN Network Discovery update
 void ws_neigh_lnd_update(struct ws_neigh_fhss *fhss_data, const struct ws_lnd_ie *ie_lnd, uint64_t tstamp_us);
 
 // Unicast Schedule update
 void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
-                        uint8_t dwell_interval, const uint8_t eui64[8]);
+                        uint8_t dwell_interval);
 // LFN Unicast Schedule update
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
                          struct ws_neigh_fhss *fhss_data,

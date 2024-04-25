@@ -165,7 +165,7 @@ void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
 // LUS-IE which indicates a change in timing offset and/or interval.
 void ws_neigh_lut_update(struct ws_neigh_fhss *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
-                         uint64_t tstamp_us, const uint8_t eui64[8])
+                         uint64_t tstamp_us)
 {
     fhss_data->lfn.lutt_rx_tstamp_us     = tstamp_us;
     fhss_data->lfn.uc_slot_number        = slot_number;
@@ -254,7 +254,7 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
 
 void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
                         const struct ws_generic_channel_info *chan_info,
-                        uint8_t dwell_interval, const uint8_t eui64[8])
+                        uint8_t dwell_interval)
 {
     fhss_data->uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {

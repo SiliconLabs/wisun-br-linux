@@ -131,7 +131,7 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                       ie_us.dwell_interval, data->SrcAddr);
+                       ie_us.dwell_interval);
 }
 
 void ws_mngt_pas_analyze(struct ws_info *ws_info,
@@ -157,7 +157,7 @@ void ws_mngt_pas_analyze(struct ws_info *ws_info,
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                       ie_us.dwell_interval, data->SrcAddr);
+                       ie_us.dwell_interval);
 }
 
 void ws_mngt_pc_analyze(struct ws_info *ws_info,
@@ -211,10 +211,8 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
-    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval,
-                       data->SrcAddr);
-    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval,
-                       data->SrcAddr);
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval);
+    ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval);
 }
 
 void ws_mngt_pcs_analyze(struct ws_info *ws_info,
@@ -245,7 +243,7 @@ void ws_mngt_pcs_analyze(struct ws_info *ws_info,
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                       ie_us.dwell_interval, data->SrcAddr);
+                       ie_us.dwell_interval);
 }
 
 void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
@@ -361,7 +359,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     }
 
     ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                                 data->hif.timestamp_us, data->SrcAddr);
+                                 data->hif.timestamp_us);
     ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
                                                              ie_lus.listen_interval, &ws_neigh->lto_info);
     ws_neigh_lnd_update(&ws_neigh->fhss_data_unsecured, &ie_lnd, data->hif.timestamp_us);
@@ -432,7 +430,7 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
 
     if (has_lus) {
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us, data->SrcAddr);
+                            data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);

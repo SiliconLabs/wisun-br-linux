@@ -619,9 +619,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
         if (has_us && !duplicated) {
             ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,
-                                        ie_us.dwell_interval, data->SrcAddr);
+                                        ie_us.dwell_interval);
             ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                                        ie_us.dwell_interval, data->SrcAddr);
+                                        ie_us.dwell_interval);
         }
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             ws_neigh->unicast_data_rx = true;
@@ -702,9 +702,9 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         BUG("Missing LUTT-IE in ULAD frame from LFN");
     if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us, data->SrcAddr);
+                            data->hif.timestamp_us);
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us, data->SrcAddr);
+                            data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config,
                                                                  &ws_neigh->fhss_data,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
@@ -799,8 +799,9 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, data->SrcAddr);
     if (has_us && !duplicated)
-        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                                    ie_us.dwell_interval, data->SrcAddr);
+        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config,
+                           &ws_neigh->fhss_data_unsecured,
+                           &ie_us.chan_plan, ie_us.dwell_interval);
     if (duplicated) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
@@ -863,7 +864,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
     if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us, data->SrcAddr);
+                            data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
