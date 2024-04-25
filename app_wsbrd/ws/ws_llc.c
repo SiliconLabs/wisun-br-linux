@@ -296,7 +296,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
     mlme_status = mlme_status_from_hif(confirm->hif.status);
     if (ws_neigh && mlme_status == MLME_SUCCESS)
-        ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+        ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
     if (mpx_usr && mpx_usr->data_confirm) {
@@ -404,13 +404,13 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (mlme_status == MLME_SUCCESS)
-                    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+                    ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
                 ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt))
                 if (mlme_status == MLME_SUCCESS)
-                    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+                    ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_common_rsl_calc(ws_neigh->rsl_out_dbm, ie_rsl);
                 rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
@@ -635,7 +635,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh->lqi_unsecured = data->hif.lqi;
 
         if (data->Key.SecurityLevel)
-            ws_neigh_trust(ws_neigh);
+            ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
         if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0] && !duplicated)
             ws_neigh->pom_ie = ie_pom;
         if (duplicated) {
@@ -651,7 +651,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
                                 const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
@@ -726,11 +726,11 @@ static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind
     ws_neigh->lqi_unsecured = data->hif.lqi;
 
     if (data->Key.SecurityLevel)
-        ws_neigh_trust(ws_neigh);
+        ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
     if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-        ws_neigh_refresh(ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
+        ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
     else
-        ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+        ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
     if (has_pom && !duplicated)
         ws_neigh->pom_ie = ie_pom;
     if (duplicated) {
@@ -754,7 +754,7 @@ static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_dat
                         base->interface_ptr->ws_info.tx_power_dbm, base->interface_ptr->ws_info.key_index_mask);
 }
 
-static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
@@ -787,7 +787,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+    ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
     ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;
@@ -811,7 +811,7 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
                                  const struct mcps_data_rx_ie_list *ie_ext)
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
@@ -851,7 +851,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_neigh)
         return;
 
-    ws_neigh_refresh(ws_neigh, ws_neigh->lifetime_s);
+    ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
     ws_neigh->rsl_in_dbm_unsecured = ws_common_rsl_calc(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;

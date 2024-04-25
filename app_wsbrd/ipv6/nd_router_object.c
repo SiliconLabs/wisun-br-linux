@@ -64,7 +64,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
             nd_add_ipv6_neigh_route(cur_interface, neigh);
             BUG_ON(!ws_neigh);
-            ws_neigh_refresh(ws_neigh, aro->lifetime * UINT32_C(60));
+            ws_neigh_refresh(&cur_interface->ws_info.neighbor_storage, ws_neigh, aro->lifetime * UINT32_C(60));
         }
     } else {
         // ipv6_neighbor entry will be released by garbage collector

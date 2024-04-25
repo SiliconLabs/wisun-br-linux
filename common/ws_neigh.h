@@ -175,8 +175,8 @@ void ws_neigh_table_expire(struct ws_neigh_table *table, int time_update);
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 
-void ws_neigh_trust(struct ws_neigh *neigh);
+void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
-void ws_neigh_refresh(struct ws_neigh *neigh, uint32_t lifetime_s);
+void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s);
 
 #endif

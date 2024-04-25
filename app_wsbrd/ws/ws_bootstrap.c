@@ -139,8 +139,8 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
 
     ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, ws_neigh->mac64);
     if (ipv6_neighbor) {
-        ws_neigh_trust(ws_neigh);
-        ws_neigh_refresh(ws_neigh, ipv6_neighbor->lifetime_s);
+        ws_neigh_trust(table, ws_neigh);
+        ws_neigh_refresh(table, ws_neigh, ipv6_neighbor->lifetime_s);
         nd_restore_aro_routes_by_eui64(net_if, ws_neigh->mac64);
     }
 }
