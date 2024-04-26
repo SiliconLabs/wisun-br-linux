@@ -17,6 +17,8 @@
 
 #include "common/tun.h"
 
+struct pktbuf;
+
 struct ipv6_ctx {
     struct tun_ctx tun;
     struct in6_addr addr_linklocal;
@@ -26,5 +28,7 @@ struct ipv6_ctx {
 };
 
 void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8]);
+
+void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
 
 #endif

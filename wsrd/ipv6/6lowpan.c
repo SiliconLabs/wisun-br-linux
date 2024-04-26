@@ -15,6 +15,7 @@
 #include "common/log.h"
 #include "common/pktbuf.h"
 #include "wsrd/ipv6/6lowpan_iphc.h"
+#include "wsrd/ipv6/ipv6.h"
 #include "wsrd/ipv6/ipv6_addr.h"
 #include "6lowpan.h"
 
@@ -43,6 +44,7 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
         goto err;
     }
 
+    ipv6_recvfrom_mac(ipv6, &pktbuf);
 err:
     pktbuf_free(&pktbuf);
 }
