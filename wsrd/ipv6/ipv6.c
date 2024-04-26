@@ -23,7 +23,7 @@
 #include "wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
 
-void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
+void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8])
 {
     tun_init(&ipv6->tun, true);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", ipv6->tun.ifname, "accept_ra", '0');
@@ -32,6 +32,8 @@ void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
     memcpy(ipv6->addr_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
     ipv6_addr_conv_iid_eui64(ipv6->addr_linklocal.s6_addr + 8, eui64);
     tun_addr_add(&ipv6->tun, &ipv6->addr_linklocal, 64);
+
+    timer_group_init(timer_ctx, &ipv6->timer_group);
 }
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)

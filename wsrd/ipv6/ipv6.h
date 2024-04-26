@@ -15,6 +15,7 @@
 
 #include <netinet/in.h>
 
+#include "common/timer.h"
 #include "common/tun.h"
 
 struct pktbuf;
@@ -25,9 +26,11 @@ struct ipv6_ctx {
     struct in6_addr *addr_list_mc;
     int addr_list_mc_len;
     uint8_t eui64[8];
+
+    struct timer_group timer_group;
 };
 
-void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8]);
+void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8]);
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
 
