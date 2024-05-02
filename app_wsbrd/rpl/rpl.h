@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "common/timer.h"
 #include "common/trickle.h"
 
 /*
@@ -84,6 +85,7 @@ struct rpl_target {
     // bit maps to a 0-initialized transit.
     struct rpl_transit transits[8];
 
+    struct timer_entry timer;
     SLIST_ENTRY(rpl_target) link;
 };
 
@@ -120,12 +122,15 @@ struct rpl_root {
     // - Source Routing Header compression always uses CmprI = CmprE.
     bool compat;
 
+    struct timer_group timer_group;
     struct rpl_target_list targets;
 };
 
 extern const uint8_t rpl_all_nodes[16]; // ff02::1a
 
-void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE]);
+void rpl_start(struct rpl_root *root,
+               const char ifname[IF_NAMESIZE],
+               struct timer_ctxt *timer_ctxt);
 void rpl_recv(struct rpl_root *root);
 void rpl_timer(int ticks);
 

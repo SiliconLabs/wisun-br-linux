@@ -74,11 +74,13 @@ struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16
     return NULL;
 }
 
+static void rpl_transit_expire(struct timer_group *group, struct timer_entry *timer);
 struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16])
 {
     struct rpl_target *target = calloc(1, sizeof(struct rpl_target));
 
     FATAL_ON(!target, 2, "malloc: %m");
+    target->timer.callback = rpl_transit_expire;
     memcpy(target->prefix, prefix, 16);
     SLIST_INSERT_HEAD(&root->targets, target, link);
     root->route_add(root, target->prefix, 128);
@@ -109,6 +111,41 @@ struct rpl_transit *rpl_transit_preferred(struct rpl_root *root, struct rpl_targ
         if (memzcmp(target->transits + i, sizeof(struct rpl_transit)))
             return target->transits + i;
     return NULL;
+}
+
+static void rpl_transit_update_timer(struct rpl_root *root, struct rpl_target *target)
+{
+    uint64_t expire_s = UINT64_MAX;
+
+    for (uint8_t i = 0; i < root->pcs + 1; i++) {
+        if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
+            continue;
+        if (expire_s > target->path_seq_tstamp_s + target->transits[i].path_lifetime_s)
+            expire_s = target->path_seq_tstamp_s + target->transits[i].path_lifetime_s;
+    }
+    timer_start_abs(&root->timer_group, &target->timer, expire_s * 1000);
+}
+
+static void rpl_transit_expire(struct timer_group *group, struct timer_entry *timer)
+{
+    struct rpl_target *target = container_of(timer, struct rpl_target, timer);
+    struct rpl_root *root = container_of(group, struct rpl_root, timer_group);
+    time_t elapsed;
+
+    elapsed = time_get_elapsed(CLOCK_MONOTONIC, target->path_seq_tstamp_s);
+    for (uint8_t i = 0; i < root->pcs + 1; i++) {
+        if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
+            continue;
+        if (elapsed < target->transits[i].path_lifetime_s)
+            continue;
+        TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
+                tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
+        memset(target->transits + i, 0, sizeof(struct rpl_transit));
+    }
+    if (!memzcmp(target->transits, sizeof(target->transits)))
+        rpl_target_del(root, target);
+    else
+        rpl_transit_update_timer(root, target);
 }
 
 static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params *params)
@@ -451,6 +488,7 @@ static void rpl_transit_update(struct rpl_root *root,
         dbus_emit_nodes_change(ctxt);
         dbus_emit_routing_graph_change(ctxt);
     }
+    rpl_transit_update_timer(root, target);
 }
 
 static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
@@ -664,7 +702,9 @@ void rpl_recv(struct rpl_root *root)
                       src.sin6_addr.s6_addr, pktinfo->ipi6_addr.s6_addr);
 }
 
-void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
+void rpl_start(struct rpl_root *root,
+               const char ifname[IF_NAMESIZE],
+               struct timer_ctxt *timer_ctxt)
 {
     struct trickle_params dio_trickle_params;
     struct icmp6_filter filter;
@@ -698,6 +738,7 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
     trickle_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
+    timer_group_init(timer_ctxt, &root->timer_group);
     ws_timer_start(WS_TIMER_RPL);
 
     rpl_storage_store_config(root);
@@ -707,29 +748,8 @@ void rpl_timer(int ticks)
 {
     struct trickle_params dio_trickle_params;
     struct rpl_root *root = &g_ctxt.net_if.rpl_root;
-    struct rpl_target *target, *tmp;
-    time_t elapsed;
-    bool del;
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
     if (trickle_timer(&root->dio_trickle, &dio_trickle_params, ticks))
         rpl_send_dio(root, rpl_all_nodes);
-
-    SLIST_FOREACH_SAFE(target, &root->targets, link, tmp) {
-        del = true;
-        elapsed = time_get_elapsed(CLOCK_MONOTONIC, target->path_seq_tstamp_s);
-        for (uint8_t i = 0; i < root->pcs + 1; i++) {
-            if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
-                continue;
-            if (elapsed > target->transits[i].path_lifetime_s) {
-                TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
-                      tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
-                memset(target->transits + i, 0, sizeof(struct rpl_transit));
-            } else {
-                del = false;
-            }
-        }
-        if (del)
-            rpl_target_del(root, target);
-    }
 }

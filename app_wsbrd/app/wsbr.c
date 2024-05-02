@@ -381,7 +381,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         ctxt->net_if.rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(&ctxt->net_if);
-    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname);
+    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname, &ctxt->timer_ctxt);
 }
 
 static void wsbr_handle_reset(struct rcp *rcp)
