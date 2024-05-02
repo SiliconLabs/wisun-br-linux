@@ -656,7 +656,7 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
 
     sd_bus_message_open_container(reply, 'a', "(aybaay)");
 
-    tun_addr_get_global_unicast(ctxt->config.tun_dev, target_br.prefix);
+    tun_addr_get_global_unicast(ctxt->tun.ifname, target_br.prefix);
     dbus_message_append_rpl_target(reply, &target_br, 0);
 
     SLIST_FOREACH(target, &ctxt->net_if.rpl_root.targets, link)

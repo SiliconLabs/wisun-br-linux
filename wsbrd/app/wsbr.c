@@ -336,14 +336,14 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
     int ret;
     bool cmp;
 
-    ret = tun_addr_get_link_local(ctxt->config.tun_dev, addr_tun);
-    FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->config.tun_dev);
+    ret = tun_addr_get_link_local(ctxt->tun.ifname, addr_tun);
+    FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->tun.ifname);
 
     addr_interface_get_ll_address(&ctxt->net_if, addr_ws0, 0);
 
     cmp = memcmp(addr_ws0, addr_tun, 16);
     FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
-        tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->config.tun_dev);
+             tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->tun.ifname);
 }
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
@@ -358,13 +358,13 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     BUG_ON(ret);
 
     wsbr_configure_ws(ctxt);
-    ret = tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
-    FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->config.tun_dev);
+    ret = tun_addr_get_global_unicast(ctxt->tun.ifname, ipv6);
+    FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->tun.ifname);
 
     ws_bootstrap_up(&ctxt->net_if, ipv6);
     wsbr_check_link_local_addr(ctxt);
     if (ctxt->config.internal_dhcp)
-        dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
+        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64, ipv6);
 
     memcpy(ctxt->net_if.rpl_root.dodag_id, ipv6, 16);
     rpl_storage_load(&ctxt->net_if.rpl_root);
@@ -378,7 +378,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         ctxt->net_if.rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(&ctxt->net_if);
-    rpl_start(&ctxt->net_if.rpl_root, ctxt->config.tun_dev);
+    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname);
 }
 
 static void wsbr_handle_reset(struct rcp *rcp)

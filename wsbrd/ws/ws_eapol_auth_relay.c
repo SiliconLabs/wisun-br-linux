@@ -93,7 +93,7 @@ int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_po
     if (eapol_auth_relay->socket_id < 0)
         FATAL(1, "%s: socket: %m", __func__);
     capture_register_netfd(eapol_auth_relay->socket_id);
-    if (setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
+    if (setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->tun.ifname, IF_NAMESIZE) < 0)
         FATAL(1, "%s: setsocketopt: %m", __func__);
     if (bind(eapol_auth_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
         FATAL(1, "%s: bind: %m", __func__);

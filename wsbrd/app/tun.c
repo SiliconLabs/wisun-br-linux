@@ -118,16 +118,10 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     struct nl_addr *src_ipv6_nl_addr;
     struct nl_cache *cache;
     struct nl_sock *sock;
-    int ifindex, err;
+    int err;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
-
-    ifindex = if_nametoindex(ctxt->config.tun_dev);
-    if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.tun_dev);
-        return;
-    }
 
     sock = nl_socket_alloc();
     BUG_ON(!sock);
@@ -138,13 +132,13 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     FATAL_ON(err < 0, 2, "rtnl_neigh_alloc_cache: %s", nl_geterror(err));
     src_ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
     FATAL_ON(!src_ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
-    nl_neigh = rtnl_neigh_get(cache, ifindex, src_ipv6_nl_addr);
+    nl_neigh = rtnl_neigh_get(cache, ctxt->tun.ifindex, src_ipv6_nl_addr);
     if (nl_neigh)
         goto ret_free_addr;
     nl_neigh = rtnl_neigh_alloc();
     BUG_ON(!nl_neigh);
 
-    rtnl_neigh_set_ifindex(nl_neigh, ifindex);
+    rtnl_neigh_set_ifindex(nl_neigh, ctxt->tun.ifindex);
     rtnl_neigh_set_dst(nl_neigh, src_ipv6_nl_addr);
     rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
     rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
@@ -164,16 +158,10 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     struct rtnl_route *nl_route;
     struct nl_addr *ipv6_nl_addr;
     struct nl_sock *sock;
-    int ifindex, err;
+    int err;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
-
-    ifindex = if_nametoindex(ctxt->config.tun_dev);
-    if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.tun_dev);
-        return;
-    }
 
     sock = nl_socket_alloc();
     BUG_ON(!sock);
@@ -190,7 +178,7 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     rtnl_route_set_iif(nl_route, AF_INET6);
     err = rtnl_route_set_dst(nl_route, ipv6_nl_addr);
     FATAL_ON(err < 0, 2, "rtnl_route_set_dst: %s", nl_geterror(err));
-    rtnl_route_nh_set_ifindex(nl_nexthop, ifindex);
+    rtnl_route_nh_set_ifindex(nl_nexthop, ctxt->tun.ifindex);
     rtnl_route_add_nexthop(nl_route, nl_nexthop);
     err = rtnl_route_add(sock, nl_route, 0);
     if (err < 0 && err != -NLE_EXIST)
@@ -208,7 +196,6 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 
     strcpy(ctxt->tun.ifname, ctxt->config.tun_dev);
     tun_init(&ctxt->tun, ctxt->config.tun_autoconf);
-    strcpy(ctxt->config.tun_dev, ctxt->tun.ifname);
     capture_register_netfd(ctxt->tun.fd);
 
     if (ctxt->config.tun_autoconf) {
@@ -228,7 +215,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
-    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->tun.ifname, "accept_ra", '0');
     if (strlen(ctxt->config.neighbor_proxy)) {
         tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
         tun_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');

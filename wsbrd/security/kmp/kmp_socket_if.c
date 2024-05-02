@@ -120,7 +120,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             if (socket_if->kmp_socket_id < 0)
                 FATAL(1, "%s: socket: %m", __func__);
             capture_register_netfd(socket_if->kmp_socket_id);
-            if (setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
+            if (setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->tun.ifname, IF_NAMESIZE) < 0)
                 FATAL(1, "%s: setsocketopt: %m", __func__);
             if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
                 FATAL(1, "%s: bind: %m", __func__);
