@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <netinet/in.h>
 #include <unistd.h>
 #include <signal.h>
 #include "common/bus_uart.h"
@@ -331,24 +332,24 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 {
+    struct in6_addr addr_tun;
     uint8_t addr_ws0[16];
-    uint8_t addr_tun[16];
     int ret;
     bool cmp;
 
-    ret = tun_addr_get_link_local(ctxt->tun.ifname, addr_tun);
+    ret = tun_addr_get_linklocal(&ctxt->tun, &addr_tun);
     FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->tun.ifname);
 
     addr_interface_get_ll_address(&ctxt->net_if, addr_ws0, 0);
 
-    cmp = memcmp(addr_ws0, addr_tun, 16);
+    cmp = memcmp(addr_ws0, addr_tun.s6_addr, 16);
     FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
-             tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->tun.ifname);
+             tr_ipv6(addr_ws0), tr_ipv6(addr_tun.s6_addr), ctxt->tun.ifname);
 }
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
-    uint8_t ipv6[16];
+    struct in6_addr gua;
     int ret;
 
     protocol_core_init();
@@ -358,19 +359,19 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     BUG_ON(ret);
 
     wsbr_configure_ws(ctxt);
-    ret = tun_addr_get_global_unicast(ctxt->tun.ifname, ipv6);
+    ret = tun_addr_get_uc_global(&ctxt->tun, &gua);
     FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->tun.ifname);
 
-    ws_bootstrap_up(&ctxt->net_if, ipv6);
+    ws_bootstrap_up(&ctxt->net_if, gua.s6_addr);
     wsbr_check_link_local_addr(ctxt);
     if (ctxt->config.internal_dhcp)
-        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64, ipv6);
+        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64, gua.s6_addr);
 
-    memcpy(ctxt->net_if.rpl_root.dodag_id, ipv6, 16);
+    memcpy(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16);
     rpl_storage_load(&ctxt->net_if.rpl_root);
     ctxt->net_if.rpl_root.compat = ctxt->config.rpl_compat;
     ctxt->net_if.rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
-    if (ctxt->net_if.rpl_root.instance_id || memcmp(ctxt->net_if.rpl_root.dodag_id, ipv6, 16))
+    if (ctxt->net_if.rpl_root.instance_id || memcmp(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16))
         FATAL(1, "RPL storage out-of-date (see -D)");
     if (ctxt->config.ws_size == WS_NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == WS_NETWORK_SIZE_CERTIFICATION) {

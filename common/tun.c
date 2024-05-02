@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -28,6 +29,7 @@
 #include <netlink/route/link/inet6.h>
 
 #include "common/log.h"
+#include "common/netinet_in_extra.h"
 
 #include "tun.h"
 
@@ -131,6 +133,50 @@ void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t pref
 
     rtnl_addr_put(rtnladdr);
     nl_addr_put(nladdr);
+}
+
+static int tun_addr_get(struct tun_ctx *tun, struct in6_addr *addr,
+                        bool accept_uc_global, bool accept_linklocal)
+{
+    struct sockaddr_in6 *sockaddr;
+    struct ifaddrs *ifas, *ifa;
+    int ret;
+
+    ret = getifaddrs(&ifas);
+    if (ret < 0) {
+        ret = -errno;
+        freeifaddrs(ifas);
+        return ret;
+    }
+
+    for (ifa = ifas; ifa; ifa = ifa->ifa_next) {
+        if (!ifa->ifa_addr)
+            continue;
+        if (ifa->ifa_addr->sa_family != AF_INET6)
+            continue;
+        if (strcmp(ifa->ifa_name, tun->ifname))
+            continue;
+        sockaddr = (struct sockaddr_in6 *)ifa->ifa_addr;
+        if ((!accept_linklocal && IN6_IS_ADDR_LINKLOCAL(sockaddr->sin6_addr.s6_addr)) ||
+            (!accept_uc_global && IN6_IS_ADDR_UC_GLOBAL(sockaddr->sin6_addr.s6_addr)))
+            continue;
+        *addr = sockaddr->sin6_addr;
+        freeifaddrs(ifas);
+        return 0;
+    }
+
+    freeifaddrs(ifas);
+    return -EADDRNOTAVAIL;
+}
+
+int tun_addr_get_linklocal(struct tun_ctx *tun, struct in6_addr *addr)
+{
+    return tun_addr_get(tun, addr, false, true);
+}
+
+int tun_addr_get_uc_global(struct tun_ctx *tun, struct in6_addr *addr)
+{
+    return tun_addr_get(tun, addr, true, false);
 }
 
 static int tun_addr_set_mc(struct tun_ctx *tun, const struct in6_addr *addr, int opt)

@@ -331,8 +331,8 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=crc_check
         -Wl,--wrap=spinel_prop_is_valid
         -Wl,--wrap=wsbr_tun_init
-        -Wl,--wrap=tun_addr_get_global_unicast
-        -Wl,--wrap=tun_addr_get_link_local
+        -Wl,--wrap=tun_addr_get_uc_global
+        -Wl,--wrap=tun_addr_get_linklocal
         -Wl,--wrap=wsbr_common_timer_init
         -Wl,--wrap=clock_gettime
         -Wl,--wrap=read

@@ -64,53 +64,6 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-static int tun_addr_get(const char *if_name, uint8_t ip[16],
-                        bool accept_gua, bool accept_linklocal)
-{
-    struct sockaddr_in6 *ipv6;
-    struct ifaddrs *ifaddr, *ifa;
-
-    if (getifaddrs(&ifaddr) < 0) {
-        WARN("getifaddrs: %m");
-        freeifaddrs(ifaddr);
-        return -1;
-    }
-
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        if (!ifa->ifa_addr)
-            continue;
-
-        if (ifa->ifa_addr->sa_family != AF_INET6)
-            continue;
-
-        if (strcmp(ifa->ifa_name, if_name))
-            continue;
-
-        ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
-
-        if ((!accept_linklocal && IN6_IS_ADDR_LINKLOCAL(ipv6->sin6_addr.s6_addr)) ||
-            (!accept_gua       && IN6_IS_ADDR_UC_GLOBAL(ipv6->sin6_addr.s6_addr)))
-            continue;
-
-        memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
-        freeifaddrs(ifaddr);
-        return 0;
-    }
-
-    freeifaddrs(ifaddr);
-    return -2;
-}
-
-int tun_addr_get_link_local(const char *if_name, uint8_t ip[16])
-{
-    return tun_addr_get(if_name, ip, false, true);
-}
-
-int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[16])
-{
-    return tun_addr_get(if_name, ip, true, false);
-}
-
 void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

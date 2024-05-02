@@ -106,29 +106,29 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *wsbrd)
     ctxt->tun_lla[8] ^= 2;
 }
 
-int __real_tun_addr_get_global_unicast(char* if_name, uint8_t ip[16]);
-int __wrap_tun_addr_get_global_unicast(char* if_name, uint8_t ip[16])
+int __real_tun_addr_get_uc_global(const struct tun_ctx *tun, struct in6_addr *addr);
+int __wrap_tun_addr_get_uc_global(const struct tun_ctx *tun, struct in6_addr *addr)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
     if (ctxt->replay_count) {
-        memcpy(ip, ctxt->tun_gua, 16);
+        memcpy(addr, ctxt->tun_gua, 16);
         return 0;
     } else {
-        return __real_tun_addr_get_global_unicast(if_name, ip);
+        return __real_tun_addr_get_uc_global(tun, addr);
     }
 }
 
-int __real_tun_addr_get_link_local(char* if_name, uint8_t ip[16]);
-int __wrap_tun_addr_get_link_local(char* if_name, uint8_t ip[16])
+int __real_tun_addr_get_linklocal(const struct tun_ctx *tun, struct in6_addr *addr);
+int __wrap_tun_addr_get_linklocal(const struct tun_ctx *tun, struct in6_addr *addr)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
     if (ctxt->replay_count) {
-        memcpy(ip, ctxt->tun_lla, 16);
+        memcpy(addr, ctxt->tun_lla, 16);
         return 0;
     } else {
-        return __real_tun_addr_get_link_local(if_name, ip);
+        return __real_tun_addr_get_linklocal(tun, addr);
     }
 }
 
