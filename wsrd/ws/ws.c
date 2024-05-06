@@ -382,3 +382,65 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
         return;
     }
 }
+
+void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
+{
+    struct ieee802154_hdr hdr = {
+        .frame_type = IEEE802154_FRAME_TYPE_DATA,
+        .ack_req    = true,
+        .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
+        .key_index  = 1,           // TODO: key selection
+    };
+    struct mpx_ie ie_mpx = {
+        .transfer_type = MPX_FT_FULL_FRAME,
+        .multiplex_id  = MPX_ID_6LOWPAN,
+    };
+    struct iobuf_write iobuf = { };
+    struct ws_neigh *neigh = NULL;
+    uint8_t fhss_type;
+    int offset;
+
+    if (dst && memcmp(ieee802154_addr_bc, dst, 8)) {
+        neigh = ws_neigh_get(&ws->neigh_table, dst);
+        if (!neigh) {
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
+            return;
+        }
+        memcpy(hdr.dst, dst, 8);
+        hdr.pan_id = -1;
+        fhss_type = HIF_FHSS_TYPE_FFN_UC;
+    } else {
+        memcpy(hdr.dst, ieee802154_addr_bc, 8);
+        hdr.pan_id = ws->pan_id;
+        fhss_type = HIF_FHSS_TYPE_FFN_BC;
+    }
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_wh_utt_write(&iobuf, WS_FT_DATA);
+    // TODO: BT-IE, LBT-IE
+    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
+
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
+    if (neigh) // TODO: only include US-IE if 1st unicast frame to neighbor
+        ws_wp_nested_us_write(&iobuf, &ws->fhss);
+    // TODO: JM-IE
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
+    mpx_ie_write(&iobuf, &ie_mpx);
+    iobuf_push_data(&iobuf, pkt, pkt_len);
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
+    iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+
+    // TODO: store frame and wait for confirmation
+    rcp_req_data_tx(&g_wsrd.rcp,
+                    iobuf.data, iobuf.len,
+                    ws->seqno, // TODO: proper frame handle (seqno does not cover async/bc frames)
+                    fhss_type,
+                    neigh ? &neigh->fhss_data_unsecured : NULL,
+                    neigh ? neigh->frame_counter_min : NULL,
+                    NULL, 0);  // TODO: mode switch
+    iobuf_free(&iobuf);
+}

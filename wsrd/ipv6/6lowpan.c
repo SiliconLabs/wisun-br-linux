@@ -17,6 +17,7 @@
 #include "wsrd/ipv6/6lowpan_iphc.h"
 #include "wsrd/ipv6/ipv6.h"
 #include "wsrd/ipv6/ipv6_addr.h"
+#include "wsrd/ws/ws.h"
 #include "6lowpan.h"
 
 void lowpan_recv(struct ipv6_ctx *ipv6,
@@ -61,5 +62,5 @@ void lowpan_send(struct ipv6_ctx *ipv6,
 
     lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
 
-    // TODO: send to Wi-SUN MAC
+    ipv6->sendto_mac(ipv6, pktbuf, dst);
 }

@@ -19,9 +19,11 @@
 #include "wsrd/app/commandline.h"
 #include "wsrd/ipv6/ipv6_addr.h"
 #include "wsrd/ipv6/rpl.h"
+#include "wsrd/ws/ws.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/pktbuf.h"
 #include "common/rail_config.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
@@ -37,6 +39,7 @@ enum {
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
+static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 struct wsrd g_wsrd = {
@@ -48,6 +51,7 @@ struct wsrd g_wsrd = {
     .timer_ctx.fd = -1,
 
     .ws.pan_id = 0xffff,
+    .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
 };
 
@@ -78,6 +82,13 @@ static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
     // TODO
+}
+
+static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
+{
+    struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
+
+    ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)

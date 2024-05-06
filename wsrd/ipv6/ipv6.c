@@ -31,6 +31,8 @@
 
 void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8])
 {
+    BUG_ON(!ipv6->sendto_mac);
+
     tun_init(&ipv6->tun, true);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", ipv6->tun.ifname, "accept_ra", '0');
 

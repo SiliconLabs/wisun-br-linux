@@ -13,6 +13,7 @@
 #ifndef WSRD_WS_H
 #define WSRD_WS_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "common/ws_ie.h"
@@ -29,9 +30,13 @@ struct ws_ctx {
     struct ws_fhss_config fhss;
     struct ws_neigh_table neigh_table;
 
+    uint8_t  seqno;
+
     struct ipv6_ctx ipv6;
 };
 
 void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);
+
+void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
 
 #endif
