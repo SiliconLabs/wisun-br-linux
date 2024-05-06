@@ -10,17 +10,14 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WSRD_H
-#define WSRD_H
+#ifndef WSRD_WS_H
+#define WSRD_WS_H
 
-#include "wsrd/app/commandline.h"
-#include "wsrd/ws/ws.h"
-#include "common/rcp_api.h"
+#include "common/ws_types.h"
 
-struct wsrd {
-    struct wsrd_conf config;
-    struct rcp rcp;
-    struct ws_ctx ws;
+struct ws_ctx {
+    struct ws_phy_config  phy;
+    struct ws_fhss_config fhss;
 };
 
 #endif
