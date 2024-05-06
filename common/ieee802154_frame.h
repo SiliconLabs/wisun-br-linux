@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 struct iobuf_read;
+struct iobuf_write;
 
 extern uint8_t ieee802154_addr_bc[8]; // ff:ff:ff:ff:ff:ff:ff:ff
 
@@ -24,5 +25,8 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
                            struct ieee802154_hdr *hdr,
                            struct iobuf_read *ie_header,
                            struct iobuf_read *ie_payload);
+
+void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
+                                const struct ieee802154_hdr *hdr);
 
 #endif
