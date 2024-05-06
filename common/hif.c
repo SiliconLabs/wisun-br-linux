@@ -100,6 +100,22 @@ const char *hif_fatal_str(uint16_t cmd)
     return val_to_str(cmd, hif_fatal_names, "EUNK");
 }
 
+#define ENTRY(name) { #name, HIF_STATUS_##name }
+static const struct name_value hif_status_names[] = {
+    ENTRY(SUCCESS),
+    ENTRY(NOMEM),
+    ENTRY(CCA),
+    ENTRY(NOACK),
+    ENTRY(TIMEDOUT),
+    { 0 }
+};
+#undef ENTRY
+
+const char *hif_status_str(uint8_t code)
+{
+    return val_to_str(code, hif_status_names, "UNKNOWN");
+}
+
 void hif_push_bool(struct iobuf_write *buf, bool val)
 {
     iobuf_push_u8(buf, val);

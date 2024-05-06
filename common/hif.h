@@ -116,6 +116,7 @@ enum hif_mode_switch_type {
 
 const char *hif_cmd_str(uint8_t cmd);
 const char *hif_fatal_str(uint16_t code);
+const char *hif_status_str(uint8_t code);
 
 void hif_push_bool(struct iobuf_write *buf, bool val);
 void hif_push_uint(struct iobuf_write *buf, unsigned int val);
