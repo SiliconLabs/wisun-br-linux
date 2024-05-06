@@ -43,6 +43,7 @@ struct ipv6_ctx {
 void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8]);
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
+void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6);
 
 void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
                      uint8_t ipproto, uint8_t hlim,

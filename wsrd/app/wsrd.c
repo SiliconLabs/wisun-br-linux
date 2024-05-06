@@ -32,6 +32,7 @@
 enum {
     POLLFD_RCP,
     POLLFD_TIMER,
+    POLLFD_TUN,
     POLLFD_RPL,
     POLLFD_COUNT,
 };
@@ -271,6 +272,8 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = wsrd->timer_ctx.fd;
     pfd[POLLFD_TIMER].events = POLLIN;
+    pfd[POLLFD_TUN].fd = wsrd->ws.ipv6.tun.fd;
+    pfd[POLLFD_TUN].events = POLLIN;
     pfd[POLLFD_RPL].fd = wsrd->ws.ipv6.rpl.fd;
     pfd[POLLFD_RPL].events = POLLIN;
     while (true) {
@@ -281,6 +284,8 @@ int wsrd_main(int argc, char *argv[])
             rcp_rx(&wsrd->rcp);
         if (pfd[POLLFD_TIMER].revents & POLLIN)
             timer_ctxt_process(&wsrd->timer_ctx);
+        if (pfd[POLLFD_TUN].revents & POLLIN)
+            ipv6_recvfrom_tun(&wsrd->ws.ipv6);
         if (pfd[POLLFD_RPL].revents & POLLIN)
             rpl_recv(&wsrd->ws.ipv6);
     }

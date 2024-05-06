@@ -201,6 +201,109 @@ void ipv6_addr_resolution(struct ipv6_ctx *ipv6, const struct in6_addr *nxthop, 
     memcpy(eui64, nce->eui64, 8);
 }
 
+static bool ipv6_is_exthdr(uint8_t ipproto)
+{
+    switch (ipproto) {
+    case IPPROTO_HOPOPTS:
+    case IPPROTO_ROUTING:
+    case IPPROTO_FRAGMENT:
+    case IPPROTO_DSTOPTS:
+    case IPPROTO_MH:
+        return true;
+    default:
+        return false;
+    }
+}
+
+static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
+{
+    const struct ip6_ext *ext;
+    struct icmp6_hdr icmp;
+    struct ip6_hdr hdr;
+    size_t offset_head;
+    uint8_t ipproto;
+
+    offset_head = pktbuf->offset_head;
+    pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
+    if (FIELD_GET(IPV6_MASK_VERSION, ntohl(hdr.ip6_flow)) != 6) {
+        TRACE(TR_DROP, "drop %-9s: invalid IP version", "tun");
+        return false;
+    }
+
+    ipproto = hdr.ip6_nxt;
+    while (ipv6_is_exthdr(ipproto) && !pktbuf->err) {
+        if (pktbuf_len(pktbuf) < sizeof(*ext)) {
+            TRACE(TR_DROP, "drop %-9s: malformed extension header", "tun");
+            return false;
+        }
+        ext = (struct ip6_ext *)pktbuf_head(pktbuf);
+        ipproto = ext->ip6e_nxt;
+        pktbuf_pop_head(pktbuf, NULL, 8 * (ext->ip6e_len + 1));
+    }
+
+    switch (ipproto) {
+    case IPPROTO_UDP:
+    case IPPROTO_TCP:
+        break;
+    case IPPROTO_ICMPV6:
+        pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
+        switch (icmp.icmp6_type) {
+        case ICMP6_DST_UNREACH:
+        case ICMP6_PACKET_TOO_BIG:
+        case ICMP6_TIME_EXCEEDED:
+        case ICMP6_PARAM_PROB:
+        case ICMP6_ECHO_REQUEST:
+        case ICMP6_ECHO_REPLY:
+        case ICMPV6_TYPE_RPL:
+            break;
+        default:
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "tun", icmp.icmp6_type);
+            return false;
+        }
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported next header %u", "tun", ipproto);
+        return false;
+    }
+
+    if (pktbuf->err) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "tun");
+        return false;
+    }
+
+    pktbuf->offset_head = offset_head;
+    return true;
+}
+
+void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
+{
+    const struct in6_addr *nxthop;
+    struct pktbuf pktbuf = { };
+    const struct ip6_hdr *hdr;
+    uint8_t dst_eui64[8];
+    ssize_t size;
+
+    pktbuf_init(&pktbuf, NULL, 1500);
+    size = read(ipv6->tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    if (size < 0) {
+        WARN("%s read: %m", __func__);
+        goto err;
+    }
+    pktbuf.offset_tail = size;
+
+    if (!ipv6_is_pkt_allowed(&pktbuf))
+        goto err;
+    hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
+
+    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop))
+        return;
+    ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
+
+    lowpan_send(ipv6, &pktbuf, ipv6->eui64, dst_eui64);
+err:
+    pktbuf_free(&pktbuf);
+}
+
 void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
                      uint8_t ipproto, uint8_t hlim,
                      const struct in6_addr *src, const struct in6_addr *dst)
