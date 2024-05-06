@@ -222,3 +222,46 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
 
     return 0;
 }
+
+void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
+                                const struct ieee802154_hdr *hdr)
+{
+    uint8_t dst_addr_mode = !memcmp(ieee802154_addr_bc, hdr->dst, 8) ?
+                            MAC_ADDR_MODE_NONE :
+                            MAC_ADDR_MODE_64_BIT;
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_cmpr); i++)
+        if (ieee802154_table_pan_id_cmpr[i].dst_addr_mode  == dst_addr_mode &&
+            ieee802154_table_pan_id_cmpr[i].has_src_pan_id == (hdr->pan_id != 0xffff))
+            break;
+    BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_cmpr));
+
+    iobuf_push_le16(iobuf, FIELD_PREP(IEEE802154_MASK_FCF_FRAME_TYPE,    hdr->frame_type)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_SECURED,       hdr->key_index != 0)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_ACK_REQ,       hdr->ack_req)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_PAN_ID_CMPR,   ieee802154_table_pan_id_cmpr[i].pan_id_cmpr)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_DEL_SEQNO,     hdr->seqno < 0)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_HAS_IE,        true)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_DST_ADDR_MODE, dst_addr_mode)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_FRAME_VERSION, MAC_FRAME_VERSION_2015)
+                         | FIELD_PREP(IEEE802154_MASK_FCF_SRC_ADDR_MODE, MAC_ADDR_MODE_64_BIT));
+
+    if (hdr->seqno >= 0)
+        iobuf_push_u8(iobuf, hdr->seqno);
+
+    BUG_ON(ieee802154_table_pan_id_cmpr[i].has_dst_pan_id);
+    if (dst_addr_mode == MAC_ADDR_MODE_64_BIT)
+        iobuf_push_le64(iobuf, read_be64(hdr->dst));
+    if (hdr->pan_id != 0xffff)
+        iobuf_push_le16(iobuf, hdr->pan_id);
+    BUG_ON(ieee802154_table_pan_id_cmpr[i].src_addr_mode != MAC_ADDR_MODE_64_BIT);
+    iobuf_push_le64(iobuf, read_be64(hdr->src));
+
+    if (hdr->key_index) {
+        iobuf_push_u8(iobuf, FIELD_PREP(IEEE802154_MASK_SECHDR_LEVEL,       SEC_ENC_MIC64)
+                           | FIELD_PREP(IEEE802154_MASK_SECHDR_KEY_ID_MODE, MAC_KEY_ID_MODE_IDX));
+        iobuf_push_data_reserved(iobuf, 4); // Frame Counter
+        iobuf_push_u8(iobuf, hdr->key_index);
+    }
+}
