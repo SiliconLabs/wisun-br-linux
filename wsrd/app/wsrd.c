@@ -36,12 +36,14 @@ enum {
 
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
+static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 struct wsrd g_wsrd = {
     .rcp.bus.fd = -1,
     .rcp.on_reset  = wsrd_on_rcp_reset,
     .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
+    .rcp.on_tx_cnf = wsrd_on_rcp_tx_cnf,
 
     .timer_ctx.fd = -1,
 
@@ -69,6 +71,13 @@ static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
     struct wsrd *wsrd = container_of(rcp, struct wsrd, rcp);
 
     ws_recv_ind(&wsrd->ws, ind);
+}
+
+static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
+{
+    if (cnf->status != HIF_STATUS_SUCCESS)
+        TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
+    // TODO
 }
 
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
