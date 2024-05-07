@@ -21,6 +21,7 @@
 #include "common/ws_ie.h"
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
+#include "wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
 
 #include "ws.h"
 
@@ -123,6 +124,15 @@ static bool ws_ie_validate_us(struct ws_ctx *ws, const struct iobuf_read *ie_wp,
     return ws_ie_validate_schedule(ws, &ie_us->chan_plan);
 }
 
+static bool ws_ie_validate_bs(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_bs_ie *ie_bs)
+{
+    if (!ws_wp_nested_bs_read(ie_wp->data, ie_wp->data_size, ie_bs)) {
+        TRACE(TR_DROP, "drop %-9s: missing BS-IE", "15.4");
+        return false;
+    }
+    return ws_ie_validate_schedule(ws, &ie_bs->chan_plan);
+}
+
 static bool ws_ie_validate_netname(struct ws_ctx *ws, const struct iobuf_read *ie_wp)
 {
     struct ws_netname_ie ie_netname;
@@ -191,6 +201,80 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     ws->pan_id = ind->hdr.pan_id;
 }
 
+static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)
+{
+    memset(params, 0, sizeof(*params));
+    params->reg_domain = REG_DOMAIN_UNDEF;
+    switch (ie->channel_plan) {
+    case 0:
+        *params = *ws_regdb_chan_params(ie->plan.zero.regulatory_domain, 0, ie->plan.zero.operating_class);
+        break;
+    case 1:
+        params->chan0_freq   = ie->plan.one.ch0 * 1000;
+        params->chan_spacing = ws_regdb_chan_spacing_from_id(ie->plan.one.channel_spacing);
+        params->chan_count   = ie->plan.one.number_of_channel;
+        break;
+    case 2:
+        *params = *ws_regdb_chan_params(ie->plan.two.regulatory_domain, ie->plan.two.channel_plan_id, 0);
+        break;
+    }
+}
+
+static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
+    struct chan_params chan_params;
+    struct ws_neigh *neigh;
+    struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
+    struct ws_us_ie ie_us;
+    struct ws_bs_ie ie_bs;
+
+    if (ws->pan_id == 0xffff) {
+        TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
+        return;
+    }
+    if (ind->hdr.pan_id != ws->pan_id) {
+        TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
+        return;
+    }
+    if (!ind->hdr.key_index) {
+        TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
+        return;
+    }
+
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    if (!ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt)) {
+        TRACE(TR_DROP, "drop %s: missing BT-IE", "15.4");
+        return;
+    }
+    if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
+        return;
+    if (!ws_ie_validate_bs(ws, &ind->ie_wp, &ie_bs))
+        return;
+
+    // TODO: PANVER-IE, GTKHASH-IE, LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
+
+    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
+    if (!neigh)
+        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
+    else
+        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
+    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+
+    // TODO: only update on BS-IE change, or parent change
+    ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
+    ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
+    rcp_set_fhss_ffn_bc(&g_wsrd.rcp,
+                        ie_bs.broadcast_interval,
+                        ie_bs.broadcast_schedule_identifier,
+                        ie_bs.dwell_interval,
+                        bc_chan_mask);
+}
+
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 {
     unsigned int tr_domain;
@@ -237,6 +321,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     switch (ie_utt.message_type) {
     case WS_FT_PA:
         ws_recv_pa(ws, &ind);
+        break;
+    case WS_FT_PC:
+        ws_recv_pc(ws, &ind);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
