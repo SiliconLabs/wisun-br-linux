@@ -23,6 +23,7 @@
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
 #include "wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
+#include "wsrd/ipv6/6lowpan.h"
 
 #include "ws.h"
 
@@ -317,6 +318,10 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
         ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
+
+    lowpan_recv(&ws->ipv6,
+                ie_mpx.frame_ptr, ie_mpx.frame_length,
+                ind->hdr.src, ind->hdr.dst);
 }
 
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)

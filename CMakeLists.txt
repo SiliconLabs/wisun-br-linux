@@ -272,6 +272,8 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_library(libwsrd STATIC
     wsrd/app/commandline.c
     wsrd/app/wsrd.c
+    wsrd/ipv6/6lowpan.c
+    wsrd/ipv6/6lowpan_iphc.c
     wsrd/ipv6/ipv6.c
     wsrd/ipv6/ipv6_addr.c
     wsrd/ws/ws.c
@@ -290,6 +292,7 @@ add_library(libwsrd STATIC
     common/mpx.c
     common/named_values.c
     common/parsers.c
+    common/pktbuf.c
     common/rail_config.c
     common/rand.c
     common/rcp_api.c
