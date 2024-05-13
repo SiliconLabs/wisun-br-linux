@@ -189,7 +189,7 @@ void hif_push_u64(struct iobuf_write *buf, uint64_t val)
 
 void hif_push_str(struct iobuf_write *buf, const char *val)
 {
-    iobuf_push_data(buf, (const uint8_t *)val, strlen(val) + 1);
+    iobuf_push_data(buf, val, strlen(val) + 1);
     TRACE(TR_HIF_EXTRA, "hif tx:   string: %s", val);
 }
 
