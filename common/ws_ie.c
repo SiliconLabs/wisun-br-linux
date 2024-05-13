@@ -432,7 +432,7 @@ void ws_wp_nested_netname_write(struct iobuf_write *buf,
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_NETNAME, false);
-    iobuf_push_data(buf, (const uint8_t *)netname, strlen(netname));
+    iobuf_push_data(buf, netname, strlen(netname));
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 

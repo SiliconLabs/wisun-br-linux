@@ -80,7 +80,7 @@ void iobuf_push_le64(struct iobuf_write *buf, uint64_t val) {
     buf->len += 8;
 }
 
-void iobuf_push_data(struct iobuf_write *buf, const uint8_t *val, int num)
+void iobuf_push_data(struct iobuf_write *buf, const void *val, int num)
 {
     iobuf_enlarge_buffer(buf, num);
     memcpy(buf->data + buf->len, val, num);
