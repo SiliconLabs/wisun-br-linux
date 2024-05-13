@@ -1,3 +1,24 @@
+v2.1
+------
+  - Support separate PTK/PMK lifetimes between FFN and LFN.
+  - Remove some authentication limits: more supplicants accepted
+    simultaneously, resuling in better authentication delays.
+  - Support MPL seed-id omission when operating fully in FAN 1.1 (16 bytes
+    saved per multicast packet).
+  - MAC mode switch support for TX: D-Bus method `SetModeSwitch` has been
+    superseded by `SetLinkModeSwitch`.
+  - Support TBU endpoints `/command/borderRouter/rpl/incrementDodagVersion` and
+    `/command/borderRouter/rpl/incrementDtsn`.
+  - Support experimental EDFE initial frame generation for TBU.
+  - Support TBU runtime key insertion in `/config/borderRouter/gtks`.
+  - Support runtime MAC filtering via D-Bus methods `AllowMac64` and
+    `DenyMac64`, and also TBU endpoint `/config/whitelist`.
+  - Fix potential crash at boot on unexpected RCP indication due to race
+    condition between RCP reset and reception of a frame on the radio.
+  - Fix TBU error handling in `/config/borderRouter/gtks`.
+  - Fix `pcap_file` and TBU `/subscription/frames` (RX-only decrypted packet
+    capture).
+
 v2.0
 ------
   - Drop support for legacy RCP API (< 2.0):
