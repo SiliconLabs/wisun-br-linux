@@ -30,6 +30,8 @@ struct rpl_neigh {
 
 struct rpl_ctx {
     int fd;
+
+    void (*on_pref_parent_change)(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 };
 
 void rpl_start(struct ipv6_ctx *ipv6);

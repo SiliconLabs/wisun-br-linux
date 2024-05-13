@@ -36,6 +36,7 @@ enum {
 
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
+static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 struct wsrd g_wsrd = {
     .rcp.bus.fd = -1,
@@ -45,6 +46,7 @@ struct wsrd g_wsrd = {
     .timer_ctx.fd = -1,
 
     .ws.pan_id = 0xffff,
+    .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
@@ -67,6 +69,23 @@ static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
     struct wsrd *wsrd = container_of(rcp, struct wsrd, rcp);
 
     ws_recv_ind(&wsrd->ws, ind);
+}
+
+static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    struct wsrd *wsrd = container_of(ipv6, struct wsrd, ws.ipv6);
+
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global)) {
+        // HACK: bypass DHCPv6
+        wsrd->ws.ipv6.addr_uc_global = neigh->ipv6_addr;
+        memcpy(wsrd->ws.ipv6.addr_uc_global.s6_addr + 8,
+               wsrd->rcp.eui64, 8);
+        wsrd->ws.ipv6.addr_uc_global.s6_addr[8] ^= 0x02;
+        DEBUG("install addr=%s", tr_ipv6(wsrd->ws.ipv6.addr_uc_global.s6_addr));
+        // TODO: set prefix len to 128, and add default route instead
+        tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
+        // TODO: NS(ARO) with parent
+    }
 }
 
 static void wsrd_init_rcp(struct wsrd *wsrd)

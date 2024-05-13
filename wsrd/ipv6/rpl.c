@@ -75,6 +75,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     const struct rpl_opt_prefix *prefix = NULL;
     const struct rpl_dio_base *dio_base;
     const struct rpl_opt *opt;
+    bool pref_parent_change;
     struct ipv6_neigh *nce;
     struct in6_addr addr;
     uint8_t eui64[8];
@@ -173,6 +174,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         nce = ipv6_neigh_add(ipv6, &addr, eui64);
     }
 
+    pref_parent_change = false;
     if (!nce->rpl_neigh) {
         // TODO: parent selection
         if (rpl_neigh_pref_parent(ipv6)) {
@@ -180,6 +182,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
             goto drop_neigh;
         }
         rpl_neigh_add(ipv6, nce);
+        pref_parent_change = true;
     }
 
     nce->rpl_neigh->dio_base = *dio_base;
@@ -191,6 +194,9 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
           dio_base->instance_id, dio_base->dodag_verno,
           tr_ipv6(dio_base->dodag_id.s6_addr));
+
+    if (pref_parent_change && ipv6->rpl.on_pref_parent_change)
+        ipv6->rpl.on_pref_parent_change(ipv6, nce);
 
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation

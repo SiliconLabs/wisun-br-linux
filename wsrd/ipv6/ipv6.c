@@ -18,6 +18,7 @@
 
 #include "common/bits.h"
 #include "common/log.h"
+#include "common/netinet_in_extra.h"
 #include "common/pktbuf.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
@@ -62,7 +63,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         return;
     }
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
-        !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->addr_linklocal))) {
+        !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->addr_linklocal)) &&
+        !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->addr_uc_global))) {
         TRACE(TR_DROP, "drop %-9s: invalid dst=%s", "ipv6", tr_ipv6(hdr.ip6_dst.s6_addr));
         pktbuf->err = true;
         return;
