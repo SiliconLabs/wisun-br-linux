@@ -29,7 +29,6 @@
 
 #include "6lowpan/mac/mac_helper.h"
 
-static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
 /*
@@ -57,7 +56,9 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
         length += 4;
     }
 
-    length += mac_helper_header_security_aux_header_length(IEEE802154_KEY_ID_MODE_IDX);
+    length += 1; // SCF
+    length += 4; // Frame Counter
+    length += 1; // Key Index
     length += mac_helper_security_mic_length_get(IEEE802154_SEC_LEVEL_ENC_MIC64);
 
     return length;
@@ -87,24 +88,4 @@ static uint8_t mac_helper_security_mic_length_get(uint8_t security_level)
     }
 
     return mic_length;
-}
-
-static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode)
-{
-
-    uint8_t header_length = 5; //Header + 32-bit counter
-    switch (keyIdmode) {
-        case IEEE802154_KEY_ID_MODE_SRC8_IDX:
-            header_length += 4; //64-bit key source first part
-        /* fall through  */
-        case IEEE802154_KEY_ID_MODE_SRC4_IDX:
-            header_length += 4; //32-bit key source inline
-        /* fall through  */
-        case IEEE802154_KEY_ID_MODE_IDX:
-            header_length += 1;
-            break;
-        default:
-            break;
-    }
-    return header_length;
 }
