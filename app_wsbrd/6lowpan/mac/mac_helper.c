@@ -33,15 +33,6 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
 /*
- * Given a buffer, with address and security flags set, compute the maximum
- * MAC payload that could be put in that buffer.
- */
-uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead)
-{
-    return cur->mac_parameters.mtu - frame_overhead;
-}
-
-/*
  * Given a buffer, with address and security flags set, compute the MAC overhead
  * size once MAC header and footer are added.
  * May not be accurate if MAC_MAX_PHY_PACKET_SIZE isn't set, implying a

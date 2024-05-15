@@ -26,7 +26,6 @@ struct buffer;
 struct mac_api;
 enum addrtype;
 
-uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead);
 uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *buf);
 
 #endif

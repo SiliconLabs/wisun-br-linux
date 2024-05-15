@@ -225,12 +225,7 @@ static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer
         overhead += interface_ptr->mpx_api->mpx_headroom_size_get(interface_ptr->mpx_api, interface_ptr->mpx_user_id);
     }
 
-
-    if (buffer_data_length(buf) > (int16_t)mac_helper_max_payload_size(cur, overhead)) {
-        return true;
-    } else {
-        return false;
-    }
+    return buffer_data_length(buf) > cur->mac_parameters.mtu - overhead;
 }
 
 static void lowpan_active_buffer_state_reset(fragmenter_tx_entry_t *tx_buffer)
@@ -461,7 +456,7 @@ static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_ent
         overhead += interface_ptr->mpx_api->mpx_headroom_size_get(interface_ptr->mpx_api, interface_ptr->mpx_user_id);
     }
 
-    frag_entry->frag_max = mac_helper_max_payload_size(cur, overhead);
+    frag_entry->frag_max = cur->mac_parameters.mtu - overhead;
 
 
     /* RFC 4944 says MTU and hence maximum size here is 1280, but that's
