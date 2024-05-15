@@ -80,9 +80,11 @@ buffer_t *lowpan_down(buffer_t *buf)
         buf->src_sa.addr_type = ADDR_NONE;
     }
 
-    if (!mac_helper_write_our_addr(cur, &buf->src_sa)) {
+    if (cur->ws_info.pan_information.pan_id == 0xffff)
         return buffer_free(buf);
-    }
+    buf->src_sa.addr_type = ADDR_802_15_4_LONG;
+    write_le16(buf->src_sa.address, cur->ws_info.pan_information.pan_id);
+    memcpy(buf->src_sa.address + 2, cur->mac, 8);
 
     /* Clear Link Layer Re Transmission Counter */
     //buf->fhss_channel_retries_left = 1+ cur->mac_parameters.number_of_fhss_channel_retries;

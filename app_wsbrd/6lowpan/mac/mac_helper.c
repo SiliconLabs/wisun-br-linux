@@ -32,30 +32,6 @@
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
-{
-    write_be16(addrPtr, temp16);
-    return temp16 != 0xffff;
-}
-
-/* Write functions return "false" if they write an "odd" address, true if they
- * write a "normal" address. They still write odd addresses, as certain special
- * packets may want them, but this allows normal data paths to check and block
- * odd cases.
- * "Odd" is currently defined as PAN ID == 0xffff, or short address > 0xfffd.
- */
-bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
-{
-    bool normal;
-
-    BUG_ON(ptr->addr_type == ADDR_802_15_4_SHORT);
-    //Set First PANID
-    normal = mac_helper_write_16bit(interface->ws_info.pan_information.pan_id, ptr->address);
-    ptr->addr_type = ADDR_802_15_4_LONG;
-    memcpy(&ptr->address[2], interface->mac, 8);
-    return normal;
-}
-
 /*
  * Given a buffer, with address and security flags set, compute the maximum
  * MAC payload that could be put in that buffer.
