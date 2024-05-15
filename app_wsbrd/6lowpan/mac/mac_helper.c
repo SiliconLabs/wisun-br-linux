@@ -29,8 +29,6 @@
 
 #include "6lowpan/mac/mac_helper.h"
 
-static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
-
 /*
  * Given a buffer, with address and security flags set, compute the MAC overhead
  * size once MAC header and footer are added.
@@ -59,33 +57,7 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
     length += 1; // SCF
     length += 4; // Frame Counter
     length += 1; // Key Index
-    length += mac_helper_security_mic_length_get(IEEE802154_SEC_LEVEL_ENC_MIC64);
+    length += 8; // MIC-64
 
     return length;
-}
-
-static uint8_t mac_helper_security_mic_length_get(uint8_t security_level)
-{
-    uint8_t mic_length;
-    switch (security_level) {
-        case IEEE802154_SEC_LEVEL_MIC32:
-        case IEEE802154_SEC_LEVEL_ENC_MIC32:
-            mic_length = 4;
-            break;
-        case IEEE802154_SEC_LEVEL_MIC64:
-        case IEEE802154_SEC_LEVEL_ENC_MIC64:
-            mic_length = 8;
-            break;
-        case IEEE802154_SEC_LEVEL_MIC128:
-        case IEEE802154_SEC_LEVEL_ENC_MIC128:
-            mic_length = 16;
-            break;
-        case IEEE802154_SEC_LEVEL_NONE:
-        case IEEE802154_SEC_LEVEL_ENC:
-        default:
-            mic_length = 0;
-            break;
-    }
-
-    return mic_length;
 }
