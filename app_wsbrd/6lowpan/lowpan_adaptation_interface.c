@@ -602,7 +602,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     dataReq->SrcAddrMode = buf->src_sa.addr_type;
     dataReq->DstAddrMode = buf->dst_sa.addr_type;
     memcpy(dataReq->DstAddr, &buf->dst_sa.address[2], 8);
-    dataReq->DstPANId = mac_helper_panid_get(cur);
+    dataReq->DstPANId = cur->ws_info.pan_information.pan_id;
 
     //Allocate message msdu handle
     dataReq->msduHandle = buf->seq;

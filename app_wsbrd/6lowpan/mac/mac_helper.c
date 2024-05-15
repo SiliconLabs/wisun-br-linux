@@ -32,15 +32,6 @@
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-uint16_t mac_helper_panid_get(const struct net_if *interface)
-{
-    uint16_t panId = 0xffff;
-    if (interface) {
-        panId = interface->ws_info.pan_information.pan_id;
-    }
-    return panId;
-}
-
 static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
 {
     write_be16(addrPtr, temp16);

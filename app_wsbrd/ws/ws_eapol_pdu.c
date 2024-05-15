@@ -166,7 +166,7 @@ static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, str
     dataReq->TxAckReq = true;
     dataReq->SrcAddrMode = ADDR_802_15_4_LONG;
     dataReq->DstAddrMode = ADDR_802_15_4_LONG;
-    dataReq->DstPANId = mac_helper_panid_get(cur);
+    dataReq->DstPANId = cur->ws_info.pan_information.pan_id;
 }
 
 int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
