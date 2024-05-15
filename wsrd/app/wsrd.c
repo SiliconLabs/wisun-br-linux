@@ -166,6 +166,12 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
     ipv6_init(&wsrd->ws.ipv6, wsrd->rcp.eui64);
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_realm);    // ff03::1
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
+    ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
 }
 
 //   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
