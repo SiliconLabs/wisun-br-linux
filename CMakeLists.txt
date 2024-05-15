@@ -271,17 +271,23 @@ add_executable(wsrd
     wsrd/app/wsrd.c
     common/bits.c
     common/bus_uart.c
+    common/capture.c
     common/commandline.c
     common/crc.c
     common/endian.c
+    common/hif.c
     common/iobuf.c
     common/key_value_storage.c
     common/log.c
     common/named_values.c
     common/parsers.c
+    common/rcp_api.c
+    common/ws_chan_mask.c
+    common/ws_regdb.c
     version.c
 )
 target_include_directories(wsrd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_options(wsrd PRIVATE -Wl,--wrap=time) # Required by common/capture.c
 if(BACKTRACE_FOUND)
     target_compile_definitions(wsrd PRIVATE HAVE_BACKTRACE)
     target_sources(wsrd PRIVATE common/backtrace_show.c)

@@ -10,15 +10,36 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <poll.h>
 #include <stdlib.h>
 
 #include "wsrd/app/commandline.h"
+#include "common/bits.h"
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/version.h"
 #include "wsrd.h"
 
+static void wsrd_on_rcp_reset(struct rcp *rcp)
+{
+    if (rcp->has_rf_list)
+        FATAL(3, "unsupported RCP reset");
+    INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", rcp->version_label,
+         FIELD_GET(0xFF000000, rcp->version_fw),
+         FIELD_GET(0x00FFFF00, rcp->version_fw),
+         FIELD_GET(0x000000FF, rcp->version_fw),
+         FIELD_GET(0xFF000000, rcp->version_api),
+         FIELD_GET(0x00FFFF00, rcp->version_api),
+         FIELD_GET(0x000000FF, rcp->version_api));
+    if (version_older_than(rcp->version_api, 2, 0, 0))
+        FATAL(3, "RCP API < 2.0.0 (too old)");
+}
+
 static void wsrd_init_rcp(struct wsrd *wsrd)
 {
+    struct pollfd pfd = { };
+    int ret;
+
     if (wsrd->config.uart_dev[0]) {
         wsrd->rcp.bus.fd = uart_open(wsrd->config.uart_dev, wsrd->config.uart_baudrate, wsrd->config.uart_rtscts);
         wsrd->rcp.version_api = VERSION(2, 0, 0); // default assumed version
@@ -34,12 +55,32 @@ static void wsrd_init_rcp(struct wsrd *wsrd)
     } else {
         BUG();
     }
+
+    rcp_req_reset(&wsrd->rcp, false);
+
+    pfd.fd = wsrd->rcp.bus.fd;
+    pfd.events = POLLIN;
+    ret = poll(&pfd, 1, 5000);
+    FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+    WARN_ON(!ret, "RCP is not responding");
+
+    wsrd->rcp.bus.uart.init_phase = true;
+    while (!wsrd->rcp.has_reset) {
+        ret = poll(&pfd, 1, 5000);
+        FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+        WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
+        rcp_rx(&wsrd->rcp);
+    }
+    wsrd->rcp.bus.uart.init_phase = false;
+
+    rcp_set_host_api(&wsrd->rcp, version_daemon_api);
 }
 
 int main(int argc, char *argv[])
 {
     struct wsrd wsrd = {
         .rcp.bus.fd = -1,
+        .rcp.on_reset = wsrd_on_rcp_reset,
     };
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
