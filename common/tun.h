@@ -30,7 +30,8 @@ struct tun_ctx {
 
 // ip tuntap add dev [tun->ifname] mode tun
 // if (autoconf)
-//     ip link set dev [tun.ifname] mtu 1280 txqueuelen 10 addrgenmode none up
+//     ip link set dev [tun->ifname] mtu 1280 txqueuelen 10 addrgenmode none
+//     ip link set dev [tun->ifname] up
 void tun_init(struct tun_ctx *tun, bool autoconf);
 
 // ip addr add dev [tun->ifname] [addr]/[prefix_len]
