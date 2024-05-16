@@ -1,4 +1,5 @@
 /*
+ * SPDX-License-Identifier: LicenseRef-MSLA
  * Copyright (c) 2023 Silicon Laboratories Inc. (www.silabs.com)
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
