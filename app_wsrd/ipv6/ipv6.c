@@ -20,6 +20,7 @@
 #include "common/bits.h"
 #include "common/ieee802154_frame.h"
 #include "common/log.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/netinet_in_extra.h"
 #include "common/pktbuf.h"
@@ -58,6 +59,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
+    const struct ip6_rthdr *rthdr;
     struct icmp6_hdr icmp;
     struct ip6_hdr hdr;
     ssize_t ret;
@@ -74,6 +76,28 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         TRACE(TR_DROP, "drop %-9s: invalid dst=%s", "ipv6", tr_ipv6(hdr.ip6_dst.s6_addr));
         pktbuf->err = true;
         return;
+    }
+
+    if (hdr.ip6_nxt == IPPROTO_ROUTING) {
+        if (pktbuf_len(pktbuf) < sizeof(rthdr)) {
+            TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
+            return;
+        }
+        rthdr = (struct ip6_rthdr *)pktbuf_head(pktbuf);
+        if (rthdr->ip6r_segleft) {
+            // TODO: handle RPL SRH
+            TRACE(TR_DROP, "drop %-9s: unsupported routing header", "ipv6");
+            return;
+        }
+
+        // HACK: Linux drops IPv6 packets that include a SRH even with 0
+        // segments left (unless net.ipv6.conf.[ifname].rpl_seg_enabled is
+        // set). According to RFC 8200, routing headers with 0 segments left
+        // should always be accepted and ignored, but since Linux does not do
+        // so, the SRH must be stripped.
+        pktbuf_pop_head(pktbuf, NULL, 8 * (rthdr->ip6r_len + 1));
+        hdr.ip6_nxt  = rthdr->ip6r_nxt;
+        hdr.ip6_plen = htons(MAX(0, ntohs(hdr.ip6_plen) - 8 * (rthdr->ip6r_len + 1)));
     }
 
     // TODO: support extension headers, IPv6 tunnels
