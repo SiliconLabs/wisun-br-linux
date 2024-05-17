@@ -84,7 +84,9 @@ static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh 
         DEBUG("install addr=%s", tr_ipv6(wsrd->ws.ipv6.addr_uc_global.s6_addr));
         // TODO: set prefix len to 128, and add default route instead
         tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
-        // TODO: NS(ARO) with parent
+
+        ipv6_send_ns_aro(ipv6, &neigh->ipv6_addr);
+        // TODO: NS(ARO) error handling
     }
 }
 

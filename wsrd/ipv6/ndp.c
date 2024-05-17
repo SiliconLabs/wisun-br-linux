@@ -10,11 +10,18 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <netinet/icmp6.h>
+
 #include "common/bits.h"
+#include "common/ipv6_cksum.h"
 #include "common/memutils.h"
 #include "common/named_values.h"
+#include "common/pktbuf.h"
 #include "common/rand.h"
+#include "common/specs/icmpv6.h"
 #include "wsrd/ipv6/ipv6.h"
+#include "wsrd/ipv6/ndp.h"
+#include "wsrd/ipv6/ndp_pkt.h"
 #include "wsrd/ipv6/rpl.h"
 
 #include "ndp.h"
@@ -137,4 +144,37 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     if (neigh->rpl_neigh)
         rpl_neigh_del(ipv6, neigh);
     free(neigh);
+}
+
+void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct in6_addr *dst)
+{
+    struct nd_neighbor_solicit ns = {
+        .nd_ns_type   = ND_NEIGHBOR_SOLICIT,
+        .nd_ns_target = *dst,
+    };
+    struct ndp_opt_earo aro = {
+        .type = ICMPV6_OPT_ADDR_REGISTRATION,
+        .len  = sizeof(aro) / 8,
+        .lifetime_minutes = UINT16_MAX,
+    };
+    struct pktbuf pktbuf = { };
+
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global));
+
+    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+    memcpy(aro.eui64, ipv6->eui64, 8);
+    pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
+
+    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, dst, IPPROTO_ICMPV6,
+                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
+           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+
+    //   RFC 6775 4.1. Address Registration Option
+    // [...] the address that is to be registered MUST be the IPv6 source
+    // address of the NS message.
+    TRACE(TR_ICMP, "tx-icmp ns(aro) dst=%s", tr_ipv6(dst->s6_addr));
+    // TODO: send to IPv6
+    // TODO: handle confirmation (ARO failure and link-layer ACK)
+    pktbuf_free(&pktbuf);
 }
