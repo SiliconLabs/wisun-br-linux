@@ -174,7 +174,7 @@ void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct in6_addr *dst)
     // [...] the address that is to be registered MUST be the IPv6 source
     // address of the NS message.
     TRACE(TR_ICMP, "tx-icmp ns(aro) dst=%s", tr_ipv6(dst->s6_addr));
-    // TODO: send to IPv6
+    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &ipv6->addr_uc_global, dst);
     // TODO: handle confirmation (ARO failure and link-layer ACK)
     pktbuf_free(&pktbuf);
 }

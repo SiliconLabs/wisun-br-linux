@@ -13,11 +13,14 @@
 #include <arpa/inet.h>
 #include <netinet/icmp6.h>
 #include <netinet/ip6.h>
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "common/bits.h"
+#include "common/ieee802154_frame.h"
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/netinet_in_extra.h"
 #include "common/pktbuf.h"
 #include "common/specs/icmpv6.h"
@@ -112,4 +115,112 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         WARN("write tun : %m");
     else if (ret != pktbuf_len(pktbuf))
         WARN("write tun: Short write: %zi < %zu", ret, pktbuf_len(pktbuf));
+}
+
+/*
+ *   RFC 4861 5.2. Conceptual Sending Algorithm
+ * The sender performs a longest prefix match against the Prefix List to
+ * determine whether the packet's destination is on- or off-link. If the
+ * destination is on-link, the next-hop address is the same as the packet's
+ * destination address. Otherwise, the sender selects a router from the
+ * Default Router List.
+ *
+ *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery
+ * The Router Solicitation/Router Advertisement exchange described in [RFC6775]
+ * is not used. Router discovery is performed using [RFC6550] DIO and DIS
+ * messaging.
+ *
+ * NOTE: Consequently, the prefix and router lists only come from RPL DIOs in
+ * this implementation. Also this implementation does not use a destination
+ * cache, next-hop determination is thus always performed.
+ */
+int ipv6_nxthop(struct ipv6_ctx *ipv6, const struct in6_addr *dst, const struct in6_addr **nxthop)
+{
+    struct ipv6_neigh *nce;
+
+    //   RFC 4861 5.2. Conceptual Sending Algorithm
+    // For multicast packets, the next-hop is always the (multicast)
+    // destination address and is considered to be on-link.
+    if (IN6_IS_ADDR_MULTICAST(dst)) {
+        *nxthop = dst;
+        return 0;
+    }
+
+    //   RFC 4861 5.1. Conceptual Data Structures
+    // The link-local prefix is considered to be on the prefix list with an
+    // infinite invalidation timer regardless of whether routers are
+    // advertising a prefix for it.
+    if (IN6_IS_ADDR_LINKLOCAL(dst)) {
+        *nxthop = dst;
+        return 0;
+    }
+
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
+        if (IN6_ARE_ADDR_EQUAL(dst, &nce->ipv6_addr))
+            break;
+    if (nce) {
+        *nxthop = &nce->ipv6_addr;
+        return 0;
+    }
+
+    // Default to preferred RPL parent.
+    nce = rpl_neigh_pref_parent(ipv6);
+    if (nce) {
+        *nxthop = &nce->ipv6_addr;
+        return 0;
+    }
+
+    TRACE(TR_TX_ABORT, "tx-abort %-9s: no next hop available", "ipv6");
+    return -ENETUNREACH;
+}
+
+void ipv6_addr_resolution(struct ipv6_ctx *ipv6, const struct in6_addr *nxthop, uint8_t eui64[64])
+{
+    struct ipv6_neigh *nce;
+
+    //   RFC 4944 3. Addressing Modes
+    // IPv6 level multicast packets MUST be carried as link-layer broadcast
+    // frames in IEEE 802.15.4 networks.
+    if (IN6_IS_ADDR_MULTICAST(nxthop)) {
+        memcpy(eui64, ieee802154_addr_bc, 8);
+        return;
+    }
+
+    //   RFC 6778 5.6. Next-Hop Determination
+    // It is assumed that link-local addresses are formed [...] from the
+    // EUI-64, and address resolution is not performed.
+    if (IN6_IS_ADDR_LINKLOCAL(nxthop)) {
+        ipv6_addr_conv_iid_eui64(eui64, nxthop->s6_addr + 8);
+        return;
+    }
+
+    nce = container_of(nxthop, struct ipv6_neigh, ipv6_addr);
+    memcpy(eui64, nce->eui64, 8);
+}
+
+void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                     uint8_t ipproto, uint8_t hlim,
+                     const struct in6_addr *src, const struct in6_addr *dst)
+{
+    const struct in6_addr *nxthop;
+    uint8_t dst_eui64[8];
+    struct ip6_hdr hdr = {
+        .ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6)),
+        .ip6_plen = htons(pktbuf_len(pktbuf)),
+        .ip6_nxt  = ipproto,
+        .ip6_hlim = hlim,
+        .ip6_src  = *src,
+        .ip6_dst  = *dst,
+    };
+
+    pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
+
+    if (ipv6_nxthop(ipv6, dst, &nxthop))
+        return;
+    ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
+
+    // TODO: MPL
+    // TODO: RPL Option
+    // TODO: IPv6 Tunnel
+    // TODO: send to 6LoWPAN
 }
