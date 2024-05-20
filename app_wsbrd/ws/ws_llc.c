@@ -42,7 +42,7 @@
 #include "common/random_early_detection.h"
 #include "common/ws_ie.h"
 
-#include "app/wsbr.h"
+#include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
 #include "app/rcp_api_legacy.h"
 #include "net/timers.h"

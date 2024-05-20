@@ -27,7 +27,7 @@
 
 #include "rcp_api_legacy.h"
 #include "frame_helpers.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 
 void wsbr_pcapng_closed(struct wsbr_ctxt *ctxt)
 {

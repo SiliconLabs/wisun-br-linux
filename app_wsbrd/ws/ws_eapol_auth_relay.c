@@ -39,7 +39,7 @@
 #include "ws/ws_eapol_relay_lib.h"
 
 #include "ws/ws_eapol_auth_relay.h"
-#include "app/wsbr.h"
+#include "app/wsbrd.h"
 
 #define TRACE_GROUP "wsar"
 

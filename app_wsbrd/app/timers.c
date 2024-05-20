@@ -19,7 +19,7 @@
 #include "net/timers.h"
 
 #include "timers.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 
 void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {

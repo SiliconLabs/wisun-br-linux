@@ -38,7 +38,7 @@
 #include "ws/ws_eapol_relay_lib.h"
 
 #include "ws/ws_eapol_relay.h"
-#include "app/wsbr.h"
+#include "app/wsbrd.h"
 
 typedef struct eapol_relay {
     struct net_if *interface_ptr;         /**< Interface pointer */

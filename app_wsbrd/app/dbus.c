@@ -40,7 +40,7 @@
 #include "ipv6/ipv6_routing_table.h"
 
 #include "commandline_values.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 #include "tun.h"
 
 #include "dbus.h"

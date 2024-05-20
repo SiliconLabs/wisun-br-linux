@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "app_wsbrd/app/commandline.h"
-#include "app_wsbrd/app/wsbr.h"
+#include "app_wsbrd/app/wsbrd.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "wsbrd_fuzz.h"

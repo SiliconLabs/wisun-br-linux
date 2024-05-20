@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 
 #include "net/timers.h"
-#include "app/wsbr.h" // FIXME
+#include "app/wsbrd.h" // FIXME
 #include "app/dbus.h"
 #include "common/bits.h"
 #include "common/capture.h"

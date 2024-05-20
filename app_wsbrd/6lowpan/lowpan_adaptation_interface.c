@@ -34,7 +34,7 @@
 #include "common/random_early_detection.h"
 #include "common/events_scheduler.h"
 
-#include "app/wsbr.h"
+#include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
 #include "net/timers.h"
 #include "net/netaddr_types.h"

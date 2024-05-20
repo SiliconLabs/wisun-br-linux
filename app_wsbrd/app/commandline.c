@@ -33,7 +33,7 @@
 
 #include "commandline_values.h"
 #include "wsbr_cfg.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 
 #include "commandline.h"
 

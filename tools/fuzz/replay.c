@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include "app_wsbrd/app/timers.h"
-#include "app_wsbrd/app/wsbr.h"
+#include "app_wsbrd/app/wsbrd.h"
 #include "app_wsbrd/net/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"

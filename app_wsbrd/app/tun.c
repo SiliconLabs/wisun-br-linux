@@ -44,7 +44,7 @@
 #include "net/netaddr_types.h"
 #include "net/ns_buffer.h"
 #include "tun.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
 {

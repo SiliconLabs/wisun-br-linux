@@ -17,7 +17,7 @@
 #include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
-#include "app_wsbrd/app/wsbr.h"
+#include "app_wsbrd/app/wsbrd.h"
 #include "common/capture.h"
 #include "common/log.h"
 }

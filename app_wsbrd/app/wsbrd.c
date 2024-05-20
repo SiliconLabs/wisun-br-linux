@@ -61,7 +61,7 @@
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "libwsbrd.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 #include "timers.h"
 #include "rail_config.h"
 #include "dbus.h"
@@ -69,7 +69,7 @@
 
 static void wsbr_handle_reset(struct rcp *rcp);
 
-// See warning in wsbr.h
+// See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
 

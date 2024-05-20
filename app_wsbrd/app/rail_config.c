@@ -21,7 +21,7 @@
 #include "net/protocol.h"
 
 #include "commandline_values.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 #include "rail_config.h"
 
 static const struct rcp_rail_config *rail_get_next_config(struct wsbr_ctxt *ctxt,

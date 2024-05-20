@@ -16,7 +16,7 @@
 #include "app_wsbrd/app/rcp_api_legacy.h"
 #include "app_wsbrd/app/libwsbrd.h"
 #include "app_wsbrd/app/wsbr_mac.h"
-#include "app_wsbrd/app/wsbr.h"
+#include "app_wsbrd/app/wsbrd.h"
 #include "app_wsbrd/app/tun.h"
 #include "tools/fuzz/commandline.h"
 #include "tools/fuzz/interfaces.h"

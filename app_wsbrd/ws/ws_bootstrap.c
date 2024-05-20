@@ -40,7 +40,7 @@
 #include "common/ws_ie.h"
 
 #include "app/dbus.h"
-#include "app/wsbr.h"
+#include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
 #include "app/rcp_api_legacy.h"
 #include "net/ns_address_internal.h"

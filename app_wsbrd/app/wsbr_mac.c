@@ -39,7 +39,7 @@
 #include "ws/ws_llc.h"
 
 #include "frame_helpers.h"
-#include "wsbr.h"
+#include "wsbrd.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
