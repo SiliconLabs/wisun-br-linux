@@ -264,7 +264,7 @@ if(LIBCPC_FOUND)
 endif()
 set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
 
-add_executable(wsbrd app_wsbrd/app/wsbrd.c)
+add_executable(wsbrd app_wsbrd/app/main.c)
 add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
