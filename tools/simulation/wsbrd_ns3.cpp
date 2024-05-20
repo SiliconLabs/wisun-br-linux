@@ -24,7 +24,7 @@
 #include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
-#include "wsbrd/app/libwsbrd.h"
+#include "app_wsbrd/app/libwsbrd.h"
 #include "tools/fuzz/interfaces.h"
 #include "tools/fuzz/replay.h"
 #include "tools/fuzz/wsbrd_fuzz.h"

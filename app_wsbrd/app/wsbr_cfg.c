@@ -13,7 +13,7 @@
 
 #include "ws/ws_config.h"
 
-#include "wsbrd/mpl/mpl.h"
+#include "app_wsbrd/mpl/mpl.h"
 
 #include "wsbr_cfg.h"
 

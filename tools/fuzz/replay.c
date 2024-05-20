@@ -13,9 +13,9 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#include "wsbrd/app/timers.h"
-#include "wsbrd/app/wsbr.h"
-#include "wsbrd/net/timers.h"
+#include "app_wsbrd/app/timers.h"
+#include "app_wsbrd/app/wsbr.h"
+#include "app_wsbrd/net/timers.h"
 #include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
 #include "common/bus.h"
