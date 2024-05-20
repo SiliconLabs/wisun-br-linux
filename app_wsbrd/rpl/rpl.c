@@ -231,7 +231,6 @@ static void rpl_opt_push_config(struct iobuf_write *buf, struct rpl_root *root)
     // function.
     iobuf_push_be16(buf, RPL_OCP_MRHOF);
     iobuf_push_u8(buf, 0); // Reserved
-    // See wsbr.c
     iobuf_push_u8(buf, root->lifetime_s / root->lifetime_unit_s); // Default Lifetime
     iobuf_push_be16(buf, root->lifetime_unit_s);
     rpl_opt_fill(buf, offset);
