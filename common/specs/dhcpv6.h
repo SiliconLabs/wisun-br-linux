@@ -21,6 +21,10 @@ enum {
     DHCPV6_SERVER_UDP_PORT = 547,
 };
 
+// RFC3315 - Section 5.6
+// https://datatracker.ietf.org/doc/html/rfc3315#section-5.6
+#define DHCPV6_LIFETIME_INFINITE 0xffffffff
+
 // RFC3315 - Section 24.2
 // https://datatracker.ietf.org/doc/html/rfc3315#section-24.2
 enum {
