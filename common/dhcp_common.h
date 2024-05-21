@@ -35,5 +35,6 @@ uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len);
 int dhcp_check_status_code(const uint8_t *req, size_t req_len);
 int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len);
 int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len);
+int dhcp_check_server_id(const uint8_t *req, size_t req_len);
 
 #endif /* DHCP_COMMON_H */

@@ -233,3 +233,15 @@ int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
     }
     return 0;
 }
+
+int dhcp_check_server_id(const uint8_t *req, size_t req_len)
+{
+    struct iobuf_read opt;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_SERVER_ID, &opt);
+    if (opt.err) {
+        TRACE(TR_DROP, "drop %-9s: missing server ID option", "dhcp");
+        return -ENOTSUP;
+    }
+    return 0;
+}
