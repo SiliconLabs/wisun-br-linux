@@ -132,25 +132,25 @@ static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *re
     iobuf_push_data(reply, dhcp->hwaddr, 8);
 }
 
-static void dhcp_fill_identity_association(struct dhcp_server *dhcp, struct iobuf_write *reply,
-                                           const uint8_t *hwaddr, uint32_t ia_id)
+static void dhcp_fill_identity_association(struct iobuf_write *reply, uint32_t ia_id, const uint8_t ipv6[16],
+                                           uint32_t preferred_lifetime, uint32_t valid_lifetime)
 {
-    uint8_t ipv6[16];
+    uint16_t opt_len = 4 + 4 + 4;
 
-    BUG_ON(!hwaddr);
-    memcpy(ipv6, dhcp->prefix, 8);
-    memcpy(ipv6 + 8, hwaddr, 8);
-    ipv6[8] ^= 0x02;
+    if (ipv6)
+        opt_len += 2 + 2 + 16 + 4 + 4;
     iobuf_push_be16(reply, DHCPV6_OPT_IA_NA);
-    iobuf_push_be16(reply, 4 + 4 + 4 + 2 + 2 + 16 + 4 + 4);
+    iobuf_push_be16(reply, opt_len);
     iobuf_push_be32(reply, ia_id);
     iobuf_push_be32(reply, 0); // T1
     iobuf_push_be32(reply, 0); // T2
-    iobuf_push_be16(reply, DHCPV6_OPT_IA_ADDRESS);
-    iobuf_push_be16(reply, 16 + 4 + 4);
-    iobuf_push_data(reply, ipv6, 16);
-    iobuf_push_be32(reply, dhcp->preferred_lifetime);
-    iobuf_push_be32(reply, dhcp->valid_lifetime);
+    if (ipv6) {
+        iobuf_push_be16(reply, DHCPV6_OPT_IA_ADDRESS);
+        iobuf_push_be16(reply, 16 + 4 + 4);
+        iobuf_push_data(reply, ipv6, 16);
+        iobuf_push_be32(reply, preferred_lifetime);
+        iobuf_push_be32(reply, valid_lifetime);
+    }
 }
 
 static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
@@ -209,6 +209,7 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
     uint8_t msg_type;
     uint32_t iaid;
     const uint8_t *hwaddr;
+    uint8_t ipv6[16];
     int hwaddr_type;
 
     msg_type = iobuf_pop_u8(req);
@@ -233,11 +234,15 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
     if (hwaddr_type < 0)
         return -EINVAL;
 
+    memcpy(ipv6, dhcp->prefix, 8);
+    memcpy(ipv6 + 8, hwaddr, 8);
+    ipv6[8] ^= 0x02;
+
     iobuf_push_u8(reply, DHCPV6_MSG_REPLY);
     iobuf_push_be24(reply, transaction);
     dhcp_fill_server_id(dhcp, reply);
     dhcp_fill_client_id(reply, hwaddr_type, hwaddr);
-    dhcp_fill_identity_association(dhcp, reply, hwaddr, iaid);
+    dhcp_fill_identity_association(reply, iaid, ipv6, dhcp->preferred_lifetime, dhcp->valid_lifetime);
     dhcp_fill_rapid_commit(reply);
     return 0;
 }
