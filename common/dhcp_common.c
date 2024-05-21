@@ -64,3 +64,24 @@ void dhcp_fill_rapid_commit(struct iobuf_write *buf)
     iobuf_push_be16(buf, DHCPV6_OPT_RAPID_COMMIT);
     iobuf_push_be16(buf, 0);
 }
+
+void dhcp_fill_identity_association(struct iobuf_write *buf, uint32_t ia_id, const uint8_t ipv6[16],
+                                    uint32_t preferred_lifetime, uint32_t valid_lifetime)
+{
+    uint16_t opt_len = 4 + 4 + 4;
+
+    if (ipv6)
+        opt_len += 2 + 2 + 16 + 4 + 4;
+    iobuf_push_be16(buf, DHCPV6_OPT_IA_NA);
+    iobuf_push_be16(buf, opt_len);
+    iobuf_push_be32(buf, ia_id);
+    iobuf_push_be32(buf, 0); // T1
+    iobuf_push_be32(buf, 0); // T2
+    if (ipv6) {
+        iobuf_push_be16(buf, DHCPV6_OPT_IA_ADDRESS);
+        iobuf_push_be16(buf, 16 + 4 + 4);
+        iobuf_push_data(buf, ipv6, 16);
+        iobuf_push_be32(buf, preferred_lifetime);
+        iobuf_push_be32(buf, valid_lifetime);
+    }
+}

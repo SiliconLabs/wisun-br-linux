@@ -132,27 +132,6 @@ static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *re
     iobuf_push_data(reply, dhcp->hwaddr, 8);
 }
 
-static void dhcp_fill_identity_association(struct iobuf_write *reply, uint32_t ia_id, const uint8_t ipv6[16],
-                                           uint32_t preferred_lifetime, uint32_t valid_lifetime)
-{
-    uint16_t opt_len = 4 + 4 + 4;
-
-    if (ipv6)
-        opt_len += 2 + 2 + 16 + 4 + 4;
-    iobuf_push_be16(reply, DHCPV6_OPT_IA_NA);
-    iobuf_push_be16(reply, opt_len);
-    iobuf_push_be32(reply, ia_id);
-    iobuf_push_be32(reply, 0); // T1
-    iobuf_push_be32(reply, 0); // T2
-    if (ipv6) {
-        iobuf_push_be16(reply, DHCPV6_OPT_IA_ADDRESS);
-        iobuf_push_be16(reply, 16 + 4 + 4);
-        iobuf_push_data(reply, ipv6, 16);
-        iobuf_push_be32(reply, preferred_lifetime);
-        iobuf_push_be32(reply, valid_lifetime);
-    }
-}
-
 static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
                             struct iobuf_write *reply)
 {
