@@ -18,28 +18,10 @@
 #include "common/capture.h"
 #include "common/log.h"
 #include "common/iobuf.h"
-#include "common/named_values.h"
 #include "common/dhcp_common.h"
 #include "common/specs/dhcpv6.h"
 
 #include "dhcp_server.h"
-
-static const struct name_value dhcp_frames[] = {
-    { "sol",      DHCPV6_MSG_SOLICIT },
-    { "adv",      DHCPV6_MSG_ADVERT },
-    { "req",      DHCPV6_MSG_REQUEST },
-    { "confirm",  DHCPV6_MSG_CONFIRM },
-    { "renew",    DHCPV6_MSG_RENEW },
-    { "rebind",   DHCPV6_MSG_REBIND },
-    { "rply",     DHCPV6_MSG_REPLY },
-    { "release",  DHCPV6_MSG_RELEASE },
-    { "decline",  DHCPV6_MSG_DECLINE },
-    { "reconfig", DHCPV6_MSG_RECONFIGURE },
-    { "info-req", DHCPV6_MSG_INFO_REQUEST },
-    { "rel-fwd",  DHCPV6_MSG_RELAY_FWD },
-    { "rel-rply", DHCPV6_MSG_RELAY_REPLY },
-    { NULL        },
-};
 
 static int dhcp_handle_request(struct dhcp_server *dhcp,
                                 struct iobuf_read *req, struct iobuf_write *reply);

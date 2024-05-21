@@ -15,10 +15,28 @@
 #include <errno.h>
 
 #include "common/specs/dhcpv6.h"
+#include "common/named_values.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 
 #include "dhcp_common.h"
+
+const struct name_value dhcp_frames[] = {
+    { "sol",      DHCPV6_MSG_SOLICIT },
+    { "adv",      DHCPV6_MSG_ADVERT },
+    { "req",      DHCPV6_MSG_REQUEST },
+    { "confirm",  DHCPV6_MSG_CONFIRM },
+    { "renew",    DHCPV6_MSG_RENEW },
+    { "rebind",   DHCPV6_MSG_REBIND },
+    { "rply",     DHCPV6_MSG_REPLY },
+    { "release",  DHCPV6_MSG_RELEASE },
+    { "decline",  DHCPV6_MSG_DECLINE },
+    { "reconfig", DHCPV6_MSG_RECONFIGURE },
+    { "info-req", DHCPV6_MSG_INFO_REQUEST },
+    { "rel-fwd",  DHCPV6_MSG_RELAY_FWD },
+    { "rel-rply", DHCPV6_MSG_RELAY_REPLY },
+    { NULL        },
+};
 
 int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload)
 {
