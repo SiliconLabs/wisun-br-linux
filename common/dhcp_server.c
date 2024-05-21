@@ -28,20 +28,6 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
 static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
                                     struct iobuf_read *req, struct iobuf_write *reply);
 
-static uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len)
-{
-    struct iobuf_read opt;
-    uint32_t ia_id;
-
-    dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt);
-    ia_id = iobuf_pop_be32(&opt);
-    if (opt.err) {
-        TRACE(TR_DROP, "drop %-9s: missing IA_NA option", "dhcp");
-        return UINT32_MAX;
-    }
-    return ia_id;
-}
-
 static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
                             struct iobuf_write *reply)
 {

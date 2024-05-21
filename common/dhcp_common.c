@@ -159,6 +159,20 @@ int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **h
     return ll_type;
 }
 
+uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len)
+{
+    struct iobuf_read opt;
+    uint32_t ia_id;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt);
+    ia_id = iobuf_pop_be32(&opt);
+    if (opt.err) {
+        TRACE(TR_DROP, "drop %-9s: missing IA_NA option", "dhcp");
+        return UINT32_MAX;
+    }
+    return ia_id;
+}
+
 int dhcp_check_status_code(const uint8_t *req, size_t req_len)
 {
     struct iobuf_read opt;
