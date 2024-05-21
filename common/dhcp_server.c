@@ -95,22 +95,6 @@ static int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
     return 0;
 }
 
-static int dhcp_check_status_code(const uint8_t *req, size_t req_len)
-{
-    struct iobuf_read opt;
-    uint16_t status;
-
-    dhcp_get_option(req, req_len, DHCPV6_OPT_STATUS_CODE, &opt);
-    if (opt.err)
-        return 0;
-    status = iobuf_pop_be16(&opt);
-    if (status) {
-        TRACE(TR_DROP, "drop %-9s: status code %d", "dhcp", status);
-        return -EFAULT;
-    }
-    return 0;
-}
-
 static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
 {
     struct iobuf_read opt;

@@ -22,4 +22,6 @@ void dhcp_fill_rapid_commit(struct iobuf_write *buf);
 void dhcp_fill_identity_association(struct iobuf_write *buf, uint32_t ia_id, const uint8_t ipv6[16],
                                     uint32_t preferred_lifetime, uint32_t valid_lifetime);
 
+int dhcp_check_status_code(const uint8_t *req, size_t req_len);
+
 #endif /* DHCP_COMMON_H */
