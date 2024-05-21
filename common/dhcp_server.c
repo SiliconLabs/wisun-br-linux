@@ -132,8 +132,7 @@ static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *re
     iobuf_push_data(reply, dhcp->hwaddr, 8);
 }
 
-static void dhcp_fill_client_id(struct dhcp_server *dhcp, struct iobuf_write *reply,
-                                uint16_t hwaddr_type, const uint8_t *hwaddr)
+static void dhcp_fill_client_id(struct iobuf_write *reply, uint16_t hwaddr_type, const uint8_t *hwaddr)
 {
     BUG_ON(!hwaddr);
     BUG_ON(hwaddr_type != DHCPV6_DUID_HW_TYPE_EUI64 &&
@@ -256,7 +255,7 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
     iobuf_push_u8(reply, DHCPV6_MSG_REPLY);
     iobuf_push_be24(reply, transaction);
     dhcp_fill_server_id(dhcp, reply);
-    dhcp_fill_client_id(dhcp, reply, hwaddr_type, hwaddr);
+    dhcp_fill_client_id(reply, hwaddr_type, hwaddr);
     dhcp_fill_identity_association(dhcp, reply, hwaddr, iaid);
     dhcp_fill_rapid_commit(dhcp, reply);
     return 0;
