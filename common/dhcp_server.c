@@ -77,13 +77,13 @@ static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
     return 0;
 }
 
-static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *reply)
+static void dhcp_fill_server_id(const uint8_t eui64[8], struct iobuf_write *reply)
 {
     iobuf_push_be16(reply, DHCPV6_OPT_SERVER_ID);
     iobuf_push_be16(reply, 2 + 2 + 8);
     iobuf_push_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
     iobuf_push_be16(reply, DHCPV6_DUID_HW_TYPE_EUI64);
-    iobuf_push_data(reply, dhcp->hwaddr, 8);
+    iobuf_push_data(reply, eui64, 8);
 }
 
 static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
@@ -173,7 +173,7 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
 
     iobuf_push_u8(reply, DHCPV6_MSG_REPLY);
     iobuf_push_be24(reply, transaction);
-    dhcp_fill_server_id(dhcp, reply);
+    dhcp_fill_server_id(dhcp->hwaddr, reply);
     dhcp_fill_client_id(reply, hwaddr_type, hwaddr);
     dhcp_fill_identity_association(reply, iaid, ipv6, dhcp->preferred_lifetime, dhcp->valid_lifetime);
     dhcp_fill_rapid_commit(reply);
