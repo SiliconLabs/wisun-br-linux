@@ -19,6 +19,7 @@
 #include "common/named_values.h"
 #include "common/endian.h"
 #include "common/iobuf.h"
+#include "common/rand.h"
 #include "common/log.h"
 
 #include "dhcp_common.h"
@@ -192,6 +193,17 @@ uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len)
         return UINT32_MAX;
     }
     return ia_id;
+}
+
+/*
+ *   RFC3315 - Section 14
+ * Each of the computations of a new RT include a randomization factor
+ * (RAND), which is a random number chosen with a uniform distribution
+ * between -0.1 and +0.1.
+ */
+int dhcp_get_random(int rt)
+{
+    return randf_range(-0.1, 0.1) * rt;
 }
 
 int dhcp_check_status_code(const uint8_t *req, size_t req_len)

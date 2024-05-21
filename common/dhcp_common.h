@@ -31,6 +31,7 @@ void dhcp_fill_elapsed_time(struct iobuf_write *buf, struct timespec *start);
 
 int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr);
 uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len);
+int dhcp_get_random(int rt);
 
 int dhcp_check_status_code(const uint8_t *req, size_t req_len);
 int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len);
