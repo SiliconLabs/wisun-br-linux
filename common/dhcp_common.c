@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #include "common/specs/dhcpv6.h"
 #include "common/named_values.h"
@@ -133,6 +134,26 @@ void dhcp_fill_server_id(struct iobuf_write *buf, const uint8_t eui64[8])
     iobuf_push_be16(buf, DHCPV6_DUID_TYPE_LINK_LAYER);
     iobuf_push_be16(buf, DHCPV6_DUID_HW_TYPE_EUI64);
     iobuf_push_data(buf, eui64, 8);
+    dhcp_opt_fill(buf, len_offset);
+}
+
+void dhcp_fill_elapsed_time(struct iobuf_write *buf, struct timespec *start)
+{
+    uint32_t elapsed_time;
+    struct timespec tp;
+    int len_offset;
+
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+
+    if (!start->tv_sec)
+        *start = tp;
+    elapsed_time = (tp.tv_sec - start->tv_sec) * 100;
+    elapsed_time += (tp.tv_nsec - start->tv_nsec) / 10000;
+    len_offset = dhcp_opt_push(buf, DHCPV6_OPT_ELAPSED_TIME);
+    if (elapsed_time > 0xFFFF)
+        iobuf_push_be16(buf, 0xFFFF);
+    else
+        iobuf_push_be16(buf, elapsed_time);
     dhcp_opt_fill(buf, len_offset);
 }
 
