@@ -58,3 +58,9 @@ void dhcp_fill_client_id(struct iobuf_write *buf, uint16_t hwaddr_type, const ui
     iobuf_push_be16(buf, hwaddr_type);
     iobuf_push_data(buf, hwaddr, 8);
 }
+
+void dhcp_fill_rapid_commit(struct iobuf_write *buf)
+{
+    iobuf_push_be16(buf, DHCPV6_OPT_RAPID_COMMIT);
+    iobuf_push_be16(buf, 0);
+}

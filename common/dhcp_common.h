@@ -18,5 +18,6 @@ struct iobuf_read;
 
 int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload);
 void dhcp_fill_client_id(struct iobuf_write *buf, uint16_t hwaddr_type, const uint8_t *hwaddr);
+void dhcp_fill_rapid_commit(struct iobuf_write *buf);
 
 #endif /* DHCP_COMMON_H */

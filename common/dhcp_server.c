@@ -132,12 +132,6 @@ static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *re
     iobuf_push_data(reply, dhcp->hwaddr, 8);
 }
 
-void dhcp_fill_rapid_commit(struct iobuf_write *reply)
-{
-    iobuf_push_be16(reply, DHCPV6_OPT_RAPID_COMMIT);
-    iobuf_push_be16(reply, 0);
-}
-
 static void dhcp_fill_identity_association(struct dhcp_server *dhcp, struct iobuf_write *reply,
                                            const uint8_t *hwaddr, uint32_t ia_id)
 {
