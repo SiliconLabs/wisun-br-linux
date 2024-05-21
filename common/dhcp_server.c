@@ -19,6 +19,7 @@
 #include "common/log.h"
 #include "common/iobuf.h"
 #include "common/named_values.h"
+#include "common/dhcp_common.h"
 #include "common/specs/dhcpv6.h"
 
 #include "dhcp_server.h"
@@ -44,32 +45,6 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
                                 struct iobuf_read *req, struct iobuf_write *reply);
 static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
                                     struct iobuf_read *req, struct iobuf_write *reply);
-
-static int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload)
-{
-    uint16_t opt_type, opt_len;
-    struct iobuf_read input = {
-        .data_size = len,
-        .data = data,
-    };
-
-    memset(option_payload, 0, sizeof(struct iobuf_read));
-    option_payload->err = true;
-    while (iobuf_remaining_size(&input)) {
-        opt_type = iobuf_pop_be16(&input);
-        opt_len = iobuf_pop_be16(&input);
-        if (opt_type == option) {
-            option_payload->data = iobuf_pop_data_ptr(&input, opt_len);
-            if (!option_payload->data)
-                return -EINVAL;
-            option_payload->err = false;
-            option_payload->data_size = opt_len;
-            return opt_len;
-        }
-        iobuf_pop_data_ptr(&input, opt_len);
-    }
-    return -ENOENT;
-}
 
 static int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr)
 {
