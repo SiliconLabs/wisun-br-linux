@@ -14,12 +14,15 @@
 #define COMMON_RAND_H
 #include <stdint.h>
 
+#include "common/int24.h"
+
 /*
  * Helpers around getrandom().
  */
 
 uint8_t rand_get_8bit(void);
 uint16_t rand_get_16bit(void);
+uint24_t rand_get_24bit(void);
 uint32_t rand_get_32bit(void);
 uint64_t rand_get_64bit(void);
 void rand_get_n_bytes_random(void *data_ptr, uint8_t count);

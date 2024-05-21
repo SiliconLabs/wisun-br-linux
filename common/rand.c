@@ -18,6 +18,7 @@
 #include <limits.h>
 
 #include "common/capture.h"
+#include "common/int24.h"
 #include "common/log.h"
 
 #include "rand.h"
@@ -36,6 +37,11 @@ uint16_t rand_get_16bit(void)
 
     rand_get_n_bytes_random(&result, sizeof(result));
     return result;
+}
+
+uint24_t rand_get_24bit(void)
+{
+    return rand_get_32bit() & 0x00ffffff;
 }
 
 uint32_t rand_get_32bit(void)
