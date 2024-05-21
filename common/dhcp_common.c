@@ -11,6 +11,15 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
+/*
+ *   Helpers to parse and write DHCP frames.
+ * To create frames, dhcp_fill_*() appends DHCP options to the buffer.
+ * To parse frames, the basic function is dhcp_get_option().
+ * dhcp_get_*() allow to retrieve content of a specific DHCP option.
+ * Finally, dhcp_check_*() check if the option is present and checks
+ * option-specific values.
+ */
+
 #include <string.h>
 #include <errno.h>
 #include <time.h>
