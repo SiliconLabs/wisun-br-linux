@@ -27,6 +27,8 @@ void dhcp_fill_identity_association(struct iobuf_write *buf, uint32_t ia_id, con
                                     uint32_t preferred_lifetime, uint32_t valid_lifetime);
 void dhcp_fill_server_id(struct iobuf_write *buf, const uint8_t eui64[8]);
 
+int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr);
+
 int dhcp_check_status_code(const uint8_t *req, size_t req_len);
 int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len);
 

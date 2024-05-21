@@ -136,6 +136,29 @@ void dhcp_fill_server_id(struct iobuf_write *buf, const uint8_t eui64[8])
     dhcp_opt_fill(buf, len_offset);
 }
 
+int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr)
+{
+    uint16_t duid_type, ll_type;
+    struct iobuf_read opt;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_CLIENT_ID, &opt);
+    if (opt.err)
+        return -EINVAL;
+    duid_type = iobuf_pop_be16(&opt);
+    ll_type = iobuf_pop_be16(&opt);
+    if (duid_type != DHCPV6_DUID_TYPE_LINK_LAYER ||
+        (ll_type != DHCPV6_DUID_HW_TYPE_EUI64 && ll_type != DHCPV6_DUID_HW_TYPE_IEEE802)) {
+        TRACE(TR_DROP, "drop %-9s: unsupported client ID option", "dhcp");
+        return -ENOTSUP;
+    }
+    *hwaddr = iobuf_pop_data_ptr(&opt, 8);
+    if (opt.err) {
+        TRACE(TR_DROP, "drop %-9s: malformed client ID option", "dhcp");
+        return -EINVAL;
+    }
+    return ll_type;
+}
+
 int dhcp_check_status_code(const uint8_t *req, size_t req_len)
 {
     struct iobuf_read opt;
