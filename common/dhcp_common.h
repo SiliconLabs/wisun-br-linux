@@ -31,5 +31,6 @@ int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **h
 
 int dhcp_check_status_code(const uint8_t *req, size_t req_len);
 int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len);
+int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len);
 
 #endif /* DHCP_COMMON_H */

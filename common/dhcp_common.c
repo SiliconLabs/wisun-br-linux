@@ -186,3 +186,15 @@ int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
     }
     return 0;
 }
+
+int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
+{
+    struct iobuf_read opt;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_ELAPSED_TIME, &opt);
+    if (opt.err) {
+        TRACE(TR_DROP, "drop %-9s: missing elapsed time option", "dhcp");
+        return -EINVAL; // Elapsed Time option is mandatory
+    }
+    return 0;
+}

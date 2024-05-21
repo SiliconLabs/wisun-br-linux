@@ -42,18 +42,6 @@ static uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_
     return ia_id;
 }
 
-static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
-{
-    struct iobuf_read opt;
-
-    dhcp_get_option(req, req_len, DHCPV6_OPT_ELAPSED_TIME, &opt);
-    if (opt.err) {
-        TRACE(TR_DROP, "drop %-9s: missing elapsed time option", "dhcp");
-        return -EINVAL; // Elapsed Time option is mandatory
-    }
-    return 0;
-}
-
 static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
                             struct iobuf_write *reply)
 {
