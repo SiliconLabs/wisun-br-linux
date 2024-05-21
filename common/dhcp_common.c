@@ -257,3 +257,18 @@ int dhcp_check_server_id(const uint8_t *req, size_t req_len)
     }
     return 0;
 }
+
+int dhcp_check_client_id(const uint8_t expected_eui64[8], const uint8_t *req, size_t req_len)
+{
+    const uint8_t *hwaddr;
+    int ret = dhcp_get_client_hwaddr(req, req_len, &hwaddr);
+
+    if (ret < 0)
+        return ret;
+
+    if (memcmp(hwaddr, expected_eui64, 8)) {
+        TRACE(TR_DROP, "drop %-9s: invalid client ID option", "dhcp");
+        return -EINVAL;
+    }
+    return 0;
+}
