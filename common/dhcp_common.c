@@ -104,6 +104,15 @@ void dhcp_fill_identity_association(struct iobuf_write *buf, uint32_t ia_id, con
     }
 }
 
+void dhcp_fill_server_id(struct iobuf_write *buf, const uint8_t eui64[8])
+{
+    iobuf_push_be16(buf, DHCPV6_OPT_SERVER_ID);
+    iobuf_push_be16(buf, 2 + 2 + 8);
+    iobuf_push_be16(buf, DHCPV6_DUID_TYPE_LINK_LAYER);
+    iobuf_push_be16(buf, DHCPV6_DUID_HW_TYPE_EUI64);
+    iobuf_push_data(buf, eui64, 8);
+}
+
 int dhcp_check_status_code(const uint8_t *req, size_t req_len)
 {
     struct iobuf_read opt;
