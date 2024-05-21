@@ -101,3 +101,15 @@ int dhcp_check_status_code(const uint8_t *req, size_t req_len)
     }
     return 0;
 }
+
+int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
+{
+    struct iobuf_read opt;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_RAPID_COMMIT, &opt);
+    if (opt.err) {
+        TRACE(TR_DROP, "drop %-9s: missing rapid commit option", "dhcp");
+        return -ENOTSUP;
+    }
+    return 0;
+}

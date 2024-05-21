@@ -83,18 +83,6 @@ static uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_
     return ia_id;
 }
 
-static int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
-{
-    struct iobuf_read opt;
-
-    dhcp_get_option(req, req_len, DHCPV6_OPT_RAPID_COMMIT, &opt);
-    if (opt.err) {
-        TRACE(TR_DROP, "drop %-9s: missing rapid commit option", "dhcp");
-        return -ENOTSUP;
-    }
-    return 0;
-}
-
 static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
 {
     struct iobuf_read opt;
