@@ -132,19 +132,6 @@ static void dhcp_fill_server_id(struct dhcp_server *dhcp, struct iobuf_write *re
     iobuf_push_data(reply, dhcp->hwaddr, 8);
 }
 
-static void dhcp_fill_client_id(struct iobuf_write *reply, uint16_t hwaddr_type, const uint8_t *hwaddr)
-{
-    BUG_ON(!hwaddr);
-    BUG_ON(hwaddr_type != DHCPV6_DUID_HW_TYPE_EUI64 &&
-           hwaddr_type != DHCPV6_DUID_HW_TYPE_IEEE802);
-
-    iobuf_push_be16(reply, DHCPV6_OPT_CLIENT_ID);
-    iobuf_push_be16(reply, 2 + 2 + 8);
-    iobuf_push_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
-    iobuf_push_be16(reply, hwaddr_type);
-    iobuf_push_data(reply, hwaddr, 8);
-}
-
 static void dhcp_fill_rapid_commit(struct dhcp_server *dhcp, struct iobuf_write *reply)
 {
     iobuf_push_be16(reply, DHCPV6_OPT_RAPID_COMMIT);

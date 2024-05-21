@@ -13,8 +13,10 @@
 #ifndef DHCP_COMMON_H
 #define DHCP_COMMON_H
 
+struct iobuf_write;
 struct iobuf_read;
 
 int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload);
+void dhcp_fill_client_id(struct iobuf_write *buf, uint16_t hwaddr_type, const uint8_t *hwaddr);
 
 #endif /* DHCP_COMMON_H */
