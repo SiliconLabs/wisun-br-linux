@@ -16,10 +16,12 @@
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/mpx.h"
 #include "common/named_values.h"
 #include "common/dbus.h"
 #include "common/rcp_api.h"
+#include "common/sys_queue_extra.h"
 #include "common/ws_ie.h"
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
@@ -398,6 +400,48 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     }
 }
 
+static struct ws_frame_ctx *ws_frame_ctx_new(struct ws_ctx *ws)
+{
+    struct ws_frame_ctx *cur, *new;
+
+    if (SLIST_SIZE(&ws->frame_ctx_list, link) > UINT8_MAX)
+        return NULL;
+
+    new = zalloc(sizeof(*new));
+    new->handle = ws->handle_next++;
+    // If next handle is already in use (unlikely), use the next available one.
+    while (SLIST_FIND(cur, &ws->frame_ctx_list, link,
+                      cur->handle == new->handle))
+        new->handle = ws->handle_next++;
+    SLIST_INSERT_HEAD(&ws->frame_ctx_list, new, link);
+    return new;
+}
+
+static struct ws_frame_ctx *ws_frame_ctx_pop(struct ws_ctx *ws, uint8_t handle)
+{
+    struct ws_frame_ctx *cur;
+
+    cur = SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->handle == handle);
+    if (cur)
+        SLIST_REMOVE(&ws->frame_ctx_list, cur, ws_frame_ctx, link);
+    return cur;
+}
+
+void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
+{
+    struct ws_frame_ctx *frame_ctx;
+
+    if (cnf->status != HIF_STATUS_SUCCESS)
+        TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
+
+    frame_ctx = ws_frame_ctx_pop(ws, cnf->handle);
+    if (!frame_ctx) {
+        ERROR("unknown frame handle: %u", cnf->handle);
+        return;
+    }
+    free(frame_ctx);
+}
+
 void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
 {
     struct ieee802154_hdr hdr = {
@@ -410,6 +454,7 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
         .transfer_type = MPX_FT_FULL_FRAME,
         .multiplex_id  = MPX_ID_6LOWPAN,
     };
+    struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
     struct ws_neigh *neigh = NULL;
     uint8_t fhss_type;
@@ -429,6 +474,14 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
         hdr.pan_id = ws->pan_id;
         fhss_type = HIF_FHSS_TYPE_FFN_BC;
     }
+
+    frame_ctx = ws_frame_ctx_new(ws);
+    if (!frame_ctx) {
+        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+        return;
+    }
+    frame_ctx->type = WS_FT_DATA;
+    memcpy(frame_ctx->dst, hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -452,7 +505,7 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
     // TODO: store frame and wait for confirmation
     rcp_req_data_tx(&g_wsrd.rcp,
                     iobuf.data, iobuf.len,
-                    ws->seqno, // TODO: proper frame handle (seqno does not cover async/bc frames)
+                    frame_ctx->handle,
                     fhss_type,
                     neigh ? &neigh->fhss_data_unsecured : NULL,
                     neigh ? neigh->frame_counter_min : NULL,

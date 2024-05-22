@@ -99,9 +99,9 @@ static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
 
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
-    if (cnf->status != HIF_STATUS_SUCCESS)
-        TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
-    // TODO
+    struct wsrd *wsrd = container_of(rcp, struct wsrd, rcp);
+
+    ws_recv_cnf(&wsrd->ws, cnf);
 }
 
 static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])

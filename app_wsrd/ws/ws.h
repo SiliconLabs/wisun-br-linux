@@ -13,6 +13,7 @@
 #ifndef WSRD_WS_H
 #define WSRD_WS_H
 
+#include <sys/queue.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -21,7 +22,19 @@
 #include "common/ws_types.h"
 #include "app_wsrd/ipv6/ipv6.h"
 
+struct rcp_tx_cnf;
 struct rcp_rx_ind;
+
+// Frame sent to the RCP and waiting for a confirmation.
+struct ws_frame_ctx {
+    uint8_t handle;
+    uint8_t type;
+    uint8_t dst[8];
+    SLIST_ENTRY(ws_frame_ctx) link;
+};
+
+// Define struct ws_frame_list
+SLIST_HEAD(ws_frame_ctx_list, ws_frame_ctx);
 
 struct ws_ctx {
     char     netname[WS_NETNAME_LEN];
@@ -32,11 +45,14 @@ struct ws_ctx {
     struct ws_neigh_table neigh_table;
 
     uint8_t  seqno;
+    uint8_t  handle_next;
+    struct ws_frame_ctx_list frame_ctx_list;
 
     struct ipv6_ctx ipv6;
 };
 
 void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);
+void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf);
 
 void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
 
