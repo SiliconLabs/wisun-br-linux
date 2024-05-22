@@ -23,4 +23,24 @@ enum {
     NDP_OPT_ARO   = 33, // Address Registration Option
 };
 
+// Address Registration Option Status Values
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#address-registration
+enum {
+    NDP_ARO_STATUS_SUCCESS   =  0, // Success
+    NDP_ARO_STATUS_DUP       =  1, // Duplicate Address
+    NDP_ARO_STATUS_NOMEM     =  2, // Neighbor Cache Full
+    NDP_ARO_STATUS_MOVED     =  3, // Moved
+    NDP_ARO_STATUS_REMOVED   =  4, // Removed
+    NDP_ARO_STATUS_VALIDREQ  =  5, // Validation Requested
+    NDP_ARO_STATUS_DUPSRC    =  6, // Duplicate Source Address
+    NDP_ARO_STATUS_INVALSRC  =  7, // Invalid Source Address
+    NDP_ARO_STATUS_INVALTOPO =  8, // Registered Address Topologically Incorrect
+    NDP_ARO_STATUS_NOMEMBR   =  9, // 6LBR Registry Saturated
+    NDP_ARO_STATUS_VALIDFAIL = 10, // Validation Failed
+    //   draft-ietf-6lo-multicast-registration-19
+    // 14.7. New Address Registration Option Status Values
+    NDP_ARO_STATUS_REFRESH   = 11, // Registration Refresh Request
+    NDP_ARO_STATUS_INVALREG  = 12, // Invalid Registration
+};
+
 #endif

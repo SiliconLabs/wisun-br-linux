@@ -56,7 +56,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
           tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
 
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
-    if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
+    if (aro->status == NDP_ARO_STATUS_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
         neigh->lifetime_s = aro->lifetime * UINT32_C(60);
         neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
@@ -145,7 +145,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     // if the Status field is not zero, then the NS is silently ignored.
     if (iobuf_pop_u8(&earo) != 2) // Length
         return false;
-    if (iobuf_pop_u8(&earo) != ARO_SUCCESS) // Status
+    if (iobuf_pop_u8(&earo) != NDP_ARO_STATUS_SUCCESS)
         return false;
     iobuf_pop_u8(&earo); // Opaque
     flags = iobuf_pop_u8(&earo);
@@ -173,7 +173,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // the address that is being registered.
         if (!addr_is_ipv6_link_local(src_addr)) {
             na_earo->present = true;
-            na_earo->status = ARO_INVALID_SOURCE_ADDR;
+            na_earo->status = NDP_ARO_STATUS_INVALSRC;
             return true;
         }
         //   RFC 8505 Section 5.1 - Extending the Address Registration Option
@@ -188,14 +188,14 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // the border router is a direct parent isn't fully described, but it
         // makes sense to register the address and respond with a NA(EARO).
         na_earo->present = true;
-        na_earo->status = ARO_SUCCESS;
+        na_earo->status = NDP_ARO_STATUS_SUCCESS;
         na_earo->tid = tid;
         if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
             if (addr_ipv6_equal(ADDR_ALL_MPL_FORWARDERS, registered_addr) ||
                 !IN6_IS_ADDR_MULTICAST(registered_addr) ||
                 addr_ipv6_multicast_scope(registered_addr) < IPV6_SCOPE_LINK_LOCAL) {
                 TRACE(TR_IGNORE, "invalid multicast address in earo: %s", tr_ipv6(registered_addr));
-                na_earo->status = ARO_TOPOLOGICALLY_INCORRECT;
+                na_earo->status = NDP_ARO_STATUS_INVALTOPO;
                 return true;
             }
     }
@@ -204,13 +204,13 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         /* Check if we are already using this address ourself */
         if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
             na_earo->present = true;
-            na_earo->status = ARO_DUPLICATE;
+            na_earo->status = NDP_ARO_STATUS_DUP;
             return true;
         }
 
         ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage, na_earo->eui64);
         if (!ws_neigh) {
-            na_earo->status = ARO_TOPOLOGICALLY_INCORRECT;
+            na_earo->status = NDP_ARO_STATUS_INVALTOPO;
             na_earo->present = true;
             return true;
         }
@@ -225,7 +225,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         neigh = ipv6_neighbour_create(&cur_interface->ipv6_neighbour_cache, registered_addr, na_earo->eui64);
     if (!neigh) {
         na_earo->present = true;
-        na_earo->status = ARO_FULL;
+        na_earo->status = NDP_ARO_STATUS_NOMEM;
         return true;
     }
 
@@ -245,7 +245,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
                 if (memcmp(nce_eui64, na_earo->eui64, 8)) {
                     /* Already registered with different EUI-64 - duplicate */
                     na_earo->present = true;
-                    na_earo->status = ARO_DUPLICATE;
+                    na_earo->status = NDP_ARO_STATUS_DUP;
                     return true;
                 }
                 break;
@@ -262,7 +262,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur_interface->ipv6_neighbour_cache, neigh, ll_addr.addr_type, ll_addr.address);
     ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-    na_earo->status = ARO_SUCCESS;
+    na_earo->status = NDP_ARO_STATUS_SUCCESS;
     na_earo->present = true;
     // Todo: this might not be needed...
     nd_update_registration(cur_interface, neigh, na_earo, ws_neigh);

@@ -25,6 +25,7 @@
 #include "common/endian.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
+#include "common/specs/ndp.h"
 #include "common/specs/rpl.h"
 #include "common/specs/ip.h"
 
@@ -1038,7 +1039,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
     if (!ws_neigh)
         return;
 
-    aro.status = ARO_SUCCESS;
+    aro.status = NDP_ARO_STATUS_SUCCESS;
     aro.lifetime = ws_neigh->lifetime_s / 60;
 
     nd_update_registration(buf->interface, ipv6_neighbour, &aro, ws_neigh);

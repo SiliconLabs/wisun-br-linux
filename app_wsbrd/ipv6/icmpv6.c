@@ -641,7 +641,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     // FIXME: It is not clear how ARO and EARO are differentiated.
     // This hack is based on the Wi-SUN specification.
     if (cur->ipv6_neighbour_cache.omit_na_aro_success && earo &&
-        earo->status == ARO_SUCCESS && (!earo->t || !earo->lifetime)) {
+        earo->status == NDP_ARO_STATUS_SUCCESS && (!earo->t || !earo->lifetime)) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
@@ -679,7 +679,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
 
         /* See RFC 6775 6.5.2 - errors are sent to LL64 address
          * derived from EUI-64, success to IP source address */
-        if (earo && earo->status != ARO_SUCCESS) {
+        if (earo && earo->status != NDP_ARO_STATUS_SUCCESS) {
             memcpy(buf->dst_sa.address, ADDR_LINK_LOCAL_PREFIX, 8);
             memcpy(buf->dst_sa.address + 8, earo->eui64, 8);
             buf->dst_sa.address[8] ^= 2;

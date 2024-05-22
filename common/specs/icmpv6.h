@@ -87,17 +87,4 @@ enum {
     ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR  = 3,
 };
 
-// RFC6775: "Address Registration Option Status Values"
-// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#address-registration
-enum {
-    ARO_SUCCESS                 = 0,
-    ARO_DUPLICATE               = 1,
-    ARO_FULL                    = 2,
-    ARO_MOVED                   = 3,
-    ARO_REMOVED                 = 4,
-    ARO_VALIDATION_REQUESTED    = 5,
-    ARO_DUPLICATE_SOURCE_ADDR   = 6,
-    ARO_INVALID_SOURCE_ADDR     = 7,
-    ARO_TOPOLOGICALLY_INCORRECT = 8,
-};
 #endif
