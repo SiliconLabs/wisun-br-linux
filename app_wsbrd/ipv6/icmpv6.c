@@ -27,6 +27,7 @@
 #include "common/ipv6_cksum.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/specs/ndp.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/ip.h"
@@ -257,7 +258,7 @@ static bool icmpv6_nd_ws_sllao_dummy(struct iobuf_write *sllao, const uint8_t *a
     eui64 = iobuf_pop_data_ptr(&earo, 8);
 
     BUG_ON(sllao->len);
-    iobuf_push_u8(sllao, ICMPV6_OPT_SRC_LL_ADDR);
+    iobuf_push_u8(sllao, NDP_OPT_SLLAO);
     iobuf_push_u8(sllao, 0); // Length (filled after)
     iobuf_push_data(sllao, eui64, 8);
     while (sllao->len % 8)
@@ -320,9 +321,9 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
     iobuf_pop_data(&iobuf, target, 16);
 
     has_sllao = icmpv6_nd_option_get(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
-                                     ICMPV6_OPT_SRC_LL_ADDR, &sllao);
+                                     NDP_OPT_SLLAO, &sllao);
     has_earo = icmpv6_nd_option_get(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
-                                    ICMPV6_OPT_ADDR_REGISTRATION, &earo);
+                                    NDP_OPT_ARO, &earo);
     if (!cur->ipv6_neighbour_cache.recv_addr_reg)
         has_earo = false;
     //   Wi-SUN - IPv6 Neighbor Discovery Optimizations
@@ -435,7 +436,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
     if (buf->options.type == ICMPV6_TYPE_NS) {
         if (buffer_data_length(buf) > 20 &&
             icmpv6_nd_option_get(buffer_data_pointer(buf) + 20, buffer_data_length(buf) - 20,
-                                 ICMPV6_OPT_ADDR_REGISTRATION, &ns_earo_buf)) {
+                                 NDP_OPT_ARO, &ns_earo_buf)) {
             iobuf_pop_u8(&ns_earo_buf); // Type
             iobuf_pop_u8(&ns_earo_buf); // Length
             iobuf_pop_u8(&ns_earo_buf); // Status
@@ -714,10 +715,10 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     ptr += 16;
 
     // Set the target Link-Layer address
-    ptr = icmpv6_write_icmp_lla(cur, ptr, ICMPV6_OPT_TGT_LL_ADDR, tllao_required, target);
+    ptr = icmpv6_write_icmp_lla(cur, ptr, NDP_OPT_TLLAO, tllao_required, target);
 
     if (earo) {
-        *ptr++ = ICMPV6_OPT_ADDR_REGISTRATION;
+        *ptr++ = NDP_OPT_ARO;
         *ptr++ = 2;
         *ptr++ = earo->status;
         *ptr++ = earo->opaque;

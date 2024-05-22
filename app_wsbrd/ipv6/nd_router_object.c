@@ -24,6 +24,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/bits.h"
+#include "common/specs/ndp.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/ws_neigh.h"
@@ -137,7 +138,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
      * |             Registration Ownership Verifier (ROVR)            |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    BUG_ON(iobuf_pop_u8(&earo) != ICMPV6_OPT_ADDR_REGISTRATION);
+    BUG_ON(iobuf_pop_u8(&earo) != NDP_OPT_ARO);
     //   RFC 6775 Section 6.5 - Processing a Neighbor Solicitation
     // In addition to the normal validation of an NS and its options, the ARO
     // is verified as follows (if present).  If the Length field is not two, or

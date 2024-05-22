@@ -19,6 +19,7 @@
 #include "common/pktbuf.h"
 #include "common/rand.h"
 #include "common/specs/icmpv6.h"
+#include "common/specs/ndp.h"
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/ndp_pkt.h"
@@ -153,7 +154,7 @@ void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct in6_addr *dst)
         .nd_ns_target = *dst,
     };
     struct ndp_opt_earo aro = {
-        .type = ICMPV6_OPT_ADDR_REGISTRATION,
+        .type = NDP_OPT_ARO,
         .len  = sizeof(aro) / 8,
         .lifetime_minutes = UINT16_MAX,
     };

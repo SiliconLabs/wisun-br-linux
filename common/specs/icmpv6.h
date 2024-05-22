@@ -87,15 +87,6 @@ enum {
     ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR  = 3,
 };
 
-// RFC 4861: "IPv6 Neighbor Discovery Option Formats".
-// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-5
-enum {
-    ICMPV6_OPT_SRC_LL_ADDR                   = 1,
-    ICMPV6_OPT_TGT_LL_ADDR                   = 2,
-    // ...
-    ICMPV6_OPT_ADDR_REGISTRATION             = 33,
-};
-
 // RFC6775: "Address Registration Option Status Values"
 // https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#address-registration
 enum {
