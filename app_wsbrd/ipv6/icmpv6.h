@@ -41,15 +41,6 @@ struct ipv6_nd_opt_earo {
     bool present;
 };
 
-#define IPV6_ND_OPT_EARO_FLAGS_P_MASK 0b00110000
-#define IPV6_ND_OPT_EARO_FLAGS_I_MASK 0b00001100
-#define IPV6_ND_OPT_EARO_FLAGS_R_MASK 0b00000010
-#define IPV6_ND_OPT_EARO_FLAGS_T_MASK 0b00000001
-
-#define IPV6_ND_OPT_EARO_FLAGS_P_UC 0 // Unused
-#define IPV6_ND_OPT_EARO_FLAGS_P_MC 1
-#define IPV6_ND_OPT_EARO_FLAGS_P_AN 2 // Unused
-
 void icmpv6_init(void);
 struct buffer *icmpv6_down(struct buffer *buf);
 struct buffer *icmpv6_up(struct buffer *buf);

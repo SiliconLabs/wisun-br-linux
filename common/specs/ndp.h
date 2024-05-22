@@ -43,4 +43,18 @@ enum {
     NDP_ARO_STATUS_INVALREG  = 12, // Invalid Registration
 };
 
+// RFC 8505 4.1. Extended Address Registration Option (EARO)
+#define NDP_MASK_ARO_T 0x01
+#define NDP_MASK_ARO_R 0x02
+#define NDP_MASK_ARO_I 0x0c
+// draft-ietf-6lo-multicast-registration-19 14.3. New EARO flags
+#define NDP_MASK_ARO_P 0x30
+
+// draft-ietf-6lo-multicast-registration-19 14.1. New P-Field values Registry
+enum {
+    NDP_ADDR_TYPE_UNICAST   = 0,
+    NDP_ADDR_TYPE_MULTICAST = 1,
+    NDP_ADDR_TYPE_ANYCAST   = 2,
+};
+
 #endif

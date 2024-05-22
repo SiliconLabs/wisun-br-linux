@@ -153,18 +153,18 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     na_earo->lifetime = iobuf_pop_be16(&earo);
     iobuf_pop_data(&earo, na_earo->eui64, 8);
 
-    na_earo->t = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags);
-    na_earo->r = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags);
-    na_earo->p = FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_P_MASK, flags);
+    na_earo->t = FIELD_GET(NDP_MASK_ARO_T, flags);
+    na_earo->r = FIELD_GET(NDP_MASK_ARO_R, flags);
+    na_earo->p = FIELD_GET(NDP_MASK_ARO_P, flags);
 
-    if (na_earo->p > IPV6_ND_OPT_EARO_FLAGS_P_MC) {
+    if (na_earo->p != NDP_ADDR_TYPE_UNICAST && na_earo->p != NDP_ADDR_TYPE_MULTICAST) {
         TRACE(TR_DROP, "drop %-9s: invalid P flag value in EARO: %d", "ns", na_earo->p);
         return false;
     }
 
     // FIXME: It is not clear how ARO and EARO are differentiated.
     // This hack is based on the Wi-SUN specification.
-    if (na_earo->t && (na_earo->r || na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)) {
+    if (na_earo->t && (na_earo->r || na_earo->p == NDP_ADDR_TYPE_MULTICAST)) {
         //   RFC 8505 Section 5.6 - Link-Local Addresses and Registration
         // When sending an NS(EARO) to a 6LR, a 6LN MUST use a Link-Local
         // Address as the Source Address of the registration, whatever the type
@@ -190,7 +190,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         na_earo->present = true;
         na_earo->status = NDP_ARO_STATUS_SUCCESS;
         na_earo->tid = tid;
-        if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
+        if (na_earo->p == NDP_ADDR_TYPE_MULTICAST)
             if (addr_ipv6_equal(ADDR_ALL_MPL_FORWARDERS, registered_addr) ||
                 !IN6_IS_ADDR_MULTICAST(registered_addr) ||
                 addr_ipv6_multicast_scope(registered_addr) < IPV6_SCOPE_LINK_LOCAL) {
@@ -200,7 +200,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
             }
     }
 
-    if (na_earo->p != IPV6_ND_OPT_EARO_FLAGS_P_MC) {
+    if (na_earo->p != NDP_ADDR_TYPE_MULTICAST) {
         /* Check if we are already using this address ourself */
         if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
             na_earo->present = true;
@@ -216,7 +216,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         }
     }
 
-    if (na_earo->p == IPV6_ND_OPT_EARO_FLAGS_P_MC)
+    if (na_earo->p == NDP_ADDR_TYPE_MULTICAST)
         neigh = ipv6_neighbour_lookup_mc(&cur_interface->ipv6_neighbour_cache, registered_addr, na_earo->eui64);
     else
         neigh = ipv6_neighbour_lookup(&cur_interface->ipv6_neighbour_cache, registered_addr);

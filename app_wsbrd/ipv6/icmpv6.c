@@ -442,8 +442,8 @@ void trace_icmp(buffer_t *buf, bool is_rx)
             iobuf_pop_u8(&ns_earo_buf); // Status
             iobuf_pop_u8(&ns_earo_buf); // Opaque
             ns_earo_flags = iobuf_pop_u8(&ns_earo_buf);
-            if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, ns_earo_flags) &&
-                FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, ns_earo_flags))
+            if (FIELD_GET(NDP_MASK_ARO_R, ns_earo_flags) &&
+                FIELD_GET(NDP_MASK_ARO_T, ns_earo_flags))
                 ns_aro_str = " w/ earo";
             else
                 ns_aro_str = " w/ aro";
@@ -722,10 +722,10 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         *ptr++ = 2;
         *ptr++ = earo->status;
         *ptr++ = earo->opaque;
-        *ptr++ = FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_P_MASK, earo->p)
-               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_I_MASK, earo->i)
-               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_R_MASK, earo->r)
-               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_T_MASK, earo->t);
+        *ptr++ = FIELD_PREP(NDP_MASK_ARO_P, earo->p)
+               | FIELD_PREP(NDP_MASK_ARO_I, earo->i)
+               | FIELD_PREP(NDP_MASK_ARO_R, earo->r)
+               | FIELD_PREP(NDP_MASK_ARO_T, earo->t);
         *ptr++ = earo->tid;
         ptr = write_be16(ptr, earo->lifetime);
         memcpy(ptr, earo->eui64, 8);
