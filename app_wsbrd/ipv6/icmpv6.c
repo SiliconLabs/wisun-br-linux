@@ -538,7 +538,7 @@ uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_o
 }
 
 buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr,
-                          bool unicast, bool unspecified_source, const struct ipv6_nd_opt_earo *aro)
+                          bool unicast, bool unspecified_source)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
         return NULL;
@@ -558,17 +558,6 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
     memcpy(ptr, target_addr, 16);
     ptr += 16;
 
-    if (aro) {
-        *ptr++ = ICMPV6_OPT_ADDR_REGISTRATION;
-        *ptr++ = 2;
-        *ptr++ = aro->status; /* Should be ARO_SUCCESS in an NS */
-        *ptr++ = 0;
-        ptr = write_be16(ptr, 0);
-        ptr = write_be16(ptr, aro->lifetime);
-        memcpy(ptr, aro->eui64, 8);
-        ptr += 8;
-    }
-
     if (unicast) {
         memcpy(buf->dst_sa.address, target_addr, 16);
     } else {
@@ -581,8 +570,7 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
         memset(buf->src_sa.address, 0, 16);
     } else {
         /* RFC 4861 7.2.2. says we should use the source of traffic prompting the NS, if possible */
-        /* This is also used to specify the address for ARO messages */
-        if (aro || (prompting_src_addr && addr_is_assigned_to_interface(cur, prompting_src_addr))) {
+        if (prompting_src_addr && addr_is_assigned_to_interface(cur, prompting_src_addr)) {
             memcpy(buf->src_sa.address, prompting_src_addr, 16);
         } else {
             /* Otherwise, according to RFC 4861, we could use any address.
