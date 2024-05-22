@@ -58,7 +58,7 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
     tr_debug("Sending %s NS for: %s",
              (unicast ? "unicast" : "multicast"), tr_ipv6(entry->ip_address));
 
-    buf = icmpv6_build_ns(cur_interface, entry->ip_address, NULL, unicast, false);
+    buf = icmpv6_build_ns(cur_interface, entry->ip_address, NULL, unicast);
     protocol_push(buf);
 }
 
