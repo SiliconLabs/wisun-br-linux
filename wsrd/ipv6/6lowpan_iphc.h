@@ -23,4 +23,8 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
                         const uint8_t src_iid[8],
                         const uint8_t dst_iid[8]);
 
+void lowpan_iphc_cmpr(struct pktbuf *pktbuf,
+                      const uint8_t src_iid[8],
+                      const uint8_t dst_iid[8]);
+
 #endif

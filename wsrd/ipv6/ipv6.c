@@ -25,6 +25,7 @@
 #include "common/pktbuf.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
+#include "wsrd/ipv6/6lowpan.h"
 #include "wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
 
@@ -222,5 +223,6 @@ void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
     // TODO: MPL
     // TODO: RPL Option
     // TODO: IPv6 Tunnel
-    // TODO: send to 6LoWPAN
+
+    lowpan_send(ipv6, pktbuf, ipv6->eui64, dst_eui64);
 }

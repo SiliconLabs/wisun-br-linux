@@ -366,3 +366,145 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
         return;
     }
 }
+
+// RFC 6282 - 3.2.1. Traffic Class and Flow Label Compression
+static uint8_t lowpan_iphc_cmpr_vtcflow(struct pktbuf *pktbuf, uint32_t vtcflow)
+{
+    uint8_t ecn, dscp;
+    uint8_t tclass;
+    uint32_t flow;
+
+    BUG_ON(FIELD_GET(IPV6_MASK_VERSION, vtcflow) != 6);
+
+    tclass = FIELD_GET(IPV6_MASK_TCLASS, vtcflow);
+    flow   = FIELD_GET(IPV6_MASK_FLOW,   vtcflow);
+    ecn  = FIELD_GET(IP_TCLASS_ECN_MASK,  tclass);
+    dscp = FIELD_GET(IP_TCLASS_DSCP_MASK, tclass);
+
+    if (!flow) {
+        // 10: ECN + DSCP (1 byte), Flow Label is elided.
+        pktbuf_push_head_u8(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF10_ECN,  ecn) |
+                                    FIELD_PREP(LOWPAN_MASK_IPHC_TF10_DSCN, dscp));
+        return 0b10;
+    } else if (!dscp) {
+        // 01: ECN + 2-bit Pad + Flow Label (3 bytes), DSCP is elided.
+        pktbuf_push_head_be24(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF01_ECN,  ecn) |
+                                      FIELD_PREP(LOWPAN_MASK_IPHC_TF01_FLOW, flow));
+        return 0b01;
+    } else {
+        // 00: ECN + DSCP + 4-bit Pad + Flow Label (4 bytes)
+        pktbuf_push_head_be24(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF00_ECN,  ecn)  |
+                                      FIELD_PREP(LOWPAN_MASK_IPHC_TF00_DSCN, dscp) |
+                                      FIELD_PREP(LOWPAN_MASK_IPHC_TF00_FLOW, flow));
+        return 0b00;
+    }
+}
+
+static uint8_t lowpan_iphc_cmpr_hlim(struct pktbuf *pktbuf, uint8_t hlim)
+{
+    switch (hlim) {
+    case 255:
+        // 11: The Hop Limit field is compressed and the hop limit is 255.
+        return 0b11;
+    case 64:
+        // 10: The Hop Limit field is compressed and the hop limit is 64.
+        return 0b10;
+    case 1:
+        // 01: The Hop Limit field is compressed and the hop limit is 1.
+        return 0b01;
+    default:
+        // 00: The Hop Limit field is carried in-line.
+        pktbuf_push_head_u8(pktbuf, hlim);
+        return 0b00;
+    }
+}
+
+static uint8_t lowpan_iphc_cmpr_addr_stless(struct pktbuf *pktbuf,
+                                            const struct in6_addr *addr,
+                                            const uint8_t iid[8])
+{
+    if (memcmp(addr, ipv6_prefix_linklocal.s6_addr, 8)) {
+        // 00: 128 bits. The full address is carried in-line.
+        pktbuf_push_head(pktbuf, addr->s6_addr, 16);
+        return 0b00;
+    } else if (!memcmp(addr->s6_addr + 8, iid, 8)) {
+        // 11:  0 bits.  The address is fully elided.  The first 64 bits of
+        // the address are the link-local prefix padded with zeros. The
+        // remaining 64 bits are computed from the encapsulating header
+        // (e.g., 802.15.4 or IPv6 source address)
+        return 0b11;
+    } else if (!memcmp(addr->s6_addr + 8, (uint8_t[6]){ 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00 }, 6)) {
+        // 10: 16 bits. The first 112 bits of the address are elided. The
+        // value of the first 64 bits is the link-local prefix padded with
+        // zeros. The following 64 bits are 0000:00ff:fe00:XXXX, where XXXX
+        // are the 16 bits carried in-line.
+        pktbuf_push_head(pktbuf, addr->s6_addr + 14, 2);
+        return 0b10;
+    } else {
+        // 01: 64 bits. The first 64-bits of the address are elided. The
+        // value of those bits is the link-local prefix padded with zeros.
+        // The remaining 64 bits are carried in-line.
+        pktbuf_push_head(pktbuf, addr->s6_addr + 8, 8);
+        return 0b01;
+    }
+}
+
+// RFC 6282 - 3.2.3. Stateless Multicast Address Compression
+static uint8_t lowpan_iphc_cmpr_maddr_stless(struct pktbuf *pktbuf,
+                                             const struct in6_addr *addr)
+{
+    BUG_ON(!IN6_IS_ADDR_MULTICAST(addr));
+    if (memzcmp(addr->s6_addr + 2, 9)) {
+        // 00: 128 bits. The full address is carried in-line.
+        pktbuf_push_head(pktbuf, addr->s6_addr, 16);
+        return 0x00;
+    } else if (memzcmp(addr->s6_addr + 9, 2)) {
+        // 01: 48 bits. The address takes the form ffXX::00XX:XXXX:XXXX.
+        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
+        pktbuf_push_head(pktbuf, addr->s6_addr + 11, 5);
+        return 0x01;
+    } else if (addr->s6_addr[1] != 0x02 || memzcmp(addr->s6_addr + 11, 2)) {
+        // 10: 32 bits. The address takes the form ffXX::00XX:XXXX.
+        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
+        pktbuf_push_head(pktbuf, addr->s6_addr + 13, 3);
+        return 0x02;
+    } else {
+        // 11: 8 bits. The address takes the form ff02::00XX.
+        pktbuf_push_head_u8(pktbuf, addr->s6_addr[15]);
+        return 0x03;
+    }
+}
+
+void lowpan_iphc_cmpr(struct pktbuf *pktbuf,
+                      const uint8_t src_iid[8],
+                      const uint8_t dst_iid[8])
+{
+    uint16_t base = htons(LOWPAN_DISPATCH_IPHC);
+    struct ip6_hdr hdr;
+    uint8_t field;
+
+    pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
+    BUG_ON(pktbuf->err);
+
+    if (IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst)) {
+        field = lowpan_iphc_cmpr_maddr_stless(pktbuf, &hdr.ip6_dst);
+        base |= LOWPAN_MASK_IPHC_M;
+    } else {
+        field = lowpan_iphc_cmpr_addr_stless(pktbuf, &hdr.ip6_dst, dst_iid);
+    }
+    base |= FIELD_PREP(LOWPAN_MASK_IPHC_DAM, field);
+
+    field = lowpan_iphc_cmpr_addr_stless(pktbuf, &hdr.ip6_src, src_iid);
+    base |= FIELD_PREP(LOWPAN_MASK_IPHC_SAM, field);
+
+    field = lowpan_iphc_cmpr_hlim(pktbuf, hdr.ip6_hlim);
+    base |= FIELD_PREP(LOWPAN_MASK_IPHC_HLIM, field);
+
+    // TODO: Next Header Compression
+    pktbuf_push_head_u8(pktbuf, hdr.ip6_nxt);
+
+    field = lowpan_iphc_cmpr_vtcflow(pktbuf, ntohl(hdr.ip6_flow));
+    base |= FIELD_PREP(LOWPAN_MASK_IPHC_TF, field);
+
+    pktbuf_push_head_be16(pktbuf, base);
+}

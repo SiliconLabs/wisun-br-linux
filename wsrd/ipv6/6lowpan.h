@@ -18,9 +18,15 @@
 #include <stdint.h>
 
 struct ipv6_ctx;
+struct pktbuf;
 
 void lowpan_recv(struct ipv6_ctx *ipv6,
                  const uint8_t *buf, size_t buf_len,
                  const uint8_t src[8], const uint8_t dst[8]);
+
+void lowpan_send(struct ipv6_ctx *ipv6,
+                 struct pktbuf *pktbuf,
+                 const uint8_t src[8],
+                 const uint8_t dst[8]);
 
 #endif
