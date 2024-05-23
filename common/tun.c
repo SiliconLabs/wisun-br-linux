@@ -106,8 +106,7 @@ static void tun_link_check(struct tun_ctx *tun)
     rtnl_link_put(link);
 }
 
-// ip addr add dev [tun->ifname] [addr]/[prefix_len]
-void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len)
+static struct rtnl_addr *tun_rtnladdr_build(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len)
 {
     struct rtnl_addr *rtnladdr;
     struct nl_addr *nladdr;
@@ -122,7 +121,17 @@ void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t pref
     FATAL_ON(ret < 0, 2, "rtnl_addr_set_local %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
     rtnl_addr_set_prefixlen(rtnladdr, prefix_len);
     rtnl_addr_set_ifindex(rtnladdr, tun->ifindex);
+    nl_addr_put(nladdr);
+    return rtnladdr;
+}
 
+// ip addr add dev [tun->ifname] [addr]/[prefix_len]
+void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len)
+{
+    struct rtnl_addr *rtnladdr;
+    int ret;
+
+    rtnladdr = tun_rtnladdr_build(tun, addr, prefix_len);
     ret = rtnl_addr_add(tun->nlsock, rtnladdr, 0);
     if (ret < 0) {
         if (ret == -NLE_EXIST)
@@ -130,9 +139,19 @@ void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t pref
         else
             FATAL(2, "rtnl_addr_add %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
     }
-
     rtnl_addr_put(rtnladdr);
-    nl_addr_put(nladdr);
+}
+
+// ip addr del dev [tun->ifname] [addr]/[prefix_len]
+void tun_addr_del(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len)
+{
+    struct rtnl_addr *rtnladdr;
+    int ret;
+
+    rtnladdr = tun_rtnladdr_build(tun, addr, prefix_len);
+    ret = rtnl_addr_delete(tun->nlsock, rtnladdr, 0);
+    FATAL_ON(ret < 0, 2, "rtnl_addr_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    rtnl_addr_put(rtnladdr);
 }
 
 static int tun_addr_get(struct tun_ctx *tun, struct in6_addr *addr,

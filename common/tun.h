@@ -36,6 +36,8 @@ void tun_init(struct tun_ctx *tun, bool autoconf);
 
 // ip addr add dev [tun->ifname] [addr]/[prefix_len]
 void tun_addr_add(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len);
+// ip addr del dev [tun->ifname] [addr]/[prefix_len]
+void tun_addr_del(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t prefix_len);
 
 // ip -6 addr show dev [tun->ifname] scope link
 int tun_addr_get_linklocal(struct tun_ctx *tun, struct in6_addr *addr);
