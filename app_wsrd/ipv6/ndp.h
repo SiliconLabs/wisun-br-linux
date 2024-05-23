@@ -65,6 +65,8 @@ struct ipv6_neigh {
     int  nud_probe_count;
     struct timer_entry nud_timer;
 
+    int ns_handle;
+
     struct rpl_neigh *rpl_neigh;
 
     SLIST_ENTRY(ipv6_neigh) link;
@@ -81,5 +83,16 @@ struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);
+
+/*
+ *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery
+ * Neighbor Advertisement MUST NOT be transmitted in response to successful
+ * Neighbor Solicitation (address registrations or NUD).
+ *
+ * NOTE: This function can be called from the link-layer as a replacement for
+ * reception of a NA packet. This is typically called on reception of an ACK
+ * frame for a previously sent NS packet.
+ */
+void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success);
 
 #endif

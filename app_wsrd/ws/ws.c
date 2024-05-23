@@ -441,6 +441,10 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
         ERROR("unknown frame handle: %u", cnf->handle);
         return;
     }
+
+    if (frame_ctx->type == WS_FT_DATA)
+        ipv6_nud_confirm_ns(&ws->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
+
     free(frame_ctx);
 }
 

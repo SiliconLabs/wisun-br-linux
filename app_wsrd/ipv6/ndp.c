@@ -53,6 +53,12 @@ static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     struct in6_addr src, dst;
     struct ndp_opt_earo aro;
 
+    if (neigh->ns_handle >= 0) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
+              has_gua ? "ns(aro)" : "ns", tr_ipv6(neigh->eui64));
+        return;
+    }
+
     if (has_gua) {
         //   RFC 6775 4.1. Address Registration Option
         // [...] the address that is to be registered MUST be the IPv6 source
@@ -87,10 +93,23 @@ static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", has_gua ? "ns(aro)" : "ns", tr_ipv6(dst.s6_addr));
-    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
-    // TODO: handle confirmation (ARO failure and link-layer ACK)
-    ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
+    neigh->ns_handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
     pktbuf_free(&pktbuf);
+}
+
+void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
+{
+    struct ipv6_neigh *neigh;
+
+    BUG_ON(handle < 0);
+    SLIST_FOREACH(neigh, &ipv6->neigh_cache, link)
+        if (neigh->ns_handle == handle)
+            break;
+    if (!neigh)
+        return;
+    neigh->ns_handle = -1;
+    if (success)
+        ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
 }
 
 static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
@@ -178,6 +197,7 @@ struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
     neigh->gua = *gua;
     memcpy(neigh->eui64, eui64, 8);
     neigh->nud_timer.callback = ipv6_nud_expire;
+    neigh->ns_handle = -1;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
