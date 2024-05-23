@@ -10,6 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <errno.h>
+
 #include "common/specs/ieee802154.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"
@@ -442,7 +444,7 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
     free(frame_ctx);
 }
 
-void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
+int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
 {
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
@@ -464,7 +466,7 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
         neigh = ws_neigh_get(&ws->neigh_table, dst);
         if (!neigh) {
             TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
-            return;
+            return -ETIMEDOUT;
         }
         memcpy(hdr.dst, dst, 8);
         hdr.pan_id = -1;
@@ -478,7 +480,7 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
     frame_ctx = ws_frame_ctx_new(ws);
     if (!frame_ctx) {
         TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
-        return;
+        return -ENOMEM;
     }
     frame_ctx->type = WS_FT_DATA;
     memcpy(frame_ctx->dst, hdr.dst, 8);
@@ -511,4 +513,5 @@ void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint
                     neigh ? neigh->frame_counter_min : NULL,
                     NULL, 0);  // TODO: mode switch
     iobuf_free(&iobuf);
+    return frame_ctx->handle;
 }

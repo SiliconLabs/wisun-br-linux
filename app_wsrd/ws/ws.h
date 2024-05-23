@@ -54,6 +54,6 @@ struct ws_ctx {
 void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);
 void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf);
 
-void ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
+int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
 
 #endif

@@ -10,6 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <errno.h>
+
 #include "common/specs/6lowpan.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -50,7 +52,7 @@ err:
     pktbuf_free(&pktbuf);
 }
 
-void lowpan_send(struct ipv6_ctx *ipv6,
+int lowpan_send(struct ipv6_ctx *ipv6,
                  struct pktbuf *pktbuf,
                  const uint8_t src[8],
                  const uint8_t dst[8])
@@ -61,6 +63,8 @@ void lowpan_send(struct ipv6_ctx *ipv6,
     ipv6_addr_conv_iid_eui64(dst_iid, dst);
 
     lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
+    if (pktbuf->err)
+        return -EINVAL;
 
-    ipv6->sendto_mac(ipv6, pktbuf, dst);
+    return ipv6->sendto_mac(ipv6, pktbuf, dst);
 }

@@ -45,7 +45,7 @@ enum {
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
-static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
+static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
                                   uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s);
@@ -104,11 +104,11 @@ static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     ws_recv_cnf(&wsrd->ws, cnf);
 }
 
-static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
+static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
 {
     struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
 
-    ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
+    return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)

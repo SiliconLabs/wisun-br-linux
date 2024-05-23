@@ -327,7 +327,7 @@ err:
     pktbuf_free(&pktbuf);
 }
 
-void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
                      uint8_t ipproto, uint8_t hlim,
                      const struct in6_addr *src, const struct in6_addr *dst)
 {
@@ -341,16 +341,18 @@ void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
         .ip6_src  = *src,
         .ip6_dst  = *dst,
     };
+    int ret;
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
-    if (ipv6_nxthop(ipv6, dst, &nxthop))
-        return;
+    ret = ipv6_nxthop(ipv6, dst, &nxthop);
+    if (ret < 0)
+        return ret;
     ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
 
     // TODO: MPL
     // TODO: RPL Option
     // TODO: IPv6 Tunnel
 
-    lowpan_send(ipv6, pktbuf, ipv6->eui64, dst_eui64);
+    return lowpan_send(ipv6, pktbuf, ipv6->eui64, dst_eui64);
 }

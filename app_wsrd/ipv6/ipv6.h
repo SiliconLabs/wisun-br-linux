@@ -37,7 +37,7 @@ struct ipv6_ctx {
     struct timer_group timer_group;
     struct rpl_ctx rpl;
 
-    void (*sendto_mac)(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
+    int (*sendto_mac)(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
 };
 
 void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8]);
@@ -45,8 +45,8 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
 void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6);
 
-void ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
-                     uint8_t ipproto, uint8_t hlim,
-                     const struct in6_addr *src, const struct in6_addr *dst);
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                    uint8_t ipproto, uint8_t hlim,
+                    const struct in6_addr *src, const struct in6_addr *dst);
 
 #endif
