@@ -537,8 +537,7 @@ uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_o
     return dptr;
 }
 
-buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr,
-                          bool unicast)
+buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], bool unicast)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
         return NULL;
@@ -567,28 +566,24 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
     buf->dst_sa.addr_type = ADDR_IPV6;
 
     /* RFC 4861 7.2.2. says we should use the source of traffic prompting the NS, if possible */
-    if (prompting_src_addr && addr_is_assigned_to_interface(cur, prompting_src_addr)) {
-        memcpy(buf->src_sa.address, prompting_src_addr, 16);
-    } else {
-        /* Otherwise, according to RFC 4861, we could use any address.
-         * But there is a 6lowpan/RPL hiccup - a node may have registered
-         * to us with an ARO, and we might send it's global address a NUD
-         * probe. But it doesn't know _our_ global address, which default
-         * address selection would favour.
-         * If it was still a host, we'd get away with using our global
-         * address, as we'd be its default route, so its reply comes to us.
-         * But if it's switched to being a RPL router, it would send its
-         * globally-addressed reply packet up the RPL DODAG.
-         * Avoid the problem by using link-local source.
-         * This will still leave us with an asymmetrical connection - its
-         * global address on-link for us, and we send to it directly (and
-         * can NUD probe it), whereas it regards us as off-link and will
-         * go via RPL (and won't probe us). But it will work fine.
-         */
-        if (addr_interface_get_ll_address(cur, buf->src_sa.address, 0) < 0) {
-            tr_debug("No address for NS");
-            return buffer_free(buf);
-        }
+    /* Otherwise, according to RFC 4861, we could use any address.
+     * But there is a 6lowpan/RPL hiccup - a node may have registered
+     * to us with an ARO, and we might send it's global address a NUD
+     * probe. But it doesn't know _our_ global address, which default
+     * address selection would favour.
+     * If it was still a host, we'd get away with using our global
+     * address, as we'd be its default route, so its reply comes to us.
+     * But if it's switched to being a RPL router, it would send its
+     * globally-addressed reply packet up the RPL DODAG.
+     * Avoid the problem by using link-local source.
+     * This will still leave us with an asymmetrical connection - its
+     * global address on-link for us, and we send to it directly (and
+     * can NUD probe it), whereas it regards us as off-link and will
+     * go via RPL (and won't probe us). But it will work fine.
+     */
+    if (addr_interface_get_ll_address(cur, buf->src_sa.address, 0) < 0) {
+        tr_debug("No address for NS");
+        return buffer_free(buf);
     }
 
     buf->src_sa.addr_type = ADDR_IPV6;
