@@ -34,6 +34,7 @@ enum {
     POLLFD_TIMER,
     POLLFD_TUN,
     POLLFD_RPL,
+    POLLFD_DHCP,
     POLLFD_COUNT,
 };
 
@@ -42,6 +43,10 @@ static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 static void wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
+                                  uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s);
+static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr);
+static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
 struct wsrd g_wsrd = {
     .rcp.bus.fd = -1,
@@ -54,6 +59,15 @@ struct wsrd g_wsrd = {
     .ws.pan_id = 0xffff,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
+
+    // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
+    .dhcp.irt_s = 60,
+    .dhcp.md_s  = 60,
+    .dhcp.mrt_s = 3600,
+    .dhcp.fd    = -1,
+    .dhcp.get_dst     = wsrd_dhcp_get_dst,
+    .dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
+    .dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
@@ -96,19 +110,45 @@ static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh 
 {
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ws.ipv6);
 
-    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global)) {
-        // HACK: bypass DHCPv6
-        wsrd->ws.ipv6.addr_uc_global = neigh->ipv6_addr;
-        memcpy(wsrd->ws.ipv6.addr_uc_global.s6_addr + 8,
-               wsrd->rcp.eui64, 8);
-        wsrd->ws.ipv6.addr_uc_global.s6_addr[8] ^= 0x02;
-        DEBUG("install addr=%s", tr_ipv6(wsrd->ws.ipv6.addr_uc_global.s6_addr));
-        // TODO: set prefix len to 128, and add default route instead
-        tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->dhcp.running)
+        dhcp_client_start(&wsrd->dhcp);
+    // TODO: handle parent change
+}
 
-        ipv6_send_ns_aro(ipv6, &neigh->ipv6_addr);
-        // TODO: NS(ARO) error handling
-    }
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr, uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s)
+{
+    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
+    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);
+
+    BUG_ON(!pref_parent);
+    if (!IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global))
+        return;
+
+    // TODO: set prefix len to 128, and add default route instead
+    wsrd->ws.ipv6.addr_uc_global = *addr;
+    tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
+    ipv6_send_ns_aro(&wsrd->ws.ipv6, &pref_parent->ipv6_addr);
+    // TODO: NS(ARO) error handling
+}
+
+static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr)
+{
+    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
+
+    tun_addr_del(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
+    memset(&wsrd->ws.ipv6.addr_uc_global, 0, sizeof(wsrd->ws.ipv6.addr_uc_global));
+    // TODO: send NS(ARO) with 0 lifetime
+}
+
+static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
+{
+    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
+    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);
+    struct in6_addr parent_ll = ipv6_prefix_linklocal;
+
+    BUG_ON(!pref_parent);
+    ipv6_addr_conv_iid_eui64(parent_ll.s6_addr + 8, pref_parent->eui64);
+    return parent_ll;
 }
 
 static void wsrd_init_rcp(struct wsrd *wsrd)
@@ -209,7 +249,9 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
+    timer_group_init(&wsrd->timer_ctx, &wsrd->dhcp.timer_group);
     ipv6_init(&wsrd->ws.ipv6, &wsrd->timer_ctx, wsrd->rcp.eui64);
+    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->rcp.eui64);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
@@ -276,6 +318,8 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_TUN].events = POLLIN;
     pfd[POLLFD_RPL].fd = wsrd->ws.ipv6.rpl.fd;
     pfd[POLLFD_RPL].events = POLLIN;
+    pfd[POLLFD_DHCP].fd = wsrd->dhcp.fd;
+    pfd[POLLFD_DHCP].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, wsrd->rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -288,6 +332,8 @@ int wsrd_main(int argc, char *argv[])
             ipv6_recvfrom_tun(&wsrd->ws.ipv6);
         if (pfd[POLLFD_RPL].revents & POLLIN)
             rpl_recv(&wsrd->ws.ipv6);
+        if (pfd[POLLFD_DHCP].revents & POLLIN)
+            dhcp_client_recv(&wsrd->dhcp);
     }
 
     return EXIT_SUCCESS;
