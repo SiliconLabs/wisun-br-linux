@@ -178,13 +178,22 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     }
 }
 
-struct ipv6_neigh *ipv6_neigh_get(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *gua)
+struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
+                                           const struct in6_addr *gua)
 {
     struct ipv6_neigh *neigh;
 
     return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
                       IN6_ARE_ADDR_EQUAL(&neigh->gua, gua));
+}
+
+struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
+                                             const uint8_t eui64[8])
+{
+    struct ipv6_neigh *neigh;
+
+    return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
+                      !memcmp(neigh->eui64, eui64, 8));
 }
 
 struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,

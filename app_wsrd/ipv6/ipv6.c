@@ -185,7 +185,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
         return 0;
     }
 
-    nce = ipv6_neigh_get(ipv6, dst);
+    nce = ipv6_neigh_get_from_gua(ipv6, dst);
     if (nce) {
         *nxthop = &nce->gua;
         return 0;
