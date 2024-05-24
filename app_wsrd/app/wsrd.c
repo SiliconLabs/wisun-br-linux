@@ -66,9 +66,15 @@ struct wsrd g_wsrd = {
     .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
-    .dhcp.irt_s = 60,
-    .dhcp.md_s  = 60,
-    .dhcp.mrt_s = 3600,
+    .dhcp.solicit_txalg.max_delay_s = 60,
+    .dhcp.solicit_txalg.irt_s       = 60,
+    .dhcp.solicit_txalg.mrt_s       = 3600,
+    // RFC 8415 18.2.1. Creation and Transmission of Solicit Messages
+    .dhcp.solicit_txalg.mrc         = 0,
+    .dhcp.solicit_txalg.mrd_s       = 0,
+    // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
+    .dhcp.solicit_txalg.rand_min    = -0.1,
+    .dhcp.solicit_txalg.rand_max    = +0.1,
     .dhcp.fd    = -1,
     .dhcp.get_dst     = wsrd_dhcp_get_dst,
     .dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
@@ -268,9 +274,8 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
-    timer_group_init(&wsrd->timer_ctx, &wsrd->dhcp.timer_group);
     ipv6_init(&wsrd->ws.ipv6, &wsrd->timer_ctx, wsrd->rcp.eui64);
-    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->rcp.eui64);
+    dhcp_client_init(&wsrd->dhcp, &wsrd->timer_ctx, &wsrd->ws.ipv6.tun, wsrd->rcp.eui64);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a

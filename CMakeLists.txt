@@ -302,6 +302,7 @@ add_library(libwsrd STATIC
     common/rail_config.c
     common/rand.c
     common/rcp_api.c
+    common/rfc8415_txalg.c
     common/timer.c
     common/tun.c
     common/ws_chan_mask.c

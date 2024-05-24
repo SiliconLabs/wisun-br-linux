@@ -19,8 +19,10 @@
 #include <time.h>
 
 #include "common/int24.h"
+#include "common/rfc8415_txalg.h"
 #include "common/timer.h"
 
+struct timer_ctxt;
 struct tun_ctx;
 
 // Identity Association Address Option
@@ -36,21 +38,11 @@ struct dhcp_client {
     uint8_t eui64[8];
     bool running;
 
-    uint32_t md_s;  // Initial Transmission Max Delay
-    uint32_t irt_s; // Initial Retransmission Timeout
-    uint32_t mrt_s; // Max Retransmission Timeout
-    uint32_t rt_s;  // Retransmission Timeout
-
+    struct rfc8415_txalg solicit_txalg;
     uint24_t tid; // Transaction ID
-    int solicit_count;
     struct dhcp_iaaddr iaaddr;
 
-    /*
-     * This timer serves two purposes:
-     *  - Solicit initial transmission and retries
-     *  - Address renegociation before expiration via solicit
-     */
-    struct timer_entry solicit_timer;
+    struct timer_entry t1_timer;
     struct timer_group timer_group;
     struct timespec start_time; // For Elapsed Time option
 
@@ -59,7 +51,8 @@ struct dhcp_client {
     void (*on_addr_del)(struct dhcp_client *client, const struct in6_addr *addr);
 };
 
-void dhcp_client_init(struct dhcp_client *client, const struct tun_ctx *tun, const uint8_t eui64[8]);
+void dhcp_client_init(struct dhcp_client *client, struct timer_ctxt *timer_ctx,
+                      const struct tun_ctx *tun, const uint8_t eui64[8]);
 void dhcp_client_start(struct dhcp_client *client);
 void dhcp_client_recv(struct dhcp_client *client);
 

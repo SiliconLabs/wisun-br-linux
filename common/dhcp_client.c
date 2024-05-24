@@ -55,9 +55,9 @@ static void dhcp_client_send(struct dhcp_client *client, struct iobuf_write *buf
     WARN_ON(ret < 0, "%s: xsendto: %m", __func__);
 }
 
-static void dhcp_client_solicit(struct timer_group *group, struct timer_entry *timer)
+static void dhcp_client_solicit(struct rfc8415_txalg *txalg)
 {
-    struct dhcp_client *client = container_of(group, struct dhcp_client, timer_group);
+    struct dhcp_client *client = container_of(txalg, struct dhcp_client, solicit_txalg);
     struct iobuf_write buf = { };
 
     iobuf_push_u8(&buf, DHCPV6_MSG_SOLICIT);
@@ -71,64 +71,13 @@ static void dhcp_client_solicit(struct timer_group *group, struct timer_entry *t
     dhcp_client_send(client, &buf);
 
     iobuf_free(&buf);
-
-    if (!client->solicit_count) {
-        /*
-         *   RFC3315 - Section 14
-         * RT for the first message transmission is based on IRT:
-         *   RT = IRT + RAND*IRT
-         */
-        client->rt_s = client->irt_s + dhcp_get_random(client->irt_s);
-    } else {
-        /*
-         *   RFC3315 - Section 14
-         * RT for each subsequent message transmission is based on the previous
-         * value of RT:
-         *   RT = 2*RTprev + RAND*RTprev
-         */
-        client->rt_s += client->rt_s + dhcp_get_random(client->rt_s);
-    }
-
-    client->solicit_count++;
-
-    /*
-     *   RFC3315 - Section 14
-     * MRT specifies an upper bound on the value of RT (disregarding the
-     * randomization added by the use of RAND). If MRT has a value of 0,
-     * there is no upper limit on the value of RT. Otherwise:
-     *   if (RT > MRT)
-     *     RT = MRT + RAND*MRT
-     */
-    if (client->mrt_s && client->rt_s > client->mrt_s)
-        client->rt_s = client->mrt_s + dhcp_get_random(client->mrt_s);
-
-    TRACE(TR_DHCP, "dhcp rt:%ds", client->rt_s);
-
-    timer_start_rel(group, timer, client->rt_s * 1000);
-}
-
-static void dhcp_client_start_solicit(struct dhcp_client *client)
-{
-    /*
-     *   RFC3315 - Section 17.1.2
-     * The first Solicit message from the client on the interface MUST be
-     * delayed by a random amount of time between 0 and SOL_MAX_DELAY.
-     */
-    client->rt_s = rand_get_random_in_range(0, client->md_s);
-    client->solicit_timer.callback = dhcp_client_solicit;
-    client->start_time.tv_nsec = 0;
-    client->start_time.tv_sec = 0;
-    client->solicit_count = 0;
-    client->tid = rand_get_24bit();
-    timer_start_rel(&client->timer_group, &client->solicit_timer, client->rt_s * 1000);
-    TRACE(TR_DHCP, "dhcp rt:%ds", client->rt_s);
 }
 
 static void dhcp_client_t1_expired(struct timer_group *group, struct timer_entry *timer)
 {
     struct dhcp_client *client = container_of(group, struct dhcp_client, timer_group);
 
-    dhcp_client_start_solicit(client);
+    rfc8415_txalg_start(&client->solicit_txalg);
 }
 
 static void dhcp_client_addr_expired(struct timer_group *group, struct timer_entry *timer)
@@ -245,8 +194,7 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
     if (dhcp_client_handle_iaaddr(client, iobuf_ptr(&opt_buf), iobuf_remaining_size(&opt_buf)))
         return;
 
-    timer_stop(&client->timer_group, &client->solicit_timer);
-    client->solicit_timer.callback = dhcp_client_t1_expired;
+    rfc8415_txalg_stop(&client->solicit_txalg);
 
     /*
      *   RFC3315 - Section 22.4
@@ -268,7 +216,7 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
      */
     if (opt_ia_na.t1_s != DHCPV6_LIFETIME_INFINITE) {
         TRACE(TR_DHCP, "dhcp ia_na t1:%ds", opt_ia_na.t1_s);
-        timer_start_rel(&client->timer_group, &client->solicit_timer, opt_ia_na.t1_s * 1000);
+        timer_start_rel(&client->timer_group, &client->t1_timer, opt_ia_na.t1_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp ia_na t1:infinite");
     }
@@ -323,7 +271,8 @@ void dhcp_client_recv(struct dhcp_client *client)
 
 void dhcp_client_stop(struct dhcp_client *client)
 {
-    timer_stop(&client->timer_group, &client->solicit_timer);
+    rfc8415_txalg_stop(&client->solicit_txalg);
+    timer_stop(&client->timer_group, &client->t1_timer);
     timer_stop(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
     dhcp_client_addr_expired(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
     client->running = false;
@@ -332,11 +281,14 @@ void dhcp_client_stop(struct dhcp_client *client)
 void dhcp_client_start(struct dhcp_client *client)
 {
     BUG_ON(client->running);
-    dhcp_client_start_solicit(client);
+    rfc8415_txalg_start(&client->solicit_txalg);
     client->running = true;
 }
 
-void dhcp_client_init(struct dhcp_client *client, const struct tun_ctx *tun, const uint8_t eui64[8])
+void dhcp_client_init(struct dhcp_client *client,
+                      struct timer_ctxt *timer_ctx,
+                      const struct tun_ctx *tun,
+                      const uint8_t eui64[8])
 {
     struct sockaddr_in6 sockaddr = {
         .sin6_family = AF_INET6,
@@ -356,4 +308,9 @@ void dhcp_client_init(struct dhcp_client *client, const struct tun_ctx *tun, con
         FATAL(1, "%s: setsockopt: %m", __func__);
     if (bind(client->fd, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
         FATAL(1, "%s: bind: %m", __func__);
+
+    client->t1_timer.callback = dhcp_client_t1_expired;
+    client->solicit_txalg.tx  = dhcp_client_solicit;
+    rfc8415_txalg_init(&client->solicit_txalg, timer_ctx);
+    timer_group_init(timer_ctx, &client->timer_group);
 }
