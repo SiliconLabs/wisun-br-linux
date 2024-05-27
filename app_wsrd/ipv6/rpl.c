@@ -16,6 +16,7 @@
 #include <netinet/in.h>
 
 #include "common/bits.h"
+#include "common/dbus.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/named_values.h"
@@ -150,9 +151,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
-    // TODO: handle DAO-ACK and retries
     // TODO: handle renewal after lifetime expiration
-    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     iobuf_free(&iobuf);
 }
 
@@ -311,6 +310,50 @@ drop_neigh:
         rpl_neigh_del(ipv6, nce);
 }
 
+static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
+                             const uint8_t *buf, size_t buf_len)
+{
+    const struct rpl_dao_ack_base *dao_ack;
+    struct ipv6_neigh *parent;
+    struct iobuf_read iobuf = {
+        .data_size = buf_len,
+        .data = buf,
+    };
+
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent) {
+        TRACE(TR_DROP, "drop rpl-%-9s: no preferred parent", "dao-ack");
+        return;
+    }
+
+    dao_ack = (struct rpl_dao_ack_base *)iobuf_pop_data_ptr(&iobuf, sizeof(*dao_ack));
+    if (!dao_ack) {
+        TRACE(TR_DROP, "drop rpl-%-9s: malformed packet", "dao-ack");
+        return;
+    }
+    if (dao_ack->instance_id != parent->rpl_neigh->dio_base.instance_id) {
+        TRACE(TR_DROP, "drop rpl-%-9s: InstanceID mismatch", "dao-ack");
+        return;
+    }
+    if (dao_ack->flags & RPL_MASK_DAO_ACK_D) {
+        TRACE(TR_DROP, "drop rpl-%-9s: unsupported DODAGID present", "dao-ack");
+        return;
+    }
+    if (!ipv6->rpl.dao_txalg.timer_rt.expire_ms || dao_ack->dao_seq != ipv6->rpl.dao_seq) {
+        TRACE(TR_DROP, "drop rpl-%-9s: unexpected DAOSequence", "dao-ack");
+        return;
+    }
+    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+    /*
+     * FIXME: Ensure that the current preferred parent has not changed between
+     * DAO send and DAO-ACK reception. This can be achieved by re-starting the
+     * DAO schedule with rpl_start_dao() on every parent change, and refuse
+     * DAO-ACKs for previously sent DAOs.
+     */
+    parent->rpl_neigh->dao_ack_received = true;
+    dbus_emit_change("PrimaryParent");
+}
+
 static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t size,
                               const struct in6_addr *src, const struct in6_addr *dst)
 {
@@ -331,6 +374,9 @@ static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t 
     switch (code) {
     case RPL_CODE_DIO:
         rpl_recv_dio(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
+        break;
+    case RPL_CODE_DAO_ACK:
+        rpl_recv_dao_ack(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code %u", "rpl", code);

@@ -39,6 +39,14 @@ struct rpl_dao_base {
     uint8_t dao_seq;
 } __attribute__((packed));
 
+// RFC 6550 Figure 17: The DAO ACK Base Object
+struct rpl_dao_ack_base {
+    uint8_t instance_id;
+    uint8_t flags;
+    uint8_t dao_seq;
+    uint8_t status;
+} __attribute__((packed));
+
 // RFC 6550 Figure 19: RPL Option Generic Format
 struct rpl_opt {
     uint8_t type;

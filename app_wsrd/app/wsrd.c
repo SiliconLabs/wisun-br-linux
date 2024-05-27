@@ -147,9 +147,6 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     wsrd->ws.ipv6.addr_uc_global = *addr;
     tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
     ipv6_nud_set_state(&wsrd->ws.ipv6, pref_parent, IPV6_NUD_PROBE);
-    // FIXME: set to true after DAO-ACK
-    pref_parent->rpl_neigh->dao_ack_received = true;
-    dbus_emit_change("PrimaryParent");
     // TODO: NS(ARO) error handling
 
     // HACK: Wait for GUA to be registered by Linux, otherwise it may send
