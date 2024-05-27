@@ -179,7 +179,6 @@ def json_errcheck(path):
 def wsbrd_set_join_metrics(jm_list, jm_version):
     if jm_list:
         jm_content = bytearray()
-        jm_version = (jm_version + 1) % 256
         jm_content.append(jm_version)
         for jm_id in jm_list:
             jm_len, jm_data = jm_list[jm_id]
@@ -621,6 +620,7 @@ def config_border_router_join_metrics():
         elif flask.request.method == 'DELETE':
             del jm_list_cpy[json_jm['metricId']]
     jm_list = jm_list_cpy
+    jm_version = (jm_version + 1) % 256
     # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
     if wsbrd.service.active_state == 'active':
         wsbrd_set_join_metrics(jm_list, jm_version)
