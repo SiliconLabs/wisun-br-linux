@@ -191,7 +191,7 @@ def wsbrd_set_join_metrics(jm_list, jm_version):
             WSTBU_IE_FORMAT_WP_SHORT,
             WS_WPIE_JM,
             bytes(jm_content),
-            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA])
+            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA, WS_FRAME_TYPE_DATA])
         )
     else:
         wsbrd.dbus().ie_custom_insert(
