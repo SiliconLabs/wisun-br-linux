@@ -358,6 +358,7 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
         case WS_FT_PA:
         case WS_FT_PC:
         case WS_FT_EAPOL:
+        case WS_FT_DATA:
         case WS_FT_LPA:
         case WS_FT_LPC:
             break;
