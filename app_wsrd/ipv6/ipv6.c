@@ -182,9 +182,7 @@ int ipv6_nxthop(struct ipv6_ctx *ipv6, const struct in6_addr *dst, const struct 
         return 0;
     }
 
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
-        if (IN6_ARE_ADDR_EQUAL(dst, &nce->ipv6_addr))
-            break;
+    nce = ipv6_neigh_get(ipv6, dst);
     if (nce) {
         *nxthop = &nce->ipv6_addr;
         return 0;
