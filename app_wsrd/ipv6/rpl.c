@@ -106,8 +106,9 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
 }
 
-void rpl_send_dao(struct ipv6_ctx *ipv6)
+static void rpl_send_dao(struct rfc8415_txalg *txalg)
 {
+    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
     struct iobuf_write iobuf = { };
     struct rpl_opt_transit transit;
     struct rpl_opt_target target;
@@ -125,7 +126,7 @@ void rpl_send_dao(struct ipv6_ctx *ipv6)
     dao_base.instance_id = parent->rpl_neigh->dio_base.instance_id;
     // The K flag MUST be set to 1.
     dao_base.flags |= RPL_MASK_DAO_K;
-    dao_base.dao_seq = 0; // TODO: handle DAOSequence
+    dao_base.dao_seq = ipv6->rpl.dao_seq;
     iobuf_push_data(&iobuf, &dao_base, sizeof(dao_base));
 
     // A RPL Target option MUST be included and populated for each GUA/ULA to
@@ -151,7 +152,15 @@ void rpl_send_dao(struct ipv6_ctx *ipv6)
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
     // TODO: handle DAO-ACK and retries
     // TODO: handle renewal after lifetime expiration
+    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     iobuf_free(&iobuf);
+}
+
+void rpl_start_dao(struct ipv6_ctx *ipv6)
+{
+    ipv6->rpl.dao_seq++;
+    rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
+    // TODO: Figure out what to do in case of DAO failure.
 }
 
 static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
@@ -366,10 +375,13 @@ void rpl_recv(struct ipv6_ctx *ipv6)
                       &src.sin6_addr, &pktinfo->ipi6_addr);
 }
 
-void rpl_start(struct ipv6_ctx *ipv6)
+void rpl_start(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx)
 {
     struct icmp6_filter filter;
     int err;
+
+    ipv6->rpl.dao_txalg.tx = rpl_send_dao;
+    rfc8415_txalg_init(&ipv6->rpl.dao_txalg, timer_ctx);
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(ipv6->rpl.fd < 0, 2, "%s: socket: %m", __func__);

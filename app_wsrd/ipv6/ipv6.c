@@ -55,7 +55,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
     if (!ipv6->probe_delay_ms)
         ipv6->probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
 
-    rpl_start(ipv6);
+    rpl_start(ipv6, timer_ctx);
 }
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)

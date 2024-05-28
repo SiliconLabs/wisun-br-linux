@@ -19,9 +19,11 @@
 #include <stdint.h>
 
 #include "app_wsrd/ipv6/rpl_pkt.h"
+#include "common/rfc8415_txalg.h"
 
 struct ipv6_ctx;
 struct ipv6_neigh;
+struct timer_ctxt;
 
 struct rpl_neigh {
     struct rpl_dio_base dio_base;
@@ -32,12 +34,15 @@ struct rpl_neigh {
 struct rpl_ctx {
     int fd;
 
+    struct rfc8415_txalg dao_txalg;
+    uint8_t dao_seq;
+
     void (*on_pref_parent_change)(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 };
 
-void rpl_start(struct ipv6_ctx *ipv6);
+void rpl_start(struct ipv6_ctx *ipv6, struct timer_ctxt *ctxt);
 void rpl_recv(struct ipv6_ctx *ipv6);
-void rpl_send_dao(struct ipv6_ctx *ipv6);
+void rpl_start_dao(struct ipv6_ctx *ipv6);
 
 void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);

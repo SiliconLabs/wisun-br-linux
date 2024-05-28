@@ -63,6 +63,14 @@ struct wsrd g_wsrd = {
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
+
+    // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
+    .ws.ipv6.rpl.dao_txalg.irt_s = 3,
+    .ws.ipv6.rpl.dao_txalg.mrc   = 3,
+    .ws.ipv6.rpl.dao_txalg.mrt_s = 0,
+    .ws.ipv6.rpl.dao_txalg.mrd_s = 0,
+    .ws.ipv6.rpl.dao_txalg.rand_min = -0.5,
+    .ws.ipv6.rpl.dao_txalg.rand_max =  0.0,
     .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
@@ -148,7 +156,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     // the DAO with a link-local address.
     usleep(100000);
 
-    rpl_send_dao(&wsrd->ws.ipv6);
+    rpl_start_dao(&wsrd->ws.ipv6);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr)
