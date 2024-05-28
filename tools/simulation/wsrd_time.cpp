@@ -20,6 +20,7 @@
 
 extern "C" {
 #include "common/log.h"
+#include "common/mathutils.h"
 }
 
 static ns3::EventImpl *g_timer_event = NULL;
@@ -44,6 +45,9 @@ extern "C" int __wrap_timerfd_settime(int fd, int flags,
                                       const struct itimerspec *it_new,
                                       struct itimerspec *it_old)
 {
+    ns3::Time t = ns3::Seconds(it_new->it_value.tv_sec) +
+                  ns3::NanoSeconds(it_new->it_value.tv_nsec);
+
     BUG_ON(flags != TFD_TIMER_ABSTIME);
     BUG_ON(it_old);
     BUG_ON(it_new->it_interval.tv_sec || it_new->it_interval.tv_nsec);
@@ -56,7 +60,7 @@ extern "C" int __wrap_timerfd_settime(int fd, int flags,
     g_timer_event = ns3::MakeEvent(wsrd_ns3_timer_trig, fd);
     ns3::Simulator::ScheduleWithContext(
         g_simulation_id,
-        ns3::NanoSeconds(it_new->it_value.tv_sec * 1000000000 + it_new->it_value.tv_nsec) - ns3::Now(),
+        MAX(t - ns3::Now(), ns3::Time(0)),
         g_timer_event
     );
     return 0;
