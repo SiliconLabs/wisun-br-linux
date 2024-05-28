@@ -405,8 +405,6 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     buffer_t *buf_6lowpan;
     uint8_t type;
 
-    if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
-        return;
     iobuf.data_size = xread(ctxt->tun_fd, buf, sizeof(buf));
     if (iobuf.data_size < 0) {
         WARN("%s: read: %m", __func__);
