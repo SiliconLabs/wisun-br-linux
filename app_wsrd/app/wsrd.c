@@ -188,9 +188,11 @@ static void wsrd_init_rcp(struct wsrd *wsrd)
 
     wsrd->rcp.bus.uart.init_phase = true;
     while (!wsrd->rcp.has_reset) {
-        ret = poll(&pfd, 1, 5000);
-        FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
-        WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
+        if (!wsrd->rcp.bus.uart.data_ready) {
+            ret = poll(&pfd, 1, 5000);
+            FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+            WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
+        }
         rcp_rx(&wsrd->rcp);
     }
     wsrd->rcp.bus.uart.init_phase = false;
