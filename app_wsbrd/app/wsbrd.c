@@ -32,6 +32,7 @@
 #include "common/rcp_api.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_pan_info_storage.h"
 #include "ws/ws_bootstrap.h"
@@ -461,7 +462,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_RCP].fd = ctxt->rcp.bus.fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
     ctxt->fds[POLLFD_TUN].fd = ctxt->tun.fd;
-    ctxt->fds[POLLFD_TUN].events = POLLIN;
+    ctxt->fds[POLLFD_TUN].events = 0;
     ctxt->fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
     ctxt->fds[POLLFD_EVENT].events = POLLIN;
     ctxt->fds[POLLFD_TIMER].fd = ctxt->timer_ctxt.fd;
@@ -486,6 +487,11 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
 {
     uint64_t val;
     int ret;
+
+    if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
+        ctxt->fds[POLLFD_TUN].events = 0;
+    else
+        ctxt->fds[POLLFD_TUN].events = POLLIN;
 
     if (ctxt->rcp.bus.uart.data_ready)
         ret = poll(ctxt->fds, POLLFD_COUNT, 0);
