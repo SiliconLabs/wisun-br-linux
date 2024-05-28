@@ -422,8 +422,6 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     const uint8_t *ipv6;
     uint8_t type;
 
-    if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
-        return;
     iobuf.data_size = read(ctxt->tun_fd, buf, sizeof(buf));
     if (iobuf.data_size < 0) {
         WARN("%s: read: %m", __func__);
