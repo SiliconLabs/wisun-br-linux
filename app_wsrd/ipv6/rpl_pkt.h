@@ -31,6 +31,14 @@ struct rpl_dio_base {
     struct in6_addr dodag_id;
 } __attribute__((packed));
 
+// RFC 6550 Figure 16: The DAO Base Object
+struct rpl_dao_base {
+    uint8_t instance_id;
+    uint8_t flags;
+    uint8_t reserved;
+    uint8_t dao_seq;
+} __attribute__((packed));
+
 // RFC 6550 Figure 19: RPL Option Generic Format
 struct rpl_opt {
     uint8_t type;
@@ -50,6 +58,22 @@ struct rpl_opt_config {
     uint8_t reserved;
     uint8_t lifetime_default;
     be16_t  lifetime_unit_s;
+} __attribute__((packed));
+
+// RFC 6550 Figure 25: Format of the RPL Target Option
+struct rpl_opt_target {
+    uint8_t flags;
+    uint8_t prefix_len;
+    struct in6_addr prefix;
+} __attribute__((packed));
+
+// RFC 6550 Figure 26: Format of the Transit Information Option
+struct rpl_opt_transit {
+    uint8_t flags;
+    uint8_t path_ctl;
+    uint8_t path_seq;
+    uint8_t path_lifetime;
+    struct in6_addr parent_addr;
 } __attribute__((packed));
 
 // RFC 6550 Figure 29: Format of the Prefix Information Option

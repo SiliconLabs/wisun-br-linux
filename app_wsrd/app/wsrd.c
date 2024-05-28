@@ -13,6 +13,7 @@
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "app_wsrd/app/commandline.h"
 #include "app_wsrd/ipv6/ipv6_addr.h"
@@ -135,6 +136,12 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     pref_parent->rpl_neigh->dao_ack_received = true;
     dbus_emit_change("PrimaryParent");
     // TODO: NS(ARO) error handling
+
+    // HACK: Wait for GUA to be registered by Linux, otherwise it may send
+    // the DAO with a link-local address.
+    usleep(100000);
+
+    rpl_send_dao(&wsrd->ws.ipv6);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr)

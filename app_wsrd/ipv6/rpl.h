@@ -37,6 +37,7 @@ struct rpl_ctx {
 
 void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
+void rpl_send_dao(struct ipv6_ctx *ipv6);
 
 void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);

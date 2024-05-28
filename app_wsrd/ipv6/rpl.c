@@ -68,6 +68,93 @@ struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
     return NULL;
 }
 
+static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,
+                         const void *data, uint8_t len)
+{
+    struct rpl_opt opt = {
+        .type = type,
+        .len  = len,
+    };
+
+    iobuf_push_data(iobuf, &opt, sizeof(opt));
+    iobuf_push_data(iobuf, data, len);
+}
+
+static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
+                     const uint8_t *buf, size_t buf_len,
+                     const struct in6_addr *dst)
+{
+    uint8_t icmpv6_hdr[4] = { ICMPV6_TYPE_RPL, code }; // Checksum filled by kernel
+    struct sockaddr_in6 addr = {
+        .sin6_family = AF_INET6,
+        .sin6_addr   = *dst,
+    };
+    struct iovec iov[2] = {
+        { .iov_base = icmpv6_hdr,  .iov_len = sizeof(icmpv6_hdr) },
+        { .iov_base = (void *)buf, .iov_len = buf_len            },
+    };
+    struct msghdr msg = {
+        .msg_name    = &addr,
+        .msg_namelen = sizeof(addr),
+        .msg_iov     = iov,
+        .msg_iovlen  = ARRAY_SIZE(iov),
+    };
+    ssize_t ret;
+
+    TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s", tr_icmp_rpl(code), tr_ipv6(dst->s6_addr));
+    ret = sendmsg(ipv6->rpl.fd, &msg, 0);
+    if (ret < sizeof(icmpv6_hdr) + buf_len)
+        WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
+}
+
+void rpl_send_dao(struct ipv6_ctx *ipv6)
+{
+    struct iobuf_write iobuf = { };
+    struct rpl_opt_transit transit;
+    struct rpl_opt_target target;
+    struct rpl_dao_base dao_base;
+    struct ipv6_neigh *parent;
+    struct in6_addr dodag_id;
+
+    parent = rpl_neigh_pref_parent(ipv6);
+    BUG_ON(!parent || !parent->rpl_neigh);
+    // Prevent GCC warning -Waddress-of-packed-member
+    dodag_id = parent->rpl_neigh->dio_base.dodag_id;
+
+    //   Wi-SUN FAN 1.1v08 6.2.3.1.6.4 Downward Route Formation
+    memset(&dao_base, 0, sizeof(dao_base));
+    dao_base.instance_id = parent->rpl_neigh->dio_base.instance_id;
+    // The K flag MUST be set to 1.
+    dao_base.flags |= RPL_MASK_DAO_K;
+    dao_base.dao_seq = 0; // TODO: handle DAOSequence
+    iobuf_push_data(&iobuf, &dao_base, sizeof(dao_base));
+
+    // A RPL Target option MUST be included and populated for each GUA/ULA to
+    // be advertised to the DODAG root.
+    memset(&target, 0, sizeof(target));
+    target.prefix_len = 128;
+    target.prefix     = ipv6->addr_uc_global;
+    rpl_opt_push(&iobuf, RPL_OPT_TARGET, &target, sizeof(target));
+
+    // A Transit Information Option MUST be included for each member of the
+    // parent set, populated with the parent's GUA/ULA. The Path Control field
+    // MUST be populated to correctly rank the priority of each Transit
+    // Information Option (i.e., the preferred parent is indicated as the
+    // single member of PC1, the first alternate parent set as the single
+    // member of PC2, etc.).
+    memset(&transit, 0, sizeof(transit));
+    transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
+    transit.path_seq      = 0;         // TODO: handle PathSequence
+    transit.path_lifetime = UINT8_MAX; // TODO: use default lifetime and renew DAO
+    transit.parent_addr   = parent->ipv6_addr;
+    rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
+
+    rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
+    // TODO: handle DAO-ACK and retries
+    // TODO: handle renewal after lifetime expiration
+    iobuf_free(&iobuf);
+}
+
 static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
                          const struct in6_addr *src)
 {
