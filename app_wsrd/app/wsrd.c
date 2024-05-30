@@ -295,6 +295,8 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_key(wsrd);
     dbus_register("/com/silabs/Wisun/Router", "com.silabs.Wisun.Router", wsrd_dbus_vtable, wsrd);
 
+    INFO("Wi-SUN Router successfully started");
+
     pfd[POLLFD_RCP].fd = wsrd->rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = wsrd->timer_ctx.fd;
