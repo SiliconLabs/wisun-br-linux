@@ -267,7 +267,10 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     }
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
-    ws->pan_version = pan_version;
+    if (ws->pan_version != pan_version) {
+        ws->pan_version = pan_version;
+        dbus_emit_change("PanVersion");
+    }
 
     neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
     if (!neigh)
