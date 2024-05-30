@@ -30,7 +30,7 @@ extern struct in6_addr ipv6_addr_all_mpl_fwd_realm;  // ff03::fc
 void ipv6_addr_conv_iid_eui64(uint8_t out[8], const uint8_t in[8]);
 
 bool ipv6_addr_has_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
-void ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
-void ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
+int ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
+int ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
 
 #endif

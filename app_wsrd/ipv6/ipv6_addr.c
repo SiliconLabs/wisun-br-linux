@@ -12,6 +12,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "common/log.h"
 #include "app_wsrd/ipv6/ipv6.h"
@@ -40,7 +41,7 @@ static int ipv6_addr_idx_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
     for (int i = 0; i < ipv6->addr_list_mc_len; i++)
         if (IN6_ARE_ADDR_EQUAL(addr, &ipv6->addr_list_mc[i]))
             return i;
-    return -1;
+    return -ENODEV;
 }
 
 bool ipv6_addr_has_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
@@ -48,12 +49,12 @@ bool ipv6_addr_has_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
     return ipv6_addr_idx_mc(ipv6, addr) >= 0;
 }
 
-void ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
+int ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 {
     int ret;
 
     if (ipv6_addr_has_mc(ipv6, addr))
-        return;
+        return -EEXIST;
 
     ipv6->addr_list_mc_len++;
     ipv6->addr_list_mc = realloc(ipv6->addr_list_mc,
@@ -63,15 +64,16 @@ void ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 
     ret = tun_addr_add_mc(&ipv6->tun, addr);
     WARN_ON(ret < 0, "tun_addr_add_mc %s %s", tr_ipv6(addr->s6_addr), strerror(-ret));
+    return ret;
 }
 
-void ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
+int ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 {
     int ret, i;
 
     i = ipv6_addr_idx_mc(ipv6, addr);
     if (i < 0)
-        return;
+        return i;
 
     memmove(ipv6->addr_list_mc + i,
             ipv6->addr_list_mc + i + 1,
@@ -80,4 +82,5 @@ void ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 
     ret = tun_addr_del_mc(&ipv6->tun, addr);
     WARN_ON(ret < 0, "tun_addr_del_mc %s %s", tr_ipv6(addr->s6_addr), strerror(-ret));
+    return ret;
 }
