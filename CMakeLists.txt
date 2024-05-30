@@ -305,6 +305,7 @@ add_library(libwsrd STATIC
     common/tun.c
     common/ws_chan_mask.c
     common/ws_ie.c
+    common/ws_keys.c
     common/ws_neigh.c
     common/ws_regdb.c
     version.c
