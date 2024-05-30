@@ -18,6 +18,7 @@
 
 #include "app_wsrd/app/commandline.h"
 #include "app_wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/app/dbus.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "app_wsrd/ws/ws.h"
 #include "common/bits.h"
@@ -27,6 +28,7 @@
 #include "common/rail_config.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
+#include "common/dbus.h"
 #include "wsrd.h"
 
 enum {
@@ -35,6 +37,7 @@ enum {
     POLLFD_TUN,
     POLLFD_RPL,
     POLLFD_DHCP,
+    POLLFD_DBUS,
     POLLFD_COUNT,
 };
 
@@ -309,6 +312,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
     wsrd_init_key(wsrd);
+    dbus_register("/com/silabs/Wisun/Router", "com.silabs.Wisun.Router", wsrd_dbus_vtable, wsrd);
 
     pfd[POLLFD_RCP].fd = wsrd->rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
@@ -320,6 +324,8 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_RPL].events = POLLIN;
     pfd[POLLFD_DHCP].fd = wsrd->dhcp.fd;
     pfd[POLLFD_DHCP].events = POLLIN;
+    pfd[POLLFD_DBUS].fd = dbus_get_fd();
+    pfd[POLLFD_DBUS].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, wsrd->rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -334,6 +340,8 @@ int wsrd_main(int argc, char *argv[])
             rpl_recv(&wsrd->ws.ipv6);
         if (pfd[POLLFD_DHCP].revents & POLLIN)
             dhcp_client_recv(&wsrd->dhcp);
+        if (pfd[POLLFD_DBUS].revents & POLLIN)
+            dbus_process();
     }
 
     return EXIT_SUCCESS;
