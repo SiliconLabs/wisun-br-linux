@@ -26,6 +26,7 @@ struct ipv6_neigh;
 struct rpl_neigh {
     struct rpl_dio_base dio_base;
     struct rpl_opt_config config;
+    bool dao_ack_received;
 };
 
 struct rpl_ctx {

@@ -131,6 +131,8 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     wsrd->ws.ipv6.addr_uc_global = *addr;
     tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
     ipv6_send_ns_aro(&wsrd->ws.ipv6, &pref_parent->ipv6_addr);
+    // FIXME: set to true after DAO-ACK
+    pref_parent->rpl_neigh->dao_ack_received = true;
     // TODO: NS(ARO) error handling
 }
 
