@@ -16,6 +16,14 @@
 
 #include "dbus.h"
 
+static int dbus_get_pan_id(sd_bus *bus, const char *path, const char *interface,
+                           const char *property, sd_bus_message *reply,
+                           void *userdata, sd_bus_error *ret_error)
+{
+    sd_bus_message_append_basic(reply, 'q', userdata);
+    return 0;
+}
+
 static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
                                const char *property, sd_bus_message *reply,
                                void *userdata, sd_bus_error *ret_error)
@@ -29,5 +37,6 @@ static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interf
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, rcp.eui64),      0),
+    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      0),
     SD_BUS_VTABLE_END,
 };
