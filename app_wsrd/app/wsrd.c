@@ -133,6 +133,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     ipv6_send_ns_aro(&wsrd->ws.ipv6, &pref_parent->ipv6_addr);
     // FIXME: set to true after DAO-ACK
     pref_parent->rpl_neigh->dao_ack_received = true;
+    dbus_emit_change("PrimaryParent");
     // TODO: NS(ARO) error handling
 }
 
