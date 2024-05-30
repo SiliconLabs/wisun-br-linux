@@ -12,9 +12,22 @@
  */
 #include <systemd/sd-bus.h>
 
+#include "app_wsrd/app/wsrd.h"
+
 #include "dbus.h"
+
+static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
+                               const char *property, sd_bus_message *reply,
+                               void *userdata, sd_bus_error *ret_error)
+{
+    uint8_t *hw_addr = userdata;
+
+    sd_bus_message_append_array(reply, 'y', hw_addr, 8);
+    return 0;
+}
 
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
+    SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, rcp.eui64),      0),
     SD_BUS_VTABLE_END,
 };
