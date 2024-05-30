@@ -59,6 +59,7 @@ struct wsrd g_wsrd = {
     .timer_ctx.fd = -1,
 
     .ws.pan_id = 0xffff,
+    .ws.pan_version = -1,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
 

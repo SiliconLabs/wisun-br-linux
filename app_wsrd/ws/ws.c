@@ -231,6 +231,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
+    uint16_t pan_version;
 
     if (ws->pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
@@ -255,7 +256,13 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     if (!ws_ie_validate_bs(ws, &ind->ie_wp, &ie_bs))
         return;
 
-    // TODO: PANVER-IE, GTKHASH-IE, LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
+    // TODO: GTKHASH-IE, LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
+    if (!ws_wp_nested_panver_read(ind->ie_wp.data, ind->ie_wp.data_size, &pan_version)) {
+        TRACE(TR_DROP, "drop %-9s: missing PANVER-IE", "15.4");
+        return;
+    }
+    // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
+    ws->pan_version = pan_version;
 
     neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
     if (!neigh)
