@@ -18,6 +18,7 @@
 #include "common/log.h"
 #include "common/mpx.h"
 #include "common/named_values.h"
+#include "common/dbus.h"
 #include "common/rcp_api.h"
 #include "common/ws_ie.h"
 #include "common/ws_regdb.h"
@@ -200,7 +201,10 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 
     // TODO: POM-IE
     // TODO: Select between several PANs
-    ws->pan_id = ind->hdr.pan_id;
+    if (ws->pan_id == 0xffff) {
+        ws->pan_id = ind->hdr.pan_id;
+        dbus_emit_change("PanId");
+    }
 }
 
 static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)

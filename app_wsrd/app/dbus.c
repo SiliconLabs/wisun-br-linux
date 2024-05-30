@@ -83,7 +83,7 @@ static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interf
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, rcp.eui64),      0),
-    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      0),
+    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     0),
     SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), 0),
     SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ws.ipv6),        0),
