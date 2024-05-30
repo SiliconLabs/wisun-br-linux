@@ -264,10 +264,9 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
 static void wsrd_init_key(struct wsrd *wsrd)
 {
-    static const uint8_t gtk[16] = { [0 ... 15] = 0x11 };
     uint8_t gak[16];
 
-    ws_generate_gak(wsrd->config.ws_netname, gtk, gak);
+    ws_generate_gak(wsrd->config.ws_netname, wsrd->config.ws_gtk, gak);
     DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), 1);
     rcp_set_sec_key(&wsrd->rcp, 1, gak, 0);
 }

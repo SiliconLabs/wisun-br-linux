@@ -36,6 +36,10 @@ struct wsrd_conf {
     int  ws_chan_spacing;
     int  ws_chan_count;
 
+    // FIXME: remove once supplicant available
+    uint8_t ws_gtk[16];
+    bool    ws_gtk_set;
+
     int  ws_uc_dwell_interval_ms;
 
     bool list_rf_configs;
