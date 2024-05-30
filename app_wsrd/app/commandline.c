@@ -175,6 +175,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->uart_dev[0] && config->cpc_instance[0])
         FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
+    if (config->list_rf_configs)
+        return;
     if (!config->ws_netname[0])
         FATAL(1, "missing \"network_name\" parameter");
     if (config->ws_chan0_freq || config->ws_chan_spacing || config->ws_chan_count) {
