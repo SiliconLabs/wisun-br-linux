@@ -522,12 +522,18 @@ install(FILES CHANGES.md README.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(FILES misc/com.silabs.Wisun.BorderRouter.service
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
+install(FILES misc/com.silabs.Wisun.Router.service
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
 # systemd does not document /usr/local/lib/systemd/system, but it seems to work
 install(FILES misc/wisun-borderrouter.service
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system)
+install(FILES misc/wisun-router.service
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system)
 # We try to avoid PATH hardcoding, but dbus does not watch
 # /usr/local/share/dbus-1/system.d
 install(FILES misc/com.silabs.Wisun.BorderRouter.conf
+    DESTINATION /etc/dbus-1/system.d)
+install(FILES misc/com.silabs.Wisun.Router.conf
     DESTINATION /etc/dbus-1/system.d)
 # FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
 # the code

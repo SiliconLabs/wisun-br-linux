@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0 or Apache-2.0
+
+[D-BUS Service]
+Name=com.silabs.Wisun.Router
+Exec=/bin/false
+User=root
+SystemdService=wisun-router.service
