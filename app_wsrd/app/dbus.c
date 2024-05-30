@@ -18,6 +18,20 @@
 
 #include "dbus.h"
 
+static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interface,
+                             const char *property, sd_bus_message *reply,
+                             void *userdata, sd_bus_error *ret_error)
+{
+    struct ipv6_ctx *ipv6 = userdata;
+    struct ipv6_neigh *preferred_parent = rpl_neigh_pref_parent(ipv6);
+
+    if (!preferred_parent)
+        return sd_bus_error_set_errno(ret_error, EAGAIN);
+    sd_bus_message_append_array(reply, 'y', preferred_parent->rpl_neigh->dio_base.dodag_id.s6_addr,
+                                sizeof(preferred_parent->rpl_neigh->dio_base.dodag_id.s6_addr));
+    return 0;
+}
+
 // Experimental property, will be removed in the future.
 // FIXME: drop once the 'Nodes' property is available.
 static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *interface,
@@ -87,5 +101,6 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ws.ipv6),        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("DodagId",       "ay",  dbus_get_dodag_id,       offsetof(struct wsrd, ws.ipv6),        0),
     SD_BUS_VTABLE_END,
 };
