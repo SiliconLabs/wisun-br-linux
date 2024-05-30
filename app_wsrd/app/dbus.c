@@ -11,11 +11,24 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <systemd/sd-bus.h>
+#include <errno.h>
 
 #include "common/ws_keys.h"
 #include "app_wsrd/app/wsrd.h"
 
 #include "dbus.h"
+
+static int dbus_get_pan_version(sd_bus *bus, const char *path, const char *interface,
+                                const char *property, sd_bus_message *reply,
+                                void *userdata, sd_bus_error *ret_error)
+{
+    int pan_version = *(int *)userdata;
+
+    if (pan_version < 0)
+        return sd_bus_error_set_errno(ret_error, EAGAIN);
+    sd_bus_message_append_basic(reply, 'q', userdata);
+    return 0;
+}
 
 static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
@@ -56,5 +69,6 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, rcp.eui64),      0),
     SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      0),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     0),
+    SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), 0),
     SD_BUS_VTABLE_END,
 };
