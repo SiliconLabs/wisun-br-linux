@@ -28,6 +28,7 @@
 #include "common/mathutils.h"
 #include "common/ws_neigh.h"
 #include "common/ws_regdb.h"
+#include "common/ws_keys.h"
 
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"
@@ -250,7 +251,7 @@ static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < key_cnt; i++) {
         // GAK is SHA256 of network name concatened with GTK
-        ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, net_if->ws_info.network_name);
+        ws_generate_gak(net_if->ws_info.network_name, gtks->gtk[i].key, gak);
         sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
     }
     sd_bus_message_close_container(reply);

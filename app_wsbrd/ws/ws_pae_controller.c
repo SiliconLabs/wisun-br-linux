@@ -34,6 +34,7 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/time_extra.h"
+#include "common/ws_keys.h"
 
 #include "net/ns_address.h"
 #include "net/timers.h"
@@ -380,10 +381,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
         tr_info("NW key set: %i, hash: %s", i + key_offset, trace_array(gtkhash, 8));
 
-        if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) < 0) {
-            tr_error("GAK generation failed network name: %s", controller->sec_keys_nw_info.network_name);
-            continue;
-        }
+        ws_generate_gak(controller->sec_keys_nw_info.network_name, gtk, gak);
 
         if (frame_counters->counter[i].set &&
             !memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN))
@@ -406,48 +404,6 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     }
 
     return ret;
-}
-
-int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, const uint8_t *gtk, const char *network_name)
-{
-    uint8_t network_name_len = strlen(network_name);
-    if (network_name_len == 0) {
-        return -1;
-    }
-
-    uint8_t input[network_name_len + GTK_LEN];
-    memcpy(input, network_name, network_name_len);
-    memcpy(input + network_name_len, gtk, GTK_LEN);
-
-    int8_t ret_val = 0;
-
-    mbedtls_sha256_context ctx;
-
-    mbedtls_sha256_init(&ctx);
-
-    if (mbedtls_sha256_starts_ret(&ctx, 0) != 0) {
-        ret_val = -1;
-        goto error;
-    }
-
-    if (mbedtls_sha256_update_ret(&ctx, input, network_name_len + GTK_LEN) != 0) {
-        ret_val = -1;
-        goto error;
-    }
-
-    uint8_t output[32];
-
-    if (mbedtls_sha256_finish_ret(&ctx, output) != 0) {
-        ret_val = -1;
-        goto error;
-    }
-
-    memcpy(gak, &output[0], 16);
-
-error:
-    mbedtls_sha256_free(&ctx);
-
-    return ret_val;
 }
 
 static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
@@ -693,7 +649,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
         if (gtks && gtks->gtk[i].set) {
             fprintf(info->file, "\n");
             sec_prot_keys_gtk_hash_generate(gtks->gtk[i].key, gtk_hash);
-            ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, sec_keys_nw_info->network_name);
+            ws_generate_gak(sec_keys_nw_info->network_name, gtks->gtk[i].key, gak);
             str_key(gtks->gtk[i].key, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "gtk[%d] = %s\n", i, str_buf);
             fprintf(info->file, "gtk[%d].lifetime = %llu\n", i, gtks->gtk[i].lifetime + current_time);
@@ -713,7 +669,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
         if (lgtks && lgtks->gtk[i].set) {
             fprintf(info->file, "\n");
             sec_prot_keys_gtk_hash_generate(lgtks->gtk[i].key, gtk_hash);
-            ws_pae_controller_gak_from_gtk(gak, lgtks->gtk[i].key, sec_keys_nw_info->network_name);
+            ws_generate_gak(sec_keys_nw_info->network_name, lgtks->gtk[i].key, gak);
             str_key(lgtks->gtk[i].key, GTK_LEN, str_buf, sizeof(str_buf));
             fprintf(info->file, "lgtk[%d] = %s\n", i, str_buf);
             fprintf(info->file, "lgtk[%d].lifetime = %llu\n", i, lgtks->gtk[i].lifetime + current_time);

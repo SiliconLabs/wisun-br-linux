@@ -329,8 +329,6 @@ void ws_pae_controller_fast_timer(int ticks);
  */
 void ws_pae_controller_slow_timer(int seconds);
 
-int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, const uint8_t *gtk, const char *network_name);
-
 sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn);
 
 void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);

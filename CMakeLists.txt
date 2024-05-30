@@ -167,6 +167,7 @@ add_library(libwsbrd STATIC
     common/timer.c
     common/tun.c
     common/ws_ie.c
+    common/ws_keys.c
     common/ws_neigh.c
     app_wsbrd/6lowpan/lowpan_adaptation_interface.c
     app_wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
