@@ -14,9 +14,50 @@
 #include <errno.h>
 
 #include "common/ws_keys.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
 #include "app_wsrd/app/wsrd.h"
 
 #include "dbus.h"
+
+static int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct ipv6_ctx *ipv6 = userdata;
+    const struct in6_addr *addr;
+    size_t len;
+    int ret;
+
+    sd_bus_message_read_array(m, 'y', (const void **)&addr, &len);
+    if (len != 16  || !IN6_IS_ADDR_MULTICAST(addr))
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ret = ipv6_addr_add_mc(ipv6, addr);
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return sd_bus_error_set_errno(ret_error, -ret);
+    }
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct ipv6_ctx *ipv6 = userdata;
+    const struct in6_addr *addr;
+    size_t len;
+    int ret;
+
+    sd_bus_message_read_array(m, 'y', (const void **)&addr, &len);
+    if (len != 16 || !IN6_IS_ADDR_MULTICAST(addr))
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ret = ipv6_addr_del_mc(ipv6, addr);
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return sd_bus_error_set_errno(ret_error, -ret);
+    }
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
 
 static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interface,
                              const char *property, sd_bus_message *reply,
@@ -96,6 +137,8 @@ static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interf
 
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
+    SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ws.ipv6), 0),
+    SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ws.ipv6), 0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, rcp.eui64),      0),
     SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
