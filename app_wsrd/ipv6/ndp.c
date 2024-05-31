@@ -45,7 +45,7 @@ static const char *tr_nud_state(int state)
     return val_to_str(state, table, "UNKNOWN");
 }
 
-void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global);
     struct nd_neighbor_solicit ns;
@@ -89,10 +89,11 @@ void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", has_gua ? "ns(aro)" : "ns", tr_ipv6(dst.s6_addr));
     ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
     // TODO: handle confirmation (ARO failure and link-layer ACK)
+    ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
     pktbuf_free(&pktbuf);
 }
 
-void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     // MAX_UNICAST_SOLICIT = 3
     if (neigh->nud_probe_count >= 3) {
@@ -102,7 +103,7 @@ void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
         // cease and the entry SHOULD be deleted.
         ipv6_neigh_del(ipv6, neigh);
     } else {
-        // TODO: send unicast NS
+        ipv6_send_ns(ipv6, neigh);
         neigh->nud_probe_count++;
         timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, ipv6->probe_delay_ms);
     }
