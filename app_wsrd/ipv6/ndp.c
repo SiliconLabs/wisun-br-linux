@@ -88,7 +88,7 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     neigh->nud_state = state;
     neigh->nud_probe_count = 0;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 set %s %s",
-          tr_ipv6(neigh->ipv6_addr.s6_addr), tr_nud_state(neigh->nud_state));
+          tr_ipv6(neigh->gua.s6_addr), tr_nud_state(neigh->nud_state));
     switch (state) {
     case IPV6_NUD_REACHABLE:
         // MIN_RANDOM_FACTOR = 0.5, MAX_RANDOM_FACTOR = 1.5
@@ -111,26 +111,26 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
 }
 
 struct ipv6_neigh *ipv6_neigh_get(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *ipv6_addr)
+                                  const struct in6_addr *gua)
 {
     struct ipv6_neigh *neigh;
 
     return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
-                      IN6_ARE_ADDR_EQUAL(&neigh->ipv6_addr, ipv6_addr));
+                      IN6_ARE_ADDR_EQUAL(&neigh->gua, gua));
 }
 
 struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *ipv6_addr,
+                                  const struct in6_addr *gua,
                                   const uint8_t eui64[64])
 {
     struct ipv6_neigh *neigh = zalloc(sizeof(*neigh));
 
     SLIST_INSERT_HEAD(&ipv6->neigh_cache, neigh, link);
-    neigh->ipv6_addr = *ipv6_addr;
+    neigh->gua = *gua;
     memcpy(neigh->eui64, eui64, 8);
     neigh->nud_timer.callback = ipv6_nud_expire;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
-          tr_ipv6(neigh->ipv6_addr.s6_addr), tr_eui64(neigh->eui64));
+          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
     return neigh;
 }
@@ -140,7 +140,7 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
     SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
-          tr_ipv6(neigh->ipv6_addr.s6_addr), tr_eui64(neigh->eui64));
+          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
     if (neigh->rpl_neigh)
         rpl_neigh_del(ipv6, neigh);
     free(neigh);

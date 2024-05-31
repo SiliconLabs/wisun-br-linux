@@ -84,8 +84,8 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
 
     if (!preferred_parent || !preferred_parent->rpl_neigh->dao_ack_received)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    sd_bus_message_append_array(reply, 'y', preferred_parent->ipv6_addr.s6_addr,
-                                sizeof(preferred_parent->ipv6_addr.s6_addr));
+    sd_bus_message_append_array(reply, 'y', preferred_parent->gua.s6_addr,
+                                sizeof(preferred_parent->gua.s6_addr));
     return 0;
 }
 

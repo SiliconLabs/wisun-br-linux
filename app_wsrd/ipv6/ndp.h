@@ -58,8 +58,8 @@ enum {
  * event is scheduled to take place.
  */
 struct ipv6_neigh {
-    uint8_t eui64[8];
-    struct in6_addr ipv6_addr;
+    uint8_t eui64[8];    // Link-layer address (EUI-64)
+    struct in6_addr gua; // Global Unicast Address (IPv6)
 
     int  nud_state;
     int  nud_probe_count;
@@ -74,9 +74,9 @@ struct ipv6_neigh {
 SLIST_HEAD(ipv6_neigh_cache, ipv6_neigh);
 
 struct ipv6_neigh *ipv6_neigh_get(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *ipv6_addr);
+                                  const struct in6_addr *gua);
 struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *ipv6_addr,
+                                  const struct in6_addr *gua,
                                   const uint8_t eui64[64]);
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 

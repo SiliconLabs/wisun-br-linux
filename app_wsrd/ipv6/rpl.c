@@ -19,6 +19,7 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/named_values.h"
+#include "common/netinet_in_extra.h"
 #include "common/seqno.h"
 #include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
@@ -48,12 +49,12 @@ void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     BUG_ON(nce->rpl_neigh);
     nce->rpl_neigh = zalloc(sizeof(struct rpl_neigh));
-    TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->ipv6_addr.s6_addr));
+    TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
 }
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
-    TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->ipv6_addr.s6_addr));
+    TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
     free(nce->rpl_neigh);
     nce->rpl_neigh = NULL;
 }
@@ -144,7 +145,7 @@ void rpl_send_dao(struct ipv6_ctx *ipv6)
     transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
     transit.path_seq      = 0;         // TODO: handle PathSequence
     transit.path_lifetime = UINT8_MAX; // TODO: use default lifetime and renew DAO
-    transit.parent_addr   = parent->ipv6_addr;
+    transit.parent_addr   = parent->gua;
     rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
@@ -274,7 +275,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     nce->rpl_neigh->config = *config;
     // TODO: timer for prefix lifetime
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
-          tr_ipv6(nce->ipv6_addr.s6_addr), ntohs(dio_base->rank));
+          tr_ipv6(nce->gua.s6_addr), ntohs(dio_base->rank));
 
     TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
           dio_base->instance_id, dio_base->dodag_verno,

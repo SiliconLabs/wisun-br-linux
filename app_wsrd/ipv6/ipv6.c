@@ -185,14 +185,14 @@ int ipv6_nxthop(struct ipv6_ctx *ipv6, const struct in6_addr *dst, const struct 
 
     nce = ipv6_neigh_get(ipv6, dst);
     if (nce) {
-        *nxthop = &nce->ipv6_addr;
+        *nxthop = &nce->gua;
         return 0;
     }
 
     // Default to preferred RPL parent.
     nce = rpl_neigh_pref_parent(ipv6);
     if (nce) {
-        *nxthop = &nce->ipv6_addr;
+        *nxthop = &nce->gua;
         return 0;
     }
 
@@ -220,7 +220,7 @@ void ipv6_addr_resolution(struct ipv6_ctx *ipv6, const struct in6_addr *nxthop, 
         return;
     }
 
-    nce = container_of(nxthop, struct ipv6_neigh, ipv6_addr);
+    nce = container_of(nxthop, struct ipv6_neigh, gua);
     memcpy(eui64, nce->eui64, 8);
 }
 
