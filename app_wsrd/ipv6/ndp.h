@@ -82,6 +82,6 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);
 
-void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
+void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 #endif
