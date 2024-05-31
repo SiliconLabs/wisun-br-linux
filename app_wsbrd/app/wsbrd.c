@@ -450,8 +450,14 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     WARN_ON(!ret, "RCP is not responding");
 
     ctxt->rcp.bus.uart.init_phase = true;
-    while (!ctxt->rcp.has_reset)
+    while (!ctxt->rcp.has_reset) {
+        if (!ctxt->rcp.bus.uart.data_ready) {
+            ret = poll(&pfd, 1, 5000);
+            FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+            WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
+        }
         rcp_rx(&ctxt->rcp);
+    }
     ctxt->rcp.bus.uart.init_phase = false;
 }
 
