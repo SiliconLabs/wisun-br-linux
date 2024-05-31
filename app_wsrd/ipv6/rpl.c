@@ -222,6 +222,10 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
                 TRACE(TR_DROP, "drop %-9s: unsupported prefix w/o router address", "rpl-dio");
                 goto drop_neigh;
             }
+            if (!IN6_IS_ADDR_UC_GLOBAL(&prefix->prefix)) {
+                TRACE(TR_DROP, "drop %-9s: unsupported non-global unicast prefix", "rpl-dio");
+                goto drop_neigh;
+            }
             break;
         default:
             TRACE(TR_IGNORE, "ignore: rpl-dio unsupported option %u", opt->type);
