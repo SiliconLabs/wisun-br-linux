@@ -270,15 +270,15 @@ target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_library(libwsrd STATIC
-    wsrd/app/commandline.c
-    wsrd/app/wsrd.c
-    wsrd/ipv6/6lowpan.c
-    wsrd/ipv6/6lowpan_iphc.c
-    wsrd/ipv6/ipv6.c
-    wsrd/ipv6/ipv6_addr.c
-    wsrd/ipv6/ndp.c
-    wsrd/ipv6/rpl.c
-    wsrd/ws/ws.c
+    app_wsrd/app/commandline.c
+    app_wsrd/app/wsrd.c
+    app_wsrd/ipv6/6lowpan.c
+    app_wsrd/ipv6/6lowpan_iphc.c
+    app_wsrd/ipv6/ipv6.c
+    app_wsrd/ipv6/ipv6_addr.c
+    app_wsrd/ipv6/ndp.c
+    app_wsrd/ipv6/rpl.c
+    app_wsrd/ws/ws.c
     common/bits.c
     common/bus_uart.c
     common/capture.c
@@ -325,7 +325,7 @@ if(LIBCPC_FOUND)
     target_link_libraries(libwsrd PUBLIC cpc)
 endif()
 
-add_executable(wsrd wsrd/app/main.c)
+add_executable(wsrd app_wsrd/app/main.c)
 add_dependencies(wsrd libwsrd)
 target_link_libraries(wsrd libwsrd)
 install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

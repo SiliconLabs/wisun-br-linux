@@ -18,7 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "wsrd/ipv6/rpl_pkt.h"
+#include "app_wsrd/ipv6/rpl_pkt.h"
 
 struct ipv6_ctx;
 struct ipv6_neigh;

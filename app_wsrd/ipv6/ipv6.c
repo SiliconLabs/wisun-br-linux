@@ -25,8 +25,8 @@
 #include "common/pktbuf.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
-#include "wsrd/ipv6/6lowpan.h"
-#include "wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ipv6/6lowpan.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
 
 void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8])

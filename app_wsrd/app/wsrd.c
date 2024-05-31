@@ -16,10 +16,10 @@
 
 #include <mbedtls/sha256.h>
 
-#include "wsrd/app/commandline.h"
-#include "wsrd/ipv6/ipv6_addr.h"
-#include "wsrd/ipv6/rpl.h"
-#include "wsrd/ws/ws.h"
+#include "app_wsrd/app/commandline.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ipv6/rpl.h"
+#include "app_wsrd/ws/ws.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"

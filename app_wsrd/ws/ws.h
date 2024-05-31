@@ -19,7 +19,7 @@
 #include "common/ws_ie.h"
 #include "common/ws_neigh.h"
 #include "common/ws_types.h"
-#include "wsrd/ipv6/ipv6.h"
+#include "app_wsrd/ipv6/ipv6.h"
 
 struct rcp_rx_ind;
 

@@ -19,10 +19,10 @@
 #include "common/pktbuf.h"
 #include "common/rand.h"
 #include "common/specs/icmpv6.h"
-#include "wsrd/ipv6/ipv6.h"
-#include "wsrd/ipv6/ndp.h"
-#include "wsrd/ipv6/ndp_pkt.h"
-#include "wsrd/ipv6/rpl.h"
+#include "app_wsrd/ipv6/ipv6.h"
+#include "app_wsrd/ipv6/ndp.h"
+#include "app_wsrd/ipv6/ndp_pkt.h"
+#include "app_wsrd/ipv6/rpl.h"
 
 #include "ndp.h"
 

@@ -14,10 +14,10 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/pktbuf.h"
-#include "wsrd/ipv6/6lowpan_iphc.h"
-#include "wsrd/ipv6/ipv6.h"
-#include "wsrd/ipv6/ipv6_addr.h"
-#include "wsrd/ws/ws.h"
+#include "app_wsrd/ipv6/6lowpan_iphc.h"
+#include "app_wsrd/ipv6/ipv6.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ws/ws.h"
 #include "6lowpan.h"
 
 void lowpan_recv(struct ipv6_ctx *ipv6,

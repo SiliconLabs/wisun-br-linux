@@ -24,7 +24,7 @@
 #include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
-#include "wsrd/app/wsrd.h"
+#include "app_wsrd/app/wsrd.h"
 #include "common/memutils.h"
 #include "common/log.h"
 #include "common/version.h"

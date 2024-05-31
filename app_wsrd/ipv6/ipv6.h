@@ -15,8 +15,8 @@
 
 #include <netinet/in.h>
 
-#include "wsrd/ipv6/ndp.h"
-#include "wsrd/ipv6/rpl.h"
+#include "app_wsrd/ipv6/ndp.h"
+#include "app_wsrd/ipv6/rpl.h"
 #include "common/timer.h"
 #include "common/tun.h"
 

@@ -13,8 +13,8 @@
 #ifndef WSRD_H
 #define WSRD_H
 
-#include "wsrd/app/commandline.h"
-#include "wsrd/ws/ws.h"
+#include "app_wsrd/app/commandline.h"
+#include "app_wsrd/ws/ws.h"
 #include "common/rcp_api.h"
 #include "common/timer.h"
 

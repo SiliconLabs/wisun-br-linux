@@ -24,7 +24,7 @@
 #include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/pktbuf.h"
-#include "wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
 
 #include "6lowpan_iphc.h"
 

@@ -1,4 +1,4 @@
-#include "wsrd/app/wsrd.h"
+#include "app_wsrd/app/wsrd.h"
 
 int main(int argc, char *argv[])
 {

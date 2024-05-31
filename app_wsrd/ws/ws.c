@@ -22,8 +22,8 @@
 #include "common/ws_ie.h"
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
-#include "wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
-#include "wsrd/ipv6/6lowpan.h"
+#include "app_wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
+#include "app_wsrd/ipv6/6lowpan.h"
 
 #include "ws.h"
 

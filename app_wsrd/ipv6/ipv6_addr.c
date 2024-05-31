@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "common/log.h"
-#include "wsrd/ipv6/ipv6.h"
+#include "app_wsrd/ipv6/ipv6.h"
 
 #include "ipv6_addr.h"
 
