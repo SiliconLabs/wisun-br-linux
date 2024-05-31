@@ -146,26 +146,27 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     free(neigh);
 }
 
-void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct in6_addr *dst)
+void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
-    struct nd_neighbor_solicit ns = {
-        .nd_ns_type   = ND_NEIGHBOR_SOLICIT,
-        .nd_ns_target = *dst,
-    };
-    struct ndp_opt_earo aro = {
-        .type = NDP_OPT_ARO,
-        .len  = sizeof(aro) / 8,
-        .lifetime_minutes = UINT16_MAX,
-    };
+    struct nd_neighbor_solicit ns;
     struct pktbuf pktbuf = { };
+    struct ndp_opt_earo aro;
 
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global));
 
+    memset(&ns, 0, sizeof(ns));
+    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns.nd_ns_target = neigh->gua;
     pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+
+    memset(&aro, 0, sizeof(aro));
+    aro.type = NDP_OPT_ARO;
+    aro.len  = sizeof(aro) / 8;
+    aro.lifetime_minutes = UINT16_MAX;
     memcpy(aro.eui64, ipv6->eui64, 8);
     pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
 
-    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, dst, IPPROTO_ICMPV6,
+    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, &neigh->gua, IPPROTO_ICMPV6,
                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
@@ -173,8 +174,8 @@ void ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct in6_addr *dst)
     //   RFC 6775 4.1. Address Registration Option
     // [...] the address that is to be registered MUST be the IPv6 source
     // address of the NS message.
-    TRACE(TR_ICMP, "tx-icmp ns(aro) dst=%s", tr_ipv6(dst->s6_addr));
-    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &ipv6->addr_uc_global, dst);
+    TRACE(TR_ICMP, "tx-icmp ns(aro) dst=%s", tr_ipv6(neigh->gua.s6_addr));
+    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &ipv6->addr_uc_global, &neigh->gua);
     // TODO: handle confirmation (ARO failure and link-layer ACK)
     pktbuf_free(&pktbuf);
 }

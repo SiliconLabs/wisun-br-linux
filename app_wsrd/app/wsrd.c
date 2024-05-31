@@ -132,7 +132,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     // TODO: set prefix len to 128, and add default route instead
     wsrd->ws.ipv6.addr_uc_global = *addr;
     tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
-    ipv6_send_ns_aro(&wsrd->ws.ipv6, &pref_parent->gua);
+    ipv6_send_ns_aro(&wsrd->ws.ipv6, pref_parent);
     // FIXME: set to true after DAO-ACK
     pref_parent->rpl_neigh->dao_ack_received = true;
     dbus_emit_change("PrimaryParent");
