@@ -21,6 +21,7 @@
 #include "common/named_values.h"
 #include "common/seqno.h"
 #include "common/string_extra.h"
+#include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
 #include "common/specs/icmpv6.h"
@@ -62,10 +63,7 @@ struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *nce;
 
     // TODO: proper parent selection, currently this returns the 1st in cache
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
-        if (nce->rpl_neigh)
-            return nce;
-    return NULL;
+    return SLIST_FIND(nce, &ipv6->neigh_cache, link, nce->rpl_neigh);
 }
 
 static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,

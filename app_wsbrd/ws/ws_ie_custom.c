@@ -55,11 +55,7 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
         return -EINVAL;
     }
 
-    SLIST_FOREACH(ie, list, link)
-        if (ie->ie_type == type &&
-            ie->ie_id   == id)
-            break;
-
+    ie = SLIST_FIND(ie, list, link, ie->ie_type == type && ie->ie_id == id);
     if (ie) {
         iobuf_free(&ie->buf);
         if (!frame_type_mask) {

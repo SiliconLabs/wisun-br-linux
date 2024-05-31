@@ -80,11 +80,8 @@ struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64
 {
     struct ws_neigh *neigh;
 
-    SLIST_FOREACH(neigh, &table->neigh_list, link)
-        if (!memcmp(neigh->mac64, mac64, 8))
-            return neigh;
-
-    return NULL;
+    return SLIST_FIND(neigh, &table->neigh_list, link,
+                      !memcmp(neigh->mac64, mac64, 8));
 }
 
 void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)

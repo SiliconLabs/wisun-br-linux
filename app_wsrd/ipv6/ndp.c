@@ -18,6 +18,7 @@
 #include "common/named_values.h"
 #include "common/pktbuf.h"
 #include "common/rand.h"
+#include "common/sys_queue_extra.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ndp.h"
 #include "app_wsrd/ipv6/ipv6.h"
@@ -114,10 +115,8 @@ struct ipv6_neigh *ipv6_neigh_get(struct ipv6_ctx *ipv6,
 {
     struct ipv6_neigh *neigh;
 
-    SLIST_FOREACH(neigh, &ipv6->neigh_cache, link)
-        if (IN6_ARE_ADDR_EQUAL(&neigh->ipv6_addr, ipv6_addr))
-            return neigh;
-    return NULL;
+    return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
+                      IN6_ARE_ADDR_EQUAL(&neigh->ipv6_addr, ipv6_addr));
 }
 
 struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,

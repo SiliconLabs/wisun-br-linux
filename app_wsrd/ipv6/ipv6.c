@@ -24,6 +24,7 @@
 #include "common/memutils.h"
 #include "common/netinet_in_extra.h"
 #include "common/pktbuf.h"
+#include "common/sys_queue_extra.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "app_wsrd/ipv6/6lowpan.h"

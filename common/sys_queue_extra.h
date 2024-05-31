@@ -29,6 +29,13 @@
     _e;                                               \
 })
 
+#define SLIST_FIND(var, head, field, cond) ({         \
+    SLIST_FOREACH(var, head, field)                   \
+        if (cond)                                     \
+            break;                                    \
+    var;                                              \
+})
+
 #define SLIST_SIZE(head, field) ({                    \
     typeof(SLIST_FIRST(head)) _e;                     \
     size_t _c = 0;                                    \

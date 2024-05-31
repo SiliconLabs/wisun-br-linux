@@ -68,10 +68,8 @@ struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16
 {
     struct rpl_target *target;
 
-    SLIST_FOREACH(target, &root->targets, link)
-        if (!memcmp(target->prefix, prefix, 16))
-            return target;
-    return NULL;
+    return SLIST_FIND(target, &root->targets, link,
+                      !memcmp(target->prefix, prefix, 16));
 }
 
 static void rpl_transit_expire(struct timer_group *group, struct timer_entry *timer);
