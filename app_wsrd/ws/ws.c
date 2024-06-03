@@ -38,6 +38,7 @@ struct ws_ind {
     struct iobuf_read ie_hdr;
     struct iobuf_read ie_wp;
     struct iobuf_read ie_mpx;
+    struct ws_neigh *neigh;
 };
 
 static const struct name_value ws_frames[] = {
@@ -172,7 +173,6 @@ static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp
 
 void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 {
-    struct ws_neigh *neigh;
     struct ws_utt_ie ie_utt;
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
@@ -193,15 +193,8 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
         return;
 
-    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
-    if (!neigh)
-        // TODO: TX power (APC)
-        // TODO: active key indices
-        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
-    else
-        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
-    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
     // TODO: Select between several PANs
@@ -235,7 +228,6 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
 {
     uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
     struct chan_params chan_params;
-    struct ws_neigh *neigh;
     struct ws_utt_ie ie_utt;
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
@@ -276,15 +268,10 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
         dbus_emit_change("PanVersion");
     }
 
-    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
-    if (!neigh)
-        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
-    else
-        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
-    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
-    ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: only update on BS-IE change, or parent change
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
@@ -298,13 +285,12 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
                         ind->hif->timestamp_us,
                         ie_bt.broadcast_slot_number,
                         ie_bt.broadcast_interval_offset,
-                        neigh->mac64,
-                        neigh->frame_counter_min);
+                        ind->neigh->mac64,
+                        ind->neigh->frame_counter_min);
 }
 
 void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
 {
-    struct ws_neigh *neigh;
     struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
@@ -329,19 +315,13 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     }
 
-    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
-    if (!neigh)
-        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
-    else
-        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
-
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
 
     if (ws_ie_validate_us(ws, &ind->ie_wp, &ie_us)) {
-        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
-        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
 
     lowpan_recv(&ws->ipv6,
@@ -397,6 +377,13 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
                                IEEE802154_IE_ID_WP, &ind.ie_wp);
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
                                IEEE802154_IE_ID_MPX, &ind.ie_mpx);
+
+    ind.neigh = ws_neigh_get(&ws->neigh_table, ind.hdr.src);
+    if (!ind.neigh)
+        // TODO: TX power (APC), active key indices
+        ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
+    else
+        ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
 
     ws_print_ind(&ind, ie_utt.message_type);
 
