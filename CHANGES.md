@@ -1,3 +1,12 @@
+v1.9.1
+------
+  - Fix high CPU usage during intense traffic: packet queues being full caused
+    a busy wait in the main loop.
+  - Fix potential crash at boot on unexpected RCP indication due to race
+    condition between RCP reset and reception of a frame on the radio.
+  - Fix incorrect received signal power when using MAC address filtering.
+  - Fix some build warnings.
+
 v1.9
 ------
   - Support RCP API version 2.0 (released with GSDK 4.4.1):
