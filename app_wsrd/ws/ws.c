@@ -384,6 +384,11 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
         ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
+    ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
+                                                         hif_ind->rx_power_dbm);
+    if (ind.hdr.key_index)
+        ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
+                                                   hif_ind->rx_power_dbm);
 
     ws_print_ind(&ind, ie_utt.message_type);
 
