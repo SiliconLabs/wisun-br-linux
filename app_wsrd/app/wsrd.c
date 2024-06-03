@@ -25,6 +25,7 @@
 #include "common/memutils.h"
 #include "common/ws_keys.h"
 #include "common/pktbuf.h"
+#include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
@@ -240,7 +241,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
         wsrd->ws.fhss.chan_plan = wsrd->config.ws_chan_plan_id ? 2 : 0;
     }
     wsrd->ws.fhss.uc_dwell_interval = wsrd->config.ws_uc_dwell_interval_ms;
-    memset(wsrd->ws.fhss.uc_chan_mask, 0xff, sizeof(wsrd->ws.fhss.uc_chan_mask));
+    memcpy(wsrd->ws.fhss.uc_chan_mask, wsrd->config.ws_allowed_channels, sizeof(wsrd->ws.fhss.uc_chan_mask));
 
     for (rail_config = wsrd->rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
         if (rail_config->rail_phy_mode_id == wsrd->ws.phy.params->rail_phy_mode_id   &&
@@ -253,6 +254,9 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     rcp_set_radio(&wsrd->rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, false);
 
     ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
+    bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
+    if (!memzcmp(chan_mask, sizeof(chan_mask)))
+        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
     rcp_set_fhss_uc(&wsrd->rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
     rcp_set_fhss_async(&wsrd->rcp, 500, chan_mask);
 

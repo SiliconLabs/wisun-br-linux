@@ -92,6 +92,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
+        { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
@@ -117,6 +118,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
     config->color_output = -1;
+    memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':

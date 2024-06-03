@@ -16,6 +16,7 @@
 #include <limits.h>
 #include <stdbool.h>
 
+#include "common/ws_chan_mask.h"
 #include "common/ws_ie.h"
 
 // This struct is filled by parse_commandline() and never modified after.
@@ -35,6 +36,7 @@ struct wsrd_conf {
     int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;
+    uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
 
     // FIXME: remove once supplicant available
     uint8_t ws_gtk[16];
