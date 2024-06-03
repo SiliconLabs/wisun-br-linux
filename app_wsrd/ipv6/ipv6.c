@@ -162,7 +162,9 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
  * this implementation. Also this implementation does not use a destination
  * cache, next-hop determination is thus always performed.
  */
-int ipv6_nxthop(struct ipv6_ctx *ipv6, const struct in6_addr *dst, const struct in6_addr **nxthop)
+static int ipv6_nxthop(struct ipv6_ctx *ipv6,
+                       const struct in6_addr *dst,
+                       const struct in6_addr **nxthop)
 {
     struct ipv6_neigh *nce;
 
@@ -200,7 +202,9 @@ int ipv6_nxthop(struct ipv6_ctx *ipv6, const struct in6_addr *dst, const struct 
     return -ENETUNREACH;
 }
 
-void ipv6_addr_resolution(struct ipv6_ctx *ipv6, const struct in6_addr *nxthop, uint8_t eui64[64])
+static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
+                                 const struct in6_addr *nxthop,
+                                 uint8_t eui64[8])
 {
     struct ipv6_neigh *nce;
 
