@@ -36,21 +36,3 @@ bool ws_common_is_valid_nr(uint8_t node_role)
     }
     return false;
 }
-
-// Wi-SUN FAN 1.1v07 - 3.1 Definitions
-// Exponentially Weighted Moving Average (EWMA).
-//
-// Given a sequence of values X (t=0, 1, 2, 3, …), EWMA(t) is
-// defined as S(X(t)) + (1-S)(EWMA(t-1)).
-//
-// … where …
-//
-// Smoothing Factor 0 < S < 1
-// EWMA (0) = X(0).
-float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm)
-{
-    if (isnan(rsl_dbm))
-        return rx_power_dbm;
-    else
-        return (rx_power_dbm + 7 * rsl_dbm) / 8;
-}

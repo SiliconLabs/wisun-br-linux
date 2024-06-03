@@ -473,3 +473,20 @@ void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint
     timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
 }
+
+/*
+ *   Wi-SUN FAN 1.1v08 3.1 Definitions
+ * Exponentially Weighted Moving Average
+ *
+ *   Wi-SUN FAN 1.1v08 6.2.1 Constants
+ * ETX_EWMA_SF    ETX EWMA Smoothing Factor   1/8
+ * RSL_EWMA_SF    RSL EWMA Smoothing Factor   1/8
+ */
+float ws_neigh_ewma_next(float cur, float val)
+{
+    // EWMA(0) = X(0)
+    if (isnan(cur))
+        return val;
+    // EWMA(t) = S(X(t)) + (1-S)(EWMA(t-1))
+    return (val + 7 * cur) / 8;
+}

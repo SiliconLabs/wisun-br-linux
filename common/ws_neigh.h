@@ -180,4 +180,6 @@ void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
 void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s);
 
+float ws_neigh_ewma_next(float cur, float val);
+
 #endif

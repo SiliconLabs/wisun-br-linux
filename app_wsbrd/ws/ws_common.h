@@ -75,6 +75,4 @@ typedef struct ws_info {
 
 bool ws_common_is_valid_nr(uint8_t node_role);
 
-float ws_common_rsl_calc(float rsl_dbm, int rx_power_dbm);
-
 #endif //WS_COMMON_H_
