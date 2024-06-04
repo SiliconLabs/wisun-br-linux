@@ -45,6 +45,53 @@ static const char *tr_nud_state(int state)
     return val_to_str(state, table, "UNKNOWN");
 }
 
+void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global);
+    struct nd_neighbor_solicit ns;
+    struct pktbuf pktbuf = { };
+    struct in6_addr src, dst;
+    struct ndp_opt_earo aro;
+
+    if (has_gua) {
+        //   RFC 6775 4.1. Address Registration Option
+        // [...] the address that is to be registered MUST be the IPv6 source
+        // address of the NS message.
+        src = ipv6->addr_uc_global;
+        dst = neigh->gua;
+    } else {
+        src = ipv6_prefix_linklocal;
+        ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64);
+        dst = ipv6_prefix_linklocal;
+        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64);
+    }
+
+    memset(&ns, 0, sizeof(ns));
+    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns.nd_ns_target = dst;
+    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+
+    // TODO: Figure out how NUD works with children.
+    if (has_gua) {
+        memset(&aro, 0, sizeof(aro));
+        aro.type = NDP_OPT_ARO;
+        aro.len  = sizeof(aro) / 8;
+        aro.lifetime_minutes = UINT16_MAX;
+        memcpy(aro.eui64, ipv6->eui64, 8);
+        pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
+    }
+
+    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, &neigh->gua, IPPROTO_ICMPV6,
+                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
+           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", has_gua ? "ns(aro)" : "ns", tr_ipv6(dst.s6_addr));
+    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    // TODO: handle confirmation (ARO failure and link-layer ACK)
+    pktbuf_free(&pktbuf);
+}
+
 void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     // MAX_UNICAST_SOLICIT = 3
@@ -145,51 +192,4 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     if (neigh->rpl_neigh)
         rpl_neigh_del(ipv6, neigh);
     free(neigh);
-}
-
-void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
-{
-    const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global);
-    struct nd_neighbor_solicit ns;
-    struct pktbuf pktbuf = { };
-    struct in6_addr src, dst;
-    struct ndp_opt_earo aro;
-
-    if (has_gua) {
-        //   RFC 6775 4.1. Address Registration Option
-        // [...] the address that is to be registered MUST be the IPv6 source
-        // address of the NS message.
-        src = ipv6->addr_uc_global;
-        dst = neigh->gua;
-    } else {
-        src = ipv6_prefix_linklocal;
-        ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64);
-        dst = ipv6_prefix_linklocal;
-        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64);
-    }
-
-    memset(&ns, 0, sizeof(ns));
-    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
-    ns.nd_ns_target = dst;
-    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
-
-    // TODO: Figure out how NUD works with children.
-    if (has_gua) {
-        memset(&aro, 0, sizeof(aro));
-        aro.type = NDP_OPT_ARO;
-        aro.len  = sizeof(aro) / 8;
-        aro.lifetime_minutes = UINT16_MAX;
-        memcpy(aro.eui64, ipv6->eui64, 8);
-        pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
-    }
-
-    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, &neigh->gua, IPPROTO_ICMPV6,
-                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
-    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
-           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
-
-    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", has_gua ? "ns(aro)" : "ns", tr_ipv6(dst.s6_addr));
-    ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
-    // TODO: handle confirmation (ARO failure and link-layer ACK)
-    pktbuf_free(&pktbuf);
 }
