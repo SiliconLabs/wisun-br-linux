@@ -293,7 +293,10 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
                         ie_bs.broadcast_interval,
                         ie_bs.broadcast_schedule_identifier,
                         ie_bs.dwell_interval,
-                        bc_chan_mask);
+                        bc_chan_mask,
+                        ind->hif->timestamp_us,
+                        ie_bt.broadcast_slot_number,
+                        ie_bt.broadcast_interval_offset);
 }
 
 void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)

@@ -398,7 +398,10 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
                          uint24_t interval_ms,
                          uint16_t bsi,
                          uint8_t  dwell_interval_ms,
-                         const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+                         const uint8_t chan_mask[WS_CHAN_MASK_LEN],
+                         uint64_t rx_timestamp_us,
+                         uint16_t slot,
+                         uint32_t interval_offset_ms)
 {
     int fixed_channel = ws_chan_mask_get_fixed(chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -424,6 +427,13 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
         BUG("unsupported channel function");
         break;
     }
+
+    if (rx_timestamp_us && !version_older_than(rcp->version_api, 2, 3, 0)) {
+        hif_push_u64(&buf, rx_timestamp_us);
+        hif_push_u16(&buf, slot);
+        hif_push_u32(&buf, interval_offset_ms);
+    }
+
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
 }
