@@ -289,6 +289,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     // TODO: only update on BS-IE change, or parent change
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
     ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
+    // TODO: use parent address and frame counters only
     rcp_set_fhss_ffn_bc(&g_wsrd.rcp,
                         ie_bs.broadcast_interval,
                         ie_bs.broadcast_schedule_identifier,
@@ -296,7 +297,9 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
                         bc_chan_mask,
                         ind->hif->timestamp_us,
                         ie_bt.broadcast_slot_number,
-                        ie_bt.broadcast_interval_offset);
+                        ie_bt.broadcast_interval_offset,
+                        neigh->mac64,
+                        neigh->frame_counter_min);
 }
 
 void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)

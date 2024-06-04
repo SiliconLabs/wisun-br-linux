@@ -74,7 +74,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                         fhss->bsi,
                         fhss->bc_dwell_interval,
                         fhss->bc_chan_mask,
-                        0, 0, 0);
+                        0, 0, 0, NULL, NULL);
     // FIXME: Some parameters are shared with FFN broadcast
     rcp_set_fhss_lfn_bc(cur->rcp,
                         fhss->lfn_bc_interval,

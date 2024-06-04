@@ -109,7 +109,9 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
                          const uint8_t chan_mask[WS_CHAN_MASK_LEN],
                          uint64_t rx_timestamp_us,
                          uint16_t slot,
-                         uint32_t interval_offset_ms);
+                         uint32_t interval_offset_ms,
+                         const uint8_t eui64[8],
+                         const uint32_t frame_counter_min[4]);
 void rcp_set_fhss_lfn_bc(struct rcp *rcp,
                          uint24_t interval_ms,
                          uint16_t bsi,

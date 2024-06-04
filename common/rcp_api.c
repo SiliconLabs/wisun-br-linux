@@ -401,7 +401,9 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
                          const uint8_t chan_mask[WS_CHAN_MASK_LEN],
                          uint64_t rx_timestamp_us,
                          uint16_t slot,
-                         uint32_t interval_offset_ms)
+                         uint32_t interval_offset_ms,
+                         const uint8_t eui64[8],
+                         const uint32_t frame_counter_min[4])
 {
     int fixed_channel = ws_chan_mask_get_fixed(chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
@@ -432,6 +434,10 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
         hif_push_u64(&buf, rx_timestamp_us);
         hif_push_u16(&buf, slot);
         hif_push_u32(&buf, interval_offset_ms);
+        if (eui64) {
+            hif_push_fixed_u8_array(&buf, eui64, 8);
+            hif_push_fixed_u32_array(&buf, frame_counter_min, 4); // Only 4 GTK counters
+        }
     }
 
     rcp_tx(rcp, &buf);
