@@ -177,29 +177,22 @@ def json_errcheck(path):
 
 # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
 def wsbrd_set_join_metrics(jm_list, jm_version):
-    if jm_list:
-        jm_content = bytearray()
-        jm_content.append(jm_version)
-        for jm_id in jm_list:
-            jm_len, jm_data = jm_list[jm_id]
-            jm_content.append(
-                utils.field_prep(WS_MASK_JM_ID,  jm_id) |
-                utils.field_prep(WS_MASK_JM_LEN, jm_len)
-            )
-            jm_content.extend(jm_data)
-        wsbrd.dbus().ie_custom_insert(
-            WSTBU_IE_FORMAT_WP_SHORT,
-            WS_WPIE_JM,
-            bytes(jm_content),
-            bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA, WS_FRAME_TYPE_DATA])
+    jm_content = bytearray()
+    jm_content.append(jm_version)
+    # NOTE: JM-IE can be inserted with no metric included
+    for jm_id in jm_list:
+        jm_len, jm_data = jm_list[jm_id]
+        jm_content.append(
+            utils.field_prep(WS_MASK_JM_ID,  jm_id) |
+            utils.field_prep(WS_MASK_JM_LEN, jm_len)
         )
-    else:
-        wsbrd.dbus().ie_custom_insert(
-            WSTBU_IE_FORMAT_WP_SHORT,
-            WS_WPIE_JM,
-            bytes(),
-            bytes()
-        )
+        jm_content.extend(jm_data)
+    wsbrd.dbus().ie_custom_insert(
+        WSTBU_IE_FORMAT_WP_SHORT,
+        WS_WPIE_JM,
+        bytes(jm_content),
+        bytes([WS_FRAME_TYPE_PA, WS_FRAME_TYPE_LPA, WS_FRAME_TYPE_DATA])
+    )
 
 
 @dbus_errcheck
