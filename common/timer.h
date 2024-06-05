@@ -20,9 +20,8 @@
  * Timer module backed by a single timerfd. A sorted list of timers is
  * maintained and the timerfd is always set to expire at the shortest timeout.
  *
- * The module is initialized by calling timer_ctxt_init(), and updated by
- * calling timer_ctxt_process() when timer_ctxt.fd is ready, which is typically
- * queried using select() or poll().
+ * Timer updates occur by calling timer_process() when the timer_fd() is ready,
+ * which is typically queried using select() or poll().
  *
  * To use a timer, set timer.callback and call one of the timer_start_xxx()
  * functions. Timer structures are typically included as a member of a bigger
@@ -45,17 +44,8 @@
 SLIST_HEAD(timer_list, timer_entry);
 
 struct timer_group {
-    struct timer_ctxt *ctxt;
     struct timer_list timers;
     SLIST_ENTRY(timer_group) link;
-};
-
-// Declare struct timer_group_list
-SLIST_HEAD(timer_group_list, timer_group);
-
-struct timer_ctxt {
-    int fd;
-    struct timer_group_list groups;
 };
 
 struct timer_entry {
@@ -67,14 +57,14 @@ struct timer_entry {
     SLIST_ENTRY(timer_entry) link;
 };
 
-// Should be called once at the start of the program before anything else.
-void timer_ctxt_init(struct timer_ctxt *ctxt);
+// File descriptor indicating when a timer event is ready to be processed.
+int timer_fd(void);
 
-// Should be called when ctxt->fd is ready.
-void timer_ctxt_process(struct timer_ctxt *ctxt);
+// Should be called when timer_fd() is ready.
+void timer_process(void);
 
 // Should be called once per project submodule to register a new timer group.
-void timer_group_init(struct timer_ctxt *ctxt, struct timer_group *group);
+void timer_group_init(struct timer_group *group);
 
 // Start a timer using an absolute monotonic time.
 void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint64_t expire_ms);

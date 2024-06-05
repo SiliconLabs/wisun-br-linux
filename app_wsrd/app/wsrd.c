@@ -58,8 +58,6 @@ struct wsrd g_wsrd = {
     .rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
     .rcp.on_tx_cnf = wsrd_on_rcp_tx_cnf,
 
-    .timer_ctx.fd = -1,
-
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
@@ -278,9 +276,9 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 {
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
-    timer_group_init(&wsrd->timer_ctx, &wsrd->ws.neigh_table.timer_group);
-    ipv6_init(&wsrd->ws.ipv6, &wsrd->timer_ctx, wsrd->rcp.eui64);
-    dhcp_client_init(&wsrd->dhcp, &wsrd->timer_ctx, &wsrd->ws.ipv6.tun, wsrd->rcp.eui64);
+    timer_group_init(&wsrd->ws.neigh_table.timer_group);
+    ipv6_init(&wsrd->ws.ipv6, wsrd->rcp.eui64);
+    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->rcp.eui64);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
@@ -310,8 +308,6 @@ int wsrd_main(int argc, char *argv[])
     if (wsrd->config.color_output != -1)
         g_enable_color_traces = wsrd->config.color_output;
 
-    timer_ctxt_init(&wsrd->timer_ctx);
-
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
@@ -322,7 +318,7 @@ int wsrd_main(int argc, char *argv[])
 
     pfd[POLLFD_RCP].fd = wsrd->rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
-    pfd[POLLFD_TIMER].fd = wsrd->timer_ctx.fd;
+    pfd[POLLFD_TIMER].fd = timer_fd();
     pfd[POLLFD_TIMER].events = POLLIN;
     pfd[POLLFD_TUN].fd = wsrd->ws.ipv6.tun.fd;
     pfd[POLLFD_TUN].events = POLLIN;
@@ -339,7 +335,7 @@ int wsrd_main(int argc, char *argv[])
             pfd[POLLFD_RCP].revents & POLLIN)
             rcp_rx(&wsrd->rcp);
         if (pfd[POLLFD_TIMER].revents & POLLIN)
-            timer_ctxt_process(&wsrd->timer_ctx);
+            timer_process();
         if (pfd[POLLFD_TUN].revents & POLLIN)
             ipv6_recvfrom_tun(&wsrd->ws.ipv6);
         if (pfd[POLLFD_RPL].revents & POLLIN)

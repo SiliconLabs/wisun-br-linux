@@ -421,13 +421,13 @@ void rpl_recv(struct ipv6_ctx *ipv6)
                       &src.sin6_addr, &pktinfo->ipi6_addr);
 }
 
-void rpl_start(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx)
+void rpl_start(struct ipv6_ctx *ipv6)
 {
     struct icmp6_filter filter;
     int err;
 
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
-    rfc8415_txalg_init(&ipv6->rpl.dao_txalg, timer_ctx);
+    rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(ipv6->rpl.fd < 0, 2, "%s: socket: %m", __func__);

@@ -286,7 +286,6 @@ void dhcp_client_start(struct dhcp_client *client)
 }
 
 void dhcp_client_init(struct dhcp_client *client,
-                      struct timer_ctxt *timer_ctx,
                       const struct tun_ctx *tun,
                       const uint8_t eui64[8])
 {
@@ -311,6 +310,6 @@ void dhcp_client_init(struct dhcp_client *client,
 
     client->t1_timer.callback = dhcp_client_t1_expired;
     client->solicit_txalg.tx  = dhcp_client_solicit;
-    rfc8415_txalg_init(&client->solicit_txalg, timer_ctx);
-    timer_group_init(timer_ctx, &client->timer_group);
+    rfc8415_txalg_init(&client->solicit_txalg);
+    timer_group_init(&client->timer_group);
 }

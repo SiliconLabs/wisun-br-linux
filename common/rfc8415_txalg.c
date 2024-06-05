@@ -104,12 +104,12 @@ static void rfc8415_txalg_timeout_mrd(struct timer_group *group, struct timer_en
     rfc8415_txalg_fail(txalg);
 }
 
-void rfc8415_txalg_init(struct rfc8415_txalg *txalg, struct timer_ctxt *timer_ctxt)
+void rfc8415_txalg_init(struct rfc8415_txalg *txalg)
 {
     BUG_ON(!txalg->tx);
     BUG_ON(txalg->rand_min >= txalg->rand_max);
 
-    timer_group_init(timer_ctxt, &txalg->timer_group);
+    timer_group_init(&txalg->timer_group);
     txalg->timer_delay.callback = rfc8415_txalg_timeout_delay;
     txalg->timer_rt.callback    = rfc8415_txalg_timeout_rt;
     txalg->timer_mrd.callback   = rfc8415_txalg_timeout_mrd;

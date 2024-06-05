@@ -31,7 +31,7 @@
 #include "app_wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
 
-void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_t eui64[8])
+void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 {
     BUG_ON(!ipv6->sendto_mac);
 
@@ -43,7 +43,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
     ipv6_addr_conv_iid_eui64(ipv6->addr_linklocal.s6_addr + 8, eui64);
     tun_addr_add(&ipv6->tun, &ipv6->addr_linklocal, 64);
 
-    timer_group_init(timer_ctx, &ipv6->timer_group);
+    timer_group_init(&ipv6->timer_group);
 
     // FIXME: BaseReachableTime and RetransTimer can be overritten by Router
     // Advertisements in normal NDP, but Wi-SUN disables RAs without providing
@@ -55,7 +55,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, struct timer_ctxt *timer_ctx, const uint8_
     if (!ipv6->probe_delay_ms)
         ipv6->probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
 
-    rpl_start(ipv6, timer_ctx);
+    rpl_start(ipv6);
 }
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)

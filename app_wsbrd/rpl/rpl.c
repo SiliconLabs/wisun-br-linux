@@ -700,8 +700,7 @@ void rpl_recv(struct rpl_root *root)
 }
 
 void rpl_start(struct rpl_root *root,
-               const char ifname[IF_NAMESIZE],
-               struct timer_ctxt *timer_ctxt)
+               const char ifname[IF_NAMESIZE])
 {
     struct trickle_params dio_trickle_params;
     struct icmp6_filter filter;
@@ -735,7 +734,7 @@ void rpl_start(struct rpl_root *root,
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
     trickle_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
-    timer_group_init(timer_ctxt, &root->timer_group);
+    timer_group_init(&root->timer_group);
     ws_timer_start(WS_TIMER_RPL);
 
     rpl_storage_store_config(root);

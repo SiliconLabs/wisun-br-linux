@@ -24,7 +24,6 @@ struct wsrd {
     struct rcp rcp;
     struct ws_ctx ws;
     struct dhcp_client dhcp;
-    struct timer_ctxt timer_ctx;
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.

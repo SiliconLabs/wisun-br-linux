@@ -51,8 +51,9 @@ struct dhcp_client {
     void (*on_addr_del)(struct dhcp_client *client, const struct in6_addr *addr);
 };
 
-void dhcp_client_init(struct dhcp_client *client, struct timer_ctxt *timer_ctx,
-                      const struct tun_ctx *tun, const uint8_t eui64[8]);
+void dhcp_client_init(struct dhcp_client *client,
+                      const struct tun_ctx *tun,
+                      const uint8_t eui64[8]);
 void dhcp_client_start(struct dhcp_client *client);
 void dhcp_client_recv(struct dhcp_client *client);
 

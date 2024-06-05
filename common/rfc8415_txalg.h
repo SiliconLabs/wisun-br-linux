@@ -44,7 +44,7 @@ struct rfc8415_txalg {
     void (*fail)(struct rfc8415_txalg *txalg);
 };
 
-void rfc8415_txalg_init(struct rfc8415_txalg *txalg, struct timer_ctxt *timer_ctxt);
+void rfc8415_txalg_init(struct rfc8415_txalg *txalg);
 
 void rfc8415_txalg_start(struct rfc8415_txalg *txalg);
 void rfc8415_txalg_stop(struct rfc8415_txalg *txalg);

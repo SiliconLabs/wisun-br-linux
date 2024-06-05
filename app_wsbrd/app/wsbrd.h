@@ -53,7 +53,6 @@ enum {
 
 struct wsbr_ctxt {
     struct pollfd fds[POLLFD_COUNT];
-    struct timer_ctxt timer_ctxt;
     struct events_scheduler scheduler;
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;

@@ -23,6 +23,28 @@
 
 #include "timer.h"
 
+// Declare struct timer_group_list
+SLIST_HEAD(timer_group_list, timer_group);
+
+struct timer_ctxt {
+    int fd;
+    struct timer_group_list groups;
+} g_timer_ctxt = {
+    .fd = -1,
+};
+
+static struct timer_ctxt *timer_ctxt(void)
+{
+    struct timer_ctxt *ctxt = &g_timer_ctxt;
+
+    if (ctxt->fd >= 0)
+        return ctxt;
+    ctxt->fd = timerfd_create(CLOCK_MONOTONIC, 0);
+    FATAL_ON(ctxt->fd < 0, 2, "timerfd_create: %m");
+    SLIST_INIT(&ctxt->groups);
+    return ctxt;
+}
+
 static uint64_t timer_now_ms(void)
 {
     struct timespec now;
@@ -33,14 +55,14 @@ static uint64_t timer_now_ms(void)
     return now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
-void timer_ctxt_init(struct timer_ctxt *ctxt)
+int timer_fd(void)
 {
-    SLIST_INIT(&ctxt->groups);
-    ctxt->fd = timerfd_create(CLOCK_MONOTONIC, 0);
-    FATAL_ON(ctxt->fd < 0, 2, "timerfd_create: %m");
+    struct timer_ctxt *ctxt = timer_ctxt();
+
+    return ctxt->fd;
 }
 
-static void timer_ctxt_schedule(struct timer_ctxt *ctxt)
+static void timer_schedule(struct timer_ctxt *ctxt)
 {
     uint64_t expire_ms = UINT64_MAX;
     struct itimerspec itp = { };
@@ -59,12 +81,13 @@ static void timer_ctxt_schedule(struct timer_ctxt *ctxt)
         return;
     itp.it_value.tv_sec = expire_ms / 1000;
     itp.it_value.tv_nsec = (expire_ms % 1000) * 1000000;
-    ret = timerfd_settime(ctxt->fd, TFD_TIMER_ABSTIME, &itp, NULL);
+    ret = timerfd_settime(timer_fd(), TFD_TIMER_ABSTIME, &itp, NULL);
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
-void timer_ctxt_process(struct timer_ctxt *ctxt)
+void timer_process(void)
 {
+    struct timer_ctxt *ctxt = timer_ctxt();
     uint64_t now_ms = timer_now_ms();
     struct timer_entry *timer, *tmp;
     struct timer_list trig_list;
@@ -97,18 +120,20 @@ void timer_ctxt_process(struct timer_ctxt *ctxt)
             }
         }
     }
-    timer_ctxt_schedule(ctxt);
+    timer_schedule(ctxt);
 }
 
-void timer_group_init(struct timer_ctxt *ctxt, struct timer_group *group)
+void timer_group_init(struct timer_group *group)
 {
-    group->ctxt = ctxt;
+    struct timer_ctxt *ctxt = timer_ctxt();
+
     SLIST_INIT(&group->timers);
     SLIST_INSERT_HEAD(&ctxt->groups, group, link);
 }
 
 void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint64_t expire_ms)
 {
+    struct timer_ctxt *ctxt = timer_ctxt();
     struct timer_entry *cur, *prev;
 
     timer_stop(group, timer);
@@ -124,7 +149,7 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
         SLIST_INSERT_AFTER(prev, timer, link);
     } else {
         SLIST_INSERT_HEAD(&group->timers, timer, link);
-        timer_ctxt_schedule(group->ctxt);
+        timer_schedule(ctxt);
     }
 }
 
@@ -135,6 +160,7 @@ void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint6
 
 void timer_stop(struct timer_group *group, struct timer_entry *timer)
 {
+    struct timer_ctxt *ctxt = timer_ctxt();
     bool reschedule;
 
     if (!timer->expire_ms)
@@ -143,5 +169,5 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
     SLIST_REMOVE(&group->timers, timer, timer_entry, link);
     timer->expire_ms = 0;
     if (reschedule)
-        timer_ctxt_schedule(group->ctxt);
+        timer_schedule(ctxt);
 }

@@ -40,7 +40,7 @@ struct rpl_ctx {
     void (*on_pref_parent_change)(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 };
 
-void rpl_start(struct ipv6_ctx *ipv6, struct timer_ctxt *ctxt);
+void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 

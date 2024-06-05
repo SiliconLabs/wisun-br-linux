@@ -49,7 +49,6 @@ void timer_cb_rand(struct timer_group *group, struct timer_entry *timer)
 
 int main()
 {
-    struct timer_ctxt ctxt = { };
     struct module mod = {
         .delay_ms = 1,
     };
@@ -72,11 +71,10 @@ int main()
 
     srand(0);
 
-    timer_ctxt_init(&ctxt);
-    pfd.fd = ctxt.fd;
+    pfd.fd = timer_fd();
     pfd.events = POLLIN;
 
-    timer_group_init(&ctxt, &mod.timer_group);
+    timer_group_init(&mod.timer_group);
 
     timer_start_rel(&mod.timer_group, &timer_500ms, timer_500ms.period_ms);
     timer_start_rel(&mod.timer_group, &timer_666ms, timer_666ms.period_ms);
@@ -87,6 +85,6 @@ int main()
         ret = poll(&pfd, 1, -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
         if (pfd.revents & POLLIN)
-            timer_ctxt_process(&ctxt);
+            timer_process();
     }
 }

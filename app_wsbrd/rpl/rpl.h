@@ -129,8 +129,7 @@ struct rpl_root {
 extern const uint8_t rpl_all_nodes[16]; // ff02::1a
 
 void rpl_start(struct rpl_root *root,
-               const char ifname[IF_NAMESIZE],
-               struct timer_ctxt *timer_ctxt);
+               const char ifname[IF_NAMESIZE]);
 void rpl_recv(struct rpl_root *root);
 void rpl_timer(int ticks);
 
