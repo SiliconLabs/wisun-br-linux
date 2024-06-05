@@ -1,3 +1,19 @@
+v2.1.1
+------
+  - Fix high CPU usage during intense traffic: packet queues being full caused
+    a busy wait in the main loop.
+  - Fix `wshwping`:
+    * Fix incorrect frame format for parsing RCPv2 ping confirmations.
+    * Flush transmission queues on process interruption (`^C` no longer causes
+      a freeze at the next program start).
+    * Fix invalid and/or missing HIF traces for RCPv2.
+  - Fix JM-IE inclusion for TBU:
+    * Correctly update the content version number.
+    * Include the JM-IE in data frames for when PA transmissions are disabled
+      by the trickle algorithm.
+    * Insert JM-IE with no metrics instead of it being absent, otherwise
+      neighbors do not observe a new content version.
+
 v2.1
 ------
   - Support separate PTK/PMK lifetimes between FFN and LFN.
