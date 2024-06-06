@@ -76,10 +76,10 @@ int main()
 
     timer_group_init(&mod.timer_group);
 
-    timer_start_rel(&mod.timer_group, &timer_500ms, timer_500ms.period_ms);
-    timer_start_rel(&mod.timer_group, &timer_666ms, timer_666ms.period_ms);
-    timer_start_rel(&mod.timer_group, &timer_exp,   0);
-    timer_start_rel(&mod.timer_group, &timer_rand,  0);
+    timer_start_rel(NULL, &timer_500ms, timer_500ms.period_ms);
+    timer_start_rel(NULL, &timer_666ms, timer_666ms.period_ms);
+    timer_start_rel(&mod.timer_group, &timer_exp, 0);
+    timer_start_rel(NULL, &timer_rand, 0);
 
     while (1) {
         ret = poll(&pfd, 1, -1);

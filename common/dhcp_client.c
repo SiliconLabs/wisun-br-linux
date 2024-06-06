@@ -75,7 +75,7 @@ static void dhcp_client_solicit(struct rfc8415_txalg *txalg)
 
 static void dhcp_client_t1_expired(struct timer_group *group, struct timer_entry *timer)
 {
-    struct dhcp_client *client = container_of(group, struct dhcp_client, timer_group);
+    struct dhcp_client *client = container_of(timer, struct dhcp_client, t1_timer);
 
     rfc8415_txalg_start(&client->solicit_txalg);
 }
@@ -131,8 +131,8 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     if (!opt_iaaddr.valid_lifetime_s) {
         if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
             IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &opt_iaaddr.ipv6)) {
-            timer_stop(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
-            dhcp_client_addr_expired(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
+            timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
+            dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
         }
         return -EINVAL;
     }
@@ -145,11 +145,11 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      */
     if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
         !IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &opt_iaaddr.ipv6)) {
-        timer_stop(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
-        dhcp_client_addr_expired(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
+        timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
+        dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
     }
 
-    timer_stop(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
+    timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
 
     client->iaaddr.ipv6 = opt_iaaddr.ipv6;
     client->iaaddr.valid_lifetime_s = opt_iaaddr.valid_lifetime_s;
@@ -158,7 +158,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     if (client->iaaddr.valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:%ds", tr_ipv6(client->iaaddr.ipv6.s6_addr),
               client->iaaddr.valid_lifetime_s);
-        timer_start_rel(&client->timer_group, &client->iaaddr.valid_lifetime_timer,
+        timer_start_rel(NULL, &client->iaaddr.valid_lifetime_timer,
                         client->iaaddr.valid_lifetime_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
@@ -216,7 +216,7 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
      */
     if (opt_ia_na.t1_s != DHCPV6_LIFETIME_INFINITE) {
         TRACE(TR_DHCP, "dhcp ia_na t1:%ds", opt_ia_na.t1_s);
-        timer_start_rel(&client->timer_group, &client->t1_timer, opt_ia_na.t1_s * 1000);
+        timer_start_rel(NULL, &client->t1_timer, opt_ia_na.t1_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp ia_na t1:infinite");
     }
@@ -272,9 +272,9 @@ void dhcp_client_recv(struct dhcp_client *client)
 void dhcp_client_stop(struct dhcp_client *client)
 {
     rfc8415_txalg_stop(&client->solicit_txalg);
-    timer_stop(&client->timer_group, &client->t1_timer);
-    timer_stop(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
-    dhcp_client_addr_expired(&client->timer_group, &client->iaaddr.valid_lifetime_timer);
+    timer_stop(NULL, &client->t1_timer);
+    timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
+    dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
     client->running = false;
 }
 
@@ -311,5 +311,4 @@ void dhcp_client_init(struct dhcp_client *client,
     client->t1_timer.callback = dhcp_client_t1_expired;
     client->solicit_txalg.tx  = dhcp_client_solicit;
     rfc8415_txalg_init(&client->solicit_txalg);
-    timer_group_init(&client->timer_group);
 }

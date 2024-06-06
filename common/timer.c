@@ -29,6 +29,7 @@ SLIST_HEAD(timer_group_list, timer_group);
 struct timer_ctxt {
     int fd;
     struct timer_group_list groups;
+    struct timer_group group_default;
 } g_timer_ctxt = {
     .fd = -1,
 };
@@ -42,6 +43,7 @@ static struct timer_ctxt *timer_ctxt(void)
     ctxt->fd = timerfd_create(CLOCK_MONOTONIC, 0);
     FATAL_ON(ctxt->fd < 0, 2, "timerfd_create: %m");
     SLIST_INIT(&ctxt->groups);
+    timer_group_init(&ctxt->group_default);
     return ctxt;
 }
 
@@ -112,7 +114,7 @@ void timer_process(void)
             expire_ms = timer->expire_ms;
             timer->expire_ms = 0;
             if (timer->callback)
-                timer->callback(group, timer);
+                timer->callback(group == &ctxt->group_default ? NULL : group, timer);
             if (timer->period_ms) {
                 if (expire_ms + timer->period_ms < now_ms)
                     WARN("periodic timer overrun");
@@ -138,6 +140,8 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
 
     timer_stop(group, timer);
 
+    if (!group)
+        group = &ctxt->group_default;
     prev = NULL;
     SLIST_FOREACH(cur, &group->timers, link) {
         if (expire_ms <= cur->expire_ms)
@@ -165,6 +169,8 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
 
     if (!timer->expire_ms)
         return;
+    if (!group)
+        group = &ctxt->group_default;
     reschedule = (timer == SLIST_FIRST(&group->timers));
     SLIST_REMOVE(&group->timers, timer, timer_entry, link);
     timer->expire_ms = 0;

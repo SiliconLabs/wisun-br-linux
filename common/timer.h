@@ -34,6 +34,8 @@
  * of entries with each their own timer. To handle this issue, modules must
  * register themselves with timer_group_init(), which allows to retrieve module
  * context using container_of() on the struct timer_group from the callback.
+ * A default timer group can be used by passing group as NULL for modules that
+ * do not need this feature.
  *
  * Periodic timers can be implemented by explicitly calling timer_start_rel()
  * from the callback function, but for convenience timer.period_ms provides an

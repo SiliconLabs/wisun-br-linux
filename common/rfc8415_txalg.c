@@ -109,7 +109,6 @@ void rfc8415_txalg_init(struct rfc8415_txalg *txalg)
     BUG_ON(!txalg->tx);
     BUG_ON(txalg->rand_min >= txalg->rand_max);
 
-    timer_group_init(&txalg->timer_group);
     txalg->timer_delay.callback = rfc8415_txalg_timeout_delay;
     txalg->timer_rt.callback    = rfc8415_txalg_timeout_rt;
     txalg->timer_mrd.callback   = rfc8415_txalg_timeout_mrd;
@@ -126,16 +125,16 @@ void rfc8415_txalg_start(struct rfc8415_txalg *txalg)
      * NOTE: This module allows an initial delay for any packet type.
      */
     if (txalg->max_delay_s)
-        timer_start_rel(&txalg->timer_group, &txalg->timer_delay,
+        timer_start_rel(NULL, &txalg->timer_delay,
                         1000 * randf_range(0, txalg->max_delay_s));
     else
-        rfc8415_txalg_timeout_delay(&txalg->timer_group, &txalg->timer_delay);
+        rfc8415_txalg_timeout_delay(NULL, &txalg->timer_delay);
 }
 
 void rfc8415_txalg_stop(struct rfc8415_txalg *txalg)
 {
     txalg->c = 0;
-    timer_stop(&txalg->timer_group, &txalg->timer_delay);
-    timer_stop(&txalg->timer_group, &txalg->timer_rt);
-    timer_stop(&txalg->timer_group, &txalg->timer_mrd);
+    timer_stop(NULL, &txalg->timer_delay);
+    timer_stop(NULL, &txalg->timer_rt);
+    timer_stop(NULL, &txalg->timer_mrd);
 }

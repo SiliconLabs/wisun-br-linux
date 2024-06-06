@@ -35,7 +35,6 @@ struct rfc8415_txalg {
     float rt_s; // Retry Timeout (seconds)
     int c;      // Transmission Count
 
-    struct timer_group timer_group;
     struct timer_entry timer_delay;
     struct timer_entry timer_rt;
     struct timer_entry timer_mrd;

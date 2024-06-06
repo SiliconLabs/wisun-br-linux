@@ -43,7 +43,6 @@ struct dhcp_client {
     struct dhcp_iaaddr iaaddr;
 
     struct timer_entry t1_timer;
-    struct timer_group timer_group;
     struct timespec start_time; // For Elapsed Time option
 
     struct in6_addr (*get_dst)(struct dhcp_client *client);
