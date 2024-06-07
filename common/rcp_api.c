@@ -430,7 +430,8 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
         break;
     }
 
-    if (rx_timestamp_us && !version_older_than(rcp->version_api, 2, 3, 0)) {
+    if (rx_timestamp_us) {
+        BUG_ON(version_older_than(rcp->version_api, 2, 3, 0));
         hif_push_u64(&buf, rx_timestamp_us);
         hif_push_u16(&buf, slot);
         hif_push_u32(&buf, interval_offset_ms);
