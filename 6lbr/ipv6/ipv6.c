@@ -598,6 +598,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         buf->options.flow_label = ipv6_flow_label_tunnel(iphdr + IPV6_HDROFF_SRC_ADDR,
                                                          iphdr + IPV6_HDROFF_DST_ADDR,
                                                          flow);
+        buf->options.hop_limit = buf->interface->cur_hop_limit;
         buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6);
         return buf;
     }
