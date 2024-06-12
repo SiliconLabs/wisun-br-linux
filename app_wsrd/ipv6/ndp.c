@@ -87,7 +87,7 @@ static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
         pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
     }
 
-    ns.nd_ns_cksum = ipv6_cksum(&ipv6->addr_uc_global, &neigh->gua, IPPROTO_ICMPV6,
+    ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
