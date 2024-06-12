@@ -196,12 +196,28 @@ struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
                       !memcmp(neigh->eui64, eui64, 8));
 }
 
-struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *gua,
-                                  const uint8_t eui64[8])
+struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
+                                    const struct in6_addr *gua,
+                                    const uint8_t eui64[8])
 {
-    struct ipv6_neigh *neigh = zalloc(sizeof(*neigh));
+    struct ipv6_neigh *neigh;
 
+    neigh = ipv6_neigh_get_from_eui64(ipv6, eui64);
+    if (neigh) {
+        if (IN6_ARE_ADDR_EQUAL(&neigh->gua, gua))
+            return neigh;
+        WARN("neigh-ipv6 overwrite");
+        ipv6_neigh_del(ipv6, neigh);
+    }
+    neigh = ipv6_neigh_get_from_gua(ipv6, gua);
+    if (neigh) {
+        if (!memcmp(neigh->eui64, eui64, 8))
+            return neigh;
+        WARN("neigh-ipv6 overwrite");
+        ipv6_neigh_del(ipv6, neigh);
+    }
+
+    neigh = zalloc(sizeof(*neigh));
     SLIST_INSERT_HEAD(&ipv6->neigh_cache, neigh, link);
     neigh->gua = *gua;
     memcpy(neigh->eui64, eui64, 8);

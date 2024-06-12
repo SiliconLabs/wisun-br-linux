@@ -79,9 +79,9 @@ struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
                                              const uint8_t eui64[8]);
 struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
                                            const struct in6_addr *gua);
-struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
-                                  const struct in6_addr *gua,
-                                  const uint8_t eui64[8]);
+struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
+                                    const struct in6_addr *gua,
+                                    const uint8_t eui64[8]);
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);

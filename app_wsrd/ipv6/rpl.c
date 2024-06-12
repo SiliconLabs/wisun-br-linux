@@ -266,11 +266,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
      * being created here instead.
      */
     addr = prefix->prefix; // Prevent GCC warning -Waddress-of-packed-member
-    nce = ipv6_neigh_get_from_gua(ipv6, &addr);
-    if (!nce) {
-        ipv6_addr_conv_iid_eui64(eui64, src->s6_addr + 8);
-        nce = ipv6_neigh_add(ipv6, &addr, eui64);
-    }
+    ipv6_addr_conv_iid_eui64(eui64, src->s6_addr + 8);
+    nce = ipv6_neigh_fetch(ipv6, &addr, eui64);
 
     pref_parent_change = false;
     if (!nce->rpl_neigh) {
