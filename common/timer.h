@@ -14,6 +14,7 @@
 #define COMMON_TIMER_H
 
 #include <sys/queue.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /*
@@ -76,5 +77,10 @@ void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint6
 
 // Stop a timer.
 void timer_stop(struct timer_group *group, struct timer_entry *timer);
+
+static inline bool timer_stopped(const struct timer_entry *timer)
+{
+    return !timer->expire_ms;
+}
 
 #endif

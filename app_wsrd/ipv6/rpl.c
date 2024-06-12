@@ -339,7 +339,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         TRACE(TR_DROP, "drop rpl-%-9s: unsupported DODAGID present", "dao-ack");
         return;
     }
-    if (!ipv6->rpl.dao_txalg.timer_rt.expire_ms || dao_ack->dao_seq != ipv6->rpl.dao_seq) {
+    if (timer_stopped(&ipv6->rpl.dao_txalg.timer_rt) || dao_ack->dao_seq != ipv6->rpl.dao_seq) {
         TRACE(TR_DROP, "drop rpl-%-9s: unexpected DAOSequence", "dao-ack");
         return;
     }
