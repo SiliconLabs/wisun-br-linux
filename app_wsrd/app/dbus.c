@@ -64,12 +64,13 @@ static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interfac
                              void *userdata, sd_bus_error *ret_error)
 {
     struct ipv6_ctx *ipv6 = userdata;
-    struct ipv6_neigh *preferred_parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent;
 
-    if (!preferred_parent)
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    sd_bus_message_append_array(reply, 'y', preferred_parent->rpl_neigh->dio_base.dodag_id.s6_addr,
-                                sizeof(preferred_parent->rpl_neigh->dio_base.dodag_id.s6_addr));
+    sd_bus_message_append_array(reply, 'y', parent->rpl->dio_base.dodag_id.s6_addr,
+                                sizeof(parent->rpl->dio_base.dodag_id.s6_addr));
     return 0;
 }
 
@@ -80,12 +81,13 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
                                    void *userdata, sd_bus_error *ret_error)
 {
     struct ipv6_ctx *ipv6 = userdata;
-    struct ipv6_neigh *preferred_parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent;
 
-    if (!preferred_parent || !preferred_parent->rpl_neigh->dao_ack_received)
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent || !parent->rpl || !parent->rpl->dao_ack_received)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    sd_bus_message_append_array(reply, 'y', preferred_parent->gua.s6_addr,
-                                sizeof(preferred_parent->gua.s6_addr));
+    sd_bus_message_append_array(reply, 'y', parent->gua.s6_addr,
+                                sizeof(parent->gua.s6_addr));
     return 0;
 }
 

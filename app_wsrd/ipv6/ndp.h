@@ -67,7 +67,7 @@ struct ipv6_neigh {
 
     int ns_handle;
 
-    struct rpl_neigh *rpl_neigh;
+    struct rpl_neigh *rpl;
 
     SLIST_ENTRY(ipv6_neigh) link;
 };
