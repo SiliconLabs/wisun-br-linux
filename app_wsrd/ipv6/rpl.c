@@ -46,11 +46,32 @@ static const char *tr_icmp_rpl(uint8_t code)
     return val_to_str(code, rpl_codes, "unknown");
 }
 
-void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
+                             const struct rpl_dio_base *dio_base,
+                             const struct rpl_opt_config *config,
+                             const struct rpl_opt_prefix *prefix)
+{
+    WARN_ON(nce->rpl->dio_base.instance_id != dio_base->instance_id);
+    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio_base.dodag_id.s6_addr, &dio_base->dodag_id));
+    WARN_ON(memcmp(&nce->rpl->config, config, sizeof(nce->rpl->config)));
+    nce->rpl->dio_base = *dio_base;
+    nce->rpl->config   = *config;
+    // TODO: timer for prefix lifetime
+    TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
+          tr_ipv6(nce->gua.s6_addr), ntohs(dio_base->rank));
+}
+
+static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
+                          const struct rpl_dio_base *dio_base,
+                          const struct rpl_opt_config *config,
+                          const struct rpl_opt_prefix *prefix)
 {
     BUG_ON(nce->rpl);
     nce->rpl = zalloc(sizeof(struct rpl_neigh));
+    nce->rpl->dio_base = *dio_base;
+    nce->rpl->config   = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
+    rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
 }
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
@@ -169,7 +190,6 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     const struct rpl_opt_prefix *prefix = NULL;
     const struct rpl_dio_base *dio_base;
     const struct rpl_opt *opt;
-    bool pref_parent_change;
     struct ipv6_neigh *nce;
     struct in6_addr addr;
     uint8_t eui64[8];
@@ -269,29 +289,19 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     ipv6_addr_conv_iid_eui64(eui64, src->s6_addr + 8);
     nce = ipv6_neigh_fetch(ipv6, &addr, eui64);
 
-    pref_parent_change = false;
     if (!nce->rpl) {
         // TODO: parent selection
         if (rpl_neigh_pref_parent(ipv6)) {
             TRACE(TR_DROP, "drop %-9s: parent already selected", "rpl-dio");
             goto drop_neigh;
         }
-        rpl_neigh_add(ipv6, nce);
-        pref_parent_change = true;
+        rpl_neigh_add(ipv6, nce, dio_base, config, prefix);
+        TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
+              dio_base->instance_id, dio_base->dodag_verno,
+              tr_ipv6(dio_base->dodag_id.s6_addr));
+        if (ipv6->rpl.on_pref_parent_change)
+            ipv6->rpl.on_pref_parent_change(ipv6, nce);
     }
-
-    nce->rpl->dio_base = *dio_base;
-    nce->rpl->config = *config;
-    // TODO: timer for prefix lifetime
-    TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
-          tr_ipv6(nce->gua.s6_addr), ntohs(dio_base->rank));
-
-    TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
-          dio_base->instance_id, dio_base->dodag_verno,
-          tr_ipv6(dio_base->dodag_id.s6_addr));
-
-    if (pref_parent_change && ipv6->rpl.on_pref_parent_change)
-        ipv6->rpl.on_pref_parent_change(ipv6, nce);
 
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation

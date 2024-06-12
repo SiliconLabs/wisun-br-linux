@@ -44,7 +44,6 @@ void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 
-void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6);
 
