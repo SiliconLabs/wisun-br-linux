@@ -189,7 +189,7 @@ struct ipv6_neigh *ipv6_neigh_get(struct ipv6_ctx *ipv6,
 
 struct ipv6_neigh *ipv6_neigh_add(struct ipv6_ctx *ipv6,
                                   const struct in6_addr *gua,
-                                  const uint8_t eui64[64])
+                                  const uint8_t eui64[8])
 {
     struct ipv6_neigh *neigh = zalloc(sizeof(*neigh));
 
