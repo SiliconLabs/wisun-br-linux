@@ -588,7 +588,7 @@ def config_border_router_join_metrics():
     global jm_list, jm_version
 
     json = flask.request.get_json(force=True, silent=True)
-    jm_list_cpy = jm_list.copy() # Do not update the JM list before validation
+    jm_list_new = dict() # Do not update the JM list before validation
     for json_jm in json:
         if json_jm['metricId'] > utils.field_max(WS_MASK_JM_ID):
             return error(500, WSTBU_ERR_UNKNOWN, 'invalid metric ID')
@@ -608,10 +608,10 @@ def config_border_router_join_metrics():
                 return error(500, WSTBU_ERR_UNKNOWN, 'invalid metricData')
             if 'metricLength' in json_jm and json_jm['metricLength'] != jm_len:
                 return error(500, WSTBU_ERR_UNKNOWN, 'invalid length')
-            jm_list_cpy[json_jm['metricId']] = (jm_len, jm_data)
+            jm_list_new[json_jm['metricId']] = (jm_len, jm_data)
         elif flask.request.method == 'DELETE':
-            del jm_list_cpy[json_jm['metricId']]
-    jm_list = jm_list_cpy
+            pass # Delete all metrics
+    jm_list = jm_list_new
     jm_version = (jm_version + 1) % 256
     # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
     if wsbrd.service.active_state == 'active':
