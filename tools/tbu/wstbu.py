@@ -568,7 +568,12 @@ def config_border_router_revoke_keys():
 @dbus_errcheck
 @json_errcheck('/config/borderRouter/informationElements')
 def config_border_router_information_elements():
+    global jm_list, jm_version
+
     json = flask.request.get_json(force=True, silent=True)
+    wsbrd.dbus().ie_custom_clear()
+    # HACK: JM-IE are also inserted using D-Bus IeCustomInsert
+    wsbrd_set_join_metrics(jm_list, jm_version)
     for json_ie in json:
         format = json_ie['format']
         sub_id = json_ie['subID']
@@ -578,7 +583,7 @@ def config_border_router_information_elements():
                 return error(400, WSTBU_ERR_UNKNOWN, 'invalid content')
             wsbrd.dbus().ie_custom_insert(format, sub_id, content, bytes([WS_FRAME_TYPE_PC]))
         elif flask.request.method == 'DELETE':
-            wsbrd.dbus().ie_custom_insert(format, sub_id, bytes(), bytes())
+            pass
     return success()
 
 

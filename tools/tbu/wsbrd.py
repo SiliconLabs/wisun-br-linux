@@ -131,6 +131,10 @@ class WsbrdDbusInterface(
         raise NotImplementedError
 
     @sdbus.dbus_method()
+    def ie_custom_clear(self) -> None:
+        raise NotImplementedError
+
+    @sdbus.dbus_method()
     def increment_rpl_dtsn(self) -> None:
         raise NotImplementedError
 
