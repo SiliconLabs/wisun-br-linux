@@ -175,7 +175,11 @@ def json_errcheck(path):
     return decorator
 
 
-# HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
+# Dict from JM-ID to tuple (len, data)
+jm_list: dict[int, tuple[int, bytes]] = dict()
+jm_version = 0
+
+
 def wsbrd_set_join_metrics(jm_list, jm_version):
     jm_content = bytearray()
     jm_content.append(jm_version)
@@ -576,11 +580,6 @@ def config_border_router_information_elements():
         elif flask.request.method == 'DELETE':
             wsbrd.dbus().ie_custom_insert(format, sub_id, bytes(), bytes())
     return success()
-
-
-# Dict from JM-ID to tuple (len, data)
-jm_list: dict[int, tuple[int, bytes]] = dict()
-jm_version = 0
 
 
 @dbus_errcheck
