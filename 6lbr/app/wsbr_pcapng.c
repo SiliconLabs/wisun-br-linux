@@ -20,6 +20,8 @@
 #include "common/endian.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/ieee802154_frame.h"
+#include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/pcapng.h"
 #include "common/string_extra.h"
@@ -106,15 +108,31 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
     wsbr_pcapng_write_start(ctxt);
 }
 
-void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind,
-                             struct mcps_data_rx_ie_list *ie)
+void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, uint64_t timestamp_us,
+                             const void *frame, size_t frame_len)
 {
-    uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
-    struct iobuf_write buf = { };
-    size_t frame_len;
+    struct iobuf_write iobuf_pcapng = { };
+    struct iobuf_write iobuf_frame = { };
+    struct iobuf_read ie_payload;
+    struct iobuf_read ie_header;
+    struct ieee802154_hdr hdr;
+    int ret;
 
-    frame_len = wsbr_data_ind_rebuild(frame, ind, ie);
-    pcapng_write_epb(&buf, ind->hif.timestamp_us, frame, frame_len);
-    wsbr_pcapng_write(ctxt, &buf);
-    iobuf_free(&buf);
+    ret = ieee802154_frame_parse(frame, frame_len, &hdr, &ie_header, &ie_payload);
+    if (ret < 0)
+        return;
+    hdr.key_index = 0; // Strip the Auxiliary Security Header
+
+    ieee802154_frame_write_hdr(&iobuf_frame, &hdr);
+    iobuf_push_data(&iobuf_frame, ie_header.data, ie_header.data_size);
+    if (ie_payload.data_size) {
+        ieee802154_ie_push_header(&iobuf_frame, IEEE802154_IE_ID_HT1);
+        iobuf_push_data(&iobuf_frame, ie_payload.data, ie_payload.data_size);
+    }
+
+    pcapng_write_epb(&iobuf_pcapng, timestamp_us, iobuf_frame.data, iobuf_frame.len);
+    wsbr_pcapng_write(ctxt, &iobuf_pcapng);
+
+    iobuf_free(&iobuf_pcapng);
+    iobuf_free(&iobuf_frame);
 }
