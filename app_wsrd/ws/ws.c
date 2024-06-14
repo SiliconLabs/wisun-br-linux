@@ -433,6 +433,7 @@ static struct ws_frame_ctx *ws_frame_ctx_pop(struct ws_ctx *ws, uint8_t handle)
 void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
 {
     struct ws_frame_ctx *frame_ctx;
+    struct ws_neigh *neigh;
 
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
@@ -445,6 +446,15 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
 
     if (frame_ctx->type == WS_FT_DATA)
         ipv6_nud_confirm_ns(&ws->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
+
+    if (memcmp(frame_ctx->dst, ieee802154_addr_bc, 8)) {
+        neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst);
+        if (!neigh) {
+            WARN("%s: neighbor expired", __func__);
+            // TODO: TX power (APC), active key indices
+            neigh = ws_neigh_add(&ws->neigh_table, frame_ctx->dst, WS_NR_ROLE_ROUTER, 16, BIT(1));
+        }
+    }
 
     free(frame_ctx);
 }
