@@ -99,6 +99,8 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->frame_len) {
         ret = wsbr_data_cnf_parse(cnf->frame, cnf->frame_len, &mcps_cnf, &mcps_ie);
         WARN_ON(ret < 0, "invalid ack frame");
+        if (!ret && ctxt->config.pcap_file[0])
+            wsbr_pcapng_write_frame(ctxt, cnf->timestamp_us, cnf->frame, cnf->frame_len);
     }
     ws_llc_mac_confirm_cb(&ctxt->net_if, &mcps_cnf, &mcps_ie);
 }
