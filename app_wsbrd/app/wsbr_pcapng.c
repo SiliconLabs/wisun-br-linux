@@ -67,19 +67,10 @@ static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct iobuf_write *
 
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt)
 {
-    static const struct pcapng_shb shb = {
-        .version_maj = 1,
-        .version_min = 0,
-        .section_len = -1, // unknown section length
-    };
-    static const struct pcapng_idb idb = {
-        .link_type = LINKTYPE_IEEE802_15_4_NOFCS,
-        .snap_len = 0, // no packet size restriction
-    };
     struct iobuf_write buf = { };
 
-    pcapng_write_shb(&buf, &shb);
-    pcapng_write_idb(&buf, &idb);
+    pcapng_write_shb(&buf);
+    pcapng_write_idb(&buf, LINKTYPE_IEEE802_15_4_NOFCS);
     wsbr_pcapng_write(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -120,15 +111,10 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind,
 {
     uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     struct iobuf_write buf = { };
-    struct pcapng_epb epb = {
-        .if_id = 0, // only one interface is used
-        .timestamp = ind->hif.timestamp_us,
-    };
+    size_t frame_len;
 
-    epb.pkt_len    = wsbr_data_ind_rebuild(frame, ind, ie);
-    epb.pkt_len_og = epb.pkt_len;
-    epb.pkt        = frame;
-    pcapng_write_epb(&buf, &epb);
+    frame_len = wsbr_data_ind_rebuild(frame, ind, ie);
+    pcapng_write_epb(&buf, ind->hif.timestamp_us, frame, frame_len);
     wsbr_pcapng_write(ctxt, &buf);
     iobuf_free(&buf);
 }

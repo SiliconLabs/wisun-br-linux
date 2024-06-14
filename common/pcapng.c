@@ -24,48 +24,92 @@
 
 #define PCAPNG_BYTE_ORDER_MAGIC 0x1A2B3C4D
 
-void pcapng_write_shb(struct iobuf_write *buf, const struct pcapng_shb *shb)
-{
-    const uint32_t len = PCAPNG_SHB_SIZE_MIN;
+// Section Header Block
+struct pcapng_shb {
+    uint32_t byteorder_magic;
+    uint16_t version_maj;
+    uint16_t version_min;
+    int64_t  section_len;
+} __attribute__((packed));
 
-    iobuf_push_le32(buf, PCAPNG_BLOCK_TYPE_SHB);
-    iobuf_push_le32(buf, len);
-    iobuf_push_le32(buf, PCAPNG_BYTE_ORDER_MAGIC);
-    iobuf_push_le16(buf, shb->version_maj);
-    iobuf_push_le16(buf, shb->version_min);
-    iobuf_push_le64(buf, shb->section_len);
-    // options not supported
-    iobuf_push_le32(buf, len);
+// Interface Description Block
+struct pcapng_idb {
+    uint16_t link_type;
+    uint16_t reserved;
+    uint32_t snap_len;
+} __attribute__((packed));
+
+// Enhanced Packet Block
+struct pcapng_epb {
+    uint32_t ifindex;
+    uint32_t timestamp_high;
+    uint32_t timestamp_low;
+    uint32_t pkt_len;
+    uint32_t pkt_len_og;
+} __attribute__((packed));
+
+static int pcapng_block_start(struct iobuf_write *buf, uint32_t type)
+{
+    int offset = buf->len;
+
+    iobuf_push_data(buf, &type, sizeof(type));
+    iobuf_push_data_reserved(buf, sizeof(uint32_t)); // Block Total Length
+    return offset;
 }
 
-void pcapng_write_idb(struct iobuf_write *buf, const struct pcapng_idb *idb)
+static void pcapng_block_end(struct iobuf_write *buf, int offset)
 {
-    const uint32_t len = PCAPNG_IDB_SIZE_MIN;
+    uint32_t len = buf->len + sizeof(uint32_t) - offset;
 
-    iobuf_push_le32(buf, PCAPNG_BLOCK_TYPE_IDB);
-    iobuf_push_le32(buf, len);
-    iobuf_push_le16(buf, idb->link_type);
-    iobuf_push_le16(buf, 0);
-    iobuf_push_le32(buf, idb->snap_len);
-    // options not supported
-    iobuf_push_le32(buf, len);
+    memcpy(buf->data + offset + sizeof(uint32_t), &len, sizeof(len));
+    iobuf_push_data(buf, &len, sizeof(len)); // Block Total Length
 }
 
-void pcapng_write_epb(struct iobuf_write *buf, const struct pcapng_epb *epb)
+void pcapng_write_shb(struct iobuf_write *buf)
 {
-    const uint8_t pkt_len_pad = (4 - (epb->pkt_len & 0b11)) & 0b11; // pad to 32 bits
-    const uint32_t len = PCAPNG_EPB_SIZE_MIN + epb->pkt_len + pkt_len_pad;
+    struct pcapng_shb shb = {
+        .byteorder_magic = PCAPNG_BYTE_ORDER_MAGIC,
+        .version_maj = 1,
+        .version_min = 0,
+        .section_len = -1, // Unknown
+    };
+    int offset;
 
-    iobuf_push_le32(buf, PCAPNG_BLOCK_TYPE_EPB);
-    iobuf_push_le32(buf, len);
-    iobuf_push_le32(buf, epb->if_id);
-    iobuf_push_le32(buf, epb->timestamp >> 32);
-    iobuf_push_le32(buf, epb->timestamp & 0xffffffff);
-    iobuf_push_le32(buf, epb->pkt_len);
-    iobuf_push_le32(buf, epb->pkt_len_og);
-    iobuf_push_data(buf, epb->pkt, epb->pkt_len);
-    for (int i = 0; i < pkt_len_pad; i++)
+    offset = pcapng_block_start(buf, PCAPNG_BLOCK_TYPE_SHB);
+    iobuf_push_data(buf, &shb, sizeof(shb));
+    pcapng_block_end(buf, offset);
+}
+
+void pcapng_write_idb(struct iobuf_write *buf, uint16_t link_type)
+{
+    struct pcapng_idb idb = {
+        .link_type = link_type,
+        .snap_len  = 0, // No packet size restriction
+    };
+    int offset;
+
+    offset = pcapng_block_start(buf, PCAPNG_BLOCK_TYPE_IDB);
+    iobuf_push_data(buf, &idb, sizeof(idb));
+    pcapng_block_end(buf, offset);
+}
+
+void pcapng_write_epb(struct iobuf_write *buf,
+                      uint64_t timestamp_us,
+                      const void *pkt, size_t pkt_len)
+{
+    struct pcapng_epb epb = {
+        .ifindex = 0,
+        .timestamp_high = timestamp_us >> 32,
+        .timestamp_low  = timestamp_us,
+        .pkt_len    = pkt_len,
+        .pkt_len_og = pkt_len,
+    };
+    int offset;
+
+    offset = pcapng_block_start(buf, PCAPNG_BLOCK_TYPE_EPB);
+    iobuf_push_data(buf, &epb, sizeof(epb));
+    iobuf_push_data(buf, pkt, pkt_len);
+    while (buf->len % sizeof(uint32_t))
         iobuf_push_u8(buf, 0); // pad to 32 bits
-    // options not supported
-    iobuf_push_le32(buf, len);
+    pcapng_block_end(buf, offset);
 }
