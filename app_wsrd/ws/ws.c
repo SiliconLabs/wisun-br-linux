@@ -437,8 +437,11 @@ static struct ws_frame_ctx *ws_frame_ctx_pop(struct ws_ctx *ws, uint8_t handle)
 
 void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
 {
+    struct iobuf_read ie_header, ie_payload;
     struct ws_frame_ctx *frame_ctx;
-    struct ws_neigh *neigh;
+    struct ws_neigh *neigh = NULL;
+    struct ieee802154_hdr hdr;
+    int ret, rsl;
 
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
@@ -462,6 +465,21 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
     }
 
     free(frame_ctx);
+
+    if (neigh && cnf->frame_len) {
+        ret = ieee802154_frame_parse(cnf->frame, cnf->frame_len, &hdr, &ie_header, &ie_payload);
+        if (ret < 0) {
+            WARN("%s: malformed frame", __func__);
+            return;
+        }
+        // TODO: check frame counter
+        neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(neigh->rsl_in_dbm_unsecured,
+                                                         cnf->rx_power_dbm);
+        if (hdr.key_index)
+            neigh->rsl_in_dbm = ws_neigh_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm);
+        if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
+            neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl);
+    }
 }
 
 int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
