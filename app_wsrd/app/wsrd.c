@@ -45,6 +45,7 @@ enum {
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
+static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
 static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
@@ -60,6 +61,7 @@ struct wsrd g_wsrd = {
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
+    .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
@@ -114,6 +116,22 @@ static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     struct wsrd *wsrd = container_of(rcp, struct wsrd, rcp);
 
     ws_recv_cnf(&wsrd->ws, cnf);
+}
+
+static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    struct ws_ctx *ws = container_of(table, struct ws_ctx, neigh_table);
+    struct ipv6_neigh *nce;
+
+    /*
+     *   Wi-SUN FAN 1.1v08 6.2.3.1.6.1 Link Metrics
+     * In the absence of other messaging, a Router SHOULD initiate NUD
+     * messaging to refresh the ETX value for that neighbor.
+     */
+    nce = ipv6_neigh_get_from_eui64(&ws->ipv6, neigh->mac64);
+    if (!nce)
+        return;
+    ipv6_nud_set_state(&ws->ipv6, nce, IPV6_NUD_PROBE);
 }
 
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])

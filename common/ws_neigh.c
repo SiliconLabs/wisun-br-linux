@@ -45,6 +45,81 @@ static void ws_neigh_timer_cb(struct timer_group *group, struct timer_entry *tim
     ws_neigh_del(table, neigh->mac64);
 }
 
+// Wi-SUN FAN 1v33 6.2.3.1.6.1 Link Metrics
+static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    float etx;
+
+    /*
+     * The ETX calculation epoch is triggered when both the following
+     * conditions are satisfied:
+     *   1. At least 4 transmissions have occurred since the last ETX
+     *      calculation.
+     *   2. At least 1 minute has expired since the last ETX calculation.
+     *
+     * [...]
+     *
+     * At node start up, 1 transmission attempts will trigger the ETX
+     * calculation epoch (to speed boot time).
+     */
+    if (!((neigh->etx_tx_cnt >= 4 && timer_stopped(&neigh->etx_timer_compute)) ||
+          isnan(neigh->etx)))
+        return;
+
+    /*
+     * ETX MUST be calculated as
+     *   (frame transmission attempts)/(received frame acknowledgements) * 128
+     * with a maximum value of 1024, where 0 received frame acknowledgments
+     * sets ETX to the maximum value.
+     */
+    if (neigh->etx_ack_cnt)
+        etx = MIN((float)neigh->etx_tx_cnt / neigh->etx_ack_cnt * 128, WS_ETX_MAX);
+    else
+        etx = WS_ETX_MAX;
+
+    /*
+     * The ETX calculation is performed at a defined epoch, with the ETX result
+     * fed into an EWMA using smoothing factor of 1/8.
+     */
+    neigh->etx = ws_neigh_ewma_next(neigh->etx, etx);
+
+    neigh->etx_tx_cnt  = 0;
+    neigh->etx_ack_cnt = 0;
+    timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 60 * 1000);
+
+    /*
+     * A Router SHOULD refresh its neighbor link metrics at least every 30
+     * minutes.
+     */
+    timer_start_rel(&table->timer_group, &neigh->etx_timer_outdated, 30 * 60 * 1000);
+}
+
+static void ws_neigh_etx_timeout_outdated(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
+    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
+
+    if (table->on_etx_outdated)
+        table->on_etx_outdated(table, neigh);
+}
+
+static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
+    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
+
+    ws_neigh_etx_compute(table, neigh);
+}
+
+void ws_neigh_etx_update(struct ws_neigh_table *table,
+                         struct ws_neigh *neigh,
+                         int tx_count, bool ack)
+{
+    neigh->etx_tx_cnt  += tx_count;
+    neigh->etx_ack_cnt += ack;
+    ws_neigh_etx_compute(table, neigh);
+}
+
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                          const uint8_t mac64[8],
                          uint8_t role, int8_t tx_power_dbm,
@@ -69,6 +144,9 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     neigh->lqi_unsecured = INT_MAX;
     neigh->apc_txpow_dbm = tx_power_dbm;
     neigh->apc_txpow_dbm_ofdm = tx_power_dbm;
+    neigh->etx = NAN;
+    neigh->etx_timer_compute.callback  = ws_neigh_etx_timeout_compute;
+    neigh->etx_timer_outdated.callback = ws_neigh_etx_timeout_outdated;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     if (table->on_add)
         table->on_add(table, neigh);

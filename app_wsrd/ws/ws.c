@@ -480,6 +480,10 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
             neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl);
     }
+    if (neigh)
+        ws_neigh_etx_update(&ws->neigh_table, neigh,
+                            cnf->tx_retries + 1,
+                            cnf->status == HIF_STATUS_SUCCESS);
 }
 
 int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])

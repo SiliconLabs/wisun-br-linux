@@ -182,4 +182,7 @@ enum {
 // Wi-SUN FAN 1.1v08 Figure 6-44 LFN Unicast Schedule IE
 #define WS_CHAN_PLAN_TAG_CURRENT 255
 
+// Wi-SUN FAN 1.1v08 6.2.3.1.6.1 Link Metrics
+#define WS_ETX_MAX 1024
+
 #endif

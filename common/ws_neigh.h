@@ -116,6 +116,13 @@ struct ws_neigh {
     int8_t apc_txpow_dbm;
     int8_t apc_txpow_dbm_ofdm;
 
+    // TODO: Support ETX computation with mode switch as per FAN 1.1
+    float etx;
+    int etx_tx_cnt;
+    int etx_ack_cnt;
+    struct timer_entry etx_timer_compute;
+    struct timer_entry etx_timer_outdated;
+
     uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
     struct timer_entry timer;
@@ -131,6 +138,10 @@ struct ws_neigh_table {
     struct ws_neigh_list neigh_list;
     void (*on_add)(struct ws_neigh_table *table, struct ws_neigh *neigh);
     void (*on_del)(struct ws_neigh_table *table, const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
+
+    // Called when ETX is out-of-date. This should initiate some traffic in
+    // order to measure ETX.
+    void (*on_etx_outdated)(struct ws_neigh_table *table, struct ws_neigh *neigh);
 };
 
 struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64);
@@ -179,6 +190,11 @@ size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
 void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s);
+
+// Must be called when a data transmission request is finished.
+void ws_neigh_etx_update(struct ws_neigh_table *table,
+                         struct ws_neigh *neigh,
+                         int tx_count, bool ack);
 
 float ws_neigh_ewma_next(float cur, float val);
 
