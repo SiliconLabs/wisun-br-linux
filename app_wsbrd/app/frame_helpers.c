@@ -92,63 +92,6 @@ static const struct {
     { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  false, 1 },
 };
 
-int wsbr_data_ind_rebuild(uint8_t frame[],
-                         const struct mcps_data_ind *ind,
-                         const struct mcps_data_rx_ie_list *ie)
-{
-    uint8_t *start = frame;
-    uint16_t fcf;
-    int i;
-
-    BUG_ON(ind->msduLength);
-    fcf = FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA)
-        | FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   false)
-        | FIELD_PREP(IEEE802154_FCF_ACK_REQ,            ind->TxAckReq)
-        | FIELD_PREP(IEEE802154_FCF_PAN_ID_COMPRESSION, ind->PanIdSuppressed)
-        | FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      ind->DSN_suppressed)
-        | FIELD_PREP(IEEE802154_FCF_IE_PRESENT,         ie->headerIeListLength || ie->payloadIeListLength)
-        | FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      ind->DstAddrMode)
-        | FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      IEEE802154_FRAME_VERSION_2015)
-        | FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      ind->SrcAddrMode);
-    frame = write_le16(frame, fcf);
-    if (!ind->DSN_suppressed)
-        *frame++ = ind->DSN;
-
-    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_comp); i++)
-        if (ieee802154_table_pan_id_comp[i].dst_addr_mode      == ind->DstAddrMode &&
-            ieee802154_table_pan_id_comp[i].src_addr_mode      == ind->SrcAddrMode &&
-            ieee802154_table_pan_id_comp[i].pan_id_compression == ind->PanIdSuppressed)
-            break;
-    BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
-    if (ieee802154_table_pan_id_comp[i].dst_pan_id)
-        frame = write_le16(frame, ind->DstPANId);
-    if (ind->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
-        memrcpy(frame, ind->DstAddr, 8);
-        frame += 8;
-    } else if (ind->DstAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
-        memrcpy(frame, ind->DstAddr, 2);
-        frame += 2;
-    }
-    if (ieee802154_table_pan_id_comp[i].src_pan_id)
-        frame = write_le16(frame, ind->SrcPANId);
-    if (ind->SrcAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
-        memrcpy(frame, ind->SrcAddr, 8);
-        frame += 8;
-    } else if (ind->SrcAddrMode == IEEE802154_ADDR_MODE_16_BIT) {
-        memrcpy(frame, ind->SrcAddr, 2);
-        frame += 2;
-    }
-
-    memcpy(frame, ie->headerIeList, ie->headerIeListLength);
-    frame += ie->headerIeListLength;
-    if (ie->payloadIeListLength)
-        frame = write_le16(frame, IEEE802154_IE_HT1);
-    memcpy(frame, ie->payloadIeList, ie->payloadIeListLength);
-    frame += ie->payloadIeListLength;
-
-    return frame - start;
-}
-
 static int wsbr_data_sec_parse(struct iobuf_read *iobuf, struct mlme_security *sec)
 {
     uint8_t scf;
