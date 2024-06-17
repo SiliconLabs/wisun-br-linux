@@ -1,3 +1,13 @@
+v2.1.2
+------
+  - Set the IPv6 hop limit to a fixed value when creating a tunnel, instead of
+    copying the received hop limit. Intermediate Wi-SUN hops are now invisible
+    to tools like `traceroute`, as it should be for any kind of IP tunnel.
+  - Include received acknowledgement frames in `pcap_file`.
+  - Change behavior of TBU endpoints `/config/borderRouter/joinMetrics` and
+    `/config/borderRouter/informationElements`: previous IEs/metrics are now
+    always removed when a new request is received.
+
 v2.1.1
 ------
   - Fix high CPU usage during intense traffic: packet queues being full caused
