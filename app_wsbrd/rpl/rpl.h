@@ -105,7 +105,7 @@ struct rpl_root {
     uint8_t dodag_id[16];
     uint8_t dodag_version_number;
     uint8_t dodag_pref;
-    uint16_t min_rank_hop_inc;
+    uint16_t min_hop_rank_inc;
     uint32_t lifetime_s;
     uint16_t lifetime_unit_s;
     uint8_t dtsn; // DAO Trigger Sequence Number
@@ -149,7 +149,7 @@ static inline uint16_t rpl_dag_rank(const struct rpl_root *root, uint16_t rank)
     // follows, where floor(x) is the function that evaluates to the greatest
     // integer less than or equal to x:
     //   DAGRank(rank) = floor(rank/MinHopRankIncrease)
-    return rank / root->min_rank_hop_inc;
+    return rank / root->min_hop_rank_inc;
 }
 
 static inline uint16_t rpl_root_rank(struct rpl_root *root)
@@ -158,7 +158,7 @@ static inline uint16_t rpl_root_rank(struct rpl_root *root)
     // A DODAG root MUST advertise a Rank of ROOT_RANK.
     //   RFC 6550 - 17. RPL Constants and Variables
     // [...] ROOT_RANK has a value of MinHopRankIncrease [...].
-    return root->min_rank_hop_inc;
+    return root->min_hop_rank_inc;
 }
 
 #endif

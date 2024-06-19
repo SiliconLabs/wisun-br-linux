@@ -221,7 +221,7 @@ static void rpl_opt_push_config(struct iobuf_write *buf, struct rpl_root *root)
     //   Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     // The MaxRankIncrease field MUST be set to 0.
     iobuf_push_be16(buf, 0);
-    iobuf_push_be16(buf, root->min_rank_hop_inc);
+    iobuf_push_be16(buf, root->min_hop_rank_inc);
     //   Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     // The OCP field MUST be set to 1 to indicate usage of the MRHOF objective
     // function.
@@ -727,7 +727,7 @@ void rpl_start(struct rpl_root *root,
     struct icmp6_filter filter;
     int err;
 
-    BUG_ON(!root->min_rank_hop_inc);
+    BUG_ON(!root->min_hop_rank_inc);
     BUG_ON(!memzcmp(root->dodag_id, 16));
     BUG_ON(root->pcs > 7);
     BUG_ON(!root->lifetime_s);
