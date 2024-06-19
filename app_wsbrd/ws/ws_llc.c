@@ -988,12 +988,13 @@ static inline bool ws_is_frame_mngt(uint8_t frame_type)
 }
 
 /** WS LLC MAC data extension indication  */
-void ws_llc_mac_indication_cb(struct net_if *net_if, const mcps_data_ind_t *data,
+void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
                               const struct mcps_data_rx_ie_list *ie_ext)
 {
     struct ws_neigh *neigh;
     struct ws_lutt_ie ie_lutt;
     struct ws_utt_ie ie_utt;
+    struct ws_fc_ie ie_fc;
     bool has_utt, has_lutt;
     uint8_t frame_type;
 
@@ -1026,6 +1027,16 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, const mcps_data_ind_t *data
             return;
         }
         neigh->frame_counter_min[data->Key.KeyIndex - 1] = add32sat(data->Key.frame_counter, 1);
+    }
+
+    // HACK: In FAN 1.0 the source address is elided in EDFE response frames
+    if (ws_wh_fc_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_fc)) {
+        if (data->SrcAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
+            memcpy(net_if->ws_info.edfe_src, data->SrcAddr, 8);
+        } else {
+            memcpy(data->SrcAddr, net_if->ws_info.edfe_src, 8);
+            data->SrcAddrMode = IEEE802154_ADDR_MODE_64_BIT;
+        }
     }
 
     if (ws_is_frame_mngt(frame_type)) {
