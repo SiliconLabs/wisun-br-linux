@@ -41,7 +41,7 @@ static const struct {
 //  { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_NONE,   true,  false, 0 }, // Unsupported
 //  { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_NONE,   true,  false, 0 }, // Unsupported
 //  { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_NONE,   false, false, 1 }, // Unsupported
-//  { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_NONE,   false, false, 1 }, // Unsupported
+    { IEEE802154_ADDR_MODE_64_BIT, IEEE802154_ADDR_MODE_NONE,   false, false, 1 },
 //  { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_16_BIT, false, true,  0 }, // Unsupported
     { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_64_BIT, false, true,  0 },
 //  { IEEE802154_ADDR_MODE_NONE,   IEEE802154_ADDR_MODE_16_BIT, false, false, 1 }, // Unsupported
@@ -190,14 +190,17 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
     if (ieee802154_table_pan_id_cmpr[i].dst_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
         write_be64(hdr->dst, iobuf_pop_le64(&iobuf));
     else
-        memset(hdr->dst, 0xff, sizeof(hdr->dst));
+        memcpy(hdr->dst, ieee802154_addr_bc, 8);
 
     hdr->pan_id = 0xffff;
     if (ieee802154_table_pan_id_cmpr[i].has_src_pan_id)
         hdr->pan_id = iobuf_pop_le16(&iobuf);
 
-    BUG_ON(ieee802154_table_pan_id_cmpr[i].src_addr_mode != IEEE802154_ADDR_MODE_64_BIT);
-    write_be64(hdr->src, iobuf_pop_le64(&iobuf));
+
+    if (ieee802154_table_pan_id_cmpr[i].src_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
+        write_be64(hdr->src, iobuf_pop_le64(&iobuf));
+    else
+        memcpy(hdr->src, ieee802154_addr_bc, 8);
 
     hdr->key_index = 0;
     if (FIELD_GET(IEEE802154_MASK_FCF_SECURED, fcf)) {
@@ -229,6 +232,9 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
     uint8_t dst_addr_mode = !memcmp(ieee802154_addr_bc, hdr->dst, 8) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
+    uint8_t src_addr_mode = !memcmp(ieee802154_addr_bc, hdr->src, 8) ?
+                            IEEE802154_ADDR_MODE_NONE :
+                            IEEE802154_ADDR_MODE_64_BIT;
     int i;
 
     for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_cmpr); i++)
@@ -245,7 +251,7 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
                          | FIELD_PREP(IEEE802154_MASK_FCF_HAS_IE,        true)
                          | FIELD_PREP(IEEE802154_MASK_FCF_DST_ADDR_MODE, dst_addr_mode)
                          | FIELD_PREP(IEEE802154_MASK_FCF_FRAME_VERSION, IEEE802154_FRAME_VERSION_2015)
-                         | FIELD_PREP(IEEE802154_MASK_FCF_SRC_ADDR_MODE, IEEE802154_ADDR_MODE_64_BIT));
+                         | FIELD_PREP(IEEE802154_MASK_FCF_SRC_ADDR_MODE, src_addr_mode));
 
     if (hdr->seqno >= 0)
         iobuf_push_u8(iobuf, hdr->seqno);
@@ -255,8 +261,8 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
         iobuf_push_le64(iobuf, read_be64(hdr->dst));
     if (hdr->pan_id != 0xffff)
         iobuf_push_le16(iobuf, hdr->pan_id);
-    BUG_ON(ieee802154_table_pan_id_cmpr[i].src_addr_mode != IEEE802154_ADDR_MODE_64_BIT);
-    iobuf_push_le64(iobuf, read_be64(hdr->src));
+    if (src_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
+        iobuf_push_le64(iobuf, read_be64(hdr->src));
 
     if (hdr->key_index) {
         iobuf_push_u8(iobuf, FIELD_PREP(IEEE802154_MASK_SECHDR_LEVEL,       IEEE802154_SEC_LEVEL_ENC_MIC64)

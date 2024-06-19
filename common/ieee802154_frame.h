@@ -16,7 +16,7 @@ struct ieee802154_hdr {
     int      seqno;         // < 0 if elided
     uint16_t pan_id;        // 0xffff if elided
     uint8_t  dst[8];        // ff:ff:ff:ff:ff:ff:ff:ff if elided
-    uint8_t  src[8];
+    uint8_t  src[8];        // ff:ff:ff:ff:ff:ff:ff:ff if elided
     uint8_t  key_index;     // 0 if unsecured
     uint32_t frame_counter; // ignored if unsecured
 };
