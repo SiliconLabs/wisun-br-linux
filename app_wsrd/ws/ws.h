@@ -47,6 +47,7 @@ struct ws_ctx {
     uint8_t  seqno;
     uint8_t  handle_next;
     struct ws_frame_ctx_list frame_ctx_list;
+    uint8_t  edfe_src[8];
 
     struct ipv6_ctx ipv6;
 };

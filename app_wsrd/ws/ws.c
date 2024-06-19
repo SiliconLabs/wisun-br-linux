@@ -373,6 +373,7 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     struct ws_ind ind = { .hif = hif_ind };
     struct iobuf_read ie_payload;
     struct ws_utt_ie ie_utt;
+    struct ws_fc_ie ie_fc;
     int ret;
 
     ret = ieee802154_frame_parse(hif_ind->frame, hif_ind->frame_len,
@@ -383,6 +384,13 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     if (!ws_wh_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt)) {
         TRACE(TR_DROP, "drop %-9s: missing UTT-IE", "15.4");
         return;
+    }
+    // HACK: In FAN 1.0 the source address is elided in EDFE response frames
+    if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
+        if (memcmp(ind.hdr.src, ieee802154_addr_bc, 8))
+            memcpy(ws->edfe_src, ind.hdr.src, 8);
+        else
+            memcpy(ind.hdr.src, ws->edfe_src, 8);
     }
 
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
