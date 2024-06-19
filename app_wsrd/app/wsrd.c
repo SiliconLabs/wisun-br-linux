@@ -46,8 +46,9 @@ static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
+static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
-static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
+static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
                                   uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s);
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr);
@@ -62,6 +63,7 @@ struct wsrd g_wsrd = {
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
+    .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
@@ -71,7 +73,12 @@ struct wsrd g_wsrd = {
     .ws.ipv6.rpl.dao_txalg.mrd_s = 0,
     .ws.ipv6.rpl.dao_txalg.rand_min = -0.5,
     .ws.ipv6.rpl.dao_txalg.rand_max =  0.0,
-    .ws.ipv6.rpl.on_pref_parent_change = wsrd_on_pref_parent_change,
+    // RFC 6719 5. MRHOF Variables and Parameters
+    .ws.ipv6.rpl.mrhof.max_link_metric         =   512, // 128 * 4
+    .ws.ipv6.rpl.mrhof.max_path_cost           = 32768, // 128 * 256
+    .ws.ipv6.rpl.mrhof.parent_switch_threshold =   192, // 128 * 1.5
+    .ws.ipv6.rpl.mrhof.ws_neigh_table = &g_wsrd.ws.neigh_table,
+    .ws.ipv6.rpl.mrhof.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
     .dhcp.solicit_txalg.max_delay_s = 60,
@@ -134,6 +141,17 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
     ipv6_nud_set_state(&ws->ipv6, nce, IPV6_NUD_PROBE);
 }
 
+static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    struct ws_ctx *ws = container_of(table, struct ws_ctx, neigh_table);
+    struct ipv6_neigh *nce;
+
+    nce = ipv6_neigh_get_from_eui64(&ws->ipv6, neigh->mac64);
+    if (!nce || !nce->rpl)
+        return;
+    rpl_mrhof_select_parent(&ws->ipv6);
+}
+
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
 {
     struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
@@ -141,13 +159,15 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
     return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
-static void wsrd_on_pref_parent_change(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh)
 {
-    struct wsrd *wsrd = container_of(ipv6, struct wsrd, ws.ipv6);
+    struct wsrd *wsrd = container_of(mrhof, struct wsrd, ws.ipv6.rpl.mrhof);
 
     if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->dhcp.running)
         dhcp_client_start(&wsrd->dhcp);
-    // TODO: handle parent change
+    else if (neigh)
+        rpl_start_dao(&wsrd->ws.ipv6);
+    // TODO: handle parent loss
 }
 
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr, uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s)

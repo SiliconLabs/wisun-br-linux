@@ -28,6 +28,7 @@
 #include "common/memutils.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
+#include "app_wsrd/ipv6/rpl_mrhof.h"
 #include "app_wsrd/ipv6/rpl_pkt.h"
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/ipv6/ipv6_addr.h"
@@ -51,6 +52,8 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                              const struct rpl_opt_config *config,
                              const struct rpl_opt_prefix *prefix)
 {
+    bool update = nce->rpl->dio_base.rank != dio_base->rank;
+
     WARN_ON(nce->rpl->dio_base.instance_id != dio_base->instance_id);
     WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio_base.dodag_id.s6_addr, &dio_base->dodag_id));
     WARN_ON(memcmp(&nce->rpl->config, config, sizeof(nce->rpl->config)));
@@ -59,6 +62,8 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     // TODO: timer for prefix lifetime
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
           tr_ipv6(nce->gua.s6_addr), ntohs(dio_base->rank));
+    if (update)
+        rpl_mrhof_select_parent(ipv6);
 }
 
 static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
@@ -72,11 +77,16 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     nce->rpl->config   = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
     rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
+    rpl_mrhof_select_parent(ipv6);
 }
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
+    if (nce->rpl->is_parent) {
+        nce->rpl->dio_base.rank = RPL_RANK_INFINITE;
+        rpl_mrhof_select_parent(ipv6);
+    }
     free(nce->rpl);
     nce->rpl = NULL;
 }
@@ -85,8 +95,8 @@ struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *nce;
 
-    // TODO: proper parent selection, currently this returns the 1st in cache
-    return SLIST_FIND(nce, &ipv6->neigh_cache, link, nce->rpl);
+    return SLIST_FIND(nce, &ipv6->neigh_cache, link,
+                      nce->rpl && nce->rpl->is_parent);
 }
 
 static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,
@@ -289,19 +299,10 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     ipv6_addr_conv_iid_eui64(eui64, src->s6_addr + 8);
     nce = ipv6_neigh_fetch(ipv6, &addr, eui64);
 
-    if (!nce->rpl) {
-        // TODO: parent selection
-        if (rpl_neigh_pref_parent(ipv6)) {
-            TRACE(TR_DROP, "drop %-9s: parent already selected", "rpl-dio");
-            goto drop_neigh;
-        }
+    if (!nce->rpl)
         rpl_neigh_add(ipv6, nce, dio_base, config, prefix);
-        TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
-              dio_base->instance_id, dio_base->dodag_verno,
-              tr_ipv6(dio_base->dodag_id.s6_addr));
-        if (ipv6->rpl.on_pref_parent_change)
-            ipv6->rpl.on_pref_parent_change(ipv6, nce);
-    }
+    else
+        rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
 
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
@@ -321,7 +322,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
                              const uint8_t *buf, size_t buf_len)
 {
     const struct rpl_dao_ack_base *dao_ack;
-    struct ipv6_neigh *parent;
+    struct ipv6_neigh *parent, *nce;
     struct iobuf_read iobuf = {
         .data_size = buf_len,
         .data = buf,
@@ -357,6 +358,9 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
      * DAO schedule with rpl_start_dao() on every parent change, and refuse
      * DAO-ACKs for previously sent DAOs.
      */
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
+        if (nce->rpl)
+            nce->rpl->dao_ack_received = false;
     parent->rpl->dao_ack_received = true;
     dbus_emit_change("PrimaryParent");
 }
@@ -432,6 +436,11 @@ void rpl_start(struct ipv6_ctx *ipv6)
 {
     struct icmp6_filter filter;
     int err;
+
+    BUG_ON(!ipv6->rpl.mrhof.ws_neigh_table);
+    BUG_ON(!ipv6->rpl.mrhof.max_link_metric);
+    BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
+    ipv6->rpl.mrhof.cur_min_path_cost = ipv6->rpl.mrhof.max_path_cost;
 
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);

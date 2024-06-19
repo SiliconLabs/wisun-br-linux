@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "app_wsrd/ipv6/rpl_mrhof.h"
 #include "app_wsrd/ipv6/rpl_pkt.h"
 #include "common/rfc8415_txalg.h"
 
@@ -25,9 +26,12 @@ struct ipv6_ctx;
 struct ipv6_neigh;
 struct timer_ctxt;
 
+#define RPL_RANK_INFINITE UINT16_MAX
+
 struct rpl_neigh {
     struct rpl_dio_base dio_base;
     struct rpl_opt_config config;
+    bool is_parent;
     bool dao_ack_received;
 };
 
@@ -36,8 +40,7 @@ struct rpl_ctx {
 
     struct rfc8415_txalg dao_txalg;
     uint8_t dao_seq;
-
-    void (*on_pref_parent_change)(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
+    struct rpl_mrhof mrhof;
 };
 
 void rpl_start(struct ipv6_ctx *ipv6);

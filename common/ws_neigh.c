@@ -92,6 +92,9 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
      * minutes.
      */
     timer_start_rel(&table->timer_group, &neigh->etx_timer_outdated, 30 * 60 * 1000);
+
+    if (table->on_etx_update)
+        table->on_etx_update(table, neigh);
 }
 
 static void ws_neigh_etx_timeout_outdated(struct timer_group *group, struct timer_entry *timer)

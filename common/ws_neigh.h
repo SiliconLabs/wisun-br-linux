@@ -142,6 +142,9 @@ struct ws_neigh_table {
     // Called when ETX is out-of-date. This should initiate some traffic in
     // order to measure ETX.
     void (*on_etx_outdated)(struct ws_neigh_table *table, struct ws_neigh *neigh);
+
+    // Called when ETX has changed, in order to update RPL parents.
+    void (*on_etx_update)(struct ws_neigh_table *table, struct ws_neigh *neigh);
 };
 
 struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const uint8_t *mac64);
