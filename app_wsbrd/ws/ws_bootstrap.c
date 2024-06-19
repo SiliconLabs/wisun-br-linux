@@ -142,12 +142,12 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
     }
 }
 
-void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, const uint8_t *mac64)
+void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
     struct net_if *cur = container_of(table, struct net_if, ws_info.neighbor_storage);
 
-    lowpan_adaptation_free_messages_from_queues_by_address(cur, mac64, ADDR_802_15_4_LONG);
-    nd_remove_aro_routes_by_eui64(cur, mac64);
+    lowpan_adaptation_free_messages_from_queues_by_address(cur, neigh->mac64, ADDR_802_15_4_LONG);
+    nd_remove_aro_routes_by_eui64(cur, neigh->mac64);
     if (!ws_neigh_lfn_count(&cur->ws_info.neighbor_storage))
         ws_timer_stop(WS_TIMER_LTS);
 }

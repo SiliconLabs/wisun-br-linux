@@ -137,7 +137,7 @@ struct ws_neigh_table {
     struct timer_group timer_group;
     struct ws_neigh_list neigh_list;
     void (*on_add)(struct ws_neigh_table *table, struct ws_neigh *neigh);
-    void (*on_del)(struct ws_neigh_table *table, const uint8_t *mac64);              /*!< Neighbor Remove Callback notify */
+    void (*on_del)(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
     // Called when ETX is out-of-date. This should initiate some traffic in
     // order to measure ETX.

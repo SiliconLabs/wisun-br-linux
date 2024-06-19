@@ -38,7 +38,7 @@ int ws_bootstrap_init(int8_t interface_id);
 void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 
 void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh *ws_neigh);
-void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, const uint8_t *mac64);
+void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh *ws_neigh);
 
 
 void ws_bootstrap_fhss_activate(struct net_if *cur);
