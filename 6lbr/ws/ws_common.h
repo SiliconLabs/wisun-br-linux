@@ -109,6 +109,7 @@ typedef struct ws_info {
     struct ws_neigh_table neighbor_storage;
     struct ws_fhss_config fhss_config;
     int tx_power_dbm;
+    uint8_t edfe_src[8];
 } ws_info_t;
 
 int8_t ws_common_generate_channel_list(uint8_t chan_mask[32],
