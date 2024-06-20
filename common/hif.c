@@ -366,7 +366,7 @@ const char *hif_pop_str(struct iobuf_read *buf)
     const char *val = (char *)iobuf_ptr(buf);
     int len = strnlen(val, iobuf_remaining_size(buf));
 
-    if (len == iobuf_remaining_size(buf) && val[len - 1]) {
+    if (len == iobuf_remaining_size(buf)) {
         buf->err = true;
         return NULL;
     }
