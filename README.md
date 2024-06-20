@@ -113,8 +113,9 @@ example is available in `/usr/local/share/doc/wsbrd/examples/wsbrd.conf`.
 
 You can copy and edit it. You will notice that you need certificates and keys to
 authenticate your network's Wi-SUN nodes. The generation of these files is
-described in [[Generate Wi-SUN PKI]].  For now, you can use the certificate
-examples installed in `/usr/local/share/doc/wsbrd/examples/`.
+described in [[Generating the Wi-SUN Public Key Infrastructure]]. For now, you
+can use the certificate examples installed in
+`/usr/local/share/doc/wsbrd/examples/`.
 
 You also must provide the path of the UART representing your RCP device.
 
