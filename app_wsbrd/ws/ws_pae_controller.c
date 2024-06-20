@@ -956,12 +956,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct so
     }
 
     controller->sec_cfg.radius_cfg = pae_controller_config.radius_cfg;
-
-    if (ws_pae_auth_radius_address_set(controller->interface_ptr, address) < 0) {
-        // If not set here since authenticator not created, then set on authenticator initialization
-        return 0;
-    }
-
+    ws_pae_auth_radius_address_set(controller->interface_ptr, address);
     return 0;
 }
 
