@@ -389,7 +389,7 @@ static void rpl_transit_update(struct rpl_root *root,
     bool path_ctl_desync, path_ctl_old;
     struct rpl_transit transit;
     struct rpl_target *target;
-    bool nvm_store = false;
+    bool updated = false;
 
     BUG_ON(opt_target->prefix_len != 128);
     memcpy(transit.parent, opt_transit->parent, 16);
@@ -402,7 +402,7 @@ static void rpl_transit_update(struct rpl_root *root,
         target->external = opt_transit->external;
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
-        nvm_store = true;
+        updated = true;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
@@ -410,7 +410,7 @@ static void rpl_transit_update(struct rpl_root *root,
     if (root->compat) {
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
-        nvm_store = true;
+        updated = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
     } else {
@@ -426,7 +426,7 @@ static void rpl_transit_update(struct rpl_root *root,
             memset(target->transits, 0, sizeof(target->transits));
             target->path_seq = opt_transit->path_seq;
             target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
-            nvm_store = true;
+            updated = true;
             TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
                   tr_ipv6_prefix(target->prefix, 128), target->path_seq);
         }
@@ -442,11 +442,11 @@ static void rpl_transit_update(struct rpl_root *root,
             memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)) && !root->compat)
             WARN("%s: overwrite", __func__);
         target->transits[i] = transit;
-        nvm_store = true;
+        updated = true;
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if (nvm_store) {
+    if (updated) {
         rpl_storage_store_target(root, target);
         dbus_emit_nodes_change(ctxt);
         dbus_emit_routing_graph_change(ctxt);
@@ -544,7 +544,7 @@ void rpl_recv_srh_err(struct rpl_root *root,
         .data = pkt,
     };
     struct rpl_target *target;
-    bool nvm_store = false;
+    bool updated = false;
     const uint8_t *dst;
 
     //   RFC 6550 - 11.2.2.3. DAO Inconsistency Detection and Recovery
@@ -575,12 +575,12 @@ void rpl_recv_srh_err(struct rpl_root *root,
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!memcmp(target->transits[i].parent, src, 16)) {
             memset(target->transits + i, 0, sizeof(struct rpl_transit));
-            nvm_store = true;
+            updated = true;
             TRACE(TR_RPL, "rpl: transit remove target=%s parent=%s path-ctl-bit=%u",
                   tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
-    if (nvm_store) {
+    if (updated) {
         rpl_storage_store_target(root, target);
         dbus_emit_nodes_change(ctxt);
         dbus_emit_routing_graph_change(ctxt);
