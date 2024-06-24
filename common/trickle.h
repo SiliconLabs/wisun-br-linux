@@ -75,7 +75,4 @@ void trickle_inconsistent_heard(trickle_t *t, const trickle_params_t *params);
  */
 bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks);
 
-/* Return max time after n count expiration period 0 return 1 Imin - 1 period */
-uint32_t trickle_timer_max(const trickle_params_t *params, uint8_t trickle_timer_expiration);
-
 #endif
