@@ -19,7 +19,7 @@
 #include <stdint.h>
 
 #include "common/timer.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 
 /*
  * Implementation of a RPL non-storing root for a Linux host.
@@ -95,7 +95,7 @@ SLIST_HEAD(rpl_target_list, rpl_target);
 struct rpl_root {
     int sockfd;
 
-    struct trickle dio_trickle;
+    struct trickle_legacy dio_trickle;
     uint8_t dio_i_doublings;
     uint8_t dio_i_min;
     uint8_t dio_redundancy;

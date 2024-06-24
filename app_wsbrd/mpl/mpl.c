@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/endian.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
@@ -57,7 +57,7 @@ typedef struct mpl_data_message {
     bool running;
     bool colour;
     uint32_t timestamp;
-    trickle_t trickle;
+    trickle_legacy_t trickle;
     ns_list_link_t link;
     uint16_t mpl_opt_data_offset;   /* offset to option data of MPL option */
     uint8_t message[];
@@ -81,7 +81,7 @@ struct mpl_domain {
     bool colour;
     uint16_t seed_set_entry_lifetime;
     NS_LIST_HEAD(mpl_seed_t, link) seeds;
-    trickle_params_t data_trickle_params;
+    trickle_legacy_params_t data_trickle_params;
     ns_list_link_t link;
     uint8_t seed_id_mode;
 };
@@ -160,7 +160,7 @@ static int mpl_domain_count_on_interface(struct net_if *cur)
 
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 uint16_t seed_set_entry_lifetime, uint8_t seed_id_mode,
-                                const trickle_params_t *data_trickle_params)
+                                const trickle_legacy_params_t *data_trickle_params)
 {
     mpl_domain_t *domain;
 
@@ -347,7 +347,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->colour = seed->colour;
     message->timestamp = g_monotonic_time_100ms;
     /* Make sure trickle structure is initialised */
-    trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
+    trickle_legacy_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
 
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
@@ -407,7 +407,7 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
 
 static void mpl_buffer_inconsistent(const mpl_domain_t *domain, mpl_buffered_message_t *message)
 {
-    trickle_inconsistent_heard(&message->trickle, &domain->data_trickle_params);
+    trickle_legacy_inconsistent(&message->trickle, &domain->data_trickle_params);
 }
 
 static uint8_t mpl_seed_id_len(uint8_t seed_id_type)
@@ -543,7 +543,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     mpl_buffered_message_t *message = mpl_buffer_lookup(seed, sequence);
     if (message) {
         tr_debug("Repeated MPL message %"PRIu8, sequence);
-        trickle_consistent_heard(&message->trickle);
+        trickle_legacy_consistent(&message->trickle);
         return false;
     }
 
@@ -599,12 +599,12 @@ void mpl_timer(int seconds)
              * it to be restarted by control messages.
              */
             ns_list_foreach_safe(mpl_buffered_message_t, message, &seed->messages) {
-                if (!trickle_running(&message->trickle, &domain->data_trickle_params) &&
+                if (!trickle_legacy_running(&message->trickle, &domain->data_trickle_params) &&
                         g_monotonic_time_100ms - message->timestamp >= message_age_limit) {
                     seed->min_sequence = mpl_buffer_sequence(message) + 1;
                     mpl_buffer_delete(seed, message);
                 }
-                if (trickle_timer(&message->trickle, &domain->data_trickle_params, seconds))
+                if (trickle_legacy_tick(&message->trickle, &domain->data_trickle_params, seconds))
                     mpl_buffer_transmit(domain, message, ns_list_get_next(&seed->messages, message) == NULL);
             }
         }

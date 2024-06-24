@@ -15,16 +15,16 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 
 struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
 struct ws_info;
 
 struct ws_mngt {
-    trickle_params_t trickle_params;
-    trickle_t trickle_pa;
-    trickle_t trickle_pc;
+    trickle_legacy_params_t trickle_params;
+    trickle_legacy_t trickle_pa;
+    trickle_legacy_t trickle_pc;
     uint8_t lpa_dst[8];
     bool pan_advert_running;
     bool pan_config_running;

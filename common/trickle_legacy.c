@@ -20,10 +20,10 @@
 #include "common/rand.h"
 #include "common/log.h"
 
-#include "trickle.h"
+#include "trickle_legacy.h"
 
 /* RFC 6206 Rule 2 */
-void trickle_begin_interval(trickle_t *t, const trickle_params_t *params)
+void trickle_begin_interval(trickle_legacy_t *t, const trickle_legacy_params_t *params)
 {
     t->c = 0;
     if (t->I > 2) { //Take random only when t->I is bigger than 2 otherwise result will be 1
@@ -37,7 +37,7 @@ void trickle_begin_interval(trickle_t *t, const trickle_params_t *params)
 }
 
 /* RFC 6206 Rule 1 */
-void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t *params)
+void trickle_legacy_start(trickle_legacy_t *t, const char *debug_name, const trickle_legacy_params_t *params)
 {
     t->debug_name = debug_name;
     t->e = 0;
@@ -48,7 +48,7 @@ void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t 
 /* We don't expose the raw reset as API; users should use "inconsistent_heard".
  * This avoids repeated resets stopping transmission by restarting the interval.
  */
-static void trickle_reset_timer(trickle_t *t, const trickle_params_t *params)
+static void trickle_reset_timer(trickle_legacy_t *t, const trickle_legacy_params_t *params)
 {
     t->e = 0;
     t->I = params->Imin;
@@ -56,7 +56,7 @@ static void trickle_reset_timer(trickle_t *t, const trickle_params_t *params)
 }
 
 /* RFC 6206 Rule 3 */
-void trickle_consistent_heard(trickle_t *t)
+void trickle_legacy_consistent(trickle_legacy_t *t)
 {
     if (t->c < UINT8_MAX) {
         t->c++;
@@ -64,29 +64,29 @@ void trickle_consistent_heard(trickle_t *t)
 }
 
 /* RFC 6206 Rule 6 */
-void trickle_inconsistent_heard(trickle_t *t, const trickle_params_t *params)
+void trickle_legacy_inconsistent(trickle_legacy_t *t, const trickle_legacy_params_t *params)
 {
-    if (t->I != params->Imin || !trickle_running(t, params)) {
+    if (t->I != params->Imin || !trickle_legacy_running(t, params)) {
         trickle_reset_timer(t, params);
     }
 }
 
-bool trickle_running(const trickle_t *t, const trickle_params_t *params)
+bool trickle_legacy_running(const trickle_legacy_t *t, const trickle_legacy_params_t *params)
 {
     return t->e < params->TimerExpirations;
 }
 
 
 /* Returns true if you should transmit now */
-bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
+bool trickle_legacy_tick(trickle_legacy_t *t, const trickle_legacy_params_t *params, uint16_t ticks)
 {
     const char *status;
-    if (!trickle_running(t, params)) {
+    if (!trickle_legacy_running(t, params)) {
         return false;
     }
 
     bool transmit = false;
-    trickle_time_t new_time = t->now + ticks;
+    trickle_legacy_time_t new_time = t->now + ticks;
 
     /* Catch overflow */
     if (new_time < t->now) {
@@ -129,7 +129,7 @@ bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
 }
 
 /* Stop the timer (by setting e to infinite) */
-void trickle_stop(trickle_t *t)
+void trickle_legacy_stop(trickle_legacy_t *t)
 {
     t->e = TRICKLE_EXPIRATIONS_INFINITE;
 }

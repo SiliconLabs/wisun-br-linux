@@ -27,7 +27,7 @@
 /* Trickle time is in arbitrary ticks - users can choose appropriate size
  * per algorithm implementation.
  */
-typedef uint16_t trickle_time_t;
+typedef uint16_t trickle_legacy_time_t;
 
 #define TRICKLE_TIME_MAX    UINT16_MAX
 
@@ -38,41 +38,41 @@ typedef uint16_t trickle_time_t;
  */
 
 /* Public structure - fill in with your Trickle algorithm parameters */
-typedef struct trickle_params {
-    trickle_time_t Imin;    /* minimum interval */
-    trickle_time_t Imax;    /* maximum interval */
+typedef struct trickle_legacy_params {
+    trickle_legacy_time_t Imin;    /* minimum interval */
+    trickle_legacy_time_t Imax;    /* maximum interval */
     uint8_t k;              /* redundancy constant (0 = infinity) */
     uint8_t TimerExpirations; /* MPL: expirations before terminating (0 = don't run, 0xFF = infinity) */
-} trickle_params_t;
+} trickle_legacy_params_t;
 
-/* This structure is read-only for users. Initialised by trickle_start() */
-typedef struct trickle {
+/* This structure is read-only for users. Initialised by trickle_legacy_start() */
+typedef struct trickle_legacy {
     const char *debug_name;
     uint8_t c;              /* counter */
     uint8_t e;              /* MPL: expiration events since the Trickle timer was last reset */
-    trickle_time_t I;       /* current interval */
-    trickle_time_t t;       /* potential transmission time */
-    trickle_time_t now;     /* time counter */
-} trickle_t;
+    trickle_legacy_time_t I;       /* current interval */
+    trickle_legacy_time_t t;       /* potential transmission time */
+    trickle_legacy_time_t now;     /* time counter */
+} trickle_legacy_t;
 
 /* Initialize */
-void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t *params);
+void trickle_legacy_start(trickle_legacy_t *t, const char *debug_name, const trickle_legacy_params_t *params);
 
 /* Stop the timer (by setting e to infinite) */
-void trickle_stop(trickle_t *t);
+void trickle_legacy_stop(trickle_legacy_t *t);
 
 /* Indicate whether the timer is running (e < TimerExpirations) */
-bool trickle_running(const trickle_t *t, const trickle_params_t *params);
+bool trickle_legacy_running(const trickle_legacy_t *t, const trickle_legacy_params_t *params);
 
 /* Call when you have a received an up-to-date information */
-void trickle_consistent_heard(trickle_t *t);
+void trickle_legacy_consistent(trickle_legacy_t *t);
 
 /* Call when you have a received an out-of-date information */
-void trickle_inconsistent_heard(trickle_t *t, const trickle_params_t *params);
+void trickle_legacy_inconsistent(trickle_legacy_t *t, const trickle_legacy_params_t *params);
 
-/* Call regulary with the number of tick since trickle_start(). If return true,
+/* Call regulary with the number of tick since trickle_legacy_start(). If return true,
  * you should transmit information now
  */
-bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks);
+bool trickle_legacy_tick(trickle_legacy_t *t, const trickle_legacy_params_t *params, uint16_t ticks);
 
 #endif

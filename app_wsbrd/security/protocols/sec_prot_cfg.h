@@ -21,12 +21,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 
 /* Security protocol configuration settings */
 
 typedef struct sec_prot_cfg {
-    trickle_params_t sec_prot_trickle_params;
+    trickle_legacy_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
 } sec_prot_cfg_t;
 
@@ -47,7 +47,7 @@ typedef struct sec_radius_cfg {
     struct sockaddr_storage radius_addr;             /**< Radius server IP address */
     const uint8_t *radius_shared_secret;             /**< Radius shared secret */
     uint16_t radius_shared_secret_len;               /**< Radius shared secret length */
-    trickle_params_t radius_retry_trickle_params;    /**< Radius retry trickle params */
+    trickle_legacy_params_t radius_retry_trickle_params; /**< Radius retry trickle params */
     bool radius_addr_set : 1;                        /**< Radius server address is set */
 } sec_radius_cfg_t;
 

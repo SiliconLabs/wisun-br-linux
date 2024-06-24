@@ -13,7 +13,7 @@
 #include <time.h>
 #include "common/log.h"
 #include "common/rand.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/specs/ieee802154.h"
 #include "common/ws_ie.h"
 #include "common/specs/ws.h"
@@ -125,7 +125,7 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
     if (ie_pan.routing_cost != 0xFFFF)
-        trickle_consistent_heard(&ws_info->mngt.trickle_pa);
+        trickle_legacy_consistent(&ws_info->mngt.trickle_pa);
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
@@ -150,7 +150,7 @@ void ws_mngt_pas_analyze(struct ws_info *ws_info,
         return;
 
     ws_mngt_ie_pom_handle(ws_info, data, ie_ext);
-    trickle_inconsistent_heard(&ws_info->mngt.trickle_pa,
+    trickle_legacy_inconsistent(&ws_info->mngt.trickle_pa,
                                &ws_info->mngt.trickle_params);
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
@@ -201,9 +201,9 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
     }
 
     if (ws_info->pan_information.pan_version == ws_pan_version)
-        trickle_consistent_heard(&ws_info->mngt.trickle_pc);
+        trickle_legacy_consistent(&ws_info->mngt.trickle_pc);
     else
-        trickle_inconsistent_heard(&ws_info->mngt.trickle_pc,
+        trickle_legacy_inconsistent(&ws_info->mngt.trickle_pc,
                                    &ws_info->mngt.trickle_params);
 
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
@@ -235,7 +235,7 @@ void ws_mngt_pcs_analyze(struct ws_info *ws_info,
         return;
     }
 
-    trickle_inconsistent_heard(&ws_info->mngt.trickle_pc,
+    trickle_legacy_inconsistent(&ws_info->mngt.trickle_pc,
                                &ws_info->mngt.trickle_params);
 
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
@@ -523,26 +523,26 @@ void ws_mngt_pc_send(struct ws_info *ws_info)
 
 void ws_mngt_async_trickle_start(struct ws_info *ws_info)
 {
-    trickle_start(&ws_info->mngt.trickle_pa, "ADV", &ws_info->mngt.trickle_params);
-    trickle_start(&ws_info->mngt.trickle_pc, "CFG", &ws_info->mngt.trickle_params);
+    trickle_legacy_start(&ws_info->mngt.trickle_pa, "ADV", &ws_info->mngt.trickle_params);
+    trickle_legacy_start(&ws_info->mngt.trickle_pc, "CFG", &ws_info->mngt.trickle_params);
 }
 
 void ws_mngt_async_trickle_stop(struct ws_info *ws_info)
 {
-    trickle_stop(&ws_info->mngt.trickle_pa);
-    trickle_stop(&ws_info->mngt.trickle_pc);
+    trickle_legacy_stop(&ws_info->mngt.trickle_pa);
+    trickle_legacy_stop(&ws_info->mngt.trickle_pc);
 }
 
 void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
 {
-    trickle_inconsistent_heard(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params);
+    trickle_legacy_inconsistent(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params);
 }
 
 void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks)
 {
-    if (trickle_timer(&ws_info->mngt.trickle_pa, &ws_info->mngt.trickle_params, ticks))
+    if (trickle_legacy_tick(&ws_info->mngt.trickle_pa, &ws_info->mngt.trickle_params, ticks))
         ws_mngt_pa_send(ws_info);
-    if (trickle_timer(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params, ticks))
+    if (trickle_legacy_tick(&ws_info->mngt.trickle_pc, &ws_info->mngt.trickle_params, ticks))
         ws_mngt_pc_send(ws_info);
 }
 

@@ -152,7 +152,7 @@ add_library(libwsbrd STATIC
     common/ipv6_flow_label.c
     common/hif.c
     common/spinel.c
-    common/trickle.c
+    common/trickle_legacy.c
     common/ws_chan_mask.c
     common/ws_regdb.c
     common/key_value_storage.c

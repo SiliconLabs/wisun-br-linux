@@ -140,9 +140,9 @@ static void rpl_transit_expire(struct timer_group *group, struct timer_entry *ti
         rpl_transit_update_timer(root, target);
 }
 
-static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params *params)
+static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_legacy_params *params)
 {
-    memset(params, 0, sizeof(struct trickle_params));
+    memset(params, 0, sizeof(struct trickle_legacy_params));
     //   RFC 6550 - 8.3.1. Trickle Parameters
     // Imin: learned from the DIO message as (2^DIOIntervalMin) ms.
     params->Imin = roundup(POW2(root->dio_i_min),
@@ -155,7 +155,7 @@ static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_params 
 
 void rpl_dodag_version_inc(struct rpl_root *root)
 {
-    struct trickle_params dio_trickle_params;
+    struct trickle_legacy_params dio_trickle_params;
 
     root->dodag_version_number = rpl_lollipop_inc(root->dodag_version_number);
     //   RFC 6550 - 8.3. DIO Transmission
@@ -164,16 +164,16 @@ void rpl_dodag_version_inc(struct rpl_root *root)
     // - When a node joins a new DODAG Version (e.g., by updating its
     //   DODAGVersionNumber, joining a new RPL Instance, etc.).
     rpl_dio_trickle_params(root, &dio_trickle_params);
-    trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
+    trickle_legacy_inconsistent(&root->dio_trickle, &dio_trickle_params);
 }
 
 void rpl_dtsn_inc(struct rpl_root *root)
 {
-    struct trickle_params dio_trickle_params;
+    struct trickle_legacy_params dio_trickle_params;
 
     root->dtsn++;
     rpl_dio_trickle_params(root, &dio_trickle_params);
-    trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
+    trickle_legacy_inconsistent(&root->dio_trickle, &dio_trickle_params);
 }
 
 // RFC 6550 - 6.7.1. RPL Control Message Option Generic Format
@@ -338,7 +338,7 @@ static bool rpl_opt_solicit_matches(struct iobuf_read *opt_buf, struct rpl_root 
 static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
                          const uint8_t src[16], const uint8_t dst[16])
 {
-    struct trickle_params dio_trickle_params;
+    struct trickle_legacy_params dio_trickle_params;
     struct iobuf_read opt_buf;
     struct iobuf_read buf = {
         .data_size = size,
@@ -379,7 +379,7 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     // RFC 6550 - 8.3. DIO Transmission
     if (IN6_IS_ADDR_MULTICAST(dst)) {
         rpl_dio_trickle_params(root, &dio_trickle_params);
-        trickle_inconsistent_heard(&root->dio_trickle, &dio_trickle_params);
+        trickle_legacy_inconsistent(&root->dio_trickle, &dio_trickle_params);
     } else {
         rpl_send_dio(root, src);
     }
@@ -691,7 +691,7 @@ void rpl_recv(struct rpl_root *root)
 void rpl_start(struct rpl_root *root,
                const char ifname[IF_NAMESIZE])
 {
-    struct trickle_params dio_trickle_params;
+    struct trickle_legacy_params dio_trickle_params;
     struct icmp6_filter filter;
     int err;
 
@@ -721,17 +721,17 @@ void rpl_start(struct rpl_root *root,
     FATAL_ON(err < 0, 2, "%s: setsockopt ICMP6_FILTER: %m", __func__);
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
-    trickle_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
+    trickle_legacy_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
     timer_group_init(&root->timer_group);
     ws_timer_start(WS_TIMER_RPL);
 }
 
 void rpl_timer(int ticks)
 {
-    struct trickle_params dio_trickle_params;
+    struct trickle_legacy_params dio_trickle_params;
     struct rpl_root *root = &g_ctxt.net_if.rpl_root;
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
-    if (trickle_timer(&root->dio_trickle, &dio_trickle_params, ticks))
+    if (trickle_legacy_tick(&root->dio_trickle, &dio_trickle_params, ticks))
         rpl_send_dio(root, rpl_all_nodes);
 }

@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 

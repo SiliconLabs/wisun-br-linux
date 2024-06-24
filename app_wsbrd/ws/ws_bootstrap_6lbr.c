@@ -23,7 +23,7 @@
 #include "common/rand.h"
 #include "common/mathutils.h"
 #include "common/ws_regdb.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/named_values.h"
 #include "common/endian.h"
 #include "common/events_scheduler.h"

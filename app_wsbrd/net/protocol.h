@@ -18,7 +18,7 @@
 #ifndef _NS_PROTOCOL_H
 #define _NS_PROTOCOL_H
 #include "common/random_early_detection.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/ns_list.h"
 
 #include "net/protocol_abstract.h"

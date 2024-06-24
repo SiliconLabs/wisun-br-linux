@@ -20,7 +20,7 @@
 #define SEC_PROT_LIB_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "security/protocols/sec_prot_keys.h"
 
 struct eapol_pdu;
@@ -45,7 +45,7 @@ struct eapol_pdu;
 
 // Common data shared between security protocols needing general timers and state machines
 typedef struct sec_prot_common {
-    trickle_t                     trickle_timer;    /**< Trickle timer for re-sending */
+    trickle_legacy_t              trickle_timer;    /**< Trickle timer for re-sending */
     uint16_t                      ticks;            /**< Timer ticks */
     int8_t                        state;            /**< Protocol state machine state */
     sec_prot_result_e             result;           /**< Result for ongoing negotiation */
@@ -213,7 +213,7 @@ void sec_prot_init(sec_prot_common_t *data);
  * \param trickle_params trickle parameters
  *
  */
-void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, const trickle_params_t *trickle_params, uint16_t ticks);
+void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, const trickle_legacy_params_t *trickle_params, uint16_t ticks);
 
 /**
  * sec_prot_timer_trickle_start starts trickle timer
@@ -222,7 +222,7 @@ void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, co
  * \param trickle_params trickle parameters
  *
  */
-void sec_prot_timer_trickle_start(sec_prot_common_t *data, const trickle_params_t *trickle_params);
+void sec_prot_timer_trickle_start(sec_prot_common_t *data, const trickle_legacy_params_t *trickle_params);
 
 /**
  * sec_prot_timer_trickle_stop stops trickle timer

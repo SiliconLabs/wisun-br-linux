@@ -25,7 +25,7 @@
 #include <mbedtls/compat-2.x.h>
 #endif
 #include "common/rand.h"
-#include "common/trickle.h"
+#include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
 #include "common/nist_kw.h"
 #include "common/ns_list.h"
@@ -56,19 +56,19 @@ void sec_prot_init(sec_prot_common_t *data)
     data->trickle_running = false;
 }
 
-void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, const trickle_params_t *trickle_params, uint16_t ticks)
+void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, const trickle_legacy_params_t *trickle_params, uint16_t ticks)
 {
     if (data->trickle_running && trickle_params) {
-        bool running = trickle_running(&data->trickle_timer, trickle_params);
+        bool running = trickle_legacy_running(&data->trickle_timer, trickle_params);
 
         // Checks for trickle timer expiration */
-        if (trickle_timer(&data->trickle_timer, trickle_params, ticks)) {
+        if (trickle_legacy_tick(&data->trickle_timer, trickle_params, ticks)) {
             sec_prot_result_set(data, SEC_RESULT_TIMEOUT);
             prot->state_machine(prot);
         }
 
         // Checks if maximum number of trickle timer expirations has happened
-        if (running && !trickle_running(&data->trickle_timer, trickle_params)) {
+        if (running && !trickle_legacy_running(&data->trickle_timer, trickle_params)) {
             sec_prot_result_set(data, SEC_RESULT_TIMEOUT);
             sec_prot_state_set(prot, data, SEC_STATE_FINISH);
         }
@@ -89,16 +89,16 @@ void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, co
     }
 }
 
-void sec_prot_timer_trickle_start(sec_prot_common_t *data, const trickle_params_t *trickle_params)
+void sec_prot_timer_trickle_start(sec_prot_common_t *data, const trickle_legacy_params_t *trickle_params)
 {
-    trickle_start(&data->trickle_timer, "SECURITY", trickle_params);
-    trickle_inconsistent_heard(&data->trickle_timer, trickle_params);
+    trickle_legacy_start(&data->trickle_timer, "SECURITY", trickle_params);
+    trickle_legacy_inconsistent(&data->trickle_timer, trickle_params);
     data->trickle_running = true;
 }
 
 void sec_prot_timer_trickle_stop(sec_prot_common_t *data)
 {
-    trickle_stop(&data->trickle_timer);
+    trickle_legacy_stop(&data->trickle_timer);
     data->trickle_running = false;
 }
 
