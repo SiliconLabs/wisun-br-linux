@@ -154,7 +154,7 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     return neigh;
 }
 
-struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64)
+struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const uint8_t *mac64)
 {
     struct ws_neigh *neigh;
 

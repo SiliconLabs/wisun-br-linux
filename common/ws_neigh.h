@@ -144,7 +144,7 @@ struct ws_neigh_table {
     void (*on_etx_outdated)(struct ws_neigh_table *table, struct ws_neigh *neigh);
 };
 
-struct ws_neigh *ws_neigh_get(struct ws_neigh_table *table, const uint8_t *mac64);
+struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const uint8_t *mac64);
 
 void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64);
 
