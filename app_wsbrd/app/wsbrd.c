@@ -139,6 +139,8 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0,                   // source id
                              0xffffffff,          // lifetime
                              0);                  // pref
+    tun_add_node_to_proxy_neightbl(&ctxt->net_if, target->prefix);
+    tun_add_ipv6_direct_route(&ctxt->net_if, target->prefix);
 }
 
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)
