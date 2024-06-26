@@ -29,6 +29,4 @@ void rpl_glue_init(struct net_if *net_if);
 bool rpl_glue_process_rpi(struct rpl_root *root, struct buffer *buf,
                           const uint8_t *opt, uint8_t opt_len);
 
-void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len);
-
 #endif

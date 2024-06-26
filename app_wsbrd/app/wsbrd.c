@@ -70,6 +70,7 @@
 
 static void wsbr_handle_reset(struct rcp *rcp);
 static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target);
+static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target);
 
 // See warning in wsbrd.h
@@ -101,7 +102,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
     .net_if.rpl_root.instance_id      = 0,
     .net_if.rpl_root.on_target_add    = wsbr_rpl_target_add,
-    .net_if.rpl_root.route_del = rpl_glue_route_del,
+    .net_if.rpl_root.on_target_del    = wsbr_rpl_target_del,
     .net_if.rpl_root.on_target_update = wsbr_rpl_target_update,
 
     .net_if.llc_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
@@ -138,6 +139,22 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0,                   // source id
                              0xffffffff,          // lifetime
                              0);                  // pref
+}
+
+static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)
+{
+    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
+
+    ipv6_route_delete_with_info(target->prefix,      // prefix
+                                128,                 // prefix length
+                                ctxt->net_if.id,     // interface id
+                                in6addr_any.s6_addr, // next hop
+                                ROUTE_RPL_DAO_SR,    // source
+                                (void *)root,        // info
+                                0);                  // source id
+    rpl_storage_del_target(root, target);
+    dbus_emit_nodes_change(ctxt);
+    dbus_emit_routing_graph_change(ctxt);
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)

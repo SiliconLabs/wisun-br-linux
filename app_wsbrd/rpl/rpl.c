@@ -17,7 +17,6 @@
 
 #include "net/timers.h"
 #include "app/wsbrd.h" // FIXME
-#include "app/dbus.h"
 #include "common/bits.h"
 #include "common/capture.h"
 #include "common/iobuf.h"
@@ -87,15 +86,11 @@ struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16
 
 void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
 {
-    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
-
     TRACE(TR_RPL, "rpl: target  remove prefix=%s", tr_ipv6_prefix(target->prefix, 128));
     SLIST_REMOVE(&root->targets, target, rpl_target, link);
-    root->route_del(root, target->prefix, 128);
-    rpl_storage_del_target(root, target);
+    if (root->on_target_del)
+        root->on_target_del(root, target);
     free(target);
-    dbus_emit_nodes_change(ctxt);
-    dbus_emit_routing_graph_change(ctxt);
 }
 
 uint16_t rpl_target_count(struct rpl_root *root)
@@ -707,7 +702,6 @@ void rpl_start(struct rpl_root *root,
     //   Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     // The RPLInstanceID MUST be of the global form.
     BUG_ON(FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, root->instance_id) != RPL_INSTANCE_ID_TYPE_GLOBAL);
-    BUG_ON(!root->route_del);
 
     root->sockfd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(root->sockfd < 0, 2, "%s: socket: %m", __func__);
