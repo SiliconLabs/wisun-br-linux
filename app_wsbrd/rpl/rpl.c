@@ -419,7 +419,6 @@ static void rpl_transit_update(struct rpl_root *root,
                                struct rpl_opt_target *opt_target,
                                struct rpl_opt_transit *opt_transit)
 {
-    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
     bool path_ctl_desync, path_ctl_old;
     struct rpl_transit transit;
     struct rpl_target *target;
@@ -480,11 +479,8 @@ static void rpl_transit_update(struct rpl_root *root,
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if (updated) {
-        rpl_storage_store_target(root, target);
-        dbus_emit_nodes_change(ctxt);
-        dbus_emit_routing_graph_change(ctxt);
-    }
+    if (updated && root->on_target_update)
+        root->on_target_update(root, target);
     rpl_transit_update_timer(root, target);
 }
 
@@ -573,7 +569,6 @@ void rpl_recv_srh_err(struct rpl_root *root,
                       const uint8_t *pkt, size_t size,
                       const uint8_t src[16])
 {
-    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
     struct iobuf_read iobuf = {
         .data_size = size,
         .data = pkt,
@@ -615,11 +610,8 @@ void rpl_recv_srh_err(struct rpl_root *root,
                   tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
-    if (updated) {
-        rpl_storage_store_target(root, target);
-        dbus_emit_nodes_change(ctxt);
-        dbus_emit_routing_graph_change(ctxt);
-    }
+    if (updated && root->on_target_update)
+        root->on_target_update(root, target);
 }
 
 static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t size,

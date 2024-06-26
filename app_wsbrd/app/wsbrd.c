@@ -69,6 +69,7 @@
 #include "tun.h"
 
 static void wsbr_handle_reset(struct rcp *rcp);
+static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target);
 
 // See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
@@ -100,6 +101,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.rpl_root.instance_id      = 0,
     .net_if.rpl_root.route_add = rpl_glue_route_add,
     .net_if.rpl_root.route_del = rpl_glue_route_del,
+    .net_if.rpl_root.on_target_update = wsbr_rpl_target_update,
 
     .net_if.llc_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
     .net_if.llc_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
@@ -121,6 +123,15 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_config.bsi = -1,
 };
+
+static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
+{
+    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
+
+    rpl_storage_store_target(root, target);
+    dbus_emit_nodes_change(ctxt);
+    dbus_emit_routing_graph_change(ctxt);
+}
 
 static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 {
