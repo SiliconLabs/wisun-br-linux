@@ -312,7 +312,10 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
     wsrd_init_key(wsrd);
-    dbus_register("/com/silabs/Wisun/Router", "com.silabs.Wisun.Router", wsrd_dbus_vtable, wsrd);
+    dbus_register("com.silabs.Wisun.Router",
+                  "/com/silabs/Wisun/Router",
+                  "com.silabs.Wisun.Router",
+                  wsrd_dbus_vtable, wsrd);
 
     INFO("Wi-SUN Router successfully started");
 

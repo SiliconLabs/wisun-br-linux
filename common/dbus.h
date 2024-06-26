@@ -17,7 +17,7 @@ struct sd_bus_vtable;
 
 #ifdef HAVE_LIBSYSTEMD
 
-void dbus_register(const char *path, const char *interface,
+void dbus_register(const char *name, const char *path, const char *interface,
                    const struct sd_bus_vtable *vtable, void *app_ctxt);
 int dbus_get_fd(void);
 int dbus_process(void);
@@ -28,7 +28,7 @@ void dbus_emit_change(const char *property_name);
 
 #include "common/log.h"
 
-static inline void dbus_register(const char *path, const char *interface,
+static inline void dbus_register(const char *name, const char *path, const char *interface,
                                  const struct sd_bus_vtable *vtable, void *app_ctxt)
 {
     WARN("support for DBus is disabled");

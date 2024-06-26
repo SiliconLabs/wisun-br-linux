@@ -648,7 +648,8 @@ int wsbr_main(int argc, char *argv[])
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);
     wsbr_network_init(ctxt);
-    dbus_register("/com/silabs/Wisun/BorderRouter",
+    dbus_register("com.silabs.Wisun.BorderRouter",
+                  "/com/silabs/Wisun/BorderRouter",
                   "com.silabs.Wisun.BorderRouter",
                   wsbrd_dbus_vtable, ctxt);
     if (ctxt->config.user[0] && ctxt->config.group[0])

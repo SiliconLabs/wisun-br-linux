@@ -37,7 +37,7 @@ void dbus_emit_change(const char *property_name)
         WARN("sd_bus_emit_properties_changed \"%s\": %s", property_name, strerror(-ret));
 }
 
-void dbus_register(const char *path, const char *interface,
+void dbus_register(const char *name, const char *path, const char *interface,
                    const struct sd_bus_vtable *vtable, void *app_ctxt)
 {
     struct dbus_ctx *dbus_ctx = &g_dbus;
@@ -68,10 +68,10 @@ void dbus_register(const char *path, const char *interface,
         return;
     }
 
-    ret = sd_bus_request_name(dbus_ctx->dbus, interface,
+    ret = sd_bus_request_name(dbus_ctx->dbus, name,
                               SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
     if (ret < 0) {
-        WARN("sd_bus_request_name \"%s\": %s", interface, strerror(-ret));
+        WARN("sd_bus_request_name \"%s\": %s", name, strerror(-ret));
         return;
     }
 
