@@ -743,7 +743,7 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
-static const sd_bus_vtable dbus_vtable[] = {
+const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
         SD_BUS_METHOD("JoinMulticastGroup",  "ay",     NULL, dbus_join_multicast_group,  0),
         SD_BUS_METHOD("LeaveMulticastGroup", "ay",     NULL, dbus_leave_multicast_group, 0),
@@ -808,60 +808,3 @@ static const sd_bus_vtable dbus_vtable[] = {
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_VTABLE_END
 };
-
-void dbus_register(struct wsbr_ctxt *ctxt)
-{
-    int ret;
-    char mode = 'A';
-    const char *env_var;
-    const char *dbus_scope = "undefined";
-
-    env_var = getenv("DBUS_STARTER_BUS_TYPE");
-    if (env_var && !strcmp(env_var, "system"))
-        mode = 'S';
-    if (env_var && !strcmp(env_var, "user"))
-        mode = 'U';
-    if (env_var && !strcmp(env_var, "session"))
-        mode = 'U';
-    if (mode == 'U' || mode == 'A')
-        ret = sd_bus_default_user(&ctxt->dbus);
-    if (mode == 'S' || (mode == 'A' && ret < 0))
-        ret = sd_bus_default_system(&ctxt->dbus);
-    if (ret < 0) {
-        WARN("DBus not available: %s", strerror(-ret));
-        return;
-    }
-
-    ret = sd_bus_add_object_vtable(ctxt->dbus, NULL, "/com/silabs/Wisun/BorderRouter",
-                                   "com.silabs.Wisun.BorderRouter",
-                                   dbus_vtable, ctxt);
-    if (ret < 0) {
-        WARN("%s: %s", __func__, strerror(-ret));
-        return;
-    }
-
-    ret = sd_bus_request_name(ctxt->dbus, "com.silabs.Wisun.BorderRouter",
-                              SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
-    if (ret < 0) {
-        WARN("%s: %s", __func__, strerror(-ret));
-        return;
-    }
-
-    sd_bus_get_scope(ctxt->dbus, &dbus_scope);
-    INFO("Successfully registered to %s DBus", dbus_scope);
-}
-
-int dbus_process(struct wsbr_ctxt *ctxt)
-{
-    BUG_ON(!ctxt->dbus);
-    sd_bus_process(ctxt->dbus, NULL);
-    return 0;
-}
-
-int dbus_get_fd(struct wsbr_ctxt *ctxt)
-{
-    if (ctxt->dbus)
-        return sd_bus_get_fd(ctxt->dbus);
-    else
-        return -1;
-}

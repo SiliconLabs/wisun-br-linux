@@ -16,18 +16,14 @@
 struct wsbr_ctxt;
 
 #ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-bus.h>
 
 void dbus_emit_keys_change(struct wsbr_ctxt *ctxt);
 void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt);
 void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt);
-void dbus_register(struct wsbr_ctxt *ctxt);
-int dbus_get_fd(struct wsbr_ctxt *ctxt);
-int dbus_process(struct wsbr_ctxt *ctxt);
 
+extern const struct sd_bus_vtable wsbrd_dbus_vtable[];
 #else
-
-#include "common/log.h"
-
 static inline void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {
 }
@@ -42,21 +38,7 @@ static inline void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt)
     /* empty */
 }
 
-static inline void dbus_register(struct wsbr_ctxt *ctxt)
-{
-    WARN("support for DBus is disabled");
-}
-
-static inline int dbus_get_fd(struct wsbr_ctxt *ctxt)
-{
-    return -1;
-}
-
-static inline int dbus_process(struct wsbr_ctxt *ctxt)
-{
-    return 0;
-}
-
+static const struct sd_bus_vtable *wsbrd_dbus_vtable;
 #endif
 
 #endif

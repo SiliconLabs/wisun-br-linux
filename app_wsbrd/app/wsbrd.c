@@ -16,6 +16,7 @@
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
 #include "common/capture.h"
+#include "common/dbus.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/bus.h"
@@ -530,7 +531,7 @@ static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
+    ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd();
     ctxt->fds[POLLFD_DBUS].events = POLLIN;
     ctxt->fds[POLLFD_RCP].fd = ctxt->rcp.bus.fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
@@ -573,7 +574,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     FATAL_ON(ret < 0, 2, "poll: %m");
 
     if (ctxt->fds[POLLFD_DBUS].revents & POLLIN)
-        dbus_process(ctxt);
+        dbus_process();
     if (ctxt->fds[POLLFD_DHCP_SERVER].revents & POLLIN)
         dhcp_recv(&ctxt->dhcp_server);
     if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
@@ -647,7 +648,9 @@ int wsbr_main(int argc, char *argv[])
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);
     wsbr_network_init(ctxt);
-    dbus_register(ctxt);
+    dbus_register("/com/silabs/Wisun/BorderRouter",
+                  "com.silabs.Wisun.BorderRouter",
+                  wsbrd_dbus_vtable, ctxt);
     if (ctxt->config.user[0] && ctxt->config.group[0])
         drop_privileges(&ctxt->config);
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
