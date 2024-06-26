@@ -25,13 +25,16 @@ struct dbus_ctx {
 void dbus_emit_change(const char *property_name)
 {
     struct dbus_ctx *dbus_ctx = &g_dbus;
+    int ret;
 
     if (!dbus_ctx->dbus)
         return;
-    sd_bus_emit_properties_changed(dbus_ctx->dbus,
-                                   dbus_ctx->path,
-                                   dbus_ctx->interface,
-                                   property_name, NULL);
+    ret = sd_bus_emit_properties_changed(dbus_ctx->dbus,
+                                         dbus_ctx->path,
+                                         dbus_ctx->interface,
+                                         property_name, NULL);
+    if (ret < 0)
+        WARN("sd_bus_emit_properties_changed \"%s\": %s", property_name, strerror(-ret));
 }
 
 void dbus_register(const char *path, const char *interface,
@@ -61,19 +64,21 @@ void dbus_register(const char *path, const char *interface,
 
     ret = sd_bus_add_object_vtable(dbus_ctx->dbus, NULL, path, interface, vtable, app_ctxt);
     if (ret < 0) {
-        WARN("%s1: %s", __func__, strerror(-ret));
+        WARN("sd_bus_add_object_vtable: %s", strerror(-ret));
         return;
     }
 
     ret = sd_bus_request_name(dbus_ctx->dbus, interface,
                               SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
     if (ret < 0) {
-        WARN("%s2: %s", __func__, strerror(-ret));
+        WARN("sd_bus_request_name \"%s\": %s", interface, strerror(-ret));
         return;
     }
 
     dbus_ctx->interface = strdup(interface);
+    FATAL_ON(!dbus_ctx->interface, 2, "strdup \"%s\": %m", interface);
     dbus_ctx->path = strdup(path);
+    FATAL_ON(!dbus_ctx->path, 2, "strdup \"%s\": %m", path);
 
     sd_bus_get_scope(dbus_ctx->dbus, &dbus_scope);
     INFO("Successfully registered to %s DBus", dbus_scope);
