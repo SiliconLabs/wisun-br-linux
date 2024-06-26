@@ -30,20 +30,6 @@
 // The IPv6 extension system from the nanostack is not clear. Design choices
 // for this file mostly come from mimicking the legacy RPL implementation.
 
-void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
-{
-    struct net_if *net_if = container_of(root, struct net_if, rpl_root);
-
-    ipv6_route_add_with_info(prefix, prefix_len, // prefix
-                             net_if->id,    // interface id
-                             in6addr_any.s6_addr, // next hop
-                             ROUTE_RPL_DAO_SR,   // source
-                             (void *)root,       // info
-                             0,                  // source id
-                             0xffffffff,         // lifetime
-                             0);                 // pref
-}
-
 void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
 {
     struct net_if *net_if = container_of(root, struct net_if, rpl_root);

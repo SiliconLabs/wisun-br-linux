@@ -75,13 +75,13 @@ struct rpl_target *rpl_target_get(struct rpl_root *root, const uint8_t prefix[16
 static void rpl_transit_expire(struct timer_group *group, struct timer_entry *timer);
 struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16])
 {
-    struct rpl_target *target = calloc(1, sizeof(struct rpl_target));
+    struct rpl_target *target = zalloc(sizeof(struct rpl_target));
 
-    FATAL_ON(!target, 2, "malloc: %m");
     target->timer.callback = rpl_transit_expire;
     memcpy(target->prefix, prefix, 16);
     SLIST_INSERT_HEAD(&root->targets, target, link);
-    root->route_add(root, target->prefix, 128);
+    if (root->on_target_add)
+        root->on_target_add(root, target);
     return target;
 }
 
@@ -707,7 +707,7 @@ void rpl_start(struct rpl_root *root,
     //   Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     // The RPLInstanceID MUST be of the global form.
     BUG_ON(FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, root->instance_id) != RPL_INSTANCE_ID_TYPE_GLOBAL);
-    BUG_ON(!root->route_add || !root->route_del);
+    BUG_ON(!root->route_del);
 
     root->sockfd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(root->sockfd < 0, 2, "%s: socket: %m", __func__);

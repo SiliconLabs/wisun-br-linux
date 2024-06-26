@@ -69,6 +69,7 @@
 #include "tun.h"
 
 static void wsbr_handle_reset(struct rcp *rcp);
+static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target);
 
 // See warning in wsbrd.h
@@ -99,7 +100,7 @@ struct wsbr_ctxt g_ctxt = {
 
     .net_if.rpl_root.dodag_version_number = RPL_LOLLIPOP_INIT,
     .net_if.rpl_root.instance_id      = 0,
-    .net_if.rpl_root.route_add = rpl_glue_route_add,
+    .net_if.rpl_root.on_target_add    = wsbr_rpl_target_add,
     .net_if.rpl_root.route_del = rpl_glue_route_del,
     .net_if.rpl_root.on_target_update = wsbr_rpl_target_update,
 
@@ -123,6 +124,21 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_config.bsi = -1,
 };
+
+static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target)
+{
+    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
+
+    ipv6_route_add_with_info(target->prefix,      // prefix
+                             128,                 // prefix length
+                             ctxt->net_if.id,     // interface id
+                             in6addr_any.s6_addr, // next hop
+                             ROUTE_RPL_DAO_SR,    // source
+                             (void *)root,        // info
+                             0,                   // source id
+                             0xffffffff,          // lifetime
+                             0);                  // pref
+}
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
 {

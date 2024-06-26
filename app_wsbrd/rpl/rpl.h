@@ -111,7 +111,7 @@ struct rpl_root {
     uint8_t pcs;  // Path Control Size
     bool    rpi_ignorable;
 
-    void (*route_add)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);
+    void (*on_target_add)(struct rpl_root *root, struct rpl_target *target);
     void (*route_del)(struct rpl_root *root, const uint8_t prefix[16], size_t prefix_len);
     void (*on_target_update)(struct rpl_root *root, struct rpl_target *target);
 
