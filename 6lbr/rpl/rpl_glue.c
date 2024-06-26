@@ -30,18 +30,6 @@
 // The IPv6 extension system from the nanostack is not clear. Design choices
 // for this file mostly come from mimicking the legacy RPL implementation.
 
-void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
-{
-    struct net_if *net_if = container_of(root, struct net_if, rpl_root);
-
-    ipv6_route_delete_with_info(prefix, prefix_len, // prefix
-                                net_if->id,    // interface id
-                                in6addr_any.s6_addr, // next hop
-                                ROUTE_RPL_DAO_SR,   // source
-                                (void *)root,       // info
-                                0);                 // source id
-}
-
 // RFC 6553 - 3. Format of the RPL Option
 bool rpl_glue_process_rpi(struct rpl_root *root, struct buffer *buf,
                           const uint8_t *opt, uint8_t opt_len)
