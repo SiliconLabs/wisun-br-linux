@@ -190,26 +190,6 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     return 0;
 }
 
-void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
-{
-    sd_bus_emit_properties_changed(ctxt->dbus,
-                       "/com/silabs/Wisun/BorderRouter",
-                       "com.silabs.Wisun.BorderRouter",
-                       "Gtks", NULL);
-    sd_bus_emit_properties_changed(ctxt->dbus,
-                       "/com/silabs/Wisun/BorderRouter",
-                       "com.silabs.Wisun.BorderRouter",
-                       "Gaks", NULL);
-    sd_bus_emit_properties_changed(ctxt->dbus,
-                       "/com/silabs/Wisun/BorderRouter",
-                       "com.silabs.Wisun.BorderRouter",
-                       "Lgtks", NULL);
-    sd_bus_emit_properties_changed(ctxt->dbus,
-                       "/com/silabs/Wisun/BorderRouter",
-                       "com.silabs.Wisun.BorderRouter",
-                       "Lgaks", NULL);
-}
-
 static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
                                    sd_bus_error *ret_error, bool is_lfn)
 {

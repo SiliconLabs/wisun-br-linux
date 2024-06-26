@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/bits.h"
+#include "common/dbus.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
@@ -39,10 +40,6 @@
 #include "common/ws_neigh.h"
 #include "common/ws_ie.h"
 
-#include "app/dbus.h"
-#include "app/wsbrd.h"
-#include "app/wsbr_mac.h"
-#include "app/rcp_api_legacy.h"
 #include "net/ns_address_internal.h"
 #include "net/timers.h"
 #include "net/protocol.h"
@@ -168,7 +165,13 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
         return;
     rcp_set_sec_key(cur->rcp, key_index, key, frame_counter);
     if (key) {
-        dbus_emit_keys_change(&g_ctxt);
+        if (key_index <= 4) {
+            dbus_emit_change("Gtks");
+            dbus_emit_change("Gaks");
+        } else {
+            dbus_emit_change("Lgtks");
+            dbus_emit_change("Lgaks");
+        }
         cur->ws_info.key_index_mask |= BIT(key_index);
     } else {
         cur->ws_info.key_index_mask &= ~BIT(key_index);
