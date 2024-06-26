@@ -156,7 +156,7 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
                                 (void *)root,        // info
                                 0);                  // source id
     rpl_storage_del_target(root, target);
-    dbus_emit_nodes_change(ctxt);
+    dbus_emit_change("Nodes");
     dbus_emit_routing_graph_change(ctxt);
 }
 
@@ -167,7 +167,7 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
     bool is_neigh = false;
 
     rpl_storage_store_target(root, target);
-    dbus_emit_nodes_change(ctxt);
+    dbus_emit_change("Nodes");
     dbus_emit_routing_graph_change(ctxt);
 
     /*
