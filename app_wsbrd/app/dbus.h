@@ -18,15 +18,8 @@ struct wsbr_ctxt;
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-bus.h>
 
-void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt);
-
 extern const struct sd_bus_vtable wsbrd_dbus_vtable[];
 #else
-static inline void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt)
-{
-    /* empty */
-}
-
 static const struct sd_bus_vtable *wsbrd_dbus_vtable;
 #endif
 

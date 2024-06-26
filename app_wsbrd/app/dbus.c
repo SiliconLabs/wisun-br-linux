@@ -426,14 +426,6 @@ int dbus_deny_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
     return dbus_set_filter_src64(m, userdata, ret_error, false);
 }
 
-void dbus_emit_routing_graph_change(struct wsbr_ctxt *ctxt)
-{
-    sd_bus_emit_properties_changed(ctxt->dbus,
-                       "/com/silabs/Wisun/BorderRouter",
-                       "com.silabs.Wisun.BorderRouter",
-                       "RoutingGraph", NULL);
-}
-
 static void dbus_message_open_info(sd_bus_message *m, const char *property,
                                   const char *name, const char *type)
 {

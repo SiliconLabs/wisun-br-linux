@@ -157,7 +157,7 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
                                 0);                  // source id
     rpl_storage_del_target(root, target);
     dbus_emit_change("Nodes");
-    dbus_emit_routing_graph_change(ctxt);
+    dbus_emit_change("RoutingGraph");
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
@@ -168,7 +168,7 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
 
     rpl_storage_store_target(root, target);
     dbus_emit_change("Nodes");
-    dbus_emit_routing_graph_change(ctxt);
+    dbus_emit_change("RoutingGraph");
 
     /*
      * HACK: Delete the neighbor cache entry in case the node did not
