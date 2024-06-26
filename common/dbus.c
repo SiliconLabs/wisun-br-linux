@@ -20,24 +20,28 @@ struct dbus_ctx {
     sd_bus *dbus;
     const char *path;
     const char *interface;
-} g_dbus = {};
+} g_dbus = { };
 
 void dbus_emit_change(const char *property_name)
 {
     struct dbus_ctx *dbus_ctx = &g_dbus;
 
-    if (dbus_ctx->dbus)
-        sd_bus_emit_properties_changed(dbus_ctx->dbus, dbus_ctx->path, dbus_ctx->interface, property_name, NULL);
+    if (!dbus_ctx->dbus)
+        return;
+    sd_bus_emit_properties_changed(dbus_ctx->dbus,
+                                   dbus_ctx->path,
+                                   dbus_ctx->interface,
+                                   property_name, NULL);
 }
 
 void dbus_register(const char *path, const char *interface,
                    const struct sd_bus_vtable *vtable, void *app_ctxt)
 {
     struct dbus_ctx *dbus_ctx = &g_dbus;
-    int ret;
-    char mode = 'A';
-    const char *env_var;
     const char *dbus_scope = "undefined";
+    const char *env_var;
+    char mode = 'A';
+    int ret;
 
     env_var = getenv("DBUS_STARTER_BUS_TYPE");
     if (env_var && !strcmp(env_var, "system"))
@@ -61,7 +65,8 @@ void dbus_register(const char *path, const char *interface,
         return;
     }
 
-    ret = sd_bus_request_name(dbus_ctx->dbus, interface, SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
+    ret = sd_bus_request_name(dbus_ctx->dbus, interface,
+                              SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
     if (ret < 0) {
         WARN("%s2: %s", __func__, strerror(-ret));
         return;
@@ -87,8 +92,7 @@ int dbus_get_fd(void)
 {
     struct dbus_ctx *dbus_ctx = &g_dbus;
 
-    if (dbus_ctx->dbus)
-        return sd_bus_get_fd(dbus_ctx->dbus);
-    else
+    if (!dbus_ctx->dbus)
         return -1;
+    return sd_bus_get_fd(dbus_ctx->dbus);
 }
