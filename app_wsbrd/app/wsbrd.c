@@ -127,10 +127,26 @@ struct wsbr_ctxt g_ctxt = {
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
 {
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
+    struct ipv6_neighbour *neigh;
+    bool is_neigh = false;
 
     rpl_storage_store_target(root, target);
     dbus_emit_nodes_change(ctxt);
     dbus_emit_routing_graph_change(ctxt);
+
+    /*
+     * HACK: Delete the neighbor cache entry in case the node did not
+     * remove itself. Otherwise routing will choose an "ARO route" instead
+     * of a "DAO route", which will fail until ARO expiration.
+     */
+    for (uint8_t i = 0; i < root->pcs + 1; i++)
+        if (IN6_ARE_ADDR_EQUAL(target->transits[i].parent, root->dodag_id))
+            is_neigh = true;
+    if (!is_neigh) {
+        neigh = ipv6_neighbour_lookup(&ctxt->net_if.ipv6_neighbour_cache, target->prefix);
+        if (neigh)
+            ipv6_neighbour_entry_remove(&ctxt->net_if.ipv6_neighbour_cache, neigh);
+    }
 }
 
 static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)

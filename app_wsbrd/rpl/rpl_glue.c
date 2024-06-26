@@ -33,8 +33,6 @@
 void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
 {
     struct net_if *net_if = container_of(root, struct net_if, rpl_root);
-    struct ipv6_neighbour *ipv6_neigh = ipv6_neighbour_lookup(&net_if->ipv6_neighbour_cache, prefix);
-    struct ws_neigh *neigh;
 
     ipv6_route_add_with_info(prefix, prefix_len, // prefix
                              net_if->id,    // interface id
@@ -44,18 +42,6 @@ void rpl_glue_route_add(struct rpl_root *root, const uint8_t *prefix, size_t pre
                              0,                  // source id
                              0xffffffff,         // lifetime
                              0);                 // pref
-
-    // FIXME: This hack allows to handle an LFN changing parent without
-    // informing us. Removing its ARO routes allows to ensure the RPL DAO SR
-    // route is used and not the outdated ARO route that would actually prevent
-    // the host from communicating with the LFN.
-    // It is expected that the IPv6 neighbor entries linked to this neighbor
-    // expire and get deleted by the garbage collector later.
-    if (ipv6_neigh) {
-        neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, ipv6_neigh));
-        if (neigh && neigh->node_role == WS_NR_ROLE_LFN)
-            nd_remove_aro_routes_by_eui64(net_if, ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, ipv6_neigh));
-    }
 }
 
 void rpl_glue_route_del(struct rpl_root *root, const uint8_t *prefix, size_t prefix_len)
