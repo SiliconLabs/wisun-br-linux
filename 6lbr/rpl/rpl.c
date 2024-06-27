@@ -30,7 +30,6 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 #include "rpl_lollipop.h"
-#include "rpl_storage.h"
 #include "rpl.h"
 
 struct rpl_opt_target {
@@ -685,8 +684,6 @@ void rpl_start(struct rpl_root *root, const char ifname[IF_NAMESIZE])
     rpl_dio_trickle_params(root, &dio_trickle_params);
     trickle_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
     ws_timer_start(WS_TIMER_RPL);
-
-    rpl_storage_store_config(root);
 }
 
 void rpl_timer(int ticks)
