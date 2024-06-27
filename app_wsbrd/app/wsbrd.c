@@ -443,6 +443,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     }
     rpl_glue_init(&ctxt->net_if);
     rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname);
+    rpl_storage_store_config(&ctxt->net_if.rpl_root);
 }
 
 static void wsbr_handle_reset(struct rcp *rcp)
