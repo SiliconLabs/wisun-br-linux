@@ -57,8 +57,17 @@ void ws_chan_mask_calc_excl(uint8_t chan_mask_excl[WS_CHAN_MASK_LEN],
                             const uint8_t chan_mask_reg[WS_CHAN_MASK_LEN],
                             const uint8_t chan_mask_custom[WS_CHAN_MASK_LEN])
 {
-    for (int i = 0; i < WS_CHAN_MASK_LEN; i++)
-        chan_mask_excl[i] = chan_mask_reg[i] & ~chan_mask_custom[i];
+    /*
+     *   Wi-SUN FAN 1.1v08 6.3.2.3.2.1.3 Field Definitions
+     * The Excluded Channel Control field MUST be set to 0 when the Channel
+     * Function field is set to zero.
+     */
+    if (ws_chan_mask_get_fixed(chan_mask_custom) >= 0) {
+        memset(chan_mask_excl, 0, WS_CHAN_MASK_LEN);
+    } else {
+        for (int i = 0; i < WS_CHAN_MASK_LEN; i++)
+            chan_mask_excl[i] = chan_mask_reg[i] & ~chan_mask_custom[i];
+    }
 }
 
 int ws_chan_mask_ranges(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
