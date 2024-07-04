@@ -631,6 +631,9 @@ static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t 
         case RPL_CODE_DAO:
             rpl_recv_dao(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
             break;
+        case RPL_CODE_DIO:
+            TRACE(TR_IGNORE, "ignore: rpl-dio");
+            break;
         default:
             TRACE(TR_DROP, "drop %-9s: unsupported code %u", "rpl", code);
             break;
