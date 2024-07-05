@@ -1,3 +1,15 @@
+v2.1.3
+------
+  - Fix `neighbor_proxy`: routing has been broken for nodes more than 1 hop
+    away since `v1.7` when using that feature.
+  - Improve recovery when a previous neighbor is detected to have moved futher
+    away from the border router. Previously, `wsbrd` would keep trying to
+    communicate directly with the node until expiration of its address
+    registration. Now the neighbor entry is removed when a DAO indicates that
+    the border router is no longer a parent.
+  - Fix interoperability issue when operating in fixed channel: do not
+    advertise any excluded channels.
+
 v2.1.2
 ------
   - Set the IPv6 hop limit to a fixed value when creating a tunnel, instead of
