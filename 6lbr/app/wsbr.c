@@ -174,7 +174,7 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
      * of a "DAO route", which will fail until ARO expiration.
      */
     for (uint8_t i = 0; i < root->pcs + 1; i++)
-        if (IN6_ARE_ADDR_EQUAL(target->prefix, root->dodag_id))
+        if (IN6_ARE_ADDR_EQUAL(target->transits[i].parent, root->dodag_id))
             is_neigh = true;
     if (!is_neigh) {
         neigh = ipv6_neighbour_lookup(&ctxt->net_if.ipv6_neighbour_cache, target->prefix);
