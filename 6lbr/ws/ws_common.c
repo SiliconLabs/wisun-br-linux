@@ -85,6 +85,16 @@ void ws_common_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8
     bool in_range = false;
     int range_cnt = 0;
 
+    /*
+     *   Wi-SUN FAN 1.1v08 6.3.2.3.2.1.3 Field Definitions
+     * The Excluded Channel Control field MUST be set to 0 when the Channel
+     * Function field is set to zero.
+     */
+    if (ws_common_get_fixed_channel(chan_mask_custom) >= 0) {
+        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
+        return;
+    }
+
     memset(chan_excl, 0, sizeof(ws_excluded_channel_data_t));
     for (uint16_t i = 0; i < chan_count; i++) {
         if (!bittest(chan_mask_reg, i) || bittest(chan_mask_custom, i)) {
