@@ -1304,8 +1304,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     struct wp_ie_list wp_ies = {
         .us  = true,
         .bs  = !data->TxAckReq,
-        .pom = ws_info->phy_config.phy_op_modes[0] &&
-               ws_info->phy_config.phy_op_modes[1],
+        .pom = ws_info->phy_config.phy_op_modes[0],
         // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
         .jm  = ws_info->pan_information.jm.mask &&
                data->DstAddrMode == IEEE802154_ADDR_MODE_NONE &&
