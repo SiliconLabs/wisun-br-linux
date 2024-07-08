@@ -115,6 +115,7 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, uint64_t timestamp_us,
     struct iobuf_read ie_payload;
     struct iobuf_read ie_header;
     struct ieee802154_hdr hdr;
+    struct timespec tp;
     int ret;
 
     ret = ieee802154_frame_parse(frame, frame_len, &hdr, &ie_header, &ie_payload);
@@ -129,7 +130,15 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, uint64_t timestamp_us,
         iobuf_push_data(&iobuf_frame, ie_payload.data, ie_payload.data_size);
     }
 
-    pcapng_write_epb(&iobuf_pcapng, timestamp_us, iobuf_frame.data, iobuf_frame.len);
+    if (!ctxt->pcapng_t0_us) {
+        // NOTE: Since time is measured only once, details like clock drift and
+        // leap seconds are ignored.
+        clock_gettime(CLOCK_REALTIME, &tp);
+        ctxt->pcapng_t0_us = tp.tv_sec * 1000000 + tp.tv_nsec / 1000 - timestamp_us;
+    }
+
+    pcapng_write_epb(&iobuf_pcapng, timestamp_us + ctxt->pcapng_t0_us,
+                     iobuf_frame.data, iobuf_frame.len);
     wsbr_pcapng_write(ctxt, &iobuf_pcapng);
 
     iobuf_free(&iobuf_pcapng);

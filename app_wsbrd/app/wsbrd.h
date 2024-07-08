@@ -69,6 +69,7 @@ struct wsbr_ctxt {
 
     int pcapng_fd;
     mode_t pcapng_type;
+    uint64_t pcapng_t0_us;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
