@@ -73,6 +73,7 @@ struct supplicant_ctx {
 
     // 4WH and 2WH
     uint8_t authenticator_eui64[8];
+    uint8_t pmk[32]; // stored in cleartext in RAM
 
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   eap_req_timer;

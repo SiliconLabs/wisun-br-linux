@@ -21,6 +21,7 @@
 #include "common/specs/eapol.h"
 #include "common/specs/eap.h"
 #include "common/specs/ws.h"
+#include "common/crypto/ieee80211.h"
 #include "common/ieee802154_frame.h"
 #include "common/mbedtls_extra.h"
 #include "common/time_extra.h"
@@ -57,6 +58,34 @@ static int supp_mbedtls_recv(void *ctx, unsigned char *buf, size_t len)
     if (!pktbuf_len(&supp->rx_buffer))
         pktbuf_free(&supp->rx_buffer);
     return ret;
+}
+
+/*
+ *   RFC5216 - 2.3. Key Hierarchy
+ * Key_Material = TLS-PRF-128(master_secret, "client EAP encryption",
+ *                            client.random || server.random)
+ * MSK          = Key_Material(0,63)
+ * Enc-RECV-Key = MSK(0,31) = Peer to Authenticator Encryption Key
+ *                (MS-MPPE-Recv-Key in [RFC2548]).  Also known as the
+ *                PMK in [IEEE-802.11].
+ */
+static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const unsigned char *secret,
+                                     size_t secret_len, const unsigned char client_random[32],
+                                     const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type)
+{
+    struct supplicant_ctx *supp = p_expkey;
+    uint8_t derived_key[128];
+    uint8_t random[64];
+    int ret;
+
+    memcpy(random, client_random, 32);
+    memcpy(random + 32, server_random, 32);
+
+    ret = mbedtls_ssl_tls_prf(tls_prf_type, secret, secret_len, "client EAP encryption", random, sizeof(random),
+                              derived_key, sizeof(derived_key));
+    FATAL_ON(ret, 2, "%s: mbedtls_ssl_tls_prf: %s", __func__, tr_mbedtls_err(ret));
+
+    memcpy(supp->pmk, derived_key, sizeof(supp->pmk));
 }
 
 static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line, const char *string)
@@ -331,4 +360,5 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
     BUG_ON(ret);
 
     mbedtls_ssl_set_bio(&supp->ssl_ctx, supp, supp_mbedtls_send, supp_mbedtls_recv, NULL);
+    mbedtls_ssl_set_export_keys_cb(&supp->ssl_ctx, supp_mbedtls_export_keys, supp);
 }
