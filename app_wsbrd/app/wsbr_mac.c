@@ -30,6 +30,8 @@
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
+#include "common/ieee802154_frame.h"
+#include "common/ieee802154_ie.h"
 #include "common/specs/ieee802154.h"
 
 #include "net/protocol.h"
@@ -62,6 +64,7 @@ void wsbr_data_req_ext(struct net_if *cur,
         .hif.handle = data->msduHandle,
         .hif.status = HIF_STATUS_TIMEDOUT,
     };
+    struct ieee802154_hdr hdr = { };
     struct iobuf_write frame = { };
 
     BUG_ON(data->TxAckReq && data->fhss_type == HIF_FHSS_TYPE_ASYNC);
@@ -71,7 +74,8 @@ void wsbr_data_req_ext(struct net_if *cur,
            (data->fhss_type == HIF_FHSS_TYPE_FFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_PA));
     BUG_ON(!ie_ext);
     BUG_ON(ie_ext->payloadIovLength > 2);
-    BUG_ON(ie_ext->headerIovLength > 1);
+    BUG_ON(ie_ext->headerIovLength != 1);
+    BUG_ON(data->Key.SecurityLevel && data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64);
 
     neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
     if (data->DstAddrMode && !neighbor_ws) {
@@ -80,7 +84,24 @@ void wsbr_data_req_ext(struct net_if *cur,
         return;
     }
 
-    wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
+    hdr.frame_type = IEEE802154_FRAME_TYPE_DATA;
+    hdr.ack_req    = data->TxAckReq;
+    hdr.pan_id     = data->DstAddrMode ? -1 : cur->ws_info.pan_information.pan_id;
+    memcpy(hdr.dst, data->DstAddrMode ? data->DstAddr : ieee802154_addr_bc, 8);
+    memcpy(hdr.src, cur->rcp->eui64, 8);
+    hdr.seqno      = data->SeqNumSuppressed ? -1 : 0;
+    hdr.key_index  = data->Key.KeyIndex;
+    ieee802154_frame_write_hdr(&frame, &hdr);
+    iobuf_push_data(&frame, ie_ext->headerIeVectorList[0].iov_base,
+                    ie_ext->headerIeVectorList[0].iov_len);
+    if (ie_ext->payloadIovLength)
+        ieee802154_ie_push_header(&frame, IEEE802154_IE_ID_HT2);
+    for (int i = 0; i < ie_ext->payloadIovLength; i++)
+        iobuf_push_data(&frame, ie_ext->payloadIeVectorList[i].iov_base,
+                        ie_ext->payloadIeVectorList[i].iov_len);
+    if (data->Key.SecurityLevel)
+        iobuf_push_data_reserved(&frame, 8); // MIC-64
+
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
                     data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
