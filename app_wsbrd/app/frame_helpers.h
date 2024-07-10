@@ -16,14 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-struct rcp;
-struct arm_15_4_mac_parameters;
 struct mcps_data_cnf;
 struct mcps_data_rx_ie_list;
-
-int wsbr_data_ind_parse(const uint8_t *frame, size_t frame_len,
-                        struct mcps_data_ind *ind,
-                        struct mcps_data_rx_ie_list *ie, uint16_t pan_id);
 
 int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
                         struct mcps_data_cnf *cnf,
