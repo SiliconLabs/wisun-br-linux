@@ -40,7 +40,6 @@
 #include "ws/ws_config.h"
 #include "ws/ws_llc.h"
 
-#include "frame_helpers.h"
 #include "wsbrd.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
@@ -115,11 +114,25 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
     struct mcps_data_cnf mcps_cnf = { .hif = *cnf };
     struct mcps_data_rx_ie_list mcps_ie = { };
+    struct iobuf_read ie_header, ie_payload;
+    struct ieee802154_hdr hdr;
     int ret;
 
     if (cnf->frame_len) {
-        ret = wsbr_data_cnf_parse(cnf->frame, cnf->frame_len, &mcps_cnf, &mcps_ie);
+        ret = ieee802154_frame_parse(cnf->frame, cnf->frame_len, &hdr, &ie_header, &ie_payload);
         WARN_ON(ret < 0, "invalid ack frame");
+
+        mcps_cnf.sec.SecurityLevel = !hdr.key_index
+                                   ? IEEE802154_SEC_LEVEL_NONE
+                                   : IEEE802154_SEC_LEVEL_ENC_MIC64;
+        mcps_cnf.sec.KeyIndex      = hdr.key_index;
+        mcps_cnf.sec.frame_counter = hdr.frame_counter;
+
+        mcps_ie.headerIeList        = ie_header.data;
+        mcps_ie.headerIeListLength  = ie_header.data_size;
+        mcps_ie.payloadIeList       = ie_payload.data;
+        mcps_ie.payloadIeListLength = ie_payload.data_size;
+
         if (!ret && ctxt->config.pcap_file[0])
             wsbr_pcapng_write_frame(ctxt, cnf->timestamp_us, cnf->frame, cnf->frame_len);
     }

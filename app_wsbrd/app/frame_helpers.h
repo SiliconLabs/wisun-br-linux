@@ -16,11 +16,5 @@
 #include <stdint.h>
 #include <stddef.h>
 
-struct mcps_data_cnf;
-struct mcps_data_rx_ie_list;
-
-int wsbr_data_cnf_parse(const uint8_t *frame, size_t frame_len,
-                        struct mcps_data_cnf *cnf,
-                        struct mcps_data_rx_ie_list *ie);
 
 #endif
