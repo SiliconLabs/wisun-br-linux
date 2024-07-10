@@ -124,7 +124,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/wsbr_cfg.c
     app_wsbrd/app/wsbr_mac.c
     app_wsbrd/app/wsbr_pcapng.c
-    app_wsbrd/app/frame_helpers.c
     app_wsbrd/app/rail_config.c
     app_wsbrd/app/timers.c
     app_wsbrd/app/tun.c

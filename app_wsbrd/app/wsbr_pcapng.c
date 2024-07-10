@@ -28,7 +28,6 @@
 #include "common/specs/ieee802154.h"
 
 #include "rcp_api_legacy.h"
-#include "frame_helpers.h"
 #include "wsbrd.h"
 
 void wsbr_pcapng_closed(struct wsbr_ctxt *ctxt)
