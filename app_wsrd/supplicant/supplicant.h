@@ -70,6 +70,9 @@ struct supplicant_ctx {
     int     last_eap_identifier;
     uint8_t last_tx_eap_type;
 
+    // 4WH and 2WH
+    uint8_t authenticator_eui64[8];
+
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   eap_req_timer;
 
@@ -84,7 +87,8 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
 void supp_start(struct supplicant_ctx *supp);
 void supp_stop(struct supplicant_ctx *supp);
 
-void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len);
+void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
+                     const uint8_t authenticator_eui64[8]);
 void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, uint8_t packet_type, struct pktbuf *buf);
 
 // FIXME: remove after 4WH & 2WH

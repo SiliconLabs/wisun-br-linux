@@ -126,7 +126,8 @@ static void supp_timeout_eap_request(struct timer_group *group, struct timer_ent
     supp->on_failure(supp);
 }
 
-void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len)
+void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
+                     const uint8_t authenticator_eui64[8])
 {
     const struct eapol_hdr *eapol_hdr;
     struct iobuf_read iobuf = {
@@ -158,6 +159,9 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
 
     TRACE(TR_SECURITY, "rx-eapol type=%s length=%d", val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"),
           ntohs(eapol_hdr->packet_body_length));
+
+    if (authenticator_eui64)
+        memcpy(supp->authenticator_eui64, authenticator_eui64, sizeof(supp->authenticator_eui64));
 
     /*
      *   RFC3748 - 4.2. Success and Failure

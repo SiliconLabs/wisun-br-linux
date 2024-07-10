@@ -338,12 +338,14 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
 
 void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
 {
+    uint8_t authenticator_eui64[8];
     struct iobuf_read buf = { };
     struct ws_utt_ie ie_utt;
     struct ws_neigh *neigh;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
+    bool has_ea_ie;
 
     if (ws->pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
@@ -367,6 +369,15 @@ void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
     ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
     ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
 
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.2.3.5.3 Frames for General Purpose Messaging
+     * The EA-IE MUST be included in at least one of the EAPOL EAP [EAP Request
+     * / Identify] frames addressed to a SUP. This SHOULD be done as early as
+     * possible in the 802.1X messaging flow, but the EA-IE SHOULD NOT be
+     * repeated in every EAPOL frame addressed to a SUP.
+     */
+    has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, authenticator_eui64);
+
     if (ws_ie_validate_us(ws, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
@@ -380,7 +391,8 @@ void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     }
 
-    supp_recv_eapol(&ws->supp, kmp_id, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
+    supp_recv_eapol(&ws->supp, kmp_id, iobuf_ptr(&buf), iobuf_remaining_size(&buf),
+                    has_ea_ie ? authenticator_eui64 : NULL);
 }
 
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)
