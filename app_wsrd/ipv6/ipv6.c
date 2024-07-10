@@ -103,6 +103,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 
     // TODO: support hob-by-hop options
     switch (hdr.ip6_nxt) {
+    case IPPROTO_FRAGMENT:
     case IPPROTO_UDP:
     case IPPROTO_TCP:
         break;
@@ -265,6 +266,10 @@ static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
 
     ipproto = hdr.ip6_nxt;
     while (ipv6_is_exthdr(ipproto) && !pktbuf->err) {
+        if (ipproto == IPPROTO_FRAGMENT) {
+            pktbuf->offset_head = offset_head;
+            return true;
+        }
         if (pktbuf_len(pktbuf) < sizeof(*ext)) {
             TRACE(TR_DROP, "drop %-9s: malformed extension header", "tun");
             return false;
