@@ -103,6 +103,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 
     // TODO: support hob-by-hop options
     switch (hdr.ip6_nxt) {
+    case IPPROTO_NONE:
     case IPPROTO_FRAGMENT:
     case IPPROTO_UDP:
     case IPPROTO_TCP:
@@ -280,6 +281,7 @@ static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
     }
 
     switch (ipproto) {
+    case IPPROTO_NONE:
     case IPPROTO_UDP:
     case IPPROTO_TCP:
         break;
