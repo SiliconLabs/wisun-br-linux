@@ -28,6 +28,12 @@
 #define IEEE80211_KEY_INFO_VERSION 0x02
 #define IEEE80211_KDE_TYPE 0xdd
 
+// IEEE 802.11-2020, 12.7.2 - EAPOL-Key frames
+enum {
+    IEEE80211_KEY_TYPE_GROUP    = 0,
+    IEEE80211_KEY_TYPE_PAIRWISE = 1,
+};
+
 // IEEE 802.11-2020, Table 12-9 - "KDE selectors"
 enum {
     IEEE80211_KDE_GTK      = 1,
