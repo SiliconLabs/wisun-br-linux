@@ -407,7 +407,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
-    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key);
+    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->rcp.eui64);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",
                   "com.silabs.Wisun.Router",

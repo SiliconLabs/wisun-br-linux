@@ -210,7 +210,8 @@ void supp_start(struct supplicant_ctx *supp)
           supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
 }
 
-void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key)
+void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
+               const uint8_t eui64[8])
 {
     /*
      * Note: mbedtls expects the given configuration variables to always be
@@ -274,6 +275,7 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
     supp->key_request_txalg.tx = supp_timeout_key_request;
     supp->key_request_txalg.fail = supp_failure_key_request;
     rfc8415_txalg_init(&supp->key_request_txalg);
+    memcpy(supp->eui64, eui64, sizeof(supp->eui64));
 
     mbedtls_ssl_init(&supp->ssl_ctx);
     mbedtls_ssl_config_init(&supp->ssl_config);

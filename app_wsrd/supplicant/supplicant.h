@@ -45,6 +45,7 @@
 #include "common/timer.h"
 
 struct supplicant_ctx {
+    uint8_t eui64[8];
     bool running;
 
     struct mbedtls_ssl_config  ssl_config;
@@ -83,7 +84,8 @@ struct supplicant_ctx {
     void (*on_failure)(struct supplicant_ctx *supp);
 };
 
-void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key);
+void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
+               const uint8_t eui64[8]);
 void supp_start(struct supplicant_ctx *supp);
 void supp_stop(struct supplicant_ctx *supp);
 
