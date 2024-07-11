@@ -30,7 +30,7 @@
 #include "common/nist_kw.h"
 #include "common/ns_list.h"
 #include "common/hmac_md.h"
-#include "common/ieee80211_prf.h"
+#include "common/ieee80211.h"
 
 #include "net/protocol.h"
 #include "ws/ws_config.h"

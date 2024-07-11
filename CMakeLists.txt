@@ -159,7 +159,7 @@ add_library(libwsbrd STATIC
     common/key_value_storage.c
     common/ieee802154_frame.c
     common/ieee802154_ie.c
-    common/ieee80211_prf.c
+    common/ieee80211.c
     common/mpx.c
     common/time_extra.c
     common/random_early_detection.c

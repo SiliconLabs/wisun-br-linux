@@ -24,7 +24,7 @@
 #include "common/hmac_md.h"
 #include "common/mathutils.h"
 
-#include "ieee80211_prf.h"
+#include "ieee80211.h"
 
 int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
                   const uint8_t *data, size_t data_len,
