@@ -43,4 +43,13 @@ void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
  */
 void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32]);
 
+/*
+ *   IEEE 802.11-2020, 12.7.1.3 Pairwise key hierarchy
+ *
+ * PTK = PRF-384(PMK, “Pairwise key expansion”, Min(AA, SPA) || Max(AA, SPA) ||
+ *               Min(ANonce, SNonce) || Max(ANonce, SNonce))
+ */
+void ieee80211_derive_ptk384(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
+                             const uint8_t auth_nonce[32], const uint8_t supp_nonce[32], uint8_t ptk[48]);
+
 #endif

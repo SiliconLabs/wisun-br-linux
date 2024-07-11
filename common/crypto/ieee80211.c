@@ -65,3 +65,29 @@ void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32])
     rand_get_n_bytes_random(random, sizeof(random));
     ieee80211_prf(random, sizeof(random), "Init Counter", (const uint8_t *)&data, sizeof(data), nonce_out, 32);
 }
+
+void ieee80211_derive_ptk384(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
+                             const uint8_t auth_nonce[32], const uint8_t supp_nonce[32], uint8_t ptk[48])
+{
+    struct {
+        uint8_t min_eui64[8];
+        uint8_t max_eui64[8];
+        uint8_t min_nonce[32];
+        uint8_t max_nonce[32];
+    } data;
+
+    memcpy(data.min_eui64, auth_eui64, sizeof(data.min_eui64));
+    memcpy(data.max_eui64, supp_eui64, sizeof(data.max_eui64));
+    memcpy(data.min_nonce, auth_nonce, sizeof(data.min_nonce));
+    memcpy(data.max_nonce, supp_nonce, sizeof(data.max_nonce));
+
+    if (memcmp(auth_eui64, supp_eui64, 8) > 0) {
+        memcpy(data.min_eui64, supp_eui64, sizeof(data.min_eui64));
+        memcpy(data.max_eui64, auth_eui64, sizeof(data.max_eui64));
+    }
+    if (memcmp(auth_nonce, supp_nonce, 32) > 0) {
+        memcpy(data.min_nonce, supp_nonce, sizeof(data.min_nonce));
+        memcpy(data.max_nonce, auth_nonce, sizeof(data.max_nonce));
+    }
+    ieee80211_prf(pmk, 32, "Pairwise key expansion", (const uint8_t *)&data, sizeof(data), ptk, 48);
+}
