@@ -44,6 +44,11 @@
 #include "common/pktbuf.h"
 #include "common/timer.h"
 
+struct ws_gtk {
+    uint8_t slot;
+    uint8_t gtk[16];
+};
+
 struct supplicant_ctx {
     uint8_t eui64[8];
     bool running;
@@ -72,8 +77,25 @@ struct supplicant_ctx {
     uint8_t last_tx_eap_type;
 
     // 4WH and 2WH
+    struct ws_gtk gtks[7];
     uint8_t authenticator_eui64[8];
+    int64_t replay_counter;
+    uint8_t anonce[32];
+    uint8_t snonce[32];
     uint8_t pmk[32]; // stored in cleartext in RAM
+
+    /*
+     * +-----------------------------------------------------------+
+     * |                Pairwise Transient Key (PTK)               |
+     * +-----------------------------------------------------------+
+     * | KCK (16 bytes) | KEK (16 bytes) | Temporal Key (16 bytes) |
+     * +-----------------------------------------------------------+
+     *
+     * where,
+     * KCK = Key Confirmation Key
+     * KEK = Key Encryption Key
+     */
+    uint8_t ptk[48];
 
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   eap_req_timer;

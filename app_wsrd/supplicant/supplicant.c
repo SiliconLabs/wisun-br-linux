@@ -33,6 +33,7 @@
 #include "common/kde.h"
 
 #include "supplicant_eap.h"
+#include "supplicant_key.h"
 
 #include "supplicant.h"
 
@@ -180,12 +181,13 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
         return;
     }
 
-    if (kmp_id == IEEE802159_KMP_ID_8021X && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_EAP) {
+    if ((kmp_id == IEEE802159_KMP_ID_8021X && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_EAP) ||
+        (kmp_id == IEEE802159_KMP_ID_80211_4WH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY) ||
+        (kmp_id == IEEE802159_KMP_ID_80211_GKH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY)) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol packet type %s for KMP ID %d", "eapol",
               val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), kmp_id);
         return;
     }
-    // TODO: handle other KMP IDs
 
     TRACE(TR_SECURITY, "rx-eapol type=%s length=%d", val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"),
           ntohs(eapol_hdr->packet_body_length));
@@ -207,6 +209,9 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
     switch (eapol_hdr->packet_type) {
     case EAPOL_PACKET_TYPE_EAP:
         supp_eap_recv(supp, &iobuf);
+        break;
+    case EAPOL_PACKET_TYPE_KEY:
+        supp_key_recv(supp, &iobuf);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
@@ -235,6 +240,7 @@ void supp_start(struct supplicant_ctx *supp)
     supp->expected_rx_len = 0;
     supp->fragment_id = 0;
     mbedtls_ssl_session_reset(&supp->ssl_ctx);
+    supp->replay_counter = -1;
     rfc8415_txalg_start(&supp->key_request_txalg);
     TRACE(TR_SECURITY, "supplicant started eapol-key tx=%ldms",
           supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
@@ -304,6 +310,8 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
     supp->eap_req_timer.callback = supp_timeout_eap_request;
     supp->key_request_txalg.tx = supp_timeout_key_request;
     supp->key_request_txalg.fail = supp_failure_key_request;
+    for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++)
+        supp->gtks[i].slot = i;
     rfc8415_txalg_init(&supp->key_request_txalg);
     memcpy(supp->eui64, eui64, sizeof(supp->eui64));
 
