@@ -16,6 +16,7 @@
 #include "common/specs/ws.h"
 #include "common/mbedtls_extra.h"
 #include "common/mathutils.h"
+#include "common/eapol.h"
 #include "common/iobuf.h"
 #include "common/bits.h"
 #include "common/log.h"
@@ -28,11 +29,12 @@
 static void supp_eap_send_response(struct supplicant_ctx *supp, uint8_t identifier, uint8_t type, struct pktbuf *buf)
 {
     eap_write_hdr_head(buf, EAP_CODE_RESPONSE, identifier, type);
+    eapol_write_hdr_head(buf, EAPOL_PACKET_TYPE_EAP);
     TRACE(TR_SECURITY, "tx-eap code=%s id=%d type=%s", val_to_str(EAP_CODE_RESPONSE, eap_frames, "[UNK]"), identifier,
           val_to_str(type, eap_types, "[UNK]"));
     pktbuf_free(&supp->rt_buffer);
     pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(buf), pktbuf_len(buf));
-    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, EAPOL_PACKET_TYPE_EAP, buf);
+    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, buf);
     supp->last_tx_eap_type = type;
 }
 
@@ -235,7 +237,7 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
      * without reprocessing the Request.
      */
     if (supp->last_eap_identifier == eap_hdr->identifier) {
-        supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, EAPOL_PACKET_TYPE_EAP, &supp->rt_buffer);
+        supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, &supp->rt_buffer);
         return;
     }
 

@@ -93,8 +93,9 @@ static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line,
     TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
 }
 
-void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, uint8_t packet_type, struct pktbuf *buf)
+void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
 {
+    uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
     uint8_t *dst = supp->get_target(supp);
 
     if (!memcmp(dst, ieee802154_addr_bc, sizeof(ieee802154_addr_bc))) {
@@ -102,7 +103,6 @@ void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, uint8_t packet
         return;
     }
 
-    eapol_write_hdr_head(buf, packet_type);
     TRACE(TR_SECURITY, "tx-eapol type=%s length=%lu dst=%s", val_to_str(packet_type, eapol_frames, "[UNK]"),
           pktbuf_len(buf), tr_eui64(dst));
     supp->sendto_mac(supp, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
@@ -130,7 +130,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     kde_write_nr(&buf, WS_NR_ROLE_ROUTER);
     frame.data_length = htobe16(pktbuf_len(&buf));
     pktbuf_push_head(&buf, &frame, sizeof(frame));
-    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, EAPOL_PACKET_TYPE_KEY, &buf);
+    eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
+    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, &buf);
     pktbuf_free(&buf);
 }
 

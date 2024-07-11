@@ -92,7 +92,7 @@ void supp_stop(struct supplicant_ctx *supp);
 
 void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
                      const uint8_t authenticator_eui64[8]);
-void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, uint8_t packet_type, struct pktbuf *buf);
+void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf *buf);
 
 // FIXME: remove after 4WH & 2WH
 void supp_on_eap_success(struct supplicant_ctx *supp);
