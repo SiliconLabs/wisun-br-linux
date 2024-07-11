@@ -18,6 +18,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
+#include "common/time_extra.h"
+#include "common/rand.h"
 #include "common/log.h"
 #include "common/hmac_md.h"
 #include "common/mathutils.h"
@@ -49,4 +51,19 @@ int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
 
     memcpy(result, output, result_size);
     return 0;
+}
+
+void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32])
+{
+    struct {
+        uint8_t  eui64[8];
+        uint64_t now;
+    } data = {
+        .now = time_now_ms(CLOCK_REALTIME),
+    };
+    uint8_t random[32];
+
+    memcpy(data.eui64, eui64, sizeof(data.eui64));
+    rand_get_n_bytes_random(random, sizeof(random));
+    ieee80211_prf(random, sizeof(random), "Init Counter", (const uint8_t *)&data, sizeof(data), nonce_out, 32);
 }
