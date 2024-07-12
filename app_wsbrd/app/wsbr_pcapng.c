@@ -134,7 +134,7 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, uint64_t timestamp_us,
         // NOTE: Since time is measured only once, details like clock drift and
         // leap seconds are ignored.
         clock_gettime(CLOCK_REALTIME, &tp);
-        ctxt->pcapng_t0_us = tp.tv_sec * 1000000 + tp.tv_nsec / 1000 - timestamp_us;
+        ctxt->pcapng_t0_us = (uint64_t)tp.tv_sec * 1000000 + tp.tv_nsec / 1000 - timestamp_us;
     }
 
     pcapng_write_epb(&iobuf_pcapng, timestamp_us + ctxt->pcapng_t0_us,
