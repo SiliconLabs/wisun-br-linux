@@ -160,7 +160,10 @@ int uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
     if (!crc_check(CRC_INIT_FCS, buf, len, fcs)) {
         memmove(bus->uart.rx_buf, bus->uart.rx_buf + 1, bus->uart.rx_buf_len - 1);
         bus->uart.rx_buf_len -= 1;
-        TRACE(TR_DROP, "drop %-9s: bad fcs", "uart");
+        if (bus->uart.init_phase)
+            TRACE(TR_DROP, "drop %-9s: bad fcs", "uart");
+        else
+            FATAL(3, "%s: bad fcs", __func__);
         return 0;
     }
     memmove(bus->uart.rx_buf, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
