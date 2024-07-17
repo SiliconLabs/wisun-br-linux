@@ -91,3 +91,21 @@ void ieee80211_derive_ptk384(const uint8_t pmk[32], const uint8_t auth_eui64[8],
     }
     ieee80211_prf(pmk, 32, "Pairwise key expansion", (const uint8_t *)&data, sizeof(data), ptk, 48);
 }
+
+void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
+                            uint8_t pmkid[16])
+{
+    struct {
+        uint8_t pmk_name[8];
+        uint8_t auth_eui64[8];
+        uint8_t supp_eui64[8];
+    } data = {
+        .pmk_name = "PMK Name",
+    };
+    int ret;
+
+    memcpy(data.auth_eui64, auth_eui64, sizeof(data.auth_eui64));
+    memcpy(data.supp_eui64, supp_eui64, sizeof(data.supp_eui64));
+    ret = hmac_md_sha1(pmk, 32, (const uint8_t *)&data, sizeof(data), pmkid, 16);
+    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+}
