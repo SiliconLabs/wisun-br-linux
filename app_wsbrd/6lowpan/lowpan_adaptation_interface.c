@@ -767,6 +767,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
             // If we need to drop packet we drop oldest normal Priority packet.
             buffer_t *dropped = ns_list_get_first(&interface_ptr->directTxQueue);
             if (dropped) {
+                TRACE(TR_TX_ABORT, "tx-abort: congestion detected dst:%s",
+                      tr_eui64(dropped->dst_sa.address + PAN_ID_LEN));
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
                 buffer_free(dropped);
