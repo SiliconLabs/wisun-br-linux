@@ -13,6 +13,10 @@
 #ifndef IEEE80211_H
 #define IEEE80211_H
 
+// IEEE 802.11-2020, Table 12-10 - "Integrity and key wrap algorithms"
+#define IEEE80211_AKM_1_KCK_LEN_BYTES 16
+#define IEEE80211_AKM_1_KEK_LEN_BYTES 16
+
 // IEEE 802.11-2020, Figure 12-34 - "Key Information bit format"
 #define IEEE80211_MASK_KEY_INFO_VERSION        0b0000000000000111
 #define IEEE80211_MASK_KEY_INFO_TYPE           0b0000000000001000
