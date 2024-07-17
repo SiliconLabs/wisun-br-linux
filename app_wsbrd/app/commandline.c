@@ -88,7 +88,7 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
     fprintf(stream, "                           hif-extra, tun, timers, trickle, 15.4-mngt, 15.4, eap, icmp,\n");
-    fprintf(stream, "                           dhcp, rpl, neigh, drop\n");
+    fprintf(stream, "                           dhcp, rpl, neigh, drop, queue\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");

@@ -61,6 +61,7 @@ const struct name_value valid_traces[] = {
     { "neigh",      TR_NEIGH_15_4 }, // legacy name
     { "neigh-15.4", TR_NEIGH_15_4 },
     { "neigh-ipv6", TR_NEIGH_IPV6 },
+    { "queue",      TR_QUEUE },
     { NULL },
 };
 

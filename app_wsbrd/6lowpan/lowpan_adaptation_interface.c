@@ -186,6 +186,7 @@ static void lowpan_adaptation_tx_queue_level_update(struct net_if *cur, fragment
 
 static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
+    TRACE(TR_QUEUE, "queue: frame enqueued dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
     ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
     interface_ptr->directTxQueue_size++;
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
@@ -193,6 +194,7 @@ static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_inte
 
 static void lowpan_adaptation_tx_queue_write_to_front(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
+    TRACE(TR_QUEUE, "queue: frame enqueued front dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
     ns_list_add_to_start(&interface_ptr->directTxQueue, buf);
     interface_ptr->directTxQueue_size++;
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
@@ -200,6 +202,7 @@ static void lowpan_adaptation_tx_queue_write_to_front(struct net_if *cur, fragme
 
 static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
+    TRACE(TR_QUEUE, "queue: looking for frame to tx");
     // Currently this function is called only when data confirm is received for previously sent packet.
     if (!interface_ptr->directTxQueue_size) {
         return NULL;
@@ -209,6 +212,7 @@ static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_
             ns_list_remove(&interface_ptr->directTxQueue, buf);
             interface_ptr->directTxQueue_size--;
             lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
+            TRACE(TR_QUEUE, "queue: frame dequeued dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
             return buf;
         }
     }
@@ -656,17 +660,25 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
 
     // Do not accept any other TX when fragmented TX active. Prevents other frames to be sent in between two fragments.
     if (interface_ptr->fragmenter_active) {
+        TRACE(TR_QUEUE, "queue: tx not allowed: fragmented tx in progress");
         return false;
     }
     // Do not accept more than one active broadcast TX
     if (!is_unicast) {
-        if (buf->options.lfn_multicast && interface_ptr->active_lfn_broadcast_tx_buf.buf)
+        if (buf->options.lfn_multicast && interface_ptr->active_lfn_broadcast_tx_buf.buf) {
+            TRACE(TR_QUEUE, "queue: tx not allowed: lfn broadcast frame with handle %u already in MAC",
+                  interface_ptr->active_lfn_broadcast_tx_buf.buf->seq);
             return false;
-        if (!buf->options.lfn_multicast && interface_ptr->active_broadcast_tx_buf.buf)
+        }
+        if (!buf->options.lfn_multicast && interface_ptr->active_broadcast_tx_buf.buf) {
+            TRACE(TR_QUEUE, "queue: tx not allowed: broadcast frame with handle %u already in MAC",
+                  interface_ptr->active_broadcast_tx_buf.buf->seq);
             return false;
+        }
     }
 
     if (is_unicast && interface_ptr->activeTxList_size >= LOWPAN_ACTIVE_UNICAST_ONGOING_MAX) {
+        TRACE(TR_QUEUE, "queue: tx not allowed: too many active tx");
         //New TX is not possible there is already too manyactive connecting
         return false;
     }
@@ -674,6 +686,8 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
 
     // Do not accept more than one active unicast TX per destination
     if (is_unicast && lowpan_adaptation_is_destination_tx_active(&interface_ptr->activeUnicastList, buf)) {
+        TRACE(TR_QUEUE, "queue: tx not allowed: unicast frame already in MAC for this destination dst:%s",
+              tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
         return false;
     }
     return true;
