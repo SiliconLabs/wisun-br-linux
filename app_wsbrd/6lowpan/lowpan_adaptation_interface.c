@@ -687,9 +687,9 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
     struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
-    if (buf->options.lfn_multicast) {
+    if (buf->options.lfn_multicast)
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
-    } else {
+    if (buf->link_specific.ieee802_15_4.requestAck) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
 
         if (!ws_neigh)
