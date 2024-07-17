@@ -148,6 +148,10 @@ int uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
         memmove(bus->uart.rx_buf, bus->uart.rx_buf + 1, bus->uart.rx_buf_len - 1);
         bus->uart.rx_buf_len -= 1;
         bus->uart.data_ready = true;
+        if (bus->uart.init_phase)
+            TRACE(TR_DROP, "drop %-9s: bad hcs", "uart");
+        else
+            FATAL(3, "%s: bad hcs", __func__);
         return 0;
     }
     len = FIELD_GET(UART_HDR_LEN_MASK, read_le16(hdr));
