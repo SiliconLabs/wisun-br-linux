@@ -139,7 +139,6 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
 /* Fragmentation local functions */
 static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, struct net_if *cur, fragmenter_interface_t *interface_ptr);
 static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry_t *frag_entry, mcps_data_req_t *dataReq);
-static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
 
@@ -1012,13 +1011,6 @@ static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, const uint8_t *
     return true;
 }
 
-static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
-{
-    tr_debug("Purge from indirect handle %u", tx_ptr->buf->seq);
-    lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
-    return true;
-}
-
 int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, const uint8_t *address_ptr, addrtype_e adr_type)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
@@ -1031,7 +1023,9 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
     ns_list_foreach_safe(fragmenter_tx_entry_t, entry, &interface_ptr->activeUnicastList) {
         if (lowpan_tx_buffer_address_compare(&entry->buf->dst_sa, address_ptr, adr_type)) {
             //Purge from mac
-            lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, entry);
+            TRACE(TR_TX_ABORT, "tx-abort: associated neighbor deleted handle:%u dst:%s", entry->buf->seq,
+                  tr_eui64(entry->buf->dst_sa.address + PAN_ID_LEN));
+            lowpan_adaptation_data_process_clean(interface_ptr, entry);
         }
     }
 
