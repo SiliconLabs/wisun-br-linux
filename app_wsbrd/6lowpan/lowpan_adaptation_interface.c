@@ -1036,6 +1036,8 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
     //Check next directTxQueue there may be pending packets also
     ns_list_foreach_safe(buffer_t, entry, &interface_ptr->directTxQueue) {
         if (lowpan_tx_buffer_address_compare(&entry->dst_sa, address_ptr, adr_type)) {
+            TRACE(TR_TX_ABORT, "tx-abort: associated neighbor deleted dst:%s",
+                  tr_eui64(entry->dst_sa.address + PAN_ID_LEN));
             ns_list_remove(&interface_ptr->directTxQueue, entry);
             interface_ptr->directTxQueue_size--;
             //Update Average QUEUE
