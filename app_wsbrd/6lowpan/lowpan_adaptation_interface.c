@@ -573,8 +573,14 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage, buf->dst_sa.address + PAN_ID_LEN);
 
         //Validate neighbour
-        if (!ws_neigh || !ws_neigh->trusted_device)
+        if (!ws_neigh) {
+            TRACE(TR_TX_ABORT, "tx-abort: neighbor %s not found", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
             goto tx_error_handler;
+        }
+        if (!ws_neigh->trusted_device) {
+            TRACE(TR_TX_ABORT, "tx-abort: neighbor %s not trusted", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
+            goto tx_error_handler;
+        }
         buf->link_specific.ieee802_15_4.requestAck = true;
     }
 
