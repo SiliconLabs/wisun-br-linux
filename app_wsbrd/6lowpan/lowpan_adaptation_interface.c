@@ -731,6 +731,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
             buf->adaptation_timestamp--;
         }
     } else if (lowpan_adaptation_interface_check_buffer_timeout(cur, buf)) {
+        TRACE(TR_TX_ABORT, "tx-abort: buffer timed out dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
         goto tx_error_handler;
     }
 
