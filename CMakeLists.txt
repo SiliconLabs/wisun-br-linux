@@ -285,6 +285,7 @@ add_library(libwsrd STATIC
     app_wsrd/supplicant/supplicant_eap.c
     app_wsrd/supplicant/supplicant.c
     app_wsrd/ws/ws.c
+    common/crypto/hmac_md.c
     common/crypto/ws_keys.c
     common/bits.c
     common/bus_uart.c
