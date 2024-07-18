@@ -185,9 +185,11 @@ static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
     uint8_t gak[16];
 
-    // TODO: use provided GTK
-    ws_generate_gak(wsrd->config.ws_netname, wsrd->config.ws_gtk, gak);
-    wsrd->ws.gak_index = 1;
+    // TODO: handle LGTK
+    if (index > 4)
+        return;
+    ws_generate_gak(wsrd->config.ws_netname, gtk, gak);
+    wsrd->ws.gak_index = index;
     DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), wsrd->ws.gak_index);
     rcp_set_sec_key(&wsrd->rcp, wsrd->ws.gak_index, gak, 0);
 }

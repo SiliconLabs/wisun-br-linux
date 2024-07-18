@@ -164,7 +164,6 @@ void supp_on_eap_success(struct supplicant_ctx *supp)
      * 60 seconds is an arbitrary value.
      */
     timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
-    supp->on_gtk_success(supp, NULL, 0);
 }
 
 static void supp_failure_timer_timeout(struct timer_group *group, struct timer_entry *timer)
