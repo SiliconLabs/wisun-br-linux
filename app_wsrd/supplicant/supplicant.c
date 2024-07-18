@@ -158,18 +158,18 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 
 void supp_on_eap_success(struct supplicant_ctx *supp)
 {
-    timer_stop(NULL, &supp->eap_req_timer);
+    timer_stop(NULL, &supp->failure_timer);
     /*
      * Wi-SUN does not specify any timeout between EAP-Success and 4WH message 1.
      * 60 seconds is an arbitrary value.
      */
-    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
+    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
     supp->on_gtk_success(supp, NULL, 0);
 }
 
-static void supp_timeout_eap_request(struct timer_group *group, struct timer_entry *timer)
+static void supp_failure_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct supplicant_ctx *supp = container_of(timer, struct supplicant_ctx, eap_req_timer);
+    struct supplicant_ctx *supp = container_of(timer, struct supplicant_ctx, failure_timer);
 
     /*
      *   IEEE 802.1X-2020, 8.8 Supplicant PAE counters
@@ -227,7 +227,7 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
      * described in this note.
      */
     if (mbedtls_ssl_is_handshake_over(&supp->ssl_ctx) &&
-        eapol_hdr->packet_type != EAPOL_PACKET_TYPE_EAP && !timer_stopped(&supp->eap_req_timer))
+        eapol_hdr->packet_type != EAPOL_PACKET_TYPE_EAP && !timer_stopped(&supp->failure_timer))
         supp_on_eap_success(supp);
 
     switch (eapol_hdr->packet_type) {
@@ -246,7 +246,7 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
 void supp_stop(struct supplicant_ctx *supp)
 {
     rfc8415_txalg_stop(&supp->key_request_txalg);
-    timer_stop(NULL, &supp->eap_req_timer);
+    timer_stop(NULL, &supp->failure_timer);
     supp->running = false;
     TRACE(TR_SECURITY, "supplicant stopped");
 }
@@ -331,7 +331,7 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
     BUG_ON(!supp->on_gtk_success);
     BUG_ON(!supp->on_failure);
 
-    supp->eap_req_timer.callback = supp_timeout_eap_request;
+    supp->failure_timer.callback = supp_failure_timer_timeout;
     supp->key_request_txalg.tx = supp_timeout_key_request;
     supp->key_request_txalg.fail = supp_failure_key_request;
     for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++)

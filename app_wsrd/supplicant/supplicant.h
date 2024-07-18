@@ -98,7 +98,7 @@ struct supplicant_ctx {
     uint8_t ptk[48];
 
     struct rfc8415_txalg key_request_txalg;
-    struct timer_entry   eap_req_timer;
+    struct timer_entry   failure_timer;
 
     void (*sendto_mac)(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const uint8_t dst[8]);

@@ -302,13 +302,13 @@ void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
 
     switch (eap_hdr->code) {
     case EAP_CODE_REQUEST:
-        timer_stop(NULL, &supp->eap_req_timer);
+        timer_stop(NULL, &supp->failure_timer);
         supp_eap_request_recv(supp, eap_hdr, iobuf);
         /*
          * Wi-SUN does not specify any timeout between two EAP-Requests.
          * 60 seconds is an arbitrary value.
          */
-        timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
+        timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
         break;
     case EAP_CODE_SUCCESS:
         supp_on_eap_success(supp);
@@ -328,7 +328,7 @@ void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
          * Note: considering Wi-SUN adds the notion of EAPOL target, we
          * fallback to EAPOL Target selection.
          */
-        timer_stop(NULL, &supp->eap_req_timer);
+        timer_stop(NULL, &supp->failure_timer);
         supp->on_failure(supp);
         break;
     default:

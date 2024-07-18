@@ -332,7 +332,7 @@ static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const 
      * 60 seconds is an arbitrary value.
      */
 error:
-    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
+    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
 }
 
 static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
@@ -389,13 +389,13 @@ exit:
      * It does not specify anything when msg 1 is not well formatted either.
      * 60 seconds is an arbitrary value.
      */
-    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
+    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
 }
 
 static void supp_key_pairwise_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
                                    struct iobuf_read *iobuf)
 {
-    timer_stop(NULL, &supp->eap_req_timer);
+    timer_stop(NULL, &supp->failure_timer);
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_INSTALL, be16toh(frame->information)))
     {
