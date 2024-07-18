@@ -288,23 +288,23 @@ static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const 
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_INSTALL, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"install\" bit not set when it should be", "eapol-key");
-        return;
+        goto error;
     }
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_ACK, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"ack\" bit not set when it should be", "eapol-key");
-        return;
+        goto error;
     }
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
-        return;
+        goto error;
     }
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"secure\" bit not set when it should be", "eapol-key");
-        return;
+        goto error;
     }
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_ENCRYPTED_DATA, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"encrypted-data\" bit not set when it should be", "eapol-key");
-        return;
+        goto error;
     }
 
     /*
@@ -315,16 +315,24 @@ static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const 
      */
     if (memcmp(supp->anonce, frame->nonce, sizeof(frame->nonce))) {
         TRACE(TR_DROP, "drop %-9s: invalid anonce", "eapol-key");
-        return;
+        goto error;
     }
     if (!supp_key_is_mic_valid(supp, frame, iobuf)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
-        return;
+        goto error;
     }
 
    if (supp_key_handle_key_data(supp, frame, iobuf))
-        return;
+        goto error;
     supp_key_pairwise_message_4_send(supp);
+    return;
+
+    /*
+     * Wi-SUN does not specify any timeout when msg 3 is not well formatted.
+     * 60 seconds is an arbitrary value.
+     */
+error:
+    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
 }
 
 static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
@@ -337,7 +345,7 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_ACK, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"ack\" bit not set when it should be", "eapol-key");
-        return;
+        goto exit;
     }
 
     /*
@@ -346,18 +354,18 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
      */
     if (be16toh(frame->length) != 16) {
         TRACE(TR_DROP, "drop %-9s: invalid key length %d", "eapol-key", be16toh(frame->length));
-        return;
+        goto exit;
     }
 
     ieee80211_derive_pmkid(supp->pmk, supp->authenticator_eui64, supp->eui64, pmkid);
 
     if (!kde_read_pmk_id(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
         TRACE(TR_DROP, "drop %-9s: missing pmkid", "eapol-key");
-        return;
+        goto exit;
     }
     if (memcmp(received_pmkid, pmkid, sizeof(pmkid))) {
         TRACE(TR_DROP, "drop %-9s: unknown pmkid", "eapol-key");
-        return;
+        goto exit;
     }
 
     /*
@@ -374,11 +382,21 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
     ieee80211_derive_ptk384(supp->pmk, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->ptk);
     supp_key_pairwise_message_2_send(supp, frame);
+
+exit:
+    /*
+     * Wi-SUN does not specify any timeout between 4wh msg 2 and 3.
+     * It does not specify anything when msg 1 is not well formatted either.
+     * 60 seconds is an arbitrary value.
+     */
+    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
 }
 
 static void supp_key_pairwise_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
                                    struct iobuf_read *iobuf)
 {
+    timer_stop(NULL, &supp->eap_req_timer);
+
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_INSTALL, be16toh(frame->information)))
     {
     case 0:
