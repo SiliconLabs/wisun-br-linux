@@ -14,6 +14,7 @@
 #include <endian.h>
 #include <stddef.h>
 
+#include <mbedtls/sha256.h>
 #include <mbedtls/debug.h>
 
 #include "common/specs/ieee802159.h"
@@ -22,8 +23,10 @@
 #include "common/specs/eap.h"
 #include "common/specs/ws.h"
 #include "common/crypto/ieee80211.h"
+#include "common/crypto/ws_keys.h"
 #include "common/ieee802154_frame.h"
 #include "common/mbedtls_extra.h"
+#include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -240,6 +243,28 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
         TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
         break;
     }
+}
+
+bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
+{
+    uint8_t hash[32] = { };
+    bool has_gtk;
+    int ret;
+
+    if (!supp->running)
+        return false;
+
+    if (!memzcmp(supp->gtks[gtkhash_index - 1].gtk, sizeof(supp->gtks[gtkhash_index - 1].gtk))) {
+        has_gtk = !memzcmp(gtkhash, 8);
+    } else {
+        ret = mbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
+        FATAL_ON(ret, 2, "%s: mbedtls_sha256: %s", __func__, tr_mbedtls_err(ret));
+        has_gtk = !memcmp(hash + 24, gtkhash, 8);
+    }
+    if (!has_gtk)
+        TRACE(TR_SECURITY, "sec: gtkhash[%u] mismatch got:%s expected:%s", gtkhash_index,
+              tr_key(hash + 24, 8), tr_key(gtkhash, 8));
+    return has_gtk;
 }
 
 void supp_stop(struct supplicant_ctx *supp)
