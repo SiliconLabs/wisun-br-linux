@@ -158,8 +158,12 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 
 void supp_on_eap_success(struct supplicant_ctx *supp)
 {
-    // TODO: handle keys
     timer_stop(NULL, &supp->eap_req_timer);
+    /*
+     * Wi-SUN does not specify any timeout between EAP-Success and 4WH message 1.
+     * 60 seconds is an arbitrary value.
+     */
+    timer_start_rel(NULL, &supp->eap_req_timer, 60 * 1000);
     supp->on_gtk_success(supp, NULL, 0);
 }
 
