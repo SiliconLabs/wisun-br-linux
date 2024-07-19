@@ -188,9 +188,13 @@ static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t
     // TODO: handle LGTK
     if (index > 4)
         return;
-    ws_generate_gak(wsrd->config.ws_netname, gtk, gak);
-    DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), index);
-    rcp_set_sec_key(&wsrd->rcp, index, gak, 0);
+    if (gtk) {
+        ws_generate_gak(wsrd->config.ws_netname, gtk, gak);
+        DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), index);
+        rcp_set_sec_key(&wsrd->rcp, index, gak, 0);
+    } else {
+        rcp_set_sec_key(&wsrd->rcp, index, NULL, 0);
+    }
 }
 
 static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
