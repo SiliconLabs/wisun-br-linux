@@ -148,9 +148,27 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     };
     struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
     struct pktbuf buf = { };
+    uint8_t pmkid[16];
+    uint8_t ptkid[16];
+    uint8_t lgtkl = 0;
+    uint8_t gtkl = 0;
 
-    kde_write_gtkl(&buf, 0);
-    kde_write_lgtkl(&buf, 0);
+    ieee80211_derive_pmkid(supp->pmk, supp->authenticator_eui64, supp->eui64, pmkid);
+    ws_derive_ptkid(supp->ptk, supp->authenticator_eui64, supp->eui64, ptkid);
+
+    for (int i = 0; i < 4; i++)
+        if (memzcmp(&supp->gtks[i].gtk, sizeof(supp->gtks[i].gtk)))
+            gtkl |= BIT(i);
+    for (int i = 4; i < ARRAY_SIZE(supp->gtks); i++)
+        if (memzcmp(&supp->gtks[i].gtk, sizeof(supp->gtks[i].gtk)))
+            lgtkl |= BIT(i - 4);
+
+    if (memzcmp(supp->pmk, sizeof(supp->pmk)))
+        kde_write_pmkid(&buf, pmkid);
+    if (memzcmp(supp->ptk, sizeof(supp->ptk)))
+        kde_write_ptkid(&buf, ptkid);
+    kde_write_gtkl(&buf, gtkl);
+    kde_write_lgtkl(&buf, lgtkl);
     kde_write_nr(&buf, WS_NR_ROLE_ROUTER);
     frame.data_length = htobe16(pktbuf_len(&buf));
     pktbuf_push_head(&buf, &frame, sizeof(frame));
