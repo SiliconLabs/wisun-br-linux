@@ -157,10 +157,10 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     ws_derive_ptkid(supp->ptk, supp->authenticator_eui64, supp->eui64, ptkid);
 
     for (int i = 0; i < 4; i++)
-        if (memzcmp(&supp->gtks[i].gtk, sizeof(supp->gtks[i].gtk)))
+        if (!timer_stopped(&supp->gtks[i].expiration_timer))
             gtkl |= BIT(i);
     for (int i = 4; i < ARRAY_SIZE(supp->gtks); i++)
-        if (memzcmp(&supp->gtks[i].gtk, sizeof(supp->gtks[i].gtk)))
+        if (!timer_stopped(&supp->gtks[i].expiration_timer))
             lgtkl |= BIT(i - 4);
 
     if (memzcmp(supp->pmk, sizeof(supp->pmk)))
@@ -263,6 +263,21 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
     }
 }
 
+/*
+ *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
+ * A previously installed GTK[X] expires. At the expiry time, the GTK is
+ * removed both from the Border Router and PAN FFNs (all setting their local
+ * hash value to 0).
+ */
+static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
+    struct supplicant_ctx *supp = container_of((const struct ws_gtk (*)[7])(gtk - gtk->slot), struct supplicant_ctx, gtks);
+
+    TRACE(TR_SECURITY, "sec: gtk[%u] expired", gtk->slot + 1);
+    supp->on_gtk_change(supp, NULL, gtk->slot + 1);
+}
+
 bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
 {
     uint8_t hash[32] = { };
@@ -272,7 +287,7 @@ bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkha
     if (!supp->running)
         return false;
 
-    if (!memzcmp(supp->gtks[gtkhash_index - 1].gtk, sizeof(supp->gtks[gtkhash_index - 1].gtk))) {
+    if (timer_stopped(&supp->gtks[gtkhash_index - 1].expiration_timer)) {
         has_gtk = !memzcmp(gtkhash, 8);
     } else {
         ret = mbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
@@ -386,8 +401,10 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
     supp->failure_timer.callback = supp_failure_timer_timeout;
     supp->key_request_txalg.tx = supp_timeout_key_request;
     supp->key_request_txalg.fail = supp_failure_key_request;
-    for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++)
+    for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
+        supp->gtks[i].expiration_timer.callback = supp_gtk_expiration_timer_timeout;
         supp->gtks[i].slot = i;
+    }
     rfc8415_txalg_init(&supp->key_request_txalg);
     memcpy(supp->eui64, eui64, sizeof(supp->eui64));
 

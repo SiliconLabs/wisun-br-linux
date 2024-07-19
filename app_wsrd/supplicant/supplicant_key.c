@@ -21,7 +21,6 @@
 #include "common/crypto/hmac_md.h"
 #include "common/crypto/nist_kw.h"
 #include "common/crypto/ws_keys.h"
-#include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
 #include "common/eapol.h"
@@ -236,15 +235,18 @@ static int supp_key_handle_key_data(struct supplicant_ctx *supp, const struct ea
      * will remove it locally (setting its GTK[X] hash to 0).
      */
     for (int i = gtks_slot_min; i < gtks_size; i++)
-        if (!(gtkl_kde & BIT(i - gtks_slot_min)) && memzcmp(supp->gtks[i].gtk, sizeof(supp->gtks[i].gtk))) {
-            memset(supp->gtks[i].gtk, 0, sizeof(supp->gtks[i].gtk));
+        if (!(gtkl_kde & BIT(i - gtks_slot_min)) && !timer_stopped(&supp->gtks[i].expiration_timer)) {
             TRACE(TR_SECURITY, "sec: %s[%u] no longer valid", is_lgtk ? "lgtk" : "gtk", i + 1 - gtks_slot_min);
+            timer_stop(NULL, &supp->gtks[i].expiration_timer);
+            if (supp->gtks[i].expiration_timer.callback)
+                supp->gtks[i].expiration_timer.callback(NULL, &supp->gtks[i].expiration_timer);
         }
 
     memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
+    timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
     supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
-    TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us", is_lgtk ? "lgtk" : "gtk",
-          key_index - gtks_slot_min, lifetime_kde);
+    TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
+          key_index - gtks_slot_min, lifetime_kde, supp->gtks[key_index - 1].expiration_timer.expire_ms);
     pktbuf_free(&buf);
     return 0;
 

@@ -47,6 +47,7 @@
 struct ws_gtk {
     uint8_t slot;
     uint8_t gtk[16];
+    struct timer_entry expiration_timer;
 };
 
 struct supplicant_ctx {
