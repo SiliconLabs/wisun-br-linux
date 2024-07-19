@@ -199,6 +199,7 @@ static void supp_failure_timer_timeout(struct timer_group *group, struct timer_e
      * Note: considering Wi-SUN adds the notion of EAPOL target, we consider a
      * such timeout as a failure and fallback to EAPOL Target selection.
      */
+    TRACE(TR_SECURITY, "sec: next eapol packet timeout");
     supp->on_failure(supp);
 }
 
