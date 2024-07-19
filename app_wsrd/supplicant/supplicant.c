@@ -136,6 +136,7 @@ static void supp_failure_key_request(struct rfc8415_txalg *txalg)
 {
     struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
 
+    TRACE(TR_SECURITY, "sec: no valid response to key request after %d retries", supp->key_request_txalg.mrc);
     supp->on_failure(supp);
 }
 
