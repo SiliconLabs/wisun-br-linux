@@ -112,6 +112,7 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
 void supp_start(struct supplicant_ctx *supp);
 void supp_stop(struct supplicant_ctx *supp);
 bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtk_index);
+void supp_start_key_request(struct supplicant_ctx *supp);
 
 void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
                      const uint8_t authenticator_eui64[8]);

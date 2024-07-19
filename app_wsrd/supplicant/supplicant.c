@@ -267,6 +267,17 @@ bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkha
     return has_gtk;
 }
 
+void supp_start_key_request(struct supplicant_ctx *supp)
+{
+    if (!supp->running)
+        return;
+    if (!rfc8415_txalg_stopped(&supp->key_request_txalg) || !timer_stopped(&supp->failure_timer))
+        return;
+    rfc8415_txalg_start(&supp->key_request_txalg);
+    TRACE(TR_SECURITY, "eapol-key tx=%"PRIu64"ms",
+          supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
+}
+
 void supp_stop(struct supplicant_ctx *supp)
 {
     rfc8415_txalg_stop(&supp->key_request_txalg);
@@ -289,9 +300,8 @@ void supp_start(struct supplicant_ctx *supp)
     supp->fragment_id = 0;
     mbedtls_ssl_session_reset(&supp->ssl_ctx);
     supp->replay_counter = -1;
-    rfc8415_txalg_start(&supp->key_request_txalg);
-    TRACE(TR_SECURITY, "supplicant started eapol-key tx=%ldms",
-          supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
+    supp_start_key_request(supp);
+    TRACE(TR_SECURITY, "supplicant started");
 }
 
 void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
