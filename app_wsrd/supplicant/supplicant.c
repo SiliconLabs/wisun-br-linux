@@ -362,7 +362,7 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
 
     BUG_ON(!supp->sendto_mac);
     BUG_ON(!supp->get_target);
-    BUG_ON(!supp->on_gtk_success);
+    BUG_ON(!supp->on_gtk_change);
     BUG_ON(!supp->on_failure);
 
     supp->failure_timer.callback = supp_failure_timer_timeout;

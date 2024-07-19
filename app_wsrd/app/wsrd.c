@@ -53,7 +53,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
 static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const uint8_t dst[8]);
 static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp);
-static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
+static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
 static void wsrd_eapol_on_failure(struct supplicant_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
@@ -82,7 +82,7 @@ struct wsrd g_wsrd = {
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .ws.supp.key_request_txalg.rand_min    = -0.1,
     .ws.supp.key_request_txalg.rand_max    = +0.1,
-    .ws.supp.on_gtk_success = wsrd_eapol_on_gtk_success,
+    .ws.supp.on_gtk_change = wsrd_eapol_on_gtk_change,
     .ws.supp.on_failure  = wsrd_eapol_on_failure,
     .ws.supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .ws.supp.get_target  = wsrd_eapol_get_target,
@@ -180,7 +180,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
     return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
-static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
+static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
     uint8_t gak[16];

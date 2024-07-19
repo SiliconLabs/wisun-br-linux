@@ -103,7 +103,7 @@ struct supplicant_ctx {
     void (*sendto_mac)(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const uint8_t dst[8]);
     uint8_t *(*get_target)(struct supplicant_ctx *supp);
-    void (*on_gtk_success)(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
+    void (*on_gtk_change)(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
     void (*on_failure)(struct supplicant_ctx *supp);
 };
 

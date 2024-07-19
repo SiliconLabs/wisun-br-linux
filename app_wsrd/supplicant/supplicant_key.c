@@ -242,7 +242,7 @@ static int supp_key_handle_key_data(struct supplicant_ctx *supp, const struct ea
         }
 
     memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
-    supp->on_gtk_success(supp, gtk_kde.gtk, key_index);
+    supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
     TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us", is_lgtk ? "lgtk" : "gtk",
           key_index - gtks_slot_min, lifetime_kde);
     pktbuf_free(&buf);
