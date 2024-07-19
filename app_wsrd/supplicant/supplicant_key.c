@@ -282,6 +282,8 @@ static void supp_key_group_message_1_recv(struct supplicant_ctx *supp, const str
     if (supp_key_handle_key_data(supp, frame, iobuf))
         return;
     supp_key_group_message_2_send(supp);
+    // We may have started the key request txalg after a gtkhash missmatch
+    rfc8415_txalg_stop(&supp->key_request_txalg);
 }
 
 static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
@@ -385,6 +387,8 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
     ieee80211_derive_ptk384(supp->pmk, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->ptk);
     supp_key_pairwise_message_2_send(supp, frame);
+    // We may have started the key request txalg after a gtkhash missmatch
+    rfc8415_txalg_stop(&supp->key_request_txalg);
 
 exit:
     /*

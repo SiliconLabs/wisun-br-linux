@@ -249,6 +249,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
+    uint8_t gtkhash[4][8];
     uint16_t pan_version;
 
     if (ws->pan_id == 0xffff) {
@@ -274,12 +275,20 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     if (!ws_ie_validate_bs(ws, &ind->ie_wp, &ie_bs))
         return;
 
-    // TODO: GTKHASH-IE, LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
+    // TODO: LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
     if (!ws_wp_nested_panver_read(ind->ie_wp.data, ind->ie_wp.data_size, &pan_version)) {
         TRACE(TR_DROP, "drop %-9s: missing PANVER-IE", "15.4");
         return;
     }
+    if (!ws_wp_nested_gtkhash_read(ind->ie_wp.data, ind->ie_wp.data_size, gtkhash)) {
+        TRACE(TR_DROP, "drop %-9s: missing GTKHASH-IE", "15.4");
+        return;
+    }
     ws_update_gak_index(ws, ind->hdr.key_index);
+
+    for (int i = 0; i < ARRAY_SIZE(gtkhash); i++)
+        if (!supp_has_gtk(&ws->supp, gtkhash[i], i + 1))
+            supp_start_key_request(&ws->supp);
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
     if (ws->pan_version != pan_version) {
         ws->pan_version = pan_version;
