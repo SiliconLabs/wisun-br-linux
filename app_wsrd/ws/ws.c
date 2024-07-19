@@ -231,6 +231,16 @@ static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, str
     }
 }
 
+static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
+{
+    // TODO: handle LGTKs
+    if (key_index > 4)
+        return;
+    if (ws->gak_index != key_index)
+        TRACE(TR_SECURITY, "sec: gak index change old:%u new:%u", ws->gak_index, key_index);
+    ws->gak_index = key_index;
+}
+
 static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
 {
     uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
@@ -269,6 +279,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %-9s: missing PANVER-IE", "15.4");
         return;
     }
+    ws_update_gak_index(ws, ind->hdr.key_index);
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
     if (ws->pan_version != pan_version) {
         ws->pan_version = pan_version;
@@ -330,6 +341,12 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
         ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
+
+    /*
+     * We may receive a data frame encrypted with a newly activated GTK prior to
+     * receiving a PC.
+     */
+    ws_update_gak_index(ws, ind->hdr.key_index);
 
     lowpan_recv(&ws->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
