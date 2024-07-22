@@ -33,7 +33,7 @@
 #endif
 
 // Runtime check
-void wsbr_check_mbedtls_features()
+void check_mbedtls_features()
 {
     static const char *features[] = {
         "MBEDTLS_SSL_TLS_C",

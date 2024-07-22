@@ -13,7 +13,6 @@
 #ifndef CHECK_MBEDTLS_CONFIG_H
 #define CHECK_MBEDTLS_CONFIG_H
 
-void wsbr_check_mbedtls_features();
+void check_mbedtls_features();
 
 #endif
-

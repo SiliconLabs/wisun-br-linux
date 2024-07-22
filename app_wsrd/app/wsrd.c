@@ -347,7 +347,7 @@ int wsrd_main(int argc, char *argv[])
     if (wsrd->config.color_output != -1)
         g_enable_color_traces = wsrd->config.color_output;
 
-    wsbr_check_mbedtls_features();
+    check_mbedtls_features();
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);

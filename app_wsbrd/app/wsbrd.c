@@ -629,7 +629,7 @@ int wsbr_main(int argc, char *argv[])
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
-    wsbr_check_mbedtls_features();
+    check_mbedtls_features();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete) {
