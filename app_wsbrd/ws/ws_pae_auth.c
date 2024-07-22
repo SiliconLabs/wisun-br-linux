@@ -511,7 +511,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
         int8_t not_removed_index = active_index;
         uint32_t revocation_lifetime = timer_cfg->expire_offset / timer_cfg->revocat_lifetime_reduct;
         uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, active_index);
-        uint64_t current_time = time_current(CLOCK_REALTIME);
+        uint64_t current_time = time_now_s(CLOCK_REALTIME);
 
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
@@ -698,7 +698,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
     struct sec_timing *timer_gtk_cfg;
     pae_auth_gtk_t *pae_auth_gtk;
     sec_prot_gtk_keys_t *keys;
-    uint64_t current_time = time_current(CLOCK_REALTIME);
+    uint64_t current_time = time_now_s(CLOCK_REALTIME);
     int8_t active_index;
 
     if (is_lgtk) {

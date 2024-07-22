@@ -1423,7 +1423,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIeVectorList = message->ie_iov_payload;
     message->ie_ext.payloadIovLength = 2;
 
-    message->tx_time = time_current(CLOCK_MONOTONIC);
+    message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
@@ -1469,7 +1469,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     else
         data_req.fhss_type = HIF_FHSS_TYPE_FFN_UC;
 
-    message->tx_time = time_current(CLOCK_MONOTONIC);
+    message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
@@ -1722,7 +1722,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
 
     ws_llc_prepare_ie(base, message, &request->wh_ies, &request->wp_ies);
 
-    message->tx_time = time_current(CLOCK_MONOTONIC);
+    message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
@@ -1781,7 +1781,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
 
     ws_llc_prepare_ie(base, msg, &req->wh_ies, &req->wp_ies);
 
-    msg->tx_time = time_current(CLOCK_MONOTONIC);
+    msg->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, msg);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &msg->ie_ext);

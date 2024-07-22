@@ -59,7 +59,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     if (aro->status == NDP_ARO_STATUS_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
         neigh->lifetime_s = aro->lifetime * UINT32_C(60);
-        neigh->expiration_s = time_current(CLOCK_MONOTONIC) + neigh->lifetime_s;
+        neigh->expiration_s = time_now_s(CLOCK_MONOTONIC) + neigh->lifetime_s;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {

@@ -566,7 +566,7 @@ static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counte
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller)
 {
     uint8_t nvm_gtk_eui64[8];
-    uint64_t system_time = time_current(CLOCK_REALTIME);
+    uint64_t system_time = time_now_s(CLOCK_REALTIME);
 
     if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info, &controller->gtks.frame_counters,
                                            &controller->lgtks.frame_counters, nvm_gtk_eui64, system_time) < 0) {
@@ -628,7 +628,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(const struct net_if *interface
                                                   const frame_counters_t *gtk_frame_counters, const frame_counters_t *lgtk_frame_counters,
                                                   const uint8_t *gtk_eui64)
 {
-    unsigned long long current_time = time_current(CLOCK_REALTIME);
+    unsigned long long current_time = time_now_s(CLOCK_REALTIME);
     struct storage_parse_info *info = storage_open_prefix("network-keys", "w");
     sec_prot_gtk_keys_t *gtks = sec_keys_nw_info->gtks;
     sec_prot_gtk_keys_t *lgtks = sec_keys_nw_info->lgtks;

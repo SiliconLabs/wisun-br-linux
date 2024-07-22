@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <time.h>
 
-time_t time_current(clockid_t clockid);
+time_t time_now_s(clockid_t clockid);
 
 uint64_t time_now_ms(void);
 

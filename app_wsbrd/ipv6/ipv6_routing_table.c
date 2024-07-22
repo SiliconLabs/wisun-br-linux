@@ -221,7 +221,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     /* Reset the GC life, if it's a GC entry */
     if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
         entry->lifetime_s = NCACHE_GC_AGE;
-        entry->expiration_s = time_current(CLOCK_MONOTONIC) + NCACHE_GC_AGE;
+        entry->expiration_s = time_now_s(CLOCK_MONOTONIC) + NCACHE_GC_AGE;
     }
 
     /* Move it to the front of the list */
@@ -344,7 +344,7 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
         if (entry->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
             continue;
 
-        if (time_current(CLOCK_MONOTONIC) >= entry->expiration_s)
+        if (time_now_s(CLOCK_MONOTONIC) >= entry->expiration_s)
             ipv6_neighbour_entry_remove(cache, entry);
     }
 }
@@ -355,7 +355,7 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
         if (cur->lifetime_s && cur->expiration_s &&
-            time_current(CLOCK_MONOTONIC) < cur->expiration_s)
+            time_now_s(CLOCK_MONOTONIC) < cur->expiration_s)
             continue;
 
         /* Lifetime expired */

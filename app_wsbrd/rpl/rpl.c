@@ -428,7 +428,7 @@ static void rpl_transit_update(struct rpl_root *root,
         BUG_ON(!target);
         target->external = opt_transit->external;
         target->path_seq = opt_transit->path_seq;
-        target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+        target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
         updated = true;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
@@ -436,7 +436,7 @@ static void rpl_transit_update(struct rpl_root *root,
 
     if (root->compat) {
         target->path_seq = opt_transit->path_seq;
-        target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+        target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
         updated = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
@@ -452,7 +452,7 @@ static void rpl_transit_update(struct rpl_root *root,
         if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
             memset(target->transits, 0, sizeof(target->transits));
             target->path_seq = opt_transit->path_seq;
-            target->path_seq_tstamp_s = time_current(CLOCK_MONOTONIC);
+            target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
             updated = true;
             TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
                   tr_ipv6_prefix(target->prefix, 128), target->path_seq);
