@@ -289,6 +289,7 @@ add_library(libwsrd STATIC
     common/crc.c
     common/dhcp_client.c
     common/dhcp_common.c
+    common/eapol.c
     common/endian.c
     common/hif.c
     common/ieee802154_frame.c
