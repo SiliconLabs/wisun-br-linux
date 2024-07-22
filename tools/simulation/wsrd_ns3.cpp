@@ -104,7 +104,7 @@ extern "C" sighandler_t __wrap_signal(int signum, sighandler_t handler)
 extern "C" void __wrap_exit(int status)
 {
     if (strlen(last_error))
-        fprintf(stderr, "\x1b[31mwsbrd: %s\x1b[0m\n", last_error);
+        fprintf(stderr, "\x1b[31mwsrd: %s\x1b[0m\n", last_error);
     ns3::FatalImpl::FlushStreams();
     std::terminate();
 }
