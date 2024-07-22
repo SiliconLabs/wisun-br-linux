@@ -56,6 +56,8 @@ void pktbuf_push_head_be24(struct pktbuf *pktbuf, uint24_t val);
 void pktbuf_push_head_le24(struct pktbuf *pktbuf, uint24_t val);
 void pktbuf_push_head_be32(struct pktbuf *pktbuf, uint32_t val);
 void pktbuf_push_head_le32(struct pktbuf *pktbuf, uint32_t val);
+void pktbuf_push_head_be64(struct pktbuf *pktbuf, uint64_t val);
+void pktbuf_push_head_le64(struct pktbuf *pktbuf, uint64_t val);
 
 // Use buf = NULL to reserve bytes (0-init)
 void pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
@@ -66,6 +68,8 @@ void pktbuf_push_tail_be24(struct pktbuf *pktbuf, uint24_t val);
 void pktbuf_push_tail_le24(struct pktbuf *pktbuf, uint24_t val);
 void pktbuf_push_tail_be32(struct pktbuf *pktbuf, uint32_t val);
 void pktbuf_push_tail_le32(struct pktbuf *pktbuf, uint32_t val);
+void pktbuf_push_tail_be64(struct pktbuf *pktbuf, uint64_t val);
+void pktbuf_push_tail_le64(struct pktbuf *pktbuf, uint64_t val);
 
 void pktbuf_pop_head(struct pktbuf *pktbuf, void *buf, size_t buf_len);
 uint8_t  pktbuf_pop_head_u8(struct pktbuf *pktbuf);
@@ -75,6 +79,8 @@ uint24_t pktbuf_pop_head_be24(struct pktbuf *pktbuf);
 uint24_t pktbuf_pop_head_le24(struct pktbuf *pktbuf);
 uint32_t pktbuf_pop_head_be32(struct pktbuf *pktbuf);
 uint32_t pktbuf_pop_head_le32(struct pktbuf *pktbuf);
+uint64_t pktbuf_pop_head_be64(struct pktbuf *pktbuf);
+uint64_t pktbuf_pop_head_le64(struct pktbuf *pktbuf);
 
 void pktbuf_pop_tail(struct pktbuf *pktbuf, void *buf, size_t buf_len);
 uint8_t  pktbuf_pop_tail_u8(struct pktbuf *pktbuf);
@@ -84,5 +90,7 @@ uint24_t pktbuf_pop_tail_be24(struct pktbuf *pktbuf);
 uint24_t pktbuf_pop_tail_le24(struct pktbuf *pktbuf);
 uint32_t pktbuf_pop_tail_be32(struct pktbuf *pktbuf);
 uint32_t pktbuf_pop_tail_le32(struct pktbuf *pktbuf);
+uint64_t pktbuf_pop_tail_be64(struct pktbuf *pktbuf);
+uint64_t pktbuf_pop_tail_le64(struct pktbuf *pktbuf);
 
 #endif

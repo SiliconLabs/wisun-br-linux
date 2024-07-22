@@ -149,6 +149,16 @@ void pktbuf_push_head_le32(struct pktbuf *pktbuf, uint32_t val)
     pktbuf_push_head(pktbuf, (uint32_t[1]){ htole32(val) }, sizeof(val));
 }
 
+void pktbuf_push_head_be64(struct pktbuf *pktbuf, uint64_t val)
+{
+    pktbuf_push_head(pktbuf, (uint64_t[1]){ htobe64(val) }, sizeof(val));
+}
+
+void pktbuf_push_head_le64(struct pktbuf *pktbuf, uint64_t val)
+{
+    pktbuf_push_head(pktbuf, (uint64_t[1]){ htole64(val) }, sizeof(val));
+}
+
 void pktbuf_push_tail_u8(struct pktbuf *pktbuf, uint8_t val)
 {
     pktbuf_push_tail(pktbuf, &val, sizeof(val));
@@ -182,6 +192,16 @@ void pktbuf_push_tail_be32(struct pktbuf *pktbuf, uint32_t val)
 void pktbuf_push_tail_le32(struct pktbuf *pktbuf, uint32_t val)
 {
     pktbuf_push_tail(pktbuf, (uint32_t[1]){ htole32(val) }, sizeof(val));
+}
+
+void pktbuf_push_tail_be64(struct pktbuf *pktbuf, uint64_t val)
+{
+    pktbuf_push_tail(pktbuf, (uint64_t[1]){ htobe64(val) }, sizeof(val));
+}
+
+void pktbuf_push_tail_le64(struct pktbuf *pktbuf, uint64_t val)
+{
+    pktbuf_push_tail(pktbuf, (uint64_t[1]){ htole64(val) }, sizeof(val));
 }
 
 uint8_t pktbuf_pop_head_u8(struct pktbuf *pktbuf)
@@ -240,6 +260,22 @@ uint32_t pktbuf_pop_head_le32(struct pktbuf *pktbuf)
     return le32toh(val);
 }
 
+uint64_t pktbuf_pop_head_be64(struct pktbuf *pktbuf)
+{
+    uint64_t val;
+
+    pktbuf_pop_head(pktbuf, &val, sizeof(val));
+    return be64toh(val);
+}
+
+uint64_t pktbuf_pop_head_le64(struct pktbuf *pktbuf)
+{
+    uint64_t val;
+
+    pktbuf_pop_head(pktbuf, &val, sizeof(val));
+    return le64toh(val);
+}
+
 uint8_t pktbuf_pop_tail_u8(struct pktbuf *pktbuf)
 {
     uint8_t val;
@@ -294,4 +330,20 @@ uint32_t pktbuf_pop_tail_le32(struct pktbuf *pktbuf)
 
     pktbuf_pop_head(pktbuf, &val, sizeof(val));
     return le32toh(val);
+}
+
+uint64_t pktbuf_pop_tail_be64(struct pktbuf *pktbuf)
+{
+    uint64_t val;
+
+    pktbuf_pop_head(pktbuf, &val, sizeof(val));
+    return be64toh(val);
+}
+
+uint64_t pktbuf_pop_tail_le64(struct pktbuf *pktbuf)
+{
+    uint64_t val;
+
+    pktbuf_pop_head(pktbuf, &val, sizeof(val));
+    return le64toh(val);
 }
