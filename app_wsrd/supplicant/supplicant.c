@@ -142,12 +142,13 @@ static void supp_failure_key_request(struct rfc8415_txalg *txalg)
 
 static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 {
+    struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
     struct eapol_key_frame frame = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_REQ, true)),
+        .replay_counter = htobe64(supp->replay_counter),
     };
-    struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
     struct pktbuf buf = { };
     uint8_t pmkid[16];
     uint8_t ptkid[16];
