@@ -557,3 +557,64 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     iobuf_free(&iobuf);
     return frame_ctx->handle;
 }
+
+
+void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pkt_len, const uint8_t dst[8])
+{
+    struct ieee802154_hdr hdr = {
+        .frame_type = IEEE802154_FRAME_TYPE_DATA,
+        .ack_req    = true,
+        .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
+        .pan_id     = -1,
+    };
+    struct mpx_ie ie_mpx = {
+        .transfer_type = MPX_FT_FULL_FRAME,
+        .multiplex_id  = MPX_ID_KMP,
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    struct ws_neigh *neigh;
+    int offset;
+
+    neigh = ws_neigh_get(&ws->neigh_table, dst);
+    if (!neigh) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
+        return;
+    }
+
+    frame_ctx = ws_frame_ctx_new(ws);
+    if (!frame_ctx) {
+        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+        return;
+    }
+    frame_ctx->type = WS_FT_EAPOL;
+    memcpy(hdr.dst, dst, 8);
+    memcpy(frame_ctx->dst, hdr.dst, 8);
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_wh_utt_write(&iobuf, WS_FT_EAPOL);
+    // TODO: BT-IE, LBT-IE
+    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
+
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
+    // TODO: only include US-IE if 1st unicast frame to neighbor
+    ws_wp_nested_us_write(&iobuf, &ws->fhss);
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
+    mpx_ie_write(&iobuf, &ie_mpx);
+    iobuf_push_u8(&iobuf, kmp_id);
+    iobuf_push_data(&iobuf, pkt, pkt_len);
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
+    // TODO: store frame and wait for confirmation
+    rcp_req_data_tx(&g_wsrd.rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    HIF_FHSS_TYPE_FFN_UC,
+                    &neigh->fhss_data_unsecured,
+                    neigh->frame_counter_min,
+                    NULL, 0); // TODO: mode switch
+    iobuf_free(&iobuf);
+}
