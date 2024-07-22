@@ -18,19 +18,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#ifdef HAVE_MBEDTLS
-#include <mbedtls/build_info.h>
-#endif
-
-#ifdef MBEDTLS_ERROR_C
-#include <mbedtls/error.h>
-#else
-static inline void mbedtls_strerror(int err, char *out, size_t out_len)
-{
-    snprintf(out, out_len, "-0x%04x", -err);
-}
-#endif
-
+#include "common/mbedtls_extra.h"
 #include "common/bits.h"
 
 #include "log.h"
