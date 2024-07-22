@@ -66,6 +66,7 @@ struct wsrd g_wsrd = {
     .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
     .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
+    .ws.eapol_target_eui64[0 ... 7] = 0xff,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
@@ -164,11 +165,21 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 {
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ws.ipv6.rpl.mrhof);
 
-    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->dhcp.running)
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->dhcp.running) {
         dhcp_client_start(&wsrd->dhcp);
-    else if (neigh)
+    } else if (neigh) {
         rpl_start_dao(&wsrd->ws.ipv6);
-    // TODO: handle parent loss
+        /*
+         *   Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
+         * A Router operating as a SUP MUST direct EAPOL frames to a node designated
+         * as its EAPOL target. When a Router has determined a RPL parent, it shall
+         * use that parent as the EAPOL target.
+         */
+        memcpy(wsrd->ws.eapol_target_eui64, neigh->eui64, sizeof(wsrd->ws.eapol_target_eui64));
+    } else {
+        memset(wsrd->ws.eapol_target_eui64, 0xff, sizeof(wsrd->ws.eapol_target_eui64));
+        // TODO: handle parent loss
+    }
 }
 
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr, uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s)

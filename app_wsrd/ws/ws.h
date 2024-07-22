@@ -50,6 +50,8 @@ struct ws_ctx {
     uint8_t  edfe_src[8];
 
     struct ipv6_ctx ipv6;
+
+    uint8_t eapol_target_eui64[8];
 };
 
 void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *ind);
