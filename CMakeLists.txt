@@ -319,7 +319,7 @@ add_library(libwsrd STATIC
 target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_options(libwsrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
 target_link_libraries(libwsrd PUBLIC MbedTLS::mbedtls PkgConfig::LIBNL_ROUTE)
-target_compile_definitions(libwsbrd PUBLIC HAVE_MBEDTLS)
+target_compile_definitions(libwsrd PUBLIC HAVE_MBEDTLS)
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(libwsrd PRIVATE common/dbus.c app_wsrd/app/dbus.c)
