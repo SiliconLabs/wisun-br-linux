@@ -497,7 +497,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = true,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
-        .key_index  = 1,           // TODO: key selection
+        .key_index  = ws->gak_index,
     };
     struct mpx_ie ie_mpx = {
         .transfer_type = MPX_FT_FULL_FRAME,
