@@ -115,6 +115,16 @@ enum {
     WS_JM_PLF = 1, // PAN Load Factor
 };
 
+// Wi-SUN Assigned Value Registry 0v25
+//   11. Wi-SUN Key Data Cryptographic Encapsulations
+enum {
+    WS_KDE_PTKID = 1,
+    WS_KDE_GTKL  = 2,
+    WS_KDE_NR    = 3,
+    WS_KDE_LGTKL = 4,
+    WS_KDE_LGTK  = 5,
+};
+
 // Wi-SUN FAN 1.1v06
 //   6.3.2.3.2.3 PAN Information Element (PAN-IE)
 enum {
