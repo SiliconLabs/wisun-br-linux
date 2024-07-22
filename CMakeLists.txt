@@ -129,7 +129,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/tun.c
     app_wsbrd/app/commandline.c
     app_wsbrd/app/commandline_values.c
-    app_wsbrd/app/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -140,6 +139,7 @@ add_library(libwsbrd STATIC
     common/bits.c
     common/endian.c
     common/rand.c
+    common/mbedtls_config_check.c
     common/named_values.c
     common/fnv_hash.c
     common/hmac_md.c

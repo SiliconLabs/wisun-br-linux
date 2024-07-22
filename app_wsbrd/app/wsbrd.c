@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <signal.h>
+#include "common/mbedtls_config_check.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
 #include "common/capture.h"
@@ -55,7 +56,6 @@
 #include "security/kmp/kmp_socket_if.h"
 #include "app_wsbrd/mpl/mpl.h"
 
-#include "mbedtls_config_check.h"
 #include "commandline_values.h"
 #include "drop_privileges.h"
 #include "commandline.h"
