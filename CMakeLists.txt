@@ -294,6 +294,7 @@ add_library(libwsrd STATIC
     common/ieee802154_frame.c
     common/ieee802154_ie.c
     common/iobuf.c
+    common/kde.c
     common/key_value_storage.c
     common/log.c
     common/mpx.c
