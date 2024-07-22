@@ -13,6 +13,7 @@
 #include <errno.h>
 
 #include "common/specs/ieee802154.h"
+#include "common/specs/ieee802159.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"
 #include "common/ieee802154_ie.h"

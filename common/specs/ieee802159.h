@@ -25,4 +25,16 @@ enum {
     IEEE802159_KMP_ID_ETSI_TS   = 8, // Unused
 };
 
+/*
+ *   IEEE 802.15.9-2021, 7.3.4 Multiplex ID field
+ * Note: Wi-SUN Defined Payload is in fact rarely used in Wi-SUN (and not
+ * supported by current code).
+ */
+enum {
+    MPX_ID_KMP     = 0x0001, // Key Management Protocol
+    MPX_ID_WISUN   = 0x0002, // Wi-SUN Defined Payload (see IEEE802.15.4 ANA database)
+    // if > 1500, indicate the EtherType of the MAC client protocol
+    MPX_ID_6LOWPAN = 0xA0ED, // LoWPAN encapsulation (see RFC7973).
+};
+
 #endif

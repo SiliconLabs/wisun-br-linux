@@ -38,6 +38,7 @@
 #include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
+#include "common/specs/ieee802159.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 #include "common/ws_ie.h"

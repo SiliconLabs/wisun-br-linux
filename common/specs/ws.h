@@ -96,19 +96,6 @@ enum {
     // 0x0b to 0x0e are reserved for ffn-wide IEs
 };
 
-// Wi-SUN FAN 1.1v08
-//   6.3.2.3.3 MPX Information Element (MPX-IE)
-// See also IEEE 802.15.9-2021
-//   7.3.4 Multiplex ID field
-// Note Wi-SUN Defined Payload is in fact rarely used in Wi-SUN (and not
-// supported by current code)
-enum {
-    MPX_ID_KMP     = 0x0001, // Key Management Protocol (see IEEE802.15.9)
-    MPX_ID_WISUN   = 0x0002, // Wi-SUN Defined Payload
-    // if > 1500, indicate the EtherType of the MAC client protocol
-    MPX_ID_6LOWPAN = 0xA0ED, // LoWPAN encapsulation (see RFC7973).
-};
-
 // Wi-SUN Assigned Value Registry 0v25
 //   8. Join Metric IDs
 enum {
