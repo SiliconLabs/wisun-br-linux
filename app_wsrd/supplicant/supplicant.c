@@ -339,7 +339,6 @@ void supp_start(struct supplicant_ctx *supp)
 {
     BUG_ON(supp->running);
     supp->running = true;
-    supp_eap_tls_reset(supp);
     supp->replay_counter = -1;
     supp_start_key_request(supp);
     TRACE(TR_SECURITY, "supplicant started");

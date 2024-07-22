@@ -245,6 +245,8 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
     case EAP_TYPE_IDENTITY:
         if (supp->key_request_txalg.timer_rt.expire_ms)
             rfc8415_txalg_stop(&supp->key_request_txalg);
+        // We are starting a new tls session so we reset eap-tls
+        supp_eap_tls_reset(supp);
         // Wi-SUN does not specify to use any identity.
         supp_eap_send_response(supp, eap_hdr->identifier, EAP_TYPE_IDENTITY, &buf);
         break;
