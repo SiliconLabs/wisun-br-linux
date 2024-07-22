@@ -233,26 +233,32 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
      * All Wi-SUN certificates (device, root, and intermediate CA) must contain
      * only an EC P-256 public key in uncompressed format.
      */
-    static const uint16_t tls_curves[] = {
 #if MBEDTLS_VERSION_NUMBER < 0x03010000
+    static const mbedtls_ecp_group_id tls_curves[] = {
         MBEDTLS_ECP_DP_SECP256R1,
-#else
-        MBEDTLS_SSL_IANA_TLS_GROUP_SECP256R1,
-#endif
         MBEDTLS_ECP_DP_NONE,
     };
+#else
+    static const uint16_t tls_curves[] = {
+        MBEDTLS_SSL_IANA_TLS_GROUP_SECP256R1,
+        MBEDTLS_SSL_IANA_TLS_GROUP_NONE,
+    };
+#endif
     /*
      *   Wi-SUN FAN 1.1v08 - 6.5.1 Public Key Infrastructure
      * All Wi-SUN certificates MUST only be signed with SHA256withECDSA.
      */
-    static const uint16_t tls_sig_hashes[] = {
 #if MBEDTLS_VERSION_NUMBER < 0x03020000
+    static const int tls_sig_hashes[] = {
         MBEDTLS_MD_SHA256,
-#else
-        (MBEDTLS_SSL_HASH_SHA256 << 8) | MBEDTLS_SSL_SIG_ECDSA,
-#endif
         MBEDTLS_MD_NONE,
     };
+#else
+    static const uint16_t tls_sig_hashes[] = {
+        (MBEDTLS_SSL_HASH_SHA256 << 8) | MBEDTLS_SSL_SIG_ECDSA,
+        MBEDTLS_TLS1_3_SIG_NONE,
+    };
+#endif
     int ret;
 
     BUG_ON(!supp->sendto_mac);
@@ -296,12 +302,12 @@ void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec 
 
     mbedtls_ssl_conf_ciphersuites(&supp->ssl_config, tls_ciphersuites);
 #if MBEDTLS_VERSION_NUMBER < 0x03010000
-    mbedtls_ssl_conf_curves(&supp->ssl_config, (const mbedtls_ecp_group_id *)tls_curves);
+    mbedtls_ssl_conf_curves(&supp->ssl_config, tls_curves);
 #else
     mbedtls_ssl_conf_groups(&supp->ssl_config, tls_curves);
 #endif
 #if MBEDTLS_VERSION_NUMBER < 0x03020000
-    mbedtls_ssl_conf_sig_hashes(&supp->ssl_config, (const int *)tls_sig_hashes);
+    mbedtls_ssl_conf_sig_hashes(&supp->ssl_config, tls_sig_hashes);
 #else
     mbedtls_ssl_conf_sig_algs(&supp->ssl_config, tls_sig_hashes);
 #endif
