@@ -322,10 +322,8 @@ void supp_stop(struct supplicant_ctx *supp)
     TRACE(TR_SECURITY, "supplicant stopped");
 }
 
-void supp_start(struct supplicant_ctx *supp)
+void supp_eap_tls_reset(struct supplicant_ctx *supp)
 {
-    BUG_ON(supp->running);
-    supp->running = true;
     supp->last_tx_eap_type = EAP_TYPE_NAK;
     supp->last_eap_identifier = -1;
     supp->eap_tls_start_received = false;
@@ -335,6 +333,13 @@ void supp_start(struct supplicant_ctx *supp)
     supp->expected_rx_len = 0;
     supp->fragment_id = 0;
     mbedtls_ssl_session_reset(&supp->ssl_ctx);
+}
+
+void supp_start(struct supplicant_ctx *supp)
+{
+    BUG_ON(supp->running);
+    supp->running = true;
+    supp_eap_tls_reset(supp);
     supp->replay_counter = -1;
     supp_start_key_request(supp);
     TRACE(TR_SECURITY, "supplicant started");
