@@ -195,4 +195,7 @@ enum {
 // Wi-SUN FAN 1.1v08 6.2.3.1.6.1 Link Metrics
 #define WS_ETX_MAX 1024
 
+// Wi-SUN FAN 1.1v08 6.2.3 Operation
+#define WS_MTU_BYTES 1576
+
 #endif
