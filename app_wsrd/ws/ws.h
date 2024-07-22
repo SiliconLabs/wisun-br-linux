@@ -20,6 +20,7 @@
 #include "common/ws_ie.h"
 #include "common/ws_neigh.h"
 #include "common/ws_types.h"
+#include "app_wsrd/supplicant/supplicant.h"
 #include "app_wsrd/ipv6/ipv6.h"
 
 struct rcp_tx_cnf;
@@ -51,6 +52,7 @@ struct ws_ctx {
 
     struct ipv6_ctx ipv6;
 
+    struct supplicant_ctx supp;
     uint8_t eapol_target_eui64[8];
     uint8_t gak_index;
 };

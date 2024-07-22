@@ -26,6 +26,7 @@
 #include "common/memutils.h"
 #include "common/ws_keys.h"
 #include "common/pktbuf.h"
+#include "common/ieee802154_frame.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/version.h"
@@ -49,6 +50,11 @@ static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
+static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
+                                  size_t pkt_len, const uint8_t dst[8]);
+static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp);
+static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
+static void wsrd_eapol_on_failure(struct supplicant_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
                                   uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s);
@@ -67,6 +73,19 @@ struct wsrd g_wsrd = {
     .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .ws.eapol_target_eui64[0 ... 7] = 0xff,
+
+    // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
+    .ws.supp.key_request_txalg.irt_s       =  300, //  5 * 60
+    .ws.supp.key_request_txalg.mrt_s       = 3600, // 60 * 60
+    .ws.supp.key_request_txalg.max_delay_s = 60, // Unspecified
+    .ws.supp.key_request_txalg.mrc         =  3, // Unspecified
+    // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
+    .ws.supp.key_request_txalg.rand_min    = -0.1,
+    .ws.supp.key_request_txalg.rand_max    = +0.1,
+    .ws.supp.on_gtk_success = wsrd_eapol_on_gtk_success,
+    .ws.supp.on_failure  = wsrd_eapol_on_failure,
+    .ws.supp.sendto_mac  = wsrd_eapol_sendto_mac,
+    .ws.supp.get_target  = wsrd_eapol_get_target,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
@@ -159,6 +178,41 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
     struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
 
     return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
+}
+
+static void wsrd_eapol_on_gtk_success(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
+{
+    struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
+    uint8_t gak[16];
+
+    // TODO: use provided GTK
+    ws_generate_gak(wsrd->config.ws_netname, wsrd->config.ws_gtk, gak);
+    wsrd->ws.gak_index = 1;
+    DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), wsrd->ws.gak_index);
+    rcp_set_sec_key(&wsrd->rcp, wsrd->ws.gak_index, gak, 0);
+}
+
+static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
+{
+    struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
+
+    supp_stop(supp);
+    memset(wsrd->ws.eapol_target_eui64, 0xff, sizeof(wsrd->ws.eapol_target_eui64));
+}
+
+static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
+                                  size_t pkt_len, const uint8_t dst[8])
+{
+    struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
+
+    ws_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, dst);
+}
+
+static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp)
+{
+    struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
+
+    return wsrd->ws.eapol_target_eui64;
 }
 
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh)
@@ -337,16 +391,6 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
 }
 
-static void wsrd_init_key(struct wsrd *wsrd)
-{
-    uint8_t gak[16];
-
-    ws_generate_gak(wsrd->config.ws_netname, wsrd->config.ws_gtk, gak);
-    wsrd->ws.gak_index = 1;
-    DEBUG("install key=%s key-idx=%u", tr_key(gak, 16), wsrd->ws.gak_index);
-    rcp_set_sec_key(&wsrd->rcp, wsrd->ws.gak_index, gak, 0);
-}
-
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
@@ -363,7 +407,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
-    wsrd_init_key(wsrd);
+    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",
                   "com.silabs.Wisun.Router",

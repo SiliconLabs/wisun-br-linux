@@ -206,8 +206,10 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     }
 
     // TODO: Actual EAPOL target selection
-    if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64)))
+    if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64))) {
         memcpy(ws->eapol_target_eui64, ind->neigh->mac64, sizeof(ws->eapol_target_eui64));
+        supp_start(&ws->supp);
+    }
 }
 
 static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)
