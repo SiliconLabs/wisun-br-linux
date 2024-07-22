@@ -336,6 +336,53 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
                 ind->hdr.src, ind->hdr.dst);
 }
 
+void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    struct iobuf_read buf = { };
+    struct ws_utt_ie ie_utt;
+    struct ws_neigh *neigh;
+    struct ws_us_ie ie_us;
+    struct mpx_ie ie_mpx;
+    uint8_t kmp_id;
+
+    if (ws->pan_id == 0xffff) {
+        TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
+        return;
+    }
+
+    if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
+        ie_mpx.multiplex_id  != MPX_ID_KMP ||
+        ie_mpx.transfer_type != MPX_FT_FULL_FRAME) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
+        return;
+    }
+
+    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
+    if (!neigh)
+        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
+    else
+        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
+
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+
+    if (ws_ie_validate_us(ws, &ind->ie_wp, &ie_us)) {
+        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&ws->fhss, &neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    }
+
+    buf.data = ie_mpx.frame_ptr;
+    buf.data_size = ie_mpx.frame_length;
+    kmp_id = iobuf_pop_u8(&buf);
+    if (buf.err) {
+        TRACE(TR_DROP, "drop %-9s: invalid eapol packet", "15.4");
+        return;
+    }
+
+    supp_recv_eapol(&ws->supp, kmp_id, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
+}
+
 void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 {
     unsigned int tr_domain;
@@ -408,6 +455,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
         break;
     case WS_FT_DATA:
         ws_recv_data(ws, &ind);
+        break;
+    case WS_FT_EAPOL:
+        ws_recv_eapol(ws, &ind);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type", "15.4");
