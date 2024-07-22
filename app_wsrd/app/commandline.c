@@ -100,6 +100,9 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "gtk",                           config,                                    conf_set_gtk,         NULL },
+        { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
+        { "certificate",                   &config->cert,                             conf_set_pem,         NULL },
+        { "key",                           &config->key,                              conf_set_pem,         NULL },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -209,4 +212,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
     if (!config->ws_gtk_set)
         FATAL(1, "missing \"gtk\" parameter");
+    if (!config->key.iov_base)
+        FATAL(1, "missing \"key\" parameter");
+    if (!config->cert.iov_base)
+        FATAL(1, "missing \"certificate\" parameter");
+    if (!config->ca_cert.iov_base)
+        FATAL(1, "missing \"authority\" parameter");
 }

@@ -13,6 +13,7 @@
 #ifndef WSRD_COMMANDLINE_H
 #define WSRD_COMMANDLINE_H
 
+#include <sys/uio.h>
 #include <limits.h>
 #include <stdbool.h>
 
@@ -41,6 +42,9 @@ struct wsrd_conf {
     // FIXME: remove once supplicant available
     uint8_t ws_gtk[16];
     bool    ws_gtk_set;
+    struct iovec ca_cert;
+    struct iovec cert;
+    struct iovec key;
 
     int  ws_uc_dwell_interval_ms;
 
