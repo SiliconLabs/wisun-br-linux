@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <stdint.h>
 #include <time.h>
 
 time_t time_current(clockid_t clockid)
@@ -18,6 +19,14 @@ time_t time_current(clockid_t clockid)
 
     clock_gettime(clockid, &tp);
     return tp.tv_sec;
+}
+
+uint64_t time_now_ms(void)
+{
+    struct timespec now;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
 time_t time_get_elapsed(clockid_t clockid, time_t start)

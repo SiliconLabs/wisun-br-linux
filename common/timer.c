@@ -20,6 +20,7 @@
 
 #include "common/log.h"
 #include "common/sys_queue_extra.h"
+#include "common/time_extra.h"
 
 #include "timer.h"
 
@@ -45,16 +46,6 @@ static struct timer_ctxt *timer_ctxt(void)
     SLIST_INIT(&ctxt->groups);
     timer_group_init(&ctxt->group_default);
     return ctxt;
-}
-
-static uint64_t timer_now_ms(void)
-{
-    struct timespec now;
-    int ret;
-
-    ret = clock_gettime(CLOCK_MONOTONIC, &now);
-    FATAL_ON(ret < 0, 2, "clock_gettime: %m");
-    return now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
 int timer_fd(void)
@@ -90,7 +81,7 @@ static void timer_schedule(struct timer_ctxt *ctxt)
 void timer_process(void)
 {
     struct timer_ctxt *ctxt = timer_ctxt();
-    uint64_t now_ms = timer_now_ms();
+    uint64_t now_ms = time_now_ms();
     struct timer_entry *timer, *tmp;
     struct timer_list trig_list;
     struct timer_group *group;
@@ -159,7 +150,7 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
 
 void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint64_t offset_ms)
 {
-    timer_start_abs(group, timer, timer_now_ms() + offset_ms);
+    timer_start_abs(group, timer, time_now_ms() + offset_ms);
 }
 
 void timer_stop(struct timer_group *group, struct timer_entry *timer)

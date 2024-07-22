@@ -12,9 +12,12 @@
  */
 #ifndef TIME_EXTRA_H
 #define TIME_EXTRA_H
+#include <stdint.h>
 #include <time.h>
 
 time_t time_current(clockid_t clockid);
+
+uint64_t time_now_ms(void);
 
 time_t time_get_elapsed(clockid_t clockid, time_t start);
 

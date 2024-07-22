@@ -309,6 +309,7 @@ add_library(libwsrd STATIC
     common/rcp_api.c
     common/rfc8415_txalg.c
     common/timer.c
+    common/time_extra.c
     common/tun.c
     common/ws_chan_mask.c
     common/ws_ie.c
