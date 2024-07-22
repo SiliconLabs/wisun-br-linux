@@ -20,6 +20,7 @@
 #include "app_wsrd/app/dbus.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "app_wsrd/ws/ws.h"
+#include "common/mbedtls_config_check.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -346,6 +347,7 @@ int wsrd_main(int argc, char *argv[])
     if (wsrd->config.color_output != -1)
         g_enable_color_traces = wsrd->config.color_output;
 
+    wsbr_check_mbedtls_features();
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);

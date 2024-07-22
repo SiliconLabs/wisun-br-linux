@@ -299,6 +299,7 @@ add_library(libwsrd STATIC
     common/kde.c
     common/key_value_storage.c
     common/log.c
+    common/mbedtls_config_check.c
     common/mpx.c
     common/named_values.c
     common/parsers.c
