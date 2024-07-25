@@ -194,6 +194,7 @@ static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t 
     } else {
         rcp_set_sec_key(&wsrd->rcp, index, NULL, 0);
     }
+    dbus_emit_change("Gaks");
 }
 
 static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)

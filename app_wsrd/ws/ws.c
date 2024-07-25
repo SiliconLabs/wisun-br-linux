@@ -202,7 +202,6 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     if (ws->pan_id == 0xffff) {
         ws->pan_id = ind->hdr.pan_id;
         dbus_emit_change("PanId");
-        dbus_emit_change("Gaks");
     }
 
     // TODO: Actual EAPOL target selection
