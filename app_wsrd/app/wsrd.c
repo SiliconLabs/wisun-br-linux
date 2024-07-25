@@ -128,8 +128,8 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
          FIELD_GET(0xFF000000, rcp->version_api),
          FIELD_GET(0x00FFFF00, rcp->version_api),
          FIELD_GET(0x000000FF, rcp->version_api));
-    if (version_older_than(rcp->version_api, 2, 3, 0))
-        FATAL(3, "RCP API < 2.3.0 (too old)");
+    if (version_older_than(rcp->version_api, 2, 4, 0))
+        FATAL(3, "RCP API < 2.4.0 (too old)");
 }
 
 static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
