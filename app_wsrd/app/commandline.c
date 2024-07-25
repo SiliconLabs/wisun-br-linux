@@ -19,7 +19,6 @@
 #include "common/memutils.h"
 #include "common/named_values.h"
 #include "common/ws_regdb.h"
-#include "common/parsers.h"
 
 #include "commandline.h"
 
@@ -70,15 +69,6 @@ void print_help(FILE *stream) {
     fprintf(stream, "\n");
 }
 
-static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    struct wsrd_conf *config = raw_dest;
-
-    if (parse_byte_array(config->ws_gtk, sizeof(config->ws_gtk), info->value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    config->ws_gtk_set = true;
-}
-
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 {
     const struct option_struct opts_conf[] = {
@@ -99,7 +89,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
-        { "gtk",                           config,                                    conf_set_gtk,         NULL },
         { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
         { "certificate",                   &config->cert,                             conf_set_pem,         NULL },
         { "key",                           &config->key,                              conf_set_pem,         NULL },
@@ -210,8 +199,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!config->ws_gtk_set)
-        FATAL(1, "missing \"gtk\" parameter");
     if (!config->key.iov_base)
         FATAL(1, "missing \"key\" parameter");
     if (!config->cert.iov_base)

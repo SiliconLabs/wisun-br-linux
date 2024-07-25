@@ -39,9 +39,6 @@ struct wsrd_conf {
     int  ws_chan_count;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
 
-    // FIXME: remove once supplicant available
-    uint8_t ws_gtk[16];
-    bool    ws_gtk_set;
     struct iovec ca_cert;
     struct iovec cert;
     struct iovec key;
