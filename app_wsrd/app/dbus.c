@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #include "common/crypto/ws_keys.h"
+#include "common/memutils.h"
 #include "app_wsrd/ipv6/ipv6_addr.h"
 #include "app_wsrd/app/wsrd.h"
 
@@ -110,11 +111,11 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
     struct wsrd *wsrd = userdata;
     uint8_t gak[16];
 
-    // FIXME: get keys from supplicant
-    ws_generate_gak(wsrd->config.ws_netname, wsrd->config.ws_gtk, gak);
-
     sd_bus_message_open_container(reply, 'a', "ay");
-    sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
+    for (int i = 0; i < 4; i++) {
+        ws_generate_gak(wsrd->config.ws_netname, wsrd->ws.supp.gtks[i].gtk, gak);
+        sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
+    }
     sd_bus_message_close_container(reply);
     return 0;
 }
