@@ -293,7 +293,10 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
 
     BUG_ON(rcp->has_rf_list);
     entry_size = hif_pop_u8(buf);
-    BUG_ON(entry_size < 2 + 1 + 4 + 4 + 2);
+    if (version_older_than(rcp->version_api, 2, 4, 0))
+        BUG_ON(entry_size < 2 + 1 + 4 + 4 + 2);
+    else
+        BUG_ON(entry_size < 2 + 1 + 4 + 4 + 2 + 2);
     list_end   = hif_pop_bool(buf);
     if (rcp->rail_config_list)
         while (rcp->rail_config_list[i].chan0_freq)
@@ -310,6 +313,8 @@ static void rcp_cnf_radio_list(struct rcp *rcp, struct iobuf_read *buf)
         rcp->rail_config_list[i].chan0_freq       = hif_pop_u32(buf);
         rcp->rail_config_list[i].chan_spacing     = hif_pop_u32(buf);
         rcp->rail_config_list[i].chan_count       = hif_pop_u16(buf);
+        if (!version_older_than(rcp->version_api, 2, 4, 0))
+            rcp->rail_config_list[i].sensitivity_dbm  = hif_pop_i16(buf);
         if (buf->cnt - offset < entry_size)
             hif_pop_fixed_u8_array(buf, NULL, entry_size - (buf->cnt - offset));
         phy_params = ws_regdb_phy_params(rcp->rail_config_list[i].rail_phy_mode_id, 0);

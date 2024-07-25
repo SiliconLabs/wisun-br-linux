@@ -30,6 +30,7 @@ struct rcp_rail_config {
     uint16_t chan_count;
     uint8_t  rail_phy_mode_id;
     int      phy_mode_group;
+    int16_t  sensitivity_dbm;
 };
 
 struct rcp_rate_info {
