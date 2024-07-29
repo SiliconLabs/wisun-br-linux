@@ -38,6 +38,7 @@ const struct name_value valid_traces[] = {
     { "security",   TR_SECURITY },
     { "mbedtls",    TR_MBEDTLS },
     { "drop",       TR_DROP | TR_IGNORE | TR_TX_ABORT },
+    { "trickle",    TR_TRICKLE },
     { NULL },
 };
 
@@ -58,7 +59,7 @@ void print_help(FILE *stream) {
     fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hif, hif-extra,\n");
     fprintf(stream, "                          15.4, 15.4-mngt, ipv6, dhcp, rpl, neigh-15.4, neigh-ipv6, drop,\n");
-    fprintf(stream, "                          security, mbedtls\n");
+    fprintf(stream, "                          security, mbedtls, trickle\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
