@@ -95,6 +95,8 @@ struct wsrd g_wsrd = {
     .ws.pas_tkl.cfg = &g_wsrd.config.disc_cfg,
     .ws.pas_tkl.debug_name  = "pas",
     .ws.pas_tkl.on_transmit = ws_send_pas,
+    .ws.pas_tkl.on_interval_done = ws_on_pas_interval_done,
+    .ws.pan_selection_timer.callback = ws_on_pan_selection_timer_timeout,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
@@ -379,6 +381,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio(&wsrd->rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, false);
+    wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
     ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
@@ -405,6 +408,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
     trickle_init(&wsrd->ws.pas_tkl);
     trickle_start(&wsrd->ws.pas_tkl);
+    timer_start_rel(NULL, &wsrd->ws.pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }
 
 int wsrd_main(int argc, char *argv[])

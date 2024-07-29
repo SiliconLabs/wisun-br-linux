@@ -174,6 +174,82 @@ static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp
     return true;
 }
 
+void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct wsrd *wsrd = container_of(timer, struct wsrd, ws.pan_selection_timer);
+    const struct rcp_rail_config *rail_config = &wsrd->rcp.rail_config_list[wsrd->ws.phy.rcp_rail_config_index];
+    struct ws_neigh *selected_candidate = NULL;
+    struct ws_neigh *candidate = NULL;
+    uint16_t selected_pan_id;
+
+    BUG_ON(!rail_config);
+
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.2.3.2.12.1 PAN Load Factor Join Metric
+     * This metric MAY be used in conjunction with a candidate neighbor’s
+     * Routing Cost to determine a preferred PAN, overriding the PAN Cost
+     * defined in sections 6.3.4.6.3.2.1 and 6.3.4.6.4.2.1.3.
+     * It is RECOMMENDED that a receiving node choose the PAN with the lowest
+     * PAN Load Factor, and if possible, avoid joining a PAN with a PAN Load
+     * Factor of 90% or higher.
+     */
+    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
+        /*
+         *   Wi-SUN FAN 1.1v08, 17 Appendix K EAPOL Target Selection
+         * From the set of EAPOL candidates with an RSSI exceeding the threshold
+         * of DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS,
+         * a joining node should select the EAPOL candidate with lowest PAN Cost
+         * as its EAPOL target node.
+         */
+        if (!candidate->last_pa_rx_time_s ||
+            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
+            WS_CAND_PARENT_HYSTERESIS_DB)
+            continue;
+        if (!selected_candidate)
+            selected_candidate = candidate;
+        if (candidate->plf != 0xff && candidate->plf < selected_candidate->plf)
+            selected_candidate = candidate;
+        else if (candidate->pan_cost < selected_candidate->pan_cost)
+            selected_candidate = candidate;
+    }
+    if (!selected_candidate)
+        return;
+    selected_pan_id = selected_candidate->pan_id;
+
+    // Ensure we select the candidate with the lowest pan cost
+    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
+        if (!candidate->last_pa_rx_time_s || candidate->pan_id != selected_pan_id ||
+            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
+            WS_CAND_PARENT_HYSTERESIS_DB)
+            continue;
+        if (candidate->pan_cost < selected_candidate->pan_cost)
+            selected_candidate = candidate;
+    }
+
+    trickle_stop(&wsrd->ws.pas_tkl);
+    memcpy(wsrd->ws.eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
+    wsrd->ws.pan_id = selected_pan_id;
+    dbus_emit_change("PanId");
+    INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
+         tr_eui64(selected_candidate->mac64), selected_candidate->pan_id,
+         selected_candidate->pan_cost, selected_candidate->plf);
+    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
+        candidate->last_pa_rx_time_s = 0;
+    supp_start_key_request(&wsrd->ws.supp);
+}
+
+/*
+ *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
+ * 1. The set of FFNs from which the joining FFN receives an acceptable PA
+ * within DISC_IMIN of the end of the previous PAS interval.
+ */
+void ws_on_pas_interval_done(struct trickle *tkl)
+{
+    struct wsrd *wsrd = container_of(tkl, struct wsrd, ws.pas_tkl);
+
+    timer_start_rel(NULL, &wsrd->ws.pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
+}
+
 static void ws_eapol_target_add(struct ws_ctx *ws, struct ws_ind *ind, struct ws_pan_ie *ie_pan, struct ws_jm_ie *ie_jm)
 {
     bool added = !ind->neigh->last_pa_rx_time_s;
@@ -196,6 +272,15 @@ static void ws_eapol_target_add(struct ws_ctx *ws, struct ws_ind *ind, struct ws
 
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
          tr_eui64(ind->neigh->mac64), ind->neigh->pan_id, ind->neigh->pan_cost, ind->neigh->plf);
+
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
+     * 2. If no acceptable PA are received with DISC_IMIN of PAS transmission,
+     *    the first acceptable PA received before the end of the current PAS
+     *    interval is the single EAPOL target to be used.
+     */
+    if (timer_stopped(&ws->pan_selection_timer))
+        ws_on_pan_selection_timer_timeout(NULL, &ws->pan_selection_timer);
 }
 
 void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
@@ -226,19 +311,9 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
-    // TODO: Select between several PANs
-    if (ws->pan_id == 0xffff) {
-        ws->pan_id = ind->hdr.pan_id;
-        dbus_emit_change("PanId");
-    }
 
-    // TODO: Actual EAPOL target selection
-    if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64))) {
+    if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64)))
         ws_eapol_target_add(ws, ind, &ie_pan, &ie_jm);
-        memcpy(ws->eapol_target_eui64, ind->neigh->mac64, sizeof(ws->eapol_target_eui64));
-        trickle_stop(&ws->pas_tkl);
-        supp_start_key_request(&ws->supp);
-    }
 }
 
 static void ws_recv_pas(struct ws_ctx *ws, struct ws_ind *ind)
