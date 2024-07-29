@@ -18,10 +18,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
+#include "common/crypto/hmac_md.h"
 #include "common/time_extra.h"
 #include "common/rand.h"
 #include "common/log.h"
-#include "common/hmac_md.h"
 #include "common/mathutils.h"
 
 #include "ieee80211.h"

@@ -24,12 +24,12 @@
 #if MBEDTLS_VERSION_MAJOR > 2
 #include <mbedtls/compat-2.x.h>
 #endif
+#include "common/crypto/hmac_md.h"
 #include "common/endian.h"
 #include "common/rand.h"
 #include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "common/hmac_md.h"
 
 #include "net/protocol.h"
 #include "ws/ws_config.h"
