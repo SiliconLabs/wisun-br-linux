@@ -291,6 +291,6 @@ bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lba
 bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, uint8_t lgtkhash[3][8], unsigned *active_lgtk_index);
 bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, struct ws_lcp_ie *ws_lcp_ie);
-
+bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie *jm);
 
 #endif

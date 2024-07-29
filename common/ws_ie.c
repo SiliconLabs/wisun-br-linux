@@ -23,6 +23,7 @@
 #include "common/string_extra.h"
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
+#include "common/memutils.h"
 #include "common/iobuf.h"
 #include "common/mathutils.h"
 #include "common/ws_regdb.h"
@@ -956,5 +957,39 @@ bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, st
     ws_channel_plan_read(&ie_buf, &ws_lcp->chan_plan);
     ws_channel_function_read(&ie_buf, &ws_lcp->chan_plan);
     ws_channel_excluded_read(&ie_buf, &ws_lcp->chan_plan);
+    return !ie_buf.err;
+}
+
+bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie *jm)
+{
+    static const int jm_len_conversion[] = { 0, 1, 2, 4 };
+    struct iobuf_read ie_buf;
+    uint8_t metric;
+
+    ieee802154_ie_find_nested(data, length, WS_WPIE_JM, &ie_buf, false);
+    jm->version = iobuf_pop_u8(&ie_buf);
+    while (iobuf_remaining_size(&ie_buf)) {
+        metric = iobuf_pop_u8(&ie_buf);
+        if (ie_buf.err)
+            return !ie_buf.err;
+        if (FIELD_GET(WS_MASK_JM_ID, metric) == WS_JM_PLF &&
+            FIELD_GET(WS_MASK_JM_LEN, metric) == 1) {
+            jm->mask |= BIT(WS_JM_PLF);
+            jm->plf = iobuf_pop_u8(&ie_buf);
+        } else {
+            TRACE(TR_IGNORE, "ignore: unsupported join metric %d", FIELD_GET(WS_MASK_JM_ID, metric));
+            /*
+             *   Wi-SUN FAN 1.1v08, 6.3.2.3.2.12 Join Metrics Information Element (JM-IE)
+             * The Metric Length field MUST be set to indicate the length of the
+             * Metric Data field, where:
+             *   1. 0 indicates the Metric Data field is 0 octets in length.
+             *   2. 1 indicates the Metric Data field is 1 octets in length.
+             *   3. 2 indicates the Metric Data field is 2 octets in length.
+             *   4. 3 indicates the Metric Data field is 4 octets in length.
+             */
+            BUG_ON(FIELD_GET(WS_MASK_JM_LEN, metric) > ARRAY_SIZE(jm_len_conversion));
+            iobuf_pop_data_ptr(&ie_buf, jm_len_conversion[FIELD_GET(WS_MASK_JM_LEN, metric)]);
+        }
+    }
     return !ie_buf.err;
 }
