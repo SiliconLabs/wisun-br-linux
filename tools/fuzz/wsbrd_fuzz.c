@@ -68,7 +68,9 @@ int __wrap_uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
 bool __real_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc);
 bool __wrap_crc_check(uint16_t init, const uint8_t *data, int len, uint16_t expected_crc)
 {
-    if (g_fuzz_ctxt.fuzzing_enabled)
+    struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
+
+    if (fuzz_ctxt->fuzzing_enabled && fuzz_ctxt->replay_count)
         return true;
     else
         return __real_crc_check(init, data, len, expected_crc);
