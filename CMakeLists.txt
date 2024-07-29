@@ -130,6 +130,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/tun.c
     app_wsbrd/app/commandline.c
     app_wsbrd/app/commandline_values.c
+    common/crypto/ieee80211.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -159,7 +160,6 @@ add_library(libwsbrd STATIC
     common/key_value_storage.c
     common/ieee802154_frame.c
     common/ieee802154_ie.c
-    common/ieee80211.c
     common/mpx.c
     common/time_extra.c
     common/random_early_detection.c

@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_IEEE80211_H
-#define COMMON_IEEE80211_H
+#ifndef COMMON_CRYPTO_IEEE80211_H
+#define COMMON_CRYPTO_IEEE80211_H
 #include <stdint.h>
 #include <stddef.h>
 
