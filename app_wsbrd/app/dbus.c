@@ -18,6 +18,7 @@
 #include <systemd/sd-bus.h>
 #include <math.h>
 #include "app/tun.h"
+#include "common/crypto/ws_keys.h"
 #include "common/bits.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
@@ -29,7 +30,6 @@
 #include "common/mathutils.h"
 #include "common/ws_neigh.h"
 #include "common/ws_regdb.h"
-#include "common/ws_keys.h"
 
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"

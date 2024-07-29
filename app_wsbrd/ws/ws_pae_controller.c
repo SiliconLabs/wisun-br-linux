@@ -27,6 +27,7 @@
 #if MBEDTLS_VERSION_MAJOR > 2
 #include <mbedtls/compat-2.x.h>
 #endif
+#include "common/crypto/ws_keys.h"
 #include "common/log.h"
 #include "common/named_values.h"
 #include "common/key_value_storage.h"
@@ -34,7 +35,6 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/time_extra.h"
-#include "common/ws_keys.h"
 
 #include "net/ns_address.h"
 #include "net/timers.h"

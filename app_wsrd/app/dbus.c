@@ -13,7 +13,7 @@
 #include <systemd/sd-bus.h>
 #include <errno.h>
 
-#include "common/ws_keys.h"
+#include "common/crypto/ws_keys.h"
 #include "app_wsrd/ipv6/ipv6_addr.h"
 #include "app_wsrd/app/wsrd.h"
 

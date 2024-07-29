@@ -133,6 +133,7 @@ add_library(libwsbrd STATIC
     common/crypto/ieee80211.c
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
+    common/crypto/ws_keys.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -168,7 +169,6 @@ add_library(libwsbrd STATIC
     common/timer.c
     common/tun.c
     common/ws_ie.c
-    common/ws_keys.c
     common/ws_neigh.c
     app_wsbrd/6lowpan/lowpan_adaptation_interface.c
     app_wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
@@ -285,6 +285,7 @@ add_library(libwsrd STATIC
     app_wsrd/supplicant/supplicant_eap.c
     app_wsrd/supplicant/supplicant.c
     app_wsrd/ws/ws.c
+    common/crypto/ws_keys.c
     common/bits.c
     common/bus_uart.c
     common/capture.c
@@ -316,7 +317,6 @@ add_library(libwsrd STATIC
     common/tun.c
     common/ws_chan_mask.c
     common/ws_ie.c
-    common/ws_keys.c
     common/ws_neigh.c
     common/ws_regdb.c
     version.c
