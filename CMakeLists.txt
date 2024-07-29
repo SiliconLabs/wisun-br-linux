@@ -132,6 +132,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/commandline_values.c
     common/crypto/ieee80211.c
     common/crypto/hmac_md.c
+    common/crypto/nist_kw.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -145,7 +146,6 @@ add_library(libwsbrd STATIC
     common/mbedtls_config_check.c
     common/named_values.c
     common/fnv_hash.c
-    common/nist_kw.c
     common/parsers.c
     common/pcapng.c
     common/dhcp_server.c

@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/crypto/hmac_md.h"
+#include "common/crypto/nist_kw.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "common/nist_kw.h"
 #include "common/specs/ws.h"
 
 #include "net/protocol.h"

@@ -26,10 +26,10 @@
 #endif
 #include "common/crypto/ieee80211.h"
 #include "common/crypto/hmac_md.h"
+#include "common/crypto/nist_kw.h"
 #include "common/rand.h"
 #include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
-#include "common/nist_kw.h"
 #include "common/ns_list.h"
 
 #include "net/protocol.h"
