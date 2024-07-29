@@ -44,6 +44,7 @@ void conf_set_enum_int_hex(const struct storage_parse_info *info, void *raw_dest
 void conf_set_enum_int(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_number(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
+void conf_set_ms_from_s(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_string(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_netmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);

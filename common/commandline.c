@@ -151,6 +151,14 @@ void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *
     *dest *= 60;
 }
 
+void conf_set_ms_from_s(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    int *dest = raw_dest;
+
+    conf_set_number(info, raw_dest, raw_param);
+    *dest *= 1000;
+}
+
 void conf_set_string(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     uintptr_t max_len = (uintptr_t)raw_param;
