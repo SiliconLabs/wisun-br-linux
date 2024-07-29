@@ -47,5 +47,6 @@ void rfc8415_txalg_init(struct rfc8415_txalg *txalg);
 
 void rfc8415_txalg_start(struct rfc8415_txalg *txalg);
 void rfc8415_txalg_stop(struct rfc8415_txalg *txalg);
+bool rfc8415_txalg_stopped(struct rfc8415_txalg *txalg);
 
 #endif

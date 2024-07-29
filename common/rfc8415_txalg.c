@@ -138,3 +138,9 @@ void rfc8415_txalg_stop(struct rfc8415_txalg *txalg)
     timer_stop(NULL, &txalg->timer_rt);
     timer_stop(NULL, &txalg->timer_mrd);
 }
+
+bool rfc8415_txalg_stopped(struct rfc8415_txalg *txalg)
+{
+    return timer_stopped(&txalg->timer_delay) && timer_stopped(&txalg->timer_rt) &&
+           timer_stopped(&txalg->timer_mrd);
+}
