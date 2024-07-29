@@ -18,6 +18,7 @@
 #include <stdbool.h>
 
 #include "common/ws_chan_mask.h"
+#include "common/trickle.h"
 #include "common/ws_ie.h"
 
 // This struct is filled by parse_commandline() and never modified after.
@@ -28,6 +29,8 @@ struct wsrd_conf {
     char cpc_instance[PATH_MAX];
 
     char ws_netname[WS_NETNAME_LEN];
+
+    struct trickle_cfg disc_cfg;
 
     int  ws_domain;
     int  ws_phy_mode_id;

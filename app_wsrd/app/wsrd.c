@@ -87,6 +87,12 @@ struct wsrd g_wsrd = {
     .ws.supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .ws.supp.get_target  = wsrd_eapol_get_target,
 
+    // Wi-SUN FAN 1.1v08 6.3.1 Constants
+    .config.disc_cfg.k = 1,
+    // Wi-SUN FAN 1.1v08 6.3.1.1 Configuration Parameters
+    .config.disc_cfg.Imin_ms = 15 * 1000,
+    .config.disc_cfg.Imax_ms = TRICKLE_DOUBLINGS(15, 2) * 1000,
+
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
     .ws.ipv6.rpl.dao_txalg.mrc   = 3,

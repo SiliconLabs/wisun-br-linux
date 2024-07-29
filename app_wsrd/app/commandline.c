@@ -92,6 +92,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
         { "certificate",                   &config->cert,                             conf_set_pem,         NULL },
         { "key",                           &config->key,                              conf_set_pem,         NULL },
+        { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
+        { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -205,4 +207,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "missing \"certificate\" parameter");
     if (!config->ca_cert.iov_base)
         FATAL(1, "missing \"authority\" parameter");
+    if (!config->disc_cfg.Imin_ms)
+        FATAL(1, "invalid \"disc_imin\" parameter");
+    if (!config->disc_cfg.Imax_ms)
+        FATAL(1, "invalid \"disc_imax\" parameter");
+    if (config->disc_cfg.Imin_ms >= config->disc_cfg.Imax_ms)
+        FATAL(1, "inconsistent disc_imin and disc_imax values (disc_imin >= disc_imax)");
 }
