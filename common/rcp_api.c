@@ -567,7 +567,7 @@ void rcp_rx(struct rcp *rcp)
         TRACE(TR_DROP, "drop %-9s: unexpected command during reset sequence", "hif");
         return;
     }
-    for (int i = 0; i < ARRAY_SIZE(rcp_cmd_table); i++)
+    for (int i = 0; rcp_cmd_table[i].fn; i++)
         if (rcp_cmd_table[i].cmd == cmd)
             return rcp_cmd_table[i].fn(rcp, &buf);
     TRACE(TR_DROP, "drop %-9s: unsupported command 0x%02x", "hif", cmd);
