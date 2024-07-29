@@ -207,8 +207,31 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     // TODO: Actual EAPOL target selection
     if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64))) {
         memcpy(ws->eapol_target_eui64, ind->neigh->mac64, sizeof(ws->eapol_target_eui64));
+        trickle_stop(&ws->pas_tkl);
         supp_start_key_request(&ws->supp);
     }
+}
+
+static void ws_recv_pas(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
+
+    if (!ws_ie_validate_netname(ws, &ind->ie_wp))
+        return;
+    if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
+        return;
+
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+
+    /*
+     *   Wi-SUN FAN 1.1v08 - 6.3.4.6.3.1 Usage of Trickle Timers
+     * A consistent transmission is defined as a PAN Advertisement Solicit with
+     * NETNAME-IE / Network Name matching that configured on the FFN.
+     */
+    trickle_consistent(&ws->pas_tkl);
 }
 
 static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)
@@ -487,6 +510,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     case WS_FT_PA:
         ws_recv_pa(ws, &ind);
         break;
+    case WS_FT_PAS:
+        ws_recv_pas(ws, &ind);
+        break;
     case WS_FT_PC:
         ws_recv_pc(ws, &ind);
         break;
@@ -710,5 +736,48 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
                     &neigh->fhss_data_unsecured,
                     neigh->frame_counter_min,
                     NULL, 0); // TODO: mode switch
+    iobuf_free(&iobuf);
+}
+
+void ws_send_pas(struct trickle *tkl)
+{
+    struct ws_ctx *ws = container_of(tkl, struct ws_ctx, pas_tkl);
+    struct ieee802154_hdr hdr = {
+        .frame_type   = IEEE802154_FRAME_TYPE_DATA,
+        .seqno        = -1,
+        .pan_id       = -1,
+        .dst[0 ... 7] = 0xff,
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    int offset;
+
+    frame_ctx = ws_frame_ctx_new(ws);
+    if (!frame_ctx) {
+        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+        return;
+    }
+    frame_ctx->type = WS_FT_PAS;
+
+    memcpy(frame_ctx->dst, hdr.dst, 8);
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_wh_utt_write(&iobuf, WS_FT_PAS);
+    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
+
+    // TODO: POM-IE
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
+    ws_wp_nested_us_write(&iobuf, &ws->fhss);
+    ws_wp_nested_netname_write(&iobuf, ws->netname);
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
+    // TODO: store frame and wait for confirmation
+    rcp_req_data_tx(&g_wsrd.rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    HIF_FHSS_TYPE_ASYNC,
+                    NULL, 0,
+                    NULL, 0);
     iobuf_free(&iobuf);
 }

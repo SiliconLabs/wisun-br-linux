@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 #include "common/ws_ie.h"
+#include "common/trickle.h"
 #include "common/ws_neigh.h"
 #include "common/ws_types.h"
 #include "app_wsrd/supplicant/supplicant.h"
@@ -45,6 +46,8 @@ struct ws_ctx {
     struct ws_fhss_config fhss;
     struct ws_neigh_table neigh_table;
 
+    struct trickle pas_tkl;
+
     uint8_t  seqno;
     uint8_t  handle_next;
     struct ws_frame_ctx_list frame_ctx_list;
@@ -62,5 +65,7 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf);
 
 int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
 void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pkt_len, const uint8_t dst[8]);
+
+void ws_send_pas(struct trickle *tkl);
 
 #endif

@@ -92,6 +92,9 @@ struct wsrd g_wsrd = {
     // Wi-SUN FAN 1.1v08 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
     .config.disc_cfg.Imax_ms = TRICKLE_DOUBLINGS(15, 2) * 1000,
+    .ws.pas_tkl.cfg = &g_wsrd.config.disc_cfg,
+    .ws.pas_tkl.debug_name  = "pas",
+    .ws.pas_tkl.on_transmit = ws_send_pas,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
@@ -400,6 +403,8 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_realm);    // ff03::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
+    trickle_init(&wsrd->ws.pas_tkl);
+    trickle_start(&wsrd->ws.pas_tkl);
 }
 
 int wsrd_main(int argc, char *argv[])
