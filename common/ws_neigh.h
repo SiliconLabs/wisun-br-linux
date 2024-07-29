@@ -86,6 +86,12 @@ struct ws_neigh {
     struct ws_neigh_fhss fhss_data;
     struct ws_neigh_fhss fhss_data_unsecured;
 
+    // PAN / EAPOL target selection
+    uint16_t pan_id;
+    uint16_t pan_cost;
+    uint8_t  plf;
+    time_t   last_pa_rx_time_s;
+
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/

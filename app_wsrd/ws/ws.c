@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _GNU_SOURCE
 #include <errno.h>
 
 #include "common/specs/ieee802154.h"
@@ -28,6 +29,7 @@
 #include "common/ws_ie.h"
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
+#include "common/time_extra.h"
 #include "app_wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
 #include "app_wsrd/ipv6/6lowpan.h"
 
@@ -172,11 +174,36 @@ static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp
     return true;
 }
 
+static void ws_eapol_target_add(struct ws_ctx *ws, struct ws_ind *ind, struct ws_pan_ie *ie_pan, struct ws_jm_ie *ie_jm)
+{
+    bool added = !ind->neigh->last_pa_rx_time_s;
+
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
+     * PanCost = (PanRoutingCost / PRC_WEIGHT_FACTOR) + (PanSize / PS_WEIGHT_FACTOR)
+     *
+     * where,
+     * PRC_WEIGHT_FACTOR = 256
+     * PS_WEIGHT_FACTOR  = 64
+     */
+    ind->neigh->pan_cost = ie_pan->routing_cost / 256 + ie_pan->pan_size / 64;
+    ind->neigh->pan_id   = ind->hdr.pan_id;
+    ind->neigh->last_pa_rx_time_s = time_now_s(CLOCK_MONOTONIC);
+    if (ie_jm->mask & BIT(WS_JM_PLF))
+        ind->neigh->plf = ie_jm->plf;
+    else
+        ind->neigh->plf = 0xff;
+
+    INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
+         tr_eui64(ind->neigh->mac64), ind->neigh->pan_id, ind->neigh->pan_cost, ind->neigh->plf);
+}
+
 void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 {
     struct ws_utt_ie ie_utt;
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
+    struct ws_jm_ie ie_jm;
 
     if (ind->hdr.pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: missing PAN ID", "15.4");
@@ -193,6 +220,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
         return;
+    ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
     ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
@@ -206,6 +234,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 
     // TODO: Actual EAPOL target selection
     if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64))) {
+        ws_eapol_target_add(ws, ind, &ie_pan, &ie_jm);
         memcpy(ws->eapol_target_eui64, ind->neigh->mac64, sizeof(ws->eapol_target_eui64));
         trickle_stop(&ws->pas_tkl);
         supp_start_key_request(&ws->supp);
