@@ -26,7 +26,7 @@ uint64_t time_now_ms(void)
     struct timespec now;
 
     clock_gettime(CLOCK_MONOTONIC, &now);
-    return now.tv_sec * 1000 + now.tv_nsec / 1000000;
+    return (uint64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
 time_t time_get_elapsed(clockid_t clockid, time_t start)
