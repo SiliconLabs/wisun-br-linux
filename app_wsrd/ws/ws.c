@@ -208,7 +208,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
     // TODO: Actual EAPOL target selection
     if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64))) {
         memcpy(ws->eapol_target_eui64, ind->neigh->mac64, sizeof(ws->eapol_target_eui64));
-        supp_start(&ws->supp);
+        supp_start_key_request(&ws->supp);
     }
 }
 

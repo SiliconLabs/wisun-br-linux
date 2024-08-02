@@ -200,7 +200,7 @@ static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
 
-    supp_stop(supp);
+    supp_reset(supp);
     memset(wsrd->ws.eapol_target_eui64, 0xff, sizeof(wsrd->ws.eapol_target_eui64));
 }
 
@@ -412,6 +412,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
     supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->rcp.eui64);
+    supp_reset(&wsrd->ws.supp);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",
                   "com.silabs.Wisun.Router",

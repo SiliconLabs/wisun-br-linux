@@ -110,8 +110,7 @@ struct supplicant_ctx {
 
 void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8]);
-void supp_start(struct supplicant_ctx *supp);
-void supp_stop(struct supplicant_ctx *supp);
+void supp_reset(struct supplicant_ctx *supp);
 void supp_eap_tls_reset(struct supplicant_ctx *supp);
 bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtk_index);
 void supp_start_key_request(struct supplicant_ctx *supp);
