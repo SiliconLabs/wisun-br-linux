@@ -206,6 +206,19 @@ static void supp_eap_tls_recv(struct supplicant_ctx *supp, const struct eap_hdr 
     supp->expected_rx_len = 0;
 }
 
+static void supp_eap_tls_reset(struct supplicant_ctx *supp)
+{
+    supp->last_tx_eap_type = EAP_TYPE_NAK;
+    supp->last_eap_identifier = -1;
+    supp->eap_tls_start_received = false;
+    pktbuf_init(&supp->tx_buffer, NULL, 0);
+    pktbuf_init(&supp->rx_buffer, NULL, 0);
+    pktbuf_init(&supp->rt_buffer, NULL, 0);
+    supp->expected_rx_len = 0;
+    supp->fragment_id = 0;
+    mbedtls_ssl_session_reset(&supp->ssl_ctx);
+}
+
 /*
  *   RFC3748 - 5.2. Notification
  * The Notification Type is optionally used to convey a displayable
