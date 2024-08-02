@@ -101,10 +101,15 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         hdr.ip6_plen = htons(MAX(0, ntohs(hdr.ip6_plen) - 8 * (rthdr->ip6r_len + 1)));
     }
 
-    // TODO: support extension headers, IPv6 tunnels
+    // TODO: support hob-by-hop options
     switch (hdr.ip6_nxt) {
     case IPPROTO_UDP:
     case IPPROTO_TCP:
+        break;
+    case IPPROTO_IPV6:
+        // Forget outer header, and submit inner packet to Linux.
+        // NOTE: IPv6 header is reinserted before writing to TUN.
+        pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
         break;
     case IPPROTO_ICMPV6:
         pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
@@ -136,6 +141,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
     TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s",
           tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
 
+    // Reinsert previously parsed IPv6 header.
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
     ret = write(ipv6->tun.fd, pktbuf->buf + pktbuf->offset_head, pktbuf_len(pktbuf));
