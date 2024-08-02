@@ -81,7 +81,7 @@ static void timer_schedule(struct timer_ctxt *ctxt)
 void timer_process(void)
 {
     struct timer_ctxt *ctxt = timer_ctxt();
-    uint64_t now_ms = time_now_ms();
+    uint64_t now_ms = time_now_ms(CLOCK_MONOTONIC);
     struct timer_entry *timer, *tmp;
     struct timer_list trig_list;
     struct timer_group *group;
@@ -150,7 +150,7 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
 
 void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint64_t offset_ms)
 {
-    timer_start_abs(group, timer, time_now_ms() + offset_ms);
+    timer_start_abs(group, timer, time_now_ms(CLOCK_MONOTONIC) + offset_ms);
 }
 
 void timer_stop(struct timer_group *group, struct timer_entry *timer)

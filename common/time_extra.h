@@ -18,7 +18,7 @@
 
 time_t time_now_s(clockid_t clockid);
 
-uint64_t time_now_ms(void);
+uint64_t time_now_ms(clockid_t clockid);
 
 time_t time_get_elapsed(clockid_t clockid, time_t start);
 

@@ -203,7 +203,7 @@ void supp_start(struct supplicant_ctx *supp)
     mbedtls_ssl_session_reset(&supp->ssl_ctx);
     rfc8415_txalg_start(&supp->key_request_txalg);
     TRACE(TR_SECURITY, "supplicant started eapol-key tx=%ldms",
-          supp->key_request_txalg.timer_delay.expire_ms - time_now_ms());
+          supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
 }
 
 void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key)

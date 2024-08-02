@@ -22,11 +22,11 @@ time_t time_now_s(clockid_t clockid)
     return tp.tv_sec;
 }
 
-uint64_t time_now_ms(void)
+uint64_t time_now_ms(clockid_t clockid)
 {
     struct timespec now;
 
-    clock_gettime(CLOCK_MONOTONIC, &now);
+    clock_gettime(clockid, &now);
     return (uint64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
