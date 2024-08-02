@@ -127,8 +127,8 @@ void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf 
         return;
     }
 
-    TRACE(TR_SECURITY, "tx-eapol type=%s length=%lu dst=%s", val_to_str(packet_type, eapol_frames, "[UNK]"),
-          pktbuf_len(buf), tr_eui64(dst));
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%lu", "tx-eapol",
+          val_to_str(packet_type, eapol_frames, "[UNK]"), pktbuf_len(buf));
     supp->sendto_mac(supp, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
 }
 
@@ -236,8 +236,8 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
         return;
     }
 
-    TRACE(TR_SECURITY, "rx-eapol type=%s length=%d", val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"),
-          ntohs(eapol_hdr->packet_body_length));
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%d", "rx-eapol",
+          val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), ntohs(eapol_hdr->packet_body_length));
 
     if (authenticator_eui64)
         memcpy(supp->authenticator_eui64, authenticator_eui64, sizeof(supp->authenticator_eui64));
@@ -309,7 +309,7 @@ void supp_start_key_request(struct supplicant_ctx *supp)
         return;
     rfc8415_txalg_start(&supp->key_request_txalg);
     supp->running = true;
-    TRACE(TR_SECURITY, "eapol-key tx=%"PRIu64"ms",
+    TRACE(TR_SECURITY, "sec: %-8s tx=%"PRIu64"ms", "eapol-key",
           supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
 }
 

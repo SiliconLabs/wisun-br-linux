@@ -30,8 +30,8 @@ static void supp_eap_send_response(struct supplicant_ctx *supp, uint8_t identifi
 {
     eap_write_hdr_head(buf, EAP_CODE_RESPONSE, identifier, type);
     eapol_write_hdr_head(buf, EAPOL_PACKET_TYPE_EAP);
-    TRACE(TR_SECURITY, "tx-eap code=%s id=%d type=%s", val_to_str(EAP_CODE_RESPONSE, eap_frames, "[UNK]"), identifier,
-          val_to_str(type, eap_types, "[UNK]"));
+    TRACE(TR_SECURITY, "sec: %-8s code=%-8s type=%-8s id=%d", "tx-eap",
+          val_to_str(EAP_CODE_RESPONSE, eap_frames, "[UNK]"), val_to_str(type, eap_types, "[UNK]"), identifier);
     pktbuf_free(&supp->rt_buffer);
     pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(buf), pktbuf_len(buf));
     supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, buf);
@@ -228,7 +228,7 @@ static void supp_eap_tls_reset(struct supplicant_ctx *supp)
  */
 static void supp_eap_notification_recv(struct iobuf_read *iobuf)
 {
-    TRACE(TR_SECURITY, "rx-eap-notif msg=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
+    TRACE(TR_SECURITY, "sec: notification=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
 }
 
 static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
@@ -241,7 +241,8 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
         return;
     }
 
-    TRACE(TR_SECURITY, "rx-eap-req type=%s", val_to_str(type, eap_types, "[UNK]"));
+    TRACE(TR_SECURITY, "sec: %-8s code=%-8s type=%-8s id=%d", "rx-eap",
+          val_to_str(eap_hdr->code, eap_frames, "[UNK]"), val_to_str(type, eap_types, "[UNK]"), eap_hdr->identifier);
 
     /*
      *   RFC3748 - 4.1. Request and Response
@@ -313,7 +314,13 @@ void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
         return;
     }
 
-    TRACE(TR_SECURITY, "rx-eap code=%s id=%d", val_to_str(eap_hdr->code, eap_frames, "[UNK]"), eap_hdr->identifier);
+    /*
+     * eap requests have a type while other eap packets do not, with this we
+     * ensure to trace only once eap requests
+     */
+    if (eap_hdr->code != EAP_CODE_REQUEST)
+        TRACE(TR_SECURITY, "sec: %-8s code=%-8s id=%d", "rx-eap", val_to_str(eap_hdr->code, eap_frames, "[UNK]"),
+              eap_hdr->identifier);
 
     switch (eap_hdr->code) {
     case EAP_CODE_REQUEST:
