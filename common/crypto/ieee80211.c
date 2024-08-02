@@ -26,9 +26,9 @@
 
 #include "ieee80211.h"
 
-int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
-                  const uint8_t *data, size_t data_len,
-                  uint8_t *result, size_t result_size)
+void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
+                   const uint8_t *data, size_t data_len,
+                   uint8_t *result, size_t result_size)
 {
     // Original algorithm works on block of 160 bits. This implementation refers
     // to 20 bytes instead.
@@ -45,12 +45,10 @@ int ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
     for (i = 0; i < output_len / 20; i++) {
         input[strlen(label) + 1 + data_len] = i;       // X
         ret = hmac_md_sha1(key, key_len, input, input_len, output + i * 20, 20);
-        if (ret < 0)
-            return ret;
+        FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
     }
 
     memcpy(result, output, result_size);
-    return 0;
 }
 
 void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32])
