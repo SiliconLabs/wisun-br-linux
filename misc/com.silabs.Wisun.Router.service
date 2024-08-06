@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
 
 [D-BUS Service]
 Name=com.silabs.Wisun.Router
