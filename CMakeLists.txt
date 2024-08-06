@@ -101,6 +101,9 @@ if(CC_HAVE_WNO_STRINGOP_OVERFLOW)
     add_compile_options(-Wno-stringop-overflow)
 endif()
 
+# Ask to glibc to check buffer overflows in memcpy() and friends.
+add_compile_definitions(_FORTIFY_SOURCE=3)
+
 # In come case, backtraces are not available without that flags. Increase size
 # of the  binary file, but can be stripped.
 if(CC_HAVE_UNWIND_TABLES)
