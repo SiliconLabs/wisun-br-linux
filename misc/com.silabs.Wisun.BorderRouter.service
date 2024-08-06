@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0 or Apache-2.0
+# SPDX-License-Identifier: Apache-2.0
 
 [D-BUS Service]
 Name=com.silabs.Wisun.BorderRouter
