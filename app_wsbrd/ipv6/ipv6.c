@@ -595,7 +595,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         buf->options.type = IPV6_NH_IPV6;
         /* Compute new flow label from inner src, dst, flow (RFC 6438) */
         const uint8_t *iphdr = buffer_data_pointer(buf);
-        uint_fast24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
+        uint24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
         buf->options.flow_label = ipv6_flow_label_tunnel(iphdr + IPV6_HDROFF_SRC_ADDR,
                                                          iphdr + IPV6_HDROFF_DST_ADDR,
                                                          flow);
@@ -867,7 +867,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
      * crossing a zone boundary (see RFC 4007).
      */
     if (out_interface->id != cur->id) {
-        uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address);
+        uint8_t src_scope = addr_ipv6_scope(buf->src_sa.address);
         /* Check source scope (standard RFC 4007 test) */
         if (out_interface->zone_index[src_scope] != cur->zone_index[src_scope]) {
             buf->interface = cur;

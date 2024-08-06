@@ -29,7 +29,7 @@ struct net_if;
 enum addrtype;
 
 struct ipv6_neighbour *ipv6_interface_resolve_new(struct net_if *cur, struct buffer *buf);
-void ipv6_interface_resolve_send_ns(struct ipv6_neighbour_cache *cache, struct ipv6_neighbour *entry, bool unicast, uint_fast8_t seq);
+void ipv6_interface_resolve_send_ns(struct ipv6_neighbour_cache *cache, struct ipv6_neighbour *entry, bool unicast, uint8_t seq);
 struct ipv6_neighbour_cache *ipv6_neighbour_cache_by_interface_id(int8_t interface_id);
 bool ipv6_map_ip_to_ll(struct net_if *cur, struct ipv6_neighbour *n, const uint8_t ip_addr[16], enum addrtype *ll_type, const uint8_t **ll_addr_out);
 

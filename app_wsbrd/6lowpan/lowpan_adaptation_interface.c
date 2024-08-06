@@ -222,7 +222,7 @@ static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_
 
 static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr)
 {
-    uint_fast16_t overhead = mac_helper_frame_overhead(cur, buf);
+    uint16_t overhead = mac_helper_frame_overhead(cur, buf);
 
     if (interface_ptr->mpx_api) {
         overhead += interface_ptr->mpx_api->mpx_headroom_size_get(interface_ptr->mpx_api, interface_ptr->mpx_user_id);
@@ -454,7 +454,7 @@ static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_ent
     frag_entry->orig_size = frag_entry->size;
     frag_entry->size += (uncompressed_size - frag_entry->pattern);
 
-    uint_fast16_t overhead = mac_helper_frame_overhead(cur, buf);
+    uint16_t overhead = mac_helper_frame_overhead(cur, buf);
     if (interface_ptr->mpx_api) {
         overhead += interface_ptr->mpx_api->mpx_headroom_size_get(interface_ptr->mpx_api, interface_ptr->mpx_user_id);
     }

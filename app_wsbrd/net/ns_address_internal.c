@@ -64,7 +64,7 @@ static bool addr_am_implicit_group_member(const uint8_t group[16])
         ADDR_IF_LOCAL_ALL_NODES,
     };
 
-    for (uint_fast8_t i = 0; i < sizeof implicit_groups / sizeof implicit_groups[0]; i++) {
+    for (uint8_t i = 0; i < sizeof implicit_groups / sizeof implicit_groups[0]; i++) {
         if (addr_ipv6_equal(implicit_groups[i], group)) {
             return true;
         }
@@ -265,9 +265,9 @@ static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[16])
 }
 
 /* RFC 6724 CommonPrefixLen(S, D) */
-static uint_fast8_t addr_common_prefix_len(const uint8_t src[16], uint_fast8_t src_prefix_len, const uint8_t dst[16])
+static uint8_t addr_common_prefix_len(const uint8_t src[16], uint8_t src_prefix_len, const uint8_t dst[16])
 {
-    uint_fast8_t i = 0;
+    uint8_t i = 0;
 
     while (i < src_prefix_len) {
         if (bittest(src, i) != bittest(dst, i))
@@ -387,7 +387,7 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[1
      * make it look like a bit like RFC 6724
      */
     if_address_entry_t *SA = NULL;
-    uint_fast8_t scope_D = addr_ipv6_scope(dest);
+    uint8_t scope_D = addr_ipv6_scope(dest);
     const addr_policy_table_entry_t *policy_D = addr_get_policy(dest);
 
     if (addr_preferences == 0) {
@@ -418,8 +418,8 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[1
         }
 
         /* Rule 2: Prefer appropriate scope */
-        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address);
-        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address);
+        uint8_t scope_SA = addr_ipv6_scope(SA->address);
+        uint8_t scope_SB = addr_ipv6_scope(SB->address);
         if (scope_SA < scope_SB) {
             if (scope_SA < scope_D) {
                 PREFER_SB;
@@ -448,8 +448,8 @@ const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[1
         }
 
         /* Rule 8: Use longest matching prefix */
-        uint_fast8_t common_SA = addr_common_prefix_len(SA->address, SA->prefix_len, dest);
-        uint_fast8_t common_SB = addr_common_prefix_len(SB->address, SB->prefix_len, dest);
+        uint8_t common_SA = addr_common_prefix_len(SA->address, SA->prefix_len, dest);
+        uint8_t common_SB = addr_common_prefix_len(SB->address, SB->prefix_len, dest);
         if (common_SA > common_SB) {
             PREFER_SA;
         } else if (common_SB > common_SA) {
@@ -509,8 +509,8 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 
         /* (Rule 1: Prefer same address - doesn't apply here) */
         /* Rule 2: Was prefer appropriate scope - for this purpose we instead prefer wider scope */
-        uint_fast8_t scope_SA = addr_ipv6_scope(SA->address);
-        uint_fast8_t scope_SB = addr_ipv6_scope(SB->address);
+        uint8_t scope_SA = addr_ipv6_scope(SA->address);
+        uint8_t scope_SB = addr_ipv6_scope(SB->address);
         if (scope_SA < scope_SB) {
             PREFER_SB;
         } else if (scope_SB < scope_SA) {
@@ -557,7 +557,7 @@ const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix
 #undef PREFER_SA
 #undef PREFER_SB
 
-if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint8_t prefix_len)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -689,7 +689,7 @@ int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr)
     }
 
     /* Then check other interfaces, enforcing scope zones */
-    uint_fast8_t scope = addr_ipv6_scope(addr);
+    uint8_t scope = addr_ipv6_scope(addr);
     ns_list_foreach(struct net_if, other, &protocol_interface_info_list) {
         if (other != cur &&
                 other->zone_index[scope] == cur->zone_index[scope] &&

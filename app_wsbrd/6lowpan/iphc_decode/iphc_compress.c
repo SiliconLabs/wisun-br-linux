@@ -45,7 +45,7 @@ typedef struct iphc_compress_state {
 static bool compress_nh(uint8_t nh, iphc_compress_state_t *restrict cs);
 
 /* Using a specified context, what's the best possible compression of addr? */
-static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_iid, const uint8_t *ctx_prefix, uint_fast8_t ctx_len)
+static uint8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_iid, const uint8_t *ctx_prefix, uint8_t ctx_len)
 {
     /* Quick test: context always gets priority, so all of context must match */
     /* This handles intrusions into IID space, so don't have to recheck this below */
@@ -134,7 +134,7 @@ static uint8_t compress_addr(const lowpan_context_list_t *context_list, const ui
         return compress_mc_addr(context_list, addr, cmp_addr_out, context, mode, stable_only);
     }
 
-    uint_fast8_t best_bytes = addr_bytes_needed(addr, outer_iid, ADDR_LINK_LOCAL_PREFIX, 64);
+    uint8_t best_bytes = addr_bytes_needed(addr, outer_iid, ADDR_LINK_LOCAL_PREFIX, 64);
     lowpan_context_t *best_ctx = NULL;
 
     /* If not found a 0-byte match, one more (unlikely) possibility for source - special case for "unspecified" */
@@ -232,7 +232,7 @@ static bool compress_udp(iphc_compress_state_t *restrict cs)
     /* Checksum */
     *ptr++ = cs->in[6];
     *ptr++ = cs->in[7];
-    uint_fast8_t outlen = ptr - cs->out;
+    uint8_t outlen = ptr - cs->out;
 
     cs->consumed += 8;
     cs->in += 8;
@@ -353,7 +353,7 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
         return false;
     }
     uint8_t iphc[2] = { LOWPAN_DISPATCH_IPHC, 0 };
-    uint_fast8_t iphc_bytes = from_nhc + 2;
+    uint8_t iphc_bytes = from_nhc + 2;
 
     /* Payload length field must match, or we can't compress */
     if (read_be16(in + 4) != cs->len - 40) {
@@ -390,7 +390,7 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
 
     uint8_t ecn = (in[1] & 0x30) << 2;
     uint8_t dscp = (in[0] & 0x0F) << 2 | (in[1] & 0xC0) >> 6;
-    uint_fast24_t flow = read_be24(in + 1) & 0xFFFFF;
+    uint24_t flow = read_be24(in + 1) & 0xFFFFF;
 
     if (flow == 0 && ecn == 0 && dscp == 0) {
         iphc[0] |= HC_TF_ELIDED;
@@ -399,7 +399,7 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
         iphc_bytes += 1;
     } else if (dscp == 0) {
         iphc[0] |= HC_TF_ECN_FLOW_LABEL;
-        flow |= (uint_fast24_t) ecn << 16;
+        flow |= (uint24_t) ecn << 16;
         iphc_bytes += 3;
     } else {
         iphc[0] |= HC_TF_ECN_DSCP_FLOW_LABEL;

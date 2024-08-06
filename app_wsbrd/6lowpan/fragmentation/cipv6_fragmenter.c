@@ -372,8 +372,8 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     uint16_t *prev_ptr = &frag_ptr->offset;
     do {
         hole_t *hole = hole_pointer(frag_ptr->buf, hole_off);
-        uint_fast16_t hole_first = hole->first;
-        uint_fast16_t hole_last = hole->last;
+        uint16_t hole_first = hole->first;
+        uint16_t hole_last = hole->last;
 
         /* Fragment is beyond this hole - move to next (RFC 815 step 2) */
         /* Fragment is before this hole - move to next (RFC 815 step 3) */
@@ -390,7 +390,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
          * first fragment of a new reassembly (RFC 4944).
          */
         if (fragment_first < hole_first || fragment_last > hole_last) {
-            tr_error("Frag overlap: hole %"PRIuFAST16"-%"PRIuFAST16", frag %"PRIu16"-%"PRIu16, hole_first, hole_last, fragment_first, fragment_last);
+            tr_error("Frag overlap: hole %"PRIu16"-%"PRIu16", frag %"PRIu16"-%"PRIu16, hole_first, hole_last, fragment_first, fragment_last);
             /* Forget previous data by marking as "all hole" */
             frag_ptr->offset = 0xffff;
             create_hole(frag_ptr->buf, hole_off = hole_first = 0, hole_last = datagram_size - 1, prev_ptr = &frag_ptr->offset);

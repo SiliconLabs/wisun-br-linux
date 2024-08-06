@@ -107,7 +107,7 @@ buffer_t *lowpan_down(buffer_t *buf)
     /* RFC 6282+4944 require that we limit compression to the first fragment.
      * This check is slightly conservative - always allow 4 for first-fragment header
      */
-    uint_fast16_t max_iphc_size = cur->mac_parameters.mtu - mac_helper_frame_overhead(cur, buf) - 4;
+    uint16_t max_iphc_size = cur->mac_parameters.mtu - mac_helper_frame_overhead(cur, buf) - 4;
 
     buf = iphc_compress(&cur->lowpan_contexts, buf, max_iphc_size, stable_only);
     if (!buf) {

@@ -26,6 +26,6 @@ struct buffer;
 struct mac_api;
 enum addrtype;
 
-uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *buf);
+uint8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *buf);
 
 #endif

@@ -35,9 +35,9 @@
  * May not be accurate if MAC_MAX_PHY_PACKET_SIZE isn't set, implying a
  * non-standard MAC.
  */
-uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
+uint8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
 {
-    uint_fast8_t length = 15;
+    uint8_t length = 15;
 
     /*8bytes src address, 2 frame control, 1 sequence, 2 pan-id, 2 FCS*/
     if (buf->src_sa.addr_type == ADDR_802_15_4_SHORT) {

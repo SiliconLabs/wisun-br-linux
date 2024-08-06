@@ -71,7 +71,7 @@ extern uint32_t addr_preferences_default;   // default SOCKET_IPV6_ADDR_PREFEREN
 uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 
 void address_module_init(void);
-struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[16], uint_fast8_t prefix_len);
+struct if_address_entry *addr_add(struct net_if *cur, const uint8_t address[16], uint8_t prefix_len);
 
 uint8_t addr_len_from_type(addrtype_e addr_type);
 const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);

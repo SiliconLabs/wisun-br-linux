@@ -42,7 +42,7 @@
 #define RESOLUTION_QUEUE_LIMIT 2
 #endif
 
-void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, bool unicast, uint_fast8_t seq)
+void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, bool unicast, uint8_t seq)
 {
     struct net_if *cur_interface = container_of(cache, struct net_if, ipv6_neighbour_cache);
     buffer_t *buf;

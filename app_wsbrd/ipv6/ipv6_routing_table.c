@@ -86,7 +86,7 @@ static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src
 static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source);
 static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source);
 
-static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retrans_num)
+static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint8_t retrans_num)
 {
     uint32_t t = cache->retrans_timer;
 
@@ -185,7 +185,7 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_mc(ipv6_neighbour_cache_t *cache, const 
 
 ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
 {
-    uint_fast16_t count = 0;
+    uint16_t count = 0;
     ipv6_neighbour_t *entry = NULL;
     ipv6_neighbour_t *garbage_possible_entry = NULL;
 
@@ -478,7 +478,7 @@ void ipv6_destination_cache_print()
  */
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id)
 {
-    uint_fast16_t count = 0;
+    uint16_t count = 0;
     ipv6_destination_t *entry = NULL;
     bool interface_specific = addr_ipv6_scope(address) <= IPV6_SCOPE_REALM_LOCAL;
 
@@ -568,7 +568,7 @@ static bool ipv6_destination_release(ipv6_destination_t *dest)
 
 static void ipv6_destination_cache_gc_periodic(void)
 {
-    uint_fast16_t gc_count = 0;
+    uint16_t gc_count = 0;
     ns_list_foreach_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
         if (entry->lifetime) {
             entry->lifetime--;
@@ -911,7 +911,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
     }
 
     if (!route) { /* new route */
-        uint_fast8_t prefix_bytes = (prefix_len + 7u) / 8u;
+        uint8_t prefix_bytes = (prefix_len + 7u) / 8u;
         route = malloc(sizeof(ipv6_route_t) + prefix_bytes);
         if (!route) {
             return NULL;

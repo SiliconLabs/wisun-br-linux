@@ -527,7 +527,7 @@ typedef struct ns_list_link {
  *
  * \param list `(const list_t *)` Pointer to list.
 
- * \return     `(uint_fast16_t)`  Number of entries that are stored in list.
+ * \return     `(uint16_t)`  Number of entries that are stored in list.
  */
 #define ns_list_count(list) ns_list_count_(&(list)->slist, NS_LIST_OFFSET_(list))
 
@@ -663,9 +663,9 @@ static inline void ns_list_remove_(ns_list_t *list, uintptr_t offset, void *remo
     ns_list_link_init_(NS_LIST_LINK_(removed, offset));
 }
 
-static inline uint_fast16_t ns_list_count_(const ns_list_t *list, uintptr_t offset)
+static inline uint16_t ns_list_count_(const ns_list_t *list, uintptr_t offset)
 {
-    uint_fast16_t count = 0;
+    uint16_t count = 0;
 
     for (void *p = list->first_entry; p; p = NS_LIST_NEXT_(p, offset)) {
         count++;
