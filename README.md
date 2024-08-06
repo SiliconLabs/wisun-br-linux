@@ -135,7 +135,7 @@ Some of these are not compiled by default and require setting
 | `wshwping`   | A tool for testing the serial link                            |
 | `wstbu`      | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |
 
-[tbu]: https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.0.18
+[tbu]: https://bitbucket.org/wisunalliance/test-bed-unit-api
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
