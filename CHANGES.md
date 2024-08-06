@@ -1,3 +1,11 @@
+v2.1.4
+------
+  - Fix interoperability issue with mode switch: do not include the base
+    PhyModeId in advertised POM-IEs.
+  - Terminate with a fatal error when a CRC error is detected on the bus:
+    missing HIF frames causes complex errors which are usually not recoverable.
+  - Use UTC timestamps in `pcap_file` instead of local timebase.
+
 v2.1.3
 ------
   - Fix `neighbor_proxy`: routing has been broken for nodes more than 1 hop
