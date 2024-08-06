@@ -1,4 +1,5 @@
 /*
+ * SPDX-License-Identifier: LicenseRef-MSLA
  * Copyright (c) 2016, The OpenThread Authors.
  * All rights reserved.
  *
