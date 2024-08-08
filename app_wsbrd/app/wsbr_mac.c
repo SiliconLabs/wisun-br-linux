@@ -94,7 +94,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     iobuf_push_data(&frame, ie_ext->headerIeVectorList[0].iov_base,
                     ie_ext->headerIeVectorList[0].iov_len);
     if (ie_ext->payloadIovLength)
-        ieee802154_ie_push_header(&frame, IEEE802154_IE_ID_HT2);
+        ieee802154_ie_push_header(&frame, IEEE802154_IE_ID_HT1);
     for (int i = 0; i < ie_ext->payloadIovLength; i++)
         iobuf_push_data(&frame, ie_ext->payloadIeVectorList[i].iov_base,
                         ie_ext->payloadIeVectorList[i].iov_len);
