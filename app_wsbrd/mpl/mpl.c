@@ -603,6 +603,7 @@ void mpl_timer(int seconds)
                         g_monotonic_time_100ms - message->timestamp >= message_age_limit) {
                     seed->min_sequence = mpl_buffer_sequence(message) + 1;
                     mpl_buffer_delete(seed, message);
+                    continue;
                 }
                 if (trickle_legacy_tick(&message->trickle, &domain->data_trickle_params, seconds))
                     mpl_buffer_transmit(domain, message, ns_list_get_next(&seed->messages, message) == NULL);
