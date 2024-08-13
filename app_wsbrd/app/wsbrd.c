@@ -11,9 +11,11 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _GNU_SOURCE
 #include <netinet/in.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 #include "common/mbedtls_config_check.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
@@ -476,6 +478,13 @@ void kill_handler(int signal)
     exit(0);
 }
 
+void sig_error_handler(int signal)
+{
+     __PRINT(91, "bug: %s", sigdescr_np(signal));
+    backtrace_show();
+    raise(signal);
+}
+
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     rcp_set_host_api(&ctxt->rcp, version_daemon_api);
@@ -621,10 +630,17 @@ int wsbr_main(int argc, char *argv[])
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
+    sigact.sa_flags = SA_RESETHAND;
     sigact.sa_handler = kill_handler;
     sigaction(SIGINT, &sigact, NULL);
     sigaction(SIGHUP, &sigact, NULL);
     sigaction(SIGTERM, &sigact, NULL);
+    sigact.sa_handler = sig_error_handler;
+    sigaction(SIGILL, &sigact, NULL);
+    sigaction(SIGSEGV, &sigact, NULL);
+    sigaction(SIGBUS, &sigact, NULL);
+    sigaction(SIGFPE, &sigact, NULL);
+    sigaction(SIGQUIT, &sigact, NULL);
     sigact.sa_handler = SIG_IGN;
     sigaction(SIGPIPE, &sigact, NULL); // Handle writing to unread FIFO for pcapng capture
     parse_commandline(&ctxt->config, argc, argv, print_help_br);

@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _GNU_SOURCE
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
@@ -294,6 +295,13 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
     return parent_ll;
 }
 
+void sig_error_handler(int signal)
+{
+    __PRINT(91, "bug: %s", sigdescr_np(signal));
+    backtrace_show();
+    raise(signal);
+}
+
 static void wsrd_init_rcp(struct wsrd *wsrd)
 {
     struct pollfd pfd = { };
@@ -414,10 +422,18 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
+    struct sigaction sigact = { };
     struct wsrd *wsrd = &g_wsrd;
     int ret;
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
+    sigact.sa_flags = SA_RESETHAND;
+    sigact.sa_handler = sig_error_handler;
+    sigaction(SIGILL, &sigact, NULL);
+    sigaction(SIGSEGV, &sigact, NULL);
+    sigaction(SIGBUS, &sigact, NULL);
+    sigaction(SIGFPE, &sigact, NULL);
+    sigaction(SIGQUIT, &sigact, NULL);
 
     parse_commandline(&wsrd->config, argc, argv);
     if (wsrd->config.color_output != -1)
