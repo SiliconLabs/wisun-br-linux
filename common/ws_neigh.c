@@ -299,7 +299,6 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
     struct chan_params params_custom = {
         .reg_domain   = REG_DOMAIN_UNDEF,
         .chan0_freq   = chan_info->plan.one.ch0 * 1000,
-        .chan_spacing = ws_regdb_chan_spacing_from_id(chan_info->plan.one.channel_spacing),
         .chan_count   = chan_info->plan.one.number_of_channel,
     };
     const struct chan_params *params = NULL;
@@ -312,6 +311,7 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
         chan_count = params->chan_count;
         break;
     case 1:
+        params_custom.chan_spacing = ws_regdb_chan_spacing_from_id(chan_info->plan.one.channel_spacing),
         params = &params_custom;
         break;
     case 2:
