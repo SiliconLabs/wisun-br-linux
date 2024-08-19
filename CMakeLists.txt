@@ -484,6 +484,16 @@ if(COMPILE_DEVTOOLS)
     endif()
     install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+    add_executable(silabs-ws-dc
+        version.c
+        tools/silabs-ws-dc/dc.c
+        tools/silabs-ws-dc/main.c
+        common/bits.c
+        common/log.c
+    )
+    target_include_directories(silabs-ws-dc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    install(TARGETS silabs-ws-dc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
     if(ns3_FOUND)
         if (NOT MBEDTLS_COMPILED_WITH_PIC)
             message(FATAL_ERROR "wsbrd-ns3 needs MbedTLS compiled with -fPIC")
