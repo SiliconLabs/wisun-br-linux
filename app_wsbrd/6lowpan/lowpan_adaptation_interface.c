@@ -868,18 +868,12 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
 
     //Check first
     fragmenter_tx_entry_t *tx_ptr;
-    bool active_direct_confirm;
-    if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf)) {
-        active_direct_confirm = true;
+    if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf))
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
-    } else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
-        active_direct_confirm = true;
+    else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf))
         tx_ptr = &interface_ptr->active_lfn_broadcast_tx_buf;
-    } else {
+    else
         tx_ptr = lowpan_listed_tx_handle_verify(confirm->hif.handle, &interface_ptr->activeUnicastList);
-        if (tx_ptr)
-            active_direct_confirm = true;
-    }
 
     if (!tx_ptr) {
         tr_error("No data request for this confirmation %u", confirm->hif.handle);
@@ -890,7 +884,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     if (mlme_status == MLME_SUCCESS) {
         //Check is there more packets
         if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
-            if (tx_ptr->fragmented_data && active_direct_confirm)
+            if (tx_ptr->fragmented_data)
                 interface_ptr->fragmenter_active = false;
             lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
         } else {
@@ -918,20 +912,15 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         if (tx_ptr->fragmented_data) {
             tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
             tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
-            if (active_direct_confirm) {
-                interface_ptr->fragmenter_active = false;
-            }
+            interface_ptr->fragmenter_active = false;
         }
 
         lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     }
-    // When confirmation is for direct transmission, push all allowed buffers to MAC
-    if (active_direct_confirm == true) {
-        buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
-        while (buf_from_queue) {
-            lowpan_adaptation_interface_tx(cur, buf_from_queue);
-            buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
-        }
+    buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
+    while (buf_from_queue) {
+        lowpan_adaptation_interface_tx(cur, buf_from_queue);
+        buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
     }
     return 0;
 }
