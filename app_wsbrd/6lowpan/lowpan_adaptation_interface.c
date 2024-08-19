@@ -890,32 +890,23 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
         } else {
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
-    } else if ((buf->link_specific.ieee802_15_4.requestAck) && (mlme_status == MLME_TRANSACTION_EXPIRED)) {
-        lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
-        ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
-        free(tx_ptr);
-        interface_ptr->activeTxList_size--;
     } else {
+        TRACE(TR_TX_ABORT, "tx-abort: tx failure status=%s dst=%s", hif_status_str(confirm->hif.status),
+              tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
 
-
-        if (mlme_status == MLME_TRANSACTION_OVERFLOW) {
-            tr_error("MCPS Data fail by MLME_TRANSACTION_OVERFLOW");
+        if (buf->link_specific.ieee802_15_4.requestAck && mlme_status == MLME_TRANSACTION_EXPIRED) {
+            lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
+            ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
+            free(tx_ptr);
+            interface_ptr->activeTxList_size--;
+        } else {
+            if (tx_ptr->fragmented_data) {
+                tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
+                tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
+                interface_ptr->fragmenter_active = false;
+            }
+            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
         }
-
-        tr_error("MCPS Data fail by status %u", mlme_status);
-        if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
-            tr_info("Dest addr: %x", read_be16(buf->dst_sa.address + 2));
-        } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
-            tr_info("Dest addr: %s", tr_eui64(buf->dst_sa.address + 2));
-        }
-
-        if (tx_ptr->fragmented_data) {
-            tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
-            tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
-            interface_ptr->fragmenter_active = false;
-        }
-
-        lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     }
     buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
     while (buf_from_queue) {
