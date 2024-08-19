@@ -14,6 +14,12 @@
 #ifndef DC_H
 #define DC_H
 
+#include "commandline.h"
+
+struct dc {
+    struct dc_cfg cfg;
+};
+
 int dc_main(int argc, char *argv[]);
 
 #endif

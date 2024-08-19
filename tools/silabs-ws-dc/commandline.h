@@ -11,21 +11,13 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "common/version.h"
-#include "common/log.h"
+#ifndef DC_COMMANDLINE_H
+#define DC_COMMANDLINE_H
 
-#include "dc.h"
+struct dc_cfg {
+    int  color_output;
+};
 
-struct dc g_dc = { };
+void parse_commandline(struct dc_cfg *config, int argc, char *argv[]);
 
-int dc_main(int argc, char *argv[])
-{
-    struct dc *dc = &g_dc;
-
-    INFO("Silicon Labs Wi-SUN Direct Connect %s", version_daemon_str);
-
-    parse_commandline(&dc->cfg, argc, argv);
-    if (dc->cfg.color_output != -1)
-        g_enable_color_traces = dc->cfg.color_output;
-    return 0;
-}
+#endif

@@ -488,8 +488,18 @@ if(COMPILE_DEVTOOLS)
         version.c
         tools/silabs-ws-dc/dc.c
         tools/silabs-ws-dc/main.c
+        tools/silabs-ws-dc/commandline.c
         common/bits.c
+        common/commandline.c
+        common/endian.c
+        common/ieee802154_frame.c
+        common/ieee802154_ie.c
+        common/iobuf.c
+        common/key_value_storage.c
         common/log.c
+        common/named_values.c
+        common/parsers.c
+        common/ws_regdb.c
     )
     target_include_directories(silabs-ws-dc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     install(TARGETS silabs-ws-dc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
