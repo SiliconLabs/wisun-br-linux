@@ -233,8 +233,8 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
         .revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction,
     };
     struct sec_timing timing_lfn = {
-        .pmk_lifetime_s          = ctxt->config.ws_pmk_lifetime_s,
-        .ptk_lifetime_s          = ctxt->config.ws_ptk_lifetime_s,
+        .pmk_lifetime_s          = ctxt->config.ws_lpmk_lifetime_s,
+        .ptk_lifetime_s          = ctxt->config.ws_lptk_lifetime_s,
         .expire_offset           = ctxt->config.ws_lgtk_expire_offset_s,
         .new_act_time            = ctxt->config.ws_lgtk_new_activation_time,
         .new_install_req         = ctxt->config.ws_lgtk_new_install_required,
