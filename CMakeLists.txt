@@ -490,8 +490,12 @@ if(COMPILE_DEVTOOLS)
         tools/silabs-ws-dc/main.c
         tools/silabs-ws-dc/commandline.c
         common/bits.c
+        common/bus_uart.c
+        common/capture.c
         common/commandline.c
+        common/crc.c
         common/endian.c
+        common/hif.c
         common/ieee802154_frame.c
         common/ieee802154_ie.c
         common/iobuf.c
@@ -499,9 +503,18 @@ if(COMPILE_DEVTOOLS)
         common/log.c
         common/named_values.c
         common/parsers.c
+        common/rail_config.c
+        common/rcp_api.c
         common/ws_regdb.c
+        common/ws_chan_mask.c
     )
     target_include_directories(silabs-ws-dc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_options(silabs-ws-dc PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+    if(LIBCPC_FOUND)
+        target_compile_definitions(silabs-ws-dc PRIVATE HAVE_LIBCPC)
+        target_sources(silabs-ws-dc PRIVATE common/bus_cpc.c)
+        target_link_libraries(silabs-ws-dc PRIVATE cpc)
+    endif()
     install(TARGETS silabs-ws-dc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     if(ns3_FOUND)

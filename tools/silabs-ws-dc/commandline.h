@@ -14,7 +14,12 @@
 #ifndef DC_COMMANDLINE_H
 #define DC_COMMANDLINE_H
 
+#include "common/rcp_api.h"
+
 struct dc_cfg {
+    struct rcp_cfg rcp_cfg;
+
+    bool list_rf_configs;
     int  color_output;
 };
 

@@ -21,6 +21,11 @@
 #include "commandline.h"
 
 static const struct name_value valid_traces[] = {
+    { "bus",        TR_BUS },
+    { "cpc",        TR_CPC },
+    { "hif",        TR_HIF },
+    { "hif-extra",  TR_HIF_EXTRA },
+    { "drop",       TR_DROP | TR_IGNORE | TR_TX_ABORT },
     { NULL },
 };
 
@@ -31,13 +36,18 @@ static void print_help(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  silabs-ws-dc [OPTIONS]\n");
+    fprintf(stream, "  silabs-ws-dc [OPTIONS] --list-rf-configs\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags:");
+    fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hif, hif-extra,\n");
+    fprintf(stream, "                          drop\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from the RCP then exit. Most\n");
+    fprintf(stream, "                          of parameters are ignored in this mode\n");
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
 }
@@ -45,6 +55,10 @@ static void print_help(FILE *stream) {
 void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
 {
     const struct option_struct opts_conf[] = {
+        { "uart_device",                   config->rcp_cfg.uart_dev,                  conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
+        { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,            conf_set_number,      NULL },
+        { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,              conf_set_bool,        NULL },
+        { "cpc_instance",                  config->rcp_cfg.cpc_instance,              conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
@@ -54,6 +68,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
         { "trace",       required_argument, 0,  'T' },
+        { "list-rf-configs", no_argument,   0,  'l' },
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
         { 0,             0,                 0,   0  }
@@ -63,6 +78,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     };
     int opt;
 
+    config->rcp_cfg.uart_baudrate = 115200;
     config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -92,9 +108,16 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
                     info.key_array_index = UINT_MAX;
                 parse_config_line(opts_conf, &info);
                 break;
+            case 'u':
+                strcpy(info.key, "uart_device");
+                conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
+                break;
             case 'T':
                 strcpy(info.key, "trace");
                 conf_add_flags(&info, &g_enabled_traces, valid_traces);
+                break;
+            case 'l':
+                config->list_rf_configs = true;
                 break;
             case 'h':
                 print_help(stdout);
@@ -109,4 +132,10 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
+    if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
+        FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
+    if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
+    if (config->list_rf_configs)
+        return;
 }

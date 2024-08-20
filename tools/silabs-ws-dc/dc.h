@@ -18,6 +18,7 @@
 
 struct dc {
     struct dc_cfg cfg;
+    struct rcp rcp;
 };
 
 int dc_main(int argc, char *argv[]);
