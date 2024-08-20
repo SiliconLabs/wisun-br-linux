@@ -14,6 +14,7 @@
 #ifndef RCP_API_H
 #define RCP_API_H
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "common/bus.h"
@@ -64,6 +65,13 @@ struct rcp_rx_ind {
     uint16_t chan_num;
 };
 
+struct rcp_cfg {
+    char cpc_instance[PATH_MAX];
+    char uart_dev[PATH_MAX];
+    int  uart_baudrate;
+    bool uart_rtscts;
+};
+
 struct rcp {
     struct bus bus;
 
@@ -82,6 +90,8 @@ struct rcp {
 
 // Share rx buffer with legacy implementation to not allocate twice
 extern uint8_t rcp_rx_buf[4096];
+
+void rcp_init(struct rcp *rcp, const struct rcp_cfg *config);
 
 void rcp_rx(struct rcp *rcp);
 

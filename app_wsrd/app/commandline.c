@@ -74,10 +74,10 @@ void print_help(FILE *stream) {
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 {
     const struct option_struct opts_conf[] = {
-        { "uart_device",                   config->uart_dev,                          conf_set_string,      (void *)sizeof(config->uart_dev) },
-        { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
-        { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
-        { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      (void *)sizeof(config->cpc_instance) },
+        { "uart_device",                   config->rcp_cfg.uart_dev,               conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
+        { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,         conf_set_number,      NULL },
+        { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,           conf_set_bool,        NULL },
+        { "cpc_instance",                  config->rcp_cfg.cpc_instance,           conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "network_name",                  config->ws_netname,                        conf_set_string,      (void *)sizeof(config->ws_netname) },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
@@ -114,7 +114,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
-    config->uart_baudrate = 115200;
+    config->rcp_cfg.uart_baudrate = 115200;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
     config->color_output = -1;
@@ -149,7 +149,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                 break;
             case 'u':
                 strcpy(info.key, "uart_device");
-                conf_set_string(&info, &config->uart_dev, (void *)sizeof(config->uart_dev));
+                conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
                 break;
             case 'T':
                 strcpy(info.key, "trace");
@@ -171,10 +171,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if (!config->uart_dev[0] && !config->cpc_instance[0])
+    if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
-    if (config->uart_dev[0] && config->cpc_instance[0])
-        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
+    if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
     if (config->list_rf_configs)
         return;
     if (!config->ws_netname[0])

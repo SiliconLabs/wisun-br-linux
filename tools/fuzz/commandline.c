@@ -55,7 +55,7 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
     ret = open(arg, O_RDONLY);
     FATAL_ON(ret < 0, 2, "open '%s': %m", arg);
     ctxt->replay_fds[ctxt->replay_count++] = ret;
-    ctxt->wsbrd->config.uart_dev[0] = true; // UART device does not need to be specified
+    ctxt->wsbrd->config.rcp_cfg.uart_dev[0] = true; // UART device does not need to be specified
 }
 
 static void parse_opt_fuzz(struct fuzz_ctxt *ctxt, const char *arg)

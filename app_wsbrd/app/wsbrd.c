@@ -478,7 +478,7 @@ void kill_handler(int signal)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
-    if (ctxt->config.uart_dev[0])
+    if (ctxt->config.rcp_cfg.uart_dev[0])
         uart_tx_flush(&ctxt->rcp.bus);
     exit(0);
 }
@@ -488,65 +488,6 @@ void sig_error_handler(int signal)
      __PRINT(91, "bug: %s", strsignal(signal));
     backtrace_show();
     raise(signal);
-}
-
-static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
-{
-    rcp_set_host_api(&ctxt->rcp, version_daemon_api);
-    rcp_req_radio_list(&ctxt->rcp);
-    while (!ctxt->rcp.has_rf_list)
-        rcp_rx(&ctxt->rcp);
-
-    if (ctxt->config.list_rf_configs) {
-        rail_print_config_list(&ctxt->rcp);
-        exit(0);
-    }
-
-    // NOTE: destination address filtering is enabled by default with the
-    // native EUI-64.
-    if (memcmp(ctxt->config.ws_mac_address, &ieee802154_addr_bc, 8))
-        rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
-}
-
-static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
-{
-    struct pollfd pfd = { };
-    int ret;
-
-    if (ctxt->config.uart_dev[0]) {
-        ctxt->rcp.bus.fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
-        ctxt->rcp.version_api  = VERSION(2, 0, 0); // default assumed version
-        ctxt->rcp.bus.tx    = uart_tx;
-        ctxt->rcp.bus.rx    = uart_rx;
-        rcp_req_reset(&ctxt->rcp, false);
-    } else if (ctxt->config.cpc_instance[0]) {
-        ctxt->rcp.bus.tx = cpc_tx;
-        ctxt->rcp.bus.rx = cpc_rx;
-        ctxt->rcp.bus.fd = cpc_open(&ctxt->rcp.bus, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
-        ctxt->rcp.version_api = cpc_secondary_app_version(&ctxt->rcp.bus);
-        if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
-            FATAL(3, "RCP API < 2.0.0 (too old)");
-        rcp_req_reset(&ctxt->rcp, false);
-    } else {
-        BUG();
-    }
-
-    pfd.fd = ctxt->rcp.bus.fd;
-    pfd.events = POLLIN;
-    ret = poll(&pfd, 1, 5000);
-    FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
-    WARN_ON(!ret, "RCP is not responding");
-
-    ctxt->rcp.bus.uart.init_phase = true;
-    while (!ctxt->rcp.has_reset) {
-        if (!ctxt->rcp.bus.uart.data_ready) {
-            ret = poll(&pfd, 1, 5000);
-            FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
-            WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
-        }
-        rcp_rx(&ctxt->rcp);
-    }
-    ctxt->rcp.bus.uart.init_phase = false;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
@@ -670,8 +611,16 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.capture[0])
         capture_start(ctxt->config.capture);
 
-    wsbr_rcp_reset(ctxt);
-    wsbr_rcp_init(ctxt);
+    rcp_init(&ctxt->rcp, &ctxt->config.rcp_cfg);
+    if (ctxt->config.list_rf_configs) {
+        rail_print_config_list(&ctxt->rcp);
+        exit(0);
+    }
+    // NOTE: destination address filtering is enabled by default with the
+    // native EUI-64.
+    if (memcmp(ctxt->config.ws_mac_address, &ieee802154_addr_bc, 8))
+        rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
+
     wsbr_tun_init(ctxt);
     wsbr_common_timer_init(ctxt);
     wsbr_network_init(ctxt);

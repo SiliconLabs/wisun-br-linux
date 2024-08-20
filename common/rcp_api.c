@@ -11,6 +11,10 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <poll.h>
+
+#include "common/bus_uart.h"
+#include "common/bus_cpc.h"
 #include "common/bits.h"
 #include "common/capture.h"
 #include "common/endian.h"
@@ -589,4 +593,51 @@ void rcp_rx(struct rcp *rcp)
         if (rcp_cmd_table[i].cmd == cmd)
             return rcp_cmd_table[i].fn(rcp, &buf);
     TRACE(TR_DROP, "drop %-9s: unsupported command 0x%02x", "hif", cmd);
+}
+
+void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
+{
+    struct pollfd pfd = { };
+    int ret;
+
+    if (config->uart_dev[0]) {
+        rcp->bus.fd = uart_open(config->uart_dev, config->uart_baudrate, config->uart_rtscts);
+        rcp->version_api = VERSION(2, 0, 0); // default assumed version
+        rcp->bus.tx = uart_tx;
+        rcp->bus.rx = uart_rx;
+    } else if (config->cpc_instance[0]) {
+        rcp->bus.tx = cpc_tx;
+        rcp->bus.rx = cpc_rx;
+        rcp->bus.fd = cpc_open(&rcp->bus, config->cpc_instance, g_enabled_traces & TR_CPC);
+        rcp->version_api = cpc_secondary_app_version(&rcp->bus);
+        if (version_older_than(rcp->version_api, 2, 0, 0))
+            FATAL(3, "RCP API < 2.0.0 (too old)");
+    } else {
+        BUG();
+    }
+
+    rcp_req_reset(rcp, false);
+
+    pfd.fd = rcp->bus.fd;
+    pfd.events = POLLIN;
+    ret = poll(&pfd, 1, 5000);
+    FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+    WARN_ON(!ret, "RCP is not responding");
+
+    rcp->bus.uart.init_phase = true;
+    while (!rcp->has_reset) {
+        if (!rcp->bus.uart.data_ready) {
+            ret = poll(&pfd, 1, 5000);
+            FATAL_ON(ret < 0, 2, "%s poll: %m", __func__);
+            WARN_ON(!ret, "RCP is not responding (no IND_RESET)");
+        }
+        rcp_rx(rcp);
+    }
+    rcp->bus.uart.init_phase = false;
+
+    rcp_set_host_api(rcp, version_daemon_api);
+
+    rcp_req_radio_list(rcp);
+    while (!rcp->has_rf_list)
+        rcp_rx(rcp);
 }

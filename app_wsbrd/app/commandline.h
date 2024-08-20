@@ -23,6 +23,7 @@
 #include <net/if.h>
 
 #include "common/specs/ws.h"
+#include "common/rcp_api.h"
 #include "common/bits.h"
 #include "common/ws_chan_mask.h"
 
@@ -31,11 +32,7 @@ struct wsbrd_conf {
     bool list_rf_configs;
     int color_output;
 
-    char cpc_instance[PATH_MAX];
-
-    char uart_dev[PATH_MAX];
-    int  uart_baudrate;
-    bool uart_rtscts;
+    struct rcp_cfg rcp_cfg;
 
     char tun_dev[IF_NAMESIZE];
     char neighbor_proxy[IF_NAMESIZE];
