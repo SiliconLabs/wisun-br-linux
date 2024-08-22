@@ -48,8 +48,6 @@ enum {
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp);
-static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind);
-static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
@@ -66,8 +64,8 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
-    .ws.rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
-    .ws.rcp.on_tx_cnf = wsrd_on_rcp_tx_cnf,
+    .ws.rcp.on_rx_ind = ws_if_recv_ind,
+    .ws.rcp.on_tx_cnf = ws_if_recv_cnf,
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
@@ -153,20 +151,6 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
          FIELD_GET(0x000000FF, rcp->version_api));
     if (version_older_than(rcp->version_api, 2, 4, 0))
         FATAL(3, "RCP API < 2.4.0 (too old)");
-}
-
-static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
-{
-    struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
-
-    ws_if_recv_ind(ws, ind);
-}
-
-static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
-{
-    struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
-
-    ws_if_recv_cnf(ws, cnf);
 }
 
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh)

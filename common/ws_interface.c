@@ -64,8 +64,9 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
               ind->hif->rx_power_dbm);
 }
 
-void ws_if_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
+void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
 {
+    struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
     struct ws_ind ind = { .hif = hif_ind };
     struct iobuf_read ie_payload;
     struct ws_utt_ie ie_utt;
@@ -147,8 +148,9 @@ static struct ws_frame_ctx *ws_if_frame_ctx_pop(struct ws_ctx *ws, uint8_t handl
     return cur;
 }
 
-void ws_if_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
+void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
+    struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
     struct iobuf_read ie_header, ie_payload;
     struct ws_frame_ctx *frame_ctx;
     struct ws_neigh *neigh = NULL;

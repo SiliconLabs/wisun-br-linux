@@ -62,8 +62,8 @@ struct ws_ctx {
     void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
 };
 
-void ws_if_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind);
-void ws_if_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf);
+void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind);
+void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 
 int ws_if_send_data(struct ws_ctx *ws,
                     const void *pkt, size_t pkt_len,
