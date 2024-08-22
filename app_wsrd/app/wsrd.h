@@ -20,7 +20,7 @@
 
 struct wsrd {
     struct wsrd_conf config;
-    struct ws_ctx ws;
+    struct wsrd_ws_ctx ws;
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.

@@ -63,15 +63,17 @@ static void wsrd_on_dhcp_addr_del(struct dhcp_client *client);
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
 struct wsrd g_wsrd = {
-    .ws.rcp.bus.fd = -1,
-    .ws.rcp.on_reset  = wsrd_on_rcp_reset,
-    .ws.rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
-    .ws.rcp.on_tx_cnf = wsrd_on_rcp_tx_cnf,
+    .ws.ws.rcp.bus.fd = -1,
+    .ws.ws.rcp.on_reset  = wsrd_on_rcp_reset,
+    .ws.ws.rcp.on_rx_ind = wsrd_on_rcp_rx_ind,
+    .ws.ws.rcp.on_tx_cnf = wsrd_on_rcp_tx_cnf,
 
-    .ws.pan_id = 0xffff,
-    .ws.pan_version = -1,
-    .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
-    .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
+    .ws.ws.pan_id = 0xffff,
+    .ws.ws.pan_version = -1,
+    .ws.ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
+    .ws.ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
+    .ws.ws.on_recv_ind                 = ws_on_recv_ind,
+    .ws.ws.on_recv_cnf                 = ws_on_recv_cnf,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .ws.eapol_target_eui64 = IEEE802154_ADDR_BC_INIT,
 
@@ -95,11 +97,11 @@ struct wsrd g_wsrd = {
     .config.disc_cfg.Imax_ms = TRICKLE_DOUBLINGS(15, 2) * 1000,
     .ws.pas_tkl.cfg = &g_wsrd.config.disc_cfg,
     .ws.pas_tkl.debug_name  = "pas",
-    .ws.pas_tkl.on_transmit = ws_send_pas,
+    .ws.pas_tkl.on_transmit = ws_on_send_pas,
     .ws.pas_tkl.on_interval_done = ws_on_pas_interval_done,
     .ws.pcs_tkl.cfg         = &g_wsrd.config.disc_cfg,
     .ws.pcs_tkl.debug_name  = "pcs",
-    .ws.pcs_tkl.on_transmit = ws_send_pcs,
+    .ws.pcs_tkl.on_transmit = ws_on_send_pcs,
     .ws.pan_selection_timer.callback = ws_on_pan_selection_timer_timeout,
 
     // Arbitrary parameters
@@ -118,7 +120,7 @@ struct wsrd g_wsrd = {
     .ws.ipv6.rpl.mrhof.max_link_metric         =   512, // 128 * 4
     .ws.ipv6.rpl.mrhof.max_path_cost           = 32768, // 128 * 256
     .ws.ipv6.rpl.mrhof.parent_switch_threshold =   192, // 128 * 1.5
-    .ws.ipv6.rpl.mrhof.ws_neigh_table = &g_wsrd.ws.neigh_table,
+    .ws.ipv6.rpl.mrhof.ws_neigh_table = &g_wsrd.ws.ws.neigh_table,
     .ws.ipv6.rpl.mrhof.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
@@ -156,19 +158,19 @@ static void wsrd_on_rcp_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
 
-    ws_recv_ind(ws, ind);
+    ws_if_recv_ind(ws, ind);
 }
 
 static void wsrd_on_rcp_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
 
-    ws_recv_cnf(ws, cnf);
+    ws_if_recv_cnf(ws, cnf);
 }
 
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
-    struct ws_ctx *ws = container_of(table, struct ws_ctx, neigh_table);
+    struct wsrd_ws_ctx *wsrd_ws = container_of(table, struct wsrd_ws_ctx, ws.neigh_table);
     struct ipv6_neigh *nce;
 
     /*
@@ -176,45 +178,45 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
      * In the absence of other messaging, a Router SHOULD initiate NUD
      * messaging to refresh the ETX value for that neighbor.
      */
-    nce = ipv6_neigh_get_from_eui64(&ws->ipv6, neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd_ws->ipv6, neigh->mac64);
     if (!nce)
         return;
-    ipv6_nud_set_state(&ws->ipv6, nce, IPV6_NUD_PROBE);
+    ipv6_nud_set_state(&wsrd_ws->ipv6, nce, IPV6_NUD_PROBE);
 }
 
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
-    struct ws_ctx *ws = container_of(table, struct ws_ctx, neigh_table);
+    struct wsrd_ws_ctx *wsrd_ws = container_of(table, struct wsrd_ws_ctx, ws.neigh_table);
     struct ipv6_neigh *nce;
 
-    nce = ipv6_neigh_get_from_eui64(&ws->ipv6, neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd_ws->ipv6, neigh->mac64);
     if (!nce || !nce->rpl)
         return;
-    rpl_mrhof_select_parent(&ws->ipv6);
+    rpl_mrhof_select_parent(&wsrd_ws->ipv6);
 }
 
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
 {
-    struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
+    struct wsrd_ws_ctx *wsrd_ws = container_of(ipv6, struct wsrd_ws_ctx, ipv6);
 
-    return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+    return ws_if_send_data(&wsrd_ws->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
 }
 
 static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
 {
-    struct ws_ctx *ws = container_of(supp, struct ws_ctx, supp);
+    struct wsrd_ws_ctx *wsrd_ws = container_of(supp, struct wsrd_ws_ctx, supp);
     uint8_t gak[16];
 
     // TODO: handle LGTK
     if (index > 4)
         return;
     if (gtk) {
-        ws_generate_gak(ws->netname, gtk, gak);
-        rcp_set_sec_key(&ws->rcp, index, gak, 0);
-        if (ws->pan_version < 0)
-            trickle_start(&ws->pcs_tkl);
+        ws_generate_gak(wsrd_ws->ws.netname, gtk, gak);
+        rcp_set_sec_key(&wsrd_ws->ws.rcp, index, gak, 0);
+        if (wsrd_ws->ws.pan_version < 0)
+            trickle_start(&wsrd_ws->pcs_tkl);
     } else {
-        rcp_set_sec_key(&ws->rcp, index, NULL, 0);
+        rcp_set_sec_key(&wsrd_ws->ws.rcp, index, NULL, 0);
     }
     dbus_emit_change("Gaks");
 }
@@ -232,7 +234,7 @@ static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, c
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
 
-    ws_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, (struct eui64 *)dst);
+    ws_if_send_eapol(&wsrd->ws.ws, kmp_id, pkt, pkt_len, (struct eui64 *)dst);
 }
 
 static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp)
@@ -314,54 +316,54 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     uint8_t chan_mask[WS_CHAN_MASK_LEN];
     struct chan_params *chan_params;
 
-    wsrd->ws.phy.params = ws_regdb_phy_params(wsrd->config.ws_phy_mode_id,
+    wsrd->ws.ws.phy.params = ws_regdb_phy_params(wsrd->config.ws_phy_mode_id,
                                               wsrd->config.ws_mode);
-    BUG_ON(!wsrd->ws.phy.params);
-    wsrd->ws.fhss.chan_params = ws_regdb_chan_params(wsrd->config.ws_domain,
+    BUG_ON(!wsrd->ws.ws.phy.params);
+    wsrd->ws.ws.fhss.chan_params = ws_regdb_chan_params(wsrd->config.ws_domain,
                                                      wsrd->config.ws_chan_plan_id,
                                                      wsrd->config.ws_class);
-    if (!wsrd->ws.fhss.chan_params) {
+    if (!wsrd->ws.ws.fhss.chan_params) {
         chan_params = zalloc(sizeof(*chan_params));
         chan_params->reg_domain   = wsrd->config.ws_domain;
         chan_params->chan0_freq   = wsrd->config.ws_chan0_freq;
         chan_params->chan_spacing = wsrd->config.ws_chan_spacing;
         chan_params->chan_count   = wsrd->config.ws_chan_count;
-        wsrd->ws.fhss.chan_params = chan_params;
-        wsrd->ws.fhss.chan_plan = 1;
+        wsrd->ws.ws.fhss.chan_params = chan_params;
+        wsrd->ws.ws.fhss.chan_plan = 1;
     } else {
-        wsrd->ws.fhss.chan_plan = wsrd->config.ws_chan_plan_id ? 2 : 0;
+        wsrd->ws.ws.fhss.chan_plan = wsrd->config.ws_chan_plan_id ? 2 : 0;
     }
-    wsrd->ws.fhss.uc_dwell_interval = wsrd->config.ws_uc_dwell_interval_ms;
-    memcpy(wsrd->ws.fhss.uc_chan_mask, wsrd->config.ws_allowed_channels, sizeof(wsrd->ws.fhss.uc_chan_mask));
+    wsrd->ws.ws.fhss.uc_dwell_interval = wsrd->config.ws_uc_dwell_interval_ms;
+    memcpy(wsrd->ws.ws.fhss.uc_chan_mask, wsrd->config.ws_allowed_channels, sizeof(wsrd->ws.ws.fhss.uc_chan_mask));
 
-    for (rail_config = wsrd->ws.rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
-        if (rail_config->rail_phy_mode_id == wsrd->ws.phy.params->rail_phy_mode_id   &&
-            rail_config->chan0_freq       == wsrd->ws.fhss.chan_params->chan0_freq   &&
-            rail_config->chan_spacing     == wsrd->ws.fhss.chan_params->chan_spacing &&
-            rail_config->chan_count       == wsrd->ws.fhss.chan_params->chan_count)
+    for (rail_config = wsrd->ws.ws.rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
+        if (rail_config->rail_phy_mode_id == wsrd->ws.ws.phy.params->rail_phy_mode_id   &&
+            rail_config->chan0_freq       == wsrd->ws.ws.fhss.chan_params->chan0_freq   &&
+            rail_config->chan_spacing     == wsrd->ws.ws.fhss.chan_params->chan_spacing &&
+            rail_config->chan_count       == wsrd->ws.ws.fhss.chan_params->chan_count)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
-    rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, false);
-    wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
+    rcp_set_radio(&wsrd->ws.ws.rcp, rail_config->index, wsrd->ws.ws.phy.params->ofdm_mcs, false);
+    wsrd->ws.ws.phy.rcp_rail_config_index = rail_config->index;
 
-    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.ws.fhss.chan_params, HIF_REG_NONE);
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
-    rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
+    rcp_set_fhss_uc(&wsrd->ws.ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
+    rcp_set_fhss_async(&wsrd->ws.ws.rcp, 500, chan_mask);
 
-    rcp_req_radio_enable(&wsrd->ws.rcp);
+    rcp_req_radio_enable(&wsrd->ws.ws.rcp);
 }
 
 static void wsrd_init_ws(struct wsrd *wsrd)
 {
-    strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
+    strcpy(wsrd->ws.ws.netname, wsrd->config.ws_netname);
 
-    timer_group_init(&wsrd->ws.neigh_table.timer_group);
-    ipv6_init(&wsrd->ws.ipv6, wsrd->ws.rcp.eui64.u8);
-    dhcp_client_init(&wsrd->ws.ipv6.dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.rcp.eui64.u8);
+    timer_group_init(&wsrd->ws.ws.neigh_table.timer_group);
+    ipv6_init(&wsrd->ws.ipv6, wsrd->ws.ws.rcp.eui64.u8);
+    dhcp_client_init(&wsrd->ws.ipv6.dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
@@ -396,19 +398,19 @@ int wsrd_main(int argc, char *argv[])
 
     check_mbedtls_features();
 
-    rcp_init(&wsrd->ws.rcp, &wsrd->config.rcp_cfg);
+    rcp_init(&wsrd->ws.ws.rcp, &wsrd->config.rcp_cfg);
     if (wsrd->config.list_rf_configs) {
-        rail_print_config_list(&wsrd->ws.rcp);
+        rail_print_config_list(&wsrd->ws.ws.rcp);
         exit(0);
     }
     // NOTE: destination address filtering is enabled by default with the
     // native EUI-64.
     if (memcmp(wsrd->config.ws_mac_address, &ieee802154_addr_bc, 8))
-        rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address);
+        rcp_set_filter_dst64(&wsrd->ws.ws.rcp, wsrd->config.ws_mac_address);
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
-    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
+    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.ws.rcp.eui64.u8);
     supp_reset(&wsrd->ws.supp);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",
@@ -417,7 +419,7 @@ int wsrd_main(int argc, char *argv[])
 
     INFO("Wi-SUN Router successfully started");
 
-    pfd[POLLFD_RCP].fd = wsrd->ws.rcp.bus.fd;
+    pfd[POLLFD_RCP].fd = wsrd->ws.ws.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = timer_fd();
     pfd[POLLFD_TIMER].events = POLLIN;
@@ -430,11 +432,11 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
     while (true) {
-        ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
+        ret = poll(pfd, POLLFD_COUNT, wsrd->ws.ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
-        if (wsrd->ws.rcp.bus.uart.data_ready ||
+        if (wsrd->ws.ws.rcp.bus.uart.data_ready ||
             pfd[POLLFD_RCP].revents & POLLIN)
-            rcp_rx(&wsrd->ws.rcp);
+            rcp_rx(&wsrd->ws.ws.rcp);
         if (pfd[POLLFD_TIMER].revents & POLLIN)
             timer_process();
         if (pfd[POLLFD_TUN].revents & POLLIN)
