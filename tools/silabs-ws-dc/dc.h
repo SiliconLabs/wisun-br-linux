@@ -13,13 +13,18 @@
  */
 #ifndef DC_H
 #define DC_H
+#include <netinet/in.h>
+
 #include "common/ws_interface.h"
+#include "common/tun.h"
 
 #include "commandline.h"
 
 struct dc {
     struct dc_cfg cfg;
     struct ws_ctx ws;
+    struct tun_ctx tun;
+    struct in6_addr addr_linklocal;
 };
 
 int dc_main(int argc, char *argv[]);

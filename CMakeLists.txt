@@ -489,6 +489,7 @@ if(COMPILE_DEVTOOLS)
         tools/silabs-ws-dc/dc.c
         tools/silabs-ws-dc/main.c
         tools/silabs-ws-dc/commandline.c
+        common/ipv6/ipv6_addr.c
         common/bits.c
         common/bus_uart.c
         common/capture.c
@@ -505,11 +506,13 @@ if(COMPILE_DEVTOOLS)
         common/parsers.c
         common/rail_config.c
         common/rcp_api.c
+        common/tun.c
         common/ws_regdb.c
         common/ws_chan_mask.c
     )
     target_include_directories(silabs-ws-dc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_options(silabs-ws-dc PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+    target_link_libraries(silabs-ws-dc PUBLIC PkgConfig::LIBNL_ROUTE)
     if(LIBCPC_FOUND)
         target_compile_definitions(silabs-ws-dc PRIVATE HAVE_LIBCPC)
         target_sources(silabs-ws-dc PRIVATE common/bus_cpc.c)

@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/ipv6/ipv6_addr.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/memutils.h"
@@ -41,7 +42,18 @@ struct dc g_dc = {
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
+
+    .tun.fd = -1,
 };
+
+static void dc_init_tun(struct dc *dc)
+{
+    tun_init(&dc->tun, true);
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", dc->tun.ifname, "accept_ra", '0');
+    memcpy(dc->addr_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
+    ipv6_addr_conv_iid_eui64(dc->addr_linklocal.s6_addr + 8, dc->ws.rcp.eui64.u8);
+    tun_addr_add(&dc->tun, &dc->addr_linklocal, 64);
+}
 
 static void dc_init_radio(struct dc *dc)
 {
@@ -108,5 +120,6 @@ int dc_main(int argc, char *argv[])
     }
 
     dc_init_radio(dc);
+    dc_init_tun(dc);
     return 0;
 }
