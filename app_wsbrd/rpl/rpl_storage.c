@@ -167,6 +167,9 @@ void rpl_storage_load_target(struct rpl_root *root, const char *filename)
         }
     }
     storage_close(nvm);
+
+    // Potentially outdated transits will be checked right away
+    timer_start_rel(&root->timer_group, &target->timer, 0);
 }
 
 void rpl_storage_load(struct rpl_root *root)
