@@ -13,12 +13,13 @@
  */
 #ifndef DC_H
 #define DC_H
+#include "common/ws_interface.h"
 
 #include "commandline.h"
 
 struct dc {
     struct dc_cfg cfg;
-    struct rcp rcp;
+    struct ws_ctx ws;
 };
 
 int dc_main(int argc, char *argv[]);

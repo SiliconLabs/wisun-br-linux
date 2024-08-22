@@ -19,6 +19,17 @@
 struct dc_cfg {
     struct rcp_cfg rcp_cfg;
 
+    int  ws_domain;
+    int  ws_phy_mode_id;
+    int  ws_chan_plan_id;
+    int  ws_mode;
+    int  ws_class;
+    int  ws_chan0_freq;
+    int  ws_chan_spacing;
+    int  ws_chan_count;
+    int  ws_uc_dwell_interval_ms;
+    uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
+
     bool list_rf_configs;
     int  color_output;
 };
