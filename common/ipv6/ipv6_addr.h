@@ -11,16 +11,20 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WSRD_IPV6_ADDR_H
-#define WSRD_IPV6_ADDR_H
+#ifndef COMMON_IPV6_ADDR_H
+#define COMMON_IPV6_ADDR_H
 
 #include <netinet/in.h>
-#include <stdbool.h>
 
-struct ipv6_ctx;
+extern struct in6_addr ipv6_prefix_linklocal; // fe80::
 
-bool ipv6_addr_has_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
-int ipv6_addr_add_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
-int ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr);
+extern struct in6_addr ipv6_addr_all_nodes_link;     // ff02::1
+extern struct in6_addr ipv6_addr_all_routers_link;   // ff02::2
+extern struct in6_addr ipv6_addr_all_rpl_nodes_link; // ff02::1a
+extern struct in6_addr ipv6_addr_all_nodes_realm;    // ff03::1
+extern struct in6_addr ipv6_addr_all_routers_realm;  // ff03::2
+extern struct in6_addr ipv6_addr_all_mpl_fwd_realm;  // ff03::fc
+
+void ipv6_addr_conv_iid_eui64(uint8_t out[8], const uint8_t in[8]);
 
 #endif

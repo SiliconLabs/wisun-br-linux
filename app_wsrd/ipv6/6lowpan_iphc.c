@@ -19,13 +19,13 @@
 #include "common/specs/6lowpan.h"
 #include "common/specs/ip.h"
 #include "common/specs/ipv6.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/ipv6_cksum.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/pktbuf.h"
-#include "app_wsrd/ipv6/ipv6_addr.h"
 
 #include "6lowpan_iphc.h"
 

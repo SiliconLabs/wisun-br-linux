@@ -22,6 +22,7 @@
 #include "app_wsrd/app/dbus.h"
 #include "app_wsrd/app/ws.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
 #include "common/bits.h"

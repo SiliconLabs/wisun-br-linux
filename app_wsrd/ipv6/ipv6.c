@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/ieee802154_frame.h"
 #include "common/log.h"

@@ -15,26 +15,11 @@
 #include <string.h>
 #include <errno.h>
 
+#include "common/ipv6/ipv6_addr.h"
 #include "common/log.h"
 #include "app_wsrd/ipv6/ipv6.h"
 
 #include "ipv6_addr.h"
-
-struct in6_addr ipv6_prefix_linklocal = { .s6_addr = { 0xfe, 0x80 } }; // fe80::
-
-struct in6_addr ipv6_addr_all_nodes_link     = { .s6_addr = { 0xff, 0x02, [15] = 0x01 } }; // ff02::1
-struct in6_addr ipv6_addr_all_routers_link   = { .s6_addr = { 0xff, 0x02, [15] = 0x02 } }; // ff02::2
-struct in6_addr ipv6_addr_all_rpl_nodes_link = { .s6_addr = { 0xff, 0x02, [15] = 0x1a } }; // ff02::1a
-struct in6_addr ipv6_addr_all_nodes_realm    = { .s6_addr = { 0xff, 0x03, [15] = 0x01 } }; // ff03::1
-struct in6_addr ipv6_addr_all_routers_realm  = { .s6_addr = { 0xff, 0x03, [15] = 0x02 } }; // ff03::2
-struct in6_addr ipv6_addr_all_mpl_fwd_realm  = { .s6_addr = { 0xff, 0x03, [15] = 0xfc } }; // ff03::fc
-
-// RFC 4291 Appendix A: Creating Modified EUI-64 Format Interface Identifiers
-void ipv6_addr_conv_iid_eui64(uint8_t out[8], const uint8_t in[8])
-{
-    memcpy(out, in, 8);
-    out[0] ^= 0x02;
-}
 
 static int ipv6_addr_idx_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 {

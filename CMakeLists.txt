@@ -292,6 +292,7 @@ add_library(libwsrd STATIC
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
     common/crypto/ws_keys.c
+    common/ipv6/ipv6_addr.c
     common/bits.c
     common/bus_uart.c
     common/capture.c

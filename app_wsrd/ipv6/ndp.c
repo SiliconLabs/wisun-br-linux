@@ -13,6 +13,7 @@
  */
 #include <netinet/icmp6.h>
 
+#include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/ipv6_cksum.h"
 #include "common/memutils.h"
@@ -23,7 +24,6 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ndp.h"
 #include "app_wsrd/ipv6/ipv6.h"
-#include "app_wsrd/ipv6/ipv6_addr.h"
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/ndp_pkt.h"
 #include "app_wsrd/ipv6/rpl.h"

@@ -30,10 +30,10 @@
 #include "common/ws_neigh.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "app_wsrd/ipv6/rpl_mrhof.h"
 #include "app_wsrd/ipv6/rpl_pkt.h"
 #include "app_wsrd/ipv6/ipv6.h"
-#include "app_wsrd/ipv6/ipv6_addr.h"
 #include "rpl.h"
 
 static const struct name_value rpl_codes[] = {
