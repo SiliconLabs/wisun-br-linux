@@ -502,11 +502,18 @@ if(COMPILE_DEVTOOLS)
         common/iobuf.c
         common/key_value_storage.c
         common/log.c
+        common/mpx.c
         common/named_values.c
         common/parsers.c
         common/rail_config.c
+        common/rand.c
         common/rcp_api.c
+        common/time_extra.c
+        common/timer.c
         common/tun.c
+        common/ws_ie.c
+        common/ws_interface.c
+        common/ws_neigh.c
         common/ws_regdb.c
         common/ws_chan_mask.c
     )

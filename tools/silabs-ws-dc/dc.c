@@ -11,6 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <poll.h>
+
 #include "common/ipv6/ipv6_addr.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
@@ -20,6 +22,12 @@
 #include "common/log.h"
 
 #include "dc.h"
+
+enum {
+    POLLFD_RCP,
+    POLLFD_TIMER,
+    POLLFD_COUNT,
+};
 
 static void dc_on_rcp_reset(struct rcp *rcp)
 {
@@ -39,6 +47,8 @@ static void dc_on_rcp_reset(struct rcp *rcp)
 struct dc g_dc = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
+    .ws.rcp.on_rx_ind = ws_if_recv_ind,
+    .ws.rcp.on_tx_cnf = ws_if_recv_cnf,
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
@@ -105,7 +115,9 @@ static void dc_init_radio(struct dc *dc)
 
 int dc_main(int argc, char *argv[])
 {
+    struct pollfd pfd[POLLFD_COUNT] = { };
     struct dc *dc = &g_dc;
+    int ret;
 
     INFO("Silicon Labs Wi-SUN Direct Connect %s", version_daemon_str);
 
@@ -121,5 +133,20 @@ int dc_main(int argc, char *argv[])
 
     dc_init_radio(dc);
     dc_init_tun(dc);
+    timer_group_init(&dc->ws.neigh_table.timer_group);
+
+    pfd[POLLFD_RCP].fd = dc->ws.rcp.bus.fd;
+    pfd[POLLFD_RCP].events = POLLIN;
+    pfd[POLLFD_TIMER].fd = timer_fd();
+    pfd[POLLFD_TIMER].events = POLLIN;
+    while (true) {
+        ret = poll(pfd, POLLFD_COUNT, dc->ws.rcp.bus.uart.data_ready ? 0 : -1);
+        FATAL_ON(ret < 0, 2, "poll: %m");
+        if (dc->ws.rcp.bus.uart.data_ready ||
+            pfd[POLLFD_RCP].revents & POLLIN)
+            rcp_rx(&dc->ws.rcp);
+        if (pfd[POLLFD_TIMER].revents & POLLIN)
+            timer_process();
+    }
     return 0;
 }
