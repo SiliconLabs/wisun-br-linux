@@ -164,16 +164,6 @@ typedef enum {
 } gtk_mismatch_e;
 
 /**
- * sec_prot_keys_create allocates memory for security keys
- *
- * \param gtks GTK keys
- * \param cert_chain certificates
- *
- * \return security keys or NULL
- */
-sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs);
-
-/**
  * sec_prot_keys_init initialises security keys
  *
  * \param sec_keys security keys

@@ -39,18 +39,6 @@
 
 #include "security/protocols/sec_prot_keys.h"
 
-sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
-{
-    sec_prot_keys_t *sec_keys = malloc(sizeof(sec_prot_keys_t));
-    if (!sec_keys) {
-        return NULL;
-    }
-
-    sec_prot_keys_init(sec_keys, gtks, lgtks, certs);
-
-    return sec_keys;
-}
-
 void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {
     memset(sec_keys, 0, sizeof(sec_prot_keys_t));
