@@ -58,10 +58,12 @@ struct storage_parse_info *storage_open_prefix(const char *filename, const char 
 {
     struct storage_parse_info *info;
     char *full_filename;
+    int ret;
 
     if (!g_storage_prefix)
         return NULL;
-    asprintf(&full_filename, "%s%s", g_storage_prefix, filename);
+    ret = asprintf(&full_filename, "%s%s", g_storage_prefix, filename);
+    FATAL_ON(ret < 0, 2, "%s: cannot allocate memory", __func__);
     info = storage_open(full_filename, mode);
     free(full_filename);
     return info;
