@@ -200,7 +200,9 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
             }
     }
 
-    if (na_earo->p != NDP_ADDR_TYPE_MULTICAST) {
+    if (na_earo->p == NDP_ADDR_TYPE_MULTICAST) {
+        ws_neigh = NULL;
+    } else {
         /* Check if we are already using this address ourself */
         if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
             na_earo->present = true;
