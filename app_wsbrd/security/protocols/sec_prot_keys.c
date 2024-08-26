@@ -64,11 +64,6 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, se
     sec_prot_keys_ptk_installed_gtk_hash_clear_all(&sec_keys->lgtks);
 }
 
-void sec_prot_keys_delete(sec_prot_keys_t *sec_keys)
-{
-    free(sec_keys);
-}
-
 sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void)
 {
     sec_prot_gtk_keys_t *gtks = malloc(sizeof(sec_prot_gtk_keys_t));
