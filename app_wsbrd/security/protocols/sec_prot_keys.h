@@ -299,16 +299,6 @@ void sec_prot_keys_ptk_delete(sec_prot_keys_t *sec_keys);
 uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_ptk_lifetime_get gets Pairwise Transient Key lifetime
- *
- * \param sec_keys security keys
- *
- * \return PTK lifetime
- *
- */
-uint32_t sec_prot_keys_ptk_lifetime_get(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_ptk_mismatch_set set PTK mismatch
  *
  * \param sec_keys security keys

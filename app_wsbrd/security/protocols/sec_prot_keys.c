@@ -187,15 +187,6 @@ uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys)
     return sec_keys->ptk;
 }
 
-uint32_t sec_prot_keys_ptk_lifetime_get(sec_prot_keys_t *sec_keys)
-{
-    if (!sec_keys->ptk_set) {
-        return 0;
-    }
-
-    return sec_keys->ptk_lifetime;
-}
-
 void sec_prot_keys_ptk_mismatch_set(sec_prot_keys_t *sec_keys)
 {
     sec_keys->ptk_mismatch = true;
