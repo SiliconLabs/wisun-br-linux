@@ -13,6 +13,7 @@
 #define _DEFAULT_SOURCE
 #include <endian.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include "common/specs/ieee802159.h"
 #include "common/specs/ieee80211.h"
@@ -447,7 +448,7 @@ void supp_key_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
      * equal to any received in a valid message.
      */
     if (supp->replay_counter != -1 && be64toh(frame->replay_counter) <= supp->replay_counter) {
-        TRACE(TR_DROP, "drop %-9s: invalid replay counter %ld", "eapol-key", be64toh(frame->replay_counter));
+        TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }
 

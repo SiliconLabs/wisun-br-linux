@@ -128,7 +128,7 @@ void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf 
         return;
     }
 
-    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%lu", "tx-eapol",
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
           val_to_str(packet_type, eapol_frames, "[UNK]"), pktbuf_len(buf));
     supp->sendto_mac(supp, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
 }
