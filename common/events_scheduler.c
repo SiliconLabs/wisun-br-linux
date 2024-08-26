@@ -116,8 +116,12 @@ void event_scheduler_signal()
 
 void event_scheduler_init(struct events_scheduler *ctxt)
 {
+    int ret;
+
     g_event_scheduler = ctxt;
-    pipe(ctxt->event_fd);
+    ret = pipe(ctxt->event_fd);
+    FATAL_ON(ret < 0, 2,  "%s: pipe: %m", __func__);
+
     fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
     fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);
 
