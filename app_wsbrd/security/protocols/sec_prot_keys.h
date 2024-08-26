@@ -223,14 +223,6 @@ uint64_t sec_prot_keys_pmk_replay_cnt_get(sec_prot_keys_t *sec_keys);
 bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_pmk_mismatch_set set PMK mismatch
- *
- * \param sec_keys security keys
- *
- */
-void sec_prot_keys_pmk_mismatch_set(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_pmk_mismatch_reset reset PMK mismatch
  *
  * \param sec_keys security keys

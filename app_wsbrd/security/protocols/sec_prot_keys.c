@@ -117,11 +117,6 @@ bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys)
     return true;
 }
 
-void sec_prot_keys_pmk_mismatch_set(sec_prot_keys_t *sec_keys)
-{
-    sec_keys->pmk_mismatch = true;
-}
-
 void sec_prot_keys_pmk_mismatch_reset(sec_prot_keys_t *sec_keys)
 {
     sec_keys->pmk_mismatch = false;
