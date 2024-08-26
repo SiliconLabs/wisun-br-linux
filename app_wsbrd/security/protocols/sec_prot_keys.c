@@ -178,11 +178,6 @@ uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys)
     return sec_keys->ptk;
 }
 
-void sec_prot_keys_ptk_mismatch_set(sec_prot_keys_t *sec_keys)
-{
-    sec_keys->ptk_mismatch = true;
-}
-
 void sec_prot_keys_ptk_mismatch_reset(sec_prot_keys_t *sec_keys)
 {
     sec_keys->ptk_mismatch = false;

@@ -289,14 +289,6 @@ void sec_prot_keys_ptk_delete(sec_prot_keys_t *sec_keys);
 uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_ptk_mismatch_set set PTK mismatch
- *
- * \param sec_keys security keys
- *
- */
-void sec_prot_keys_ptk_mismatch_set(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_ptk_mismatch_reset reset PTK mismatch
  *
  * \param sec_keys security keys
