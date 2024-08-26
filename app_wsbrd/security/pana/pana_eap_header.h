@@ -63,19 +63,8 @@ typedef struct eap_header {
     const uint8_t *data_ptr;
 } eap_header_t;
 
-typedef struct eap_tls_header {
-    uint8_t *data_ptr;
-    uint8_t eap_tls_flags;
-    uint16_t tls_frame_length;
-    uint16_t tls_length;
-} eap_tls_header_t;
-
 bool eap_header_parse(const uint8_t *data_ptr, uint16_t length, eap_header_t *header);
 uint8_t eap_header_size(uint8_t eap_code);
 uint8_t *eap_header_build(uint8_t *ptr, uint16_t data_length, uint8_t eap_code, uint8_t id_seq, uint8_t type);
-bool eap_tls_header_parse(uint8_t *eap_data_ptr, uint16_t eap_datalength, eap_tls_header_t *header);
-uint8_t eap_tls_header_size(uint16_t eap_tls_flags);
-uint8_t *eap_tls_header_build(uint8_t *ptr, uint16_t eap_tls_flags, uint16_t frame_length);
-
 
 #endif
