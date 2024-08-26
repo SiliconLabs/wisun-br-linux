@@ -174,14 +174,6 @@ typedef enum {
 void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs);
 
 /**
- * sec_prot_keys_gtks_create allocates memory for GTK keys
- *
- * \return GTK keys or NULL
- *
- */
-sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void);
-
-/**
  * sec_prot_keys_gtks_delete frees GTK keys memory
  *
  * \param gtks GTK keys
