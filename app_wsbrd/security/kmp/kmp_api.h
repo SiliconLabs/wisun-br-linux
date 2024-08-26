@@ -422,7 +422,7 @@ typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_
  *
  */
 int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id,
-                                   kmp_service_msg_if_send *send, uint8_t header_size, uint8_t number_of_conn);
+                                   kmp_service_msg_if_send *send, uint8_t header_size);
 
 /**
  * kmp_service_tx_status tx status indication

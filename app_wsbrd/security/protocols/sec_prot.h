@@ -403,7 +403,6 @@ struct sec_prot {
     sec_cfg_t                     *sec_cfg;              /**< Security configuration configuration pointer */
     uint8_t                       header_size;           /**< Header size */
     uint8_t                       receive_peer_hdr_size; /**< Receive from peer header size */
-    uint8_t                       number_of_conn;        /**< Number of connections */
     uint8_t                       msg_if_instance_id;    /**< Message interface instance identifier */
     sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };

@@ -61,7 +61,6 @@ typedef NS_LIST_HEAD(kmp_sec_prot_entry_t, link) kmp_sec_prot_list_t;
 typedef struct kmp_msg_if_entry {
     uint8_t                      instance_id;             /**< Message interface instance identifier */
     uint8_t                      header_size;             /**< Message interface header size */
-    uint8_t                      number_of_conn;          /**< Message interface number of connections */
     kmp_service_msg_if_send      *send;                   /**< Message interface callback to send KMP frames */
     ns_list_link_t               link;                    /**< Link */
 } kmp_msg_if_entry_t;
@@ -151,7 +150,6 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_i
     kmp->receive_disable = false;
     kmp->sec_prot.header_size = msg_if_entry->header_size;
     kmp->sec_prot.receive_peer_hdr_size = msg_if_entry->header_size;
-    kmp->sec_prot.number_of_conn = msg_if_entry->number_of_conn;
     kmp->sec_prot.create_conf = kmp_api_sec_prot_create_confirm;
     kmp->sec_prot.create_ind = kmp_api_sec_prot_create_indication;
     kmp->sec_prot.finished_ind = kmp_api_sec_prot_finished_indication;
@@ -509,7 +507,7 @@ int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind 
     return 0;
 }
 
-int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size, uint8_t number_of_conn)
+int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size)
 {
     if (!service) {
         return -1;
@@ -546,7 +544,6 @@ int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, 
     entry->instance_id = instance_id;
     entry->send = send;
     entry->header_size = header_size;
-    entry->number_of_conn = number_of_conn;
 
     return 0;
 }

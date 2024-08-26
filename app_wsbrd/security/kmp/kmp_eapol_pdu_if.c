@@ -69,7 +69,7 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interfac
     eapol_pdu_if->kmp_service = service;
     eapol_pdu_if->interface_ptr = interface_ptr;
 
-    if (kmp_service_msg_if_register(service, 0, kmp_eapol_pdu_if_send, EAPOL_PDU_IF_HEADER_SIZE, 0) < 0) {
+    if (kmp_service_msg_if_register(service, 0, kmp_eapol_pdu_if_send, EAPOL_PDU_IF_HEADER_SIZE) < 0) {
         free(eapol_pdu_if);
         return -1;
     }

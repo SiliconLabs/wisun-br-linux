@@ -150,7 +150,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
         header_size = SOCKET_IF_HEADER_SIZE;
     }
 
-    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, 1) < 0) {
+    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size) < 0) {
         if (socket_if->kmp_socket_id >= 0)
             close(socket_if->kmp_socket_id);
         free(socket_if);
@@ -174,7 +174,7 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
         if (g_kmp_socket_if_instances[i]->kmp_service == service) {
             if (g_kmp_socket_if_instances[i]->kmp_socket_id >= 0)
                 close(g_kmp_socket_if_instances[i]->kmp_socket_id);
-            kmp_service_msg_if_register(service, g_kmp_socket_if_instances[i]->instance_id, NULL, 0, 0);
+            kmp_service_msg_if_register(service, g_kmp_socket_if_instances[i]->instance_id, NULL, 0);
             free(g_kmp_socket_if_instances[i]);
         }
     }
