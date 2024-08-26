@@ -490,19 +490,6 @@ bool sec_prot_keys_gtk_status_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index)
     return false;
 }
 
-void sec_prot_keys_gtk_status_new_set(sec_prot_gtk_keys_t *gtks, uint8_t index)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return;
-    }
-
-    if (gtks->gtk[index].status != GTK_STATUS_NEW) {
-        gtks->updated = true;
-    }
-
-    gtks->gtk[index].status = GTK_STATUS_NEW;
-}
-
 uint8_t sec_prot_keys_gtk_status_get(sec_prot_gtk_keys_t *gtks, uint8_t index)
 {
     if (index >= GTK_NUM || !gtks->gtk[index].set) {
