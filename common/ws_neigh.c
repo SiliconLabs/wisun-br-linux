@@ -302,13 +302,11 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
         .chan_count   = chan_info->plan.one.number_of_channel,
     };
     const struct chan_params *params = NULL;
-    uint16_t chan_count;
 
     switch (chan_info->channel_plan) {
     case 0:
         params = ws_regdb_chan_params(chan_info->plan.zero.regulatory_domain, 0, chan_info->plan.zero.operating_class);
         BUG_ON(!params);
-        chan_count = params->chan_count;
         break;
     case 1:
         params_custom.chan_spacing = ws_regdb_chan_spacing_from_id(chan_info->plan.one.channel_spacing),
@@ -317,7 +315,6 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
     case 2:
         params = ws_regdb_chan_params(chan_info->plan.two.regulatory_domain, chan_info->plan.two.channel_plan_id, 0);
         BUG_ON(!params);
-        chan_count = params->chan_count;
         break;
     default:
         BUG("unsupported channel plan: %d", chan_info->channel_plan);
@@ -325,9 +322,9 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
 
     ws_chan_mask_calc_reg(chan_mask, params, fhss_config->regional_regulation);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
-        ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, chan_count);
+        ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, params->chan_count);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK)
-        ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, chan_count);
+        ws_neigh_excluded_mask_by_mask(chan_mask, &chan_info->excluded_channels.mask, params->chan_count);
 }
 
 void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
