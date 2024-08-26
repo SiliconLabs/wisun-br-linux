@@ -173,11 +173,6 @@ void sec_prot_keys_ptk_mismatch_reset(sec_prot_keys_t *sec_keys)
     sec_keys->ptk_mismatch = false;
 }
 
-bool sec_prot_keys_ptk_mismatch_is_set(sec_prot_keys_t *sec_keys)
-{
-    return sec_keys->ptk_mismatch;
-}
-
 void sec_prot_keys_ptk_eui_64_write(sec_prot_keys_t *sec_keys, const uint8_t *eui_64)
 {
     memcpy(sec_keys->ptk_eui_64, eui_64, 8);

@@ -279,16 +279,6 @@ uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys);
 void sec_prot_keys_ptk_mismatch_reset(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_ptk_mismatch_is_set check if PTK mismatch is set
- *
- * \param sec_keys security keys
- *
- * \return TRUE or FALSE
- *
- */
-bool sec_prot_keys_ptk_mismatch_is_set(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_ptk_eui_64_write writes PTK EUI-64
  *
  * \param sec_keys security keys
