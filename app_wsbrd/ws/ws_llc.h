@@ -20,6 +20,7 @@
 #define WS_LLC_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "common/ws_interface.h"
 #include "common/ns_list.h"
 #include "common/ws_neigh.h"
 #include "app/rcp_api_legacy.h"
@@ -34,39 +35,6 @@ struct ws_neigh;
 struct ws_neighbor_temp_class;
 struct mpx_api;
 struct ws_info;
-
-struct wh_ie_list {
-    bool utt:   1;
-    bool bt:    1;
-    bool fc:    1;
-    bool rsl:   1;
-    bool ea:    1;
-    bool lutt:  1;
-    bool lbt:   1;
-    bool nr:    1;
-    bool lus:   1;
-    bool flus:  1;
-    bool lbs:   1;
-    bool lnd:   1;
-    bool lto:   1;
-    bool panid: 1;
-    bool lbc:   1;
-};
-
-struct wp_ie_list {
-    bool us:       1;
-    bool bs:       1;
-    bool pan:      1;
-    bool netname:  1;
-    bool panver:   1;
-    bool gtkhash:  1;
-    bool lgtkhash: 1;
-    bool lfnver:   1;
-    bool lcp:      1;
-    bool lbats:    1;
-    bool pom:      1;
-    bool jm:       1;
-};
 
 struct ws_llc_mngt_req {
     uint8_t frame_type;

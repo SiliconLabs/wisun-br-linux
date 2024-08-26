@@ -19,6 +19,7 @@
 #include "common/specs/ws.h"
 #include "common/sys_queue_extra.h"
 #include "common/ieee802154_ie.h"
+#include "common/string_extra.h"
 #include "common/memutils.h"
 #include "common/mpx.h"
 
@@ -62,6 +63,28 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
         TRACE(tr_domain, "rx-15.4 %-9s src:%s (%ddBm)",
               tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
               ind->hif->rx_power_dbm);
+}
+
+static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t frame_type,
+                         struct wh_ie_list *wh_ies, struct wp_ie_list *wp_ies, uint16_t multiplex_id)
+{
+    int offset;
+
+    if (wh_ies->utt)
+        ws_wh_utt_write(iobuf, frame_type);
+    // TODO: remaning WH-IEs
+    if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id)
+        return;
+
+    ieee802154_ie_push_header(iobuf, IEEE802154_IE_ID_HT1);
+
+    offset = ieee802154_ie_push_payload(iobuf, IEEE802154_IE_ID_WP);
+    if (wp_ies->us)
+        ws_wp_nested_us_write(iobuf, &ws->fhss);
+    if (wp_ies->netname)
+        ws_wp_nested_netname_write(iobuf, ws->netname);
+    // TODO: remaning WP-IEs
+    ieee802154_ie_fill_len_payload(iobuf, offset);
 }
 
 void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
@@ -214,6 +237,11 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         .transfer_type = MPX_FT_FULL_FRAME,
         .multiplex_id  = MPX_ID_6LOWPAN,
     };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+        // TODO: BT-IE, LBT-IE
+    };
+    struct wp_ie_list wp_ies = { }; // TODO: JM-IE
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
     int offset;
@@ -230,15 +258,9 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
-    ws_wh_utt_write(&iobuf, WS_FT_DATA);
-    // TODO: BT-IE, LBT-IE
-    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
-
-    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
     if (neigh) // TODO: only include US-IE if 1st unicast frame to neighbor
-        ws_wp_nested_us_write(&iobuf, &ws->fhss);
-    // TODO: JM-IE
-    ieee802154_ie_fill_len_payload(&iobuf, offset);
+        wp_ies.us = true;
+    ws_write_ies(ws, &iobuf, WS_FT_DATA, &wh_ies, &wp_ies, ie_mpx.multiplex_id);
 
     offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
     mpx_ie_write(&iobuf, &ie_mpx);
@@ -275,6 +297,13 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
         .transfer_type = MPX_FT_FULL_FRAME,
         .multiplex_id  = MPX_ID_KMP,
     };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+        // TODO: BT-IE, LBT-IE
+    };
+    struct wp_ie_list wp_ies = {
+        .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+    };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
     struct ws_neigh *neigh;
@@ -293,14 +322,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
-    ws_wh_utt_write(&iobuf, WS_FT_EAPOL);
-    // TODO: BT-IE, LBT-IE
-    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
-
-    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
-    // TODO: only include US-IE if 1st unicast frame to neighbor
-    ws_wp_nested_us_write(&iobuf, &ws->fhss);
-    ieee802154_ie_fill_len_payload(&iobuf, offset);
+    ws_write_ies(ws, &iobuf, WS_FT_EAPOL, &wh_ies, &wp_ies, MPX_ID_KMP);
 
     offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
     mpx_ie_write(&iobuf, &ie_mpx);
@@ -328,9 +350,16 @@ void ws_if_send_pas(struct ws_ctx *ws)
         .dst          = IEEE802154_ADDR_BC_INIT,
         .src          = ws->rcp.eui64,
     };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+    };
+    struct wp_ie_list wp_ies = {
+        .us      = true,
+        .netname = true,
+        // TODO: POM-IE
+    };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
-    int offset;
 
     frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PAS);
     if (!frame_ctx)
@@ -339,14 +368,7 @@ void ws_if_send_pas(struct ws_ctx *ws)
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
-    ws_wh_utt_write(&iobuf, WS_FT_PAS);
-    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
-
-    // TODO: POM-IE
-    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&iobuf, &ws->fhss);
-    ws_wp_nested_netname_write(&iobuf, ws->netname);
-    ieee802154_ie_fill_len_payload(&iobuf, offset);
+    ws_write_ies(ws, &iobuf, WS_FT_PAS, &wh_ies, &wp_ies, 0);
 
     TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(WS_FT_PAS));
     rcp_req_data_tx(&ws->rcp,
@@ -368,9 +390,16 @@ void ws_if_send_pcs(struct ws_ctx *ws)
         .src          = ws->rcp.eui64,
         .key_index    = ws->gak_index,
     };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+    };
+    struct wp_ie_list wp_ies = {
+        .us      = true,
+        .netname = true,
+        // TODO: POM-IE
+    };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
-    int offset;
 
     frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PCS);
     if (!frame_ctx)
@@ -379,13 +408,7 @@ void ws_if_send_pcs(struct ws_ctx *ws)
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
-    ws_wh_utt_write(&iobuf, WS_FT_PCS);
-    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
-
-    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&iobuf, &ws->fhss);
-    ws_wp_nested_netname_write(&iobuf, ws->netname);
-    ieee802154_ie_fill_len_payload(&iobuf, offset);
+    ws_write_ies(ws, &iobuf, WS_FT_PCS, &wh_ies, &wp_ies, 0);
 
     TRACE(TR_15_4_MNGT, "tx-15.4 %-9s panid:0x%x", tr_ws_frame(WS_FT_PCS), ws->pan_id);
     rcp_req_data_tx(&ws->rcp,
