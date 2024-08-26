@@ -81,15 +81,12 @@ struct kmp_service {
     kmp_service_event_if_event_send    *event_send;             /**< Callback to send event */
     kmp_service_shared_comp_add        *shared_comp_add;        /**< Callback to shared component add */
     kmp_service_shared_comp_remove     *shared_comp_remove;     /**< Callback to shared component remove */
-    ns_list_link_t                     link;                    /**< Link */
 };
 
 typedef struct kmp_pdu {
     uint8_t kmp_id;               /**< Kmp id */
     uint8_t kmp_data;             /**< Kmp data e.g. eapol frame */
 } kmp_pdu_t;
-
-static NS_LIST_DEFINE(kmp_service_list, kmp_service_t, link);
 
 // KMP instance identifier value
 static uint8_t kmp_instance_identifier = 0;
@@ -470,8 +467,6 @@ kmp_service_t *kmp_service_create(void)
     service->shared_comp_add = NULL;
     service->shared_comp_remove = NULL;
 
-    ns_list_add_to_start(&kmp_service_list, service);
-
     return service;
 }
 
@@ -481,23 +476,16 @@ int8_t kmp_service_delete(kmp_service_t *service)
         return -1;
     }
 
-    ns_list_foreach_safe(kmp_service_t, list_entry, &kmp_service_list) {
-        if (list_entry == service) {
-            ns_list_foreach_safe(kmp_sec_prot_entry_t, sec_list_entry, &list_entry->sec_prot_list) {
-                ns_list_remove(&list_entry->sec_prot_list, sec_list_entry);
-                free(sec_list_entry);
-            }
-            ns_list_foreach_safe(kmp_msg_if_entry_t, msg_if_list_entry, &list_entry->msg_if_list) {
-                ns_list_remove(&list_entry->msg_if_list, msg_if_list_entry);
-                free(msg_if_list_entry);
-            }
-            ns_list_remove(&kmp_service_list, list_entry);
-            free(list_entry);
-            return 0;
-        }
+    ns_list_foreach_safe(kmp_sec_prot_entry_t, sec_list_entry, &service->sec_prot_list) {
+        ns_list_remove(&service->sec_prot_list, sec_list_entry);
+        free(sec_list_entry);
     }
-
-    return -1;
+    ns_list_foreach_safe(kmp_msg_if_entry_t, msg_if_list_entry, &service->msg_if_list) {
+        ns_list_remove(&service->msg_if_list, msg_if_list_entry);
+        free(msg_if_list_entry);
+    }
+    free(service);
+    return 0;
 }
 
 static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
