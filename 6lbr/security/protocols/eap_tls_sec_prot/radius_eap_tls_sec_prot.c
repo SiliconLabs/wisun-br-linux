@@ -273,9 +273,14 @@ static int8_t radius_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap
 static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *prot, uint8_t *eap_code)
 {
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
+    uint16_t eap_pdu_len;
+    uint8_t *eap_pdu;
 
-    uint16_t eap_pdu_len = data->recv_eap_msg_len - prot->receive_peer_hdr_size;
-    uint8_t *eap_pdu = data->recv_eap_msg + prot->receive_peer_hdr_size;
+    if (data->recv_eap_msg_len < prot->receive_peer_hdr_size)
+        return -1;
+
+    eap_pdu_len = data->recv_eap_msg_len - prot->receive_peer_hdr_size;
+    eap_pdu = data->recv_eap_msg + prot->receive_peer_hdr_size;
 
     if (eap_pdu_len < 4) {
         return -1;
