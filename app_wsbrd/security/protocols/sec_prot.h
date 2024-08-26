@@ -59,12 +59,6 @@ typedef enum {
     SEC_PROT_TYPE_RADIUS_CLIENT
 } sec_prot_type_e;
 
-typedef enum {
-    SEC_PROT_TX_OK = 0,                       // Successful
-    SEC_PROT_TX_ERR_TX_NO_ACK = -1,           // No acknowledge was received
-    SEC_PROT_TX_ERR_UNSPEC = -2,              // Other reason
-} sec_prot_tx_status_e;
-
 /**
  * An alias to make cast and function declarations easier
  */
@@ -188,18 +182,6 @@ typedef int8_t sec_prot_conn_receive(sec_prot_t *prot, const void *pdu, uint16_t
  *
  */
 typedef int8_t sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
-
-/**
- * sec_prot_tx_status_ind tx status indication
- *
- * \param prot protocol
- * \param tx_status tx status
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-typedef int8_t sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e tx_status);
 
 /**
  * sec_prot_release delete the protocol data
@@ -378,8 +360,6 @@ struct sec_prot {
     sec_prot_conn_receive         *conn_receive;         /**< Protocol connection receive */
     sec_prot_receive              *receive_peer;         /**< Protocol receive from peer (used by peer protocol for send) */
     sec_prot_release              *peer_deleted;         /**< Protocol peer has been deleted (notifies that peer no longer exists */
-
-    sec_prot_tx_status_ind        *tx_status_ind;        /**< TX status indication */
 
     sec_prot_release              *release;               /**< Protocol delete */
 
