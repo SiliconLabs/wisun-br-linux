@@ -122,11 +122,6 @@ void sec_prot_keys_pmk_mismatch_reset(sec_prot_keys_t *sec_keys)
     sec_keys->pmk_mismatch = false;
 }
 
-bool sec_prot_keys_pmk_mismatch_is_set(sec_prot_keys_t *sec_keys)
-{
-    return sec_keys->pmk_mismatch;
-}
-
 bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds)
 {
     if (!sec_keys->pmk_set) {

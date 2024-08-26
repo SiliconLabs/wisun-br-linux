@@ -231,16 +231,6 @@ bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys);
 void sec_prot_keys_pmk_mismatch_reset(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_pmk_mismatch_is_set check if PMK mismatch is set
- *
- * \param sec_keys security keys
- *
- * \return TRUE or FALSE
- *
- */
-bool sec_prot_keys_pmk_mismatch_is_set(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_pmk_lifetime_decrement decrements PMK lifetime
  *
  * \param sec_keys security keys
