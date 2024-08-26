@@ -298,7 +298,7 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
 
 void sig_error_handler(int signal)
 {
-    __PRINT(91, "bug: %s", sigdescr_np(signal));
+    __PRINT(91, "bug: %s", strsignal(signal));
     backtrace_show();
     raise(signal);
 }

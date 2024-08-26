@@ -480,7 +480,7 @@ void kill_handler(int signal)
 
 void sig_error_handler(int signal)
 {
-     __PRINT(91, "bug: %s", sigdescr_np(signal));
+     __PRINT(91, "bug: %s", strsignal(signal));
     backtrace_show();
     raise(signal);
 }
