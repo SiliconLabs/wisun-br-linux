@@ -217,7 +217,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/security/eapol/kde_helper.c
     app_wsbrd/security/kmp/kmp_addr.c
     app_wsbrd/security/kmp/kmp_api.c
-    app_wsbrd/security/kmp/kmp_eapol_pdu_if.c
     app_wsbrd/security/kmp/kmp_socket_if.c
     app_wsbrd/security/pana/pana_eap_header.c
     app_wsbrd/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
