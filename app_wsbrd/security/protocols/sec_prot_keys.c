@@ -96,15 +96,6 @@ uint8_t *sec_prot_keys_pmk_get(sec_prot_keys_t *sec_keys)
     return sec_keys->pmk;
 }
 
-uint32_t sec_prot_keys_pmk_lifetime_get(sec_prot_keys_t *sec_keys)
-{
-    if (!sec_keys->pmk_set) {
-        return 0;
-    }
-
-    return sec_keys->pmk_lifetime;
-}
-
 uint64_t sec_prot_keys_pmk_replay_cnt_get(sec_prot_keys_t *sec_keys)
 {
     return sec_keys->pmk_key_replay_cnt;

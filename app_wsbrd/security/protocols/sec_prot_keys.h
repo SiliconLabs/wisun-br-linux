@@ -202,16 +202,6 @@ void sec_prot_keys_pmk_delete(sec_prot_keys_t *sec_keys);
 uint8_t *sec_prot_keys_pmk_get(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_pmk_lifetime_get Pairwise Master Key lifetime
- *
- * \param sec_keys security keys
- *
- * \return PMK lifetime
- *
- */
-uint32_t sec_prot_keys_pmk_lifetime_get(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_pmk_replay_cnt_get gets PMK replay counter value
  *
  * \param sec_keys security keys
