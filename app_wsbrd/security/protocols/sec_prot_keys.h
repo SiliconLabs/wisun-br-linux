@@ -138,11 +138,8 @@ typedef struct sec_prot_keys_storage {
     unsigned               ins_lgtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
-    bool                   pmk_lifetime_set: 1;       /**< PMK lifetime (short time format) */
-    bool                   ptk_lifetime_set: 1;       /**< PTK lifetime (short time format) */
     bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */
     bool                   ptk_eui_64_set: 1;         /**< Remote EUI-64 used to derive PTK is set */
-    bool                   eui_64_set: 1;             /**< Remote EUI-64 is set */
 } sec_prot_keys_storage_t;
 
 // Security keys (GTKs) and needed network information
