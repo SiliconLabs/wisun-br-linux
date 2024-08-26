@@ -212,7 +212,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
 
     if (kmp_service_cb_register(pae_auth->kmp_service,
                                 ws_pae_auth_kmp_incoming_ind,
-                                NULL,
                                 ws_pae_auth_kmp_service_addr_get,
                                 ws_pae_auth_kmp_service_ip_addr_get,
                                 ws_pae_auth_kmp_service_api_get)) {

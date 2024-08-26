@@ -71,7 +71,6 @@ struct kmp_service {
     kmp_sec_prot_list_t                sec_prot_list;           /**< Security protocols list */
     kmp_msg_if_list_t                  msg_if_list;             /**< Message interface list */
     kmp_service_incoming_ind           *incoming_ind;           /**< Callback to application to indicate incoming KMP frame */
-    kmp_service_tx_status_ind          *tx_status_ind;          /**< Callback to application to indicate TX status */
     kmp_service_addr_get               *addr_get;               /**< Callback to get addresses related to KMP */
     kmp_service_ip_addr_get            *ip_addr_get;            /**< Callback to get IP addresses related to KMP */
     kmp_service_api_get                *api_get;                /**< Callback to get KMP API from a service */
@@ -459,7 +458,6 @@ kmp_service_t *kmp_service_create(void)
     ns_list_init(&service->sec_prot_list);
     ns_list_init(&service->msg_if_list);
     service->incoming_ind = 0;
-    service->tx_status_ind = 0;
     service->addr_get = 0;
     service->api_get = 0;
     service->shared_comp_add = NULL;
@@ -492,14 +490,13 @@ static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
     kmp->service->event_send(kmp->service, prot);
 }
 
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_ip_addr_get *ip_addr_get, kmp_service_api_get *api_get)
+int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_addr_get *addr_get, kmp_service_ip_addr_get *ip_addr_get, kmp_service_api_get *api_get)
 {
     if (!service) {
         return -1;
     }
 
     service->incoming_ind = incoming_ind;
-    service->tx_status_ind = tx_status_ind;
     service->addr_get = addr_get;
     service->ip_addr_get = ip_addr_get;
     service->api_get = api_get;

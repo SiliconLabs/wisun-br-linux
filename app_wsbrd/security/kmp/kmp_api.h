@@ -303,17 +303,6 @@ int8_t kmp_service_delete(kmp_service_t *service);
 typedef kmp_api_t *kmp_service_incoming_ind(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 
 /**
- * kmp_service_tx_status_ind Notifies application about TX status
- *
- * \param service KMP service
- * \param instance_id KMP instance identifier
- *
- * \return KMP instance or NULL
- *
- */
-typedef kmp_api_t *kmp_service_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
-
-/**
  * kmp_service_addr_get gets addressing information related to KMP
  *
  * \param service KMP service
@@ -351,7 +340,6 @@ typedef kmp_api_t *kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, k
  *
  * \param service KMP service
  * \param incoming_ind incoming message callback
- * \param tx_status tx status callback
  * \param addr_get gets addressing information callback
  * \param ip_addr_get gets IP addressing information callback
  * \param api_get gets KMP API from KMP service
@@ -362,7 +350,6 @@ typedef kmp_api_t *kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, k
  */
 int8_t kmp_service_cb_register(kmp_service_t *service,
                                kmp_service_incoming_ind *incoming_ind,
-                               kmp_service_tx_status_ind *tx_status_ind,
                                kmp_service_addr_get *addr_get,
                                kmp_service_ip_addr_get *ip_addr_get,
                                kmp_service_api_get *api_get);
