@@ -692,16 +692,6 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks);
 int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 
 /**
- * sec_prot_keys_gtk_count counts GTK keys
- *
- * \param gtks GTK keys
- *
- * \return count of keys, 0 for no keys
- *
- */
-uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks);
-
-/**
  * sec_prot_keys_ptk_installed_gtk_hash_clear_all clear GTK hashes of the GTKs that has been installed
  *                                                to supplicant using the PTK
  * \param sec_keys security keys

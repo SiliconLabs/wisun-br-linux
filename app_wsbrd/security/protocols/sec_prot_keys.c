@@ -670,19 +670,6 @@ int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks, bool is_lg
     return install_index;
 }
 
-uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
-{
-    uint8_t count = 0;
-
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
-        if (sec_prot_keys_gtk_is_set(gtks, i)) {
-            count++;
-        }
-    }
-
-    return count;
-}
-
 void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_t *sec_gtks)
 {
     for (uint8_t index = 0; index < GTK_NUM; index++) {
