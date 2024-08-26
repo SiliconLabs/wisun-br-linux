@@ -32,10 +32,11 @@
 // RFC 6282 - 3.2.1. Traffic Class and Flow Label Compression
 static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
 {
-    uint32_t flow, tmp;
+    uint32_t flow = 0;
     uint8_t tclass = 0;
     uint8_t dscp = 0;
-    uint8_t ecn;
+    uint8_t ecn = 0;
+    uint32_t tmp;
 
     switch (FIELD_GET(LOWPAN_MASK_IPHC_TF, base)) {
     case 0b00:
