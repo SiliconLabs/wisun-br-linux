@@ -58,12 +58,6 @@ typedef enum {
     KMP_RESULT_ERR_TX_UNSPEC = -3         // Other TX reason
 } kmp_result_e;
 
-typedef enum {
-    KMP_TX_OK = 0,                         // Successful
-    KMP_TX_ERR_TX_NO_ACK = -1,             // No acknowledge was received
-    KMP_TX_ERR_UNSPEC = -2,                // Other reason
-} kmp_tx_status_e;
-
 typedef void kmp_sec_keys_t;
 typedef struct sec_prot sec_prot_t;
 typedef struct kmp_api kmp_api_t;
@@ -423,19 +417,6 @@ typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_
  */
 int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id,
                                    kmp_service_msg_if_send *send, uint8_t header_size);
-
-/**
- * kmp_service_tx_status tx status indication
- *
- * \param service KMP service
- * \param tx_status tx status
- * \param tx_identifier tx identifier
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_tx_status_indication(kmp_service_t *service, kmp_tx_status_e tx_status, uint8_t tx_identifier);
 
 /**
  * kmp_sec_prot_size security protocol data size

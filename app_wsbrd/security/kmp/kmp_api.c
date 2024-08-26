@@ -574,36 +574,6 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, k
     return ret;
 }
 
-int8_t kmp_service_tx_status_indication(kmp_service_t *service, kmp_tx_status_e tx_status, uint8_t tx_identifier)
-{
-    if (!service || !service->tx_status_ind) {
-        return -1;
-    }
-
-    // Application can use the tx_identifier to match the TX status indication to kmp
-    kmp_api_t *kmp = (kmp_api_t *) service->tx_status_ind(service, tx_identifier);
-    if (!kmp) {
-        return -1;
-    }
-
-    // Security protocol has disabled message receiving or tx status indication is not set
-    if (kmp->receive_disable || !kmp->sec_prot.tx_status_ind) {
-        return -1;
-    }
-
-    sec_prot_tx_status_e sec_prot_tx_status;
-    if (tx_status == KMP_TX_OK) {
-        sec_prot_tx_status = SEC_PROT_TX_OK;
-    } else if (tx_status == KMP_TX_ERR_TX_NO_ACK) {
-        sec_prot_tx_status = SEC_PROT_TX_ERR_TX_NO_ACK;
-    } else {
-        sec_prot_tx_status = SEC_PROT_TX_ERR_UNSPEC;
-    }
-
-    int8_t ret = kmp->sec_prot.tx_status_ind(&kmp->sec_prot, sec_prot_tx_status);
-    return ret;
-}
-
 int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type, kmp_sec_prot_size *size, kmp_sec_prot_init *init)
 {
     if (!service) {
