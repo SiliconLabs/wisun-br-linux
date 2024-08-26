@@ -174,14 +174,6 @@ typedef enum {
 void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs);
 
 /**
- * sec_prot_keys_gtks_delete frees GTK keys memory
- *
- * \param gtks GTK keys
- *
- */
-void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks);
-
-/**
  * sec_prot_keys_pmk_write writes Pairwise Master Key
  *
  * \param sec_keys security keys

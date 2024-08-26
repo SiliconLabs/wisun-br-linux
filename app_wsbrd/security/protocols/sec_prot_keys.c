@@ -64,11 +64,6 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, se
     sec_prot_keys_ptk_installed_gtk_hash_clear_all(&sec_keys->lgtks);
 }
 
-void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks)
-{
-    free(gtks);
-}
-
 void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk, uint32_t pmk_lifetime)
 {
     memcpy(sec_keys->pmk, pmk, PMK_LEN);
