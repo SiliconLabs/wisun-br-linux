@@ -33,7 +33,7 @@ static void trickle_interval_begin(struct trickle *tkl)
     t_ms = randf_range(tkl->I_ms / 2, tkl->I_ms);
     timer_start_rel(NULL, &tkl->timer_transmit, t_ms);
     timer_start_rel(NULL, &tkl->timer_interval, tkl->I_ms);
-    TRACE(TR_TRICKLE, "tkl %-4s begin : t=%us I[%u,%u]=%us", tkl->debug_name,
+    TRACE(TR_TRICKLE, "tkl %-4s begin: t=%us I[%u,%u]=%us", tkl->debug_name,
           t_ms / 1000, tkl->cfg->Imin_ms / 1000, tkl->cfg->Imax_ms / 1000, tkl->I_ms / 1000);
 }
 
@@ -64,7 +64,7 @@ static void trickle_transmit(struct timer_group *group, struct timer_entry *time
      * the redundancy constant k.
      */
     tx = !tkl->cfg->k || tkl->c < tkl->cfg->k;
-    TRACE(TR_TRICKLE, "tkl %4s %5s: c=%u k=%d", tkl->debug_name,
+    TRACE(TR_TRICKLE, "tkl %-4s %-5s: c=%u k=%d", tkl->debug_name,
           tx ? "tx" : "skip", tkl->c, tkl->cfg->k);
 
     if (tx && tkl->on_transmit)
@@ -96,6 +96,7 @@ void trickle_stop(struct trickle *tkl)
 {
     timer_stop(NULL, &tkl->timer_interval);
     timer_stop(NULL, &tkl->timer_transmit);
+    TRACE(TR_TRICKLE, "tkl %-4s stop", tkl->debug_name);
 }
 
 void trickle_consistent(struct trickle *tkl)
