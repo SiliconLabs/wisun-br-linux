@@ -113,7 +113,7 @@ static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,
 }
 
 static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
-                     const uint8_t *buf, size_t buf_len,
+                     const void *buf, size_t buf_len,
                      const struct in6_addr *dst)
 {
     uint8_t icmpv6_hdr[4] = { ICMPV6_TYPE_RPL, code }; // Checksum filled by kernel
@@ -137,6 +137,13 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
     ret = sendmsg(ipv6->rpl.fd, &msg, 0);
     if (ret < sizeof(icmpv6_hdr) + buf_len)
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
+}
+
+static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
+{
+    struct rpl_dis_base dis_base = { };
+
+    rpl_send(ipv6, RPL_CODE_DIS, &dis_base, sizeof(dis_base), dst);
 }
 
 static void rpl_send_dao(struct rfc8415_txalg *txalg)

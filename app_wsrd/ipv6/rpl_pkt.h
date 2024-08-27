@@ -20,6 +20,12 @@
 
 #include "common/endian.h"
 
+// RFC 6550 Figure 13: The DIS Base Object
+struct rpl_dis_base {
+    uint8_t flags;
+    uint8_t reserved;
+} __attribute__((packed));
+
 // RFC 6550 Figure 14: The DIO Base Object
 struct rpl_dio_base {
     uint8_t instance_id;
