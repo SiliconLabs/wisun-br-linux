@@ -484,10 +484,9 @@ if(COMPILE_DEVTOOLS)
     endif()
     install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-    add_executable(silabs-ws-dc
+    add_library(libdc STATIC
         version.c
         tools/silabs-ws-dc/dc.c
-        tools/silabs-ws-dc/main.c
         tools/silabs-ws-dc/commandline.c
         common/ipv6/ipv6_addr.c
         common/bits.c
@@ -517,14 +516,18 @@ if(COMPILE_DEVTOOLS)
         common/ws_regdb.c
         common/ws_chan_mask.c
     )
-    target_include_directories(silabs-ws-dc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_options(silabs-ws-dc PUBLIC -Wl,--wrap=time) # Required by common/capture.c
-    target_link_libraries(silabs-ws-dc PUBLIC PkgConfig::LIBNL_ROUTE)
+
+    target_include_directories(libdc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_options(libdc PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+    target_link_libraries(libdc PUBLIC PkgConfig::LIBNL_ROUTE)
     if(LIBCPC_FOUND)
-        target_compile_definitions(silabs-ws-dc PRIVATE HAVE_LIBCPC)
-        target_sources(silabs-ws-dc PRIVATE common/bus_cpc.c)
-        target_link_libraries(silabs-ws-dc PRIVATE cpc)
+        target_compile_definitions(libdc PRIVATE HAVE_LIBCPC)
+        target_sources(libdc PRIVATE common/bus_cpc.c)
+        target_link_libraries(libdc PRIVATE cpc)
     endif()
+    add_executable(silabs-ws-dc tools/silabs-ws-dc/main.c)
+    add_dependencies(silabs-ws-dc libdc)
+    target_link_libraries(silabs-ws-dc libdc)
     install(TARGETS silabs-ws-dc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     if(ns3_FOUND)
@@ -571,6 +574,29 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=__tr_printf
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+        set_property(TARGET libdc PROPERTY POSITION_INDEPENDENT_CODE ON)
+        add_library(dc-ns3 SHARED
+            tools/simulation/dc_ns3.cpp
+            tools/simulation/dc_time.cpp
+            tools/simulation/dc_uart.cpp
+        )
+        # Prevent conflict with bitand()
+        target_compile_options(dc-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
+        target_include_directories(dc-ns3 PRIVATE ${NS3_INCLUDE_DIRECTORIES})
+        target_link_libraries(dc-ns3 libdc)
+        target_link_libraries(dc-ns3 Threads::Threads)
+        target_link_options(dc-ns3 PRIVATE
+            -Wl,--wrap=uart_open
+            -Wl,--wrap=writev
+            -Wl,--wrap=timerfd_create
+            -Wl,--wrap=timerfd_settime
+            -Wl,--wrap=clock_gettime
+            -Wl,--wrap=signal
+            -Wl,--wrap=exit
+            -Wl,--wrap=__tr_printf
+        )
+        install(TARGETS dc-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
         set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsrd-ns3 SHARED

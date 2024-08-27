@@ -27,6 +27,8 @@ struct dc {
     struct in6_addr addr_linklocal;
 };
 
+extern struct dc g_dc;
+
 int dc_main(int argc, char *argv[]);
 
 #endif
