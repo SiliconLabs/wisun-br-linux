@@ -103,6 +103,11 @@ struct wsrd g_wsrd = {
     .ws.pcs_tkl.on_transmit = ws_send_pcs,
     .ws.pan_selection_timer.callback = ws_on_pan_selection_timer_timeout,
 
+    // Arbitrary parameters
+    .ws.ipv6.rpl.dis_txalg.irt_s = 5,
+    .ws.ipv6.rpl.dis_txalg.mrt_s = 180,
+    .ws.ipv6.rpl.dis_txalg.rand_min = -0.5,
+    .ws.ipv6.rpl.dis_txalg.rand_max =  0.0,
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ws.ipv6.rpl.dao_txalg.irt_s = 3,
     .ws.ipv6.rpl.dao_txalg.mrc   = 3,

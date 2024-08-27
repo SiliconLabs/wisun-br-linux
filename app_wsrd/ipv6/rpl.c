@@ -27,6 +27,7 @@
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
+#include "common/ws_neigh.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 #include "app_wsrd/ipv6/rpl_mrhof.h"
@@ -144,6 +145,43 @@ static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
     struct rpl_dis_base dis_base = { };
 
     rpl_send(ipv6, RPL_CODE_DIS, &dis_base, sizeof(dis_base), dst);
+}
+
+static void rpl_trig_dis(struct rfc8415_txalg *txalg)
+{
+    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dis_txalg);
+    struct in6_addr dst = ipv6_prefix_linklocal;
+    struct ipv6_neigh *nce;
+    struct ws_neigh *neigh;
+    int cnt = 0;
+
+    /*
+     *   Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
+     * A Router MAY wait for DIO messages, MAY solicit a DIO by issuing a
+     * unicast DIS to a likely neighbor, or MAY solicit a DIO by issuing a
+     * multicast DIS (as described in [RFC6550]).
+     *
+     * NOTE: This implementation sends unicast DIS packets to a limited
+     * number of neighboring nodes.
+     */
+    SLIST_FOREACH(neigh, &ipv6->rpl.mrhof.ws_neigh_table->neigh_list, link) {
+        nce = ipv6_neigh_get_from_eui64(ipv6, neigh->mac64);
+        if (nce && nce->rpl)
+            continue;
+
+        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->mac64);
+        rpl_send_dis(ipv6, &dst);
+
+        if (++cnt >= 4) // Arbitrary limit to not flood the network
+            break;
+    }
+    if (!cnt)
+        rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
+}
+
+void rpl_start_dis(struct ipv6_ctx *ipv6)
+{
+    rfc8415_txalg_start(&ipv6->rpl.dis_txalg);
 }
 
 static void rpl_send_dao(struct rfc8415_txalg *txalg)
@@ -312,6 +350,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     else
         rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
 
+    rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
+
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
 
@@ -450,6 +490,8 @@ void rpl_start(struct ipv6_ctx *ipv6)
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
     ipv6->rpl.mrhof.cur_min_path_cost = ipv6->rpl.mrhof.max_path_cost;
 
+    ipv6->rpl.dis_txalg.tx = rpl_trig_dis;
+    rfc8415_txalg_init(&ipv6->rpl.dis_txalg);
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
 

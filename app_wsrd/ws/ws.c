@@ -32,6 +32,7 @@
 #include "common/ws_types.h"
 #include "common/time_extra.h"
 #include "app_wsrd/ipv6/6lowpan.h"
+#include "app_wsrd/ipv6/ipv6_addr.h"
 
 #include "ws.h"
 
@@ -418,6 +419,8 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
         if (!supp_has_gtk(&ws->supp, gtkhash[i], i + 1))
             supp_start_key_request(&ws->supp);
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
+    if (ws->pan_version < 0)
+        rpl_start_dis(&ws->ipv6);
     if (ws->pan_version != pan_version) {
         ws->pan_version = pan_version;
         trickle_stop(&ws->pcs_tkl);

@@ -39,6 +39,7 @@ struct rpl_neigh {
 struct rpl_ctx {
     int fd;
 
+    struct rfc8415_txalg dis_txalg;
     struct rfc8415_txalg dao_txalg;
     uint8_t dao_seq;
     struct rpl_mrhof mrhof;
@@ -46,6 +47,7 @@ struct rpl_ctx {
 
 void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
+void rpl_start_dis(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
