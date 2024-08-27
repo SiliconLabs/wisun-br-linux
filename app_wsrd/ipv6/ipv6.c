@@ -32,6 +32,17 @@
 #include "app_wsrd/ipv6/ipv6_addr.h"
 #include "ipv6.h"
 
+/*
+ * NOTE: The standard struct icmp6_hdr from netinet/icmp6.h contains extra
+ * fields to cover common payloads such as ICMP ping and ND packets, which
+ * prevents using sizeof() to retrieve only the header.
+ */
+struct icmpv6_hdr {
+    uint8_t type;
+    uint8_t code;
+    be16_t  cksum;
+} __attribute__((packed));
+
 void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 {
     BUG_ON(!ipv6->sendto_mac);
@@ -62,7 +73,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
     const struct ip6_rthdr *rthdr;
-    struct icmp6_hdr icmp;
+    struct icmpv6_hdr icmp;
     struct ip6_hdr hdr;
     ssize_t ret;
 
@@ -116,7 +127,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         break;
     case IPPROTO_ICMPV6:
         pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
-        switch (icmp.icmp6_type) {
+        switch (icmp.type) {
         case ICMP6_DST_UNREACH:
         case ICMP6_PACKET_TOO_BIG:
         case ICMP6_TIME_EXCEEDED:
@@ -127,7 +138,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
             break;
         // TODO: NS/NA
         default:
-            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp.icmp6_type);
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp.type);
             return;
         }
         pktbuf_push_head(pktbuf, &icmp, sizeof(icmp));
@@ -254,7 +265,7 @@ static bool ipv6_is_exthdr(uint8_t ipproto)
 static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
 {
     const struct ip6_ext *ext;
-    struct icmp6_hdr icmp;
+    struct icmpv6_hdr icmp;
     struct ip6_hdr hdr;
     size_t offset_head;
     uint8_t ipproto;
@@ -288,7 +299,7 @@ static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
         break;
     case IPPROTO_ICMPV6:
         pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
-        switch (icmp.icmp6_type) {
+        switch (icmp.type) {
         case ICMP6_DST_UNREACH:
         case ICMP6_PACKET_TOO_BIG:
         case ICMP6_TIME_EXCEEDED:
@@ -298,7 +309,7 @@ static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
         case ICMPV6_TYPE_RPL:
             break;
         default:
-            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "tun", icmp.icmp6_type);
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "tun", icmp.type);
             return false;
         }
         break;
