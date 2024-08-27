@@ -228,7 +228,9 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
 
     trickle_stop(&ws->pas_tkl);
     memcpy(ws->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
+    // TODO: reset PAN ID when transitioning to join state 1
     ws->pan_id = selected_pan_id;
+    rcp_set_filter_pan_id(&ws->rcp, ws->pan_id);
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
          tr_eui64(selected_candidate->mac64), selected_candidate->pan_id,
