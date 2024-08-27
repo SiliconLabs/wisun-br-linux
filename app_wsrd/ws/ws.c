@@ -445,6 +445,39 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
                         ind->neigh->frame_counter_min);
 }
 
+static void ws_recv_pcs(struct ws_ctx *ws, struct ws_ind *ind)
+{
+    struct ws_utt_ie ie_utt;
+    struct ws_us_ie ie_us;
+
+    if (ind->hdr.pan_id == 0xffff) {
+        TRACE(TR_DROP, "drop %s: missing PAN ID", "15.4");
+        return;
+    }
+    if (ws->pan_id != 0xffff && ws->pan_id != ind->hdr.pan_id) {
+        TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
+        return;
+    }
+    if (!ws_ie_validate_netname(ws, &ind->ie_wp))
+        return;
+    if (!ws_ie_validate_us(ws, &ind->ie_wp, &ie_us))
+        return;
+
+    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
+
+    /*
+     *   Wi-SUN FAN 1.1v08 - 6.3.4.6.3.1 Usage of Trickle Timers
+     * A consistent transmission is defined as a PAN Configuration Solicit with
+     * a PAN-ID matching that of the receiving FFN and a NETNAME-IE / Network
+     * Name matching that configured on the receiving FFN.
+     */
+    trickle_consistent(&ws->pcs_tkl);
+}
+
 void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
 {
     struct ws_utt_ie ie_utt;
@@ -622,6 +655,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
         break;
     case WS_FT_PC:
         ws_recv_pc(ws, &ind);
+        break;
+    case WS_FT_PCS:
+        ws_recv_pcs(ws, &ind);
         break;
     case WS_FT_DATA:
         ws_recv_data(ws, &ind);
