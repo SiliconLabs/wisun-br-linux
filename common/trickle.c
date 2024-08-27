@@ -47,7 +47,7 @@ static void trickle_interval_done(struct timer_group *group, struct timer_entry 
      * Imax, Trickle sets the interval length I to be the time specified by
      * Imax.
      */
-    tkl->I_ms = MAX(tkl->I_ms * 2, tkl->cfg->Imax_ms);
+    tkl->I_ms = MIN(tkl->I_ms * 2, tkl->cfg->Imax_ms);
     trickle_interval_begin(tkl);
 
     if (tkl->on_interval_done)
