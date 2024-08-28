@@ -445,6 +445,13 @@ static void conf_set_key(struct wsbrd_conf *config, const struct storage_parse_i
     dest->key_len = ret;
 }
 
+static void conf_set_eui64(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    BUG_ON(raw_param);
+    if (parse_byte_array(raw_dest, 8, info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+}
+
 static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     BUG_ON(raw_param);
@@ -546,6 +553,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
+        { "mac_address",                   config->ws_mac_address,                    conf_set_eui64,       NULL },
         { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
         { "async_frag_duration",           &config->ws_async_frag_duration,           conf_set_number,      &valid_async_frag_duration },
@@ -654,6 +662,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->rpl_compat = true;
     config->rpl_rpi_ignorable = false;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
+    memset(config->ws_mac_address, 0xff, sizeof(config->ws_mac_address));
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
