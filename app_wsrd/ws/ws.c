@@ -815,7 +815,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
 
     iobuf_push_data_reserved(&iobuf, 8); // MIC-64
 
-    // TODO: store frame and wait for confirmation
+    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_DATA), tr_eui64(dst));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
@@ -874,7 +874,7 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     iobuf_push_data(&iobuf, pkt, pkt_len);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
-    // TODO: store frame and wait for confirmation
+    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_EAPOL), tr_eui64(dst));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
@@ -914,7 +914,7 @@ void ws_send_pas(struct trickle *tkl)
     ws_wp_nested_netname_write(&iobuf, ws->netname);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
-    // TODO: store frame and wait for confirmation
+    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(WS_FT_PAS));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
@@ -953,6 +953,7 @@ void ws_send_pcs(struct trickle *tkl)
     ws_wp_nested_netname_write(&iobuf, ws->netname);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
+    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s panid:0x%x", tr_ws_frame(WS_FT_PCS), ws->pan_id);
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
