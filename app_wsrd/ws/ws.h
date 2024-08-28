@@ -49,6 +49,7 @@ struct ws_ctx {
 
     struct trickle pas_tkl;
     struct timer_entry pan_selection_timer;
+    struct trickle pcs_tkl;
 
     uint8_t  seqno;
     uint8_t  handle_next;
@@ -71,5 +72,6 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer);
 void ws_on_pas_interval_done(struct trickle *tkl);
 void ws_send_pas(struct trickle *tkl);
+void ws_send_pcs(struct trickle *tkl);
 
 #endif

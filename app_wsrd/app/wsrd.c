@@ -98,6 +98,9 @@ struct wsrd g_wsrd = {
     .ws.pas_tkl.debug_name  = "pas",
     .ws.pas_tkl.on_transmit = ws_send_pas,
     .ws.pas_tkl.on_interval_done = ws_on_pas_interval_done,
+    .ws.pcs_tkl.cfg         = &g_wsrd.config.disc_cfg,
+    .ws.pcs_tkl.debug_name  = "pcs",
+    .ws.pcs_tkl.on_transmit = ws_send_pcs,
     .ws.pan_selection_timer.callback = ws_on_pan_selection_timer_timeout,
 
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
@@ -204,6 +207,8 @@ static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t 
     if (gtk) {
         ws_generate_gak(ws->netname, gtk, gak);
         rcp_set_sec_key(&ws->rcp, index, gak, 0);
+        if (ws->pan_version < 0)
+            trickle_start(&ws->pcs_tkl);
     } else {
         rcp_set_sec_key(&ws->rcp, index, NULL, 0);
     }
@@ -416,6 +421,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
     trickle_init(&wsrd->ws.pas_tkl);
+    trickle_init(&wsrd->ws.pcs_tkl);
     trickle_start(&wsrd->ws.pas_tkl);
     timer_start_rel(NULL, &wsrd->ws.pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }

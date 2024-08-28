@@ -420,6 +420,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
     if (ws->pan_version != pan_version) {
         ws->pan_version = pan_version;
+        trickle_stop(&ws->pcs_tkl);
         dbus_emit_change("PanVersion");
     }
 
@@ -638,7 +639,8 @@ static struct ws_frame_ctx *ws_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
 {
     struct ws_frame_ctx *cur, *new;
 
-    if (type == WS_FT_PAS && SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
+    if ((type == WS_FT_PAS || type == WS_FT_PCS) &&
+        SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
         WARN("%s tx overlap, consider increasing trickle Imin", tr_ws_frame(type));
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
         return NULL;
@@ -877,6 +879,44 @@ void ws_send_pas(struct trickle *tkl)
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
     // TODO: store frame and wait for confirmation
+    rcp_req_data_tx(&ws->rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    HIF_FHSS_TYPE_ASYNC,
+                    NULL, 0,
+                    NULL, 0);
+    iobuf_free(&iobuf);
+}
+
+void ws_send_pcs(struct trickle *tkl)
+{
+    struct ws_ctx *ws = container_of(tkl, struct ws_ctx, pcs_tkl);
+    struct ieee802154_hdr hdr = {
+        .frame_type   = IEEE802154_FRAME_TYPE_DATA,
+        .seqno        = -1,
+        .pan_id       = ws->pan_id,
+        .dst[0 ... 7] = 0xff,
+        .key_index    = ws->gak_index,
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    int offset;
+
+    frame_ctx = ws_frame_ctx_new(ws, WS_FT_PCS);
+    if (!frame_ctx)
+        return;
+    memcpy(frame_ctx->dst, hdr.dst, 8);
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_wh_utt_write(&iobuf, WS_FT_PCS);
+    ieee802154_ie_push_header(&iobuf, IEEE802154_IE_ID_HT1);
+
+    offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_WP);
+    ws_wp_nested_us_write(&iobuf, &ws->fhss);
+    ws_wp_nested_netname_write(&iobuf, ws->netname);
+    ieee802154_ie_fill_len_payload(&iobuf, offset);
+
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
