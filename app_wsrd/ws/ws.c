@@ -633,15 +633,18 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     }
 }
 
-static struct ws_frame_ctx *ws_frame_ctx_new(struct ws_ctx *ws)
+static struct ws_frame_ctx *ws_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
 {
     struct ws_frame_ctx *cur, *new;
 
-    if (SLIST_SIZE(&ws->frame_ctx_list, link) > UINT8_MAX)
+    if (SLIST_SIZE(&ws->frame_ctx_list, link) > UINT8_MAX) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: no handle available", tr_ws_frame(type));
         return NULL;
+    }
 
     new = zalloc(sizeof(*new));
     new->handle = ws->handle_next++;
+    new->type = type;
     // If next handle is already in use (unlikely), use the next available one.
     while (SLIST_FIND(cur, &ws->frame_ctx_list, link,
                       cur->handle == new->handle))
@@ -744,12 +747,9 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
         fhss_type = HIF_FHSS_TYPE_FFN_BC;
     }
 
-    frame_ctx = ws_frame_ctx_new(ws);
-    if (!frame_ctx) {
-        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+    frame_ctx = ws_frame_ctx_new(ws, WS_FT_DATA);
+    if (!frame_ctx)
         return -ENOMEM;
-    }
-    frame_ctx->type = WS_FT_DATA;
     memcpy(frame_ctx->dst, hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
@@ -807,12 +807,9 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
         return;
     }
 
-    frame_ctx = ws_frame_ctx_new(ws);
-    if (!frame_ctx) {
-        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+    frame_ctx = ws_frame_ctx_new(ws, WS_FT_EAPOL);
+    if (!frame_ctx)
         return;
-    }
-    frame_ctx->type = WS_FT_EAPOL;
     memcpy(hdr.dst, dst, 8);
     memcpy(frame_ctx->dst, hdr.dst, 8);
 
@@ -857,13 +854,9 @@ void ws_send_pas(struct trickle *tkl)
     struct iobuf_write iobuf = { };
     int offset;
 
-    frame_ctx = ws_frame_ctx_new(ws);
-    if (!frame_ctx) {
-        TRACE(TR_TX_ABORT, "tx-abort: frame handles exhausted");
+    frame_ctx = ws_frame_ctx_new(ws, WS_FT_PAS);
+    if (!frame_ctx)
         return;
-    }
-    frame_ctx->type = WS_FT_PAS;
-
     memcpy(frame_ctx->dst, hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
