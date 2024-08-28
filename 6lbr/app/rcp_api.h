@@ -91,6 +91,7 @@ void rcp_set_filter_src64(struct rcp *rcp,
                           const uint8_t eui64[][8],
                           uint8_t count,
                           bool allow);
+void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8]);
 
 // Exported for wsbrd-fuzz
 struct rcp_cmd {
