@@ -18,15 +18,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "common/ws_ie.h"
+#include "common/rcp_api.h"
 #include "common/trickle.h"
+#include "common/ws_ie.h"
 #include "common/ws_neigh.h"
 #include "common/ws_types.h"
 #include "app_wsrd/supplicant/supplicant.h"
 #include "app_wsrd/ipv6/ipv6.h"
-
-struct rcp_tx_cnf;
-struct rcp_rx_ind;
 
 // Frame sent to the RCP and waiting for a confirmation.
 struct ws_frame_ctx {
@@ -40,6 +38,8 @@ struct ws_frame_ctx {
 SLIST_HEAD(ws_frame_ctx_list, ws_frame_ctx);
 
 struct ws_ctx {
+    struct rcp rcp;
+
     char     netname[WS_NETNAME_LEN];
     uint16_t pan_id; // 0xffff if not set
     int pan_version; // -1 if not set

@@ -31,7 +31,6 @@
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
 #include "common/time_extra.h"
-#include "app_wsrd/app/wsrd.h" // FIXME: move rcp to ws_ctx
 #include "app_wsrd/ipv6/6lowpan.h"
 
 #include "ws.h"
@@ -177,8 +176,8 @@ static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp
 
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct wsrd *wsrd = container_of(timer, struct wsrd, ws.pan_selection_timer);
-    const struct rcp_rail_config *rail_config = &wsrd->rcp.rail_config_list[wsrd->ws.phy.rcp_rail_config_index];
+    struct ws_ctx *ws = container_of(timer, struct ws_ctx, pan_selection_timer);
+    const struct rcp_rail_config *rail_config = &ws->rcp.rail_config_list[ws->phy.rcp_rail_config_index];
     struct ws_neigh *selected_candidate = NULL;
     struct ws_neigh *candidate = NULL;
     uint16_t selected_pan_id;
@@ -194,7 +193,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
      * PAN Load Factor, and if possible, avoid joining a PAN with a PAN Load
      * Factor of 90% or higher.
      */
-    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
+    SLIST_FOREACH(candidate, &ws->neigh_table.neigh_list, link) {
         /*
          *   Wi-SUN FAN 1.1v08, 17 Appendix K EAPOL Target Selection
          * From the set of EAPOL candidates with an RSSI exceeding the threshold
@@ -218,7 +217,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     selected_pan_id = selected_candidate->pan_id;
 
     // Ensure we select the candidate with the lowest pan cost
-    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
+    SLIST_FOREACH(candidate, &ws->neigh_table.neigh_list, link) {
         if (!candidate->last_pa_rx_time_s || candidate->pan_id != selected_pan_id ||
             candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
             WS_CAND_PARENT_HYSTERESIS_DB)
@@ -227,16 +226,16 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
             selected_candidate = candidate;
     }
 
-    trickle_stop(&wsrd->ws.pas_tkl);
-    memcpy(wsrd->ws.eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
-    wsrd->ws.pan_id = selected_pan_id;
+    trickle_stop(&ws->pas_tkl);
+    memcpy(ws->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
+    ws->pan_id = selected_pan_id;
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
          tr_eui64(selected_candidate->mac64), selected_candidate->pan_id,
          selected_candidate->pan_cost, selected_candidate->plf);
-    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
+    SLIST_FOREACH(candidate, &ws->neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
-    supp_start_key_request(&wsrd->ws.supp);
+    supp_start_key_request(&ws->supp);
 }
 
 /*
@@ -246,9 +245,9 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
  */
 void ws_on_pas_interval_done(struct trickle *tkl)
 {
-    struct wsrd *wsrd = container_of(tkl, struct wsrd, ws.pas_tkl);
+    struct ws_ctx *ws = container_of(tkl, struct ws_ctx, pas_tkl);
 
-    timer_start_rel(NULL, &wsrd->ws.pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
+    timer_start_rel(NULL, &ws->pan_selection_timer, ws->pas_tkl.cfg->Imin_ms);
 }
 
 static void ws_eapol_target_add(struct ws_ctx *ws, struct ws_ind *ind, struct ws_pan_ie *ie_pan, struct ws_jm_ie *ie_jm)
@@ -431,7 +430,7 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
     ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
     // TODO: use parent address and frame counters only
-    rcp_set_fhss_ffn_bc(&g_wsrd.rcp,
+    rcp_set_fhss_ffn_bc(&ws->rcp,
                         ie_bs.broadcast_interval,
                         ie_bs.broadcast_schedule_identifier,
                         ie_bs.dwell_interval,
@@ -777,7 +776,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     iobuf_push_data_reserved(&iobuf, 8); // MIC-64
 
     // TODO: store frame and wait for confirmation
-    rcp_req_data_tx(&g_wsrd.rcp,
+    rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     fhss_type,
@@ -836,7 +835,7 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
     // TODO: store frame and wait for confirmation
-    rcp_req_data_tx(&g_wsrd.rcp,
+    rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     HIF_FHSS_TYPE_FFN_UC,
@@ -876,7 +875,7 @@ void ws_send_pas(struct trickle *tkl)
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
     // TODO: store frame and wait for confirmation
-    rcp_req_data_tx(&g_wsrd.rcp,
+    rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     HIF_FHSS_TYPE_ASYNC,
