@@ -295,6 +295,13 @@ void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const v
     close(fd);
 }
 
+void conf_set_eui64(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    BUG_ON(raw_param);
+    if (parse_byte_array(raw_dest, 8, info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+}
+
 void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info)
 {
     for (const struct option_struct *opt = opts; opt->key; opt++)

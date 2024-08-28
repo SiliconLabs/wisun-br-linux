@@ -363,6 +363,11 @@ static void wsrd_init_rcp(struct wsrd *wsrd)
         rail_print_config_list(&wsrd->ws.rcp);
         exit(0);
     }
+
+    // NOTE: destination address filtering is enabled by default with the
+    // native EUI-64.
+    if (memcmp(wsrd->config.ws_mac_address, &ieee802154_addr_bc, 8))
+        rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address);
 }
 
 static void wsrd_init_radio(struct wsrd *wsrd)

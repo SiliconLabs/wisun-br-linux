@@ -239,6 +239,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
+        { "mac_address",                   config->ws_mac_address,                    conf_set_eui64,       NULL },
         { "allowed_mac64",                 config,                                    conf_set_macaddr,     (bool[1]){ true } },
         { "denied_mac64",                  config,                                    conf_set_macaddr,     (bool[1]){ false } },
         { "async_frag_duration",           &config->ws_async_frag_duration,           conf_set_number,      &valid_async_frag_duration },
@@ -319,6 +320,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->rpl_compat = true;
     config->rpl_rpi_ignorable = false;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
+    memset(config->ws_mac_address, 0xff, sizeof(config->ws_mac_address));
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {

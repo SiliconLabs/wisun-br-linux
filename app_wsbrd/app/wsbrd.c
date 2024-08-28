@@ -30,6 +30,7 @@
 #include "common/mathutils.h"
 #include "common/version.h"
 #include "common/ws_regdb.h"
+#include "common/ieee802154_frame.h"
 #include "common/key_value_storage.h"
 #include "common/string_extra.h"
 #include "common/specs/ws.h"
@@ -500,6 +501,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         rail_print_config_list(&ctxt->rcp);
         exit(0);
     }
+
+    // NOTE: destination address filtering is enabled by default with the
+    // native EUI-64.
+    if (memcmp(ctxt->config.ws_mac_address, &ieee802154_addr_bc, 8))
+        rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
 }
 
 static void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
