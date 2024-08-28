@@ -28,6 +28,7 @@
 #include "common/mathutils.h"
 #include "common/ws_regdb.h"
 #include "common/ws_types.h"
+#include "common/sl_ws.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 
@@ -263,6 +264,26 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 
     offset = ws_wh_header_base_write(buf, WS_WHIE_PANID);
     iobuf_push_le16(buf, panid);
+    ieee802154_ie_fill_len_header(buf, offset);
+}
+
+static int ws_wh_vendor_write(struct iobuf_write *buf, uint8_t vendor_id)
+{
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WS_WHIE_VH);
+    // FIXME: handle vendor ID encoded on more than a byte
+    iobuf_push_u8(buf, vendor_id);
+    return offset;
+}
+
+void ws_wh_sl_utt_write(struct iobuf_write *buf, uint8_t sl_frame_type)
+{
+    int offset = ws_wh_vendor_write(buf, WS_VIN_SILICON_LABS);
+
+    iobuf_push_u8(buf, SL_WHIE_UTT);
+    iobuf_push_u8(buf, sl_frame_type);
+    iobuf_push_le24(buf, 0); // Unicast Fractional Sequence Interval (filled by MAC layer)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
@@ -561,11 +582,38 @@ static void ws_wh_find_subid(const uint8_t *data, uint16_t length, uint8_t subid
     wh_content->err = true;
 }
 
+static void ws_wh_find_sl_subid(const uint8_t *data, uint16_t length, uint8_t subid, struct iobuf_read *wh_content)
+{
+    const uint8_t *end = data + length;
+
+    do {
+        ieee802154_ie_find_header(data, length, IEEE802154_IE_ID_WH, wh_content);
+        if (iobuf_pop_u8(wh_content) == WS_WHIE_VH && iobuf_pop_u8(wh_content) == WS_VIN_SILICON_LABS &&
+            iobuf_pop_u8(wh_content) == subid)
+            return;
+        if (wh_content->err)
+            return;
+        length -= wh_content->data + wh_content->data_size - data;
+        data = wh_content->data + wh_content->data_size;
+    } while (data < end);
+    wh_content->err = true;
+}
+
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
     struct iobuf_read ie_buf;
 
     ws_wh_find_subid(data, length, WS_WHIE_UTT, &ie_buf);
+    utt_ie->message_type = iobuf_pop_u8(&ie_buf);
+    utt_ie->ufsi         = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
+}
+
+bool ws_wh_sl_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
+{
+    struct iobuf_read ie_buf;
+
+    ws_wh_find_sl_subid(data, length, SL_WHIE_UTT, &ie_buf);
     utt_ie->message_type = iobuf_pop_u8(&ie_buf);
     utt_ie->ufsi         = iobuf_pop_le24(&ie_buf);
     return !ie_buf.err;

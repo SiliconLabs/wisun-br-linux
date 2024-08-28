@@ -245,6 +245,7 @@ void   ws_wh_lto_write(struct iobuf_write *buf, uint24_t offset, uint24_t adjust
 void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid);
 void   ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_period);
 
+void ws_wh_sl_utt_write(struct iobuf_write *buf, uint8_t sl_frame_type);
 
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
 bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
@@ -262,6 +263,8 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie);
 bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie);
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
+
+bool ws_wh_sl_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
 void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config);

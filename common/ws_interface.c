@@ -70,8 +70,12 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
 {
     int offset;
 
+    BUG_ON(wh_ies->utt && wh_ies->sl_utt);
+
     if (wh_ies->utt)
         ws_wh_utt_write(iobuf, frame_type);
+    if (wh_ies->sl_utt)
+        ws_wh_sl_utt_write(iobuf, frame_type);
     // TODO: remaning WH-IEs
     if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id)
         return;

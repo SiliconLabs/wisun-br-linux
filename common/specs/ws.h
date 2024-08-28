@@ -145,6 +145,11 @@ enum {
     WS_EXC_CHAN_CTRL_BITMASK = 2,
 };
 
+// Wi-SUN Assigned Value Registry 0v25, Appendix A
+enum {
+    WS_VIN_SILICON_LABS = 26,
+};
+
 // Wi-SUN FAN 1.1v08 Figure 6-42 Node Role IE Format
 #define WS_MASK_NR_ID 0b00000111
 
