@@ -535,6 +535,18 @@ void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t cou
     iobuf_free(&buf);
 }
 
+void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8])
+{
+    struct iobuf_write buf = { };
+
+    memcpy(&rcp->eui64, eui64, 8);
+
+    hif_push_u8(&buf, HIF_CMD_SET_FILTER_DST64);
+    hif_push_fixed_u8_array(&buf, eui64, 8);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 struct rcp_cmd rcp_cmd_table[] = {
     { HIF_CMD_IND_NOP,           rcp_ind_nop        },
     { HIF_CMD_IND_RESET,         rcp_ind_reset      },
