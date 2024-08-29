@@ -198,7 +198,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
 {
     struct ws_ctx *ws = container_of(ipv6, struct ws_ctx, ipv6);
 
-    return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
+    return ws_send_data(ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
 }
 
 static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)

@@ -761,7 +761,7 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
                             cnf->status == HIF_STATUS_SUCCESS);
 }
 
-int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8_t dst[8])
+int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struct eui64 *dst)
 {
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
@@ -780,12 +780,12 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     int offset;
 
     if (dst && memcmp(dst, &ieee802154_addr_bc, 8)) {
-        neigh = ws_neigh_get(&ws->neigh_table, dst);
+        neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
         if (!neigh) {
-            TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
             return -ETIMEDOUT;
         }
-        memcpy(&hdr.dst, dst, 8);
+        hdr.dst = *dst;
         hdr.pan_id = -1;
         fhss_type = HIF_FHSS_TYPE_FFN_UC;
     } else {
@@ -818,7 +818,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
 
     iobuf_push_data_reserved(&iobuf, 8); // MIC-64
 
-    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_DATA), tr_eui64(dst));
+    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_DATA), tr_eui64(hdr.dst.u8));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
