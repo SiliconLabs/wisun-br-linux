@@ -39,7 +39,7 @@
 #define IEEE802154_MASK_SECHDR_DEL_FRAMECTR 0b00100000
 #define IEEE802154_MASK_SECHDR_ASN_IN_NONCE 0b01000000
 
-const struct eui64 ieee802154_addr_bc = { .u8 = { [0 ... 7] = 0xff } };
+const struct eui64 ieee802154_addr_bc = IEEE802154_ADDR_BC_INIT;
 
 // IEEE 802.15.4-2020 Table 7-2 PAN ID Compression field value for frame version 0b10
 static const struct {

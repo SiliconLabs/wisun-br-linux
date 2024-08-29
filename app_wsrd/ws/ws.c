@@ -895,7 +895,7 @@ void ws_send_pas(struct trickle *tkl)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = -1,
-        .dst          = ieee802154_addr_bc,
+        .dst          = IEEE802154_ADDR_BC_INIT,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -934,7 +934,7 @@ void ws_send_pcs(struct trickle *tkl)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = ws->pan_id,
-        .dst          = ieee802154_addr_bc,
+        .dst          = IEEE802154_ADDR_BC_INIT,
         .key_index    = ws->gak_index,
     };
     struct ws_frame_ctx *frame_ctx;

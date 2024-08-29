@@ -30,6 +30,8 @@ struct eui64 {
     };
 };
 
+#define IEEE802154_ADDR_BC_INIT { .u8 = { [0 ... 7] = 0xff } }
+
 extern const struct eui64 ieee802154_addr_bc; // ff:ff:ff:ff:ff:ff:ff:ff
 
 struct ieee802154_hdr {
