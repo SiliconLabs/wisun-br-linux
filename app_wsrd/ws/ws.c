@@ -830,12 +830,14 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     return frame_ctx->handle;
 }
 
-
-void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pkt_len, const uint8_t dst[8])
+void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
+                   const void *pkt, size_t pkt_len,
+                   const struct eui64 *dst)
 {
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = true,
+        .dst        = *dst,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
         .pan_id     = -1,
     };
@@ -848,16 +850,15 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     struct ws_neigh *neigh;
     int offset;
 
-    neigh = ws_neigh_get(&ws->neigh_table, dst);
+    neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
     if (!neigh) {
-        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return;
     }
 
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_EAPOL);
     if (!frame_ctx)
         return;
-    memcpy(&hdr.dst, dst, 8);
     frame_ctx->dst = hdr.dst;
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
@@ -877,7 +878,7 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     iobuf_push_data(&iobuf, pkt, pkt_len);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
-    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_EAPOL), tr_eui64(dst));
+    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_EAPOL), tr_eui64(dst->u8));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
