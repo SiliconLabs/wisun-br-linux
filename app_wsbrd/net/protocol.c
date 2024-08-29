@@ -138,7 +138,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     ns_list_init(&entry->ip_groups);
     ns_list_init(&entry->ipv6_neighbour_cache.list);
     ipv6_neighbour_cache_init(&entry->ipv6_neighbour_cache, entry->id);
-    protocol_set_eui64(entry, rcp->eui64);
+    protocol_set_eui64(entry, rcp->eui64.u8);
     ns_list_add_to_start(&protocol_interface_info_list, entry);
 }
 

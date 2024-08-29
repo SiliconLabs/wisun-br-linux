@@ -149,7 +149,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     capture_register_netfd(ctxt->tun.fd);
 
     if (ctxt->config.tun_autoconf) {
-        memcpy(addr.s6_addr + 8, ctxt->rcp.eui64, 8);
+        memcpy(addr.s6_addr + 8, &ctxt->rcp.eui64, 8);
         addr.s6_addr[8] ^= 0x02;
 
         memcpy(addr.s6_addr, ADDR_LINK_LOCAL_PREFIX, 8);

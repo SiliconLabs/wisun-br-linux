@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include "common/bus.h"
 #include "common/hif.h"
+#include "common/ieee802154_frame.h"
 #include "common/ws_chan_mask.h"
 
 struct bus;
@@ -75,7 +76,7 @@ struct rcp {
     uint32_t version_api;
     uint32_t version_fw;
     const char *version_label;
-    uint8_t  eui64[8];
+    struct eui64 eui64;
     struct rcp_rail_config *rail_config_list;
 };
 

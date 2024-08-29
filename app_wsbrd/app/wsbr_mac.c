@@ -88,7 +88,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     hdr.ack_req    = data->TxAckReq;
     hdr.pan_id     = data->DstAddrMode ? -1 : cur->ws_info.pan_information.pan_id;
     memcpy(&hdr.dst, data->DstAddrMode ? data->DstAddr : ieee802154_addr_bc.u8, 8);
-    memcpy(&hdr.src, cur->rcp->eui64, 8);
+    hdr.src        = cur->rcp->eui64;
     hdr.seqno      = data->SeqNumSuppressed ? -1 : 0;
     hdr.key_index  = data->Key.KeyIndex;
     ieee802154_frame_write_hdr(&frame, &hdr);

@@ -417,8 +417,8 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
-    ipv6_init(&wsrd->ws.ipv6, wsrd->ws.rcp.eui64);
-    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.rcp.eui64);
+    ipv6_init(&wsrd->ws.ipv6, wsrd->ws.rcp.eui64.u8);
+    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
@@ -455,7 +455,7 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_rcp(wsrd);
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
-    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64);
+    supp_init(&wsrd->ws.supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
     supp_reset(&wsrd->ws.supp);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",

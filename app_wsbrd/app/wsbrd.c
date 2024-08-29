@@ -438,7 +438,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ws_bootstrap_up(&ctxt->net_if, gua.s6_addr);
     wsbr_check_link_local_addr(ctxt);
     if (ctxt->config.internal_dhcp)
-        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64, gua.s6_addr);
+        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64.u8, gua.s6_addr);
 
     memcpy(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16);
     rpl_storage_load(&ctxt->net_if.rpl_root);

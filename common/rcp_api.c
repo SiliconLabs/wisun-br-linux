@@ -66,7 +66,7 @@ static void rcp_ind_reset(struct rcp *rcp, struct iobuf_read *buf)
     rcp->version_api = hif_pop_u32(buf);
     rcp->version_fw  = hif_pop_u32(buf);
     version_label    = hif_pop_str(buf);
-    hif_pop_fixed_u8_array(buf, rcp->eui64, 8);
+    hif_pop_fixed_u8_array(buf, rcp->eui64.u8, 8);
     BUG_ON(buf->err);
 
     BUG_ON(version_older_than(rcp->version_api, 2, 0, 0));

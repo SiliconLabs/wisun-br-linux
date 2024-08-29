@@ -550,7 +550,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
     memcpy(neigh.pom_ie.phy_op_mode_id,
            ctxt->net_if.ws_info.phy_config.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
-    dbus_message_append_node(m, property, ctxt->rcp.eui64, true, false, &neigh);
+    dbus_message_append_node(m, property, ctxt->rcp.eui64.u8, true, false, &neigh);
 }
 
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
