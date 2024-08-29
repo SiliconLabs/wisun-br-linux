@@ -60,7 +60,7 @@ struct ws_ctx {
     struct ipv6_ctx ipv6;
 
     struct supplicant_ctx supp;
-    uint8_t eapol_target_eui64[8];
+    struct eui64 eapol_target_eui64;
     uint8_t gak_index;
 };
 

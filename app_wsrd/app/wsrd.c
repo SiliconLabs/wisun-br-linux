@@ -74,7 +74,7 @@ struct wsrd g_wsrd = {
     .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
     .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
-    .ws.eapol_target_eui64[0 ... 7] = 0xff,
+    .ws.eapol_target_eui64 = IEEE802154_ADDR_BC_INIT,
 
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .ws.supp.key_request_txalg.irt_s       =  300, //  5 * 60
@@ -225,7 +225,7 @@ static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
 
     supp_reset(supp);
-    memset(wsrd->ws.eapol_target_eui64, 0xff, sizeof(wsrd->ws.eapol_target_eui64));
+    wsrd->ws.eapol_target_eui64 = ieee802154_addr_bc;
 }
 
 static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
@@ -240,7 +240,7 @@ static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, ws.supp);
 
-    return wsrd->ws.eapol_target_eui64;
+    return wsrd->ws.eapol_target_eui64.u8;
 }
 
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh)
@@ -257,9 +257,9 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
          * as its EAPOL target. When a Router has determined a RPL parent, it shall
          * use that parent as the EAPOL target.
          */
-        memcpy(wsrd->ws.eapol_target_eui64, neigh->eui64, sizeof(wsrd->ws.eapol_target_eui64));
+        memcpy(&wsrd->ws.eapol_target_eui64, neigh->eui64, 8);
     } else {
-        memset(wsrd->ws.eapol_target_eui64, 0xff, sizeof(wsrd->ws.eapol_target_eui64));
+        wsrd->ws.eapol_target_eui64 = ieee802154_addr_bc;
         // TODO: handle parent loss
     }
 }

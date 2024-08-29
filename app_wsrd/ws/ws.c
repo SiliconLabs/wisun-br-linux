@@ -228,7 +228,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     }
 
     trickle_stop(&ws->pas_tkl);
-    memcpy(ws->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
+    memcpy(&ws->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
     // TODO: reset PAN ID when transitioning to join state 1
     ws->pan_id = selected_pan_id;
     rcp_set_filter_pan_id(&ws->rcp, ws->pan_id);
@@ -315,7 +315,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 
     // TODO: POM-IE
 
-    if (!memcmp(ws->eapol_target_eui64, &ieee802154_addr_bc, sizeof(ws->eapol_target_eui64)))
+    if (!memcmp(&ws->eapol_target_eui64, &ieee802154_addr_bc, 8))
         ws_eapol_target_add(ws, ind, &ie_pan, &ie_jm);
 }
 
