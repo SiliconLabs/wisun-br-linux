@@ -625,9 +625,9 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
         if (memcmp(&ind.hdr.src, &ieee802154_addr_bc, 8))
-            memcpy(ws->edfe_src, &ind.hdr.src, 8);
+            ws->edfe_src = ind.hdr.src;
         else
-            memcpy(&ind.hdr.src, ws->edfe_src, 8);
+            ind.hdr.src = ws->edfe_src;
     }
 
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
