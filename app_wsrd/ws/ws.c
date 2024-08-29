@@ -310,7 +310,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
@@ -330,7 +330,7 @@ static void ws_recv_pas(struct ws_ctx *ws, struct ws_ind *ind)
         return;
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     /*
@@ -427,8 +427,8 @@ static void ws_recv_pc(struct ws_ctx *ws, struct ws_ind *ind)
         dbus_emit_change("PanVersion");
     }
 
-    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -467,8 +467,8 @@ static void ws_recv_pcs(struct ws_ctx *ws, struct ws_ind *ind)
         return;
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
+    ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -508,8 +508,8 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
     }
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
+    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
 
     if (ws_ie_validate_us(ws, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&ws->fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
@@ -524,7 +524,7 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
 
     lowpan_recv(&ws->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
-                ind->hdr.src, ind->hdr.dst.u8);
+                ind->hdr.src.u8, ind->hdr.dst.u8);
 }
 
 void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
@@ -550,15 +550,15 @@ void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
         return;
     }
 
-    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src);
+    neigh = ws_neigh_get(&ws->neigh_table, ind->hdr.src.u8);
     if (!neigh)
-        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src, WS_NR_ROLE_ROUTER, 16, 0x01);
+        neigh = ws_neigh_add(&ws->neigh_table, ind->hdr.src.u8, WS_NR_ROLE_ROUTER, 16, 0x01);
     else
         ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
-    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src);
+    ws_neigh_ut_update(&neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
+    ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.2.3.5.3 Frames for General Purpose Messaging
@@ -597,11 +597,11 @@ void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 
     if (ind->hdr.pan_id >= 0 && ind->hdr.pan_id != 0xffff)
         TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)",
-              tr_ws_frame(type), tr_eui64(ind->hdr.src),
+              tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
               ind->hdr.pan_id, ind->hif->rx_power_dbm);
     else
         TRACE(tr_domain, "rx-15.4 %-9s src:%s (%ddBm)",
-              tr_ws_frame(type), tr_eui64(ind->hdr.src),
+              tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
               ind->hif->rx_power_dbm);
 }
 
@@ -624,10 +624,10 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     }
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
-        if (memcmp(ind.hdr.src, &ieee802154_addr_bc, 8))
-            memcpy(ws->edfe_src, ind.hdr.src, 8);
+        if (memcmp(&ind.hdr.src, &ieee802154_addr_bc, 8))
+            memcpy(ws->edfe_src, &ind.hdr.src, 8);
         else
-            memcpy(ind.hdr.src, ws->edfe_src, 8);
+            memcpy(&ind.hdr.src, ws->edfe_src, 8);
     }
 
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
@@ -635,10 +635,10 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
                                IEEE802154_IE_ID_MPX, &ind.ie_mpx);
 
-    ind.neigh = ws_neigh_get(&ws->neigh_table, ind.hdr.src);
+    ind.neigh = ws_neigh_get(&ws->neigh_table, ind.hdr.src.u8);
     if (!ind.neigh)
         // TODO: TX power (APC), active key indices
-        ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
+        ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src.u8, WS_NR_ROLE_ROUTER, 16, 0x02);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
     ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
