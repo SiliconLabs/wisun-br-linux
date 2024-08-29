@@ -18,8 +18,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "common/endian.h"
+
 struct iobuf_read;
 struct iobuf_write;
+
+struct eui64 {
+    union {
+        uint8_t u8[8];
+        be64_t  be64;
+    };
+};
 
 extern uint8_t ieee802154_addr_bc[8]; // ff:ff:ff:ff:ff:ff:ff:ff
 
