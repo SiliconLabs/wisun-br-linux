@@ -730,12 +730,12 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
     if (frame_ctx->type == WS_FT_DATA)
         ipv6_nud_confirm_ns(&ws->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
 
-    if (memcmp(frame_ctx->dst, &ieee802154_addr_bc, 8)) {
-        neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst);
+    if (memcmp(&frame_ctx->dst, &ieee802154_addr_bc, 8)) {
+        neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst.u8);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
             // TODO: TX power (APC), active key indices
-            neigh = ws_neigh_add(&ws->neigh_table, frame_ctx->dst, WS_NR_ROLE_ROUTER, 16, BIT(1));
+            neigh = ws_neigh_add(&ws->neigh_table, frame_ctx->dst.u8, WS_NR_ROLE_ROUTER, 16, BIT(1));
         }
     }
 
@@ -797,7 +797,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_DATA);
     if (!frame_ctx)
         return -ENOMEM;
-    memcpy(frame_ctx->dst, &hdr.dst, 8);
+    frame_ctx->dst = hdr.dst;
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -858,7 +858,7 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     if (!frame_ctx)
         return;
     memcpy(&hdr.dst, dst, 8);
-    memcpy(frame_ctx->dst, &hdr.dst, 8);
+    frame_ctx->dst = hdr.dst;
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -904,7 +904,7 @@ void ws_send_pas(struct trickle *tkl)
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_PAS);
     if (!frame_ctx)
         return;
-    memcpy(frame_ctx->dst, &hdr.dst, 8);
+    frame_ctx->dst = hdr.dst;
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -944,7 +944,7 @@ void ws_send_pcs(struct trickle *tkl)
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_PCS);
     if (!frame_ctx)
         return;
-    memcpy(frame_ctx->dst, &hdr.dst, 8);
+    frame_ctx->dst = hdr.dst;
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 

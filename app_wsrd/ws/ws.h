@@ -20,6 +20,7 @@
 
 #include "common/rcp_api.h"
 #include "common/trickle.h"
+#include "common/ieee802154_frame.h"
 #include "common/ws_ie.h"
 #include "common/ws_neigh.h"
 #include "common/ws_types.h"
@@ -30,7 +31,7 @@
 struct ws_frame_ctx {
     uint8_t handle;
     uint8_t type;
-    uint8_t dst[8];
+    struct eui64 dst;
     SLIST_ENTRY(ws_frame_ctx) link;
 };
 
