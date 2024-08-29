@@ -201,9 +201,9 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
     BUG_ON(ieee802154_table_pan_id_cmpr[i].has_dst_pan_id);
 
     if (ieee802154_table_pan_id_cmpr[i].dst_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
-        write_be64(hdr->dst, iobuf_pop_le64(&iobuf));
+        hdr->dst.be64 = htobe64(iobuf_pop_le64(&iobuf));
     else
-        memcpy(hdr->dst, &ieee802154_addr_bc, 8);
+        hdr->dst = ieee802154_addr_bc;
 
     hdr->pan_id = 0xffff;
     if (ieee802154_table_pan_id_cmpr[i].has_src_pan_id)
@@ -242,7 +242,7 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
 void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
                                 const struct ieee802154_hdr *hdr)
 {
-    uint8_t dst_addr_mode = !memcmp(&ieee802154_addr_bc, hdr->dst, 8) ?
+    uint8_t dst_addr_mode = !memcmp(&ieee802154_addr_bc, &hdr->dst, 8) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
     uint8_t src_addr_mode = !memcmp(&ieee802154_addr_bc, hdr->src, 8) ?
@@ -271,7 +271,7 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
 
     BUG_ON(ieee802154_table_pan_id_cmpr[i].has_dst_pan_id);
     if (dst_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
-        iobuf_push_le64(iobuf, read_be64(hdr->dst));
+        iobuf_push_le64(iobuf, be64toh(hdr->dst.be64));
     if (hdr->pan_id != 0xffff)
         iobuf_push_le16(iobuf, hdr->pan_id);
     if (src_addr_mode == IEEE802154_ADDR_MODE_64_BIT)

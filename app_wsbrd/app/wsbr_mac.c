@@ -87,7 +87,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     hdr.frame_type = IEEE802154_FRAME_TYPE_DATA;
     hdr.ack_req    = data->TxAckReq;
     hdr.pan_id     = data->DstAddrMode ? -1 : cur->ws_info.pan_information.pan_id;
-    memcpy(hdr.dst, data->DstAddrMode ? data->DstAddr : ieee802154_addr_bc.u8, 8);
+    memcpy(&hdr.dst, data->DstAddrMode ? data->DstAddr : ieee802154_addr_bc.u8, 8);
     memcpy(hdr.src, cur->rcp->eui64, 8);
     hdr.seqno      = data->SeqNumSuppressed ? -1 : 0;
     hdr.key_index  = data->Key.KeyIndex;
@@ -157,10 +157,10 @@ void wsbr_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
     mcps_ind.SrcAddrMode = !memcmp(hdr.src, &ieee802154_addr_bc, 8)
                          ? IEEE802154_ADDR_MODE_NONE
                          : IEEE802154_ADDR_MODE_64_BIT;
-    mcps_ind.DstAddrMode = !memcmp(hdr.dst, &ieee802154_addr_bc, 8)
+    mcps_ind.DstAddrMode = !memcmp(&hdr.dst, &ieee802154_addr_bc, 8)
                          ? IEEE802154_ADDR_MODE_NONE
                          : IEEE802154_ADDR_MODE_64_BIT;
-    memcpy(mcps_ind.DstAddr, hdr.dst, 8);
+    memcpy(mcps_ind.DstAddr, &hdr.dst, 8);
     memcpy(mcps_ind.SrcAddr, hdr.src, 8);
     mcps_ind.DstPANId = hdr.pan_id == 0xffff
                       ? ctxt->net_if.ws_info.pan_information.pan_id

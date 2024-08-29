@@ -491,7 +491,7 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
-    if (!memcmp(ind->hdr.dst, &ieee802154_addr_bc, 8) && ind->hdr.pan_id != ws->pan_id) {
+    if (!memcmp(&ind->hdr.dst, &ieee802154_addr_bc, 8) && ind->hdr.pan_id != ws->pan_id) {
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
@@ -524,7 +524,7 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
 
     lowpan_recv(&ws->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
-                ind->hdr.src, ind->hdr.dst);
+                ind->hdr.src, ind->hdr.dst.u8);
 }
 
 void ws_recv_eapol(struct ws_ctx *ws, struct ws_ind *ind)
@@ -785,11 +785,11 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
             TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
             return -ETIMEDOUT;
         }
-        memcpy(hdr.dst, dst, 8);
+        memcpy(&hdr.dst, dst, 8);
         hdr.pan_id = -1;
         fhss_type = HIF_FHSS_TYPE_FFN_UC;
     } else {
-        memcpy(hdr.dst, &ieee802154_addr_bc, 8);
+        hdr.dst = ieee802154_addr_bc;
         hdr.pan_id = ws->pan_id;
         fhss_type = HIF_FHSS_TYPE_FFN_BC;
     }
@@ -797,7 +797,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_DATA);
     if (!frame_ctx)
         return -ENOMEM;
-    memcpy(frame_ctx->dst, hdr.dst, 8);
+    memcpy(frame_ctx->dst, &hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -857,8 +857,8 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id, const void *pkt, size_t pk
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_EAPOL);
     if (!frame_ctx)
         return;
-    memcpy(hdr.dst, dst, 8);
-    memcpy(frame_ctx->dst, hdr.dst, 8);
+    memcpy(&hdr.dst, dst, 8);
+    memcpy(frame_ctx->dst, &hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -895,7 +895,7 @@ void ws_send_pas(struct trickle *tkl)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = -1,
-        .dst[0 ... 7] = 0xff,
+        .dst          = ieee802154_addr_bc,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -904,7 +904,7 @@ void ws_send_pas(struct trickle *tkl)
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_PAS);
     if (!frame_ctx)
         return;
-    memcpy(frame_ctx->dst, hdr.dst, 8);
+    memcpy(frame_ctx->dst, &hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -934,7 +934,7 @@ void ws_send_pcs(struct trickle *tkl)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = ws->pan_id,
-        .dst[0 ... 7] = 0xff,
+        .dst          = ieee802154_addr_bc,
         .key_index    = ws->gak_index,
     };
     struct ws_frame_ctx *frame_ctx;
@@ -944,7 +944,7 @@ void ws_send_pcs(struct trickle *tkl)
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_PCS);
     if (!frame_ctx)
         return;
-    memcpy(frame_ctx->dst, hdr.dst, 8);
+    memcpy(frame_ctx->dst, &hdr.dst, 8);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
