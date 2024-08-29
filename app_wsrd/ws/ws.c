@@ -766,6 +766,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struc
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = true,
+        .src        = ws->rcp.eui64,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
         .key_index  = ws->gak_index,
     };
@@ -838,6 +839,7 @@ void ws_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = true,
         .dst        = *dst,
+        .src        = ws->rcp.eui64,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
         .pan_id     = -1,
     };
@@ -897,6 +899,7 @@ void ws_send_pas(struct trickle *tkl)
         .seqno        = -1,
         .pan_id       = -1,
         .dst          = IEEE802154_ADDR_BC_INIT,
+        .src          = ws->rcp.eui64,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -936,6 +939,7 @@ void ws_send_pcs(struct trickle *tkl)
         .seqno        = -1,
         .pan_id       = ws->pan_id,
         .dst          = IEEE802154_ADDR_BC_INIT,
+        .src          = ws->rcp.eui64,
         .key_index    = ws->gak_index,
     };
     struct ws_frame_ctx *frame_ctx;
