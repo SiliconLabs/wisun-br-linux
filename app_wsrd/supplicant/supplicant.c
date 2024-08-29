@@ -123,7 +123,7 @@ void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf 
     uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
     uint8_t *dst = supp->get_target(supp);
 
-    if (!memcmp(dst, ieee802154_addr_bc, sizeof(ieee802154_addr_bc))) {
+    if (!memcmp(dst, &ieee802154_addr_bc, 8)) {
         TRACE(TR_DROP, "drop %-9s: no eapol target available", "eapol");
         return;
     }

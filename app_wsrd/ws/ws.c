@@ -315,7 +315,7 @@ void ws_recv_pa(struct ws_ctx *ws, struct ws_ind *ind)
 
     // TODO: POM-IE
 
-    if (!memcmp(ws->eapol_target_eui64, ieee802154_addr_bc, sizeof(ws->eapol_target_eui64)))
+    if (!memcmp(ws->eapol_target_eui64, &ieee802154_addr_bc, sizeof(ws->eapol_target_eui64)))
         ws_eapol_target_add(ws, ind, &ie_pan, &ie_jm);
 }
 
@@ -491,7 +491,7 @@ void ws_recv_data(struct ws_ctx *ws, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
-    if (!memcmp(ind->hdr.dst, ieee802154_addr_bc, 8) && ind->hdr.pan_id != ws->pan_id) {
+    if (!memcmp(ind->hdr.dst, &ieee802154_addr_bc, 8) && ind->hdr.pan_id != ws->pan_id) {
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
@@ -624,7 +624,7 @@ void ws_recv_ind(struct ws_ctx *ws, const struct rcp_rx_ind *hif_ind)
     }
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
-        if (memcmp(ind.hdr.src, ieee802154_addr_bc, 8))
+        if (memcmp(ind.hdr.src, &ieee802154_addr_bc, 8))
             memcpy(ws->edfe_src, ind.hdr.src, 8);
         else
             memcpy(ind.hdr.src, ws->edfe_src, 8);
@@ -730,7 +730,7 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
     if (frame_ctx->type == WS_FT_DATA)
         ipv6_nud_confirm_ns(&ws->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
 
-    if (memcmp(frame_ctx->dst, ieee802154_addr_bc, 8)) {
+    if (memcmp(frame_ctx->dst, &ieee802154_addr_bc, 8)) {
         neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
@@ -779,7 +779,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
     uint8_t fhss_type;
     int offset;
 
-    if (dst && memcmp(ieee802154_addr_bc, dst, 8)) {
+    if (dst && memcmp(dst, &ieee802154_addr_bc, 8)) {
         neigh = ws_neigh_get(&ws->neigh_table, dst);
         if (!neigh) {
             TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst));
@@ -789,7 +789,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const uint8
         hdr.pan_id = -1;
         fhss_type = HIF_FHSS_TYPE_FFN_UC;
     } else {
-        memcpy(hdr.dst, ieee802154_addr_bc, 8);
+        memcpy(hdr.dst, &ieee802154_addr_bc, 8);
         hdr.pan_id = ws->pan_id;
         fhss_type = HIF_FHSS_TYPE_FFN_BC;
     }

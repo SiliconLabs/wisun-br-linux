@@ -30,7 +30,7 @@ struct eui64 {
     };
 };
 
-extern uint8_t ieee802154_addr_bc[8]; // ff:ff:ff:ff:ff:ff:ff:ff
+extern const struct eui64 ieee802154_addr_bc; // ff:ff:ff:ff:ff:ff:ff:ff
 
 struct ieee802154_hdr {
     uint8_t  frame_type;

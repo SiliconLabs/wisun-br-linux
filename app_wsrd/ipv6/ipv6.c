@@ -232,7 +232,7 @@ static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
     // IPv6 level multicast packets MUST be carried as link-layer broadcast
     // frames in IEEE 802.15.4 networks.
     if (IN6_IS_ADDR_MULTICAST(nxthop)) {
-        memcpy(eui64, ieee802154_addr_bc, 8);
+        memcpy(eui64, &ieee802154_addr_bc, 8);
         return;
     }
 
