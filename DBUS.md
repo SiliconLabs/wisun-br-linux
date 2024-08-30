@@ -231,6 +231,14 @@ refreshed. Each entry is a structure:
   in the node's preferred order. The border router should be the only entry
   with no parents.
 
+Implementation limitations:
+- LFN directly connected to wsbrd will not be exposed after reboot until
+  their MAC timing information have been acquired.
+- FFN directly connected to wsbrd and that do not have an entry in both RPL
+  and IPv6 neighbor discovery cache will not be exposed. This choice was made
+  considering an FFN without both entries cannot be considered operational.
+  Note potential children of such FFN may still be exposed through this API.
+
 ### `Gtks` and `Gaks` (`aay`)
 
 Returns a list of the four Group Transient (or Temporal) Keys (GTKs) or Group

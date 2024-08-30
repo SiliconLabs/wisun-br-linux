@@ -621,6 +621,7 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
     struct wsbr_ctxt *ctxt = userdata;
     struct rpl_target target_br = { };
     struct rpl_target *target;
+    struct ws_neigh *ws_neigh;
 
     sd_bus_message_open_container(reply, 'a', "(aybaay)");
 
@@ -637,6 +638,10 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
         if (IN6_IS_ADDR_MULTICAST(ipv6_neigh->ip_address) || IN6_IS_ADDR_LINKLOCAL(ipv6_neigh->ip_address))
             continue;
         if (rpl_target_get(&ctxt->net_if.rpl_root, ipv6_neigh->ip_address))
+            continue;
+        ws_neigh = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage,
+                                ipv6_neighbour_eui64(&ctxt->net_if.ipv6_neighbour_cache, ipv6_neigh));
+        if (!ws_neigh || ws_neigh->node_role != WS_NR_ROLE_LFN)
             continue;
         dbus_message_append_ipv6_neigh(reply, ipv6_neigh, &ctxt->net_if.rpl_root);
     }
