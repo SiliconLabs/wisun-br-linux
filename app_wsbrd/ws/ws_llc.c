@@ -1340,13 +1340,17 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ack_requested = data->TxAckReq;
     message->message_type = WS_FT_DATA;
     message->security = data->Key;
-    if (ws_neigh) {
+    if (data->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT) {
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
-        if (ws_neigh->edfe_mode == WS_EDFE_DEFAULT)
-            wh_ies.fc = ws_info->edfe_mode == WS_EDFE_ENABLED;
-        else
-            wh_ies.fc = ws_neigh->edfe_mode == WS_EDFE_ENABLED;
+        if (ws_neigh) {
+            if (ws_neigh->edfe_mode == WS_EDFE_DEFAULT)
+                wh_ies.fc = ws_info->edfe_mode == WS_EDFE_ENABLED;
+            else
+                wh_ies.fc = ws_neigh->edfe_mode == WS_EDFE_ENABLED;
+        }
+    } else {
+        memset(message->dst_address, 0xff, sizeof(message->dst_address));
     }
 
     data_req = *data;
@@ -1712,6 +1716,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     ns_list_add_to_end(&base->llc_message_list, message);
     message->message_type = request->frame_type;
     message->security = request->security;
+    memset(message->dst_address, 0xff, sizeof(message->dst_address));
 
     mcps_data_req_t data_req;
     memset(&data_req, 0, sizeof(mcps_data_req_t));
@@ -1766,6 +1771,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     msg->security     = req->security;
 
     if (dst) {
+        memcpy(msg->dst_address, dst, sizeof(msg->dst_address));
         memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
     } else {
         // FIXME: This timer should be restarted at confirmation instead
@@ -1774,6 +1780,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
         // Broadcast LPC are the only LFN frames that include a source PAN ID
         if (req->frame_type == WS_FT_LPC)
             data_req.PanIdSuppressed = false;
+        memset(msg->dst_address, 0xff, sizeof(msg->dst_address));
     }
     if (!dst)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_BC;
