@@ -891,9 +891,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
     } else {
-        TRACE(TR_TX_ABORT, "tx-abort: tx failure status=%s dst=%s", hif_status_str(confirm->hif.status),
-              tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
-
         if (buf->link_specific.ieee802_15_4.requestAck && mlme_status == MLME_TRANSACTION_EXPIRED) {
             lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
             ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);

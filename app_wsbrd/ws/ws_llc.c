@@ -458,6 +458,10 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     if (!msg)
         return;
 
+    if (data_cpy.hif.status != HIF_STATUS_SUCCESS)
+        TRACE(TR_TX_ABORT, "tx-abort: tx failure status=%s dst=%s", hif_status_str(data_cpy.hif.status),
+              tr_eui64(msg->dst_address));
+
     if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
         ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
