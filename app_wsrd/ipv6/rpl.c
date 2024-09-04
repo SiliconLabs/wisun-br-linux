@@ -140,6 +140,42 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
 }
 
+static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
+{
+    struct iobuf_write iobuf = { };
+    struct rpl_opt_prefix prefix;
+    struct ipv6_neigh *parent;
+    struct rpl_dio dio;
+
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
+        WARN("%s: not ready", __func__);
+        return;
+    }
+
+    memset(&dio, 0, sizeof(dio));
+    dio.instance_id = parent->rpl->dio.instance_id;
+    dio.dodag_verno = parent->rpl->dio.dodag_verno;
+    dio.rank        = htons(rpl_mrhof_rank(ipv6));
+    dio.g_mop_prf   = parent->rpl->dio.g_mop_prf;
+    dio.dtsn        = parent->rpl->dio.dtsn;
+    dio.dodag_id    = parent->rpl->dio.dodag_id;
+    iobuf_push_data(&iobuf, &dio, sizeof(dio));
+
+    rpl_opt_push(&iobuf, RPL_OPT_CONFIG, &parent->rpl->config, sizeof(parent->rpl->config));
+
+    memset(&prefix, 0, sizeof(prefix));
+    prefix.prefix_len           = 128;
+    prefix.flags                = RPL_MASK_OPT_PREFIX_L | RPL_MASK_OPT_PREFIX_R;
+    prefix.lifetime_valid_s     = htonl(dhcp_iaaddr_valid_lifetime_s(&ipv6->dhcp.iaaddr));
+    prefix.lifetime_preferred_s = htonl(dhcp_iaaddr_preferred_lifetime_s(&ipv6->dhcp.iaaddr));
+    prefix.prefix               = ipv6->dhcp.iaaddr.ipv6;
+    rpl_opt_push(&iobuf, RPL_OPT_PREFIX, &prefix, sizeof(prefix));
+
+    rpl_send(ipv6, RPL_CODE_DIO, iobuf.data, iobuf.len, dst);
+    iobuf_free(&iobuf);
+}
+
 static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 {
     struct rpl_dis dis = { };
