@@ -20,6 +20,7 @@
 #include "common/specs/dhcpv6.h"
 #include "common/string_extra.h"
 #include "common/dhcp_common.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/capture.h"
 #include "common/iobuf.h"
@@ -143,6 +144,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
 
     client->iaaddr.ipv6 = addr;
+    client->iaaddr.preferred_lifetime_s = preferred_lifetime_s;
     client->iaaddr.valid_lifetime_timer.callback = dhcp_client_addr_expired;
 
     if (valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
@@ -194,7 +196,8 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
         if (timer_stopped(&client->iaaddr.valid_lifetime_timer))
             t1_s = DHCPV6_LIFETIME_INFINITE;
         else
-            t1_s = timer_duration_ms(&client->iaaddr.valid_lifetime_timer) / 1000 * 90 / 100;
+            t1_s = MIN(client->iaaddr.preferred_lifetime_s,
+                       timer_duration_ms(&client->iaaddr.valid_lifetime_timer) / 1000 * 90 / 100);
     }
 
     /*
