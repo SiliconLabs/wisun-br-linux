@@ -114,7 +114,7 @@ struct rpl_root {
 
     void (*on_target_add)(struct rpl_root *root, struct rpl_target *target);
     void (*on_target_del)(struct rpl_root *root, struct rpl_target *target);
-    void (*on_target_update)(struct rpl_root *root, struct rpl_target *target);
+    void (*on_target_update)(struct rpl_root *root, struct rpl_target *target, bool updated_transit);
 
     // When enabled, some parts of the specification are ignored in order to
     // hopefully improve interoperability with faulty devices.
