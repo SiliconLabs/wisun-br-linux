@@ -29,12 +29,6 @@
 
 #include "dhcp_client.h"
 
-struct dhcp_opt_ia_na {
-    uint32_t iaid;
-    uint32_t t1_s;
-    uint32_t t2_s;
-};
-
 static void dhcp_client_send(struct dhcp_client *client, struct iobuf_write *buf)
 {
     struct sockaddr_in6 dst = {
@@ -166,8 +160,8 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
 
 static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *buf, size_t buf_len)
 {
-    struct dhcp_opt_ia_na opt_ia_na;
     struct iobuf_read opt_buf;
+    uint32_t t1_s;
 
     dhcp_get_option(buf, buf_len, DHCPV6_OPT_IA_NA, &opt_buf);
     if (opt_buf.err) {
@@ -175,9 +169,9 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
         return;
     }
 
-    opt_ia_na.iaid = iobuf_pop_be32(&opt_buf);
-    opt_ia_na.t1_s = iobuf_pop_be32(&opt_buf);
-    opt_ia_na.t2_s = iobuf_pop_be32(&opt_buf);
+    iobuf_pop_be32(&opt_buf); // IAID
+    t1_s = iobuf_pop_be32(&opt_buf);
+    iobuf_pop_be32(&opt_buf); // T2
     if (opt_buf.err) {
         TRACE(TR_DROP, "drop %-9s: malformed ia_na option", "dhcp");
         return;
@@ -196,20 +190,20 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
      * If the time at which the addresses in an IA_NA are to be renewed is to
      * be left to the discretion of the client, the server sets T1 and T2 to 0.
      */
-    if (!opt_ia_na.t1_s) {
+    if (!t1_s) {
         if (timer_stopped(&client->iaaddr.valid_lifetime_timer))
-            opt_ia_na.t1_s = DHCPV6_LIFETIME_INFINITE;
+            t1_s = DHCPV6_LIFETIME_INFINITE;
         else
-            opt_ia_na.t1_s = timer_duration_ms(&client->iaaddr.valid_lifetime_timer) / 1000 * 90 / 100;
+            t1_s = timer_duration_ms(&client->iaaddr.valid_lifetime_timer) / 1000 * 90 / 100;
     }
 
     /*
      *   Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
      * The IA_NA’s value of T2 is not used.
      */
-    if (opt_ia_na.t1_s != DHCPV6_LIFETIME_INFINITE) {
-        TRACE(TR_DHCP, "dhcp ia_na t1:%ds", opt_ia_na.t1_s);
-        timer_start_rel(NULL, &client->t1_timer, opt_ia_na.t1_s * 1000);
+    if (t1_s != DHCPV6_LIFETIME_INFINITE) {
+        TRACE(TR_DHCP, "dhcp ia_na t1:%ds", t1_s);
+        timer_start_rel(NULL, &client->t1_timer, t1_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp ia_na t1:infinite");
     }
