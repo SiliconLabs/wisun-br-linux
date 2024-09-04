@@ -29,12 +29,6 @@
 
 #include "dhcp_client.h"
 
-struct dhcp_opt_iaaddr {
-    struct in6_addr ipv6;
-    uint32_t preferred_lifetime_s;
-    uint32_t valid_lifetime_s;
-};
-
 struct dhcp_opt_ia_na {
     uint32_t iaid;
     uint32_t t1_s;
@@ -94,8 +88,10 @@ static void dhcp_client_addr_expired(struct timer_group *group, struct timer_ent
 
 static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *buf, size_t buf_len)
 {
-    struct dhcp_opt_iaaddr opt_iaaddr;
+    uint32_t preferred_lifetime_s;
+    uint32_t valid_lifetime_s;
     struct iobuf_read opt_buf;
+    struct in6_addr addr;
 
     dhcp_get_option(buf, buf_len, DHCPV6_OPT_IA_ADDRESS, &opt_buf);
     if (opt_buf.err) {
@@ -103,9 +99,9 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
         return -ENOTSUP;
     }
 
-    iobuf_pop_data(&opt_buf, opt_iaaddr.ipv6.s6_addr, sizeof(opt_iaaddr.ipv6.s6_addr));
-    opt_iaaddr.preferred_lifetime_s = iobuf_pop_be32(&opt_buf);
-    opt_iaaddr.valid_lifetime_s = iobuf_pop_be32(&opt_buf);
+    iobuf_pop_data(&opt_buf, &addr, sizeof(addr));
+    preferred_lifetime_s = iobuf_pop_be32(&opt_buf);
+    valid_lifetime_s     = iobuf_pop_be32(&opt_buf);
     if (opt_buf.err) {
         TRACE(TR_DROP, "drop %-9s: malformed iaaddr option", "dhcp");
         return -EINVAL;
@@ -116,7 +112,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      * A client discards any addresses for which the preferred lifetime is
      * greater than the valid lifetime.
      */
-    if (opt_iaaddr.preferred_lifetime_s > opt_iaaddr.valid_lifetime_s) {
+    if (preferred_lifetime_s > valid_lifetime_s) {
         TRACE(TR_DROP, "drop %-9s: invalid preferred lifetime (> valid lifetime)", "dhcp");
         return -EINVAL;
     }
@@ -129,9 +125,9 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      *   - Discard any addresses from the IA, as recorded by the client, that
      *     have a valid lifetime of 0 in the IA Address option.
      */
-    if (!opt_iaaddr.valid_lifetime_s) {
+    if (!valid_lifetime_s) {
         if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
-            IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &opt_iaaddr.ipv6)) {
+            IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &addr)) {
             timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
             dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
         }
@@ -145,27 +141,26 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      * When a new IPv6 is assigned, we make the old one expire.
      */
     if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
-        !IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &opt_iaaddr.ipv6)) {
+        !IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &addr)) {
         timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
         dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
     }
 
     timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
 
-    client->iaaddr.ipv6 = opt_iaaddr.ipv6;
+    client->iaaddr.ipv6 = addr;
     client->iaaddr.valid_lifetime_timer.callback = dhcp_client_addr_expired;
 
-    if (opt_iaaddr.valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
-        TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:%ds", tr_ipv6(client->iaaddr.ipv6.s6_addr),
-              opt_iaaddr.valid_lifetime_s);
+    if (valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
+        TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:%ds",
+              tr_ipv6(client->iaaddr.ipv6.s6_addr), valid_lifetime_s);
         timer_start_rel(NULL, &client->iaaddr.valid_lifetime_timer,
-                        opt_iaaddr.valid_lifetime_s * 1000);
+                        valid_lifetime_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
     if (client->on_addr_add)
-        client->on_addr_add(client, &client->iaaddr.ipv6, opt_iaaddr.valid_lifetime_s,
-                            opt_iaaddr.preferred_lifetime_s);
+        client->on_addr_add(client, &client->iaaddr.ipv6, valid_lifetime_s, preferred_lifetime_s);
     return 0;
 }
 
