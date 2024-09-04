@@ -57,4 +57,7 @@ void dhcp_client_init(struct dhcp_client *client,
 void dhcp_client_start(struct dhcp_client *client);
 void dhcp_client_recv(struct dhcp_client *client);
 
+uint32_t dhcp_iaaddr_valid_lifetime_s(const struct dhcp_iaaddr *iaaddr);
+uint32_t dhcp_iaaddr_preferred_lifetime_s(const struct dhcp_iaaddr *iaaddr);
+
 #endif

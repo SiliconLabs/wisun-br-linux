@@ -20,6 +20,7 @@
 #include "common/specs/dhcpv6.h"
 #include "common/string_extra.h"
 #include "common/dhcp_common.h"
+#include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/capture.h"
@@ -301,4 +302,29 @@ void dhcp_client_init(struct dhcp_client *client,
     client->t1_timer.callback = dhcp_client_t1_expired;
     client->solicit_txalg.tx  = dhcp_client_solicit;
     rfc8415_txalg_init(&client->solicit_txalg);
+}
+
+uint32_t dhcp_iaaddr_valid_lifetime_s(const struct dhcp_iaaddr *iaaddr)
+{
+    uint64_t expire_s = iaaddr->valid_lifetime_timer.expire_ms / 1000;
+    uint64_t now_s = time_now_s(CLOCK_MONOTONIC);
+
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&iaaddr->ipv6));
+    if (timer_stopped(&iaaddr->valid_lifetime_timer))
+        return DHCPV6_LIFETIME_INFINITE;
+    BUG_ON(expire_s > now_s && expire_s - now_s > UINT32_MAX);
+    return expire_s > now_s ? expire_s - now_s : 0;
+}
+
+uint32_t dhcp_iaaddr_preferred_lifetime_s(const struct dhcp_iaaddr *iaaddr)
+{
+    uint64_t expire_s = iaaddr->valid_lifetime_timer.start_ms / 1000 +
+                        iaaddr->preferred_lifetime_s;
+    uint64_t now_s = time_now_s(CLOCK_MONOTONIC);
+
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&iaaddr->ipv6));
+    if (iaaddr->preferred_lifetime_s == DHCPV6_LIFETIME_INFINITE)
+        return DHCPV6_LIFETIME_INFINITE;
+    BUG_ON(expire_s > now_s && expire_s - now_s > UINT32_MAX);
+    return expire_s > now_s ? expire_s - now_s : 0;
 }
