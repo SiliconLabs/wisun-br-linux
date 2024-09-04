@@ -131,6 +131,7 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
     struct timer_entry *cur, *prev;
 
     timer_stop(group, timer);
+    timer->start_ms = time_now_ms(CLOCK_MONOTONIC);
 
     if (!group)
         group = &ctxt->group_default;
@@ -151,7 +152,11 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
 
 void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint64_t offset_ms)
 {
-    timer_start_abs(group, timer, time_now_ms(CLOCK_MONOTONIC) + offset_ms);
+    uint64_t start_ms = time_now_ms(CLOCK_MONOTONIC);
+
+    timer_start_abs(group, timer, start_ms + offset_ms);
+    // More accurate than what is set by timer_start_abs()
+    timer->start_ms = start_ms;
 }
 
 void timer_stop(struct timer_group *group, struct timer_entry *timer)
@@ -165,6 +170,7 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
         group = &ctxt->group_default;
     reschedule = (timer == SLIST_FIRST(&group->timers));
     SLIST_REMOVE(&group->timers, timer, timer_entry, link);
+    timer->start_ms  = 0;
     timer->expire_ms = 0;
     if (reschedule)
         timer_schedule(ctxt);

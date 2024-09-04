@@ -56,7 +56,8 @@ struct timer_entry {
     uint64_t period_ms;
     void (*callback)(struct timer_group *group, struct timer_entry *timer);
 
-    // Internal fields
+    // Read-only fields
+    uint64_t start_ms;
     uint64_t expire_ms;
     SLIST_ENTRY(timer_entry) link;
 };
@@ -82,6 +83,11 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer);
 static inline bool timer_stopped(const struct timer_entry *timer)
 {
     return !timer->expire_ms;
+}
+
+static inline uint64_t timer_duration_ms(const struct timer_entry *timer)
+{
+    return timer->expire_ms - timer->start_ms;
 }
 
 #endif
