@@ -29,7 +29,6 @@ struct tun_ctx;
 // Identity Association Address Option
 struct dhcp_iaaddr {
     struct in6_addr ipv6;
-    uint32_t valid_lifetime_s;
     struct timer_entry valid_lifetime_timer;
 };
 

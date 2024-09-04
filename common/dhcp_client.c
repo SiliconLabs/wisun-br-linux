@@ -153,19 +153,18 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
 
     client->iaaddr.ipv6 = opt_iaaddr.ipv6;
-    client->iaaddr.valid_lifetime_s = opt_iaaddr.valid_lifetime_s;
     client->iaaddr.valid_lifetime_timer.callback = dhcp_client_addr_expired;
 
-    if (client->iaaddr.valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
+    if (opt_iaaddr.valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:%ds", tr_ipv6(client->iaaddr.ipv6.s6_addr),
-              client->iaaddr.valid_lifetime_s);
+              opt_iaaddr.valid_lifetime_s);
         timer_start_rel(NULL, &client->iaaddr.valid_lifetime_timer,
-                        client->iaaddr.valid_lifetime_s * 1000);
+                        opt_iaaddr.valid_lifetime_s * 1000);
     } else {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
     if (client->on_addr_add)
-        client->on_addr_add(client, &client->iaaddr.ipv6, client->iaaddr.valid_lifetime_s,
+        client->on_addr_add(client, &client->iaaddr.ipv6, opt_iaaddr.valid_lifetime_s,
                             opt_iaaddr.preferred_lifetime_s);
     return 0;
 }
@@ -203,12 +202,10 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
      * be left to the discretion of the client, the server sets T1 and T2 to 0.
      */
     if (!opt_ia_na.t1_s) {
-        if (client->iaaddr.valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
-            BUG_ON(!client->iaaddr.valid_lifetime_s);
-            opt_ia_na.t1_s = client->iaaddr.valid_lifetime_s * 90 / 100;
-        } else {
+        if (timer_stopped(&client->iaaddr.valid_lifetime_timer))
             opt_ia_na.t1_s = DHCPV6_LIFETIME_INFINITE;
-        }
+        else
+            opt_ia_na.t1_s = timer_duration_ms(&client->iaaddr.valid_lifetime_timer) / 1000 * 90 / 100;
     }
 
     /*
