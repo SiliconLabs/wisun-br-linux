@@ -135,10 +135,13 @@ static void rpl_transit_expire(struct timer_group *group, struct timer_entry *ti
                 tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
         memset(target->transits + i, 0, sizeof(struct rpl_transit));
     }
-    if (!memzcmp(target->transits, sizeof(target->transits)))
+    if (!memzcmp(target->transits, sizeof(target->transits))) {
         rpl_target_del(root, target);
-    else
+    } else {
         rpl_transit_update_timer(root, target);
+        if (root->on_target_update)
+            root->on_target_update(root, target, true);
+    }
 }
 
 static void rpl_dio_trickle_params(struct rpl_root *root, struct trickle_legacy_params *params)
