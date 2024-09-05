@@ -721,12 +721,14 @@ void rpl_timer(int ticks)
     struct rpl_root *root = &g_ctxt.net_if.rpl_root;
     struct rpl_target *target, *tmp;
     time_t elapsed;
+    bool updated;
 
     rpl_dio_trickle_params(root, &dio_trickle_params);
     if (trickle_timer(&root->dio_trickle, &dio_trickle_params, ticks))
         rpl_send_dio(root, rpl_all_nodes);
 
     SLIST_FOREACH_SAFE(target, &root->targets, link, tmp) {
+        updated = false;
         elapsed = time_get_elapsed(CLOCK_MONOTONIC, target->path_seq_tstamp_s);
         for (uint8_t i = 0; i < root->pcs + 1; i++) {
             if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
@@ -736,8 +738,11 @@ void rpl_timer(int ticks)
             TRACE(TR_RPL, "rpl: transit expire target=%s parent=%s path-ctl-bit=%u",
                   tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
             memset(target->transits + i, 0, sizeof(struct rpl_transit));
+            updated = false;
         }
         if (!memzcmp(target->transits, sizeof(target->transits)))
             rpl_target_del(root, target);
+        else if (updated && root->on_target_update)
+            root->on_target_update(root, target, true);
     }
 }
