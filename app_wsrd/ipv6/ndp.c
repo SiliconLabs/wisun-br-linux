@@ -79,7 +79,7 @@ static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
 
     // TODO: Figure out how NUD works with children.
-    if (has_gua) {
+    if (has_gua && neigh->rpl && neigh->rpl->is_parent) {
         memset(&aro, 0, sizeof(aro));
         aro.type = NDP_OPT_ARO;
         aro.len  = sizeof(aro) / 8;
