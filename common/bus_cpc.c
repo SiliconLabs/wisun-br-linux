@@ -30,9 +30,9 @@ int cpc_open(struct bus *bus, const char *cpc_instance, bool verbose)
     int ret, fd;
 
     ret = cpc_init(&bus->cpc.handle, cpc_instance, verbose, cpc_reset_callback);
-    FATAL_ON(ret, 2, "cpc_init: %m");
+    FATAL_ON(ret, 2, "cpc_init: %s", strerror(-ret));
     fd = cpc_open_endpoint(bus->cpc.handle, &bus->cpc.endpoint, SL_CPC_ENDPOINT_WISUN, 1);
-    FATAL_ON(fd < 0, 2, "cpc_open_endpoint: %m");
+    FATAL_ON(fd < 0, 2, "cpc_open_endpoint: %s", strerror(-fd));
     // ret = cpc_set_endpoint_option(bus->cpc_ep, CPC_OPTION_BLOCKING, (void *)true, sizeof(bool));
     // FATAL_ON(ret, 2, "cpc_set_endpoint_option: %m");
     return fd;
@@ -43,7 +43,7 @@ int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len)
     int ret;
 
     ret = cpc_write_endpoint(bus->cpc.endpoint, buf, buf_len, 0);
-    FATAL_ON(ret < 0, 2, "cpc_write_endpoint: %m");
+    FATAL_ON(ret < 0, 2, "cpc_write_endpoint: %s", strerror(-ret));
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
         tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
@@ -54,7 +54,7 @@ int cpc_rx(struct bus *bus, void *buf, unsigned int buf_len)
     int ret;
 
     ret = cpc_read_endpoint(bus->cpc.endpoint, buf, buf_len, 0);
-    FATAL_ON(ret < 0, 2, "cpc_read_endpoint: %m");
+    FATAL_ON(ret < 0, 2, "cpc_read_endpoint: %s", strerror(-ret));
     TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
         tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
