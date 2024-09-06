@@ -1,3 +1,19 @@
+v2.1.5
+------
+  - Improve D-Bus `RoutingGraph`:
+    * FFNs neighbors that are not registered through RPL are no longer exposed.
+      They would be previously misinterpreted as LFNs during initial connection
+      or after expiration.
+    * Update signals are no longer emitted for renewed parent registrations
+      that do not include any parent change.
+  - Support LFN aggregation in RPL DAO packets (consecutive target options for
+    one common transit option).
+  - Fix use-after-free for multicast packets using MPL.
+  - Prevent segfault when using an external RADIUS server.
+  - Fix PMK/PTK configuration for LFNs, the FFN value would be used previously.
+  - Print backtrace on Segmentation Fault and other crash signals.
+  - Fix CPC error code logs.
+
 v2.1.4
 ------
   - Fix interoperability issue with mode switch: do not include the base
