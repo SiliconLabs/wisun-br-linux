@@ -75,7 +75,6 @@ typedef struct fragmenter_tx_entry {
     uint8_t unfrag_len; /*!< Length of headers that precede the FRAG header */
     bool fragmented_data: 1;
     bool first_fragment: 1;
-    bool indirect_data: 1;
     buffer_t *buf;
     uint8_t *fragmenter_buf;
     ns_list_link_t      link; /*!< List link entry */
@@ -552,8 +551,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
     }
 
     lowpan_active_buffer_state_reset(tx_entry);
-
-    tx_entry->indirect_data = indirect;
 
     return tx_entry;
 }
