@@ -91,6 +91,14 @@ struct rpl_opt_transit {
     struct in6_addr parent_addr;
 } __attribute__((packed));
 
+// RFC 6550 Figure 28: Format of the Solicited Information Option
+struct rpl_opt_solicit {
+    uint8_t instance_id;
+    uint8_t flags;
+    struct in6_addr dodag_id;
+    uint8_t dodag_verno;
+};
+
 // RFC 6550 Figure 29: Format of the Prefix Information Option
 struct rpl_opt_prefix {
     uint8_t prefix_len;

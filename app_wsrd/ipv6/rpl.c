@@ -436,6 +436,77 @@ drop_neigh:
         rpl_neigh_del(ipv6, nce);
 }
 
+static bool rpl_opt_solicit_matches(const struct rpl_opt_solicit *solicit, const struct rpl_dio *dio)
+{
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_I && solicit->instance_id != dio->instance_id)
+        return false;
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&solicit->dodag_id, &dio->dodag_id))
+        return false;
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_V && solicit->dodag_verno != dio->dodag_verno)
+        return false;
+    return true;
+}
+
+static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
+                         const struct in6_addr *src, const struct in6_addr *dst)
+{
+    const struct rpl_opt_solicit *solicit;
+    const struct rpl_dis *dis;
+    const struct rpl_opt *opt;
+    struct ipv6_neigh *parent;
+    struct iobuf_read iobuf = {
+        .data_size = buf_len,
+        .data = buf,
+    };
+
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent) {
+        TRACE(TR_DROP, "drop %-9s: routing not ready", tr_icmp_rpl(RPL_CODE_DIS));
+        return;
+    }
+
+    dis = iobuf_pop_data_ptr(&iobuf, sizeof(*dis));
+    if (!dis)
+        goto malformed;
+
+    while (iobuf_remaining_size(&iobuf)) {
+        opt = (const struct rpl_opt *)iobuf_ptr(&iobuf);
+        if (opt->type == RPL_OPT_PAD1) {
+            iobuf_pop_u8(&iobuf);
+            continue;
+        }
+        if (!iobuf_pop_data_ptr(&iobuf, sizeof(*opt)))
+            goto malformed;
+        if (!iobuf_pop_data_ptr(&iobuf, opt->len))
+            goto malformed;
+        switch (opt->type) {
+        case RPL_OPT_PADN:
+            continue;
+        case RPL_OPT_SOLICIT:
+            solicit = (struct rpl_opt_solicit *)iobuf_pop_data_ptr(&iobuf, sizeof(solicit));
+            if (!solicit)
+                goto malformed;
+            if (!rpl_opt_solicit_matches(solicit, &parent->rpl->dio)) {
+                TRACE(TR_DROP, "drop %-9s: solicited information mismatch", tr_icmp_rpl(RPL_CODE_DIS));
+                return;
+            }
+            break;
+        default:
+            TRACE(TR_IGNORE, "ignore: rpl-dis unsupported option %u", opt->type);
+            break;
+        }
+    }
+
+    if (IN6_IS_ADDR_MULTICAST(dst))
+        trickle_inconsistent(&ipv6->rpl.dio_trickle);
+    else
+        rpl_send_dio(ipv6, src);
+    return;
+
+malformed:
+    TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DIS));
+}
+
 static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
                              const uint8_t *buf, size_t buf_len)
 {
@@ -503,6 +574,9 @@ static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t 
     switch (code) {
     case RPL_CODE_DIO:
         rpl_recv_dio(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
+        break;
+    case RPL_CODE_DIS:
+        rpl_recv_dis(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
         break;
     case RPL_CODE_DAO_ACK:
         rpl_recv_dao_ack(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
