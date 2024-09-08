@@ -112,7 +112,7 @@ char *str_key(const uint8_t *in, int in_len, char *out, int out_len)
 
 char *str_eui48(const uint8_t in[6], char out[STR_MAX_LEN_EUI48])
 {
-    return str_bytes(in, 6, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
+    return str_bytes(in, 6, NULL, out, STR_MAX_LEN_EUI48, DELIM_COLON);
 }
 
 char *str_eui64(const uint8_t in[8], char out[STR_MAX_LEN_EUI64])
