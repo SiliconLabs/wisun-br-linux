@@ -95,6 +95,7 @@ typedef struct radius_client_sec_prot_int {
     uint8_t                       new_pmk[PMK_LEN];             /**< New Pair Wise Master Key */
     uint16_t                      recv_eap_msg_len;             /**< Received EAP message length */
     uint8_t                       *recv_eap_msg;                /**< Received EAP message */
+    bool                          recv_eap_msg_own;             /**< This module owns the received buffer and must manage its memory */
     uint16_t                      send_radius_msg_len;          /**< Send radius message length */
     uint8_t                       *send_radius_msg;             /**< Send radius message */
     uint8_t                       identity_len;                 /**< Supplicant EAP identity length */
@@ -257,7 +258,7 @@ static void radius_client_sec_prot_release(sec_prot_t *prot)
 {
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
-    if (data->recv_eap_msg != NULL) {
+    if (data->recv_eap_msg_own && data->recv_eap_msg != NULL) {
         free(data->recv_eap_msg);
     }
     if (data->send_radius_msg != NULL) {
@@ -454,6 +455,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, const void *pdu, 
 
     // Allocate memory for continuous EAP buffer
     data->recv_eap_msg = malloc(data->recv_eap_msg_len + data->radius_eap_tls_header_size);
+    data->recv_eap_msg_own = true;
     if (data->recv_eap_msg == NULL) {
         tr_error("Cannot allocate eap msg");
         return -1;
@@ -522,6 +524,10 @@ static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, const 
 
     data->recv_eap_msg_len = size;
     data->recv_eap_msg = (uint8_t *)pdu; // FIXME
+    // FIXME: This buffer can be either allocated from this module, or come
+    // from the outside. Ownership should be changed to be consistent for all
+    // usages.
+    data->recv_eap_msg_own = false;
 
     prot->state_machine(prot);
 
