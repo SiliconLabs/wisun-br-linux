@@ -324,6 +324,7 @@ add_library(libwsrd STATIC
     common/trickle.c
     common/tun.c
     common/ws_chan_mask.c
+    common/ws_ie_validation.c
     common/ws_ie.c
     common/ws_interface.c
     common/ws_neigh.c
