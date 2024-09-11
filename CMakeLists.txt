@@ -279,7 +279,6 @@ add_library(libwsrd STATIC
     app_wsrd/app/wsrd.c
     app_wsrd/app/ws.c
     app_wsrd/ipv6/6lowpan.c
-    app_wsrd/ipv6/6lowpan_iphc.c
     app_wsrd/ipv6/ipv6.c
     app_wsrd/ipv6/ipv6_addr_mc.c
     app_wsrd/ipv6/ndp.c
@@ -292,6 +291,7 @@ add_library(libwsrd STATIC
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
     common/crypto/ws_keys.c
+    common/ipv6/6lowpan_iphc.c
     common/ipv6/ipv6_addr.c
     common/bits.c
     common/bus_uart.c

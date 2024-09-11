@@ -14,11 +14,11 @@
 #include <errno.h>
 
 #include "common/specs/6lowpan.h"
+#include "common/ipv6/6lowpan_iphc.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/pktbuf.h"
-#include "app_wsrd/ipv6/6lowpan_iphc.h"
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/app/ws.h"
 #include "6lowpan.h"
