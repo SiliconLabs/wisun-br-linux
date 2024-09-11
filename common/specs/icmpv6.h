@@ -15,6 +15,8 @@
 #ifndef SPECS_ICMPV6_H
 #define SPECS_ICMPV6_H
 
+#include "common/endian.h"
+
 // RFC4443: "ICMPv6 Types".
 // https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-2
 enum {
@@ -87,5 +89,16 @@ enum {
     ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT       = 2,
     ICMPV6_CODE_PARAM_PRB_FIRST_FRAG_IPV6_HDR  = 3,
 };
+
+/*
+ * NOTE: The standard struct icmp6_hdr from netinet/icmp6.h contains extra
+ * fields to cover common payloads such as ICMP ping and ND packets, which
+ * prevents using sizeof() to retrieve only the header.
+ */
+struct icmpv6_hdr {
+    uint8_t type;
+    uint8_t code;
+    be16_t  cksum;
+} __attribute__((packed));
 
 #endif

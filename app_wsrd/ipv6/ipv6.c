@@ -33,17 +33,6 @@
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "ipv6.h"
 
-/*
- * NOTE: The standard struct icmp6_hdr from netinet/icmp6.h contains extra
- * fields to cover common payloads such as ICMP ping and ND packets, which
- * prevents using sizeof() to retrieve only the header.
- */
-struct icmpv6_hdr {
-    uint8_t type;
-    uint8_t code;
-    be16_t  cksum;
-} __attribute__((packed));
-
 void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 {
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
