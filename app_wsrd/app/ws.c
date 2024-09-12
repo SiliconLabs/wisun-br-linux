@@ -116,7 +116,7 @@ static bool ws_ie_validate_bs(struct ws_fhss_config *fhss, const struct iobuf_re
     return ws_ie_validate_schedule(fhss, &ie_bs->chan_plan);
 }
 
-static bool ws_ie_validate_netname(struct ws_ctx *ws, const struct iobuf_read *ie_wp)
+static bool ws_ie_validate_netname(const char *netname, const struct iobuf_read *ie_wp)
 {
     struct ws_netname_ie ie_netname;
 
@@ -124,7 +124,7 @@ static bool ws_ie_validate_netname(struct ws_ctx *ws, const struct iobuf_read *i
         TRACE(TR_DROP, "drop %-9s: missing NETNAME-IE", "15.4");
         return false;
     }
-    if (strcmp(ws->netname, ie_netname.netname)) {
+    if (strcmp(netname, ie_netname.netname)) {
         TRACE(TR_DROP, "drop %-9s: NETNAME-IE mismatch", "15.4");
         return false;
     }
@@ -273,7 +273,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     }
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    if (!ws_ie_validate_netname(&wsrd->ws, &ind->ie_wp))
+    if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
         return;
     if (!ws_ie_validate_pan(&wsrd->ws, &ind->ie_wp, &ie_pan))
         return;
@@ -295,7 +295,7 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
 
-    if (!ws_ie_validate_netname(&wsrd->ws, &ind->ie_wp))
+    if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
         return;
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
@@ -432,7 +432,7 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
-    if (!ws_ie_validate_netname(&wsrd->ws, &ind->ie_wp))
+    if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
         return;
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
