@@ -37,7 +37,7 @@
 
 #include "ws.h"
 
-static bool ws_ie_validate_chan_plan(struct ws_ctx *ws, const struct ws_generic_channel_info *schedule)
+static bool ws_ie_validate_chan_plan(struct ws_fhss_config *fhss, const struct ws_generic_channel_info *schedule)
 {
     const struct ws_channel_plan_zero *plan0 = &schedule->plan.zero;
     const struct ws_channel_plan_one *plan1 = &schedule->plan.one;
@@ -46,8 +46,8 @@ static bool ws_ie_validate_chan_plan(struct ws_ctx *ws, const struct ws_generic_
     int plan_nr = schedule->channel_plan;
 
     if (plan_nr == 1)
-        return plan1->ch0 * 1000      == ws->fhss.chan_params->chan0_freq &&
-               plan1->channel_spacing == ws_regdb_chan_spacing_id(ws->fhss.chan_params->chan_spacing);
+        return plan1->ch0 * 1000      == fhss->chan_params->chan0_freq &&
+               plan1->channel_spacing == ws_regdb_chan_spacing_id(fhss->chan_params->chan_spacing);
     if (plan_nr == 0)
         parms = ws_regdb_chan_params(plan0->regulatory_domain,
                                      0, plan0->operating_class);
@@ -56,13 +56,13 @@ static bool ws_ie_validate_chan_plan(struct ws_ctx *ws, const struct ws_generic_
                                      plan2->channel_plan_id, 0);
     if (!parms)
         return false;
-    return parms->chan0_freq   == ws->fhss.chan_params->chan0_freq &&
-           parms->chan_spacing == ws->fhss.chan_params->chan_spacing;
+    return parms->chan0_freq   == fhss->chan_params->chan0_freq &&
+           parms->chan_spacing == fhss->chan_params->chan_spacing;
 }
 
-static bool ws_ie_validate_schedule(struct ws_ctx *ws, const struct ws_generic_channel_info *schedule)
+static bool ws_ie_validate_schedule(struct ws_fhss_config *fhss, const struct ws_generic_channel_info *schedule)
 {
-    if (!ws_ie_validate_chan_plan(ws, schedule)) {
+    if (!ws_ie_validate_chan_plan(fhss, schedule)) {
         TRACE(TR_DROP, "drop %-9s: invalid channel plan", "15.4");
         return false;
     }
@@ -94,7 +94,7 @@ static bool ws_ie_validate_schedule(struct ws_ctx *ws, const struct ws_generic_c
     return true;
 }
 
-static bool ws_ie_validate_us(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_us_ie *ie_us)
+static bool ws_ie_validate_us(struct ws_fhss_config *fhss, const struct iobuf_read *ie_wp, struct ws_us_ie *ie_us)
 {
     if (!ws_wp_nested_us_read(ie_wp->data, ie_wp->data_size, ie_us)) {
         TRACE(TR_DROP, "drop %-9s: missing US-IE", "15.4");
@@ -104,16 +104,16 @@ static bool ws_ie_validate_us(struct ws_ctx *ws, const struct iobuf_read *ie_wp,
         TRACE(TR_DROP, "drop %-9s: invalid dwell interval", "15.4");
         return false;
     }
-    return ws_ie_validate_schedule(ws, &ie_us->chan_plan);
+    return ws_ie_validate_schedule(fhss, &ie_us->chan_plan);
 }
 
-static bool ws_ie_validate_bs(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_bs_ie *ie_bs)
+static bool ws_ie_validate_bs(struct ws_fhss_config *fhss, const struct iobuf_read *ie_wp, struct ws_bs_ie *ie_bs)
 {
     if (!ws_wp_nested_bs_read(ie_wp->data, ie_wp->data_size, ie_bs)) {
         TRACE(TR_DROP, "drop %-9s: missing BS-IE", "15.4");
         return false;
     }
-    return ws_ie_validate_schedule(ws, &ie_bs->chan_plan);
+    return ws_ie_validate_schedule(fhss, &ie_bs->chan_plan);
 }
 
 static bool ws_ie_validate_netname(struct ws_ctx *ws, const struct iobuf_read *ie_wp)
@@ -277,7 +277,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     if (!ws_ie_validate_pan(&wsrd->ws, &ind->ie_wp, &ie_pan))
         return;
-    if (!ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us))
+    if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
     ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
@@ -297,7 +297,7 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
 
     if (!ws_ie_validate_netname(&wsrd->ws, &ind->ie_wp))
         return;
-    if (!ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us))
+    if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
@@ -370,9 +370,9 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: missing BT-IE", "15.4");
         return;
     }
-    if (!ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us))
+    if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
-    if (!ws_ie_validate_bs(&wsrd->ws, &ind->ie_wp, &ie_bs))
+    if (!ws_ie_validate_bs(&wsrd->ws.fhss, &ind->ie_wp, &ie_bs))
         return;
 
     // TODO: LFNVER-IE, LGTKHASH-IE, LBC-IE, FFN/PAN-Wide IEs
@@ -434,7 +434,7 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
     }
     if (!ws_ie_validate_netname(&wsrd->ws, &ind->ie_wp))
         return;
-    if (!ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us))
+    if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
@@ -482,7 +482,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
 
-    if (ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us)) {
+    if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
@@ -533,7 +533,7 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      */
     has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, authenticator_eui64);
 
-    if (ws_ie_validate_us(&wsrd->ws, &ind->ie_wp, &ie_us)) {
+    if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
