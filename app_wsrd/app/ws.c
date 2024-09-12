@@ -131,7 +131,7 @@ static bool ws_ie_validate_netname(const char *netname, const struct iobuf_read 
     return true;
 }
 
-static bool ws_ie_validate_pan(struct ws_ctx *ws, const struct iobuf_read *ie_wp, struct ws_pan_ie *ie_pan)
+static bool ws_ie_validate_pan(const struct iobuf_read *ie_wp, struct ws_pan_ie *ie_pan)
 {
     if (!ws_wp_nested_pan_read(ie_wp->data, ie_wp->data_size, ie_pan)) {
         TRACE(TR_DROP, "drop %-9s: missing PAN-IE", "15.4");
@@ -275,7 +275,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
     ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
     if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
         return;
-    if (!ws_ie_validate_pan(&wsrd->ws, &ind->ie_wp, &ie_pan))
+    if (!ws_ie_validate_pan(&ind->ie_wp, &ie_pan))
         return;
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
