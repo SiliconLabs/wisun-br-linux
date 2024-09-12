@@ -11,10 +11,20 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <netinet/icmp6.h>
+#include <netinet/ip6.h>
+#include <unistd.h>
+
+#include "common/specs/icmpv6.h"
+#include "common/specs/ipv6.h"
+#include "common/ipv6/6lowpan_iphc.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/ws_ie_validation.h"
+#include "common/ws_interface.h"
 #include "common/memutils.h"
+#include "common/pktbuf.h"
 #include "common/sl_ws.h"
+#include "common/bits.h"
 #include "common/log.h"
 #include "dc.h"
 
@@ -37,6 +47,88 @@ static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
         INFO("%s reachable at %s", tr_eui64(dc->cfg.target_eui64), tr_ipv6(client_linklocal.s6_addr));
     }
     timer_stop(NULL, &dc->disc_timer);
+}
+
+static bool ws_is_exthdr(uint8_t ipproto)
+{
+    switch (ipproto) {
+    case IPPROTO_HOPOPTS:
+    case IPPROTO_ROUTING:
+    case IPPROTO_FRAGMENT:
+    case IPPROTO_DSTOPTS:
+    case IPPROTO_MH:
+        return true;
+    default:
+        return false;
+    }
+}
+
+static bool ws_is_pkt_allowed(struct pktbuf *pktbuf)
+{
+    const struct ip6_ext *ext;
+    struct icmpv6_hdr icmp;
+    struct ip6_hdr hdr;
+    size_t offset_head;
+    uint8_t ipproto;
+
+    offset_head = pktbuf->offset_head;
+    pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
+    if (FIELD_GET(IPV6_MASK_VERSION, ntohl(hdr.ip6_flow)) != 6) {
+        TRACE(TR_DROP, "drop %-9s: invalid IP version", "ipv6");
+        return false;
+    }
+    if (!IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst)) {
+        TRACE(TR_DROP, "drop %-9s: invalid non-linklocal IPv6 destination", "ipv6");
+        return false;
+    }
+
+    ipproto = hdr.ip6_nxt;
+    while (ws_is_exthdr(ipproto) && !pktbuf->err) {
+        if (ipproto == IPPROTO_FRAGMENT) {
+            pktbuf->offset_head = offset_head;
+            return true;
+        }
+        if (pktbuf_len(pktbuf) < sizeof(*ext)) {
+            TRACE(TR_DROP, "drop %-9s: malformed extension header", "ipv6");
+            return false;
+        }
+        ext = (struct ip6_ext *)pktbuf_head(pktbuf);
+        ipproto = ext->ip6e_nxt;
+        pktbuf_pop_head(pktbuf, NULL, 8 * (ext->ip6e_len + 1));
+    }
+
+    switch (ipproto) {
+    case IPPROTO_NONE:
+    case IPPROTO_UDP:
+    case IPPROTO_TCP:
+        break;
+    case IPPROTO_ICMPV6:
+        pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
+        switch (icmp.type) {
+        case ICMP6_DST_UNREACH:
+        case ICMP6_PACKET_TOO_BIG:
+        case ICMP6_TIME_EXCEEDED:
+        case ICMP6_PARAM_PROB:
+        case ICMP6_ECHO_REQUEST:
+        case ICMP6_ECHO_REPLY:
+            break;
+        default:
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp.type);
+            return false;
+        }
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported next header %u", "ipv6", ipproto);
+        return false;
+    }
+
+    if (pktbuf->err) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
+        return false;
+    }
+
+    pktbuf->offset_head = offset_head;
+    return true;
 }
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
@@ -80,4 +172,38 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %-9s: unsupported frame type %d", "15.4", ie_utt.message_type);
         return;
     }
+}
+
+void ws_recvfrom_tun(struct dc *dc)
+{
+    uint8_t src_iid[8], dst_iid[8];
+    struct pktbuf pktbuf = { };
+    const struct ip6_hdr *hdr;
+    uint8_t dst_eui64[8];
+    ssize_t size;
+
+    pktbuf_init(&pktbuf, NULL, 1500);
+    size = read(dc->tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    if (size < 0) {
+        WARN("%s read: %m", __func__);
+        goto err;
+    }
+    pktbuf.offset_tail = size;
+
+    if (!ws_is_pkt_allowed(&pktbuf))
+        goto err;
+    hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
+
+    ipv6_addr_conv_iid_eui64(dst_eui64, hdr->ip6_dst.s6_addr + 8);
+    ipv6_addr_conv_iid_eui64(src_iid, dc->ws.rcp.eui64.u8);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst_eui64);
+
+    lowpan_iphc_cmpr(&pktbuf, src_iid, dst_iid);
+    if (pktbuf.err)
+        goto err;
+
+    ws_if_send_data(&dc->ws, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf), (struct eui64 *)dst_eui64);
+
+err:
+    pktbuf_free(&pktbuf);
 }

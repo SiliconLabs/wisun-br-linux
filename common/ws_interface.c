@@ -297,7 +297,8 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     iobuf_push_data(&iobuf, pkt, pkt_len);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
-    iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+    if (ws->gak_index)
+        iobuf_push_data_reserved(&iobuf, 8); // MIC-64
 
     TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_DATA), tr_eui64(hdr.dst.u8));
     rcp_req_data_tx(&ws->rcp,

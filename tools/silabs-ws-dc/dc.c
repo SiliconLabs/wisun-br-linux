@@ -29,6 +29,7 @@
 enum {
     POLLFD_RCP,
     POLLFD_TIMER,
+    POLLFD_TUN,
     POLLFD_COUNT,
 };
 
@@ -178,6 +179,8 @@ int dc_main(int argc, char *argv[])
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = timer_fd();
     pfd[POLLFD_TIMER].events = POLLIN;
+    pfd[POLLFD_TUN].fd = dc->tun.fd;
+    pfd[POLLFD_TUN].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, dc->ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -186,6 +189,8 @@ int dc_main(int argc, char *argv[])
             rcp_rx(&dc->ws.rcp);
         if (pfd[POLLFD_TIMER].revents & POLLIN)
             timer_process();
+        if (pfd[POLLFD_TUN].revents & POLLIN)
+            ws_recvfrom_tun(dc);
     }
     return 0;
 }

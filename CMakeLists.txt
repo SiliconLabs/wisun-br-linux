@@ -489,6 +489,7 @@ if(COMPILE_DEVTOOLS)
         tools/silabs-ws-dc/dc.c
         tools/silabs-ws-dc/commandline.c
         tools/silabs-ws-dc/ws.c
+        common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
         common/bits.c
         common/bus_uart.c
@@ -505,6 +506,7 @@ if(COMPILE_DEVTOOLS)
         common/mpx.c
         common/named_values.c
         common/parsers.c
+        common/pktbuf.c
         common/rail_config.c
         common/rand.c
         common/rcp_api.c

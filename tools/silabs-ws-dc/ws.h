@@ -16,7 +16,9 @@
 
 struct ws_ctx;
 struct ws_ind;
+struct dc;
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
+void ws_recvfrom_tun(struct dc *dc);
 
 #endif
