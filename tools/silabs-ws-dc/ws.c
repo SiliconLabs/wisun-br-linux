@@ -15,6 +15,8 @@
 #include <netinet/ip6.h>
 #include <unistd.h>
 
+#include "common/specs/ieee802159.h"
+#include "common/specs/6lowpan.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/ipv6/6lowpan_iphc.h"
@@ -25,6 +27,7 @@
 #include "common/pktbuf.h"
 #include "common/sl_ws.h"
 #include "common/bits.h"
+#include "common/mpx.h"
 #include "common/log.h"
 #include "dc.h"
 
@@ -131,6 +134,76 @@ static bool ws_is_pkt_allowed(struct pktbuf *pktbuf)
     return true;
 }
 
+static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len, const uint8_t src[8],
+                            const uint8_t dst[8])
+{
+    uint8_t src_iid[8], dst_iid[8];
+    struct pktbuf pktbuf = { };
+    struct ip6_hdr hdr;
+    uint8_t dispatch;
+    ssize_t ret;
+
+    ipv6_addr_conv_iid_eui64(src_iid, src);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst);
+
+    pktbuf_init(&pktbuf, buf, buf_len);
+
+    if (pktbuf_len(&pktbuf) < 1)
+        return;
+    dispatch = pktbuf.buf[pktbuf.offset_head];
+
+    // TODO: support FRAG1 and FRAGN
+    if (LOWPAN_DISPATCH_IS_IPHC(dispatch)) {
+        lowpan_iphc_decmpr(&pktbuf, src_iid, dst_iid);
+    } else {
+        TRACE(TR_DROP, "drop %-9s: unsupported dispatch type 0x%02x", "6lowpan", dispatch);
+        goto err;
+    }
+
+    if (!ws_is_pkt_allowed(&pktbuf))
+        goto err;
+
+    pktbuf_pop_head(&pktbuf, &hdr, sizeof(hdr));
+
+    if (!IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &dc->addr_linklocal)) {
+        TRACE(TR_DROP, "drop %-9s: invalid dst=%s", "ipv6", tr_ipv6(hdr.ip6_dst.s6_addr));
+        goto err;
+    }
+
+    pktbuf_push_head(&pktbuf, &hdr, sizeof(hdr));
+
+    TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s", tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
+
+    ret = write(dc->tun.fd, pktbuf.buf + pktbuf.offset_head, pktbuf_len(&pktbuf));
+    if (ret < 0)
+        WARN("write tun : %m");
+    else if (ret != pktbuf_len(&pktbuf))
+        WARN("write tun: Short write: %zi < %zu", ret, pktbuf_len(&pktbuf));
+
+err:
+    pktbuf_free(&pktbuf);
+}
+
+static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
+{
+    struct ws_us_ie ie_us;
+    struct mpx_ie ie_mpx;
+
+    if (!memcmp(&ind->hdr.dst, &ieee802154_addr_bc, 8)) {
+        TRACE(TR_DROP, "drop %s: unsupported broadcast frame", "15.4");
+        return;
+    }
+    if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
+        ie_mpx.multiplex_id  != MPX_ID_6LOWPAN ||
+        ie_mpx.transfer_type != MPX_FT_FULL_FRAME) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
+        return;
+    }
+    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length, ind->hdr.src.u8, ind->hdr.dst.u8);
+}
+
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
 {
     struct dc *dc = container_of(ws, struct dc, ws);
@@ -168,6 +241,9 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
         ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
 
     switch (ie_utt.message_type) {
+    case WS_FT_DATA:
+        ws_recv_data(dc, ind);
+        break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type %d", "15.4", ie_utt.message_type);
         return;
