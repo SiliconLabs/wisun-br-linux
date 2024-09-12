@@ -305,8 +305,7 @@ static void mpl_free_space(void)
         return;
     }
 
-    oldest_seed->min_sequence = mpl_buffer_sequence(oldest_message) + 1;
-    mpl_buffer_delete(oldest_seed, oldest_message);
+    mpl_seed_advance_min_sequence(oldest_seed, mpl_buffer_sequence(oldest_message) + 1);
 }
 
 
@@ -601,8 +600,16 @@ void mpl_timer(int seconds)
             ns_list_foreach_safe(mpl_buffered_message_t, message, &seed->messages) {
                 if (!trickle_legacy_running(&message->trickle, &domain->data_trickle_params) &&
                         g_monotonic_time_100ms - message->timestamp >= message_age_limit) {
-                    seed->min_sequence = mpl_buffer_sequence(message) + 1;
-                    mpl_buffer_delete(seed, message);
+                    /*
+                     *   RFC 7731 7.4. Buffered Message Set
+                     * All MPL Data Messages within a Buffered Message Set MUST have a
+                     * sequence number greater than or equal to MinSequence for the
+                     * corresponding SeedID. When increasing MinSequence for an MPL Seed,
+                     * the MPL Forwarder MUST delete any MPL Data Messages from the
+                     * corresponding Buffered Message Set that have sequence numbers less
+                     * than MinSequence.
+                     */
+                    mpl_seed_advance_min_sequence(seed, mpl_buffer_sequence(message) + 1);
                     continue;
                 }
                 if (trickle_legacy_tick(&message->trickle, &domain->data_trickle_params, seconds))
