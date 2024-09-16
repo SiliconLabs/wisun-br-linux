@@ -122,3 +122,7 @@ def field_prep(mask, val):
 
 def field_max(mask):
     return mask >> ctz(mask)
+
+
+def htole24(val: int) -> bytes:
+    return bytes((val >> (8 * i)) & 0xff for i in range(3))

@@ -825,6 +825,17 @@ def transmitter_icmpv6():
     except:
         return error(400, WSTBU_ERR_UNKNOWN, f'unsupported frameExchangePattern={frame_echange_pattern}')
 
+    lto_offset   = json.get('adjustedListeningOffset')
+    lto_interval = json.get('adjustedListeningInterval')
+    if (lto_offset is None) != (lto_interval is None):
+        return error(400, WSTBU_ERR_UNKNOWN, f'missing adjustedListeningOffset or adjustedListeningInterval')
+    if (lto_offset is not None) and (lto_interval is not None):
+        # Wi-SUN FAN 1.1v08 - Figure 6-47 LTO IE Format
+        lto = utils.htole24(lto_offset) + utils.htole24(lto_interval)
+        wsbrd.dbus().ie_custom_insert(WSTBU_IE_FORMAT_WH, WS_WHIE_LTO, lto, bytes([WS_FRAME_TYPE_DATA]))
+    else:
+        wsbrd.dbus().ie_custom_insert(WSTBU_IE_FORMAT_WH, WS_WHIE_LTO, bytes(), bytes())
+
     # RFC 4443 - 4.1. Echo Request Message
     data = struct.pack('!BBHHH',
         128,                       # Type
