@@ -772,9 +772,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     if (fragmented_needed) {
         //Fragmentation init
         if (lowpan_message_fragmentation_init(buf, tx_ptr, cur, interface_ptr)) {
-            tr_error("Fragment init fail");
-            tx_ptr->buf = NULL;
-            goto tx_error_handler;
+            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
+            return -1;
         }
 
         tx_ptr->tag = interface_ptr->local_frag_tag++;
