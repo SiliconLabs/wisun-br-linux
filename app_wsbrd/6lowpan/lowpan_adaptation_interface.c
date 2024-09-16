@@ -53,13 +53,6 @@
 
 #define TRACE_GROUP "6lAd"
 
-// #define EXTRA_DEBUG_EXTRA
-#ifdef EXTRA_DEBUG_EXTRA
-#define tr_debug_extra(...) tr_debug(__VA_ARGS__)
-#else
-#define tr_debug_extra(...)
-#endif
-
 #define ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE 20
 #define LFN_BUFFER_TIMEOUT_PARAM 4
 
