@@ -88,7 +88,6 @@ typedef struct fragmenter_interface {
     uint16_t local_frag_tag;
     uint8_t msduHandle;
     uint8_t *fragment_indirect_tx_buffer; //Used for write fragmentation header
-    uint16_t mtu_size;
     fragmenter_tx_entry_t active_broadcast_tx_buf; //Current active direct broadcast tx process
     fragmenter_tx_entry_t active_lfn_broadcast_tx_buf; //Current active direct lfn broadcast tx process
     fragmenter_tx_list_t activeUnicastList; //Unicast packets waiting data confirmation from MAC
@@ -743,10 +742,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     bool fragmented_needed = lowpan_adaptation_request_longer_than_mtu(cur, buf, interface_ptr);
     if (fragmented_needed) {
         // If fragmentation TX buffer not allocated, do it now.
-        if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
+        if (!interface_ptr->fragment_indirect_tx_buffer)
             interface_ptr->fragment_indirect_tx_buffer = xalloc(cur->mac_parameters.mtu);
-            interface_ptr->mtu_size = cur->mac_parameters.mtu;
-        }
     }
     bool is_unicast = buf->link_specific.ieee802_15_4.requestAck;
 
