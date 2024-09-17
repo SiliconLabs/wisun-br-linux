@@ -110,11 +110,6 @@ char *str_key(const uint8_t *in, int in_len, char *out, int out_len)
     return str_bytes(in, in_len, NULL, out, out_len, DELIM_COLON);
 }
 
-char *str_eui48(const uint8_t in[6], char out[STR_MAX_LEN_EUI48])
-{
-    return str_bytes(in, 6, NULL, out, STR_MAX_LEN_EUI48, DELIM_COLON);
-}
-
 char *str_eui64(const uint8_t in[8], char out[STR_MAX_LEN_EUI64])
 {
     return str_bytes(in, 8, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
@@ -234,19 +229,6 @@ const char *tr_key(const uint8_t in[], int in_len)
     if (trace_idx + in_len * 3 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_key(in, in_len, out, in_len * 3);
-    trace_idx += strlen(out) + 1;
-    BUG_ON(trace_idx > sizeof(trace_buffer));
-    return out;
-}
-
-const char *tr_eui48(const uint8_t in[6])
-{
-    char *out = trace_buffer + trace_idx;
-
-    BUG_ON(!trace_nested_counter, "%s must be called within a trace", __func__);
-    if (trace_idx + STR_MAX_LEN_EUI48 > sizeof(trace_buffer))
-        return "[OVERFLOW]";
-    str_eui48(in, out);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;

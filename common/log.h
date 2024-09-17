@@ -112,7 +112,6 @@ enum {
 #define STR_MAX_LEN_IPV4         16
 #define STR_MAX_LEN_IPV4_NET     19
 #define STR_MAX_LEN_EUI64        24
-#define STR_MAX_LEN_EUI48        18
 #define STR_MAX_LEN_DATE         29
 
 enum str_bytes_options {
@@ -131,7 +130,6 @@ enum str_bytes_options {
 };
 
 char *str_key(const uint8_t *in, int in_len, char *out, int out_len);
-char *str_eui48(const uint8_t in[6], char out[STR_MAX_LEN_EUI48]);
 char *str_eui64(const uint8_t in[8], char out[STR_MAX_LEN_EUI64]);
 char *str_ipv4(uint8_t in[4], char out[STR_MAX_LEN_IPV4]);
 char *str_ipv6(const uint8_t in[16], char out[STR_MAX_LEN_IPV6]);
@@ -141,7 +139,6 @@ char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char 
 char *str_date(time_t tstamp, char out[STR_MAX_LEN_DATE]);
 
 const char *tr_key(const uint8_t in[], int in_len);
-const char *tr_eui48(const uint8_t in[6]);
 const char *tr_eui64(const uint8_t in[8]);
 const char *tr_ipv4(uint8_t in[4]);
 const char *tr_ipv6(const uint8_t in[16]);
