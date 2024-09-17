@@ -178,6 +178,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     struct ws_frame_ctx *frame_ctx;
     struct ws_neigh *neigh = NULL;
     struct ieee802154_hdr hdr;
+    struct ws_utt_ie ie_utt;
     int ret, rsl;
 
     if (cnf->status != HIF_STATUS_SUCCESS)
@@ -211,6 +212,11 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             neigh->rsl_in_dbm = ws_neigh_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm);
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
             neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl);
+        if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
+            ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, neigh->mac64);
+            if (hdr.key_index)
+                ws_neigh_ut_update(&neigh->fhss_data, ie_utt.ufsi, cnf->timestamp_us, neigh->mac64);
+        }
     }
     if (neigh)
         ws_neigh_etx_update(&ws->neigh_table, neigh,
