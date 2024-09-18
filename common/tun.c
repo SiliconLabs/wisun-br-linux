@@ -26,6 +26,7 @@
 #include <netlink/addr.h>
 #include <netlink/netlink.h>
 #include <netlink/route/addr.h>
+#include <netlink/route/route.h>
 #include <netlink/route/link.h>
 #include <netlink/route/link/inet6.h>
 
@@ -153,6 +154,62 @@ void tun_addr_del(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t pref
     ret = rtnl_addr_delete(tun->nlsock, rtnladdr, 0);
     FATAL_ON(ret < 0, 2, "rtnl_addr_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
     rtnl_addr_put(rtnladdr);
+}
+
+// ip route add dev [tun->ifname] [addr]
+void tun_route_add(struct tun_ctx *tun, const struct in6_addr *addr)
+{
+    struct rtnl_nexthop *rtnlnexthop;
+    struct rtnl_route *rtnlroute;
+    struct nl_addr *nladdr;
+    int ret;
+
+    nladdr = nl_addr_build(AF_INET6, addr, sizeof(*addr));
+    FATAL_ON(!nladdr, 2, "nl_addr_build: %s", strerror(ENOMEM));
+    rtnlroute = rtnl_route_alloc();
+    FATAL_ON(!rtnlroute, 2, "rtnl_route_alloc: %s", strerror(ENOMEM));
+    rtnlnexthop = rtnl_route_nh_alloc();
+    FATAL_ON(!rtnlnexthop, 2, "rtnl_route_nh_alloc: %s", strerror(ENOMEM));
+    rtnl_route_set_dst(rtnlroute, nladdr);
+    rtnl_route_nh_set_ifindex(rtnlnexthop, tun->ifindex);
+    rtnl_route_add_nexthop(rtnlroute, rtnlnexthop);
+    ret = rtnl_route_add(tun->nlsock, rtnlroute, 0);
+    if (ret < 0) {
+        if (ret == -NLE_EXIST)
+            WARN("rtnl_route_add %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+        else
+            FATAL(2, "rtnl_route_add %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    }
+    rtnl_route_put(rtnlroute);
+    nl_addr_put(nladdr);
+}
+
+// ip route del dev [tun->ifname] [addr]
+void tun_route_del(struct tun_ctx *tun, const struct in6_addr *addr)
+{
+    struct rtnl_nexthop *rtnlnexthop;
+    struct rtnl_route *rtnlroute;
+    struct nl_addr *nladdr;
+    int ret;
+
+    nladdr = nl_addr_build(AF_INET6, addr, sizeof(*addr));
+    FATAL_ON(!nladdr, 2, "nl_addr_build: %s", strerror(ENOMEM));
+    rtnlroute = rtnl_route_alloc();
+    FATAL_ON(!rtnlroute, 2, "rtnl_route_alloc: %s", strerror(ENOMEM));
+    rtnlnexthop = rtnl_route_nh_alloc();
+    FATAL_ON(!rtnlnexthop, 2, "rtnl_route_nh_alloc: %s", strerror(ENOMEM));
+    rtnl_route_set_dst(rtnlroute, nladdr);
+    rtnl_route_nh_set_ifindex(rtnlnexthop, tun->ifindex);
+    rtnl_route_add_nexthop(rtnlroute, rtnlnexthop);
+    ret = rtnl_route_delete(tun->nlsock, rtnlroute, 0);
+    if (ret < 0) {
+        if (ret == -NLE_OBJ_NOTFOUND)
+            WARN("rtnl_route_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+        else
+            FATAL(2, "rtnl_route_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    }
+    rtnl_route_put(rtnlroute);
+    nl_addr_put(nladdr);
 }
 
 static int tun_addr_get(struct tun_ctx *tun, struct in6_addr *addr,

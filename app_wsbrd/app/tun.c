@@ -98,39 +98,11 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
 void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct rtnl_nexthop* nl_nexthop;
-    struct rtnl_route *nl_route;
-    struct nl_addr *ipv6_nl_addr;
-    struct nl_sock *sock;
-    int err;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
 
-    sock = nl_socket_alloc();
-    BUG_ON(!sock);
-    err = nl_connect(sock, NETLINK_ROUTE);
-    FATAL_ON(err < 0, 2, "nl_connect: %s", nl_geterror(err));
-
-    ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
-    FATAL_ON(!ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
-    nl_route = rtnl_route_alloc();
-    BUG_ON(!nl_route);
-    nl_nexthop = rtnl_route_nh_alloc();
-    BUG_ON(!nl_nexthop);
-
-    rtnl_route_set_iif(nl_route, AF_INET6);
-    err = rtnl_route_set_dst(nl_route, ipv6_nl_addr);
-    FATAL_ON(err < 0, 2, "rtnl_route_set_dst: %s", nl_geterror(err));
-    rtnl_route_nh_set_ifindex(nl_nexthop, ctxt->tun.ifindex);
-    rtnl_route_add_nexthop(nl_route, nl_nexthop);
-    err = rtnl_route_add(sock, nl_route, 0);
-    if (err < 0 && err != -NLE_EXIST)
-        FATAL(2, "rtnl_route_add: %s", nl_geterror(err));
-
-    rtnl_route_put(nl_route);
-    nl_addr_put(ipv6_nl_addr);
-    nl_socket_free(sock);
+    tun_route_add(&ctxt->tun,  (const struct in6_addr *)address);
 }
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)

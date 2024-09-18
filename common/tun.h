@@ -48,6 +48,11 @@ int tun_addr_get_uc_global(struct tun_ctx *tun, struct in6_addr *addr);
 int tun_addr_add_mc(struct tun_ctx *tun, const struct in6_addr *addr);
 int tun_addr_del_mc(struct tun_ctx *tun, const struct in6_addr *addr);
 
+// ip -6 route add dev [tun->ifname] [addr]
+void tun_route_add(struct tun_ctx *tun, const struct in6_addr *addr);
+// ip -6 route del dev [tun->ifname] [addr]
+void tun_route_del(struct tun_ctx *tun, const struct in6_addr *addr);
+
 // sysctl [dir]/[ifname]/key=[val]
 void tun_sysctl_set(const char *dir, const char *ifname, const char *key, char val);
 
