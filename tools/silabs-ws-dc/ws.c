@@ -29,6 +29,7 @@
 #include "common/bits.h"
 #include "common/mpx.h"
 #include "common/log.h"
+#include "common/tun.h"
 #include "dc.h"
 
 #include "ws.h"
@@ -45,6 +46,7 @@ static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
     if (!timer_stopped(&dc->disc_timer)) {
         memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
         ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, ind->neigh->mac64);
+        tun_route_add(&dc->tun, &client_linklocal);
         ws_neigh_refresh(&dc->ws.neigh_table, ind->neigh, WS_NEIGHBOR_LINK_TIMEOUT);
         INFO("Direct Connection established with %s", tr_eui64(dc->cfg.target_eui64));
         INFO("%s reachable at %s", tr_eui64(dc->cfg.target_eui64), tr_ipv6(client_linklocal.s6_addr));

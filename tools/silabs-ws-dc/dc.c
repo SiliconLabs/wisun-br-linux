@@ -69,12 +69,16 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
 static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
+    struct in6_addr client_linklocal;
 
     if (memcmp(dc->cfg.target_eui64, neigh->mac64, sizeof(dc->cfg.target_eui64)))
         return;
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
     dc->disc_count = 0;
     timer_start_rel(NULL, &dc->disc_timer, dc->disc_timer.period_ms);
+    memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
+    ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, neigh->mac64);
+    tun_route_del(&dc->tun, &client_linklocal);
 }
 
 struct dc g_dc = {
