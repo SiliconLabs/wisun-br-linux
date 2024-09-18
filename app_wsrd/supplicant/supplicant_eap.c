@@ -308,7 +308,7 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
 
 void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
 {
-    const struct eap_hdr *eap_hdr = (const struct eap_hdr *)iobuf_pop_data_ptr(iobuf, sizeof(struct eap_hdr));
+    const struct eap_hdr *eap_hdr = iobuf_pop_data_ptr(iobuf, sizeof(*eap_hdr));
 
     if (!eap_hdr) {
         TRACE(TR_DROP, "drop %-9s: invalid eap header", "eap");

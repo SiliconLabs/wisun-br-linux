@@ -424,7 +424,7 @@ void supp_key_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
 {
     const struct eapol_key_frame *frame;
 
-    frame = (const struct eapol_key_frame *)iobuf_pop_data_ptr(iobuf, sizeof(struct eapol_key_frame));
+    frame = iobuf_pop_data_ptr(iobuf, sizeof(*frame));
     if (!frame) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol-key frame", "eapol-key");
         return;

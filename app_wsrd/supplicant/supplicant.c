@@ -219,7 +219,7 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
         return;
     }
 
-    eapol_hdr = (const struct eapol_hdr *)iobuf_pop_data_ptr(&iobuf, sizeof(struct eapol_hdr));
+    eapol_hdr = iobuf_pop_data_ptr(&iobuf, sizeof(*eapol_hdr));
     if (!eapol_hdr) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol header", "eapol");
         return;

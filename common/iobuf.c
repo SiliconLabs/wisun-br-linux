@@ -222,7 +222,7 @@ void iobuf_pop_data(struct iobuf_read *buf, uint8_t *val, size_t size)
     buf->cnt += size;
 }
 
-const uint8_t *iobuf_pop_data_ptr(struct iobuf_read *buf, size_t size)
+const void *iobuf_pop_data_ptr(struct iobuf_read *buf, size_t size)
 {
     const uint8_t *val;
 

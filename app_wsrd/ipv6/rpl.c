@@ -259,7 +259,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         return;
     }
 
-    dio_base = (const struct rpl_dio_base *)iobuf_pop_data_ptr(&iobuf, sizeof(*dio_base));
+    dio_base = iobuf_pop_data_ptr(&iobuf, sizeof(*dio_base));
     if (!dio_base)
         goto malformed;
 
@@ -382,7 +382,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         return;
     }
 
-    dao_ack = (struct rpl_dao_ack_base *)iobuf_pop_data_ptr(&iobuf, sizeof(*dao_ack));
+    dao_ack = iobuf_pop_data_ptr(&iobuf, sizeof(*dao_ack));
     if (!dao_ack) {
         TRACE(TR_DROP, "drop rpl-%-9s: malformed packet", "dao-ack");
         return;

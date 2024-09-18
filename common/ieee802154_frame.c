@@ -121,11 +121,11 @@ static int ieee802154_frame_parse_ie(struct iobuf_read *iobuf,
     if (!ret || !ieee802154_ie_find_header(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf),
                                            IEEE802154_IE_ID_HT2, &iobuf_ie)) {
         ie_header->data_size = iobuf_ptr(&iobuf_ie) - 2 - iobuf_ptr(iobuf);
-        ie_header->data = (void *)iobuf_pop_data_ptr(iobuf, ie_header->data_size);
+        ie_header->data = iobuf_pop_data_ptr(iobuf, ie_header->data_size);
         iobuf_pop_le16(iobuf); // Header Termination IE
     } else {
         ie_header->data_size = iobuf_remaining_size(iobuf);
-        ie_header->data = (void *)iobuf_pop_data_ptr(iobuf, ie_header->data_size);
+        ie_header->data = iobuf_pop_data_ptr(iobuf, ie_header->data_size);
     }
 
     if (ret == -ENOENT)
@@ -140,11 +140,11 @@ static int ieee802154_frame_parse_ie(struct iobuf_read *iobuf,
 
     if (!ret) {
         ie_payload->data_size = iobuf_ptr(&iobuf_ie) - 2 - iobuf_ptr(iobuf);
-        ie_payload->data = (void *)iobuf_pop_data_ptr(iobuf, ie_payload->data_size);
+        ie_payload->data = iobuf_pop_data_ptr(iobuf, ie_payload->data_size);
         iobuf_pop_le16(iobuf); // Payload Termination IE
     } else {
         ie_payload->data_size = iobuf_remaining_size(iobuf);
-        ie_payload->data = (void *)iobuf_pop_data_ptr(iobuf, ie_payload->data_size);
+        ie_payload->data = iobuf_pop_data_ptr(iobuf, ie_payload->data_size);
     }
 
     return 0;

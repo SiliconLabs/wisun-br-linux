@@ -76,7 +76,7 @@ uint32_t iobuf_pop_be32(struct iobuf_read *buf);
 uint32_t iobuf_pop_le32(struct iobuf_read *buf);
 uint64_t iobuf_pop_be64(struct iobuf_read *buf);
 uint64_t iobuf_pop_le64(struct iobuf_read *buf);
-const uint8_t *iobuf_pop_data_ptr(struct iobuf_read *buf, size_t size);
+const void *iobuf_pop_data_ptr(struct iobuf_read *buf, size_t size);
 void iobuf_pop_data(struct iobuf_read *buf, uint8_t *val, size_t size);
 int iobuf_remaining_size(const struct iobuf_read *buf);
 const uint8_t *iobuf_ptr(const struct iobuf_read *buf);

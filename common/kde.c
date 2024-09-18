@@ -46,7 +46,7 @@ static const uint8_t *kde_find(const uint8_t *data, int data_length, uint8_t typ
     const struct kde_hdr *hdr;
 
     while (iobuf_remaining_size(&input)) {
-        hdr = (const struct kde_hdr *)iobuf_pop_data_ptr(&input, sizeof(struct kde_hdr));
+        hdr = iobuf_pop_data_ptr(&input, sizeof(*hdr));
         if (!hdr)
             return NULL;
         if (hdr->type == type && read_be24(hdr->oui) == oui && iobuf_remaining_size(&input) >= size &&
