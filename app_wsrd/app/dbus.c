@@ -71,8 +71,8 @@ static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interfac
     parent = rpl_neigh_pref_parent(ipv6);
     if (!parent)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    sd_bus_message_append_array(reply, 'y', parent->rpl->dio_base.dodag_id.s6_addr,
-                                sizeof(parent->rpl->dio_base.dodag_id.s6_addr));
+    sd_bus_message_append_array(reply, 'y', parent->rpl->dio.dodag_id.s6_addr,
+                                sizeof(parent->rpl->dio.dodag_id.s6_addr));
     return 0;
 }
 

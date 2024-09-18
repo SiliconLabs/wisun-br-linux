@@ -50,35 +50,35 @@ static const char *tr_icmp_rpl(uint8_t code)
 }
 
 static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                             const struct rpl_dio_base *dio_base,
+                             const struct rpl_dio *dio,
                              const struct rpl_opt_config *config,
                              const struct rpl_opt_prefix *prefix)
 {
-    bool update = nce->rpl->dio_base.rank != dio_base->rank;
+    bool update = nce->rpl->dio.rank != dio->rank;
 
-    WARN_ON(nce->rpl->dio_base.instance_id != dio_base->instance_id);
-    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio_base.dodag_id.s6_addr, &dio_base->dodag_id));
+    WARN_ON(nce->rpl->dio.instance_id != dio->instance_id);
+    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio.dodag_id.s6_addr, &dio->dodag_id));
     WARN_ON(memcmp(&nce->rpl->config, config, sizeof(nce->rpl->config)));
-    nce->rpl->dio_base = *dio_base;
+    nce->rpl->dio = *dio;
     nce->rpl->config   = *config;
     // TODO: timer for prefix lifetime
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
-          tr_ipv6(nce->gua.s6_addr), ntohs(dio_base->rank));
+          tr_ipv6(nce->gua.s6_addr), ntohs(dio->rank));
     if (update)
         rpl_mrhof_select_parent(ipv6);
 }
 
 static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                          const struct rpl_dio_base *dio_base,
+                          const struct rpl_dio *dio,
                           const struct rpl_opt_config *config,
                           const struct rpl_opt_prefix *prefix)
 {
     BUG_ON(nce->rpl);
     nce->rpl = zalloc(sizeof(struct rpl_neigh));
-    nce->rpl->dio_base = *dio_base;
-    nce->rpl->config   = *config;
+    nce->rpl->dio    = *dio;
+    nce->rpl->config = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
-    rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
+    rpl_neigh_update(ipv6, nce, dio, config, prefix);
     rpl_mrhof_select_parent(ipv6);
 }
 
@@ -86,7 +86,7 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
     if (nce->rpl->is_parent) {
-        nce->rpl->dio_base.rank = RPL_RANK_INFINITE;
+        nce->rpl->dio.rank = RPL_RANK_INFINITE;
         rpl_mrhof_select_parent(ipv6);
     }
     free(nce->rpl);
@@ -142,9 +142,9 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
 
 static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 {
-    struct rpl_dis_base dis_base = { };
+    struct rpl_dis dis = { };
 
-    rpl_send(ipv6, RPL_CODE_DIS, &dis_base, sizeof(dis_base), dst);
+    rpl_send(ipv6, RPL_CODE_DIS, &dis, sizeof(dis), dst);
 }
 
 static void rpl_trig_dis(struct rfc8415_txalg *txalg)
@@ -195,22 +195,22 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     struct iobuf_write iobuf = { };
     struct rpl_opt_transit transit;
     struct rpl_opt_target target;
-    struct rpl_dao_base dao_base;
     struct ipv6_neigh *parent;
     struct in6_addr dodag_id;
+    struct rpl_dao dao;
 
     parent = rpl_neigh_pref_parent(ipv6);
     BUG_ON(!parent || !parent->rpl);
     // Prevent GCC warning -Waddress-of-packed-member
-    dodag_id = parent->rpl->dio_base.dodag_id;
+    dodag_id = parent->rpl->dio.dodag_id;
 
     //   Wi-SUN FAN 1.1v08 6.2.3.1.6.4 Downward Route Formation
-    memset(&dao_base, 0, sizeof(dao_base));
-    dao_base.instance_id = parent->rpl->dio_base.instance_id;
+    memset(&dao, 0, sizeof(dao));
+    dao.instance_id = parent->rpl->dio.instance_id;
     // The K flag MUST be set to 1.
-    dao_base.flags |= RPL_MASK_DAO_K;
-    dao_base.dao_seq = ipv6->rpl.dao_seq;
-    iobuf_push_data(&iobuf, &dao_base, sizeof(dao_base));
+    dao.flags |= RPL_MASK_DAO_K;
+    dao.dao_seq = ipv6->rpl.dao_seq;
+    iobuf_push_data(&iobuf, &dao, sizeof(dao));
 
     // A RPL Target option MUST be included and populated for each GUA/ULA to
     // be advertised to the DODAG root.
@@ -249,7 +249,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
 {
     const struct rpl_opt_config *config = NULL;
     const struct rpl_opt_prefix *prefix = NULL;
-    const struct rpl_dio_base *dio_base;
+    const struct rpl_dio *dio;
     const struct rpl_opt *opt;
     struct ipv6_neigh *nce;
     struct in6_addr addr;
@@ -264,19 +264,19 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         return;
     }
 
-    dio_base = iobuf_pop_data_ptr(&iobuf, sizeof(*dio_base));
-    if (!dio_base)
+    dio = iobuf_pop_data_ptr(&iobuf, sizeof(*dio));
+    if (!dio)
         goto malformed;
 
-    if (FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, dio_base->instance_id) == RPL_INSTANCE_ID_TYPE_LOCAL) {
+    if (FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, dio->instance_id) == RPL_INSTANCE_ID_TYPE_LOCAL) {
         TRACE(TR_DROP, "drop %-9s: unsupported local RPL instance", "rpl-dio");
         goto drop_neigh;
     }
-    if (!FIELD_GET(RPL_MASK_DIO_G, dio_base->g_mop_prf)) {
+    if (!FIELD_GET(RPL_MASK_DIO_G, dio->g_mop_prf)) {
         TRACE(TR_DROP, "drop %-9s: unsupported floating DODAG", "rpl-dio");
         goto drop_neigh;
     }
-    if (FIELD_GET(RPL_MASK_DIO_MOP, dio_base->g_mop_prf) != RPL_MOP_NON_STORING) {
+    if (FIELD_GET(RPL_MASK_DIO_MOP, dio->g_mop_prf) != RPL_MOP_NON_STORING) {
         TRACE(TR_DROP, "drop %-9s: unsupported mode of operation", "rpl-dio");
         goto drop_neigh;
     }
@@ -351,9 +351,9 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     nce = ipv6_neigh_fetch(ipv6, &addr, eui64);
 
     if (!nce->rpl)
-        rpl_neigh_add(ipv6, nce, dio_base, config, prefix);
+        rpl_neigh_add(ipv6, nce, dio, config, prefix);
     else
-        rpl_neigh_update(ipv6, nce, dio_base, config, prefix);
+        rpl_neigh_update(ipv6, nce, dio, config, prefix);
 
     rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
 
@@ -374,7 +374,7 @@ drop_neigh:
 static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
                              const uint8_t *buf, size_t buf_len)
 {
-    const struct rpl_dao_ack_base *dao_ack;
+    const struct rpl_dao_ack *dao_ack;
     struct ipv6_neigh *parent, *nce;
     struct iobuf_read iobuf = {
         .data_size = buf_len,
@@ -392,7 +392,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         TRACE(TR_DROP, "drop rpl-%-9s: malformed packet", "dao-ack");
         return;
     }
-    if (dao_ack->instance_id != parent->rpl->dio_base.instance_id) {
+    if (dao_ack->instance_id != parent->rpl->dio.instance_id) {
         TRACE(TR_DROP, "drop rpl-%-9s: InstanceID mismatch", "dao-ack");
         return;
     }

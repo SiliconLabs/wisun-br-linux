@@ -51,7 +51,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
      * 2. [...] ETX is the selected metric -- use the Rank advertised by
      *    that neighbor as the second component.
      */
-    return etx + ntohs(nce->rpl->dio_base.rank);
+    return etx + ntohs(nce->rpl->dio.rank);
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
@@ -124,9 +124,9 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     }
     if (pref_parent_new && !pref_parent_cur)
         TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
-              pref_parent_new->rpl->dio_base.instance_id,
-              pref_parent_new->rpl->dio_base.dodag_verno,
-              tr_ipv6(pref_parent_new->rpl->dio_base.dodag_id.s6_addr));
+              pref_parent_new->rpl->dio.instance_id,
+              pref_parent_new->rpl->dio.dodag_verno,
+              tr_ipv6(pref_parent_new->rpl->dio.dodag_id.s6_addr));
     if (mrhof->on_pref_parent_change)
         mrhof->on_pref_parent_change(mrhof, pref_parent_new);
     // TODO: support secondary parents

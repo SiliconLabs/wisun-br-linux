@@ -30,7 +30,7 @@ struct timer_ctxt;
 #define RPL_RANK_INFINITE UINT16_MAX
 
 struct rpl_neigh {
-    struct rpl_dio_base dio_base;
+    struct rpl_dio dio;
     struct rpl_opt_config config;
     bool is_parent;
     bool dao_ack_received;

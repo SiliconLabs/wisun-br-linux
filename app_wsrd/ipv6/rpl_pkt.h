@@ -21,13 +21,13 @@
 #include "common/endian.h"
 
 // RFC 6550 Figure 13: The DIS Base Object
-struct rpl_dis_base {
+struct rpl_dis {
     uint8_t flags;
     uint8_t reserved;
 } __attribute__((packed));
 
 // RFC 6550 Figure 14: The DIO Base Object
-struct rpl_dio_base {
+struct rpl_dio {
     uint8_t instance_id;
     uint8_t dodag_verno;
     be16_t  rank;
@@ -39,7 +39,7 @@ struct rpl_dio_base {
 } __attribute__((packed));
 
 // RFC 6550 Figure 16: The DAO Base Object
-struct rpl_dao_base {
+struct rpl_dao {
     uint8_t instance_id;
     uint8_t flags;
     uint8_t reserved;
@@ -47,7 +47,7 @@ struct rpl_dao_base {
 } __attribute__((packed));
 
 // RFC 6550 Figure 17: The DAO ACK Base Object
-struct rpl_dao_ack_base {
+struct rpl_dao_ack {
     uint8_t instance_id;
     uint8_t flags;
     uint8_t dao_seq;
