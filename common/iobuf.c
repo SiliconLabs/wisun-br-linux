@@ -210,7 +210,7 @@ uint64_t iobuf_pop_le64(struct iobuf_read *buf) {
     return val;
 }
 
-void iobuf_pop_data(struct iobuf_read *buf, uint8_t *val, size_t size)
+void iobuf_pop_data(struct iobuf_read *buf, void *val, size_t size)
 {
     if (!iobuf_validate(buf, size)) {
         if (val)
