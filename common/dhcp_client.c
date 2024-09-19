@@ -77,7 +77,7 @@ static void dhcp_client_addr_expired(struct timer_group *group, struct timer_ent
     TRACE(TR_DHCP, "dhcp del %s", tr_ipv6(client->iaaddr.ipv6.s6_addr));
 
     if (client->on_addr_del)
-        client->on_addr_del(client, &client->iaaddr.ipv6);
+        client->on_addr_del(client);
     memset(&client->iaaddr, 0, sizeof(struct dhcp_iaaddr));
 }
 
@@ -156,7 +156,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
     if (client->on_addr_add && is_new)
-        client->on_addr_add(client, &client->iaaddr.ipv6);
+        client->on_addr_add(client);
     return 0;
 }
 

@@ -58,8 +58,8 @@ static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp);
 static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
 static void wsrd_eapol_on_failure(struct supplicant_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
-static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr);
-static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr);
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client);
+static void wsrd_on_dhcp_addr_del(struct dhcp_client *client);
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
 struct wsrd g_wsrd = {
@@ -263,7 +263,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
     }
 }
 
-static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr)
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
 {
     struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
     struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);
@@ -273,7 +273,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
         return;
 
     // TODO: set prefix len to 128, and add default route instead
-    wsrd->ws.ipv6.addr_uc_global = *addr;
+    wsrd->ws.ipv6.addr_uc_global = client->iaaddr.ipv6;
     tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
     ipv6_nud_set_state(&wsrd->ws.ipv6, pref_parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
@@ -285,7 +285,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_a
     rpl_start_dao(&wsrd->ws.ipv6);
 }
 
-static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr)
+static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
 {
     struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
 

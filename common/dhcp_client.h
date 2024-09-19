@@ -47,8 +47,8 @@ struct dhcp_client {
     struct timespec start_time; // For Elapsed Time option
 
     struct in6_addr (*get_dst)(struct dhcp_client *client);
-    void (*on_addr_add)(struct dhcp_client *client, const struct in6_addr *addr);
-    void (*on_addr_del)(struct dhcp_client *client, const struct in6_addr *addr);
+    void (*on_addr_add)(struct dhcp_client *client);
+    void (*on_addr_del)(struct dhcp_client *client);
 };
 
 void dhcp_client_init(struct dhcp_client *client,
