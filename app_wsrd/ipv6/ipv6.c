@@ -45,15 +45,14 @@ struct icmpv6_hdr {
 
 void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 {
+    struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     BUG_ON(!ipv6->sendto_mac);
 
     tun_init(&ipv6->tun, true);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", ipv6->tun.ifname, "accept_ra", '0');
 
-    memcpy(ipv6->eui64, eui64, 8);
-    memcpy(ipv6->addr_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
-    ipv6_addr_conv_iid_eui64(ipv6->addr_linklocal.s6_addr + 8, eui64);
-    tun_addr_add(&ipv6->tun, &ipv6->addr_linklocal, 64);
+    ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, eui64);
+    tun_addr_add(&ipv6->tun, &addr_linklocal, 64);
 
     timer_group_init(&ipv6->timer_group);
 
@@ -72,6 +71,7 @@ void ipv6_init(struct ipv6_ctx *ipv6, const uint8_t eui64[8])
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
+    struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     const struct ip6_rthdr *rthdr;
     struct icmpv6_hdr icmp;
     struct ip6_hdr hdr;
@@ -83,8 +83,9 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         TRACE(TR_DROP, "drop %-9s: invalid IP version", "ipv6");
         return;
     }
+    ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
-        !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->addr_linklocal)) &&
+        !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &addr_linklocal)) &&
         !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6))) {
         TRACE(TR_DROP, "drop %-9s: invalid dst=%s", "ipv6", tr_ipv6(hdr.ip6_dst.s6_addr));
         pktbuf->err = true;

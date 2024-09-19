@@ -14,20 +14,18 @@
 #ifndef WSRD_IPV6_H
 #define WSRD_IPV6_H
 
-#include <netinet/in.h>
-
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "common/dhcp_client.h"
 #include "common/timer.h"
 #include "common/tun.h"
 
+struct in6_addr;
 struct pktbuf;
 
 struct ipv6_ctx {
     struct tun_ctx tun;
     struct dhcp_client dhcp;
-    struct in6_addr addr_linklocal;
     struct in6_addr *addr_list_mc;
     int addr_list_mc_len;
 
