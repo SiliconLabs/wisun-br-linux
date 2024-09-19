@@ -22,6 +22,7 @@
 #include "app_wsrd/ipv6/rpl_mrhof.h"
 #include "app_wsrd/ipv6/rpl_pkt.h"
 #include "common/rfc8415_txalg.h"
+#include "common/trickle.h"
 
 struct ipv6_ctx;
 struct ipv6_neigh;
@@ -39,6 +40,8 @@ struct rpl_neigh {
 struct rpl_ctx {
     int fd;
 
+    struct trickle       dio_trickle;
+    struct trickle_cfg   dio_trickle_cfg;
     struct rfc8415_txalg dis_txalg;
     struct rfc8415_txalg dao_txalg;
     uint8_t dao_seq;
@@ -47,6 +50,7 @@ struct rpl_ctx {
 
 void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
+void rpl_start_dio(struct ipv6_ctx *ipv6);
 void rpl_start_dis(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 

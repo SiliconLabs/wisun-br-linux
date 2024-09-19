@@ -267,6 +267,7 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     usleep(100000);
 
     rpl_start_dao(ipv6);
+    rpl_start_dio(ipv6);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)

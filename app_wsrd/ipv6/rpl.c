@@ -26,6 +26,7 @@
 #include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/ws_neigh.h"
 #include "common/specs/icmpv6.h"
@@ -174,6 +175,34 @@ static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 
     rpl_send(ipv6, RPL_CODE_DIO, iobuf.data, iobuf.len, dst);
     iobuf_free(&iobuf);
+}
+
+static void rpl_send_dio_mc(struct trickle *tkl)
+{
+    struct ipv6_ctx *ipv6 = container_of(tkl, struct ipv6_ctx, rpl.dio_trickle);
+
+    rpl_send_dio(ipv6, &ipv6_addr_all_rpl_nodes_link);
+}
+
+void rpl_start_dio(struct ipv6_ctx *ipv6)
+{
+    struct trickle_cfg *cfg = &ipv6->rpl.dio_trickle_cfg;
+    struct ipv6_neigh *parent;
+
+    parent = rpl_neigh_pref_parent(ipv6);
+    if (!parent) {
+        WARN("%s: not ready", __func__);
+        return;
+    }
+
+    /*
+     *   RFC 6550 - 8.3.1. Trickle Parameters
+     * Imin: learned from the DIO message as (2^DIOIntervalMin) ms.
+     */
+    cfg->Imin_ms = POW2(parent->rpl->config.dio_i_min);
+    cfg->Imax_ms = TRICKLE_DOUBLINGS(cfg->Imin_ms, parent->rpl->config.dio_i_doublings);
+    cfg->k       = parent->rpl->config.dio_redundancy;
+    trickle_start(&ipv6->rpl.dio_trickle);
 }
 
 static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
@@ -531,6 +560,10 @@ void rpl_start(struct ipv6_ctx *ipv6)
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
     ipv6->rpl.mrhof.cur_min_path_cost = ipv6->rpl.mrhof.max_path_cost;
 
+    strcpy(ipv6->rpl.dio_trickle.debug_name, "dio");
+    ipv6->rpl.dio_trickle.cfg = &ipv6->rpl.dio_trickle_cfg;
+    ipv6->rpl.dio_trickle.on_transmit = rpl_send_dio_mc;
+    trickle_init(&ipv6->rpl.dio_trickle);
     ipv6->rpl.dis_txalg.tx = rpl_trig_dis;
     rfc8415_txalg_init(&ipv6->rpl.dis_txalg);
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
