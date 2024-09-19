@@ -325,7 +325,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     };
 
     if (!IN6_IS_ADDR_LINKLOCAL(src)) {
-        TRACE(TR_DROP, "drop %-9s: invalid source address", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: invalid source address", tr_icmp_rpl(RPL_CODE_DIO));
         return;
     }
 
@@ -334,15 +334,15 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         goto malformed;
 
     if (FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, dio->instance_id) == RPL_INSTANCE_ID_TYPE_LOCAL) {
-        TRACE(TR_DROP, "drop %-9s: unsupported local RPL instance", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: unsupported local RPL instance", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
     if (!FIELD_GET(RPL_MASK_DIO_G, dio->g_mop_prf)) {
-        TRACE(TR_DROP, "drop %-9s: unsupported floating DODAG", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: unsupported floating DODAG", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
     if (FIELD_GET(RPL_MASK_DIO_MOP, dio->g_mop_prf) != RPL_MOP_NON_STORING) {
-        TRACE(TR_DROP, "drop %-9s: unsupported mode of operation", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: unsupported mode of operation", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
 
@@ -368,38 +368,38 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
             if (opt->len < sizeof(*prefix))
                 goto malformed;
             if (prefix)
-                TRACE(TR_IGNORE, "ignore: rpl-dio multiple prefix options");
+                TRACE(TR_IGNORE, "ignore %-9s: multiple prefix options", tr_icmp_rpl(RPL_CODE_DIO));
             prefix = (const struct rpl_opt_prefix *)(opt + 1);
             if (prefix->prefix_len > 128)
                 goto malformed;
             if (!FIELD_GET(RPL_MASK_OPT_PREFIX_R, prefix->flags)) {
-                TRACE(TR_DROP, "drop %-9s: unsupported prefix w/o router address", "rpl-dio");
+                TRACE(TR_DROP, "drop %-9s: unsupported prefix w/o router address", tr_icmp_rpl(RPL_CODE_DIO));
                 goto drop_neigh;
             }
             if (!IN6_IS_ADDR_UC_GLOBAL(&prefix->prefix)) {
-                TRACE(TR_DROP, "drop %-9s: unsupported non-global unicast prefix", "rpl-dio");
+                TRACE(TR_DROP, "drop %-9s: unsupported non-global unicast prefix", tr_icmp_rpl(RPL_CODE_DIO));
                 goto drop_neigh;
             }
             break;
         default:
-            TRACE(TR_IGNORE, "ignore: rpl-dio unsupported option %u", opt->type);
+            TRACE(TR_IGNORE, "ignore %-9s: unsupported option %u", tr_icmp_rpl(RPL_CODE_DIO), opt->type);
             break;
         }
     }
     if (iobuf.err) {
-        TRACE(TR_DROP, "drop %-9s: malformed packet", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
     if (!config) {
-        TRACE(TR_DROP, "drop %-9s: missing DODAG configuration option", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: missing DODAG configuration option", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
     if (ntohs(config->ocp) != RPL_OCP_MRHOF) {
-        TRACE(TR_DROP, "drop %-9s: unsupported objective function", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: unsupported objective function", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
     if (!prefix) {
-        TRACE(TR_DROP, "drop %-9s: missing prefix information option", "rpl-dio");
+        TRACE(TR_DROP, "drop %-9s: missing prefix information option", tr_icmp_rpl(RPL_CODE_DIO));
         goto drop_neigh;
     }
 
@@ -428,7 +428,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     return;
 
 malformed:
-    TRACE(TR_DROP, "drop %-9s: malformed packet", "rpl-dio");
+    TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DIO));
 drop_neigh:
     addr = prefix->prefix; // Prevent GCC warning -Waddress-of-packed-member
     nce = ipv6_neigh_get_from_gua(ipv6, &addr);
@@ -492,7 +492,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
             }
             break;
         default:
-            TRACE(TR_IGNORE, "ignore: rpl-dis unsupported option %u", opt->type);
+            TRACE(TR_IGNORE, "ignore %-9s: unsupported option %u", tr_icmp_rpl(RPL_CODE_DIS), opt->type);
             break;
         }
     }
@@ -519,25 +519,25 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
 
     parent = rpl_neigh_pref_parent(ipv6);
     if (!parent) {
-        TRACE(TR_DROP, "drop rpl-%-9s: no preferred parent", "dao-ack");
+        TRACE(TR_DROP, "drop %-9s: no preferred parent", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
 
     dao_ack = iobuf_pop_data_ptr(&iobuf, sizeof(*dao_ack));
     if (!dao_ack) {
-        TRACE(TR_DROP, "drop rpl-%-9s: malformed packet", "dao-ack");
+        TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
     if (dao_ack->instance_id != parent->rpl->dio.instance_id) {
-        TRACE(TR_DROP, "drop rpl-%-9s: InstanceID mismatch", "dao-ack");
+        TRACE(TR_DROP, "drop %-9s: InstanceID mismatch", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
     if (dao_ack->flags & RPL_MASK_DAO_ACK_D) {
-        TRACE(TR_DROP, "drop rpl-%-9s: unsupported DODAGID present", "dao-ack");
+        TRACE(TR_DROP, "drop %-9s: unsupported DODAGID present", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
     if (timer_stopped(&ipv6->rpl.dao_txalg.timer_rt) || dao_ack->dao_seq != ipv6->rpl.dao_seq) {
-        TRACE(TR_DROP, "drop rpl-%-9s: unexpected DAOSequence", "dao-ack");
+        TRACE(TR_DROP, "drop %-9s: unexpected DAOSequence", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
