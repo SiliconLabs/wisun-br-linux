@@ -48,7 +48,7 @@ static const char *tr_nud_state(int state)
 
 static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
-    const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global);
+    const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6);
     struct nd_neighbor_solicit ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
@@ -64,7 +64,7 @@ static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
         //   RFC 6775 4.1. Address Registration Option
         // [...] the address that is to be registered MUST be the IPv6 source
         // address of the NS message.
-        src = ipv6->addr_uc_global;
+        src = ipv6->dhcp.iaaddr.ipv6;
         dst = neigh->gua;
     } else {
         src = ipv6_prefix_linklocal;

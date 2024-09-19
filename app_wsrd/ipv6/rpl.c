@@ -211,7 +211,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     // be advertised to the DODAG root.
     memset(&target, 0, sizeof(target));
     target.prefix_len = 128;
-    target.prefix     = ipv6->addr_uc_global;
+    target.prefix     = ipv6->dhcp.iaaddr.ipv6;
     rpl_opt_push(&iobuf, RPL_OPT_TARGET, &target, sizeof(target));
 
     // A Transit Information Option MUST be included for each member of the

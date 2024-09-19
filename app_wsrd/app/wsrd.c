@@ -246,7 +246,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 {
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ws.ipv6.rpl.mrhof);
 
-    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->ws.ipv6.dhcp.running) {
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.dhcp.iaaddr.ipv6) && !wsrd->ws.ipv6.dhcp.running) {
         dhcp_client_start(&wsrd->ws.ipv6.dhcp);
     } else if (neigh) {
         rpl_start_dao(&wsrd->ws.ipv6);
@@ -269,12 +269,9 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(ipv6);
 
     BUG_ON(!pref_parent);
-    if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global))
-        return;
 
     // TODO: set prefix len to 128, and add default route instead
-    ipv6->addr_uc_global = client->iaaddr.ipv6;
-    tun_addr_add(&ipv6->tun, &ipv6->addr_uc_global, 64);
+    tun_addr_add(&ipv6->tun, &client->iaaddr.ipv6, 64);
     ipv6_nud_set_state(ipv6, pref_parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
 
@@ -289,8 +286,7 @@ static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
 {
     struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
 
-    tun_addr_del(&ipv6->tun, &ipv6->addr_uc_global, 64);
-    memset(&ipv6->addr_uc_global, 0, sizeof(ipv6->addr_uc_global));
+    tun_addr_del(&ipv6->tun, &client->iaaddr.ipv6, 64);
     // TODO: send NS(ARO) with 0 lifetime
 }
 

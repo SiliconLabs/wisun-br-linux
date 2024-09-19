@@ -28,7 +28,6 @@ struct ipv6_ctx {
     struct tun_ctx tun;
     struct dhcp_client dhcp;
     struct in6_addr addr_linklocal;
-    struct in6_addr addr_uc_global;
     struct in6_addr *addr_list_mc;
     int addr_list_mc_len;
 
