@@ -14,6 +14,8 @@
 #ifndef RPL_MRHOF_H
 #define RPL_MRHOF_H
 
+#include <stdint.h>
+
 #include "common/bits.h"
 #include "common/specs/rpl.h"
 
@@ -43,5 +45,6 @@ struct rpl_mrhof {
 };
 
 void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6);
+uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6);
 
 #endif
