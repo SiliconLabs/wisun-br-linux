@@ -87,6 +87,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     uint32_t valid_lifetime_s;
     struct iobuf_read opt_buf;
     struct in6_addr addr;
+    bool is_new;
 
     dhcp_get_option(buf, buf_len, DHCPV6_OPT_IA_ADDRESS, &opt_buf);
     if (opt_buf.err) {
@@ -101,6 +102,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
         TRACE(TR_DROP, "drop %-9s: malformed iaaddr option", "dhcp");
         return -EINVAL;
     }
+    is_new = !IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &addr);
 
     /*
      *   RFC3315 - Section 22.6
@@ -121,8 +123,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      *     have a valid lifetime of 0 in the IA Address option.
      */
     if (!valid_lifetime_s) {
-        if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
-            IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &addr)) {
+        if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) && !is_new) {
             timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
             dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
         }
@@ -135,8 +136,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
      * This DHCPv6 client implementation only handles one IPv6.
      * When a new IPv6 is assigned, we make the old one expire.
      */
-    if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) &&
-        !IN6_ARE_ADDR_EQUAL(&client->iaaddr.ipv6, &addr)) {
+    if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6) && is_new) {
         timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
         dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
     }
@@ -155,7 +155,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     } else {
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
-    if (client->on_addr_add)
+    if (client->on_addr_add && is_new)
         client->on_addr_add(client, &client->iaaddr.ipv6);
     return 0;
 }
