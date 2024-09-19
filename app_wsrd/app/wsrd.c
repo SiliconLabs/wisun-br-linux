@@ -58,8 +58,7 @@ static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp);
 static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
 static void wsrd_eapol_on_failure(struct supplicant_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
-static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr,
-                                  uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s);
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr);
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client, const struct in6_addr *addr);
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
@@ -264,7 +263,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
     }
 }
 
-static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr, uint32_t valid_lifetime_s, uint32_t preferred_lifetime_s)
+static void wsrd_on_dhcp_addr_add(struct dhcp_client *client, const struct in6_addr *addr)
 {
     struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
     struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);

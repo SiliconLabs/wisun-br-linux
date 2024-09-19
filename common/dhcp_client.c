@@ -156,7 +156,7 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
         TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
     if (client->on_addr_add)
-        client->on_addr_add(client, &client->iaaddr.ipv6, valid_lifetime_s, preferred_lifetime_s);
+        client->on_addr_add(client, &client->iaaddr.ipv6);
     return 0;
 }
 
