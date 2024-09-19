@@ -122,19 +122,19 @@ struct wsrd g_wsrd = {
     .ws.ipv6.rpl.mrhof.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
-    .dhcp.solicit_txalg.max_delay_s = 60,
-    .dhcp.solicit_txalg.irt_s       = 60,
-    .dhcp.solicit_txalg.mrt_s       = 3600,
+    .ws.ipv6.dhcp.solicit_txalg.max_delay_s = 60,
+    .ws.ipv6.dhcp.solicit_txalg.irt_s       = 60,
+    .ws.ipv6.dhcp.solicit_txalg.mrt_s       = 3600,
     // RFC 8415 18.2.1. Creation and Transmission of Solicit Messages
-    .dhcp.solicit_txalg.mrc         = 0,
-    .dhcp.solicit_txalg.mrd_s       = 0,
+    .ws.ipv6.dhcp.solicit_txalg.mrc         = 0,
+    .ws.ipv6.dhcp.solicit_txalg.mrd_s       = 0,
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
-    .dhcp.solicit_txalg.rand_min    = -0.1,
-    .dhcp.solicit_txalg.rand_max    = +0.1,
-    .dhcp.fd    = -1,
-    .dhcp.get_dst     = wsrd_dhcp_get_dst,
-    .dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
-    .dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
+    .ws.ipv6.dhcp.solicit_txalg.rand_min    = -0.1,
+    .ws.ipv6.dhcp.solicit_txalg.rand_max    = +0.1,
+    .ws.ipv6.dhcp.fd    = -1,
+    .ws.ipv6.dhcp.get_dst     = wsrd_dhcp_get_dst,
+    .ws.ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
+    .ws.ipv6.dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
@@ -246,8 +246,8 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 {
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ws.ipv6.rpl.mrhof);
 
-    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->dhcp.running) {
-        dhcp_client_start(&wsrd->dhcp);
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global) && !wsrd->ws.ipv6.dhcp.running) {
+        dhcp_client_start(&wsrd->ws.ipv6.dhcp);
     } else if (neigh) {
         rpl_start_dao(&wsrd->ws.ipv6);
         /*
@@ -265,39 +265,39 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
 {
-    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
-    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);
+    struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
+    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(ipv6);
 
     BUG_ON(!pref_parent);
-    if (!IN6_IS_ADDR_UNSPECIFIED(&wsrd->ws.ipv6.addr_uc_global))
+    if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->addr_uc_global))
         return;
 
     // TODO: set prefix len to 128, and add default route instead
-    wsrd->ws.ipv6.addr_uc_global = client->iaaddr.ipv6;
-    tun_addr_add(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
-    ipv6_nud_set_state(&wsrd->ws.ipv6, pref_parent, IPV6_NUD_PROBE);
+    ipv6->addr_uc_global = client->iaaddr.ipv6;
+    tun_addr_add(&ipv6->tun, &ipv6->addr_uc_global, 64);
+    ipv6_nud_set_state(ipv6, pref_parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
 
     // HACK: Wait for GUA to be registered by Linux, otherwise it may send
     // the DAO with a link-local address.
     usleep(100000);
 
-    rpl_start_dao(&wsrd->ws.ipv6);
+    rpl_start_dao(ipv6);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
 {
-    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
+    struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
 
-    tun_addr_del(&wsrd->ws.ipv6.tun, &wsrd->ws.ipv6.addr_uc_global, 64);
-    memset(&wsrd->ws.ipv6.addr_uc_global, 0, sizeof(wsrd->ws.ipv6.addr_uc_global));
+    tun_addr_del(&ipv6->tun, &ipv6->addr_uc_global, 64);
+    memset(&ipv6->addr_uc_global, 0, sizeof(ipv6->addr_uc_global));
     // TODO: send NS(ARO) with 0 lifetime
 }
 
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
 {
-    struct wsrd *wsrd = container_of(client, struct wsrd, dhcp);
-    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(&wsrd->ws.ipv6);
+    struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
+    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(ipv6);
     struct in6_addr parent_ll = ipv6_prefix_linklocal;
 
     BUG_ON(!pref_parent);
@@ -422,7 +422,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
     ipv6_init(&wsrd->ws.ipv6, wsrd->ws.rcp.eui64.u8);
-    dhcp_client_init(&wsrd->dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.rcp.eui64.u8);
+    dhcp_client_init(&wsrd->ws.ipv6.dhcp, &wsrd->ws.ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_routers_link);   // ff02::2
     ipv6_addr_add_mc(&wsrd->ws.ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
@@ -476,7 +476,7 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_TUN].events = POLLIN;
     pfd[POLLFD_RPL].fd = wsrd->ws.ipv6.rpl.fd;
     pfd[POLLFD_RPL].events = POLLIN;
-    pfd[POLLFD_DHCP].fd = wsrd->dhcp.fd;
+    pfd[POLLFD_DHCP].fd = wsrd->ws.ipv6.dhcp.fd;
     pfd[POLLFD_DHCP].events = POLLIN;
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
@@ -493,7 +493,7 @@ int wsrd_main(int argc, char *argv[])
         if (pfd[POLLFD_RPL].revents & POLLIN)
             rpl_recv(&wsrd->ws.ipv6);
         if (pfd[POLLFD_DHCP].revents & POLLIN)
-            dhcp_client_recv(&wsrd->dhcp);
+            dhcp_client_recv(&wsrd->ws.ipv6.dhcp);
         if (pfd[POLLFD_DBUS].revents & POLLIN)
             dbus_process();
     }

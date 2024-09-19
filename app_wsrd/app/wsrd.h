@@ -16,13 +16,11 @@
 
 #include "app_wsrd/app/commandline.h"
 #include "app_wsrd/ws/ws.h"
-#include "common/dhcp_client.h"
 #include "common/timer.h"
 
 struct wsrd {
     struct wsrd_conf config;
     struct ws_ctx ws;
-    struct dhcp_client dhcp;
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.
