@@ -49,16 +49,10 @@ Finally, the server can be run using:
   different channel exclusions between its unicast and broadcast schedules, so
   the last exclusion set using one of the 2 endpoints will be used for both
   unicast and broadcast.
-- EDFE is not supported for transmission in endpoints `/transmitter/udp` and
-  `/transmitter/icmpv6Echo`.
 - Broadcast Schedule Identifier (BSI) is ignored in `/config/chanPlan/bcast`,
   a random BSI is generated instead.
 - Endpoints `/config/neighborTable` and `subscription/frames/hash` are not
   implemented.
-- Parameters `lfnPtkLifetime` and `lfnPmkLifetime` are ignored in
-  `/config/borderRouter/keyLifetimes`, pairwise key lifetimes are the same
-  between FFN and LFN.
 - Endpoint `/config/borderRouter/revokeKeys` will always revoke both GTKs and
   LGTKs, inserting a custom (L)GTK based on the `isLgtk` parameter, and a
   random key for the other key type.
-- MAC mode switch (using MDR command frame) is not supported.
