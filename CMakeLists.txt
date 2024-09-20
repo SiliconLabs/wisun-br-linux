@@ -281,7 +281,7 @@ add_library(libwsrd STATIC
     app_wsrd/ipv6/6lowpan.c
     app_wsrd/ipv6/6lowpan_iphc.c
     app_wsrd/ipv6/ipv6.c
-    app_wsrd/ipv6/ipv6_addr.c
+    app_wsrd/ipv6/ipv6_addr_mc.c
     app_wsrd/ipv6/ndp.c
     app_wsrd/ipv6/rpl.c
     app_wsrd/ipv6/rpl_mrhof.c

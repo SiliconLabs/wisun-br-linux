@@ -11,8 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WSRD_IPV6_ADDR_H
-#define WSRD_IPV6_ADDR_H
+#ifndef IPV6_MC_ADDR_H
+#define IPV6_MC_ADDR_H
 
 #include <netinet/in.h>
 #include <stdbool.h>

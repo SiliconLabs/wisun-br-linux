@@ -30,7 +30,7 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "app_wsrd/ipv6/6lowpan.h"
-#include "app_wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "ipv6.h"
 
 /*

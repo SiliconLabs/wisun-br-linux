@@ -19,7 +19,7 @@
 #include "common/log.h"
 #include "app_wsrd/ipv6/ipv6.h"
 
-#include "ipv6_addr.h"
+#include "ipv6_addr_mc.h"
 
 static int ipv6_addr_idx_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 {

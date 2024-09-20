@@ -32,7 +32,7 @@
 #include "common/ws_types.h"
 #include "common/time_extra.h"
 #include "app_wsrd/ipv6/6lowpan.h"
-#include "app_wsrd/ipv6/ipv6_addr.h"
+#include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd.h"
 
 #include "ws.h"
