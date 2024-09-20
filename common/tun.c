@@ -152,7 +152,12 @@ void tun_addr_del(struct tun_ctx *tun, const struct in6_addr *addr, uint8_t pref
 
     rtnladdr = tun_rtnladdr_build(tun, addr, prefix_len);
     ret = rtnl_addr_delete(tun->nlsock, rtnladdr, 0);
-    FATAL_ON(ret < 0, 2, "rtnl_addr_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    if (ret < 0) {
+        if (ret == -NLE_NOADDR)
+            WARN("rtnl_addr_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+        else
+            FATAL(2, "rtnl_addr_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    }
     rtnl_addr_put(rtnladdr);
 }
 
