@@ -766,7 +766,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struc
     struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
-        .ack_req    = true,
+        .ack_req    = neigh,
         .dst        = *dst,
         .src        = ws->rcp.eui64,
         .pan_id     = neigh ? -1 : ws->pan_id,
