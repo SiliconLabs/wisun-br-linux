@@ -763,10 +763,13 @@ void ws_recv_cnf(struct ws_ctx *ws, const struct rcp_tx_cnf *cnf)
 
 int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struct eui64 *dst)
 {
+    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = true,
+        .dst        = *dst,
         .src        = ws->rcp.eui64,
+        .pan_id     = neigh ? -1 : ws->pan_id,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
         .key_index  = ws->gak_index,
     };
@@ -776,23 +779,11 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struc
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
-    struct ws_neigh *neigh = NULL;
-    uint8_t fhss_type;
     int offset;
 
-    if (dst && memcmp(dst, &ieee802154_addr_bc, 8)) {
-        neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
-        if (!neigh) {
-            TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
-            return -ETIMEDOUT;
-        }
-        hdr.dst = *dst;
-        hdr.pan_id = -1;
-        fhss_type = HIF_FHSS_TYPE_FFN_UC;
-    } else {
-        hdr.dst = ieee802154_addr_bc;
-        hdr.pan_id = ws->pan_id;
-        fhss_type = HIF_FHSS_TYPE_FFN_BC;
+    if (memcmp(dst, &ieee802154_addr_bc, 8) && !neigh) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
+        return -ETIMEDOUT;
     }
 
     frame_ctx = ws_frame_ctx_new(ws, WS_FT_DATA);
@@ -823,7 +814,7 @@ int ws_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struc
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
-                    fhss_type,
+                    neigh ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
                     neigh ? &neigh->fhss_data_unsecured : NULL,
                     neigh ? neigh->frame_counter_min : NULL,
                     NULL, 0);  // TODO: mode switch
