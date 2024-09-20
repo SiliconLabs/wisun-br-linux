@@ -14,13 +14,27 @@
 #ifndef WSRD_H
 #define WSRD_H
 
-#include "app_wsrd/app/commandline.h"
-#include "app_wsrd/ws/ws.h"
+#include "common/ws_interface.h"
+#include "common/trickle.h"
 #include "common/timer.h"
+#include "app_wsrd/supplicant/supplicant.h"
+#include "app_wsrd/app/commandline.h"
+#include "app_wsrd/ipv6/ipv6.h"
 
 struct wsrd {
     struct wsrd_conf config;
-    struct wsrd_ws_ctx ws;
+
+    struct ws_ctx ws;
+
+    struct trickle pas_tkl;
+    struct timer_entry pan_selection_timer;
+    struct trickle pcs_tkl;
+
+    struct ipv6_ctx ipv6;
+
+    struct supplicant_ctx supp;
+    struct eui64 eapol_target_eui64;
+
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.

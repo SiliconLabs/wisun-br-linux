@@ -14,27 +14,13 @@
 #ifndef WSRD_WS_H
 #define WSRD_WS_H
 
-#include <sys/queue.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "common/ws_interface.h"
-#include "common/trickle.h"
-#include "app_wsrd/supplicant/supplicant.h"
-#include "app_wsrd/ipv6/ipv6.h"
-
-struct wsrd_ws_ctx {
-    struct ws_ctx ws;
-
-    struct trickle pas_tkl;
-    struct timer_entry pan_selection_timer;
-    struct trickle pcs_tkl;
-
-    struct ipv6_ctx ipv6;
-
-    struct supplicant_ctx supp;
-    struct eui64 eapol_target_eui64;
-};
+struct ws_frame_ctx;
+struct timer_group;
+struct timer_entry;
+struct rcp_tx_cnf;
+struct trickle;
+struct ws_ctx;
+struct ws_ind;
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
 void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);

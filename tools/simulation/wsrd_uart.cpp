@@ -39,7 +39,7 @@ extern "C" ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
     uint8_t *buf;
     ssize_t ret;
 
-    if (fd != g_wsrd.ws.ws.rcp.bus.fd)
+    if (fd != g_wsrd.ws.rcp.bus.fd)
         return __real_writev(fd, iov, iovcnt);
 
     BUG_ON(iovcnt != 3); // hdr | cmd + body | fcs

@@ -114,7 +114,7 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
 
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < 4; i++) {
-        ws_generate_gak(wsrd->config.ws_netname, wsrd->ws.supp.gtks[i].gtk, gak);
+        ws_generate_gak(wsrd->config.ws_netname, wsrd->supp.gtks[i].gtk, gak);
         sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);
@@ -141,13 +141,13 @@ static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interf
 
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
-    SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ws.ipv6), 0),
-    SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ws.ipv6), 0),
-    SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.ws.rcp.eui64), 0),
-    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.ws.pan_id),   SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ipv6), 0),
+    SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ipv6), 0),
+    SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
+    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-    SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-    SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ws.ipv6),        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-    SD_BUS_PROPERTY("DodagId",       "ay",  dbus_get_dodag_id,       offsetof(struct wsrd, ws.ipv6),        0),
+    SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ipv6),           SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("DodagId",       "ay",  dbus_get_dodag_id,       offsetof(struct wsrd, ipv6),           0),
     SD_BUS_VTABLE_END,
 };
