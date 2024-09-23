@@ -22,36 +22,36 @@
 #include "common/iobuf.h"
 
 struct wh_ie_list {
-    bool utt:   1;
-    bool bt:    1;
-    bool fc:    1;
-    bool rsl:   1;
-    bool ea:    1;
-    bool lutt:  1;
-    bool lbt:   1;
-    bool nr:    1;
-    bool lus:   1;
-    bool flus:  1;
-    bool lbs:   1;
-    bool lnd:   1;
-    bool lto:   1;
-    bool panid: 1;
-    bool lbc:   1;
+    bool utt;
+    bool bt;
+    bool fc;
+    bool rsl;
+    bool ea;
+    bool lutt;
+    bool lbt;
+    bool nr;
+    bool lus;
+    bool flus;
+    bool lbs;
+    bool lnd;
+    bool lto;
+    bool panid;
+    bool lbc;
 };
 
 struct wp_ie_list {
-    bool us:       1;
-    bool bs:       1;
-    bool pan:      1;
-    bool netname:  1;
-    bool panver:   1;
-    bool gtkhash:  1;
-    bool lgtkhash: 1;
-    bool lfnver:   1;
-    bool lcp:      1;
-    bool lbats:    1;
-    bool pom:      1;
-    bool jm:       1;
+    bool us;
+    bool bs;
+    bool pan;
+    bool netname;
+    bool panver;
+    bool gtkhash;
+    bool lgtkhash;
+    bool lfnver;
+    bool lcp;
+    bool lbats;
+    bool pom;
+    bool jm;
 };
 
 // Frame sent to the RCP and waiting for a confirmation.
