@@ -66,7 +66,6 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct rtnl_neigh *nl_neigh;
     struct nl_addr *src_ipv6_nl_addr;
-    struct nl_cache *cache;
     struct nl_sock *sock;
     int err;
 
@@ -78,14 +77,8 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     err = nl_connect(sock, NETLINK_ROUTE);
     FATAL_ON(err < 0, 2, "nl_connect: %s", nl_geterror(err));
 
-    err = rtnl_neigh_alloc_cache(sock, &cache);
-    FATAL_ON(err < 0, 2, "rtnl_neigh_alloc_cache: %s", nl_geterror(err));
     src_ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
     FATAL_ON(!src_ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
-    nl_neigh = rtnl_neigh_get(cache, ctxt->tun.ifindex, src_ipv6_nl_addr);
-    nl_cache_put(cache);
-    if (nl_neigh)
-        goto ret_free_addr;
     nl_neigh = rtnl_neigh_alloc();
     BUG_ON(!nl_neigh);
 
@@ -94,10 +87,10 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
     rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
     err = rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
-    FATAL_ON(err < 0, 2, "rtnl_neigh_add: %s", nl_geterror(err));
+    if (err < 0 && err != NLE_EXIST)
+        FATAL(2, "rtnl_neigh_add: %s", nl_geterror(err));
 
     rtnl_neigh_put(nl_neigh);
-ret_free_addr:
     nl_addr_put(src_ipv6_nl_addr);
     nl_socket_free(sock);
 }
