@@ -83,6 +83,7 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     src_ipv6_nl_addr = nl_addr_build(AF_INET6, address, 16);
     FATAL_ON(!src_ipv6_nl_addr, 2, "nl_addr_build: %s", strerror(ENOMEM));
     nl_neigh = rtnl_neigh_get(cache, ctxt->tun.ifindex, src_ipv6_nl_addr);
+    nl_cache_put(cache);
     if (nl_neigh)
         goto ret_free_addr;
     nl_neigh = rtnl_neigh_alloc();
