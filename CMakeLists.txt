@@ -277,6 +277,7 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_library(libwsrd STATIC
     app_wsrd/app/commandline.c
     app_wsrd/app/wsrd.c
+    app_wsrd/app/ws.c
     app_wsrd/ipv6/6lowpan.c
     app_wsrd/ipv6/6lowpan_iphc.c
     app_wsrd/ipv6/ipv6.c
@@ -287,7 +288,6 @@ add_library(libwsrd STATIC
     app_wsrd/supplicant/supplicant_eap.c
     app_wsrd/supplicant/supplicant_key.c
     app_wsrd/supplicant/supplicant.c
-    app_wsrd/ws/ws.c
     common/crypto/ieee80211.c
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
