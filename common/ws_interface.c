@@ -438,3 +438,53 @@ void ws_if_send_pcs(struct ws_ctx *ws)
                     NULL, 0);
     iobuf_free(&iobuf);
 }
+
+void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
+{
+    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, req->dst->u8);
+    struct ieee802154_hdr hdr = {
+        .frame_type   = IEEE802154_FRAME_TYPE_DATA,
+        .seqno        = req->pkt || req->fhss_type == HIF_FHSS_TYPE_FFN_BC ? ws->seqno++ : -1,
+        .pan_id       = req->fhss_type != HIF_FHSS_TYPE_FFN_UC ? ws->pan_id : -1,
+        .ack_req      = req->fhss_type == HIF_FHSS_TYPE_FFN_UC,
+        .key_index    = req->gak_index,
+        .src          = ws->rcp.eui64,
+        .dst          = *req->dst,
+    };
+    struct mpx_ie ie_mpx = {
+        .transfer_type = MPX_FT_FULL_FRAME,
+        .multiplex_id  = req->multiplex_id,
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    int offset;
+
+    frame_ctx = ws_if_frame_ctx_new(ws, req->frame_type);
+    if (!frame_ctx)
+        return;
+    frame_ctx->dst =  hdr.dst;
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_write_ies(ws, &iobuf, req->frame_type, &req->wh_ies, &req->wp_ies, req->multiplex_id);
+
+    if (req->multiplex_id) {
+        offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
+        mpx_ie_write(&iobuf, &ie_mpx);
+        iobuf_push_data(&iobuf, req->pkt, req->pkt_len);
+        ieee802154_ie_fill_len_payload(&iobuf, offset);
+    }
+
+    if (req->gak_index)
+        iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+
+    TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(req->frame_type), tr_eui64(hdr.dst.u8));
+    rcp_req_data_tx(&ws->rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    req->fhss_type,
+                    neigh ? &neigh->fhss_data_unsecured : NULL,
+                    neigh ? neigh->frame_counter_min : NULL,
+                    NULL, 0);
+    iobuf_free(&iobuf);
+}

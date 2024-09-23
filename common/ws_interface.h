@@ -55,6 +55,18 @@ struct wp_ie_list {
     bool jm;
 };
 
+struct ws_send_req {
+    struct wh_ie_list wh_ies;
+    struct wp_ie_list wp_ies;
+    uint8_t frame_type;
+    uint8_t fhss_type;
+    uint8_t gak_index;
+    uint16_t multiplex_id;
+    const struct eui64 *dst;
+    const void *pkt;
+    size_t pkt_len;
+};
+
 // Frame sent to the RCP and waiting for a confirmation.
 struct ws_frame_ctx {
     uint8_t handle;
@@ -107,5 +119,6 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                       const struct eui64 *dst);
 void ws_if_send_pas(struct ws_ctx *ws);
 void ws_if_send_pcs(struct ws_ctx *ws);
+void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req);
 
 #endif
