@@ -15,8 +15,10 @@
 #include <getopt.h>
 
 #include "common/key_value_storage.h"
+#include "common/ieee802154_frame.h"
 #include "common/commandline.h"
 #include "common/ws_regdb.h"
+#include "common/parsers.h"
 #include "common/log.h"
 
 #include "commandline.h"
@@ -77,6 +79,9 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
+        { "target_eui64",                  &config->target_eui64,                     conf_set_eui64,       NULL },
+        { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
+        { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
@@ -99,7 +104,10 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     config->rcp_cfg.uart_baudrate = 115200;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
+    config->disc_period_s = 10;
+    config->disc_count_max = 6;
     memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
+    memset(config->target_eui64, 0xff, sizeof(config->target_eui64));
     config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -184,4 +192,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
+    if (!memcmp(config->target_eui64, &ieee802154_addr_bc, 8))
+        FATAL(1, "missing \"target_eui64\" parameter");
 }

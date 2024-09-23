@@ -18,6 +18,7 @@
 #include "common/rail_config.h"
 #include "common/memutils.h"
 #include "common/version.h"
+#include "common/sl_ws.h"
 #include "common/bits.h"
 #include "common/log.h"
 
@@ -44,6 +45,24 @@ static void dc_on_rcp_reset(struct rcp *rcp)
         FATAL(3, "RCP API < 2.0.0 (too old)");
 }
 
+static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct dc *dc = container_of(timer, struct dc, disc_timer);
+    struct ws_send_req req = {
+        .frame_type    = SL_FT_DCS,
+        .fhss_type     = HIF_FHSS_TYPE_ASYNC,
+        .wh_ies.sl_utt = true,
+        .wp_ies.us     = true,
+        .dst = (struct eui64 *)dc->cfg.target_eui64,
+    };
+
+    if (dc->disc_count >= dc->cfg.disc_count_max)
+        FATAL(1, "%s is unreachable, please check your configuration", tr_eui64(dc->cfg.target_eui64));
+
+    ws_if_send(&dc->ws, &req);
+    dc->disc_count++;
+}
+
 struct dc g_dc = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
@@ -52,6 +71,8 @@ struct dc g_dc = {
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
+
+    .disc_timer.callback = dc_on_disc_timer_timeout,
 
     .tun.fd = -1,
 };
@@ -134,6 +155,9 @@ int dc_main(int argc, char *argv[])
     dc_init_radio(dc);
     dc_init_tun(dc);
     timer_group_init(&dc->ws.neigh_table.timer_group);
+
+    dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;
+    timer_start_rel(NULL, &dc->disc_timer, 0);
 
     pfd[POLLFD_RCP].fd = dc->ws.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;

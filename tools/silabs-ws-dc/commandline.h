@@ -30,6 +30,10 @@ struct dc_cfg {
     int  ws_uc_dwell_interval_ms;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
 
+    uint8_t target_eui64[8];
+    int disc_period_s;
+    int disc_count_max;
+
     bool list_rf_configs;
     int  color_output;
 };

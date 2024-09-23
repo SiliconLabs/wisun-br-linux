@@ -21,6 +21,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/string_extra.h"
 #include "common/memutils.h"
+#include "common/sl_ws.h"
 #include "common/mpx.h"
 
 #include "ws_interface.h"
@@ -38,6 +39,8 @@ static const struct name_value ws_frames[] = {
     { "l-cfg",     WS_FT_LPC },
     { "l-cfg-sol", WS_FT_LPCS },
     { "l-tsync",   WS_FT_LTS },
+    { "dc-sol",    SL_FT_DCS },
+    { "dc-adv",    SL_FT_DCA },
     { NULL },
 };
 
@@ -148,6 +151,12 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
 {
     struct ws_frame_ctx *cur, *new;
 
+    if (type == SL_FT_DCS &&
+        SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
+        WARN("%s tx overlap, consider increasing disc_period_s", tr_ws_frame(type));
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
+        return NULL;
+    }
     if ((type == WS_FT_PAS || type == WS_FT_PCS) &&
         SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
         WARN("%s tx overlap, consider increasing trickle Imin", tr_ws_frame(type));
@@ -199,7 +208,8 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         return;
     }
 
-    if (memcmp(&frame_ctx->dst, &ieee802154_addr_bc, 8)) {
+    // DCS are async unicast packets to the chosen target
+    if (frame_ctx->type != SL_FT_DCS && memcmp(&frame_ctx->dst, &ieee802154_addr_bc, 8)) {
         neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst.u8);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
