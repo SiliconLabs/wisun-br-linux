@@ -13,9 +13,9 @@
  */
 #include <netinet/icmp6.h>
 
+#include "common/ipv6/ipv6_cksum.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
-#include "common/ipv6_cksum.h"
 #include "common/memutils.h"
 #include "common/named_values.h"
 #include "common/pktbuf.h"
