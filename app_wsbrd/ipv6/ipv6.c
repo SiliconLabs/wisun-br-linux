@@ -20,8 +20,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include "common/ipv6/ipv6_flow_label.h"
 #include "common/log_legacy.h"
-#include "common/ipv6_flow_label.h"
 #include "common/endian.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"

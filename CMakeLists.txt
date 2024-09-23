@@ -137,6 +137,7 @@ add_library(libwsbrd STATIC
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
     common/crypto/ws_keys.c
+    common/ipv6/ipv6_flow_label.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -155,7 +156,6 @@ add_library(libwsbrd STATIC
     common/dhcp_server.c
     common/dhcp_common.c
     common/iobuf.c
-    common/ipv6_flow_label.c
     common/hif.c
     common/spinel.c
     common/trickle_legacy.c
