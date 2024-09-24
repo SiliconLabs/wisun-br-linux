@@ -22,6 +22,8 @@
 #include "common/bits.h"
 #include "common/log.h"
 
+#include "ws.h"
+
 #include "dc.h"
 
 enum {
@@ -71,6 +73,7 @@ struct dc g_dc = {
 
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
+    .ws.on_recv_ind = ws_on_recv_ind,
 
     .disc_timer.callback = dc_on_disc_timer_timeout,
 

@@ -488,6 +488,7 @@ if(COMPILE_DEVTOOLS)
         version.c
         tools/silabs-ws-dc/dc.c
         tools/silabs-ws-dc/commandline.c
+        tools/silabs-ws-dc/ws.c
         common/ipv6/ipv6_addr.c
         common/bits.c
         common/bus_uart.c
@@ -510,6 +511,7 @@ if(COMPILE_DEVTOOLS)
         common/time_extra.c
         common/timer.c
         common/tun.c
+        common/ws_ie_validation.c
         common/ws_ie.c
         common/ws_interface.c
         common/ws_neigh.c

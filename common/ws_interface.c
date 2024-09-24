@@ -108,7 +108,8 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     if (ret < 0)
         return;
 
-    if (!ws_wh_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt)) {
+    if (!ws_wh_sl_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt) &&
+        !ws_wh_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt)) {
         TRACE(TR_DROP, "drop %-9s: missing UTT-IE", "15.4");
         return;
     }
