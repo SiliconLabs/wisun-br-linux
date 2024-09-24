@@ -65,6 +65,17 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
     dc->disc_count++;
 }
 
+static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    struct dc *dc = container_of(table, struct dc, ws.neigh_table);
+
+    if (memcmp(dc->cfg.target_eui64, neigh->mac64, sizeof(dc->cfg.target_eui64)))
+        return;
+    INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
+    dc->disc_count = 0;
+    timer_start_rel(NULL, &dc->disc_timer, dc->disc_timer.period_ms);
+}
+
 struct dc g_dc = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
@@ -74,6 +85,7 @@ struct dc g_dc = {
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.on_recv_ind = ws_on_recv_ind,
+    .ws.neigh_table.on_del = dc_on_neigh_del,
 
     .disc_timer.callback = dc_on_disc_timer_timeout,
 
