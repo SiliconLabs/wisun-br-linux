@@ -115,236 +115,61 @@ void pktbuf_pop_tail(struct pktbuf *pktbuf, void *buf, size_t buf_len)
     pktbuf->offset_tail -= buf_len;
 }
 
-void pktbuf_push_head_u8(struct pktbuf *pktbuf, uint8_t val)
-{
-    pktbuf_push_head(pktbuf, &val, sizeof(val));
-}
+#define PKTBUF_PUSH_DEFINE(at, suffix, type, size, conv)              \
+    void pktbuf_push_##at##_##suffix(struct pktbuf *pktbuf, type val) \
+    {                                                                 \
+        pktbuf_push_##at(pktbuf, (type[1]){ conv(val) }, size);       \
+    }
 
-void pktbuf_push_head_be16(struct pktbuf *pktbuf, uint16_t val)
-{
-    pktbuf_push_head(pktbuf, (uint16_t[1]){ htobe16(val) }, sizeof(val));
-}
+#define htobe24(x) htobe32((x) << 8)
+#define htole24(x) htole32((x) & 0xffffff)
 
-void pktbuf_push_head_le16(struct pktbuf *pktbuf, uint16_t val)
-{
-    pktbuf_push_head(pktbuf, (uint16_t[1]){ htole16(val) }, sizeof(val));
-}
+PKTBUF_PUSH_DEFINE(head, u8,   uint8_t,  1,        )
+PKTBUF_PUSH_DEFINE(head, be16, uint16_t, 2, htobe16)
+PKTBUF_PUSH_DEFINE(head, le16, uint16_t, 2, htole16)
+PKTBUF_PUSH_DEFINE(head, be24, uint24_t, 3, htobe24)
+PKTBUF_PUSH_DEFINE(head, le24, uint24_t, 3, htole24)
+PKTBUF_PUSH_DEFINE(head, be32, uint32_t, 4, htobe32)
+PKTBUF_PUSH_DEFINE(head, le32, uint32_t, 4, htole32)
+PKTBUF_PUSH_DEFINE(head, be64, uint64_t, 8, htobe64)
+PKTBUF_PUSH_DEFINE(head, le64, uint64_t, 8, htole64)
+PKTBUF_PUSH_DEFINE(tail, u8,   uint8_t,  1,        )
+PKTBUF_PUSH_DEFINE(tail, be16, uint16_t, 2, htobe16)
+PKTBUF_PUSH_DEFINE(tail, le16, uint16_t, 2, htole16)
+PKTBUF_PUSH_DEFINE(tail, be24, uint24_t, 3, htobe24)
+PKTBUF_PUSH_DEFINE(tail, le24, uint24_t, 3, htole24)
+PKTBUF_PUSH_DEFINE(tail, be32, uint32_t, 4, htobe32)
+PKTBUF_PUSH_DEFINE(tail, le32, uint32_t, 4, htole32)
+PKTBUF_PUSH_DEFINE(tail, be64, uint64_t, 8, htobe64)
+PKTBUF_PUSH_DEFINE(tail, le64, uint64_t, 8, htole64)
 
-void pktbuf_push_head_be24(struct pktbuf *pktbuf, uint24_t val)
-{
-    pktbuf_push_head(pktbuf, (uint8_t *)(uint32_t[1]){ htobe32(val) } + 1, 3);
-}
+#define PKTBUF_POP_DEFINE(at, suffix, type, size, conv)    \
+    type pktbuf_pop_##at##_##suffix(struct pktbuf *pktbuf) \
+    {                                                      \
+        type val;                                          \
+                                                           \
+        pktbuf_pop_##at(pktbuf, &val, size);               \
+        return conv(val);                                  \
+    }
 
-void pktbuf_push_head_le24(struct pktbuf *pktbuf, uint24_t val)
-{
-    pktbuf_push_head(pktbuf, (uint32_t[1]){ htole32(val) }, 3);
-}
+#define be24toh(x) be32toh((x) >> 8)
+#define le24toh(x) le32toh((x) & 0xffffff)
 
-void pktbuf_push_head_be32(struct pktbuf *pktbuf, uint32_t val)
-{
-    pktbuf_push_head(pktbuf, (uint32_t[1]){ htobe32(val) }, sizeof(val));
-}
-
-void pktbuf_push_head_le32(struct pktbuf *pktbuf, uint32_t val)
-{
-    pktbuf_push_head(pktbuf, (uint32_t[1]){ htole32(val) }, sizeof(val));
-}
-
-void pktbuf_push_head_be64(struct pktbuf *pktbuf, uint64_t val)
-{
-    pktbuf_push_head(pktbuf, (uint64_t[1]){ htobe64(val) }, sizeof(val));
-}
-
-void pktbuf_push_head_le64(struct pktbuf *pktbuf, uint64_t val)
-{
-    pktbuf_push_head(pktbuf, (uint64_t[1]){ htole64(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_u8(struct pktbuf *pktbuf, uint8_t val)
-{
-    pktbuf_push_tail(pktbuf, &val, sizeof(val));
-}
-
-void pktbuf_push_tail_be16(struct pktbuf *pktbuf, uint16_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint16_t[1]){ htobe16(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_le16(struct pktbuf *pktbuf, uint16_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint16_t[1]){ htole16(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_be24(struct pktbuf *pktbuf, uint24_t val)
-{
-    pktbuf_push_head(pktbuf, (uint8_t *)(uint32_t[1]){ htobe32(val) } + 1, 3);
-}
-
-void pktbuf_push_tail_le24(struct pktbuf *pktbuf, uint24_t val)
-{
-    pktbuf_push_head(pktbuf, (uint32_t[1]){ htole32(val) }, 3);
-}
-
-void pktbuf_push_tail_be32(struct pktbuf *pktbuf, uint32_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint32_t[1]){ htobe32(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_le32(struct pktbuf *pktbuf, uint32_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint32_t[1]){ htole32(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_be64(struct pktbuf *pktbuf, uint64_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint64_t[1]){ htobe64(val) }, sizeof(val));
-}
-
-void pktbuf_push_tail_le64(struct pktbuf *pktbuf, uint64_t val)
-{
-    pktbuf_push_tail(pktbuf, (uint64_t[1]){ htole64(val) }, sizeof(val));
-}
-
-uint8_t pktbuf_pop_head_u8(struct pktbuf *pktbuf)
-{
-    uint8_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return val;
-}
-
-uint16_t pktbuf_pop_head_be16(struct pktbuf *pktbuf)
-{
-    uint16_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be16toh(val);
-}
-
-uint16_t pktbuf_pop_head_le16(struct pktbuf *pktbuf)
-{
-    uint16_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le16toh(val);
-}
-
-uint24_t pktbuf_pop_head_be24(struct pktbuf *pktbuf)
-{
-    uint32_t val = 0;
-
-    pktbuf_pop_head(pktbuf, (uint8_t *)&val + 1, 3);
-    return be32toh(val);
-}
-
-uint24_t pktbuf_pop_head_le24(struct pktbuf *pktbuf)
-{
-    uint32_t val = 0;
-
-    pktbuf_pop_head(pktbuf, &val, 3);
-    return le32toh(val);
-}
-
-uint32_t pktbuf_pop_head_be32(struct pktbuf *pktbuf)
-{
-    uint32_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be32toh(val);
-}
-
-uint32_t pktbuf_pop_head_le32(struct pktbuf *pktbuf)
-{
-    uint32_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le32toh(val);
-}
-
-uint64_t pktbuf_pop_head_be64(struct pktbuf *pktbuf)
-{
-    uint64_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be64toh(val);
-}
-
-uint64_t pktbuf_pop_head_le64(struct pktbuf *pktbuf)
-{
-    uint64_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le64toh(val);
-}
-
-uint8_t pktbuf_pop_tail_u8(struct pktbuf *pktbuf)
-{
-    uint8_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return val;
-}
-
-uint16_t pktbuf_pop_tail_be16(struct pktbuf *pktbuf)
-{
-    uint16_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be16toh(val);
-}
-
-uint16_t pktbuf_pop_tail_le16(struct pktbuf *pktbuf)
-{
-    uint16_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le16toh(val);
-}
-
-uint24_t pktbuf_pop_tail_be24(struct pktbuf *pktbuf)
-{
-    uint32_t val = 0;
-
-    pktbuf_pop_tail(pktbuf, (uint8_t *)&val + 1, 3);
-    return be32toh(val);
-}
-
-uint24_t pktbuf_pop_tail_le24(struct pktbuf *pktbuf)
-{
-    uint32_t val = 0;
-
-    pktbuf_pop_tail(pktbuf, &val, 3);
-    return le32toh(val);
-}
-
-uint32_t pktbuf_pop_tail_be32(struct pktbuf *pktbuf)
-{
-    uint32_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be32toh(val);
-}
-
-uint32_t pktbuf_pop_tail_le32(struct pktbuf *pktbuf)
-{
-    uint32_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le32toh(val);
-}
-
-uint64_t pktbuf_pop_tail_be64(struct pktbuf *pktbuf)
-{
-    uint64_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return be64toh(val);
-}
-
-uint64_t pktbuf_pop_tail_le64(struct pktbuf *pktbuf)
-{
-    uint64_t val;
-
-    pktbuf_pop_head(pktbuf, &val, sizeof(val));
-    return le64toh(val);
-}
+PKTBUF_POP_DEFINE(head, u8,   uint8_t,  1,        )
+PKTBUF_POP_DEFINE(head, be16, uint16_t, 2, be16toh)
+PKTBUF_POP_DEFINE(head, le16, uint16_t, 2, le16toh)
+PKTBUF_POP_DEFINE(head, be24, uint24_t, 3, be24toh)
+PKTBUF_POP_DEFINE(head, le24, uint24_t, 3, be24toh)
+PKTBUF_POP_DEFINE(head, be32, uint32_t, 4, be32toh)
+PKTBUF_POP_DEFINE(head, le32, uint32_t, 4, be32toh)
+PKTBUF_POP_DEFINE(head, be64, uint64_t, 8, be64toh)
+PKTBUF_POP_DEFINE(head, le64, uint64_t, 8, be64toh)
+PKTBUF_POP_DEFINE(tail, u8,   uint8_t,  1,        )
+PKTBUF_POP_DEFINE(tail, be16, uint16_t, 2, be16toh)
+PKTBUF_POP_DEFINE(tail, le16, uint16_t, 2, le16toh)
+PKTBUF_POP_DEFINE(tail, be24, uint24_t, 3, be24toh)
+PKTBUF_POP_DEFINE(tail, le24, uint24_t, 3, be24toh)
+PKTBUF_POP_DEFINE(tail, be32, uint32_t, 4, be32toh)
+PKTBUF_POP_DEFINE(tail, le32, uint32_t, 4, be32toh)
+PKTBUF_POP_DEFINE(tail, be64, uint64_t, 8, be64toh)
+PKTBUF_POP_DEFINE(tail, le64, uint64_t, 8, be64toh)
