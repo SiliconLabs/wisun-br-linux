@@ -1,3 +1,13 @@
+v2.1.6
+------
+  - Introduce `mac_address` parameter to manually configure the RCP's EUI-64.
+  - Accept `chan_plan_id = 160` for Chinese PHY.
+  - Fix Segmentation Fault on 6LoWPAN fragmentation failure.
+  - Fix memory leak when using `neighbor_proxy`.
+  - Fix multicast forwarding under heavy load: MPL buffers used to be kept in
+    the network for an unnecessarily long time, causing confusion with packet
+    chronology.
+
 v2.1.5
 ------
   - Improve D-Bus `RoutingGraph`:
