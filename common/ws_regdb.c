@@ -50,6 +50,7 @@ const int valid_ws_chan_plan_ids[] = {
     0x70, 0x71,                                           // WW
     0x80,                                                 // CN
     0x90,                                                 // CN
+    0xa0,                                                 // CN
     INT_MIN
 };
 
