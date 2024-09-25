@@ -140,7 +140,6 @@ typedef struct llc_data_base {
 
     ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
     ws_llc_mngt_cnf_cb              *mngt_cnf;                      /* Called when RCP confirms transmission of a Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) */
-    bool                            high_priority_mode;
     struct net_if *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
@@ -1595,9 +1594,6 @@ static void ws_llc_clean(llc_data_base_t *base)
     base->temp_entries.llc_eap_pending_list_size = 0;
     base->temp_entries.active_eapol_session = false;
     memset(&base->ie_params, 0, sizeof(llc_ie_params_t));
-
-    //Disable High Priority mode
-    base->high_priority_mode = false;
 }
 
 #define MS_FALLBACK_MIN_SAMPLE 50
@@ -1681,11 +1677,6 @@ mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *request)
 {
     struct llc_data_base *base = &g_llc_base;
-
-    if (base->high_priority_mode) {
-        //Drop asynch messages at High Priority mode
-        return -1;
-    }
 
     if ((request->frame_type == WS_FT_PA && ws_info->mngt.pan_advert_running) ||
         (request->frame_type == WS_FT_PC && ws_info->mngt.pan_config_running)) {
