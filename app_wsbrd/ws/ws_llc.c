@@ -80,21 +80,6 @@ typedef struct mpx_class {
     unsigned    mpx_id: 4;                      /**< MPX class sequence number */
 } mpx_class_t;
 
-
-typedef struct llc_ie_params {
-    uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
-    uint8_t                 gtkhash_length;         /**< GTK hash length */
-    /* FAN 1.1 elements */
-    struct ws_lus_ie        *lfn_us;                /**< LFN Unicast schedule */
-    struct ws_flus_ie       *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
-    struct ws_lbs_ie        *lfn_bs;                /**< LFN Broadcast schedule */
-    struct ws_lnd_ie        *lfn_network_discovery; /**< LFN Network Discovery */
-    struct ws_lto_ie        *lfn_timing;            /**< LFN Timing */
-    struct ws_panid_ie      *pan_id;                /**< PAN ID */
-    struct ws_lcp_ie        *lfn_channel_plan;      /**< LCP IE data */
-    struct ws_lbats_ie      *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
-} llc_ie_params_t;
-
 // FIXME: This contains many redundant information with mcps_data_req_t.
 typedef struct llc_message {
     uint8_t dst_address[8];             /**< Destination address */
@@ -135,7 +120,6 @@ typedef struct llc_data_base {
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
 
     llc_message_list_t              llc_message_list;               /**< Active Message list */
-    llc_ie_params_t                 ie_params;                      /**< LLC IE header and Payload data configuration */
     temp_entriest_t                 temp_entries;
 
     ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
@@ -1093,8 +1077,6 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         // TODO: Provide clock drift and timing accuracy
         // TODO: Make the LFN listening interval configurable (currently it is 5s-4.66h)
         ws_wh_nr_write(&msg->ie_buf_header, WS_NR_ROLE_BR, 255, 0, 5000, 1680000);
-    if (wh_ies->lus)
-        ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
     if (wh_ies->flus)
         // Only a single chan plan tag is supported. (0)
         ws_wh_flus_write(&msg->ie_buf_header, info->fhss_config.uc_dwell_interval, 0);
@@ -1104,11 +1086,6 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
                         info->fhss_config.bsi, 0,
                         info->fhss_config.lfn_bc_sync_period);
-    if (wh_ies->lnd)
-        ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
-    if (wh_ies->lto)
-        ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing->offset,
-                        base->ie_params.lfn_timing->adjusted_listening_interval);
     if (wh_ies->panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
     if (wh_ies->lbc)
@@ -1152,8 +1129,6 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->lgtkhash)
             ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
                                         ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
-        if (wp_ies->lbats)
-            ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
         if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
@@ -1593,7 +1568,6 @@ static void ws_llc_clean(llc_data_base_t *base)
     }
     base->temp_entries.llc_eap_pending_list_size = 0;
     base->temp_entries.active_eapol_session = false;
-    memset(&base->ie_params, 0, sizeof(llc_ie_params_t));
 }
 
 #define MS_FALLBACK_MIN_SAMPLE 50
