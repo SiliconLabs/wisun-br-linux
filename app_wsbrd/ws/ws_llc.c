@@ -140,8 +140,6 @@ typedef struct llc_data_base {
 
     ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
     ws_llc_mngt_cnf_cb              *mngt_cnf;                      /* Called when RCP confirms transmission of a Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) */
-    struct iobuf_write              ws_enhanced_response_elements;
-    struct iovec                    ws_header_vector;
     bool                            high_priority_mode;
     struct net_if *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
