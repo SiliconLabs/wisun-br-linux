@@ -141,7 +141,7 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     nl_neigh = rtnl_neigh_get(cache, ifindex, src_ipv6_nl_addr);
     nl_cache_put(cache);
     if (nl_neigh)
-        goto ret_free_addr;
+        goto cleanup;
     nl_neigh = rtnl_neigh_alloc();
     BUG_ON(!nl_neigh);
 
@@ -152,8 +152,8 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     err = rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
     FATAL_ON(err < 0, 2, "rtnl_neigh_add: %s", nl_geterror(err));
 
+cleanup:
     rtnl_neigh_put(nl_neigh);
-ret_free_addr:
     nl_addr_put(src_ipv6_nl_addr);
     nl_socket_free(sock);
 }
