@@ -25,6 +25,7 @@
 
 #include "common/bits.h"
 
+struct eui64;
 struct iobuf_write;
 struct ws_fhss_config;
 struct ws_phy_config;
@@ -230,7 +231,7 @@ void   ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type);
 void    ws_wh_bt_write(struct iobuf_write *buf);
 void    ws_wh_fc_write(struct iobuf_write *buf, uint8_t tx, uint8_t rx);
 void   ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl);
-void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);
+void    ws_wh_ea_write(struct iobuf_write *buf, const struct eui64 *eui64);
 /* Wi-SUN FAN 1.1 */
 void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
 void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);

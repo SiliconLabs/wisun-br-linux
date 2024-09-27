@@ -146,7 +146,7 @@ void ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8])
+void ws_wh_ea_write(struct iobuf_write *buf, const struct eui64 *eui64)
 {
     int offset;
 

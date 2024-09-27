@@ -1104,7 +1104,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->bt)
         ws_wh_bt_write(&msg->ie_buf_header);
     if (wh_ies->ea)
-        ws_wh_ea_write(&msg->ie_buf_header, base->interface_ptr->rcp->eui64.u8);
+        ws_wh_ea_write(&msg->ie_buf_header, &base->interface_ptr->rcp->eui64);
     if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->lbt)
