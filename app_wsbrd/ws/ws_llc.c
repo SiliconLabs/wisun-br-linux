@@ -1475,7 +1475,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .ea  = eapol_handshake_first_msg,
+        .ea  = eapol_handshake_first_msg ? &base->interface_ptr->rcp->eui64 : NULL,
     };
     struct wp_ie_list wp_ies = {
         .us = true,

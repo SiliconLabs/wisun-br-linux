@@ -79,6 +79,8 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
         ws_wh_utt_write(iobuf, frame_type);
     if (wh_ies->sl_utt)
         ws_wh_sl_utt_write(iobuf, frame_type);
+    if (wh_ies->ea)
+        ws_wh_ea_write(iobuf, wh_ies->ea);
     // TODO: remaning WH-IEs
     if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id)
         return;
@@ -315,7 +317,8 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
 
 void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                    const void *pkt, size_t pkt_len,
-                   const struct eui64 *dst)
+                   const struct eui64 *dst,
+                   const struct eui64 *ea)
 {
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
@@ -331,6 +334,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     };
     struct wh_ie_list wh_ies = {
         .utt = true,
+        .ea  = ea,
         // TODO: BT-IE, LBT-IE
     };
     struct wp_ie_list wp_ies = {

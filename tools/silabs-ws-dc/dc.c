@@ -111,7 +111,7 @@ static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const 
 {
     struct dc *dc = container_of(auth_ctx, struct dc, auth_ctx);
 
-    ws_if_send_eapol(&dc->ws, kmp_id, pkt, pkt_len, dst);
+    ws_if_send_eapol(&dc->ws, kmp_id, pkt, pkt_len, dst, NULL);
 }
 
 static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struct eui64 *eui64, uint8_t index)

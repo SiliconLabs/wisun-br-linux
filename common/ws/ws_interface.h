@@ -21,12 +21,14 @@
 #include "common/rcp_api.h"
 #include "common/iobuf.h"
 
+struct eui64;
+
 struct wh_ie_list {
     bool utt;
     bool bt;
     bool fc;
     bool rsl;
-    bool ea;
+    const struct eui64 *ea;
     bool lutt;
     bool lbt;
     bool nr;
@@ -116,7 +118,8 @@ int ws_if_send_data(struct ws_ctx *ws,
                     const struct eui64 *dst);
 void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                       const void *pkt, size_t pkt_len,
-                      const struct eui64 *dst);
+                      const struct eui64 *dst,
+                      const struct eui64 *ea);
 void ws_if_send_pas(struct ws_ctx *ws);
 void ws_if_send_pcs(struct ws_ctx *ws);
 void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req);

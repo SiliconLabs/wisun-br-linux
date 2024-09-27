@@ -239,7 +239,7 @@ static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const v
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
 
-    ws_if_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, (struct eui64 *)dst);
+    ws_if_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, (struct eui64 *)dst, NULL);
 }
 
 static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp)
