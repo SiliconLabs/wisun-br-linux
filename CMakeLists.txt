@@ -178,7 +178,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/6lowpan/iphc_decode/cipv6.c
     app_wsbrd/6lowpan/iphc_decode/iphc_compress.c
     app_wsbrd/6lowpan/iphc_decode/iphc_decompress.c
-    app_wsbrd/6lowpan/iphc_decode/lowpan_context.c
     app_wsbrd/6lowpan/mac/mac_helper.c
     app_wsbrd/ipv6/nd_router_object.c
     app_wsbrd/ws/ws_pan_info_storage.c
