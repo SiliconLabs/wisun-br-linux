@@ -135,7 +135,6 @@ static uint8_t compress_addr(const lowpan_context_list_t *context_list, const ui
     }
 
     uint8_t best_bytes = addr_bytes_needed(addr, outer_iid, ADDR_LINK_LOCAL_PREFIX, 64);
-    lowpan_context_t *best_ctx = NULL;
 
     /* If not found a 0-byte match, one more (unlikely) possibility for source - special case for "unspecified" */
     if (best_bytes > 0 && !is_dst && addr_is_ipv6_unspecified(addr)) {
@@ -143,15 +142,7 @@ static uint8_t compress_addr(const lowpan_context_list_t *context_list, const ui
         return 0;
     }
 
-    uint8_t mode_bits;
-    uint8_t context_bits;
-    if (best_ctx) {
-        context_bits = best_ctx->cid;
-        mode_bits = HC_DSTADR_COMP;
-    } else {
-        context_bits = 0;
-        mode_bits = 0;
-    }
+    uint8_t mode_bits = 0;
 
     switch (best_bytes) {
         default:
@@ -171,11 +162,9 @@ static uint8_t compress_addr(const lowpan_context_list_t *context_list, const ui
     /* Convert from IPHC DST bits to SRC bits */
     if (!is_dst) {
         mode_bits <<= 4;
-        context_bits <<= 4;
     }
 
     *mode |= mode_bits;
-    *context |= context_bits;
 
     memcpy(cmp_addr_out, addr + (16 - best_bytes), best_bytes);
 
