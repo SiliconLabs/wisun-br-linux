@@ -53,7 +53,6 @@ buffer_t *lowpan_down(buffer_t *buf)
 
     const uint8_t *ip_src = buffer_data_pointer(buf) + 8;
     const uint8_t *next_hop = buf->route->route_info.next_hop_addr;
-    bool stable_only = false;
 
     /* We have IP next hop - figure out the MAC address */
     if (addr_is_ipv6_multicast(next_hop)) {
@@ -61,7 +60,6 @@ buffer_t *lowpan_down(buffer_t *buf)
         write_be16(buf->dst_sa.address, cur->ws_info.pan_information.pan_id);
         buf->dst_sa.address[2] = 0x80 | (next_hop[14] & 0x1f);
         buf->dst_sa.address[3] = next_hop[15];
-        stable_only = true;
     } else { /* unicast */
         ipv6_neighbour_t *n = ipv6_interface_resolve_new(cur, buf);
         if (!n) {
@@ -109,7 +107,7 @@ buffer_t *lowpan_down(buffer_t *buf)
      */
     uint16_t max_iphc_size = cur->mac_parameters.mtu - mac_helper_frame_overhead(cur, buf) - 4;
 
-    buf = iphc_compress(&cur->lowpan_contexts, buf, max_iphc_size, stable_only);
+    buf = iphc_compress(buf, max_iphc_size);
     if (!buf) {
         return NULL;
     }

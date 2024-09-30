@@ -27,10 +27,11 @@
 #include "net/protocol.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 
+#include "iphc_compress.h"
+
 #define TRACE_GROUP "iphc"
 
 typedef struct iphc_compress_state {
-    const lowpan_context_list_t *const context_list;
     const uint8_t *in;
     uint8_t *out;
     uint16_t len;
@@ -39,7 +40,6 @@ typedef struct iphc_compress_state {
     uint16_t produced;
     const uint8_t *outer_src_iid;
     const uint8_t *outer_dst_iid;
-    const bool stable_only;
 } iphc_compress_state_t;
 
 static bool compress_nh(uint8_t nh, iphc_compress_state_t *restrict cs);
@@ -97,7 +97,7 @@ static uint8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_iid, 
     return 16;
 }
 
-static uint8_t compress_mc_addr(const lowpan_context_list_t *context_list, const uint8_t *addr, uint8_t *cmp_addr_out, uint8_t *context, uint8_t *mode, bool stable_only)
+static uint8_t compress_mc_addr(const uint8_t *addr, uint8_t *cmp_addr_out, uint8_t *mode)
 {
     *mode |= HC_MULTICAST_COMP;
     if (memcmp(addr, ADDR_LINK_LOCAL_ALL_NODES, 15) == 0) {
@@ -128,10 +128,10 @@ static uint8_t compress_mc_addr(const lowpan_context_list_t *context_list, const
     return 16;
 }
 
-static uint8_t compress_addr(const lowpan_context_list_t *context_list, const uint8_t *addr, bool is_dst, const uint8_t *outer_iid, uint8_t *cmp_addr_out, uint8_t *context, uint8_t *mode, bool stable_only)
+static uint8_t compress_addr(const uint8_t *addr, bool is_dst, const uint8_t *outer_iid, uint8_t *cmp_addr_out, uint8_t *mode)
 {
     if (is_dst && addr[0] == 0xff) {
-        return compress_mc_addr(context_list, addr, cmp_addr_out, context, mode, stable_only);
+        return compress_mc_addr(addr, cmp_addr_out, mode);
     }
 
     uint8_t best_bytes = addr_bytes_needed(addr, outer_iid, ADDR_LINK_LOCAL_PREFIX, 64);
@@ -350,15 +350,10 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
     }
 
     /* Compress addresses, get context byte */
-    uint8_t cid = 0;
     uint8_t cmp_src[16], cmp_dst[16], cmp_src_len, cmp_dst_len;
-    cmp_src_len = compress_addr(cs->context_list, in + 8, false, cs->outer_src_iid, cmp_src, &cid, &iphc[1], cs->stable_only);
-    cmp_dst_len = compress_addr(cs->context_list, in + 24, true, cs->outer_dst_iid, cmp_dst, &cid, &iphc[1], cs->stable_only);
+    cmp_src_len = compress_addr(in + 8, false, cs->outer_src_iid, cmp_src, &iphc[1]);
+    cmp_dst_len = compress_addr(in + 24, true, cs->outer_dst_iid, cmp_dst, &iphc[1]);
     iphc_bytes += cmp_src_len + cmp_dst_len;
-    if (cid != 0) {
-        iphc_bytes += 1;
-        iphc[1] |= HC_CIDE_COMP;
-    }
 
     /* Compress Hop Limit */
     switch (cs->in[7]) {
@@ -430,9 +425,6 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
     }
     *ptr++ = iphc[0];
     *ptr++ = iphc[1];
-    if (cid != 0) {
-        *ptr++ = cid;
-    }
 
     if ((iphc[0] & HC_TF_MASK) == HC_TF_ECN_DSCP_FLOW_LABEL || (iphc[0] & HC_TF_MASK) == HC_TF_ECN_DSCP) {
         *ptr++ = (ecn | dscp);
@@ -492,7 +484,7 @@ ext_hdr:
 
 /* Input: An IPv6 frame, with outer layer 802.15.4 MAC (or IP) addresses in src+dst */
 /* Output: 6LoWPAN frame - usually compressed. */
-buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf, uint16_t hc_space, bool stable_only)
+buffer_t *iphc_compress(buffer_t *buf, uint16_t hc_space)
 {
     uint8_t *ptr = buffer_data_pointer(buf);
     uint16_t len = buffer_data_length(buf);
@@ -524,7 +516,6 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
     }
 
     iphc_compress_state_t cs = {
-        .context_list = context_list,
         .in = ptr,
         .len = len,
         .out = hc_out,
@@ -533,7 +524,6 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
         .produced = 0,
         .outer_src_iid = src_iid,
         .outer_dst_iid = dst_iid,
-        .stable_only = stable_only
     };
 
     if (!compress_ipv6(&cs, false) || cs.produced > cs.consumed) {
