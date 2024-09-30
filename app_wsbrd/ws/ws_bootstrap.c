@@ -320,7 +320,6 @@ void ws_bootstrap_ip_stack_reset(struct net_if *cur)
 {
     // Delete all temporary cached information
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
-    lowpan_context_list_free(&cur->lowpan_contexts);
 }
 
 void ws_bootstrap_ip_stack_activate(struct net_if *cur)

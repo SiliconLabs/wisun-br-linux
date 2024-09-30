@@ -133,7 +133,6 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     protocol_stack_interface_set_reachable_time(entry, 30000);
     ns_list_link_init(entry, link);
-    ns_list_init(&entry->lowpan_contexts);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
     ns_list_init(&entry->ipv6_neighbour_cache.list);

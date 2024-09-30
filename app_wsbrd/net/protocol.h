@@ -23,7 +23,6 @@
 
 #include "net/protocol_abstract.h"
 #include "net/ns_address_internal.h"
-#include "6lowpan/iphc_decode/lowpan_context.h"
 #include "ws/ws_common.h"
 #include "ipv6/ipv6_routing_table.h"
 
@@ -46,7 +45,6 @@ struct net_if {
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
     struct mpl_domain *mpl_domain;
-    lowpan_context_list_t lowpan_contexts;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
