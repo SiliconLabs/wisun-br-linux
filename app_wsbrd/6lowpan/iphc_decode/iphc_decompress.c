@@ -68,7 +68,8 @@ IPv6START:
     }
 
     if (ip_hc[1] & HC_CIDE_COMP) {
-        ptr++;
+        TRACE(TR_DROP, "drop %-9s: unsupported stateful compression", "6lowpan");
+        return 0;
     }
 
     switch (ip_hc[0] & HC_TF_MASK) {
@@ -115,7 +116,6 @@ IPv6START:
                 ptr += 16;
                 break;
             case HC_48BIT_MULTICAST:
-            case HC_48BIT_CONTEXT_MULTICAST:
                 ptr += 6;
                 break;
             case HC_32BIT_MULTICAST:
@@ -252,20 +252,6 @@ static bool decompress_mc_addr(const lowpan_context_list_t *context_list, uint8_
             addr[15] = *in++;
             *in_ptr = in;
             return true;
-        case HC_48BIT_CONTEXT_MULTICAST: {
-            lowpan_context_t *ctx = lowpan_context_get_by_id(context_list, context);
-            if (!ctx) {
-                return false;
-            }
-            addr[0] = 0xff;
-            addr[1] = *in++;
-            addr[2] = *in++;
-            addr[3] = ctx->length;
-            memcpy(&addr[4], ctx->prefix, 8);
-            memcpy(&addr[12], in, 4);
-            *in_ptr = in + 4;
-            return true;
-        }
         default:
             return false;
     }
@@ -282,21 +268,17 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
         context &= 0xf;
     }
 
+    if (mode & HC_DSTADR_COMP) {
+        TRACE(TR_DROP, "drop %-9s: unsupported stateful compression", "6lowpan");
+        return false;
+    }
+
     if (mode & HC_MULTICAST_COMP) {
         return decompress_mc_addr(context_list, addr, in_ptr, outer_iid, context, mode & ~ HC_MULTICAST_COMP);
     }
 
     switch (mode & HC_DST_ADR_MODE_MASK) {
         case HC_DST_ADR_128_BIT:
-            if (mode & HC_DSTADR_COMP) {
-                /* Special case - different for src and dst */
-                if (is_dst) {
-                    return false;
-                } else {
-                    memset(addr, 0, 16); // unspecified (::)
-                    return true;
-                }
-            }
             memcpy(addr, *in_ptr, 16);
             *in_ptr += 16;
             return true;
@@ -315,21 +297,8 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
             break;
     }
 
-    if (mode & HC_DSTADR_COMP) {
-        lowpan_context_t *ctx = lowpan_context_get_by_id(context_list, context);
-        if (!ctx) {
-            return false;
-        }
-        /* Copy a minimum of 64 bits to get required zero fill up to IID -
-         * we rely on the context storage core having zero-padding in
-         * the prefix field for short contexts.
-         */
-        bitcpy(addr, ctx->prefix, ctx->length < 64 ? 64 : ctx->length);
-        return true;
-    } else {
-        memcpy(addr, ADDR_LINK_LOCAL_PREFIX, 8);
-        return true;
-    }
+    memcpy(addr, ADDR_LINK_LOCAL_PREFIX, 8);
+    return true;
 }
 
 typedef struct iphc_decompress_state {
@@ -347,12 +316,11 @@ static bool decompress_ipv6(iphc_decompress_state_t *restrict ds)
     const uint8_t *iphc = ds->in;
     ds->in += 2;
 
-    uint8_t cid;
+    uint8_t cid = 0;
 
     if (iphc[1] & HC_CIDE_COMP) {
-        cid = *ds->in++;
-    } else {
-        cid = 0;
+        TRACE(TR_DROP, "drop %-9s: unsupported stateful compression", "6lowpan");
+        return false;
     }
 
     /* First, Traffic Class and Flow Label */
