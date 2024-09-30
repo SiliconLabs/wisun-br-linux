@@ -66,32 +66,3 @@ void lowpan_context_list_free(lowpan_context_list_t *list)
         free(cur);
     }
 }
-
-/* ticks is in 1/10s */
-void lowpan_context_timer(int ticks)
-{
-    struct net_if *interface = protocol_stack_interface_info_get();
-    lowpan_context_list_t *list = &interface->lowpan_contexts;
-
-    ns_list_foreach_safe(lowpan_context_t, ctx, list) {
-        if (ctx->lifetime > ticks) {
-            ctx->lifetime -= ticks;
-            continue;
-        }
-        if (!ctx->expiring) {
-            /* Main lifetime has run out. Clear compression flag, and retain a
-             * bit longer (RFC 6775 5.4.3).
-             */
-            ctx->compression = false;
-            ctx->expiring = true;
-            ctx->lifetime = 2 * 18000u; /* 2 * default Router Lifetime = 2 * 1800s = 1 hour */
-            tr_debug("Context timed out - compression disabled");
-        } else {
-            /* 1-hour expiration timer set above has run out */
-            ns_list_remove(list, ctx);
-            free(ctx);
-            tr_debug("Delete Expired context");
-        }
-    }
-}
-

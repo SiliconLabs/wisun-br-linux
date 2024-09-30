@@ -12,7 +12,6 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <assert.h>
-#include "6lowpan/iphc_decode/lowpan_context.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "ipv6/nd_router_object.h"
@@ -68,7 +67,6 @@ struct ws_timer g_timers[] = {
     timer_entry(ASYNC,                  timer_update_async,                         1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
-    timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
     timer_entry(LPA,                    timer_send_lpa,                             0,                       false),
     timer_entry(LTS,                    timer_send_lts,                             0,                       true),

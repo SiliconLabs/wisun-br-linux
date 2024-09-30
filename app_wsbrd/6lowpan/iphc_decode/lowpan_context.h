@@ -60,14 +60,6 @@ typedef NS_LIST_HEAD(lowpan_context_t, link) lowpan_context_list_t;
 void lowpan_context_list_free(lowpan_context_list_t *list);
 
 /**
- * \brief Update lowpan context timeout ticks
- *
- * \param list pointer to linked list for context
- * \param ticks is in 1/10s
- *
- */
-void lowpan_context_timer(int ticks);
-/**
  * \brief Get Context entry from the list by context ID
  *
  * \param list pointer to linked list for context
