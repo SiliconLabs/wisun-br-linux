@@ -224,7 +224,7 @@ truncated:
     return ptr - buffer_data_pointer(buf);
 }
 
-static bool decompress_mc_addr(const lowpan_context_list_t *context_list, uint8_t *addr, const uint8_t **in_ptr, const uint8_t *outer_iid, uint8_t context, uint8_t mode)
+static bool decompress_mc_addr(uint8_t *addr, const uint8_t **in_ptr, const uint8_t *outer_iid, uint8_t mode)
 {
     const uint8_t *in = *in_ptr;
     (void) outer_iid;
@@ -257,15 +257,13 @@ static bool decompress_mc_addr(const lowpan_context_list_t *context_list, uint8_
     }
 }
 
-static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *addr, const uint8_t **in_ptr, bool is_dst, const uint8_t *outer_iid, uint8_t context, uint8_t mode)
+static bool decompress_addr(uint8_t *addr, const uint8_t **in_ptr, bool is_dst, const uint8_t *outer_iid, uint8_t mode)
 {
     if (!is_dst) {
         /* Get SRC bits and move into DST position, without multicast bit */
         mode = (mode >> 4) & (HC_DSTADR_COMP | HC_DST_ADR_MODE_MASK);
-        context >>= 4;
     } else {
         mode &= (HC_MULTICAST_COMP | HC_DSTADR_COMP | HC_DST_ADR_MODE_MASK);
-        context &= 0xf;
     }
 
     if (mode & HC_DSTADR_COMP) {
@@ -274,7 +272,7 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
     }
 
     if (mode & HC_MULTICAST_COMP) {
-        return decompress_mc_addr(context_list, addr, in_ptr, outer_iid, context, mode & ~ HC_MULTICAST_COMP);
+        return decompress_mc_addr(addr, in_ptr, outer_iid, mode & ~ HC_MULTICAST_COMP);
     }
 
     switch (mode & HC_DST_ADR_MODE_MASK) {
@@ -302,7 +300,6 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
 }
 
 typedef struct iphc_decompress_state {
-    const lowpan_context_list_t *const context_list;
     const uint8_t *in;
     const uint8_t *const end;
     uint8_t *out;
@@ -315,8 +312,6 @@ static bool decompress_ipv6(iphc_decompress_state_t *restrict ds)
 {
     const uint8_t *iphc = ds->in;
     ds->in += 2;
-
-    uint8_t cid = 0;
 
     if (iphc[1] & HC_CIDE_COMP) {
         TRACE(TR_DROP, "drop %-9s: unsupported stateful compression", "6lowpan");
@@ -379,13 +374,13 @@ static bool decompress_ipv6(iphc_decompress_state_t *restrict ds)
             break;
     }
 
-    if (!decompress_addr(ds->context_list, ds->out, &ds->in, false, ds->outer_src_iid, cid, iphc[1])) {
+    if (!decompress_addr(ds->out, &ds->in, false, ds->outer_src_iid, iphc[1])) {
         tr_warn("SRC Address decompress fail");
         return false;
     }
     ds->outer_src_iid = ds->out + 8;
     ds->out += 16;
-    if (!decompress_addr(ds->context_list, ds->out, &ds->in, true, ds->outer_dst_iid, cid, iphc[1])) {
+    if (!decompress_addr(ds->out, &ds->in, true, ds->outer_dst_iid, iphc[1])) {
         tr_warn("DST Address decompress fail");
         return false;
     }
@@ -502,7 +497,7 @@ static bool decompress_udp(iphc_decompress_state_t *ds)
 
 /* Input: A 6LoWPAN frame, starting with an IPHC header, with outer layer 802.15.4 MAC addresses in src+dst */
 /* Output:  An IPv6 frame */
-buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *buf)
+buffer_t *iphc_decompress(buffer_t *buf)
 {
     uint8_t src_iid[8], dst_iid[8];
     uint8_t *iphc = NULL;
@@ -539,7 +534,6 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
 
     {
         iphc_decompress_state_t ds = {
-            .context_list = context_list,
             .in = iphc,
             .nh_ptr = NULL,
             .out = buffer_data_pointer(buf),

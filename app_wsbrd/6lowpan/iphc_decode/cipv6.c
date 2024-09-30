@@ -119,8 +119,6 @@ buffer_t *lowpan_down(buffer_t *buf)
 
 buffer_t *lowpan_up(buffer_t *buf)
 {
-    struct net_if *cur = buf->interface;
-
     /* Reject:
      *    Packets without address
      *    Source broadcast PAN ID
@@ -161,7 +159,7 @@ buffer_t *lowpan_up(buffer_t *buf)
 
     /* Divert to new routing system - in final system, MAC/mesh/Frag should send to IPV6_TXRX layer */
     buf->ip_routed_up = true;
-    buf = iphc_decompress(&cur->lowpan_contexts, buf);
+    buf = iphc_decompress(buf);
     if (buf) {
         buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_TXRX | B_TO_IPV6_FWD);
     }
