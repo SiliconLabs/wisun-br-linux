@@ -495,6 +495,7 @@ static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt
         .data_size = opts_len,
         .data = opts,
     };
+    bool has_transit = false;
     uint8_t opt_type;
 
     while (iobuf_remaining_size(&buf)) {
@@ -507,12 +508,13 @@ static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt
         opt_buf.cnt       = 0;
         if (opt_type == RPL_OPT_PADN)
             continue;
-        if (opt_type == RPL_OPT_TARGET)
+        if (opt_type == RPL_OPT_TARGET && !has_transit)
             continue; // Skip grouped target options
         if (opt_type != RPL_OPT_TRANSIT)
             break; // No more transits for the current target
         if (!rpl_opt_transit_parse(&opt_buf, &opt_transit))
             break;
+        has_transit = true;
         rpl_transit_update(root, opt_target, &opt_transit);
     }
     return !opt_buf.err;
