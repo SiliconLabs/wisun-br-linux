@@ -159,6 +159,7 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
+    fprintf(stream, "  -p CPC_INSTANCE       Use the CPC Interface on the given instance\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
     fprintf(stream, "                           hif-extra, tun, timers, trickle, 15.4-mngt, 15.4, eap, icmp,\n");
@@ -583,7 +584,7 @@ static void parse_config_file(struct wsbrd_conf *config, const char *filename)
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
-    static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
+    static const char *opts_short = "u:p:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -677,6 +678,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'u':
                 snprintf(config->uart_dev, sizeof(config->uart_dev), "%s", optarg); // safe strncpy()
+                break;
+            case 'p':
+                snprintf(config->cpc_instance, sizeof(config->cpc_instance), "%s", optarg); // safe strncpy()
                 break;
             case 'o':
                 snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
