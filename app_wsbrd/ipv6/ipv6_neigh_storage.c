@@ -145,8 +145,7 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
             ipv6_neighbors[i].type != IP_NEIGHBOUR_REGISTERED)
             continue;
         if (IN6_IS_ADDR_MULTICAST(ipv6_neighbors[i].ip_address) &&
-            ipv6_neighbour_lookup_mc(cache, ipv6_neighbors[i].ip_address,
-                                     ipv6_neighbour_eui64(cache, &ipv6_neighbors[i])))
+            ipv6_neighbour_lookup_mc(cache, ipv6_neighbors[i].ip_address, eui64))
             continue;
         else if (ipv6_neighbour_lookup(cache, ipv6_neighbors[i].ip_address))
             continue;
