@@ -329,7 +329,7 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
 {
     ipv6_neighbour_t *entry = ipv6_neighbour_lookup(cache, ip_address);
     if (!entry)
-        entry = ipv6_neighbour_create(cache, ip_address, ll_address);
+        entry = ipv6_neighbour_create(cache, ip_address, ll_address + PAN_ID_LEN);
     if (!entry)
         return NULL;
 
