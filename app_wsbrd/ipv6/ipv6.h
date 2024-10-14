@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef _IPV6_H
-#define _IPV6_H
+#ifndef NS_NET_IPV6_H
+#define NS_NET_IPV6_H
 
 #include "net/ns_buffer.h"
 
