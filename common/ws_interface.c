@@ -124,11 +124,16 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src.u8, WS_NR_ROLE_ROUTER, 16, 0x02);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
+    ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
+                       ind.hif->timestamp_us, ind.hdr.src.u8);
     ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
                                                          hif_ind->rx_power_dbm);
-    if (ind.hdr.key_index)
+    if (ind.hdr.key_index) {
+        ws_neigh_ut_update(&ind.neigh->fhss_data, ie_utt.ufsi,
+                           ind.hif->timestamp_us, ind.hdr.src.u8);
         ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
                                                    hif_ind->rx_power_dbm);
+    }
 
     ws_print_ind(&ind, ie_utt.message_type);
     if (ws->on_recv_ind)

@@ -151,7 +151,6 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
 
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    struct ws_utt_ie ie_utt;
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
     struct ws_jm_ie ie_jm;
@@ -164,7 +163,6 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
     if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
         return;
     if (!ws_ie_validate_pan(&ind->ie_wp, &ie_pan))
@@ -173,7 +171,6 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
@@ -184,7 +181,6 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
 static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
 
     if (!ws_ie_validate_netname(wsrd->ws.netname, &ind->ie_wp))
@@ -192,8 +188,6 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     /*
@@ -237,7 +231,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
     uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
     struct chan_params chan_params;
-    struct ws_utt_ie ie_utt;
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -257,7 +250,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     }
 
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
     if (!ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt)) {
         TRACE(TR_DROP, "drop %s: missing BT-IE", "15.4");
         return;
@@ -290,8 +282,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         dbus_emit_change("PanVersion");
     }
 
-    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -313,7 +303,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 
 static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
 
     if (ind->hdr.pan_id == 0xffff) {
@@ -329,9 +318,6 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
-    ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -346,7 +332,6 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
 
 void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
 
@@ -370,10 +355,6 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     }
 
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
-
     if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
@@ -394,7 +375,6 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
 {
     uint8_t authenticator_eui64[8];
     struct iobuf_read buf = { };
-    struct ws_utt_ie ie_utt;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
@@ -411,10 +391,6 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
         return;
     }
-
-    ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt);
-    ws_neigh_ut_update(&ind->neigh->fhss_data,           ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, ind->hdr.src.u8);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.2.3.5.3 Frames for General Purpose Messaging
