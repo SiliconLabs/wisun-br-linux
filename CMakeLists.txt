@@ -145,6 +145,7 @@ add_library(libwsbrd STATIC
     common/events_scheduler.c
     common/log.c
     common/bits.c
+    common/eapol.c
     common/endian.c
     common/rand.c
     common/mbedtls_config_check.c
@@ -152,6 +153,7 @@ add_library(libwsbrd STATIC
     common/fnv_hash.c
     common/parsers.c
     common/pcapng.c
+    common/pktbuf.c
     common/dhcp_server.c
     common/dhcp_common.c
     common/iobuf.c

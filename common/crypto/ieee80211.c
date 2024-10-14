@@ -18,13 +18,36 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
+#include "common/specs/ieee80211.h"
+#include "common/specs/eapol.h"
 #include "common/crypto/hmac_md.h"
 #include "common/time_extra.h"
 #include "common/rand.h"
 #include "common/log.h"
 #include "common/mathutils.h"
+#include "common/pktbuf.h"
+#include "common/eapol.h"
 
 #include "ieee80211.h"
+
+bool ieee80211_is_mic_valid(const uint8_t ptk[48], const struct eapol_key_frame *frame,
+                            const uint8_t *data, size_t data_len)
+{
+    struct pktbuf buf = { };
+    uint8_t mic[16] = { };
+    int ret;
+
+    pktbuf_push_tail(&buf, frame, sizeof(*frame));
+    memset(pktbuf_head(&buf) + offsetof(struct eapol_key_frame, mic), 0, sizeof(frame->mic));
+    pktbuf_push_tail(&buf, data, data_len);
+    eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
+
+    ret = hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(&buf), pktbuf_len(&buf), mic, sizeof(mic));
+    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+
+    pktbuf_free(&buf);
+    return !memcmp(mic, frame->mic, sizeof(mic));
+}
 
 void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
                    const uint8_t *data, size_t data_len,

@@ -17,8 +17,18 @@
  */
 #ifndef COMMON_CRYPTO_IEEE80211_H
 #define COMMON_CRYPTO_IEEE80211_H
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+
+struct eapol_key_frame;
+
+/*
+ * Check the Message Integrity Check (MIC) provided by "frame" properly matches with
+ * the content of "data" as described in IEEE 802.11-2020.
+ */
+bool ieee80211_is_mic_valid(const uint8_t ptk[48], const struct eapol_key_frame *frame,
+                            const uint8_t *data, size_t data_len);
 
 /*
  * Pseudo-Random Function (PRF) producing n bits of output, described in IEEE

@@ -114,29 +114,8 @@ static void supp_key_pairwise_message_2_send(struct supplicant_ctx *supp, const 
 static bool supp_key_is_mic_valid(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
                                   struct iobuf_read *iobuf)
 {
-    struct pktbuf buf = { };
-    uint8_t mic[16] = { };
-    int ret;
-
-    /*
-     *   IEEE 802.11-2020, 12.7.6.1 General
-     * The MIC is computed over the body of the EAPOL-Key frame (with the Key
-     * MIC field first zeroed before the computation) using the KCK defined in
-     * 12.7.1.3 for PTK generation.
-     */
-    pktbuf_push_tail(&buf, frame, sizeof(*frame));
-    memset(pktbuf_head(&buf) + offsetof(struct eapol_key_frame, mic), 0, sizeof(frame->mic));
-    pktbuf_push_tail(&buf, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf));
-    eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
-
-    ret = hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
-                       pktbuf_head(&buf), pktbuf_len(&buf), mic, sizeof(mic));
-    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
-
-    if (memcmp(mic, frame->mic, sizeof(mic))) {
-        pktbuf_free(&buf);
+    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
         return false;
-    }
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -146,7 +125,6 @@ static bool supp_key_is_mic_valid(struct supplicant_ctx *supp, const struct eapo
      * EAPOL-Key MIC is checked and is found to be valid.
      */
     supp->replay_counter = be64toh(frame->replay_counter);
-    pktbuf_free(&buf);
     return true;
 }
 
