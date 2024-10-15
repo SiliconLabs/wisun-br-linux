@@ -48,5 +48,6 @@ bool kde_read_gtkl(const uint8_t *data, int data_len, uint8_t *gtkl);
 bool kde_read_lgtk(const uint8_t *data, int data_len, struct kde_gtk *gtk_kde);
 bool kde_read_lgtkl(const uint8_t *data, int data_len,  uint8_t *lgtkl);
 bool kde_read_lifetime(const uint8_t *data, int data_len, uint32_t *lifetime);
+bool kde_read_nr(const uint8_t *data, int data_len, uint8_t *node_role);
 
 #endif
