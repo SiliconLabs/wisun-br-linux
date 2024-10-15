@@ -11,7 +11,9 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _DEFAULT_SOURCE
 #include <string.h>
+#include <endian.h>
 
 #include "common/specs/ieee80211.h"
 #include "common/specs/oui.h"
@@ -187,6 +189,13 @@ void kde_write_lgtk(struct pktbuf *buf, const uint8_t key_id, const uint8_t lgtk
 void kde_write_lgtkl(struct pktbuf *buf, uint8_t lgtkl)
 {
     kde_write(buf, OUI_WISUN_ALLIANCE, WS_KDE_LGTKL, &lgtkl, sizeof(lgtkl));
+}
+
+void kde_write_lifetime(struct pktbuf *buf, const uint32_t lifetime_s)
+{
+    be32_t be32_lifetime_s = htobe32(lifetime_s);
+
+    kde_write(buf, OUI_IEEE80211, IEEE80211_KDE_LIFETIME, &be32_lifetime_s, sizeof(be32_lifetime_s));
 }
 
 void kde_write_nr(struct pktbuf *buf, uint8_t node_role)
