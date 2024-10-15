@@ -58,9 +58,8 @@ static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF10_ECN,  tmp);
         dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF10_DSCN, tmp);
         break;
-    default:
-        TRACE(TR_DROP, "drop %-9s: unsupported TF=0b11", "6lowpan");
-        pktbuf->err = true;
+    case 0b11:
+        // 11: Traffic Class and Flow Label are elided.
         break;
     }
     tclass = FIELD_PREP(IP_TCLASS_ECN_MASK,  ecn) |
@@ -383,7 +382,10 @@ static uint8_t lowpan_iphc_cmpr_vtcflow(struct pktbuf *pktbuf, uint32_t vtcflow)
     ecn  = FIELD_GET(IP_TCLASS_ECN_MASK,  tclass);
     dscp = FIELD_GET(IP_TCLASS_DSCP_MASK, tclass);
 
-    if (!flow) {
+    if (!flow && !tclass) {
+        // 11: Traffic Class and Flow Label are elided.
+        return 0b11;
+    } else if (!flow) {
         // 10: ECN + DSCP (1 byte), Flow Label is elided.
         pktbuf_push_head_u8(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF10_ECN,  ecn) |
                                     FIELD_PREP(LOWPAN_MASK_IPHC_TF10_DSCN, dscp));
