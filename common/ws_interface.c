@@ -261,6 +261,10 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return -ETIMEDOUT;
     }
+    if (neigh && !ws_neigh_has_us(&neigh->fhss_data_unsecured)) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown unicast schedule for %s", "15.4", tr_eui64(dst->u8));
+        return -EINVAL;
+    }
 
     frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_DATA);
     if (!frame_ctx)
