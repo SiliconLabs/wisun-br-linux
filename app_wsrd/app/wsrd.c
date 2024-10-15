@@ -392,6 +392,7 @@ int wsrd_main(int argc, char *argv[])
     // native EUI-64.
     if (memcmp(wsrd->config.ws_mac_address, &ieee802154_addr_bc, 8))
         rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address);
+    memcpy(wsrd->ipv6.eui64, &wsrd->ws.rcp.eui64, 8);
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
