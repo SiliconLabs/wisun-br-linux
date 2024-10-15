@@ -397,7 +397,7 @@ static uint8_t lowpan_iphc_cmpr_vtcflow(struct pktbuf *pktbuf, uint32_t vtcflow)
         return 0b01;
     } else {
         // 00: ECN + DSCP + 4-bit Pad + Flow Label (4 bytes)
-        pktbuf_push_head_be24(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF00_ECN,  ecn)  |
+        pktbuf_push_head_be32(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF00_ECN,  ecn)  |
                                       FIELD_PREP(LOWPAN_MASK_IPHC_TF00_DSCN, dscp) |
                                       FIELD_PREP(LOWPAN_MASK_IPHC_TF00_FLOW, flow));
         return 0b00;
