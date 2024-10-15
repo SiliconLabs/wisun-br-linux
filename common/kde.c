@@ -19,6 +19,7 @@
 #include "common/endian.h"
 #include "common/pktbuf.h"
 #include "common/iobuf.h"
+#include "common/bits.h"
 
 #include "kde.h"
 
@@ -138,9 +139,37 @@ void kde_write_ptkid(struct pktbuf *buf, const uint8_t ptkid[16])
     kde_write(buf, OUI_WISUN_ALLIANCE, WS_KDE_PTKID, ptkid, 16);
 }
 
+void kde_write_gtk(struct pktbuf *buf, const uint8_t key_id, const uint8_t gtk[16])
+{
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.2.2.4 Group Transient Key KDE (GTK)
+     * The TX field MUST be set to 0 and ignored upon reception.
+     */
+    struct kde_gtk gtk_kde = {
+        .flags = FIELD_PREP(KDE_GTK_MASK_KEY_ID, key_id),
+    };
+
+    memcpy(gtk_kde.gtk, gtk, sizeof(gtk_kde.gtk));
+    kde_write(buf, OUI_IEEE80211, IEEE80211_KDE_GTK, &gtk_kde, sizeof(gtk_kde));
+}
+
 void kde_write_gtkl(struct pktbuf *buf, uint8_t gtkl)
 {
     kde_write(buf, OUI_WISUN_ALLIANCE, WS_KDE_GTKL, &gtkl, sizeof(gtkl));
+}
+
+void kde_write_lgtk(struct pktbuf *buf, const uint8_t key_id, const uint8_t lgtk[16])
+{
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.2.2.4 Group Transient Key KDE (GTK)
+     * The TX field MUST be set to 0 and ignored upon reception.
+     */
+    struct kde_gtk lgtk_kde = {
+        .flags = FIELD_PREP(KDE_GTK_MASK_KEY_ID, key_id),
+    };
+
+    memcpy(lgtk_kde.gtk, lgtk, sizeof(lgtk_kde.gtk));
+    kde_write(buf, OUI_WISUN_ALLIANCE, WS_KDE_LGTK, &lgtk_kde, sizeof(lgtk_kde));
 }
 
 void kde_write_lgtkl(struct pktbuf *buf, uint8_t lgtkl)

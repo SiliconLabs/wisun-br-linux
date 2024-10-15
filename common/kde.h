@@ -36,7 +36,9 @@ struct kde_gtk {
 
 void kde_write_pmkid(struct pktbuf *buf, const uint8_t pmkid[16]);
 void kde_write_ptkid(struct pktbuf *buf, const uint8_t ptkid[16]);
+void kde_write_gtk(struct pktbuf *buf, const uint8_t key_id, const uint8_t gtk[16]);
 void kde_write_gtkl(struct pktbuf *buf, uint8_t gtkl);
+void kde_write_lgtk(struct pktbuf *buf, const uint8_t key_id, const uint8_t lgtk[16]);
 void kde_write_lgtkl(struct pktbuf *buf, uint8_t lgtkl);
 void kde_write_nr(struct pktbuf *buf, uint8_t node_role);
 
