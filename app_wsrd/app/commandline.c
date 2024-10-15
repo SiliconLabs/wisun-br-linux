@@ -118,6 +118,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
     config->color_output = -1;
+    memcpy(config->ws_mac_address, &ieee802154_addr_bc, 8);
     memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
