@@ -26,6 +26,7 @@
 #include "common/mpx.h"
 #include "common/named_values.h"
 #include "common/dbus.h"
+#include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
 #include "common/ws_ie_validation.h"
 #include "common/ws_ie.h"

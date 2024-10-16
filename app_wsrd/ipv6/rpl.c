@@ -165,6 +165,11 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
      * number of neighboring nodes.
      */
     SLIST_FOREACH(neigh, &ipv6->rpl.mrhof.ws_neigh_table->neigh_list, link) {
+        // TODO: Determine better creterias to filter out bad candidates (eg.
+        // network name, PAN ID, PAN-IE routing metric, RSL...).
+        if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
+            continue;
+
         nce = ipv6_neigh_get_from_eui64(ipv6, neigh->mac64);
         if (nce && nce->rpl)
             continue;
