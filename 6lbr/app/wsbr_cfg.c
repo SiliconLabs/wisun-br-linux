@@ -27,8 +27,8 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
-        .trickle_mpl.Imin = 10,
-        .trickle_mpl.Imax = 80,
+        .trickle_mpl.Imin = 1,
+        .trickle_mpl.Imax = 10,
         .trickle_mpl.k = 8,
         .trickle_mpl.TimerExpirations = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
