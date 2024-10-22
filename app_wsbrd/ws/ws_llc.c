@@ -641,7 +641,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
-        if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0] && !duplicated)
+        if (has_pom && !duplicated)
             ws_neigh->pom_ie = ie_pom;
         if (duplicated) {
             TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
