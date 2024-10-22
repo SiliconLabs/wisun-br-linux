@@ -16,6 +16,7 @@
 
 #include "common/key_value_storage.h"
 #include "common/ieee802154_frame.h"
+#include "common/string_extra.h"
 #include "common/commandline.h"
 #include "common/ws_regdb.h"
 #include "common/parsers.h"
@@ -81,6 +82,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "target_eui64",                  &config->target_eui64,                     conf_set_array,       (void *)sizeof(config->target_eui64) },
+        { "target_pmk",                    &config->target_pmk,                       conf_set_array,       (void *)sizeof(config->target_pmk) },
         { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
         { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
@@ -195,4 +197,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
     if (!memcmp(config->target_eui64, &ieee802154_addr_bc, 8))
         FATAL(1, "missing \"target_eui64\" parameter");
+    if (!memzcmp(config->target_pmk, sizeof(config->target_pmk)))
+        FATAL(1, "missing \"target_pmk\" parameter");
 }
