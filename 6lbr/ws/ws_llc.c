@@ -684,7 +684,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(ws_neigh);
-        if (has_pom && base->interface_ptr->ws_info.phy_config.phy_op_modes[0])
+        if (has_pom)
             ws_neigh->pom_ie = ie_pom;
     }
 
