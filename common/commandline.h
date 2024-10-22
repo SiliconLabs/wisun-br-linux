@@ -54,7 +54,7 @@ void conf_add_flags(const struct storage_parse_info *info, void *raw_dest, const
 void conf_set_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
-void conf_set_eui64(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
+void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 
 void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info);
 void parse_config_file(const struct option_struct opts[], const char *filename);

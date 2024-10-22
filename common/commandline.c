@@ -297,10 +297,11 @@ void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const v
     close(fd);
 }
 
-void conf_set_eui64(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    BUG_ON(raw_param);
-    if (parse_byte_array(raw_dest, 8, info->value))
+    uintptr_t array_len = (uintptr_t)raw_param;
+
+    if (parse_byte_array(raw_dest, array_len, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
 }
 

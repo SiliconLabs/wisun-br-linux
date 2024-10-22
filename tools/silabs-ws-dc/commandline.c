@@ -80,7 +80,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
-        { "target_eui64",                  &config->target_eui64,                     conf_set_eui64,       NULL },
+        { "target_eui64",                  &config->target_eui64,                     conf_set_array,       (void *)sizeof(config->target_eui64) },
         { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
         { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
