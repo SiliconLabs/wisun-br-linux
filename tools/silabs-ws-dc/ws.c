@@ -181,6 +181,10 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
 
+    if (!ind->hdr.key_index) {
+        TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
+        return;
+    }
     if (!memcmp(&ind->hdr.dst, &ieee802154_addr_bc, 8)) {
         TRACE(TR_DROP, "drop %s: unsupported broadcast frame", "15.4");
         return;
