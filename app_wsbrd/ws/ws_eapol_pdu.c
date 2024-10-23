@@ -78,29 +78,6 @@ void ws_eapol_pdu_init(struct net_if *interface_ptr)
     ns_list_add_to_end(&eapol_pdu_data_list, eapol_pdu_data);
 }
 
-int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
-
-    if (!eapol_pdu_data) {
-        return -1;
-    }
-
-    ns_list_foreach_safe(eapol_pdu_msdu_t, msdu_entry, &eapol_pdu_data->msdu_list) {
-        ns_list_remove(&eapol_pdu_data->msdu_list, msdu_entry);
-        free(msdu_entry);
-    }
-
-    ns_list_remove(&eapol_pdu_data_list, eapol_pdu_data);
-    free(eapol_pdu_data);
-
-    return 0;
-}
-
 int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, ws_eapol_pdu_receive *recv_cb)
 {
     if (!interface_ptr || !recv_cb) {
