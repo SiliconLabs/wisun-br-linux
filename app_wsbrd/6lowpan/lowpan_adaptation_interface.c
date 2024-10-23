@@ -374,16 +374,12 @@ static void lowpan_adaptation_mpx_data_indication(const mpx_api_t *api, const st
     lowpan_adaptation_interface_data_ind(interface, data);
 }
 
-
-
-
-int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id)
+void lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id)
 {
     //Discover
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
-    if (!interface_ptr) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
+
     if (!mpx_api && interface_ptr->mpx_api) {
         //Disable Data Callbacks from MPX Class
         interface_ptr->mpx_api->mpx_user_registration(interface_ptr->mpx_api, NULL, NULL, interface_ptr->mpx_user_id);
@@ -396,7 +392,6 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
         //Register MPX callbacks: confirmation and indication
         interface_ptr->mpx_api->mpx_user_registration(interface_ptr->mpx_api, lowpan_adaptation_mpx_data_confirm, lowpan_adaptation_mpx_data_indication, interface_ptr->mpx_user_id);
     }
-    return 0;
 }
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)

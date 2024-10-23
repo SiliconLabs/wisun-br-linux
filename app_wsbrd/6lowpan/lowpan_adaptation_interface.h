@@ -35,7 +35,7 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_reset(int8_t interface_id);
 
-int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id);
+void lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id);
 
 int lowpan_adaptation_queue_size(int8_t interface_id);
 

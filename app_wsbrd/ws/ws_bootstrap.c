@@ -240,10 +240,7 @@ int ws_bootstrap_init(int8_t interface_id)
     BUG_ON(!mpx_api);
 
     //Register MPXUser to adapatation layer
-    if (lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN) != 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
+    lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN);
 
     //Init PAE controller and set callback
     if (ws_pae_controller_init(cur) < 0) {
