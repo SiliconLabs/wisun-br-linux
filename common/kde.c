@@ -131,6 +131,17 @@ bool kde_read_pmk_id(const uint8_t *data, int data_len, uint8_t pmkid[16])
     return true;
 }
 
+bool kde_read_ptkid(const uint8_t *data, int data_len, uint8_t ptkid[16])
+{
+    const uint8_t *ptr = kde_find(data, data_len, IEEE80211_KDE_TYPE, OUI_WISUN_ALLIANCE, WS_KDE_PTKID, 16);
+
+    if (!ptr)
+        return false;
+
+    memcpy(ptkid, ptr, 16);
+    return true;
+}
+
 bool kde_read_nr(const uint8_t *data, int data_len, uint8_t *node_role)
 {
     const uint8_t *ptr = kde_find(data, data_len, IEEE80211_KDE_TYPE, OUI_WISUN_ALLIANCE,
