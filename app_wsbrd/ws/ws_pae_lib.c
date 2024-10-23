@@ -206,13 +206,6 @@ supp_entry_t *ws_pae_lib_supp_list_entry_eui_64_get(const supp_list_t *supp_list
     return 0;
 }
 
-void ws_pae_lib_supp_list_delete(supp_list_t *supp_list)
-{
-    ns_list_foreach_safe(supp_entry_t, entry, supp_list) {
-        ws_pae_lib_supp_list_remove(NULL, supp_list, entry, NULL);
-    }
-}
-
 bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout, ws_pae_lib_supp_deleted supp_deleted)
 {
     bool timer_running = false;

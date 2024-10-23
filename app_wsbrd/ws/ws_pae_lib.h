@@ -227,14 +227,6 @@ int8_t ws_pae_lib_supp_list_remove(void *instance, supp_list_t *supp_list, supp_
 supp_entry_t *ws_pae_lib_supp_list_entry_eui_64_get(const supp_list_t *supp_list, const uint8_t *eui_64);
 
 /**
- *  ws_pae_lib_supp_list_delete deletes supplicant list
- *
- * \param supp_list supplicant list
- *
- */
-void ws_pae_lib_supp_list_delete(supp_list_t *supp_list);
-
-/**
  *  ws_pae_lib_supp_list_timer_update updates timers on supplicant list
  *
  * \param instance Instance
