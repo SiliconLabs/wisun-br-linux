@@ -195,8 +195,10 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
         return;
     }
-    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
+    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
+    }
     ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length, ind->hdr.src.u8, ind->hdr.dst.u8);
 }
 
