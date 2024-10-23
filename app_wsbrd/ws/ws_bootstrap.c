@@ -237,10 +237,7 @@ int ws_bootstrap_init(int8_t interface_id)
     ws_llc_create(cur, &ws_mngt_ind, &ws_mngt_cnf);
 
     mpx_api_t *mpx_api = ws_llc_mpx_api_get(cur);
-    if (!mpx_api) {
-        ret_val =  -4;
-        goto init_fail;
-    }
+    BUG_ON(!mpx_api);
 
     //Register MPXUser to adapatation layer
     if (lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN) != 0) {
