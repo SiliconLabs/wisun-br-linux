@@ -69,14 +69,6 @@ typedef struct sec_prot_certs {
 int8_t sec_prot_certs_init(sec_prot_certs_t *certs);
 
 /**
- * sec_prot_certs_delete delete certificate information
- *
- * \param certs certificate information
- *
- */
-void sec_prot_certs_delete(sec_prot_certs_t *certs);
-
-/**
  * sec_prot_certs_ext_certificate_validation_set enable or disable extended certificate validation
  *
  * \param certs    certificate information

@@ -46,16 +46,6 @@ int8_t sec_prot_certs_init(sec_prot_certs_t *certs)
     return 0;
 }
 
-void sec_prot_certs_delete(sec_prot_certs_t *certs)
-{
-    if (!certs) {
-        return;
-    }
-
-    sec_prot_certs_chain_entry_init(&certs->own_cert_chain);
-    sec_prot_certs_chain_list_delete(&certs->trusted_cert_chain_list);
-}
-
 int8_t sec_prot_certs_ext_certificate_validation_set(sec_prot_certs_t *certs, bool enabled)
 {
     if (!certs) {
