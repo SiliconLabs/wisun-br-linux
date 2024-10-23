@@ -268,12 +268,8 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr);
  * \param pan_ver_increment PAN version increment callback
  * \param nw_info_updated network information updated callback
  * \param congestion_get congestion get callback
- *
- * \return < 0 failure
- * \return >= 0 success
- *
  */
-int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
+void ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,

@@ -244,15 +244,12 @@ int ws_bootstrap_init(int8_t interface_id)
 
     //Init PAE controller and set callback
     ws_pae_controller_init(cur);
-    if (ws_pae_controller_cb_register(cur,
-                                      ws_bootstrap_nw_key_set,
-                                      ws_bootstrap_nw_key_index_set,
-                                      ws_mngt_pan_version_increase,
-                                      ws_mngt_lfn_version_increase,
-                                      ws_bootstrap_eapol_congestion_get) < 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
+    ws_pae_controller_cb_register(cur,
+                                  ws_bootstrap_nw_key_set,
+                                  ws_bootstrap_nw_key_index_set,
+                                  ws_mngt_pan_version_increase,
+                                  ws_mngt_lfn_version_increase,
+                                  ws_bootstrap_eapol_congestion_get);
 
     //Init EAPOL PDU handler and register it to MPX
     if (ws_eapol_pdu_init(cur) < 0) {

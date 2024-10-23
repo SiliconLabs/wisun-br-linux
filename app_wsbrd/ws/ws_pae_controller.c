@@ -183,28 +183,23 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
     return 0;
 }
 
-int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
+void ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
                                      ws_pae_controller_pan_ver_increment *lpan_ver_increment,
                                      ws_pae_controller_congestion_get *congestion_get)
 {
-    if (!interface_ptr) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
 
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
+    BUG_ON(!controller);
 
     controller->nw_key_set = nw_key_set;
     controller->nw_send_key_index_set = nw_send_key_index_set;
     controller->pan_ver_increment = pan_ver_increment;
     controller->lpan_ver_increment = lpan_ver_increment;
     controller->congestion_get = congestion_get;
-    return 0;
 }
 
 int8_t ws_pae_controller_auth_cb_register(struct net_if *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get)
