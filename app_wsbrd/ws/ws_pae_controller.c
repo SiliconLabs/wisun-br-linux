@@ -728,16 +728,14 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
         return -1;
     }
 
-    if (ws_pae_auth_init(controller->interface_ptr,
-                         &controller->gtks.next_gtks,
-                         &controller->lgtks.next_gtks,
-                         &controller->certs,
-                         &controller->sec_cfg,
-                         &controller->sec_keys_nw_info,
-                         &controller->gtks.frame_counters,
-                         &controller->lgtks.frame_counters) < 0) {
-        return -1;
-    }
+    ws_pae_auth_init(controller->interface_ptr,
+                     &controller->gtks.next_gtks,
+                     &controller->lgtks.next_gtks,
+                     &controller->certs,
+                     &controller->sec_cfg,
+                     &controller->sec_keys_nw_info,
+                     &controller->gtks.frame_counters,
+                     &controller->lgtks.frame_counters);
 
     controller->pae_fast_timer = ws_pae_auth_fast_timer;
     controller->pae_slow_timer = ws_pae_auth_slow_timer;

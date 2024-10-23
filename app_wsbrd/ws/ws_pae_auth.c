@@ -151,27 +151,26 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth);
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
 
-int8_t ws_pae_auth_init(struct net_if *interface_ptr,
-                        sec_prot_gtk_keys_t *next_gtks,
-                        sec_prot_gtk_keys_t *next_lgtks,
-                        const sec_prot_certs_t *certs,
-                        sec_cfg_t *sec_cfg,
-                        sec_prot_keys_nw_info_t *sec_keys_nw_info,
-                        frame_counters_t *gtk_frame_counters,
-                        frame_counters_t *lgtk_frame_counters)
+void ws_pae_auth_init(struct net_if *interface_ptr,
+                      sec_prot_gtk_keys_t *next_gtks,
+                      sec_prot_gtk_keys_t *next_lgtks,
+                      const sec_prot_certs_t *certs,
+                      sec_cfg_t *sec_cfg,
+                      sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                      frame_counters_t *gtk_frame_counters,
+                      frame_counters_t *lgtk_frame_counters)
 {
-    if (!interface_ptr || !next_gtks || !next_lgtks || !certs || !sec_cfg || !sec_keys_nw_info || !gtk_frame_counters || !lgtk_frame_counters) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
+    BUG_ON(!next_gtks || !next_lgtks);
+    BUG_ON(!certs);
+    BUG_ON(!sec_cfg);
+    BUG_ON(!sec_keys_nw_info);
+    BUG_ON(!gtk_frame_counters || !lgtk_frame_counters);
 
-    if (ws_pae_auth_get(interface_ptr) != NULL) {
-        return 0;
-    }
+    if (ws_pae_auth_get(interface_ptr) != NULL)
+        return;
 
-    pae_auth_t *pae_auth = malloc(sizeof(pae_auth_t));
-    if (!pae_auth) {
-        return -1;
-    }
+    pae_auth_t *pae_auth = xalloc(sizeof(pae_auth_t));
 
     pae_auth->interface_ptr = interface_ptr;
     ws_pae_lib_supp_list_init(&pae_auth->active_supp_list);
@@ -245,13 +244,6 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     ws_pae_auth_timer_stop(pae_auth);
 
     ns_list_add_to_end(&pae_auth_list, pae_auth);
-
-    return 0;
-
-error:
-    ws_pae_auth_free(pae_auth);
-
-    return -1;
 }
 
 int8_t ws_pae_auth_addresses_set(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)

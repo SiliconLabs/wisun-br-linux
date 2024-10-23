@@ -65,14 +65,14 @@ struct frame_counters;
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_init(struct net_if *interface_ptr,
-                        struct sec_prot_gtk_keys *next_gtks,
-                        struct sec_prot_gtk_keys *next_lgtks,
-                        const struct sec_prot_certs *certs,
-                        sec_cfg_t *sec_cfg,
-                        struct sec_prot_keys_nw_info *sec_keys_nw_info,
-                        struct frame_counters *gtk_frame_counters,
-                        struct frame_counters *lgtk_frame_counters);
+void ws_pae_auth_init(struct net_if *interface_ptr,
+                      struct sec_prot_gtk_keys *next_gtks,
+                      struct sec_prot_gtk_keys *next_lgtks,
+                      const struct sec_prot_certs *certs,
+                      sec_cfg_t *sec_cfg,
+                      struct sec_prot_keys_nw_info *sec_keys_nw_info,
+                      struct frame_counters *gtk_frame_counters,
+                      struct frame_counters *lgtk_frame_counters);
 
 /**
  * ws_pae_auth_addresses_set set relay addresses
