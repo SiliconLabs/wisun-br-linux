@@ -33,6 +33,7 @@
 #include "common/key_value_storage.h"
 #include "common/parsers.h"
 #include "common/log_legacy.h"
+#include "common/memutils.h"
 #include "common/ns_list.h"
 #include "common/time_extra.h"
 
@@ -469,23 +470,14 @@ static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interfac
     }
 }
 
-int8_t ws_pae_controller_init(struct net_if *interface_ptr)
+void ws_pae_controller_init(struct net_if *interface_ptr)
 {
-    if (!interface_ptr) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
 
-    if (ws_pae_controller_get(interface_ptr) != NULL) {
-        return 0;
-    }
+    if (ws_pae_controller_get(interface_ptr) != NULL)
+        return;
 
-    pae_controller_t *controller = malloc(sizeof(pae_controller_t));
-
-    if (!controller) {
-        free(controller);
-        return -1;
-    }
-
+    pae_controller_t *controller = xalloc(sizeof(pae_controller_t));
     controller->interface_ptr = interface_ptr;
     controller->nw_key_set = NULL;
     controller->nw_send_key_index_set = NULL;
@@ -497,8 +489,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     ws_pae_controller_data_init(controller);
 
     ns_list_add_to_end(&pae_controller_list, controller);
-
-    return 0;
 }
 
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr,
@@ -1186,9 +1176,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
     pae_controller_t *controller = ws_pae_controller_get(cur);
 
     if (!controller) {
-        if (ws_pae_controller_init(cur) < 0) {
-            return NULL;
-        }
+        ws_pae_controller_init(cur);
         controller = ws_pae_controller_get(cur);
     }
 

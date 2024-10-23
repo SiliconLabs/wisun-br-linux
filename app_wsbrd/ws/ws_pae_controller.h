@@ -62,16 +62,7 @@ struct ws_timing_cfg;
  */
 int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
-/**
- * ws_pae_controller_init initializes PAE controller
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_init(struct net_if *interface_ptr);
+void ws_pae_controller_init(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_config_set sets PAE controller configuration

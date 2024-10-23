@@ -243,10 +243,7 @@ int ws_bootstrap_init(int8_t interface_id)
     lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN);
 
     //Init PAE controller and set callback
-    if (ws_pae_controller_init(cur) < 0) {
-        ret_val =  -4;
-        goto init_fail;
-    }
+    ws_pae_controller_init(cur);
     if (ws_pae_controller_cb_register(cur,
                                       ws_bootstrap_nw_key_set,
                                       ws_bootstrap_nw_key_index_set,
