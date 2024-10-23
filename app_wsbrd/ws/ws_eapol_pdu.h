@@ -38,18 +38,7 @@
 
 void ws_eapol_pdu_init(struct net_if *interface_ptr);
 
-/**
- *  ws_eapol_pdu_mpx_register register EAPOL PDU module to MPX
- *
- * \param interface_ptr interface
- * \param mpx_api MPX API
- * \param mpx_user_id MPX user id
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id);
+void ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id);
 
 /**
  *  ws_eapol_pdu_delete delete EAPOL PDU module

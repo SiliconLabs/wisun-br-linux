@@ -253,11 +253,7 @@ int ws_bootstrap_init(int8_t interface_id)
 
     //Init EAPOL PDU handler and register it to MPX
     ws_eapol_pdu_init(cur);
-    if (ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_ID_KMP) != 0) {
-        ret_val =  -4;
-        // add deallocs
-        goto init_fail;
-    }
+    ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_ID_KMP);
 
     ws_bootstrap_configuration_reset(cur);
 

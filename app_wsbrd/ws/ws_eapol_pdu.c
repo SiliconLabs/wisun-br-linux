@@ -160,17 +160,12 @@ static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, str
     dataReq->DstPANId = cur->ws_info.pan_information.pan_id;
 }
 
-int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
+void ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
 {
-    if (!interface_ptr) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
 
     eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
-
-    if (!eapol_pdu_data) {
-        return -1;
-    }
+    BUG_ON(!eapol_pdu_data);
 
     if (!mpx_api && eapol_pdu_data->mpx_api) {
         //Disable Data Callbacks from MPX Class
@@ -183,7 +178,6 @@ int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *m
     if (eapol_pdu_data->mpx_api) {
         eapol_pdu_data->mpx_api->mpx_user_registration(eapol_pdu_data->mpx_api, ws_eapol_pdu_mpx_data_confirm, ws_eapol_pdu_mpx_data_indication, eapol_pdu_data->mpx_user_id);
     }
-    return 0;
 }
 
 static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data)
