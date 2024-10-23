@@ -799,36 +799,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    // Remove network keys from PAE controller and MAC
-    ws_pae_controller_nw_keys_remove(interface_ptr, controller, false, false);
-    ws_pae_controller_nw_keys_remove(interface_ptr, controller, false, true);
-
-    // The controller is stopping, we force write nw information
-    ws_pae_controller_nvm_nw_info_write(controller->interface_ptr, &controller->sec_keys_nw_info,
-                                    &controller->gtks.frame_counters, &controller->lgtks.frame_counters,
-                                    controller->interface_ptr->mac);
-
-    // If PAE has been initialized, deletes it
-    if (controller->pae_delete) {
-        controller->pae_delete(interface_ptr);
-    }
-
-    // Free data
-    sec_prot_certs_delete(&controller->certs);
-
-    // Init controller data
-    ws_pae_controller_data_init(controller);
-
-    return 0;
-}
-
 int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
 {
     if (!cert) {
