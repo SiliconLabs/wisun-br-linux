@@ -117,7 +117,6 @@ typedef struct pae_auth {
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool is_lgtk);
 static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk);
-static void ws_pae_auth_free(pae_auth_t *pae_auth);
 static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
@@ -540,25 +539,6 @@ static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t in
     }
 
     return 0;
-}
-
-static void ws_pae_auth_free(pae_auth_t *pae_auth)
-{
-    if (!pae_auth) {
-        return;
-    }
-
-    ws_pae_lib_shared_comp_list_free(&pae_auth->shared_comp_list);
-
-    ws_pae_lib_supp_list_delete(&pae_auth->active_supp_list);
-    ws_pae_lib_supp_list_delete(&pae_auth->waiting_supp_list);
-
-    kmp_socket_if_unregister(pae_auth->kmp_service);
-
-    kmp_service_delete(pae_auth->kmp_service);
-
-    ns_list_remove(&pae_auth_list, pae_auth);
-    free(pae_auth);
 }
 
 static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr)
