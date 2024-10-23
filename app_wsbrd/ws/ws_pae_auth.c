@@ -206,9 +206,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     pae_auth->radius_socked_msg_if_instance_id = 0;
 
     pae_auth->kmp_service = kmp_service_create();
-    if (!pae_auth->kmp_service) {
-        goto error;
-    }
+    BUG_ON(!pae_auth->kmp_service);
 
     if (kmp_service_cb_register(pae_auth->kmp_service,
                                 ws_pae_auth_kmp_incoming_ind,

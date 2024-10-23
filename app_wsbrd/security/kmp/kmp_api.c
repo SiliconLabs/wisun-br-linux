@@ -450,10 +450,7 @@ void kmp_api_sec_keys_set(kmp_api_t *kmp, kmp_sec_keys_t *sec_keys)
 
 kmp_service_t *kmp_service_create(void)
 {
-    kmp_service_t *service = malloc(sizeof(kmp_service_t));
-    if (!service) {
-        return NULL;
-    }
+    kmp_service_t *service = xalloc(sizeof(kmp_service_t));
 
     ns_list_init(&service->sec_prot_list);
     ns_list_init(&service->msg_if_list);
