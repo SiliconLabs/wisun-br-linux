@@ -57,13 +57,6 @@ int8_t ws_llc_create(struct net_if *interface,
 void ws_llc_reset(struct net_if *interface);
 
 /**
- * @brief ws_llc_delete Delete LLC interface. ONLY for Test purpose.
- * @param interface Interface pointer
- *
- */
-int8_t ws_llc_delete(struct net_if *interface);
-
-/**
  * @brief ws_llc_mpx_api_get Get MPX api for registration purpose.
  * @param interface Interface pointer
  *

@@ -1624,16 +1624,6 @@ int8_t ws_llc_create(struct net_if *interface,
     return 0;
 }
 
-int8_t ws_llc_delete(struct net_if *interface)
-{
-    struct llc_data_base *base = &g_llc_base;
-
-    ws_llc_clean(base);
-    return 0;
-}
-
-
-
 void ws_llc_reset(struct net_if *interface)
 {
     struct llc_data_base *base = &g_llc_base;
