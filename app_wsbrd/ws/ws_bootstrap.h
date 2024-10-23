@@ -33,7 +33,7 @@ struct ws_neigh_table;
 struct mcps_data_ind;
 struct ws_neigh;
 
-int ws_bootstrap_init(int8_t interface_id);
+void ws_bootstrap_init(int8_t interface_id);
 
 void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address);
 

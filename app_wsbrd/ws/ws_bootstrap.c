@@ -223,13 +223,11 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur)
     return return_value;
 }
 
-int ws_bootstrap_init(int8_t interface_id)
+void ws_bootstrap_init(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    int ret_val = 0;
 
-    if (!cur)
-        return -1;
+    BUG_ON(!cur);
 
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
@@ -259,17 +257,6 @@ int ws_bootstrap_init(int8_t interface_id)
 
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_NODES);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_ROUTERS);
-
-    return 0;
-
-    //Error handling and free memory
-init_fail:
-    lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
-    ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    ws_llc_delete(cur);
-    ws_eapol_pdu_delete(cur);
-    ws_pae_controller_delete(cur);
-    return ret_val;
 }
 
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
