@@ -1,0 +1,222 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-MSLA
+ * Copyright (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
+ *
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
+ */
+
+#define _DEFAULT_SOURCE
+#include <netinet/in.h>
+#include <inttypes.h>
+#include <string.h>
+
+#include "common/specs/ieee802159.h"
+#include "common/specs/ieee80211.h"
+#include "common/specs/eapol.h"
+#include "common/crypto/ieee80211.h"
+#include "common/sys_queue_extra.h"
+#include "common/named_values.h"
+#include "common/string_extra.h"
+#include "common/time_extra.h"
+#include "common/memutils.h"
+#include "common/pktbuf.h"
+#include "common/eapol.h"
+#include "common/iobuf.h"
+#include "common/rand.h"
+#include "common/bits.h"
+#include "common/log.h"
+
+#include "authenticator_key.h"
+
+#include "authenticator.h"
+
+static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
+
+    if (ctx->on_gtk_change)
+        ctx->on_gtk_change(ctx, NULL, gtk->slot + 1, false);
+    TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->gtk, sizeof(gtk->gtk)));
+}
+
+static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+
+    timer_start_abs(&ctx->timer_group, &ctx->gtk_activation_timer,
+                    ctx->gtks[ctx->next_slot].expiration_timer.expire_ms -
+                    (ctx->cfg->gtk_expire_offset_min * 60 * 1000) / ctx->cfg->gtk_new_activation_time);
+    if (ctx->on_gtk_change)
+        ctx->on_gtk_change(ctx, ctx->gtks[ctx->next_slot].gtk, ctx->next_slot + 1, true);
+    ctx->cur_slot = ctx->next_slot;
+    TRACE(TR_SECURITY, "sec: activated gtk=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
+          tr_key(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk)),
+          ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms / 1000, ctx->gtk_install_timer.expire_ms / 1000,
+          ctx->gtk_activation_timer.expire_ms / 1000);
+}
+
+static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
+     * The expiration time of a GTK is calculated as the expiration time of the GTK
+     * most recently installed at the Border Router plus GTK_EXPIRE_OFFSET.
+     */
+    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    uint64_t new_gtk_expiration = ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms + ctx->cfg->gtk_expire_offset_min * 60 * 1000;
+
+    ctx->next_slot = (ctx->cur_slot + 1) % 4;
+    rand_get_n_bytes_random(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk));
+    timer_start_abs(&ctx->timer_group, &ctx->gtks[ctx->next_slot].expiration_timer, new_gtk_expiration);
+    timer_start_abs(&ctx->timer_group, &ctx->gtk_install_timer,
+                    ctx->gtks[ctx->next_slot].expiration_timer.start_ms +
+                    timer_duration_ms(&ctx->gtks[ctx->next_slot].expiration_timer) * ctx->cfg->gtk_new_install_required / 100);
+    if (ctx->on_gtk_change)
+        ctx->on_gtk_change(ctx, ctx->gtks[ctx->next_slot].gtk, ctx->next_slot + 1, false);
+    TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk)));
+}
+
+static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, rt_timer);
+    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+
+    supp->rt_count++;
+
+    if (supp->rt_count == 3) {
+        TRACE(TR_SECURITY, "sec: max retry count exceeded eui64=%s", tr_eui64(supp->eui64.u8));
+        return;
+    }
+    TRACE(TR_SECURITY, "sec: frame retry eui64=%s", tr_eui64(supp->eui64.u8));
+    auth_send_eapol(ctx, &supp->eui64, supp->rt_kmp_id, &supp->rt_buffer);
+}
+
+static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+{
+    struct auth_supp_ctx *supp;
+
+    SLIST_FIND(supp, &ctx->supplicants, link, !memcmp(&supp->eui64, eui64, sizeof(supp->eui64)));
+    if (supp)
+        return supp;
+
+    supp = zalloc(sizeof(struct auth_supp_ctx));
+    supp->eui64 = *eui64;
+    supp->replay_counter = -1;
+    supp->rt_timer.callback = auth_rt_timer_timeout;
+    SLIST_INSERT_HEAD(&ctx->supplicants, supp, link);
+    TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
+    return supp;
+}
+
+void auth_set_supp_pmk(struct auth_ctx *ctx, const struct eui64 *eui64, const uint8_t pmk[32])
+{
+    struct auth_supp_ctx *supp = auth_fetch_supp(ctx, eui64);
+
+    memcpy(supp->pmk, pmk, sizeof(supp->pmk));
+    supp->pmk_expiration_s = UINT64_MAX; // Infinite lifetime
+}
+
+bool auth_get_supp_tk(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t tk[16])
+{
+    struct auth_supp_ctx *supp = auth_get_supp(ctx, eui64);
+
+    if (!supp)
+        return false;
+    if (!memzcmp(supp->ptk, sizeof(supp->ptk)))
+        return false;
+    memcpy(tk, supp->ptk + IEEE80211_AKM_1_KCK_LEN_BYTES + IEEE80211_AKM_1_KEK_LEN_BYTES, IEEE80211_AKM_1_TK_LEN_BYTES);
+    return true;
+}
+
+void auth_send_eapol(struct auth_ctx *ctx, const struct eui64 *dst, uint8_t kmp_id, struct pktbuf *buf)
+{
+    uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
+
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
+          val_to_str(packet_type, eapol_frames, "[UNK]"), pktbuf_len(buf));
+    ctx->sendto_mac(ctx, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
+}
+
+void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *eui64,
+                     const uint8_t *buf, size_t buf_len)
+{
+    struct auth_supp_ctx *supp;
+    const struct eapol_hdr *eapol_hdr;
+    struct iobuf_read iobuf = {
+        .data_size = buf_len,
+        .data = buf,
+    };
+
+    eapol_hdr = (const struct eapol_hdr *)iobuf_pop_data_ptr(&iobuf, sizeof(struct eapol_hdr));
+    if (!eapol_hdr) {
+        TRACE(TR_DROP, "drop %-9s: invalid eapol header", "eapol");
+        return;
+    }
+    if (eapol_hdr->protocol_version != EAPOL_PROTOCOL_VERSION) {
+        TRACE(TR_DROP, "drop %-9s: unsupported eapol protocol version %d", "eapol", eapol_hdr->protocol_version);
+        return;
+    }
+
+    if ((kmp_id == IEEE802159_KMP_ID_80211_4WH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY) ||
+        (kmp_id == IEEE802159_KMP_ID_80211_GKH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY)) {
+        TRACE(TR_DROP, "drop %-9s: invalid eapol packet type %s for KMP ID %d", "eapol",
+              val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), kmp_id);
+        return;
+    }
+
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%d", "rx-eapol",
+          val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), ntohs(eapol_hdr->packet_body_length));
+
+    supp = auth_fetch_supp(ctx, eui64);
+
+    switch (eapol_hdr->packet_type) {
+    case EAPOL_PACKET_TYPE_KEY:
+        auth_key_recv(ctx, supp, &iobuf);
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
+        break;
+    }
+}
+
+void auth_start(struct auth_ctx *ctx, const struct eui64 *eui64)
+{
+    BUG_ON(!ctx->sendto_mac);
+    BUG_ON(!ctx->cfg);
+
+    SLIST_INIT(&ctx->supplicants);
+    timer_group_init(&ctx->timer_group);
+    ctx->gtk_activation_timer.callback = auth_gtk_activation_timer_timeout;
+    ctx->gtk_install_timer.callback    = auth_gtk_install_timer_timeout;
+    ctx->eui64 = *eui64;
+    ctx->cur_slot = 0;
+    for (int i = 0; i < ARRAY_SIZE(ctx->gtks); i++) {
+        ctx->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
+        ctx->gtks[i].slot = i;
+    }
+
+    // We assume the gtkhash of the generated gtk won't be full of zeros
+    rand_get_n_bytes_random(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk));
+    timer_start_rel(&ctx->timer_group, &ctx->gtks[ctx->cur_slot].expiration_timer,
+                    ctx->cfg->gtk_expire_offset_min * 60 * 1000);
+    timer_start_abs(&ctx->timer_group, &ctx->gtk_install_timer,
+                    ctx->gtks[ctx->cur_slot].expiration_timer.start_ms +
+                    timer_duration_ms(&ctx->gtks[ctx->cur_slot].expiration_timer) * ctx->cfg->gtk_new_install_required / 100);
+    timer_start_abs(&ctx->timer_group, &ctx->gtk_activation_timer,
+                    ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms -
+                    ctx->cfg->gtk_expire_offset_min / ctx->cfg->gtk_new_activation_time * 60 * 1000);
+    if (ctx->on_gtk_change)
+        ctx->on_gtk_change(ctx, ctx->gtks[ctx->cur_slot].gtk, 1, true);
+    TRACE(TR_SECURITY, "sec: authenticator started gtk=%s expiration=%"PRIu64" next_install=%"PRIu64
+          " next_activation=%"PRIu64, tr_key(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk)),
+          ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms / 1000, ctx->gtk_install_timer.expire_ms / 1000,
+          ctx->gtk_activation_timer.expire_ms / 1000);
+}
