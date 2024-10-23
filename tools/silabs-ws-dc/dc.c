@@ -93,12 +93,23 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
     dc_remove_target_route(dc);
 }
 
+static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const void *pkt,
+                               size_t pkt_len, const struct eui64 *dst)
+{
+    struct dc *dc = container_of(auth_ctx, struct dc, auth_ctx);
+
+    ws_if_send_eapol(&dc->ws, kmp_id, pkt, pkt_len, dst);
+}
+
 struct dc g_dc = {
     .cfg.auth_cfg.ptk_lifetime_min         = 86400,
     // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
     .cfg.auth_cfg.gtk_expire_offset_min    = 43200,
     .cfg.auth_cfg.gtk_new_activation_time  = 720,
     .cfg.auth_cfg.gtk_new_install_required = 80,
+
+    .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
+    .auth_ctx.sendto_mac            = dc_auth_sendto_mac,
 
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
@@ -194,6 +205,8 @@ int dc_main(int argc, char *argv[])
 
     dc_init_radio(dc);
     dc_init_tun(dc);
+    auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64);
+    auth_set_supp_pmk(&dc->auth_ctx, (struct eui64 *)dc->cfg.target_eui64, dc->cfg.target_pmk);
     timer_group_init(&dc->ws.neigh_table.timer_group);
 
     dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;

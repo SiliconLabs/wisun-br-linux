@@ -206,6 +206,36 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
     ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length, ind->hdr.src.u8, ind->hdr.dst.u8);
 }
 
+static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
+{
+    struct iobuf_read buf = { };
+    struct ws_us_ie ie_us;
+    struct mpx_ie ie_mpx;
+    uint8_t kmp_id;
+
+    if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
+        ie_mpx.multiplex_id  != MPX_ID_KMP ||
+        ie_mpx.transfer_type != MPX_FT_FULL_FRAME) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
+        return;
+    }
+
+    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us)) {
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    }
+
+    buf.data = ie_mpx.frame_ptr;
+    buf.data_size = ie_mpx.frame_length;
+    kmp_id = iobuf_pop_u8(&buf);
+    if (buf.err) {
+        TRACE(TR_DROP, "drop %-9s: invalid eapol packet", "15.4");
+        return;
+    }
+
+    auth_recv_eapol(&dc->auth_ctx, kmp_id, &ind->hdr.src, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
+}
+
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
 {
     struct dc *dc = container_of(ws, struct dc, ws);
@@ -245,6 +275,9 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     switch (ie_utt.message_type) {
     case WS_FT_DATA:
         ws_recv_data(dc, ind);
+        break;
+    case WS_FT_EAPOL:
+        ws_recv_eapol(dc, ind);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported frame type %d", "15.4", ie_utt.message_type);

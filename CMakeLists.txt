@@ -490,6 +490,12 @@ if(COMPILE_DEVTOOLS)
         tools/silabs-ws-dc/dc.c
         tools/silabs-ws-dc/commandline.c
         tools/silabs-ws-dc/ws.c
+        common/authenticator/authenticator.c
+        common/authenticator/authenticator_key.c
+        common/crypto/ieee80211.c
+        common/crypto/hmac_md.c
+        common/crypto/nist_kw.c
+        common/crypto/ws_keys.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
         common/bits.c
@@ -497,11 +503,13 @@ if(COMPILE_DEVTOOLS)
         common/capture.c
         common/commandline.c
         common/crc.c
+        common/eapol.c
         common/endian.c
         common/hif.c
         common/ieee802154_frame.c
         common/ieee802154_ie.c
         common/iobuf.c
+        common/kde.c
         common/key_value_storage.c
         common/log.c
         common/mbedtls_config_check.c
