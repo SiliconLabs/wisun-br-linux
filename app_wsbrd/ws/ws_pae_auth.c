@@ -208,13 +208,11 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     pae_auth->kmp_service = kmp_service_create();
     BUG_ON(!pae_auth->kmp_service);
 
-    if (kmp_service_cb_register(pae_auth->kmp_service,
-                                ws_pae_auth_kmp_incoming_ind,
-                                ws_pae_auth_kmp_service_addr_get,
-                                ws_pae_auth_kmp_service_ip_addr_get,
-                                ws_pae_auth_kmp_service_api_get)) {
-        goto error;
-    }
+    kmp_service_cb_register(pae_auth->kmp_service,
+                            ws_pae_auth_kmp_incoming_ind,
+                            ws_pae_auth_kmp_service_addr_get,
+                            ws_pae_auth_kmp_service_ip_addr_get,
+                            ws_pae_auth_kmp_service_api_get);
 
     if (kmp_service_event_if_register(pae_auth->kmp_service,
                                       ws_pae_auth_event_send)) {

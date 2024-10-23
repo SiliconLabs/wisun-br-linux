@@ -487,18 +487,17 @@ static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
     kmp->service->event_send(kmp->service, prot);
 }
 
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_addr_get *addr_get, kmp_service_ip_addr_get *ip_addr_get, kmp_service_api_get *api_get)
+void kmp_service_cb_register(kmp_service_t *service,
+                             kmp_service_incoming_ind *incoming_ind,
+                             kmp_service_addr_get *addr_get,
+                             kmp_service_ip_addr_get *ip_addr_get,
+                             kmp_service_api_get *api_get)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     service->incoming_ind = incoming_ind;
     service->addr_get = addr_get;
     service->ip_addr_get = ip_addr_get;
     service->api_get = api_get;
-
-    return 0;
 }
 
 int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size)

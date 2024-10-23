@@ -343,16 +343,12 @@ typedef kmp_api_t *kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, k
  * \param addr_get gets addressing information callback
  * \param ip_addr_get gets IP addressing information callback
  * \param api_get gets KMP API from KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- *
  */
-int8_t kmp_service_cb_register(kmp_service_t *service,
-                               kmp_service_incoming_ind *incoming_ind,
-                               kmp_service_addr_get *addr_get,
-                               kmp_service_ip_addr_get *ip_addr_get,
-                               kmp_service_api_get *api_get);
+void kmp_service_cb_register(kmp_service_t *service,
+                             kmp_service_incoming_ind *incoming_ind,
+                             kmp_service_addr_get *addr_get,
+                             kmp_service_ip_addr_get *ip_addr_get,
+                             kmp_service_api_get *api_get);
 
 /**
  * kmp_service_msg_if_receive receive a message
