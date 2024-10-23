@@ -157,14 +157,6 @@ void sec_prot_certs_chain_list_add(cert_chain_list_t *cert_chain_list, cert_chai
     ns_list_add_to_end(cert_chain_list, entry);
 }
 
-void sec_prot_certs_chain_list_delete(cert_chain_list_t *chain_list)
-{
-    ns_list_foreach_safe(cert_chain_entry_t, entry, chain_list) {
-        ns_list_remove(chain_list, entry);
-        free(entry);
-    }
-}
-
 cert_chain_entry_t *sec_prot_certs_chain_list_entry_find(cert_chain_list_t *chain_list, cert_chain_entry_t *entry)
 {
     ns_list_foreach(cert_chain_entry_t, list_entry, chain_list) {
