@@ -164,23 +164,6 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     return 0;
 }
 
-int8_t kmp_socket_if_unregister(kmp_service_t *service)
-{
-    if (!service) {
-        return -1;
-    }
-
-    for (int i = 0; i < KMP_INSTANCE_NUMBER; i++) {
-        if (g_kmp_socket_if_instances[i]->kmp_service == service) {
-            if (g_kmp_socket_if_instances[i]->kmp_socket_id >= 0)
-                close(g_kmp_socket_if_instances[i]->kmp_socket_id);
-            kmp_service_msg_if_register(service, g_kmp_socket_if_instances[i]->instance_id, NULL, 0);
-            free(g_kmp_socket_if_instances[i]);
-        }
-    }
-    return 0;
-}
-
 static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num)
 {
     (void) tx_identifier;

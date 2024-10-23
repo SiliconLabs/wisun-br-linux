@@ -56,17 +56,6 @@ void kmp_socket_if_pae_socket_cb(int fd);
 int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const void *remote_addr, uint16_t remote_port);
 
 /**
- * kmp_socket_if_unregister unregister socket interface from KMP service
- *
- * \param service KMP service to unregister from
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_socket_if_unregister(kmp_service_t *service);
-
-/**
  * kmp_socket_if_register_radius register native socket interface to KMP service
  *
  * \param service KMP service to register to
