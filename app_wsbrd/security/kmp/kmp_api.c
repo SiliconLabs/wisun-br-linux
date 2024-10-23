@@ -642,12 +642,8 @@ void kmp_service_event_if_event(kmp_service_t *service, void *data)
     prot->state_machine(prot);
 }
 
-int8_t kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_if_event_send send)
+void kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_if_event_send send)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     service->event_send = send;
-    return 0;
 }

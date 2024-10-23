@@ -579,17 +579,7 @@ void kmp_service_event_if_event(kmp_service_t *service, void *data);
  */
 typedef int8_t kmp_service_event_if_event_send(kmp_service_t *service, void *data);
 
-/**
- * kmp_service_event_if_register register an event interface to KMP service
- *
- * \param service KMP service
- * \param send send event
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_event_if_register(kmp_service_t *service,
-                                     kmp_service_event_if_event_send send);
+void kmp_service_event_if_register(kmp_service_t *service,
+                                   kmp_service_event_if_event_send send);
 
 #endif

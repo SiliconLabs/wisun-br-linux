@@ -213,11 +213,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
                             ws_pae_auth_kmp_service_addr_get,
                             ws_pae_auth_kmp_service_ip_addr_get,
                             ws_pae_auth_kmp_service_api_get);
-
-    if (kmp_service_event_if_register(pae_auth->kmp_service,
-                                      ws_pae_auth_event_send)) {
-        goto error;
-    }
+    kmp_service_event_if_register(pae_auth->kmp_service, ws_pae_auth_event_send);
 
     if (kmp_service_timer_if_register(pae_auth->kmp_service,
                                       ws_pae_auth_timer_if_start,
