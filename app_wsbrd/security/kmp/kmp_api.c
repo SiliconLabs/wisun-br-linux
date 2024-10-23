@@ -611,15 +611,13 @@ void kmp_service_timer_if_timeout(kmp_api_t *kmp, uint16_t ticks)
     kmp->sec_prot.timer_timeout(&kmp->sec_prot, ticks);
 }
 
-int8_t kmp_service_timer_if_register(kmp_service_t *service, kmp_service_timer_if_start start, kmp_service_timer_if_stop stop)
+void kmp_service_timer_if_register(kmp_service_t *service,
+                                   kmp_service_timer_if_start start,
+                                   kmp_service_timer_if_stop stop)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     service->timer_start = start;
     service->timer_stop = stop;
-    return 0;
 }
 
 int8_t kmp_service_shared_comp_if_register(kmp_service_t *service, kmp_service_shared_comp_add add, kmp_service_shared_comp_remove remove)

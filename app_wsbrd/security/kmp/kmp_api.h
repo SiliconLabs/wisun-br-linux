@@ -480,20 +480,9 @@ typedef int8_t kmp_service_timer_if_start(kmp_service_t *service, kmp_api_t *kmp
  */
 typedef int8_t kmp_service_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
 
-/**
- * kmp_service_timer_if_register register a timer interface to KMP service
- *
- * \param service KMP service
- * \param start timer start callback
- * \param stop timer stop callback
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_timer_if_register(kmp_service_t *service,
-                                     kmp_service_timer_if_start start,
-                                     kmp_service_timer_if_stop stop);
+void kmp_service_timer_if_register(kmp_service_t *service,
+                                   kmp_service_timer_if_start start,
+                                   kmp_service_timer_if_stop stop);
 
 /**
  * kmp_service_shared_comp_timer_timeout shared component timer timeout
