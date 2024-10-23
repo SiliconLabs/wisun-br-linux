@@ -87,6 +87,10 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
+        { "gtk_expire_offset",             &config->auth_cfg.gtk_expire_offset_min,   conf_set_number,      &valid_positive },
+        { "gtk_new_activation_time",       &config->auth_cfg.gtk_new_activation_time, conf_set_number,      &valid_positive },
+        { "gtk_new_install_required",      &config->auth_cfg.gtk_new_install_required, conf_set_number,      &valid_gtk_new_install_required },
+        { "ptk_lifetime",                  &config->auth_cfg.ptk_lifetime_min,        conf_set_number,      &valid_positive },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";

@@ -83,6 +83,12 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
 }
 
 struct dc g_dc = {
+    .cfg.auth_cfg.ptk_lifetime_min         = 86400,
+    // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
+    .cfg.auth_cfg.gtk_expire_offset_min    = 43200,
+    .cfg.auth_cfg.gtk_new_activation_time  = 720,
+    .cfg.auth_cfg.gtk_new_install_required = 80,
+
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
     .ws.rcp.on_rx_ind = ws_if_recv_ind,

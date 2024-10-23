@@ -15,9 +15,11 @@
 #define DC_COMMANDLINE_H
 
 #include "common/rcp_api.h"
+#include "common/authenticator/authenticator.h"
 
 struct dc_cfg {
     struct rcp_cfg rcp_cfg;
+    struct auth_cfg auth_cfg;
 
     int  ws_domain;
     int  ws_phy_mode_id;
