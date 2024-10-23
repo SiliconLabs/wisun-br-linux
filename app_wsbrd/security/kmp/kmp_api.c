@@ -463,24 +463,6 @@ kmp_service_t *kmp_service_create(void)
     return service;
 }
 
-int8_t kmp_service_delete(kmp_service_t *service)
-{
-    if (!service) {
-        return -1;
-    }
-
-    ns_list_foreach_safe(kmp_sec_prot_entry_t, sec_list_entry, &service->sec_prot_list) {
-        ns_list_remove(&service->sec_prot_list, sec_list_entry);
-        free(sec_list_entry);
-    }
-    ns_list_foreach_safe(kmp_msg_if_entry_t, msg_if_list_entry, &service->msg_if_list) {
-        ns_list_remove(&service->msg_if_list, msg_if_list_entry);
-        free(msg_if_list_entry);
-    }
-    free(service);
-    return 0;
-}
-
 static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
 {
     kmp_api_t *kmp = kmp_api_get_from_prot(prot);

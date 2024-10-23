@@ -279,17 +279,6 @@ void kmp_api_cb_register(kmp_api_t *kmp, kmp_api_create_confirm *create_conf,
 kmp_service_t *kmp_service_create(void);
 
 /**
- * kmp_service_delete deletes KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_delete(kmp_service_t *service);
-
-/**
  * kmp_service_incoming_ind Notifies application about incoming KMP frame
  *
  * \param service KMP service
