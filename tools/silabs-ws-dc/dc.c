@@ -67,6 +67,12 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
     dc->disc_count++;
 }
 
+static void dc_restart_disc_timer(struct dc *dc)
+{
+    dc->disc_count = 0;
+    timer_start_rel(NULL, &dc->disc_timer, 0);
+}
+
 static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
@@ -75,8 +81,7 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
     if (memcmp(dc->cfg.target_eui64, neigh->mac64, sizeof(dc->cfg.target_eui64)))
         return;
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
-    dc->disc_count = 0;
-    timer_start_rel(NULL, &dc->disc_timer, dc->disc_timer.period_ms);
+    dc_restart_disc_timer(dc);
     memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
     ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, neigh->mac64);
     tun_route_del(&dc->tun, &client_linklocal);
@@ -186,7 +191,7 @@ int dc_main(int argc, char *argv[])
     timer_group_init(&dc->ws.neigh_table.timer_group);
 
     dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;
-    timer_start_rel(NULL, &dc->disc_timer, 0);
+    dc_restart_disc_timer(dc);
 
     pfd[POLLFD_RCP].fd = dc->ws.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
