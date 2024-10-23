@@ -829,25 +829,6 @@ int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    ws_pae_controller_stop(interface_ptr);
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    ns_list_remove(&pae_controller_list, controller);
-    free(controller);
-
-    return 0;
-}
-
 int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
 {
     if (!cert) {
