@@ -375,17 +375,6 @@ kmp_api_t *ws_pae_lib_supp_list_kmp_receive_check(supp_list_t *supp_list, const 
 int8_t ws_pae_lib_shared_comp_list_init(shared_comp_list_t *comp_list);
 
 /**
- *  ws_pae_lib_shared_comp_list_free free shared component list
- *
- * \param comp_list component list
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_lib_shared_comp_list_free(shared_comp_list_t *comp_list);
-
-/**
  *  ws_pae_lib_shared_comp_list_add add to shared component list
  *
  * \param comp_list component list

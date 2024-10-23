@@ -412,15 +412,6 @@ int8_t ws_pae_lib_shared_comp_list_init(shared_comp_list_t *comp_list)
     return 0;
 }
 
-int8_t ws_pae_lib_shared_comp_list_free(shared_comp_list_t *comp_list)
-{
-    ns_list_foreach_safe(shared_comp_entry_t, entry, comp_list) {
-        ns_list_remove(comp_list, entry);
-        free(entry);
-    }
-    return 0;
-}
-
 int8_t ws_pae_lib_shared_comp_list_add(shared_comp_list_t *comp_list, kmp_shared_comp_t *data)
 {
     ns_list_foreach(shared_comp_entry_t, entry, comp_list) {
