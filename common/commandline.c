@@ -31,6 +31,10 @@
 
 #include "commandline.h"
 
+const struct number_limit valid_gtk_new_install_required = {
+    0, 100
+};
+
 const struct number_limit valid_unsigned = {
     0, INT_MAX
 };

@@ -38,10 +38,6 @@
 
 #include "commandline.h"
 
-static const struct number_limit valid_gtk_new_install_required = {
-    0, 100
-};
-
 static const struct number_limit valid_async_frag_duration = {
     500, UINT32_MAX
 };
