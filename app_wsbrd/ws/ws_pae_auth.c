@@ -128,8 +128,8 @@ static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_k
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
-static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth);
-static int8_t ws_pae_auth_timer_stop(pae_auth_t *pae_auth);
+static void ws_pae_auth_timer_start(pae_auth_t *pae_auth);
+static void ws_pae_auth_timer_stop(pae_auth_t *pae_auth);
 static int8_t ws_pae_auth_shared_comp_add(kmp_service_t *service, kmp_shared_comp_t *data);
 static int8_t ws_pae_auth_shared_comp_remove(kmp_service_t *service, kmp_shared_comp_t *data);
 static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth);
@@ -242,9 +242,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
         BUG_ON(tasklet_id < 0);
     }
 
-    if (ws_pae_auth_timer_stop(pae_auth) < 0) {
-        goto error;
-    }
+    ws_pae_auth_timer_stop(pae_auth);
 
     ns_list_add_to_end(&pae_auth_list, pae_auth);
 
@@ -824,9 +822,7 @@ static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp)
         return -1;
     }
 
-    if (ws_pae_auth_timer_start(pae_auth) < 0) {
-        return -1;
-    }
+    ws_pae_auth_timer_start(pae_auth);
 
     supp_entry_t *supp_entry = kmp_api_data_get(kmp);
     if (!supp_entry) {
@@ -877,16 +873,14 @@ static int8_t ws_pae_auth_shared_comp_remove(kmp_service_t *service, kmp_shared_
     return ws_pae_lib_shared_comp_list_remove(&pae_auth->shared_comp_list, data);
 }
 
-static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth)
+static void ws_pae_auth_timer_start(pae_auth_t *pae_auth)
 {
     pae_auth->timer_running = true;
-    return 0;
 }
 
-static int8_t ws_pae_auth_timer_stop(pae_auth_t *pae_auth)
+static void ws_pae_auth_timer_stop(pae_auth_t *pae_auth)
 {
     pae_auth->timer_running = false;
-    return 0;
 }
 
 static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth)
