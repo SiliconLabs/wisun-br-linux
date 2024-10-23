@@ -101,17 +101,6 @@ int8_t ws_pae_auth_addresses_set(struct net_if *interface_ptr, uint16_t local_po
 int8_t ws_pae_auth_radius_address_set(struct net_if *interface_ptr, const struct sockaddr_storage *remote_addr);
 
 /**
- * ws_pae_auth_delete deletes PAE authenticator
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_auth_delete(struct net_if *interface_ptr);
-
-/**
  * ws_pae_auth_fast_timer PAE authenticator fast timer call
  *
  * \param ticks elapsed ticks

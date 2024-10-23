@@ -326,21 +326,6 @@ int8_t ws_pae_auth_radius_address_set(struct net_if *interface_ptr, const struct
     return 0;
 }
 
-int8_t ws_pae_auth_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
-    if (!pae_auth) {
-        return -1;
-    }
-
-    ws_pae_auth_free(pae_auth);
-    return 0;
-}
-
 void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_gtk_hash_set *hash_set,
                              ws_pae_auth_nw_key_insert *nw_key_insert,
