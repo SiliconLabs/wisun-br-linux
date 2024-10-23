@@ -217,12 +217,9 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     kmp_service_timer_if_register(pae_auth->kmp_service,
                                   ws_pae_auth_timer_if_start,
                                   ws_pae_auth_timer_if_stop);
-
-    if (kmp_service_shared_comp_if_register(pae_auth->kmp_service,
-                                            ws_pae_auth_shared_comp_add,
-                                            ws_pae_auth_shared_comp_remove)) {
-        goto error;
-    }
+    kmp_service_shared_comp_if_register(pae_auth->kmp_service,
+                                        ws_pae_auth_shared_comp_add,
+                                        ws_pae_auth_shared_comp_remove);
 
     if (auth_key_sec_prot_register(pae_auth->kmp_service) < 0) {
         goto error;

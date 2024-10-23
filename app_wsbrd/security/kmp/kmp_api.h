@@ -532,20 +532,9 @@ typedef int8_t kmp_service_shared_comp_add(kmp_service_t *service, kmp_shared_co
  */
 typedef int8_t kmp_service_shared_comp_remove(kmp_service_t *service, kmp_shared_comp_t *data);
 
-/**
- * kmp_service_shared_comp_if_register register a continuous timer interface to KMP service
- *
- * \param service KMP service
- * \param add  shared component
- * \param remove remove shared component
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_shared_comp_if_register(kmp_service_t *service,
-                                           kmp_service_shared_comp_add add,
-                                           kmp_service_shared_comp_remove remove);
+void kmp_service_shared_comp_if_register(kmp_service_t *service,
+                                         kmp_service_shared_comp_add add,
+                                         kmp_service_shared_comp_remove remove);
 
 /**
  * kmp_service_event_if_event event callback

@@ -620,15 +620,13 @@ void kmp_service_timer_if_register(kmp_service_t *service,
     service->timer_stop = stop;
 }
 
-int8_t kmp_service_shared_comp_if_register(kmp_service_t *service, kmp_service_shared_comp_add add, kmp_service_shared_comp_remove remove)
+void kmp_service_shared_comp_if_register(kmp_service_t *service,
+                                         kmp_service_shared_comp_add add,
+                                         kmp_service_shared_comp_remove remove)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     service->shared_comp_add = add;
     service->shared_comp_remove = remove;
-    return 0;
 }
 
 void kmp_service_event_if_event(kmp_service_t *service, void *data)
