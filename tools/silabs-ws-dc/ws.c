@@ -234,11 +234,6 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     struct dc *dc = container_of(ws, struct dc, ws);
     struct ws_utt_ie ie_utt;
 
-    if (ind->hdr.key_index) {
-        TRACE(TR_DROP, "drop %s: unsupported secured frame", "15.4");
-        return;
-    }
-
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
         if (memcmp(dc->cfg.target_eui64, ind->neigh->mac64, sizeof(dc->cfg.target_eui64))) {
             TRACE(TR_DROP, "drop %-9s: direct connect target eui64 missmatch", "15.4");
