@@ -73,18 +73,24 @@ static void dc_restart_disc_timer(struct dc *dc)
     timer_start_rel(NULL, &dc->disc_timer, 0);
 }
 
+static void dc_remove_target_route(struct dc *dc)
+{
+    struct in6_addr client_linklocal;
+
+    memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
+    ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, dc->cfg.target_eui64);
+    tun_route_del(&dc->tun, &client_linklocal);
+}
+
 static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh)
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
-    struct in6_addr client_linklocal;
 
     if (memcmp(dc->cfg.target_eui64, neigh->mac64, sizeof(dc->cfg.target_eui64)))
         return;
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
     dc_restart_disc_timer(dc);
-    memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
-    ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, neigh->mac64);
-    tun_route_del(&dc->tun, &client_linklocal);
+    dc_remove_target_route(dc);
 }
 
 struct dc g_dc = {
