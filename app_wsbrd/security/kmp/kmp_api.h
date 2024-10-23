@@ -420,20 +420,8 @@ typedef uint16_t kmp_sec_prot_size(void);
  */
 typedef int8_t kmp_sec_prot_init(sec_prot_t *prot);
 
-/**
- * kmp_service_sec_protocol_register register a security protocol to KMP service
- *
- * \param service KMP service
- * \param type protocol type
- * \param size size callback
- * \param init init callback
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type,
-                                         kmp_sec_prot_size *size, kmp_sec_prot_init *init);
+void kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type,
+                                       kmp_sec_prot_size *size, kmp_sec_prot_init *init);
 
 /**
  * kmp_service_sec_protocol_unregister unregister a security protocol from KMP service

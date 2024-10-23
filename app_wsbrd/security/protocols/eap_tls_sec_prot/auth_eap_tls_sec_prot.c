@@ -104,10 +104,9 @@ int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    if (kmp_service_sec_protocol_register(service, IEEE_802_1X_MKA, auth_eap_tls_sec_prot_size, auth_eap_tls_sec_prot_init) < 0) {
-        return -1;
-    }
-
+    kmp_service_sec_protocol_register(service, IEEE_802_1X_MKA,
+                                      auth_eap_tls_sec_prot_size,
+                                      auth_eap_tls_sec_prot_init);
     return 0;
 }
 

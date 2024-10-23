@@ -63,10 +63,9 @@ int8_t msg_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    if (kmp_service_sec_protocol_register(service, MSG_PROT, msg_sec_prot_size, msg_sec_prot_init) < 0) {
-        return -1;
-    }
-
+    kmp_service_sec_protocol_register(service, MSG_PROT,
+                                      msg_sec_prot_size,
+                                      msg_sec_prot_init);
     return 0;
 }
 

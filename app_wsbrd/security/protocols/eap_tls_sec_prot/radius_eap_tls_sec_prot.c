@@ -113,10 +113,9 @@ int8_t radius_eap_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    if (kmp_service_sec_protocol_register(service, RADIUS_IEEE_802_1X_MKA, radius_eap_tls_sec_prot_size, radius_eap_tls_sec_prot_init) < 0) {
-        return -1;
-    }
-
+    kmp_service_sec_protocol_register(service, RADIUS_IEEE_802_1X_MKA,
+                                      radius_eap_tls_sec_prot_size,
+                                      radius_eap_tls_sec_prot_init);
     return 0;
 }
 

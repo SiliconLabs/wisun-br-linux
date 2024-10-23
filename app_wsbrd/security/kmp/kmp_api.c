@@ -567,31 +567,21 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, k
     return ret;
 }
 
-int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type, kmp_sec_prot_size *size, kmp_sec_prot_init *init)
+void kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type,
+                                       kmp_sec_prot_size *size,
+                                       kmp_sec_prot_init *init)
 {
-    if (!service) {
-        return -1;
-    }
+    BUG_ON(!service);
 
-    ns_list_foreach(kmp_sec_prot_entry_t, list_entry, &service->sec_prot_list) {
-        // Already registered
-        if (list_entry->type == type) {
-            return -1;
-        }
-    }
+    ns_list_foreach(kmp_sec_prot_entry_t, list_entry, &service->sec_prot_list)
+        BUG_ON(list_entry->type == type); // Already registered
 
-    kmp_sec_prot_entry_t *sec_prot = malloc(sizeof(kmp_sec_prot_entry_t));
-    if (!sec_prot) {
-        return -1;
-    }
-
+    kmp_sec_prot_entry_t *sec_prot = xalloc(sizeof(kmp_sec_prot_entry_t));
     sec_prot->type = type;
     sec_prot->size = size;
     sec_prot->init = init;
 
     ns_list_add_to_start(&service->sec_prot_list, sec_prot);
-
-    return 0;
 }
 
 int8_t kmp_service_sec_protocol_unregister(kmp_service_t *service, kmp_type_e type)

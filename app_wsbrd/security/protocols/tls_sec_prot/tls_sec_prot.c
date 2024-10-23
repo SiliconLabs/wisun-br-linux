@@ -105,10 +105,9 @@ int8_t server_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    if (kmp_service_sec_protocol_register(service, TLS_PROT, tls_sec_prot_size, server_tls_sec_prot_init) < 0) {
-        return -1;
-    }
-
+    kmp_service_sec_protocol_register(service, TLS_PROT,
+                                      tls_sec_prot_size,
+                                      server_tls_sec_prot_init);
     return 0;
 }
 
