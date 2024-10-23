@@ -22,15 +22,7 @@
 
 struct kmp_service;
 
-/**
- * auth_gkh_sec_prot_register register authenticator GKH protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t auth_gkh_sec_prot_register(struct kmp_service *service);
+void auth_gkh_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_gkh_sec_prot_timing_adjust Adjust retries and timings of the GKH protocol

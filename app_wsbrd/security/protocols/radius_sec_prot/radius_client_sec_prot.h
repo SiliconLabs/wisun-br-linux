@@ -27,14 +27,6 @@ struct kmp_service;
  *
  */
 
-/**
- * radius_client_sec_prot_register register RADIUS client protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t radius_client_sec_prot_register(struct kmp_service *service);
+void radius_client_sec_prot_register(struct kmp_service *service);
 
 #endif

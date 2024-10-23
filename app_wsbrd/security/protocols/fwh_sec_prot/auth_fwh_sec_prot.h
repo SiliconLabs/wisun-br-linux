@@ -28,15 +28,7 @@ struct kmp_service;
  *
  */
 
-/**
- * auth_fwh_sec_prot_register register authenticator 4WH protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t auth_fwh_sec_prot_register(struct kmp_service *service);
+void auth_fwh_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_fwh_sec_prot_timing_adjust Adjust retries and timings of the 4WH protocol

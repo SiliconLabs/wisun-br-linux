@@ -221,37 +221,21 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
                                         ws_pae_auth_shared_comp_add,
                                         ws_pae_auth_shared_comp_remove);
 
-    if (auth_key_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    auth_key_sec_prot_register(pae_auth->kmp_service);
 
     // Register radius EAP-TLS and radius client security protocols
-    if (radius_eap_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
-    if (radius_client_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    radius_eap_tls_sec_prot_register(pae_auth->kmp_service);
+    radius_client_sec_prot_register(pae_auth->kmp_service);
 
     // Register EAP-TLS and TLS security protocols
-    if (auth_eap_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
-    if (server_tls_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    auth_eap_tls_sec_prot_register(pae_auth->kmp_service);
+    server_tls_sec_prot_register(pae_auth->kmp_service);
 
-    if (auth_fwh_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    auth_fwh_sec_prot_register(pae_auth->kmp_service);
 
-    if (auth_gkh_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    auth_gkh_sec_prot_register(pae_auth->kmp_service);
 
-    if (msg_sec_prot_register(pae_auth->kmp_service) < 0) {
-        goto error;
-    }
+    msg_sec_prot_register(pae_auth->kmp_service);
 
     if (tasklet_id < 0) {
         tasklet_id = event_handler_create(ws_pae_auth_tasklet_handler);

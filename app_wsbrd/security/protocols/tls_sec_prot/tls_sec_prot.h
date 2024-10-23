@@ -35,15 +35,6 @@ struct kmp_service;
 /* TLS send buffer size increment if it is detected that buffer is too small */
 #define TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT   1000
 
-/**
- * server_tls_sec_prot_register register server TLS protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t server_tls_sec_prot_register(struct kmp_service *service);
-
+void server_tls_sec_prot_register(struct kmp_service *service);
 
 #endif

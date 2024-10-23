@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/ns_list.h"
+#include "common/log.h"
 
 #include "net/protocol.h"
 #include "ws/ws_config.h"
@@ -57,16 +58,12 @@ static int8_t msg_sec_prot_auth_rejected_send(sec_prot_t *prot, sec_prot_keys_t 
 
 #define msg_sec_prot_get(prot) (msg_sec_prot_int_t *) &prot->data
 
-int8_t msg_sec_prot_register(kmp_service_t *service)
+void msg_sec_prot_register(kmp_service_t *service)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     kmp_service_sec_protocol_register(service, MSG_PROT,
                                       msg_sec_prot_size,
                                       msg_sec_prot_init);
-    return 0;
 }
 
 static uint16_t msg_sec_prot_size(void)

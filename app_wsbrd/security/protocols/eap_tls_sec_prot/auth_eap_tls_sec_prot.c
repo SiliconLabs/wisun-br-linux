@@ -98,16 +98,12 @@ static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
 
 #define eap_tls_sec_prot_get(prot) (eap_tls_sec_prot_int_t *) &prot->data
 
-int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service)
+void auth_eap_tls_sec_prot_register(kmp_service_t *service)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     kmp_service_sec_protocol_register(service, IEEE_802_1X_MKA,
                                       auth_eap_tls_sec_prot_size,
                                       auth_eap_tls_sec_prot_init);
-    return 0;
 }
 
 static uint16_t auth_eap_tls_sec_prot_size(void)

@@ -154,16 +154,12 @@ static void radius_client_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t tick
 // Data shared between radius client instances
 static radius_client_sec_prot_shared_t *shared_data = NULL;
 
-int8_t radius_client_sec_prot_register(kmp_service_t *service)
+void radius_client_sec_prot_register(kmp_service_t *service)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     kmp_service_sec_protocol_register(service, RADIUS_CLIENT_PROT,
                                       radius_client_sec_prot_size,
                                       radius_client_sec_prot_init);
-    return 0;
 }
 
 static uint16_t radius_client_sec_prot_size(void)

@@ -28,14 +28,6 @@ struct kmp_service;
  *
  */
 
-/**
- * msg_sec_prot_register register message security protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t msg_sec_prot_register(struct kmp_service *service);
+void msg_sec_prot_register(struct kmp_service *service);
 
 #endif

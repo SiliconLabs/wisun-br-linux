@@ -78,16 +78,12 @@ static int8_t auth_gkh_sec_prot_mic_validate(sec_prot_t *prot);
 
 #define gkh_sec_prot_get(prot) (gkh_sec_prot_int_t *) &prot->data
 
-int8_t auth_gkh_sec_prot_register(kmp_service_t *service)
+void auth_gkh_sec_prot_register(kmp_service_t *service)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     kmp_service_sec_protocol_register(service, IEEE_802_11_GKH,
                                       auth_gkh_sec_prot_size,
                                       auth_gkh_sec_prot_init);
-    return 0;
 }
 
 static uint16_t auth_gkh_sec_prot_size(void)

@@ -99,16 +99,12 @@ static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot);
 
 #define tls_sec_prot_get(prot) (tls_sec_prot_int_t *) &prot->data
 
-int8_t server_tls_sec_prot_register(kmp_service_t *service)
+void server_tls_sec_prot_register(kmp_service_t *service)
 {
-    if (!service) {
-        return -1;
-    }
-
+    BUG_ON(!service);
     kmp_service_sec_protocol_register(service, TLS_PROT,
                                       tls_sec_prot_size,
                                       server_tls_sec_prot_init);
-    return 0;
 }
 
 static uint16_t tls_sec_prot_size(void)

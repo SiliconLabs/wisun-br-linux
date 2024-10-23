@@ -27,15 +27,7 @@ struct kmp_service;
  *
  */
 
-/**
- * auth_eap_tls_sec_prot_register register authenticator EAP-TLS protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t auth_eap_tls_sec_prot_register(struct kmp_service *service);
+void auth_eap_tls_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_eap_tls_sec_prot_timing_adjust Adjust retries and timings of the EAP-TLS protocol
