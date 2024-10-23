@@ -114,7 +114,6 @@ static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr);
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
-static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 static void ws_pae_controller_data_init(pae_controller_t *controller);
@@ -400,36 +399,6 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
     }
 
     return ret;
-}
-
-static void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
-{
-    pae_controller_gtk_t *gtks;
-    int key_offset;
-
-    if (is_lgtk) {
-        key_offset = GTK_NUM;
-        gtks = &controller->lgtks;
-    } else {
-        key_offset = 0;
-        gtks = &controller->gtks;
-    }
-
-    tr_info("NW keys remove");
-
-    gtks->gtk_index = -1;
-
-    nw_key_t *nw_key = gtks->nw_key;
-    for (uint8_t i = 0; i < (is_lgtk ? LGTK_NUM : GTK_NUM); i++) {
-        // Deletes the key if it is set
-        if (nw_key[i].set) {
-            tr_info("NW key remove: %i", i + key_offset);
-            if (nw_key[i].installed)
-                controller->nw_key_set(interface_ptr, i + key_offset + 1, NULL, 0);
-            nw_key[i].set = false;
-            nw_key[i].installed = false;
-        }
-    }
 }
 
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
