@@ -36,22 +36,12 @@
 
 static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
 {
-    struct in6_addr client_linklocal;
     struct ws_us_ie ie_us;
 
     if (!ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
         return;
     ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-
-    if (!timer_stopped(&dc->disc_timer)) {
-        memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
-        ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, ind->neigh->mac64);
-        tun_route_add(&dc->tun, &client_linklocal);
-        ws_neigh_refresh(&dc->ws.neigh_table, ind->neigh, WS_NEIGHBOR_LINK_TIMEOUT);
-        INFO("Direct Connection established with %s", tr_eui64(dc->cfg.target_eui64));
-        INFO("%s reachable at %s", tr_eui64(dc->cfg.target_eui64), tr_ipv6(client_linklocal.s6_addr));
-    }
-    timer_stop(NULL, &dc->disc_timer);
+    ws_neigh_refresh(&dc->ws.neigh_table, ind->neigh, WS_NEIGHBOR_LINK_TIMEOUT);
 }
 
 static bool ws_is_exthdr(uint8_t ipproto)
@@ -233,6 +223,9 @@ static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
         return;
     }
 
+    // Authentication started, disable discovery timer
+    if (!memcmp(ind->neigh->mac64, dc->cfg.target_eui64, sizeof(ind->neigh->mac64)))
+        timer_stop(NULL, &dc->disc_timer);
     auth_recv_eapol(&dc->auth_ctx, kmp_id, &ind->hdr.src, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
 }
 

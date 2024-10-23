@@ -13,6 +13,7 @@
  */
 #include <poll.h>
 
+#include "common/crypto/ws_keys.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/mbedtls_config_check.h"
 #include "common/string_extra.h"
@@ -101,6 +102,36 @@ static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const 
     ws_if_send_eapol(&dc->ws, kmp_id, pkt, pkt_len, dst);
 }
 
+static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struct eui64 *eui64, uint8_t index)
+{
+    struct dc *dc = container_of(auth_ctx, struct dc, auth_ctx);
+    struct ws_neigh *neigh = ws_neigh_get(&dc->ws.neigh_table, dc->cfg.target_eui64);
+    struct in6_addr client_linklocal;
+    struct ws_neigh *it;
+    uint8_t tk[16];
+
+    if (memcmp(dc->cfg.target_eui64, eui64->u8, sizeof(dc->cfg.target_eui64)))
+        return;
+    if (index - 1 != dc->auth_ctx.cur_slot) // Do not act when the second GTK is installed during rotation
+        return;
+    BUG_ON(!neigh);
+    // Direct Connect encryption relies on the Temporal Key (TK) portion of the PTK to secure traffic
+    BUG_ON(!auth_get_supp_tk(auth_ctx, eui64, tk));
+
+    rcp_set_sec_key(&dc->ws.rcp, HIF_DC_KEY_SLOT + 1, tk, 0);
+    SLIST_FOREACH(it, &dc->ws.neigh_table.neigh_list, link)
+        it->frame_counter_min[HIF_DC_KEY_SLOT] = 0;
+
+    if (!dc->ws.gak_index) {
+        memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
+        ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, eui64->u8);
+        tun_route_add(&dc->tun, &client_linklocal);
+        INFO("Direct Connection established with %s", tr_eui64(eui64->u8));
+        INFO("%s reachable at %s", tr_eui64(eui64->u8), tr_ipv6(client_linklocal.s6_addr));
+    }
+    dc->ws.gak_index = HIF_DC_KEY_SLOT + 1;
+}
+
 struct dc g_dc = {
     .cfg.auth_cfg.ptk_lifetime_min         = 86400,
     // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
@@ -109,6 +140,7 @@ struct dc g_dc = {
     .cfg.auth_cfg.gtk_new_install_required = 80,
 
     .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
+    .auth_ctx.on_supp_gtk_installed = dc_auth_on_supp_gtk_installed,
     .auth_ctx.sendto_mac            = dc_auth_sendto_mac,
 
     .ws.rcp.bus.fd = -1,
