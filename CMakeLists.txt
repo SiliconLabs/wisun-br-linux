@@ -504,6 +504,7 @@ if(COMPILE_DEVTOOLS)
         common/iobuf.c
         common/key_value_storage.c
         common/log.c
+        common/mbedtls_config_check.c
         common/mpx.c
         common/named_values.c
         common/parsers.c
@@ -524,7 +525,8 @@ if(COMPILE_DEVTOOLS)
 
     target_include_directories(libdc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_options(libdc PUBLIC -Wl,--wrap=time) # Required by common/capture.c
-    target_link_libraries(libdc PUBLIC PkgConfig::LIBNL_ROUTE)
+    target_link_libraries(libdc PUBLIC MbedTLS::mbedtls PkgConfig::LIBNL_ROUTE)
+    target_compile_definitions(libdc PUBLIC HAVE_MBEDTLS)
     if(LIBCPC_FOUND)
         target_compile_definitions(libdc PRIVATE HAVE_LIBCPC)
         target_sources(libdc PRIVATE common/bus_cpc.c)

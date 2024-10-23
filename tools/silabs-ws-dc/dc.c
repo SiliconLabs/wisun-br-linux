@@ -14,6 +14,7 @@
 #include <poll.h>
 
 #include "common/ipv6/ipv6_addr.h"
+#include "common/mbedtls_config_check.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/memutils.h"
@@ -165,6 +166,8 @@ int dc_main(int argc, char *argv[])
     parse_commandline(&dc->cfg, argc, argv);
     if (dc->cfg.color_output != -1)
         g_enable_color_traces = dc->cfg.color_output;
+
+    check_mbedtls_features();
 
     rcp_init(&dc->ws.rcp, &dc->cfg.rcp_cfg);
     if (dc->cfg.list_rf_configs) {
