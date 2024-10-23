@@ -53,7 +53,6 @@
 
 #define TRACE_GROUP "wspc"
 
-typedef int8_t ws_pae_delete(struct net_if *interface_ptr);
 typedef void ws_pae_timer(uint16_t ticks);
 typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
@@ -93,7 +92,6 @@ typedef struct pae_controller {
     ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
     ws_pae_controller_congestion_get *congestion_get;                /**< Congestion get callback */
     ws_pae_controller_ip_addr_get *ip_addr_get;                      /**< IP address get callback */
-    ws_pae_delete *pae_delete;                                       /**< PAE delete callback */
     ws_pae_timer *pae_fast_timer;                                    /**< PAE fast timer callback */
     ws_pae_timer *pae_slow_timer;                                    /**< PAE slow timer callback */
     ws_pae_gtks_updated *pae_gtks_updated;                           /**< PAE GTKs updated */
@@ -486,7 +484,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     memset(controller->lgtks.nw_key, 0, sizeof(controller->lgtks.nw_key));
 
     controller->target_pan_id = 0xffff;
-    controller->pae_delete = NULL;
     controller->pae_fast_timer = NULL;
     controller->pae_slow_timer = NULL;
     controller->pae_gtks_updated = NULL;
@@ -742,7 +739,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
         return -1;
     }
 
-    controller->pae_delete = ws_pae_auth_delete;
     controller->pae_fast_timer = ws_pae_auth_fast_timer;
     controller->pae_slow_timer = ws_pae_auth_slow_timer;
     controller->pae_gtks_updated = ws_pae_auth_gtks_updated;
