@@ -239,9 +239,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
 
     if (tasklet_id < 0) {
         tasklet_id = event_handler_create(ws_pae_auth_tasklet_handler);
-        if (tasklet_id < 0) {
-            goto error;
-        }
+        BUG_ON(tasklet_id < 0);
     }
 
     if (ws_pae_auth_timer_stop(pae_auth) < 0) {
