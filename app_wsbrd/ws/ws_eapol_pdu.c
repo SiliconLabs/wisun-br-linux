@@ -62,29 +62,20 @@ static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr);
 
 static NS_LIST_DEFINE(eapol_pdu_data_list, eapol_pdu_data_t, link);
 
-int8_t ws_eapol_pdu_init(struct net_if *interface_ptr)
+void ws_eapol_pdu_init(struct net_if *interface_ptr)
 {
-    if (!interface_ptr) {
-        return -1;
-    }
+    BUG_ON(!interface_ptr);
 
-    if (ws_eapol_pdu_data_get(interface_ptr) != NULL) {
-        return 0;
-    }
+    if (ws_eapol_pdu_data_get(interface_ptr) != NULL)
+        return;
 
-    eapol_pdu_data_t *eapol_pdu_data = malloc(sizeof(eapol_pdu_data_t));
-    if (!eapol_pdu_data) {
-        return -1;
-    }
-
+    eapol_pdu_data_t *eapol_pdu_data = xalloc(sizeof(eapol_pdu_data_t));
     eapol_pdu_data->interface_ptr = interface_ptr;
     eapol_pdu_data->recv_cb = NULL;
     ns_list_init(&eapol_pdu_data->msdu_list);
     eapol_pdu_data->msdu_handle = 0;
 
     ns_list_add_to_end(&eapol_pdu_data_list, eapol_pdu_data);
-
-    return 0;
 }
 
 int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr)
