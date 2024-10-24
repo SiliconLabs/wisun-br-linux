@@ -81,6 +81,11 @@ void wsbr_data_req_ext(struct net_if *cur,
         ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
         return;
     }
+    if (neighbor_ws && !ws_neigh_has_us(&neighbor_ws->fhss_data_unsecured)) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown unicast schedule for %s", "15.4", tr_eui64(data->DstAddr));
+        ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
+        return;
+    }
 
     wsbr_data_req_rebuild(&frame, cur->rcp, data, ie_ext, cur->ws_info.pan_information.pan_id);
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,

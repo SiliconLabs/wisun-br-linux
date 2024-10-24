@@ -21,6 +21,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include "common/sys_queue_extra.h"
+#include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/ws_regdb.h"
 #include "common/version.h"
@@ -282,6 +283,11 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct fhss_ws
                                   &fhss_data->uc_chan_count);
     }
     fhss_data->ffn.uc_dwell_interval_ms = dwell_interval;
+}
+
+bool ws_neigh_has_us(const struct fhss_ws_neighbor_timing_info *fhss_data)
+{
+    return memzcmp(fhss_data->uc_channel_list, sizeof(fhss_data->uc_channel_list));
 }
 
 // Compute the divisors of val closest to q_ref, possibly including 1 and val
