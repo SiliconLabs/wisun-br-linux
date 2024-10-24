@@ -67,10 +67,15 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     struct rtnl_neigh *nl_neigh;
     struct nl_addr *src_ipv6_nl_addr;
     struct nl_sock *sock;
-    int err;
+    int err, ifindex;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
+    ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
+    if (!ifindex) {
+        ERROR("if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
+        return;
+    }
 
     sock = nl_socket_alloc();
     BUG_ON(!sock);
@@ -82,7 +87,7 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     nl_neigh = rtnl_neigh_alloc();
     BUG_ON(!nl_neigh);
 
-    rtnl_neigh_set_ifindex(nl_neigh, ctxt->tun.ifindex);
+    rtnl_neigh_set_ifindex(nl_neigh, ifindex);
     rtnl_neigh_set_dst(nl_neigh, src_ipv6_nl_addr);
     rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
     rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
