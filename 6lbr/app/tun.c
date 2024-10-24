@@ -123,9 +123,9 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
 
-    ifindex = if_nametoindex(ctxt->config.tun_dev);
+    ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
     if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.tun_dev);
+        ERROR("if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
         return;
     }
 
