@@ -314,6 +314,16 @@ void ws_recvfrom_tun(struct dc *dc)
         goto err;
     hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
 
+    // We only do link-local with DC
+    if (!IN6_IS_ADDR_LINKLOCAL(&hdr->ip6_src)) {
+        TRACE(TR_TX_ABORT, "tx-abort: ipv6 src address %s is not link-local", tr_ipv6(hdr->ip6_src.s6_addr));
+        goto err;
+    }
+    if (!IN6_IS_ADDR_LINKLOCAL(&hdr->ip6_dst)) {
+        TRACE(TR_TX_ABORT, "tx-abort: ipv6 dst address %s is not link-local", tr_ipv6(hdr->ip6_dst.s6_addr));
+        goto err;
+    }
+
     ipv6_addr_conv_iid_eui64(dst_eui64, hdr->ip6_dst.s6_addr + 8);
     ws_send_lowpan(dc, &pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
 
