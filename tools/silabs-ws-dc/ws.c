@@ -20,6 +20,7 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/ipv6/6lowpan_iphc.h"
+#include "common/ipv6/ipv6_cksum.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/ws_ie_validation.h"
 #include "common/ws_interface.h"
@@ -48,6 +49,60 @@ static void ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t s
     }
 
     ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+}
+
+static void ws_send_ipv6(struct dc *dc, struct pktbuf *pktbuf, uint8_t ipproto, uint8_t hlim,
+                         const struct in6_addr *src, const struct in6_addr *dst)
+{
+    struct ip6_hdr hdr = {
+        .ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6)),
+        .ip6_plen = htons(pktbuf_len(pktbuf)),
+        .ip6_nxt  = ipproto,
+        .ip6_hlim = hlim,
+        .ip6_src  = *src,
+        .ip6_dst  = *dst,
+    };
+    uint8_t dst_eui64[8];
+
+    // We only do link-local with DC
+    if (!IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_src)) {
+        TRACE(TR_TX_ABORT, "tx-abort: ipv6 src address %s is not link-local", tr_ipv6(hdr.ip6_src.s6_addr));
+        return;
+    }
+    if (!IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst)) {
+        TRACE(TR_TX_ABORT, "tx-abort: ipv6 dst address %s is not link-local", tr_ipv6(hdr.ip6_dst.s6_addr));
+        return;
+    }
+
+    pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
+    ipv6_addr_conv_iid_eui64(dst_eui64, hdr.ip6_dst.s6_addr + 8);
+
+    ws_send_lowpan(dc, pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
+}
+
+void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct dc *dc = container_of(timer, struct dc, probe_timer);
+    struct nd_neighbor_solicit ns = { 0 };
+    struct pktbuf pktbuf = { };
+    struct in6_addr src, dst;
+
+    src = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, dc->ws.rcp.eui64.u8);
+    dst = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, dc->cfg.target_eui64);
+
+    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns.nd_ns_target = dst;
+    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+
+    ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
+           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "ns", tr_ipv6(dst.s6_addr));
+    ws_send_ipv6(dc, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    pktbuf_free(&pktbuf);
 }
 
 static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)

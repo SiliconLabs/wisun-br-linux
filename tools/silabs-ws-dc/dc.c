@@ -28,6 +28,12 @@
 
 #include "dc.h"
 
+/*
+ * We send a NS every 50 seconds to maintain the link considering the session will
+ * be closed by the server after 60s with no communication.
+ */
+#define DIRECT_CONNECT_SYNC_PERIOD_S 50
+
 enum {
     POLLFD_RCP,
     POLLFD_TIMER,
@@ -93,6 +99,7 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
     dc_restart_disc_timer(dc);
     dc_remove_target_route(dc);
     dc->ws.gak_index = 0;
+    timer_stop(NULL, &dc->probe_timer);
 }
 
 static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const void *pkt,
@@ -130,6 +137,9 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
         INFO("Direct Connection established with %s", tr_eui64(eui64->u8));
         INFO("%s reachable at %s", tr_eui64(eui64->u8), tr_ipv6(client_linklocal.s6_addr));
     }
+    if (timer_stopped(&dc->probe_timer)) {
+        timer_start_rel(NULL, &dc->probe_timer, dc->probe_timer.period_ms);
+    }
     dc->ws.gak_index = HIF_DC_KEY_SLOT + 1;
 }
 
@@ -155,6 +165,8 @@ struct dc g_dc = {
     .ws.neigh_table.on_del = dc_on_neigh_del,
 
     .disc_timer.callback = dc_on_disc_timer_timeout,
+    .probe_timer.callback = ws_on_probe_timer_timeout,
+    .probe_timer.period_ms = DIRECT_CONNECT_SYNC_PERIOD_S * 1000,
 
     .tun.fd = -1,
 };
