@@ -34,6 +34,22 @@
 
 #include "ws.h"
 
+static void ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t src[8], const uint8_t dst[8])
+{
+    uint8_t src_iid[8], dst_iid[8];
+
+    ipv6_addr_conv_iid_eui64(src_iid, src);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst);
+
+    lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
+    if (pktbuf->err) {
+        TRACE(TR_TX_ABORT, "tx-abort: 6lowpan compression error");
+        return;
+    }
+
+    ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+}
+
 static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
 {
     struct ws_us_ie ie_us;
@@ -281,7 +297,6 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
 
 void ws_recvfrom_tun(struct dc *dc)
 {
-    uint8_t src_iid[8], dst_iid[8];
     struct pktbuf pktbuf = { };
     const struct ip6_hdr *hdr;
     uint8_t dst_eui64[8];
@@ -300,14 +315,7 @@ void ws_recvfrom_tun(struct dc *dc)
     hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
 
     ipv6_addr_conv_iid_eui64(dst_eui64, hdr->ip6_dst.s6_addr + 8);
-    ipv6_addr_conv_iid_eui64(src_iid, dc->ws.rcp.eui64.u8);
-    ipv6_addr_conv_iid_eui64(dst_iid, dst_eui64);
-
-    lowpan_iphc_cmpr(&pktbuf, src_iid, dst_iid);
-    if (pktbuf.err)
-        goto err;
-
-    ws_if_send_data(&dc->ws, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf), (struct eui64 *)dst_eui64);
+    ws_send_lowpan(dc, &pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
 
 err:
     pktbuf_free(&pktbuf);
