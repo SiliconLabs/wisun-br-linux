@@ -33,6 +33,7 @@ static const struct name_value valid_traces[] = {
     { "neigh-15.4", TR_NEIGH_15_4 },
     { "15.4",       TR_15_4_DATA | TR_15_4_MNGT },
     { "ipv6",       TR_IPV6 },
+    { "icmp",       TR_ICMP },
     { "security",   TR_SECURITY },
     { NULL },
 };
