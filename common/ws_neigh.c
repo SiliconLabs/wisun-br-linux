@@ -172,6 +172,8 @@ void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
 
     if (neigh) {
         timer_stop(&table->timer_group, &neigh->timer);
+        timer_stop(&table->timer_group, &neigh->etx_timer_compute);
+        timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->mac64), neigh->lifetime_s);
         if (table->on_del)
