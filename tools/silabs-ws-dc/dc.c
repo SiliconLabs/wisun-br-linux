@@ -259,6 +259,8 @@ int dc_main(int argc, char *argv[])
     dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;
     dc_restart_disc_timer(dc);
 
+    INFO("Silicon Labs Wi-SUN Direct Connect successfully started");
+
     pfd[POLLFD_RCP].fd = dc->ws.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = timer_fd();
