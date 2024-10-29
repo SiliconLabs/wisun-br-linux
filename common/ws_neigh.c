@@ -101,7 +101,7 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
 static void ws_neigh_etx_timeout_outdated(struct timer_group *group, struct timer_entry *timer)
 {
     struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
-    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
+    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_outdated);
 
     if (table->on_etx_outdated)
         table->on_etx_outdated(table, neigh);
