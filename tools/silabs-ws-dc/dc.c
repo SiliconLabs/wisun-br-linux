@@ -33,6 +33,7 @@
  * be closed by the server after 60s with no communication.
  */
 #define DIRECT_CONNECT_SYNC_PERIOD_S 50
+#define DIRECT_CONNECT_NEIGH_LIFETIME_S 60
 
 enum {
     POLLFD_RCP,
@@ -139,6 +140,7 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
     }
     if (timer_stopped(&dc->probe_timer)) {
         timer_start_rel(NULL, &dc->probe_timer, dc->probe_timer.period_ms);
+        ws_neigh_refresh(&dc->ws.neigh_table, neigh, DIRECT_CONNECT_NEIGH_LIFETIME_S);
     }
     dc->ws.gak_index = HIF_DC_KEY_SLOT + 1;
 }

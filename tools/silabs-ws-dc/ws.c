@@ -112,7 +112,6 @@ static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
     if (!ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
         return;
     ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-    ws_neigh_refresh(&dc->ws.neigh_table, ind->neigh, WS_NEIGHBOR_LINK_TIMEOUT);
 }
 
 static bool ws_is_exthdr(uint8_t ipproto)
