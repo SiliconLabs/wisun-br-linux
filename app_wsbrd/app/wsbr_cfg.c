@@ -23,7 +23,7 @@ const struct wsbr_cfg size_params[5] = {
         // Discovery
         .trickle_discovery.Imin = 15,
         .trickle_discovery.Imax = 60,
-        .trickle_discovery.k = 1,
+        .trickle_discovery.k = 3,
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
