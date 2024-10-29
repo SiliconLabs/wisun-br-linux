@@ -226,6 +226,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             return;
         }
         // TODO: check frame counter
+        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
         neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(neigh->rsl_in_dbm_unsecured,
                                                          cnf->rx_power_dbm);
         if (hdr.key_index)
