@@ -25,6 +25,10 @@ A couple `systemd` services need to be installed:
     sudo install -m 0755 systemd/wstbu-dhcpv6-relay         /usr/local/bin
     sudo systemctl daemon-reload
 
+> [!NOTE]
+> `wisun-borderrouter.service` is installed in `/etc` to overwrite the one from
+> `/usr/local/lib` (which is always installed by `ninja install`).
+
 The TBU server is configured using a configuration file. An example given in
 [`config.ini`](config.ini).
 
