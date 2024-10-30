@@ -81,7 +81,7 @@ command:
 ## TBU server
 
     sudo pip3 install -r /home/pi/src/wisun-br-linux/tbu/requirements.txt
-    sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wisun-borderrouter.service /usr/local/lib/systemd/system
+    sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wisun-borderrouter.service /etc/systemd/system
     sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay.service /usr/local/lib/systemd/system
     sudo install -m 0755 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay         /usr/local/bin
 
