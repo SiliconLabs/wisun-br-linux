@@ -102,7 +102,7 @@ void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
                      uint8_t handle, uint8_t fhss_type,
                      const struct ws_neigh_fhss *fhss_data,
-                     const uint32_t frame_counters_min[7],
+                     const uint32_t frame_counters_min[HIF_KEY_COUNT],
                      const struct rcp_rate_info rate_list[4], uint8_t ms_mode);
 void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle);
 

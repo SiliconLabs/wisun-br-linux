@@ -25,6 +25,7 @@
 
 #include "common/int24.h"
 #include "common/timer.h"
+#include "common/hif.h"
 #include "common/ws_chan_mask.h"
 #include "common/ws_ie.h"
 
@@ -104,7 +105,7 @@ struct ws_neigh {
     struct ws_pom_ie pom_ie;
     struct lto_info lto_info;
     uint8_t node_role;
-    uint32_t frame_counter_min[7];
+    uint32_t frame_counter_min[HIF_KEY_COUNT];
     uint8_t mac64[8];                                      /*!< MAC64 */
     uint32_t expiration_s;
     uint32_t lifetime_s;                                   /*!< Life time in seconds */

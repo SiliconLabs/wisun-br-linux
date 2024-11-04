@@ -115,6 +115,8 @@ enum hif_mode_switch_type {
     HIF_MODE_SWITCH_TYPE_MAC  = 0x01,
 };
 
+#define HIF_KEY_COUNT 7
+
 const char *hif_cmd_str(uint8_t cmd);
 const char *hif_fatal_str(uint16_t code);
 const char *hif_status_str(uint8_t code);

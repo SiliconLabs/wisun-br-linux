@@ -132,7 +132,7 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     struct ws_neigh *neigh = zalloc(sizeof(struct ws_neigh));
 
     neigh->node_role = role;
-    for (uint8_t key_index = 1; key_index <= 7; key_index++)
+    for (uint8_t key_index = 1; key_index <= HIF_KEY_COUNT; key_index++)
         if (!(key_index_mask & BIT(key_index)))
             neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
     memcpy(neigh->mac64, mac64, 8);
