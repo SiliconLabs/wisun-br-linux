@@ -92,6 +92,7 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
     dc_restart_disc_timer(dc);
     dc_remove_target_route(dc);
+    dc->ws.gak_index = 0;
 }
 
 static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const void *pkt,
