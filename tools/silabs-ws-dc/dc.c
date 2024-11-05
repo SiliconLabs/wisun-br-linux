@@ -46,8 +46,8 @@ static void dc_on_rcp_reset(struct rcp *rcp)
          FIELD_GET(0xFF000000, rcp->version_api),
          FIELD_GET(0x00FFFF00, rcp->version_api),
          FIELD_GET(0x000000FF, rcp->version_api));
-    if (version_older_than(rcp->version_api, 2, 0, 0))
-        FATAL(3, "RCP API < 2.0.0 (too old)");
+    if (version_older_than(rcp->version_api, 2, 5, 0))
+        FATAL(3, "RCP API < 2.5.0 (too old)");
 }
 
 static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_entry *timer)
