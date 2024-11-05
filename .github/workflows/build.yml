@@ -1,0 +1,19 @@
+# YAML -*- mode: yaml; tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
+# SPDX-License-Identifier: LicenseRef-MSLA
+# SPDX-Copyright-Text: (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
+---
+name: Docker Image CI
+
+on:  # yamllint disable-line rule:truthy
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+      - name: Build Docker image from sources
+        run: docker build .
