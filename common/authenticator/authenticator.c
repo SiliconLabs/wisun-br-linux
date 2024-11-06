@@ -99,11 +99,18 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
     auth_send_eapol(ctx, &supp->eui64, supp->rt_kmp_id, &supp->rt_buffer);
 }
 
-static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
 
     SLIST_FIND(supp, &ctx->supplicants, link, !memcmp(&supp->eui64, eui64, sizeof(supp->eui64)));
+    return supp;
+}
+
+static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+{
+    struct auth_supp_ctx *supp = auth_get_supp(ctx, eui64);
+
     if (supp)
         return supp;
 
