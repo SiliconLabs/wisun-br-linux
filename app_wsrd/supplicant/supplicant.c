@@ -311,7 +311,7 @@ void supp_start_key_request(struct supplicant_ctx *supp)
     rfc8415_txalg_start(&supp->key_request_txalg);
     supp->running = true;
     TRACE(TR_SECURITY, "sec: %-8s tx=%"PRIu64"ms", "eapol-key",
-          supp->key_request_txalg.timer_delay.expire_ms - time_now_ms(CLOCK_MONOTONIC));
+          timer_duration_ms(&supp->key_request_txalg.timer_delay));
 }
 
 void supp_reset(struct supplicant_ctx *supp)
