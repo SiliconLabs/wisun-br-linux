@@ -26,13 +26,13 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_discovery.k = 3,
         .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
-        // MPL
-        .trickle_mpl.Imin = 1,
-        .trickle_mpl.Imax = 10,
-        .trickle_mpl.k = 8,
-        .trickle_mpl.TimerExpirations = 2,
-        // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
-        .mpl_seed_set_entry_lifetime = 80 * MPL_SAFE_HOP_COUNT * (2 + 1),
+        // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
+        .trickle_mpl.Imin = 6,      // Arbitrary (Wi-SUN 10s default is too long)
+        .trickle_mpl.Imax = 6 << 3, // 48s instead of 80s with modified Imin
+        // RFC 7731 5.4. MPL Parameters
+        .trickle_mpl.k = 3,         // Arbitrary (RFC 7731 k=1 default is too small)
+        .trickle_mpl.TimerExpirations = 3,
+        .mpl_seed_set_entry_lifetime = 30 * 60,
 
         // Security protocol
         .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
