@@ -218,6 +218,7 @@ static void dc_init_radio(struct dc *dc)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
+    rcp_set_radio_tx_power(&dc->ws.rcp, dc->cfg.tx_power);
     rcp_set_radio(&dc->ws.rcp, rail_config->index, dc->ws.phy.params->ofdm_mcs, false);
     dc->ws.phy.rcp_rail_config_index = rail_config->index;
 
