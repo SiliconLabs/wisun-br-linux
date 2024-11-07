@@ -41,15 +41,10 @@
 #include <netinet/in.h>
 #include <stdbool.h>
 
+#include "common/crypto/ws_keys.h"
 #include "common/rfc8415_txalg.h"
 #include "common/pktbuf.h"
 #include "common/timer.h"
-
-struct ws_gtk {
-    uint8_t slot;
-    uint8_t gtk[16];
-    struct timer_entry expiration_timer;
-};
 
 struct supplicant_ctx {
     uint8_t eui64[8];

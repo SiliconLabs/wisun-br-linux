@@ -16,6 +16,14 @@
 
 #include <stdint.h>
 
+#include "common/timer.h"
+
+struct ws_gtk {
+    uint8_t slot;
+    uint8_t gtk[16];
+    struct timer_entry expiration_timer;
+};
+
 void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]);
 void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                      uint8_t ptkid[16]);
