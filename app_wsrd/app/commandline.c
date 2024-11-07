@@ -89,6 +89,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
+        { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
@@ -117,6 +118,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     config->rcp_cfg.uart_baudrate = 115200;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
+    config->tx_power = 14;
     config->color_output = -1;
     memcpy(config->ws_mac_address, &ieee802154_addr_bc, 8);
     memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));

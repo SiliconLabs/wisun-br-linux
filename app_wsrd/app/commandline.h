@@ -40,6 +40,7 @@ struct wsrd_conf {
     int  ws_chan_spacing;
     int  ws_chan_count;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
+    int tx_power;
 
     struct iovec ca_cert;
     struct iovec cert;
