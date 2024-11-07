@@ -28,6 +28,7 @@ struct dc {
     struct timer_entry disc_timer;
     int disc_count;
     struct timer_entry probe_timer;
+    int probe_handle;
 
     struct tun_ctx tun;
     struct in6_addr addr_linklocal;

@@ -139,6 +139,7 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
         INFO("%s reachable at %s", tr_eui64(eui64->u8), tr_ipv6(client_linklocal.s6_addr));
     }
     if (timer_stopped(&dc->probe_timer)) {
+        dc->probe_handle = -1;
         timer_start_rel(NULL, &dc->probe_timer, dc->probe_timer.period_ms);
         ws_neigh_refresh(&dc->ws.neigh_table, neigh, DIRECT_CONNECT_NEIGH_LIFETIME_S);
     }
@@ -164,6 +165,7 @@ struct dc g_dc = {
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.on_recv_ind = ws_on_recv_ind,
+    .ws.on_recv_cnf = ws_on_recv_cnf,
     .ws.neigh_table.on_del = dc_on_neigh_del,
 
     .disc_timer.callback = dc_on_disc_timer_timeout,

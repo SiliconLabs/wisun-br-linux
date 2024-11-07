@@ -87,11 +87,17 @@ void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *ti
     struct nd_neighbor_solicit ns = { 0 };
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
+    int handle;
 
     src = ipv6_prefix_linklocal;
     ipv6_addr_conv_iid_eui64(src.s6_addr + 8, dc->ws.rcp.eui64.u8);
     dst = ipv6_prefix_linklocal;
     ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, dc->cfg.target_eui64);
+
+    if (dc->probe_handle != -1) {
+        TRACE(TR_TX_ABORT, "tx-abort: ns already in progress for %s", tr_ipv6(dst.s6_addr));
+        return;
+    }
 
     ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
     ns.nd_ns_target = dst;
@@ -102,8 +108,28 @@ void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *ti
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "ns", tr_ipv6(dst.s6_addr));
-    ws_send_ipv6(dc, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    handle = ws_send_ipv6(dc, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    if (handle >= 0)
+        dc->probe_handle = handle;
+
     pktbuf_free(&pktbuf);
+}
+
+static void ws_on_probe_done(struct dc *dc, int handle, bool success)
+{
+    if (handle != dc->probe_handle)
+        return;
+    if (success) {
+        dc->probe_handle = -1;
+        return;
+    }
+
+    /*
+     * After 1 NS failure, we consider the link has been lost.
+     * This covers the case where the router has rebooted, but does not timeout because
+     * we heard other frames from him (PAS, PCS, ...).
+     */
+    ws_neigh_del(&dc->ws.neigh_table, dc->cfg.target_eui64);
 }
 
 static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
@@ -348,6 +374,14 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %-9s: unsupported frame type %d", "15.4", ie_utt.message_type);
         return;
     }
+}
+
+void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf)
+{
+    struct dc *dc = container_of(ws, struct dc, ws);
+
+    if (frame_ctx->type == WS_FT_DATA)
+        ws_on_probe_done(dc, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
 }
 
 void ws_recvfrom_tun(struct dc *dc)
