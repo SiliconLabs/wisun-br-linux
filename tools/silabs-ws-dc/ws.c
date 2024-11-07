@@ -14,6 +14,7 @@
 #include <netinet/icmp6.h>
 #include <netinet/ip6.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "common/specs/ieee802159.h"
 #include "common/specs/6lowpan.h"
@@ -35,7 +36,7 @@
 
 #include "ws.h"
 
-static void ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t src[8], const uint8_t dst[8])
+static int ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t src[8], const uint8_t dst[8])
 {
     uint8_t src_iid[8], dst_iid[8];
 
@@ -45,13 +46,13 @@ static void ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t s
     lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
     if (pktbuf->err) {
         TRACE(TR_TX_ABORT, "tx-abort: 6lowpan compression error");
-        return;
+        return -EINVAL;
     }
 
-    ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+    return ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
 }
 
-static void ws_send_ipv6(struct dc *dc, struct pktbuf *pktbuf, uint8_t ipproto, uint8_t hlim,
+static int ws_send_ipv6(struct dc *dc, struct pktbuf *pktbuf, uint8_t ipproto, uint8_t hlim,
                          const struct in6_addr *src, const struct in6_addr *dst)
 {
     struct ip6_hdr hdr = {
@@ -67,17 +68,17 @@ static void ws_send_ipv6(struct dc *dc, struct pktbuf *pktbuf, uint8_t ipproto, 
     // We only do link-local with DC
     if (!IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_src)) {
         TRACE(TR_TX_ABORT, "tx-abort: ipv6 src address %s is not link-local", tr_ipv6(hdr.ip6_src.s6_addr));
-        return;
+        return -EINVAL;
     }
     if (!IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst)) {
         TRACE(TR_TX_ABORT, "tx-abort: ipv6 dst address %s is not link-local", tr_ipv6(hdr.ip6_dst.s6_addr));
-        return;
+        return -EINVAL;
     }
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
     ipv6_addr_conv_iid_eui64(dst_eui64, hdr.ip6_dst.s6_addr + 8);
 
-    ws_send_lowpan(dc, pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
+    return ws_send_lowpan(dc, pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
 }
 
 void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *timer)
