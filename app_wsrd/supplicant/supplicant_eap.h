@@ -17,6 +17,7 @@
 struct supplicant_ctx;
 struct iobuf_read;
 
+void supp_eap_tls_reset(struct supplicant_ctx *supp);
 void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf);
 
 #endif

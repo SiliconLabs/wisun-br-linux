@@ -207,7 +207,7 @@ static void supp_eap_tls_recv(struct supplicant_ctx *supp, const struct eap_hdr 
     supp->expected_rx_len = 0;
 }
 
-static void supp_eap_tls_reset(struct supplicant_ctx *supp)
+void supp_eap_tls_reset(struct supplicant_ctx *supp)
 {
     supp->last_tx_eap_type = EAP_TYPE_NAK;
     supp->last_eap_identifier = -1;

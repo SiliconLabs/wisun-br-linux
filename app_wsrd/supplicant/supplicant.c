@@ -320,6 +320,7 @@ void supp_reset(struct supplicant_ctx *supp)
     supp->replay_counter = -1;
     rfc8415_txalg_stop(&supp->key_request_txalg);
     timer_stop(NULL, &supp->failure_timer);
+    supp_eap_tls_reset(supp);
 }
 
 void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
