@@ -120,7 +120,7 @@ bool kde_read_gtk(const uint8_t *data, int data_len, struct kde_gtk *gtk_kde)
     return true;
 }
 
-bool kde_read_pmk_id(const uint8_t *data, int data_len, uint8_t pmkid[16])
+bool kde_read_pmkid(const uint8_t *data, int data_len, uint8_t pmkid[16])
 {
     const uint8_t *ptr = kde_find(data, data_len, IEEE80211_KDE_TYPE, OUI_IEEE80211, IEEE80211_KDE_PMKID, 16);
 

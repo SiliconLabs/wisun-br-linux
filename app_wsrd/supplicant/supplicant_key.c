@@ -345,7 +345,7 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
 
     ieee80211_derive_pmkid(supp->pmk, supp->authenticator_eui64, supp->eui64, pmkid);
 
-    if (!kde_read_pmk_id(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
+    if (!kde_read_pmkid(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
         TRACE(TR_DROP, "drop %-9s: missing pmkid", "eapol-key");
         goto exit;
     }

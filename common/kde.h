@@ -43,7 +43,7 @@ void kde_write_lgtkl(struct pktbuf *buf, uint8_t lgtkl);
 void kde_write_lifetime(struct pktbuf *buf, const uint32_t lifetime_s);
 void kde_write_nr(struct pktbuf *buf, uint8_t node_role);
 
-bool kde_read_pmk_id(const uint8_t *data, int data_len, uint8_t pmkid[16]);
+bool kde_read_pmkid(const uint8_t *data, int data_len, uint8_t pmkid[16]);
 bool kde_read_ptkid(const uint8_t *data, int data_len, uint8_t ptkid[16]);
 bool kde_read_gtk(const uint8_t *data, int data_len, struct kde_gtk *gtk_kde);
 bool kde_read_gtkl(const uint8_t *data, int data_len, uint8_t *gtkl);
