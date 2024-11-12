@@ -727,6 +727,7 @@ void rpl_start(struct rpl_root *root,
 {
     struct trickle_legacy_params dio_trickle_params;
     struct icmp6_filter filter;
+    struct rpl_target *target;
     int err;
 
     BUG_ON(!root->min_hop_rank_inc);
@@ -757,6 +758,8 @@ void rpl_start(struct rpl_root *root,
     rpl_dio_trickle_params(root, &dio_trickle_params);
     trickle_legacy_start(&root->dio_trickle, "RPL DIO", &dio_trickle_params);
     timer_group_init(&root->timer_group);
+    SLIST_FOREACH(target, &root->targets, link)
+        rpl_transit_update_timer(root, target);
     ws_timer_start(WS_TIMER_RPL);
 }
 
