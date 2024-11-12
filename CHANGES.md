@@ -1,3 +1,15 @@
+v2.1.7
+------
+  - Document the RCP API in [`HIF.md`](HIF.md).
+  - Fix IPv6 neighbor proxy: entries referenced the wrong network interface,
+    causing Neighbor Advertisement to not be sent.
+  - Fix RPL DAO parsing: parents could be assigned to the wrong child when
+    multiple transit options are present in the packet.
+  - Prevent assert when a neighbor has no known unicast schedule.
+  - Prevent invalid memory access in IPv6 neighbor cache.
+  - Expose neighbor POM-IE from D-Bus even if mode switch is disabled.
+  - Improve trickle configurations for certification tests.
+
 v2.1.6
 ------
   - Introduce `mac_address` parameter to manually configure the RCP's EUI-64.
