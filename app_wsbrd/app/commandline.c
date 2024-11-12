@@ -288,6 +288,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_mode = 0;
     config->ws_size = WS_NETWORK_SIZE_SMALL;
     config->ws_pan_id = -1;
+    config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
     config->tx_power = 14;
     config->uc_dwell_interval = 255;
@@ -474,8 +475,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("enable_lfn without chan_plan_id");
     if (config->ws_chan_plan_id && config->enable_ffn10)
         WARN("enable_ffn10 with chan_plan_id");
-    if (!config->ws_phy_mode_id && config->ws_phy_op_modes[0])
-        FATAL(1, "\"phy_operating_modes\" depends on \"phy_mode_id\"");
+    if (config->ws_mode && config->ws_phy_op_modes[0])
+        WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)

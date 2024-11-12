@@ -250,6 +250,8 @@ void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest
         dest[0] = -1;
         return;
     }
+    if (!strcmp(info->value, "none"))
+        return;
     i = 0;
     tmp = strdup(info->value);
     substr = strtok(tmp, ",");
