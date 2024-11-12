@@ -678,6 +678,46 @@ if(COMPILE_DEMOS)
     )
     target_include_directories(demo-tun PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     target_link_libraries(demo-tun PRIVATE PkgConfig::LIBNL_ROUTE)
+
+    add_executable(demo-eapol
+        app_wsrd/supplicant/supplicant.c
+        app_wsrd/supplicant/supplicant_eap.c
+        app_wsrd/supplicant/supplicant_key.c
+        common/authenticator/authenticator.c
+        common/authenticator/authenticator_eap.c
+        common/authenticator/authenticator_key.c
+        common/authenticator/authenticator_radius.c
+        common/crypto/hmac_md.c
+        common/crypto/ieee80211.c
+        common/crypto/nist_kw.c
+        common/crypto/ws_keys.c
+        common/bits.c
+        common/eap.c
+        common/eapol.c
+        common/endian.c
+        common/capture.c
+        common/crc.c
+        common/commandline.c
+        common/hif.c
+        common/ieee802154_frame.c
+        common/ieee802154_ie.c
+        common/iobuf.c
+        common/kde.c
+        common/key_value_storage.c
+        common/log.c
+        common/rfc8415_txalg.c
+        common/named_values.c
+        common/parsers.c
+        common/pktbuf.c
+        common/rand.c
+        common/time_extra.c
+        common/timer.c
+        tools/demo/eapol.c
+    )
+    target_include_directories(demo-eapol PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_compile_definitions(demo-eapol PRIVATE HAVE_MBEDTLS)
+    target_link_options(demo-eapol PRIVATE -Wl,--wrap=time)
+    target_link_libraries(demo-eapol PRIVATE MbedTLS::mbedtls)
 endif()
 
 add_custom_command(OUTPUT wsbrd.conf
