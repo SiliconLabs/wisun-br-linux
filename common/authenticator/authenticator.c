@@ -181,6 +181,7 @@ static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct 
 
     supp = zalloc(sizeof(struct auth_supp_ctx));
     supp->eui64 = *eui64;
+    supp->radius_id = -1;
     supp->replay_counter = -1;
     supp->rt_timer.period_ms = 30 * 1000, // Arbitrary
     supp->rt_timer.callback = auth_rt_timer_timeout;

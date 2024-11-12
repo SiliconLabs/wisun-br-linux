@@ -46,6 +46,11 @@ struct auth_supp_ctx {
 
     uint8_t eap_id;
 
+    int     radius_id;
+    uint8_t radius_auth[16];
+    uint8_t radius_state[253];
+    uint8_t radius_state_len;
+
     SLIST_ENTRY(auth_supp_ctx) link;
 };
 
@@ -68,6 +73,10 @@ struct auth_ctx {
     struct timer_entry gtk_install_timer;
     uint8_t cur_slot;
     uint8_t next_slot;
+
+    int     radius_fd;
+    char    radius_secret[256];
+    uint8_t radius_id_next;
 
     struct auth_supp_ctx_list supplicants;
     struct timer_group timer_group;
