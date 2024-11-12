@@ -61,6 +61,7 @@ struct auth_cfg {
     int gtk_expire_offset_s;
     int gtk_new_install_required; // Percentage of GTK_EXPIRE_OFFSET
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
+    int pmk_lifetime_s;
     int ptk_lifetime_s;
 };
 

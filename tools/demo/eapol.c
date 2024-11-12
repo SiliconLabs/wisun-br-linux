@@ -123,8 +123,9 @@ int main()
         .supp.on_failure    = supp_on_failure,
 
         .auth.cfg = &(struct auth_cfg){
-            .ptk_lifetime_s           = 120,
-            .gtk_expire_offset_s      = 60,
+            .pmk_lifetime_s           = 120,
+            .ptk_lifetime_s           = 60,
+            .gtk_expire_offset_s      = 30,
             .gtk_new_activation_time  = 720,
             .gtk_new_install_required = 80,
         },

@@ -32,6 +32,7 @@
 #include "common/pktbuf.h"
 #include "common/rand.h"
 #include "common/sys_queue_extra.h"
+#include "common/time_extra.h"
 
 #include "authenticator_radius.h"
 
@@ -40,6 +41,7 @@
  * - RFC 2865 Remote Authentication Dial In User Service (RADIUS)
  * - RFC 3579 RADIUS (Remote Authentication Dial In User Service) Support For
  *   Extensible Authentication Protocol (EAP)
+ * - RFC 2548 Microsoft Vendor-specific RADIUS Attributes
  * - IANA: https://www.iana.org/assignments/radius-types/radius-types.xhtml
  */
 
@@ -78,8 +80,18 @@ struct radius_hdr {
 // https://www.iana.org/assignments/radius-types/radius-types.xhtml#radius-types-2
 enum radius_attr_type {
     RADIUS_ATTR_STATE    = 24,
+    RADIUS_ATTR_VENDOR   = 26,
     RADIUS_ATTR_EAP_MSG  = 79,
     RADIUS_ATTR_MSG_AUTH = 80,
+};
+
+// Private Enterprise Numbers
+// https://www.iana.org/assignments/enterprise-numbers
+#define PEN_MICROSOFT 311
+
+// RFC 2548 2. Attributes
+enum radius_attr_ms {
+    RADIUS_ATTR_MS_MPPE_RECV_KEY = 17,
 };
 
 // RFC 2865 5. Attributes
@@ -125,6 +137,36 @@ static const struct radius_attr *radius_attr_find(const void *buf, size_t buf_le
     return NULL;
 }
 
+// NOTE: The same structure is used for vendor and regular attributes.
+// RFC 2865 5.26. Vendor-Specific
+static const struct radius_attr *radius_attr_find_vendor(const void *buf, size_t buf_len,
+                                                         uint32_t vendor_id, uint8_t vendor_type)
+{
+    struct iobuf_read iobuf_attr = { };
+    const struct radius_attr *attr;
+    struct iobuf_read iobuf = {
+        .data      = buf,
+        .data_size = buf_len,
+    };
+
+    while (iobuf_remaining_size(&iobuf)) {
+        attr = radius_attr_find(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf), RADIUS_ATTR_VENDOR);
+        if (!attr)
+            return NULL;
+        iobuf.cnt = (uintptr_t)attr - (uintptr_t)buf + attr->len;
+
+        iobuf_attr.cnt       = 0;
+        iobuf_attr.data      = attr->val;
+        iobuf_attr.data_size = attr->len - sizeof(*attr);
+        if (iobuf_pop_be32(&iobuf_attr) != vendor_id)
+            continue;
+        attr = radius_attr_find(iobuf_ptr(&iobuf_attr), iobuf_remaining_size(&iobuf_attr), vendor_type);
+        if (attr)
+            return attr;
+    }
+    return NULL;
+}
+
 /*
  *   RFC 2865 3. Packet Format
  * ResponseAuth = MD5(Code+ID+Length+RequestAuth+Attributes+Secret)
@@ -161,6 +203,96 @@ static int radius_read_state(struct auth_supp_ctx *supp, const void *buf, size_t
         return -EINVAL;
     supp->radius_state_len = attr->len - sizeof(*attr);
     memcpy(supp->radius_state, attr->val, supp->radius_state_len);
+    return 0;
+}
+
+/*
+ *   RFC 2548 2.4.3. MS-MPPE-Recv-Key
+ * Construct a plaintext version of the String field by concatenating the Key-
+ * Length and Key sub-fields. If necessary, pad the resulting string until its
+ * length (in octets) is an even multiple of 16. It is recommended that zero
+ * octets (0x00) be used for padding. Call this plaintext P. Call the shared
+ * secret S, the pseudo-random 128-bit Request Authenticator (from the
+ * corresponding Access-Request packet) R, and the contents of the Salt field
+ * A. Break P into 16 octet chunks p(1), p(2)...p(i), where i = len(P)/16. Call
+ * the ciphertext blocks c(1), c(2)...c(i) and the final ciphertext C.
+ * Intermediate values b(1), b(2)...c(i) are required. Encryption is performed
+ * in the following manner ('+' indicates concatenation):
+ *   b(1) = MD5(S + R + A)    c(1) = p(1) xor b(1)   C = c(1)
+ *   b(2) = MD5(S + c(1))     c(2) = p(2) xor b(2)   C = C + c(2)
+ *     ...
+ *   b(i) = MD5(S + c(i-1))   c(i) = p(i) xor b(i)   C = C + c(i)
+ * The resulting encrypted String field will contain c(1)+c(2)+...+c(i).
+ * On receipt, the process is reversed to yield the plaintext String.
+ */
+static void radius_ms_mppe_key_decrypt(void *restrict out, const void *restrict in, size_t len,
+                                       const char *secret, const uint8_t auth[16], const uint8_t salt[2])
+{
+    mbedtls_md5_context md5;
+    const uint8_t *in8 = in;
+    uint8_t *out8 = out;
+    uint8_t b[16];
+
+    BUG_ON(len % 16);
+    mbedtls_md5_init(&md5);
+
+    for (int i = len / 16 - 1; i > 0; i--) {
+        xmbedtls_md5_starts(&md5);
+        xmbedtls_md5_update(&md5, (uint8_t *)secret, strlen(secret));
+        xmbedtls_md5_update(&md5, in8 + 16 * (i - 1), 16);
+        xmbedtls_md5_finish(&md5, b);
+
+        for (int j = 0; j < 16; j++)
+            out8[16 * i + j] = in8[16 * i + j] ^ b[j];
+    }
+
+    xmbedtls_md5_starts(&md5);
+    xmbedtls_md5_update(&md5, (uint8_t *)secret, strlen(secret));
+    xmbedtls_md5_update(&md5, auth, 16);
+    xmbedtls_md5_update(&md5, salt, 2);
+    xmbedtls_md5_finish(&md5, b);
+
+    for (int j = 0; j < 16; j++)
+        out8[j] = in8[j] ^ b[j];
+
+    mbedtls_md5_free(&md5);
+}
+
+// RFC 2548 2.4.3. MS-MPPE-Recv-Key
+static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                                        const void *buf, size_t buf_len)
+{
+    const struct radius_attr *attr;
+    struct iobuf_read iobuf = { };
+    uint8_t string[48];
+    uint8_t salt[2];
+    uint8_t key_len;
+
+    iobuf.data      = buf;
+    iobuf.data_size = buf_len;
+    iobuf_pop_data_ptr(&iobuf, sizeof(struct radius_hdr));
+    attr = radius_attr_find_vendor(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
+                                   PEN_MICROSOFT, RADIUS_ATTR_MS_MPPE_RECV_KEY);
+    if (!attr)
+        return -ENODATA;
+    iobuf.cnt       = 0;
+    iobuf.data      = attr->val;
+    iobuf.data_size = attr->len - sizeof(*attr);
+    iobuf_pop_data(&iobuf, salt, sizeof(salt));
+    if (iobuf_remaining_size(&iobuf) != sizeof(string))
+        return -EINVAL;
+
+    radius_ms_mppe_key_decrypt(string, iobuf_ptr(&iobuf), sizeof(string),
+                               auth->radius_secret, supp->radius_auth, salt);
+
+    iobuf.cnt       = 0;
+    iobuf.data      = string;
+    iobuf.data_size = sizeof(string);
+    key_len = iobuf_pop_u8(&iobuf);
+    if (key_len != sizeof(supp->pmk))
+        return -EINVAL;
+    iobuf_pop_data(&iobuf, supp->pmk, sizeof(supp->pmk));
+    supp->pmk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->pmk_lifetime_s;
     return 0;
 }
 
@@ -296,6 +428,12 @@ void radius_recv(struct auth_ctx *auth)
         }
         break;
     case RADIUS_ACCESS_ACCEPT:
+        // Use a vendor attribute to retrieve the PMK.
+        ret = radius_read_ms_mppe_recv_key(auth, supp, iobuf.data, iobuf.data_size);
+        if (ret < 0) {
+            TRACE(TR_DROP, "drop %-9s: missing MS-MPPE-Recv-Key attribute", "radius");
+            return;
+        }
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code=%u", "radius", hdr->code);
