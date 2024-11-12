@@ -27,8 +27,7 @@ struct eap_hdr {
     be16_t  length;
 } __attribute__((packed));
 
-extern const struct name_value eap_frames[];
-extern const struct name_value eap_types[];
+void eap_trace(const char *prefix, const void *buf, size_t buf_len);
 
 void eap_write_hdr_head(struct pktbuf *buf, uint8_t code, uint8_t identifier, uint8_t type);
 

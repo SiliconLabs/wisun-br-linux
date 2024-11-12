@@ -15,23 +15,57 @@
 #include <endian.h>
 
 #include "common/specs/eap.h"
+#include "common/iobuf.h"
+#include "common/log.h"
 #include "common/pktbuf.h"
 
 #include "eap.h"
 
-const struct name_value eap_frames[] = {
-    { "request",  EAP_CODE_REQUEST },
-    { "response", EAP_CODE_RESPONSE },
-    { "success",  EAP_CODE_SUCCESS },
-    { "failure",  EAP_CODE_FAILURE },
-};
+static const char *tr_eap_code(uint8_t code)
+{
+    static const struct name_value table[] = {
+        { "request",  EAP_CODE_REQUEST },
+        { "response", EAP_CODE_RESPONSE },
+        { "success",  EAP_CODE_SUCCESS },
+        { "failure",  EAP_CODE_FAILURE },
+        { }
+    };
 
-const struct name_value eap_types[] = {
-    { "identity",     EAP_TYPE_IDENTITY },
-    { "notification", EAP_TYPE_NOTIFICATION },
-    { "nak",          EAP_TYPE_NAK },
-    { "tls",          EAP_TYPE_TLS },
-};
+    return val_to_str(code, table, "unknown");
+}
+
+static const char *tr_eap_type(uint8_t type)
+{
+    static const struct name_value table[] = {
+        { "identity",     EAP_TYPE_IDENTITY },
+        { "notification", EAP_TYPE_NOTIFICATION },
+        { "nak",          EAP_TYPE_NAK },
+        { "tls",          EAP_TYPE_TLS },
+        { }
+    };
+
+    return val_to_str(type, table, "unknown");
+}
+
+void eap_trace(const char *prefix, const void *buf, size_t buf_len)
+{
+    struct iobuf_read iobuf = {
+        .data      = buf,
+        .data_size = buf_len,
+    };
+    struct eap_hdr eap;
+    uint8_t type;
+
+    iobuf_pop_data(&iobuf, &eap, sizeof(eap));
+    if (eap.code == EAP_CODE_REQUEST || eap.code == EAP_CODE_RESPONSE) {
+        type = iobuf_pop_u8(&iobuf);
+        TRACE(TR_SECURITY, "sec: %-8s code=%-8s id=%-3u type=%s", prefix,
+              tr_eap_code(eap.code), eap.identifier, tr_eap_type(type));
+    } else {
+        TRACE(TR_SECURITY, "sec: %-8s code=%-8s id=%u", prefix,
+              tr_eap_code(eap.code), eap.identifier);
+    }
+}
 
 void eap_write_hdr_head(struct pktbuf *buf, uint8_t code, uint8_t identifier, uint8_t type)
 {

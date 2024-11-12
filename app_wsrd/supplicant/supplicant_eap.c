@@ -30,9 +30,8 @@
 static void supp_eap_send_response(struct supplicant_ctx *supp, uint8_t identifier, uint8_t type, struct pktbuf *buf)
 {
     eap_write_hdr_head(buf, EAP_CODE_RESPONSE, identifier, type);
+    eap_trace("tx-eap", pktbuf_head(buf), pktbuf_len(buf));
     eapol_write_hdr_head(buf, EAPOL_PACKET_TYPE_EAP);
-    TRACE(TR_SECURITY, "sec: %-8s code=%-8s type=%-8s id=%d", "tx-eap",
-          val_to_str(EAP_CODE_RESPONSE, eap_frames, "[UNK]"), val_to_str(type, eap_types, "[UNK]"), identifier);
     pktbuf_free(&supp->rt_buffer);
     pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(buf), pktbuf_len(buf));
     supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, buf);
@@ -241,9 +240,6 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
         return;
     }
 
-    TRACE(TR_SECURITY, "sec: %-8s code=%-8s type=%-8s id=%d", "rx-eap",
-          val_to_str(eap_hdr->code, eap_frames, "[UNK]"), val_to_str(type, eap_types, "[UNK]"), eap_hdr->identifier);
-
     /*
      *   RFC3748 - 4.1. Request and Response
      * If a peer receives a valid duplicate Request for which it has
@@ -307,20 +303,15 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
 
 void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
 {
-    const struct eap_hdr *eap_hdr = iobuf_pop_data_ptr(iobuf, sizeof(*eap_hdr));
+    const struct eap_hdr *eap_hdr;
 
+    eap_trace("rx-eap", iobuf_ptr(iobuf), iobuf_remaining_size(iobuf));
+
+    eap_hdr = iobuf_pop_data_ptr(iobuf, sizeof(*eap_hdr));
     if (!eap_hdr) {
         TRACE(TR_DROP, "drop %-9s: invalid eap header", "eap");
         return;
     }
-
-    /*
-     * eap requests have a type while other eap packets do not, with this we
-     * ensure to trace only once eap requests
-     */
-    if (eap_hdr->code != EAP_CODE_REQUEST)
-        TRACE(TR_SECURITY, "sec: %-8s code=%-8s id=%d", "rx-eap", val_to_str(eap_hdr->code, eap_frames, "[UNK]"),
-              eap_hdr->identifier);
 
     switch (eap_hdr->code) {
     case EAP_CODE_REQUEST:
