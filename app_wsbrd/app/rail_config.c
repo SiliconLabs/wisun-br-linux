@@ -91,9 +91,6 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
                 phy_params = ws_regdb_phy_params(*phy_mode, 0);
                 if (i >= ARRAY_SIZE(phy_config->phy_op_modes) - 1)
                     continue;
-                // Ignore base mode
-                if (phy_params->phy_mode_id == ctxt->config.ws_phy_mode_id)
-                    continue;
                 // Ignore FAN1.0
                 if (!chan_params->chan_plan_id)
                     continue;
@@ -109,6 +106,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
                     continue;
                 if (rail_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                     continue;
+                // Ignore base mode
                 if (phy_config->params->phy_mode_id == phy_params->phy_mode_id)
                     continue;
                 phy_config->phy_op_modes[i++] = *phy_mode;
