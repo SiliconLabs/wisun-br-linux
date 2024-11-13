@@ -448,6 +448,8 @@ void radius_recv(struct auth_ctx *auth)
             return;
         }
         break;
+    case RADIUS_ACCESS_REJECT:
+        break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code=%u", "radius", hdr->code);
         return;
