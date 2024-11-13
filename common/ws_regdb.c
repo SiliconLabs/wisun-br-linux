@@ -188,8 +188,9 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_NA, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, {  2,  3, 18, 19, 84, 85, 86, }, },
     { REG_DOMAIN_NA, 2, HIF_REG_NONE,   2,  902400000,  400000,  64, {  5,  6, 21, 22, 68, 69, 70, }, },
     { REG_DOMAIN_NA, 3, HIF_REG_NONE,   3,  902600000,  600000,  42, {  8, 24,                     }, },
-    { REG_DOMAIN_NA, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 51, 52, 53, 54,             }, },
-    { REG_DOMAIN_NA, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 34, 35, 36, 37, 38,         }, },
+    // NOTE: For the following 2 entries, the default RAIL radioconf provides an invalid channel count so a channel mask is used.
+    { REG_DOMAIN_NA, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 51, 52, 53, 54,             }, .chan_allowed = "0-30" },
+    { REG_DOMAIN_NA, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 34, 35, 36, 37, 38,         }, .chan_allowed = "0-19" },
     { REG_DOMAIN_PH, 1, HIF_REG_NONE,   0,  915200000,  200000,  14, {  2,  3,                     }, },
     { REG_DOMAIN_PH, 2, HIF_REG_NONE,   0,  915400000,  400000,   7, {  5,  6,  8,                 }, },
     { REG_DOMAIN_PH, 0, HIF_REG_NONE,  48,  915200000,  200000,  64, {  2,  3,  18, 19             }, .chan_allowed = "0-13", },
