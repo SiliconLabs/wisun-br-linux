@@ -64,7 +64,6 @@ static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
 static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 {
     struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
-    const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
@@ -105,12 +104,12 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
                 if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
                     continue;
                 // If base PHY is OFDM, we can only switch to another MCS
-                if (base_phy_params->modulation == MODULATION_OFDM &&
-                    base_phy_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                if (phy_config->params->modulation == MODULATION_OFDM &&
+                    phy_config->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                     continue;
                 if (rail_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                     continue;
-                if (base_phy_params->phy_mode_id == phy_params->phy_mode_id)
+                if (phy_config->params->phy_mode_id == phy_params->phy_mode_id)
                     continue;
                 phy_config->phy_op_modes[i++] = *phy_mode;
             }
