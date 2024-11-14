@@ -25,7 +25,7 @@
 #include "common/rand.h"
 #include "common/log.h"
 #include "common/mathutils.h"
-#include "common/pktbuf.h"
+#include "common/mbedtls_extra.h"
 #include "common/eapol.h"
 
 #include "ieee80211.h"
@@ -33,20 +33,26 @@
 bool ieee80211_is_mic_valid(const uint8_t ptk[48], const struct eapol_key_frame *frame,
                             const uint8_t *data, size_t data_len)
 {
-    struct pktbuf buf = { };
-    uint8_t mic[16] = { };
+    struct eapol_hdr eapol = {
+        .protocol_version   = EAPOL_PROTOCOL_VERSION,
+        .packet_type        = EAPOL_PACKET_TYPE_KEY,
+        .packet_body_length = htobe16(sizeof(*frame) + data_len),
+    };
+    mbedtls_md_context_t sha1;
+    uint8_t hmac[20] = { };
 
-    pktbuf_push_tail(&buf, frame, sizeof(*frame));
-    memset(pktbuf_head(&buf) + offsetof(struct eapol_key_frame, mic), 0, sizeof(frame->mic));
-    pktbuf_push_tail(&buf, data, data_len);
-    eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
-
-    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
-                 pktbuf_head(&buf), pktbuf_len(&buf),
-                 mic, sizeof(mic));
-
-    pktbuf_free(&buf);
-    return !memcmp(mic, frame->mic, sizeof(mic));
+    mbedtls_md_init(&sha1);
+    xmbedtls_md_setup(&sha1, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), 1);
+    xmbedtls_md_hmac_starts(&sha1, ptk, IEEE80211_AKM_1_KCK_LEN_BYTES);
+    xmbedtls_md_hmac_update(&sha1, (uint8_t *)&eapol, sizeof(eapol));
+    xmbedtls_md_hmac_update(&sha1, (uint8_t *)frame, offsetof(struct eapol_key_frame, mic));
+    xmbedtls_md_hmac_update(&sha1, hmac, sizeof(frame->mic));
+    xmbedtls_md_hmac_update(&sha1, (uint8_t *)frame + offsetof(struct eapol_key_frame, mic) + sizeof(frame->mic),
+                            sizeof(*frame) - offsetof(struct eapol_key_frame, mic) - sizeof(frame->mic));
+    xmbedtls_md_hmac_update(&sha1, data, data_len);
+    xmbedtls_md_hmac_finish(&sha1, hmac);
+    mbedtls_md_free(&sha1);
+    return !memcmp(hmac, frame->mic, sizeof(frame->mic));
 }
 
 void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
