@@ -15,6 +15,7 @@ cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
 set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Router implementation")
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
+set(COMPILE_DEMOS    OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
@@ -657,6 +658,26 @@ if(COMPILE_DEVTOOLS)
             install(TARGETS wsrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
         endif()
     endif()
+endif()
+
+if(COMPILE_DEMOS)
+    add_executable(demo-timer
+        common/bits.c
+        common/log.c
+        common/time_extra.c
+        common/timer.c
+        tools/demo/timer.c
+    )
+    target_include_directories(demo-timer PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+
+    add_executable(demo-tun
+        common/bits.c
+        common/log.c
+        common/tun.c
+        tools/demo/tun.c
+    )
+    target_include_directories(demo-tun PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_link_libraries(demo-tun PRIVATE PkgConfig::LIBNL_ROUTE)
 endif()
 
 add_custom_command(OUTPUT wsbrd.conf
