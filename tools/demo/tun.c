@@ -21,7 +21,7 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include "common/ipv6_cksum.h"
+#include "common/ipv6/ipv6_cksum.h"
 #include "common/log.h"
 #include "common/tun.h"
 
