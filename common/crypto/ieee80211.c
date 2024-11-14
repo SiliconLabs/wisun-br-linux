@@ -61,22 +61,20 @@ void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
 {
     // Original algorithm works on block of 160 bits. This implementation refers
     // to 20 bytes instead.
-    int input_len = strlen(label) + 1 + data_len + 1;
-    int output_len = roundup(result_size, 20);
-    uint8_t input[input_len];
-    uint8_t output[output_len];
-    int i;
+    mbedtls_md_context_t sha1;
+    uint8_t hmac[20];
 
-    BUG_ON(result_size > output_len);
-    strcpy((char *)input, label);                      // A
-    input[strlen(label) + 1] = 0;                      // Y
-    memcpy(input + strlen(label) + 1, data, data_len); // B
-    for (i = 0; i < output_len / 20; i++) {
-        input[strlen(label) + 1 + data_len] = i;       // X
-        hmac_md_sha1(key, key_len, input, input_len, output + i * 20, 20);
+    mbedtls_md_init(&sha1);
+    xmbedtls_md_setup(&sha1, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), 1);
+    for (uint8_t i = 0; i < roundup(result_size, 20) / 20; i++) {
+        xmbedtls_md_hmac_starts(&sha1, key, key_len);
+        xmbedtls_md_hmac_update(&sha1, (uint8_t *)label, strlen(label) + 1); // A + Y
+        xmbedtls_md_hmac_update(&sha1, data, data_len);                      // B
+        xmbedtls_md_hmac_update(&sha1, &i, 1);                               // X
+        xmbedtls_md_hmac_finish(&sha1, hmac);
+        memcpy(result + i * 20, hmac, MIN(20, result_size - i * 20));
     }
-
-    memcpy(result, output, result_size);
+    mbedtls_md_free(&sha1);
 }
 
 void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32])
