@@ -30,11 +30,11 @@
  * Returns 0 on success.
  */
 
-int hmac_md_sha1(const uint8_t *key, size_t key_len,
+void hmac_md_sha1(const uint8_t *key, size_t key_len,
+                  const uint8_t *data, size_t data_len,
+                  uint8_t *result, size_t result_len);
+void hmac_md_md5(const uint8_t *key, size_t key_len,
                  const uint8_t *data, size_t data_len,
                  uint8_t *result, size_t result_len);
-int hmac_md_md5(const uint8_t *key, size_t key_len,
-                const uint8_t *data, size_t data_len,
-                uint8_t *result, size_t result_len);
 
 #endif

@@ -81,7 +81,6 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
                                   uint8_t kmp_id, bool mic)
 {
     struct pktbuf message = { };
-    int ret;
 
     supp->replay_counter++;
     frame->replay_counter = htobe64(supp->replay_counter);
@@ -101,9 +100,9 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
          *   IEEE 802.11-2020, 12.7.6 4-way handshake
          * MIC(KCK, EAPOL)
          */
-        ret = hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(&message), pktbuf_len(&message),
-                           frame->mic, sizeof(frame->mic));
-        FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+        hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
+                     pktbuf_head(&message), pktbuf_len(&message),
+                     frame->mic, sizeof(frame->mic));
 
         // Update MIC
         memcpy(pktbuf_head(&message) + sizeof(struct eapol_hdr) + offsetof(struct eapol_key_frame, mic),

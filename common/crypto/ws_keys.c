@@ -47,10 +47,8 @@ void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const u
     } data = {
         .pmk_name = "PTK Name",
     };
-    int ret;
 
     memcpy(data.auth_eui64, auth_eui64, sizeof(data.auth_eui64));
     memcpy(data.supp_eui64, supp_eui64, sizeof(data.supp_eui64));
-    ret = hmac_md_sha1(ptk, 48, (const uint8_t *)&data, sizeof(data), ptkid, 16);
-    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+    hmac_md_sha1(ptk, 48, (const uint8_t *)&data, sizeof(data), ptkid, 16);
 }

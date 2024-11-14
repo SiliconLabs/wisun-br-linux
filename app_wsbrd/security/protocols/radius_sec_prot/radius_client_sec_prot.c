@@ -831,9 +831,7 @@ static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot
     tr_error("FATAL: MD5 MBEDTLS_MD5_C not enabled");
 #endif
 
-    if (hmac_md_md5(key, key_len, msg_ptr, msg_len, auth_ptr, 16) < 0) {
-        return -1;
-    }
+    hmac_md_md5(key, key_len, msg_ptr, msg_len, auth_ptr, 16);
 
     return 0;
 }

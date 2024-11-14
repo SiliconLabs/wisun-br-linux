@@ -255,9 +255,7 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_md_sha1(pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN) < 0) {
-        return -1;
-    }
+    hmac_md_sha1(pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN);
 
     tr_debug("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
     return 0;
@@ -277,9 +275,7 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_md_sha1(ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN) < 0) {
-        return -1;
-    }
+    hmac_md_sha1(ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN);
 
     tr_info("PTKID %s EUI-64 %s %s", trace_array(ptkid, PTKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
     return 0;
@@ -311,10 +307,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 
     if (eapol_pdu->msg.key.key_information.key_mic) {
         uint8_t mic[EAPOL_KEY_MIC_LEN];
-        if (hmac_md_sha1(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
-            free(eapol_pdu_frame);
-            return NULL;
-        }
+        hmac_md_sha1(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN);
         eapol_write_key_packet_mic(eapol_pdu_frame + header_size, mic);
     }
 
@@ -362,10 +355,7 @@ int8_t sec_prot_lib_mic_validate(uint8_t *ptk, const uint8_t *mic, uint8_t *pdu,
     eapol_write_key_packet_mic(pdu, 0);
 
     uint8_t calc_mic[EAPOL_KEY_MIC_LEN];
-    if (hmac_md_sha1(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
-        tr_error("MIC invalid");
-        return -1;
-    }
+    hmac_md_sha1(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN);
     if (memcmp(recv_mic, calc_mic, EAPOL_KEY_MIC_LEN) != 0) {
         tr_error("MIC invalid");
         return -1;

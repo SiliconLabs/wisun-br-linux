@@ -35,15 +35,15 @@ bool ieee80211_is_mic_valid(const uint8_t ptk[48], const struct eapol_key_frame 
 {
     struct pktbuf buf = { };
     uint8_t mic[16] = { };
-    int ret;
 
     pktbuf_push_tail(&buf, frame, sizeof(*frame));
     memset(pktbuf_head(&buf) + offsetof(struct eapol_key_frame, mic), 0, sizeof(frame->mic));
     pktbuf_push_tail(&buf, data, data_len);
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
 
-    ret = hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(&buf), pktbuf_len(&buf), mic, sizeof(mic));
-    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
+                 pktbuf_head(&buf), pktbuf_len(&buf),
+                 mic, sizeof(mic));
 
     pktbuf_free(&buf);
     return !memcmp(mic, frame->mic, sizeof(mic));
@@ -59,7 +59,7 @@ void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
     int output_len = roundup(result_size, 20);
     uint8_t input[input_len];
     uint8_t output[output_len];
-    int ret, i;
+    int i;
 
     BUG_ON(result_size > output_len);
     strcpy((char *)input, label);                      // A
@@ -67,8 +67,7 @@ void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
     memcpy(input + strlen(label) + 1, data, data_len); // B
     for (i = 0; i < output_len / 20; i++) {
         input[strlen(label) + 1 + data_len] = i;       // X
-        ret = hmac_md_sha1(key, key_len, input, input_len, output + i * 20, 20);
-        FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+        hmac_md_sha1(key, key_len, input, input_len, output + i * 20, 20);
     }
 
     memcpy(result, output, result_size);
@@ -125,10 +124,8 @@ void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], 
     } data = {
         .pmk_name = "PMK Name",
     };
-    int ret;
 
     memcpy(data.auth_eui64, auth_eui64, sizeof(data.auth_eui64));
     memcpy(data.supp_eui64, supp_eui64, sizeof(data.supp_eui64));
-    ret = hmac_md_sha1(pmk, 32, (const uint8_t *)&data, sizeof(data), pmkid, 16);
-    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+    hmac_md_sha1(pmk, 32, (const uint8_t *)&data, sizeof(data), pmkid, 16);
 }

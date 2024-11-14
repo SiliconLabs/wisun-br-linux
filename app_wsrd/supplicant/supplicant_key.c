@@ -37,7 +37,6 @@
 static void supp_key_message_send(struct supplicant_ctx *supp, struct eapol_key_frame *response, uint8_t kmp_id)
 {
     struct pktbuf buf = { };
-    int ret;
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -52,9 +51,9 @@ static void supp_key_message_send(struct supplicant_ctx *supp, struct eapol_key_
      *   IEEE 802.11-2020, 12.7.6 4-way handshake
      * MIC(KCK, EAPOL)
      */
-    ret = hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(&buf), pktbuf_len(&buf),
-                       response->mic, sizeof(response->mic));
-    FATAL_ON(ret, 2, "%s: hmac_md_sha1: %s", __func__, strerror(-ret));
+    hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
+                 pktbuf_head(&buf), pktbuf_len(&buf),
+                 response->mic, sizeof(response->mic));
 
     // Update MIC
     pktbuf_pop_tail(&buf, NULL, sizeof(*response));
