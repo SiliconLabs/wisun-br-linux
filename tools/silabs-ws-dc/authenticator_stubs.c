@@ -20,6 +20,11 @@
  * replace authenticator_eap.c.
  */
 
+void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
+{
+    TRACE(TR_DROP, "drop %-9s: EAP support disabled", "eap");
+}
+
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     FATAL(3, "PMK mismatch");

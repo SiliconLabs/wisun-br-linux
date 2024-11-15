@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/authenticator/authenticator.h"
+#include "common/authenticator/authenticator_radius.h"
 #include "common/specs/eap.h"
 #include "common/specs/eapol.h"
 #include "common/specs/ieee802159.h"
@@ -46,4 +47,29 @@ void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx 
     eap_write_hdr_head(&pktbuf, EAP_CODE_REQUEST, supp->eap_id + 1, EAP_TYPE_IDENTITY);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
+}
+
+void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
+{
+    const struct eap_hdr *eap;
+
+    eap_trace("rx-eap", buf, buf_len);
+
+    if (buf_len < sizeof(*eap)) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "eap");
+        return;
+    }
+    eap = buf;
+    if (eap->identifier != supp->eap_id) {
+        TRACE(TR_DROP, "drop %-9s: invalid identifier", "eap");
+        return;
+    }
+
+    timer_stop(&auth->timer_group, &supp->rt_timer);
+
+    if (auth->radius_fd >= 0)
+        radius_send_eap(auth, supp, buf, buf_len);
+    else
+        // TODO: internal EAP-TLS implementation without RADIUS
+        TRACE(TR_DROP, "drop %-9s: support disabled", "eap");
 }

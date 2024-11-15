@@ -33,6 +33,7 @@
 #include "common/bits.h"
 #include "common/log.h"
 
+#include "authenticator_eap.h"
 #include "authenticator_key.h"
 
 #include "authenticator.h"
@@ -255,6 +256,9 @@ void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *e
     supp = auth_fetch_supp(ctx, eui64);
 
     switch (eapol_hdr->packet_type) {
+    case EAPOL_PACKET_TYPE_EAP:
+        auth_eap_recv(ctx, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+        break;
     case EAPOL_PACKET_TYPE_KEY:
         auth_key_recv(ctx, supp, &iobuf);
         break;
