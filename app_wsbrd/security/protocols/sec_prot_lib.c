@@ -27,6 +27,7 @@
 #include "common/crypto/ieee80211.h"
 #include "common/crypto/hmac_md.h"
 #include "common/crypto/nist_kw.h"
+#include "common/crypto/ws_keys.h"
 #include "common/rand.h"
 #include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
@@ -241,26 +242,6 @@ void sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const uin
 #endif
 }
 
-int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, const uint8_t *supp_eui64, uint8_t *ptkid)
-{
-    const uint8_t ptk_string_val[] = {"PTK Name"};
-    const uint8_t ptk_string_val_len = sizeof(ptk_string_val) - 1;
-
-    uint8_t data_len = ptk_string_val_len + EUI64_LEN + EUI64_LEN;
-    uint8_t data[data_len];
-    uint8_t *ptr = data;
-    memcpy(ptr, ptk_string_val, ptk_string_val_len);
-    ptr += ptk_string_val_len;
-    memcpy(ptr, auth_eui64, EUI64_LEN);
-    ptr += EUI64_LEN;
-    memcpy(ptr, supp_eui64, EUI64_LEN);
-
-    hmac_md_sha1(ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN);
-
-    tr_info("PTKID %s EUI-64 %s %s", trace_array(ptkid, PTKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
-    return 0;
-}
-
 uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len, eapol_pdu_t *eapol_pdu, uint16_t eapol_pdu_size, uint8_t header_size)
 {
     uint8_t *eapol_pdu_frame = malloc(header_size + eapol_pdu_size);
@@ -391,11 +372,11 @@ int8_t sec_prot_lib_ptkid_generate(sec_prot_t *prot, uint8_t *ptkid, bool is_aut
         return -1;
     }
 
-    if (is_auth) {
-        return sec_prot_lib_ptkid_calc(ptk, local_eui64, remote_eui64, ptkid);
-    } else {
-        return sec_prot_lib_ptkid_calc(ptk, remote_eui64, local_eui64, ptkid);
-    }
+    if (is_auth)
+        ws_derive_ptkid(ptk, local_eui64, remote_eui64, ptkid);
+    else
+        ws_derive_ptkid(ptk, remote_eui64, local_eui64, ptkid);
+    return 0;
 }
 
 int8_t sec_prot_lib_gtkhash_generate(uint8_t *gtk, uint8_t *gtk_hash)
