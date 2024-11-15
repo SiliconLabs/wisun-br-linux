@@ -49,6 +49,15 @@ void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx 
     pktbuf_free(&pktbuf);
 }
 
+void auth_eap_send_failure(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    struct pktbuf pktbuf = { };
+
+    eap_write_hdr_head(&pktbuf, EAP_CODE_FAILURE, supp->eap_id + 1, 0);
+    auth_eap_send(auth, supp, &pktbuf);
+    pktbuf_free(&pktbuf);
+}
+
 void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
 {
     const struct eap_hdr *eap;

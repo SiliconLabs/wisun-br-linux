@@ -457,7 +457,10 @@ void radius_recv(struct auth_ctx *auth)
 
     ret = radius_verify_msg_auth(auth, supp, iobuf.data, iobuf.data_size);
     if (ret < 0) {
-        TRACE(TR_DROP, "drop %-9s: invalid message authenticator", "radius");
+        if (hdr->code == RADIUS_ACCESS_REJECT)
+            auth_eap_send_failure(auth, supp);
+        else
+            TRACE(TR_DROP, "drop %-9s: invalid message authenticator", "radius");
         return;
     }
 
