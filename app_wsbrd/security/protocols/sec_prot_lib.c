@@ -241,26 +241,6 @@ void sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const uin
 #endif
 }
 
-int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, const uint8_t *supp_eui64, uint8_t *pmkid)
-{
-    const uint8_t pmk_string_val[] = {"PMK Name"};
-    const uint8_t pmk_string_val_len = sizeof(pmk_string_val) - 1;
-
-    uint8_t data_len = pmk_string_val_len + EUI64_LEN + EUI64_LEN;
-    uint8_t data[data_len];
-    uint8_t *ptr = data;
-    memcpy(ptr, pmk_string_val, pmk_string_val_len);
-    ptr += pmk_string_val_len;
-    memcpy(ptr, auth_eui64, EUI64_LEN);
-    ptr += EUI64_LEN;
-    memcpy(ptr, supp_eui64, EUI64_LEN);
-
-    hmac_md_sha1(pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN);
-
-    tr_debug("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
-    return 0;
-}
-
 int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, const uint8_t *supp_eui64, uint8_t *ptkid)
 {
     const uint8_t ptk_string_val[] = {"PTK Name"};
@@ -390,11 +370,11 @@ int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_aut
         memcpy(used_remote_eui64, remote_eui64, 8);
     }
 
-    if (is_auth) {
-        return sec_prot_lib_pmkid_calc(pmk, local_eui64, remote_eui64, pmkid);
-    } else {
-        return sec_prot_lib_pmkid_calc(pmk, remote_eui64, local_eui64, pmkid);
-    }
+    if (is_auth)
+        ieee80211_derive_pmkid(pmk, local_eui64, remote_eui64, pmkid);
+    else
+        ieee80211_derive_pmkid(pmk, remote_eui64, local_eui64, pmkid);
+    return 0;
 }
 
 int8_t sec_prot_lib_ptkid_generate(sec_prot_t *prot, uint8_t *ptkid, bool is_auth)

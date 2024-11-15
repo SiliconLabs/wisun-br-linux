@@ -71,19 +71,6 @@ void sec_prot_lib_nonce_init(uint8_t *nonce, uint8_t *eui64, uint64_t time);
 void sec_prot_lib_nonce_generate(uint8_t *nonce);
 
 /**
- * sec_prot_lib_pmkid_calc calculates PKMID from PMK
- *
- * \param pmk PMK
- * \param auth_eui64 authenticator EUI-64
- * \param supp_eui64 supplicant EUI-64
- * \param pmkid PMKID
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, const uint8_t *supp_eui64, uint8_t *pmkid);
-
-/**
  * sec_prot_lib_ptkid_calc calculates PTMID from PTK
  *
  * \param pmk PTK
