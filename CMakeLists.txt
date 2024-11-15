@@ -361,7 +361,23 @@ target_link_libraries(wsrd libwsrd)
 install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
+    message(STATUS "Checking for 'wsbrd_cli' dependencies")
+    execute_process(
+        COMMAND ${CARGO_COMMAND} check --offline
+                                       --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/tools/wsbrd_cli/Cargo.toml
+        RESULT_VARIABLE CARGO_CHECK_RESULT
+    )
+    if(CARGO_CHECK_RESULT EQUAL 0)
+        message(STATUS "Checking for 'wsbrd_cli' dependencies - Success")
+        set(WSBRD_CLI_DEPENDENCIES_FOUND TRUE)
+    else()
+        message(STATUS "Checking for 'wsbrd_cli' dependencies - Missing")
+        message(STATUS "   Download them with 'cargo fetch' and re-run CMake.")
+    endif()
+    unset(CARGO_CHECK_RESULT)
+endif()
 
+if(WSBRD_CLI_DEPENDENCIES_FOUND)
     string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
     if(NOT CMAKE_BUILD_TYPE_UPPER OR CMAKE_BUILD_TYPE_UPPER STREQUAL DEBUG)
         set(RUST_TARGET_DIR cargo/${RUST_TARGET}/debug)
@@ -374,6 +390,7 @@ if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
     add_custom_target(cargo-wsbrd_cli ALL DEPENDS wsbrd_cli)
     add_custom_command(OUTPUT wsbrd_cli
         COMMAND ${CARGO_COMMAND} build ${RUST_BUILD_FLAG} --target=${RUST_TARGET} --target-dir=cargo/
+                                       --offline
                                        --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/tools/wsbrd_cli/Cargo.toml
         COMMAND ${CMAKE_COMMAND} -E copy ${RUST_TARGET_DIR}/wsbrd_cli wsbrd_cli
         DEPENDS tools/wsbrd_cli/Cargo.toml tools/wsbrd_cli/wsbrd_cli.rs tools/wsbrd_cli/wsbrddbusapi.rs
