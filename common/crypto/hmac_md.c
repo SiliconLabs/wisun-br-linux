@@ -31,16 +31,11 @@ static void hmac_md_calc(mbedtls_md_type_t md_type,
                          const uint8_t *data, size_t data_len,
                          uint8_t *result, size_t result_len)
 {
-    mbedtls_md_context_t ctx;
     uint8_t result_value[20];
 
     BUG_ON(result_len > 20);
-    mbedtls_md_init(&ctx);
-    xmbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 1);
-    xmbedtls_md_hmac_starts(&ctx, key, key_len);
-    xmbedtls_md_hmac_update(&ctx, data, data_len);
-    xmbedtls_md_hmac_finish(&ctx, result_value);
-    mbedtls_md_free(&ctx);
+    xmbedtls_md_hmac(mbedtls_md_info_from_type(md_type),
+                     key, key_len, data, data_len, result_value);
     memcpy(result, result_value, result_len);
 }
 
