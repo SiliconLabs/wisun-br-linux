@@ -146,9 +146,8 @@ const struct phy_params phy_params_table[] = {
 };
 
 const struct chan_params chan_params_table[] = {
-    /*                                                chan_count -.
-                          chan_plan_id -.     chan_spacing -.     |    ,- chan_count_valid
-         domain   class regional_reg    |   chan0_freq      |     |    |      valid_phy_modes */
+    /*                    chan_plan_id -.     chan_spacing -.     ,- chan_count
+         domain   class regional_reg    |   chan0_freq      |     |    valid_phy_modes */
     { REG_DOMAIN_AZ, 1, HIF_REG_NONE,  48,  915200000,  200000,  64, {  2,  3, 18, 19              }, }, // REG_DOMAIN_AZ and REG_DOMAIN_NZ share the same ID
     { REG_DOMAIN_AZ, 2, HIF_REG_NONE,  49,  915400000,  400000,  32, {  5,  6,  8, 21, 22, 24      }, },
     { REG_DOMAIN_BZ, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, {  2,  3, 18, 19, 84, 85, 86, }, .chan_allowed = "0-25,65-255", },
