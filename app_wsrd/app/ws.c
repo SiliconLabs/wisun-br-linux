@@ -128,8 +128,11 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
      * where,
      * PRC_WEIGHT_FACTOR = 256
      * PS_WEIGHT_FACTOR  = 64
+     *
+     * NOTE: PanCost precision is improved by avoiding truncation caused by
+     * integer division.
      */
-    ind->neigh->pan_cost = ie_pan->routing_cost / 256 + ie_pan->pan_size / 64;
+    ind->neigh->pan_cost = ie_pan->routing_cost + ie_pan->pan_size * 4;
     ind->neigh->pan_id   = ind->hdr.pan_id;
     ind->neigh->last_pa_rx_time_s = time_now_s(CLOCK_MONOTONIC);
     if (ie_jm->mask & BIT(WS_JM_PLF))

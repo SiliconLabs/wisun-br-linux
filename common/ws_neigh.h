@@ -88,7 +88,7 @@ struct ws_neigh {
 
     // PAN / EAPOL target selection
     uint16_t pan_id;
-    uint16_t pan_cost;
+    uint32_t pan_cost;
     uint8_t  plf;
     time_t   last_pa_rx_time_s;
 
