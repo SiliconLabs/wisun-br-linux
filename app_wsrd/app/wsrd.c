@@ -329,6 +329,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
+    rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, false);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
@@ -338,7 +339,6 @@ static void wsrd_init_radio(struct wsrd *wsrd)
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
     rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
     rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
-    rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
 
     rcp_req_radio_enable(&wsrd->ws.rcp);
 }
