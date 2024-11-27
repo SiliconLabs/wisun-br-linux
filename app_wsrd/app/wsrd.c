@@ -288,6 +288,12 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
     return parent_ll;
 }
 
+void kill_handler(int signal)
+{
+    // Exit cleanly to dump coverage.
+    exit(EXIT_SUCCESS);
+}
+
 void sig_error_handler(int signal)
 {
     __PRINT(91, "bug: %s", strsignal(signal));
@@ -371,6 +377,10 @@ int wsrd_main(int argc, char *argv[])
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     sigact.sa_flags = SA_RESETHAND;
+    sigact.sa_handler = kill_handler;
+    sigaction(SIGINT, &sigact, NULL);
+    sigaction(SIGHUP, &sigact, NULL);
+    sigaction(SIGTERM, &sigact, NULL);
     sigact.sa_handler = sig_error_handler;
     sigaction(SIGILL, &sigact, NULL);
     sigaction(SIGSEGV, &sigact, NULL);
