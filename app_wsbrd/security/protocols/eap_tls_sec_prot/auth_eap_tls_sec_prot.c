@@ -217,19 +217,13 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
     uint16_t length = data->recv_eapol_pdu.msg.eap.length;
 
     bool new_seq_id = false;
-    bool old_seq_id = false;
 
-    // Already received sequence ID is received again, ignore
-    if (data->recv_eapol_pdu.msg.eap.id_seq < data->eap_id_seq) {
-        old_seq_id = true;
-    } else if (data->recv_eapol_pdu.msg.eap.id_seq == data->eap_id_seq) {
+    if (data->recv_eapol_pdu.msg.eap.id_seq == data->eap_id_seq) {
         // Confirmation that supplicant has received the message, proceed with protocol
         data->recv_eap_id_seq = data->recv_eapol_pdu.msg.eap.id_seq;
         data->eap_id_seq++;
         new_seq_id = true;
-    }
-
-    if (old_seq_id) {
+    } else {
         return EAP_TLS_MSG_DECODE_ERROR;
     }
 
