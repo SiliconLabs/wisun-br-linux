@@ -14,6 +14,7 @@
 #ifndef WSBR_COMMANDLINE_H
 #define WSBR_COMMANDLINE_H
 
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -57,7 +58,7 @@ struct wsbrd_conf {
     char user[LOGIN_NAME_MAX];
     char group[LOGIN_NAME_MAX];
 
-    uint8_t ipv6_prefix[16];
+    struct in6_addr ipv6_prefix;
 
     char capture[PATH_MAX];
 

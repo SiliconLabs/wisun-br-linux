@@ -99,7 +99,7 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *wsbrd)
     iface = fuzz_iface_new(ctxt);
     wsbrd->tun.fd = iface->pipefd[0];
 
-    memcpy(ctxt->tun_gua, wsbrd->config.ipv6_prefix, 8);
+    memcpy(ctxt->tun_gua, &wsbrd->config.ipv6_prefix, 8);
     memcpy(ctxt->tun_gua + 8, &wsbrd->rcp.eui64, 8);
     ctxt->tun_gua[8] ^= 2;
     memcpy(ctxt->tun_lla, ADDR_LINK_LOCAL_PREFIX, 8);
