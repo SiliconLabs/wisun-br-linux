@@ -216,13 +216,10 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
     const uint8_t *data_ptr = data->recv_eapol_pdu.msg.eap.data_ptr;
     uint16_t length = data->recv_eapol_pdu.msg.eap.length;
 
-    bool new_seq_id = false;
-
     if (data->recv_eapol_pdu.msg.eap.id_seq == data->eap_id_seq) {
         // Confirmation that supplicant has received the message, proceed with protocol
         data->recv_eap_id_seq = data->recv_eapol_pdu.msg.eap.id_seq;
         data->eap_id_seq++;
-        new_seq_id = true;
     } else {
         return EAP_TLS_MSG_DECODE_ERROR;
     }
@@ -238,7 +235,7 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
 
     length -= 5; // EAP fields: code, id, length, type
 
-    return eap_tls_sec_prot_lib_message_handle(data_ptr, length, new_seq_id, &data->tls_send, &data->tls_recv);
+    return eap_tls_sec_prot_lib_message_handle(data_ptr, length, true, &data->tls_send, &data->tls_recv);
 }
 
 static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state, bool retry)
