@@ -24,8 +24,6 @@ extern "C" {
 #include "common/mathutils.h"
 }
 
-static ns3::EventImpl *g_timer_event = NULL;
-
 extern "C" int __wrap_timerfd_create(int clockid, int flags)
 {
     return eventfd(0, 0);
@@ -39,13 +37,13 @@ static void timer_trig(int fd)
     ret = write(fd, &val, 8);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
-    g_timer_event = NULL;
 }
 
 extern "C" int __wrap_timerfd_settime(int fd, int flags,
                                       const struct itimerspec *it_new,
                                       struct itimerspec *it_old)
 {
+    static ns3::EventImpl *g_timer_event;
     ns3::Time t = ns3::Seconds(it_new->it_value.tv_sec) +
                   ns3::NanoSeconds(it_new->it_value.tv_nsec);
 
@@ -54,11 +52,13 @@ extern "C" int __wrap_timerfd_settime(int fd, int flags,
     BUG_ON(it_new->it_interval.tv_sec || it_new->it_interval.tv_nsec);
     if (g_timer_event) {
         g_timer_event->Cancel();
+        g_timer_event->Unref();
         g_timer_event = NULL;
     }
     if (!it_new->it_value.tv_sec && !it_new->it_value.tv_nsec)
         return 0;
     g_timer_event = ns3::MakeEvent(timer_trig, fd);
+    g_timer_event->Ref();
     ns3::Simulator::ScheduleWithContext(
         g_simulation_id,
         MAX(t - ns3::Now(), ns3::Time(0)),
