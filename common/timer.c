@@ -141,8 +141,7 @@ void timer_process(void)
             SLIST_REMOVE_HEAD(&group->timers, link);
             SLIST_INSERT_HEAD(&trig_list, timer, link);
         }
-        SLIST_FOREACH_SAFE(timer, &trig_list, link, tmp) {
-            SLIST_REMOVE_HEAD(&trig_list, link);
+        while ((timer = SLIST_POP(&trig_list, link))) {
             if (timer->period_ms) {
                 if (timer->expire_ms + timer->period_ms < now_ms)
                     WARN_ON("periodic timer overrun");
