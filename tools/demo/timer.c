@@ -24,6 +24,7 @@
 
 struct module {
     uint64_t delay_ms;
+    int      ticks;
     struct timer_group timer_group;
 };
 
@@ -48,6 +49,26 @@ void timer_cb_rand(struct timer_group *group, struct timer_entry *timer)
     timer_start_rel(group, timer, offset_ms);
 }
 
+void timer_cb_del(struct timer_group *group, struct timer_entry *timer)
+{
+    printf("%s()\n", __func__);
+    free(timer);
+}
+
+void timer_cb_del_ticks(struct timer_group *group, struct timer_entry *timer)
+{
+    struct module *mod = container_of(group, struct module, timer_group);
+
+    mod->ticks++;
+    printf("%s() ticks=%i\n", __func__, mod->ticks);
+
+    if (mod->ticks == 10) {
+        printf("%s() del\n", __func__);
+        timer_stop(group, timer);
+        free(timer);
+    }
+}
+
 int main()
 {
     struct module mod = {
@@ -68,6 +89,8 @@ int main()
     struct timer_entry timer_rand = {
         .callback = timer_cb_rand,
     };
+    struct timer_entry *timer_del;
+    struct timer_entry *timer_del_ticks;
     int ret;
 
     srand(0);
@@ -81,6 +104,15 @@ int main()
     timer_start_rel(NULL, &timer_666ms, timer_666ms.period_ms);
     timer_start_rel(&mod.timer_group, &timer_exp, 0);
     timer_start_rel(NULL, &timer_rand, 0);
+
+    timer_del = zalloc(sizeof(struct timer_entry));
+    timer_del->callback = timer_cb_del;
+    timer_start_rel(NULL, timer_del, 500);
+
+    timer_del_ticks = zalloc(sizeof(struct timer_entry));
+    timer_del_ticks->period_ms = 200;
+    timer_del_ticks->callback = timer_cb_del_ticks;
+    timer_start_rel(&mod.timer_group, timer_del_ticks, timer_del_ticks->period_ms);
 
     while (1) {
         ret = poll(&pfd, 1, -1);
