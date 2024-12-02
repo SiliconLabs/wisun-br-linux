@@ -90,6 +90,7 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
     SLIST_REMOVE(&root->targets, target, rpl_target, link);
     if (root->on_target_del)
         root->on_target_del(root, target);
+    timer_stop(&root->timer_group, &target->timer);
     free(target);
 }
 
