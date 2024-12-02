@@ -37,6 +37,20 @@
 
 #include "authenticator.h"
 
+/*
+ *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
+ * GTK_EXPIRE_OFFSET: The expiration time of a GTK is calculated as the
+ * expiration time of the GTK most recently installed at the Border Router
+ * plus GTK_EXPIRE_OFFSET.
+ */
+static void auth_gtk_expiration_timer_start(struct auth_ctx *auth, struct ws_gtk *gtk, const struct ws_gtk *prev)
+{
+    const uint64_t start_ms = prev ? prev->expiration_timer.expire_ms : time_now_ms(CLOCK_MONOTONIC);
+    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
+
+    timer_start_abs(&auth->timer_group, &gtk->expiration_timer, start_ms + expire_offset_ms);
+}
+
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
@@ -65,18 +79,11 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
 
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
-     * The expiration time of a GTK is calculated as the expiration time of the GTK
-     * most recently installed at the Border Router plus GTK_EXPIRE_OFFSET.
-     */
     struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
-    uint64_t new_gtk_expiration = ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms +
-                                  (uint64_t)ctx->cfg->gtk_expire_offset_s * 1000;
 
     ctx->next_slot = (ctx->cur_slot + 1) % 4;
     rand_get_n_bytes_random(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk));
-    timer_start_abs(&ctx->timer_group, &ctx->gtks[ctx->next_slot].expiration_timer, new_gtk_expiration);
+    auth_gtk_expiration_timer_start(ctx, &ctx->gtks[ctx->next_slot], &ctx->gtks[ctx->cur_slot]);
     timer_start_abs(&ctx->timer_group, &ctx->gtk_install_timer,
                     ctx->gtks[ctx->next_slot].expiration_timer.start_ms +
                     timer_duration_ms(&ctx->gtks[ctx->next_slot].expiration_timer) * ctx->cfg->gtk_new_install_required / 100);
@@ -213,8 +220,7 @@ void auth_start(struct auth_ctx *ctx, const struct eui64 *eui64)
 
     // We assume the gtkhash of the generated gtk won't be full of zeros
     rand_get_n_bytes_random(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk));
-    timer_start_rel(&ctx->timer_group, &ctx->gtks[ctx->cur_slot].expiration_timer,
-                    (uint64_t)ctx->cfg->gtk_expire_offset_s * 1000);
+    auth_gtk_expiration_timer_start(ctx, &ctx->gtks[ctx->cur_slot], NULL);
     timer_start_abs(&ctx->timer_group, &ctx->gtk_install_timer,
                     ctx->gtks[ctx->cur_slot].expiration_timer.start_ms +
                     timer_duration_ms(&ctx->gtks[ctx->cur_slot].expiration_timer) * ctx->cfg->gtk_new_install_required / 100);
