@@ -79,6 +79,12 @@ static void timer_schedule(struct timer_ctxt *ctxt)
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
+static void timer_reset(struct timer_entry *timer)
+{
+    timer->start_ms  = 0;
+    timer->expire_ms = 0;
+}
+
 void timer_process(void)
 {
     struct timer_ctxt *ctxt = timer_ctxt();
@@ -104,7 +110,7 @@ void timer_process(void)
         SLIST_FOREACH_SAFE(timer, &trig_list, link, tmp) {
             SLIST_REMOVE_HEAD(&trig_list, link);
             expire_ms = timer->expire_ms;
-            timer->expire_ms = 0;
+            timer_reset(timer);
             if (timer->callback)
                 timer->callback(group == &ctxt->group_default ? NULL : group, timer);
             if (timer->period_ms) {
@@ -170,8 +176,7 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
         group = &ctxt->group_default;
     reschedule = (timer == SLIST_FIRST(&group->timers));
     SLIST_REMOVE(&group->timers, timer, timer_entry, link);
-    timer->start_ms  = 0;
-    timer->expire_ms = 0;
+    timer_reset(timer);
     if (reschedule)
         timer_schedule(ctxt);
 }
