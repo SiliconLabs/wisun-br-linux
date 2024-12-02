@@ -37,7 +37,6 @@ extern "C" void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->timerfd = eventfd(0, EFD_NONBLOCK);
     FATAL_ON(ctxt->timerfd < 0, 2, "eventfd: %m");
-    capture_register_timerfd(ctxt->timerfd);
     wsbr_ns3_timer_tick(ctxt);
 }
 

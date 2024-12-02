@@ -29,21 +29,20 @@
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/time_extra.h"
+
 #include "capture.h"
 
 struct capture_ctxt {
     int recfd;
-    int timerfd;
     int *netfd_list;
     int netfd_cnt;
-    uint16_t tick_cnt;
 };
 
 // The functions that this module wraps provide no way to retrieve this context
 // from their arguments, so a global must be used.
 struct capture_ctxt g_capture_ctxt = {
     .recfd = -1,
-    .timerfd = -1,
 };
 
 static void capture_record(struct capture_ctxt *ctxt, const void *buf, size_t buf_len)
@@ -70,15 +69,16 @@ static void capture_record(struct capture_ctxt *ctxt, const void *buf, size_t bu
 static void capture_record_timers(struct capture_ctxt *ctxt)
 {
     struct iobuf_write iobuf = { };
+    struct timespec ts;
+    int ret;
 
-    if (!ctxt->tick_cnt)
-        return;
+    ret = clock_gettime(CLOCK_MONOTONIC, &ts);
+    FATAL_ON(ret < 0, 2, "clock_gettime: %m");
 
     hif_push_u8(&iobuf, HIF_CMD_IND_REPLAY_TIMER);
-    hif_push_u16(&iobuf, ctxt->tick_cnt);
+    hif_push_u64(&iobuf, time_now_ms(CLOCK_MONOTONIC));
     capture_record(ctxt, iobuf.data, iobuf.len);
     iobuf_free(&iobuf);
-    ctxt->tick_cnt = 0;
 }
 
 static void capture_record_netfd(struct capture_ctxt *ctxt, int iface_index,
@@ -117,15 +117,12 @@ ssize_t xread(int fd, void *buf, size_t buf_len)
 {
     struct capture_ctxt *ctxt = &g_capture_ctxt;
     ssize_t out_len;
-    
+
     out_len = read(fd, buf, buf_len);
     if (out_len < 0 || ctxt->recfd < 0)
         return out_len;
 
-    if (fd == ctxt->timerfd)
-        ctxt->tick_cnt++;
-    else 
-        capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any, 0, buf, out_len);
+    capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any, 0, buf, out_len);
     return out_len;
 }
 
@@ -271,11 +268,6 @@ void capture_record_hif(const void *buf, size_t buf_len)
         return;
     capture_record_timers(ctxt);
     capture_record(ctxt, buf, buf_len);
-}
-
-void capture_register_timerfd(int fd)
-{
-    g_capture_ctxt.timerfd = fd;
 }
 
 void capture_register_netfd(int fd)
