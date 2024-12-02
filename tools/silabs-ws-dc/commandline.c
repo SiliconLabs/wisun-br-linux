@@ -93,7 +93,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "gtk_expire_offset",             &config->auth_cfg.gtk_expire_offset_s,     conf_set_seconds_from_minutes, &valid_positive },
         { "gtk_new_activation_time",       &config->auth_cfg.gtk_new_activation_time, conf_set_number,      &valid_positive },
         { "gtk_new_install_required",      &config->auth_cfg.gtk_new_install_required, conf_set_number,      &valid_gtk_new_install_required },
-        { "ptk_lifetime",                  &config->auth_cfg.ptk_lifetime_min,        conf_set_number,      &valid_positive },
+        { "ptk_lifetime",                  &config->auth_cfg.ptk_lifetime_s,          conf_set_seconds_from_minutes, &valid_positive },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";

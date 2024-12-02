@@ -272,7 +272,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_su
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     ieee80211_derive_ptk384(supp->pmk, ctx->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->ptk);
-    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_min * 60;
+    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_s;
     if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
