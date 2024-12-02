@@ -444,7 +444,8 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=wsbr_tun_init
         -Wl,--wrap=tun_addr_get_uc_global
         -Wl,--wrap=tun_addr_get_linklocal
-        -Wl,--wrap=wsbr_common_timer_init
+        -Wl,--wrap=timerfd_create
+        -Wl,--wrap=timerfd_settime
         -Wl,--wrap=clock_gettime
         -Wl,--wrap=read
         -Wl,--wrap=write

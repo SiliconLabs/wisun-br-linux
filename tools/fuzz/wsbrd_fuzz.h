@@ -27,7 +27,6 @@ struct fuzz_ctxt {
     bool fuzzing_enabled;
     bool rand_predictable;
     time_t mbedtls_time;
-    int timer_counter;
 
     int replay_count;
     int replay_fds[10];
@@ -36,7 +35,8 @@ struct fuzz_ctxt {
     uint8_t tun_lla[16];
     int iface_count;
     struct fuzz_iface *iface_list;
-    time_t replay_time_ms;
+    uint64_t replay_time_ms;
+    uint64_t target_time_ms;
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;

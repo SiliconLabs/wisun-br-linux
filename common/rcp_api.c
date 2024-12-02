@@ -565,6 +565,8 @@ struct rcp_cmd rcp_cmd_table[] = {
 
 static bool rcp_init_state_is_valid(struct rcp *rcp, uint8_t cmd)
 {
+    if (cmd == HIF_CMD_IND_REPLAY_TIMER)
+        return true;
     if (!rcp->has_reset)
         return cmd == HIF_CMD_IND_RESET;
     if (!rcp->has_rf_list)

@@ -24,20 +24,6 @@
 
 ssize_t __real_write(int fd, const void *buf, size_t count);
 
-void __real_wsbr_common_timer_init(struct wsbr_ctxt *wsbrd);
-void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *wsbrd)
-{
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-
-    BUG_ON(ctxt->wsbrd != wsbrd);
-    if (ctxt->replay_count) {
-        wsbrd->timerfd = eventfd(0, EFD_NONBLOCK);
-        FATAL_ON(wsbrd->timerfd < 0, 2, "eventfd: %m");
-    } else {
-        __real_wsbr_common_timer_init(wsbrd);
-    }
-}
-
 int __real_clock_gettime(clockid_t clockid, struct timespec *tp);
 int __wrap_clock_gettime(clockid_t clockid, struct timespec *tp)
 {
@@ -57,8 +43,7 @@ void fuzz_trigger_timer(struct fuzz_ctxt *ctxt)
     uint64_t val = 1;
     int ret;
 
-    ctxt->replay_time_ms += WS_TIMER_GLOBAL_PERIOD_MS;
-    ret = __real_write(ctxt->wsbrd->timerfd, &val, 8);
+    ret = __real_write(timer_fd(), &val, 8);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
@@ -66,14 +51,17 @@ void fuzz_trigger_timer(struct fuzz_ctxt *ctxt)
 void fuzz_ind_replay_timers(struct rcp *rcp, struct iobuf_read *buf)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+    struct timer_entry *timer;
 
     BUG_ON(rcp != &ctxt->wsbrd->rcp);
-    if (!rcp->has_rf_list)
-        FATAL(1, "timer command received during RCP init");
     FATAL_ON(!ctxt->replay_count, 1, "timer command received while replay is disabled");
-    ctxt->timer_counter = hif_pop_u16(buf);
-    if (ctxt->timer_counter)
+
+    ctxt->target_time_ms = hif_pop_u64(buf);
+    timer = timer_next();
+    if (timer && timer->expire_ms < ctxt->target_time_ms)
         fuzz_trigger_timer(ctxt);
+    else
+        ctxt->replay_time_ms = ctxt->target_time_ms;
 }
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);
@@ -110,4 +98,26 @@ ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
         return iov[0].iov_len + iov[1].iov_len + iov[2].iov_len;
     else
         return __real_writev(fd, iov, iovcnt);
+}
+
+int __real_timerfd_create(int clockid, int flags);
+int __wrap_timerfd_create(int clockid, int flags)
+{
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (ctxt->replay_count)
+        return eventfd(0, 0);
+    else
+        return __real_timerfd_create(clockid, flags);
+}
+
+int __real_timerfd_settime(int fd, int flags, const struct itimerspec *new, struct itimerspec *old);
+int __wrap_timerfd_settime(int fd, int flags, const struct itimerspec *new, struct itimerspec *old)
+{
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (ctxt->replay_count)
+        return 0;
+    else
+        return __real_timerfd_settime(fd, flags, new, old);
 }

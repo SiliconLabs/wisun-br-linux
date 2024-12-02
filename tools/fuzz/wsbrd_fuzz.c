@@ -60,7 +60,7 @@ int __wrap_uart_rx(struct bus *bus, void *buf, unsigned int buf_len)
 {
     struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
 
-    if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
+    if (fuzz_ctxt->replay_count && fuzz_ctxt->replay_time_ms < fuzz_ctxt->target_time_ms)
         return 0;
     else
         return __real_uart_rx(bus, buf, buf_len);
@@ -94,11 +94,16 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
 {
     ssize_t size = __real_read(fd, buf, count);
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+    struct timer_entry *timer;
 
-    if (fd == ctxt->wsbrd->timerfd && ctxt->replay_count) {
-        ctxt->timer_counter--;
-        if (ctxt->timer_counter)
+    if (fd == timer_fd() && ctxt->replay_count) {
+        timer = timer_next();
+        if (timer && timer->expire_ms < ctxt->target_time_ms) {
             fuzz_trigger_timer(ctxt);
+            ctxt->replay_time_ms = timer->expire_ms;
+        } else {
+            ctxt->replay_time_ms = ctxt->target_time_ms;
+        }
     } else if (fd == ctxt->wsbrd->rcp.bus.fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
         ctxt->wsbrd->rcp.bus.fd = ctxt->replay_fds[ctxt->replay_i++];
