@@ -13,8 +13,9 @@
  */
 mod wsbrddbusapi;
 
-extern crate dbus;
+#[macro_use]
 extern crate clap;
+extern crate dbus;
 
 use std::convert::TryInto;
 use std::net::Ipv6Addr;
@@ -23,8 +24,55 @@ use dbus::blocking::Connection;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
 use clap::App;
 use clap::AppSettings;
+use clap::Arg;
 use clap::SubCommand;
 
+// Wi-SUN TBU 1.1.13 - BorderRouterInformationElement.format
+#[allow(dead_code)]
+enum WsIeType {
+    Wh      = 0,
+    WpShort = 1,
+    WpLong  = 2,
+}
+
+// Wi-SUN Assigned Value Registry 0v26 - 7.2. Wi-SUN Payload Information
+// Element Sub-IDs
+#[allow(dead_code)]
+enum WsIeWpShort {
+    Pan      = 0x04, // PAN
+    NetName  = 0x05, // Network Name
+    PanVer   = 0x06, // PAN Version
+    GtkHash  = 0x07, // GTK Hash
+    Pom      = 0x08, // PHY Operating Modes
+    Lbats    = 0x09, // LFN Broadcast Additional Transmit Schedule
+    Jm       = 0x0a, // Join Metrics
+    LfnVer   = 0x40, // LFN Version
+    LgtkHash = 0x41, // LFN GTK Hash
+
+    /*
+     * Silicon Labs allocated IE ID, in the PAN-wide range for short payload
+     * IEs to ensure propagation. May clash with future official Wi-SUN ID
+     * allocations.
+     */
+    SlPanDefect = 0x49,
+}
+
+// Wi-SUN Assigned Value Registry 0v26 - 10 Wi-SUN Frame Types
+#[allow(dead_code)]
+enum WsFrameType {
+    Pa    =  0,
+    Pas   =  1,
+    Pc    =  2,
+    Pcs   =  3,
+    Data  =  4,
+    Ack   =  5,
+    Eapol =  6,
+    Lpa   =  9,
+    Lpas  = 10,
+    Lpc   = 11,
+    Lpcs  = 12,
+    Ext   = 15,
+}
 
 fn format_byte_array(input: &[u8]) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<_>>().join(":")
@@ -120,12 +168,53 @@ fn do_status(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(), Box<dyn 
     Ok(())
 }
 
+fn do_pan_defect_start(dbus_proxy: &dyn ComSilabsWisunBorderRouter,
+                       min_delay_s: u32, max_delay_s: u32) -> Result<(), Box<dyn std::error::Error>> {
+    let mut data: Vec<u8> = vec![];
+    data.push(true as u8); // Enable
+    data.extend_from_slice(&min_delay_s.to_le_bytes());
+    data.extend_from_slice(&max_delay_s.to_le_bytes());
+    dbus_proxy.ie_custom_insert(
+        WsIeType::WpShort as u8,
+        WsIeWpShort::SlPanDefect as u8,
+        data,
+        vec![WsFrameType::Pc as u8]
+    )?;
+    Ok(())
+}
+
+fn do_pan_defect_stop(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(), Box<dyn std::error::Error>> {
+    dbus_proxy.ie_custom_insert(
+        WsIeType::WpShort as u8,
+        WsIeWpShort::SlPanDefect as u8,
+        vec![],
+        vec![]
+    )?;
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = App::new("wsbrd_cli")
         .setting(AppSettings::SubcommandRequired)
         .args_from_usage("--user 'Use user bus instead of system bus'")
         .subcommand(
             SubCommand::with_name("status").about("Display a brief status of the Wi-SUN network"),
+        )
+        .subcommand(
+            SubCommand::with_name("pan-defect")
+                // TODO: Point to the main documentation.
+                .about("Toggle the Silicon Labs PAN Defect procedure to attempt a PAN transition")
+                .setting(AppSettings::SubcommandRequired)
+                .subcommand(SubCommand::with_name("start").about("Start propagating the PAN Defect IE")
+                    .arg(Arg::with_name("min-delay")
+                        .help("Minimum delay (seconds) between PAN defect IE reception and PAN switch")
+                    )
+                    .arg(Arg::with_name("max-delay")
+                        .help("Maximum delay (seconds) between PAN defect IE reception and PAN switch")
+                    )
+                )
+                .subcommand(SubCommand::with_name("stop").about("Return to normal operation")
+            )
         )
         .get_matches();
 
@@ -139,8 +228,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                           "/com/silabs/Wisun/BorderRouter",
                                           Duration::from_millis(500));
 
-    match matches.subcommand_name() {
-        Some("status") => do_status(&dbus_proxy),
+    match matches.subcommand() {
+        ("status", _) => do_status(&dbus_proxy),
+        ("pan-defect", Some(submatches)) => {
+            match submatches.subcommand() {
+                ("start", Some(subsubmatches)) => {
+                    let min_delay_s = value_t!(subsubmatches, "min-delay", u32).unwrap_or_else(|e| e.exit());
+                    let max_delay_s = value_t!(subsubmatches, "max-delay", u32).unwrap_or_else(|e| e.exit());
+                    do_pan_defect_start(&dbus_proxy, min_delay_s, max_delay_s)
+                }
+                ("stop", _) => do_pan_defect_stop(&dbus_proxy),
+                _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
+            }
+        }
         _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
     }
 }
