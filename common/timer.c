@@ -56,25 +56,34 @@ int timer_fd(void)
     return ctxt->fd;
 }
 
-static void timer_schedule(struct timer_ctxt *ctxt)
+struct timer_entry *timer_next(void)
 {
-    uint64_t expire_ms = UINT64_MAX;
-    struct itimerspec itp = { };
-    struct timer_entry *timer;
+    struct timer_ctxt *ctxt = timer_ctxt();
+    struct timer_entry *cur, *nxt = NULL;
     struct timer_group *group;
-    int ret;
 
     SLIST_FOREACH(group, &ctxt->groups, link) {
-        timer = SLIST_FIRST(&group->timers);
-        if (!timer)
+        cur = SLIST_FIRST(&group->timers);
+        if (!cur)
             continue;
-        if (timer->expire_ms < expire_ms)
-            expire_ms = timer->expire_ms;
+        if (nxt && cur->expire_ms >= nxt->expire_ms)
+            continue;
+        nxt = cur;
     }
-    if (expire_ms == UINT64_MAX)
+    return nxt;
+}
+
+static void timer_schedule(void)
+{
+    struct itimerspec itp = { };
+    struct timer_entry *timer;
+    int ret;
+
+    timer = timer_next();
+    if (!timer)
         return;
-    itp.it_value.tv_sec = expire_ms / 1000;
-    itp.it_value.tv_nsec = (expire_ms % 1000) * 1000000;
+    itp.it_value.tv_sec = timer->expire_ms / 1000;
+    itp.it_value.tv_nsec = (timer->expire_ms % 1000) * 1000000;
     ret = timerfd_settime(timer_fd(), TFD_TIMER_ABSTIME, &itp, NULL);
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
@@ -120,7 +129,7 @@ void timer_process(void)
             }
         }
     }
-    timer_schedule(ctxt);
+    timer_schedule();
 }
 
 void timer_group_init(struct timer_group *group)
@@ -152,7 +161,7 @@ void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint6
         SLIST_INSERT_AFTER(prev, timer, link);
     } else {
         SLIST_INSERT_HEAD(&group->timers, timer, link);
-        timer_schedule(ctxt);
+        timer_schedule();
     }
 }
 
@@ -178,5 +187,5 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
     SLIST_REMOVE(&group->timers, timer, timer_entry, link);
     timer_reset(timer);
     if (reschedule)
-        timer_schedule(ctxt);
+        timer_schedule();
 }

@@ -65,6 +65,9 @@ struct timer_entry {
 // File descriptor indicating when a timer event is ready to be processed.
 int timer_fd(void);
 
+// Return the active timer with the smallest expiration date.
+struct timer_entry *timer_next(void);
+
 // Should be called when timer_fd() is ready.
 void timer_process(void);
 
