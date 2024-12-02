@@ -88,6 +88,31 @@ static void timer_schedule(void)
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
+// Returns true if timer_schedule() should be called.
+static bool timer_start(struct timer_group *group, struct timer_entry *timer, uint64_t expire_ms)
+{
+    struct timer_ctxt *ctxt = timer_ctxt();
+    struct timer_entry *cur, *prev;
+
+    timer->start_ms = time_now_ms(CLOCK_MONOTONIC);
+
+    if (!group)
+        group = &ctxt->group_default;
+    prev = NULL;
+    SLIST_FOREACH(cur, &group->timers, link) {
+        if (expire_ms <= cur->expire_ms)
+            break;
+        prev = cur;
+    }
+    timer->expire_ms = expire_ms;
+    if (prev)
+        SLIST_INSERT_AFTER(prev, timer, link);
+    else
+        SLIST_INSERT_HEAD(&group->timers, timer, link);
+
+    return !prev;
+}
+
 static void timer_reset(struct timer_entry *timer)
 {
     timer->start_ms  = 0;
@@ -142,27 +167,9 @@ void timer_group_init(struct timer_group *group)
 
 void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint64_t expire_ms)
 {
-    struct timer_ctxt *ctxt = timer_ctxt();
-    struct timer_entry *cur, *prev;
-
     timer_stop(group, timer);
-    timer->start_ms = time_now_ms(CLOCK_MONOTONIC);
-
-    if (!group)
-        group = &ctxt->group_default;
-    prev = NULL;
-    SLIST_FOREACH(cur, &group->timers, link) {
-        if (expire_ms <= cur->expire_ms)
-            break;
-        prev = cur;
-    }
-    timer->expire_ms = expire_ms;
-    if (prev) {
-        SLIST_INSERT_AFTER(prev, timer, link);
-    } else {
-        SLIST_INSERT_HEAD(&group->timers, timer, link);
+    if (timer_start(group, timer, expire_ms))
         timer_schedule();
-    }
 }
 
 void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint64_t offset_ms)
