@@ -66,15 +66,7 @@ fn print_rpl_tree(links: &[(Vec<u8>, bool, Vec<Vec<u8>>)], parents: &[Vec<u8>], 
     }
 }
 
-fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
-    let dbus_conn;
-    if dbus_user {
-        dbus_conn = Connection::new_session()?;
-    } else {
-        dbus_conn = Connection::new_system()?;
-    }
-    let dbus_proxy = dbus_conn.with_proxy("com.silabs.Wisun.BorderRouter", "/com/silabs/Wisun/BorderRouter", Duration::from_millis(500));
-
+fn do_status(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(), Box<dyn std::error::Error>> {
     // Consider that if NetworkName does not exist, the service probably not here.
     match dbus_proxy.wisun_network_name() {
         Ok(val) => println!("network_name: {}", val),
@@ -136,10 +128,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             SubCommand::with_name("status").about("Display a brief status of the Wi-SUN network"),
         )
         .get_matches();
-    let dbus_user = matches.is_present("user");
+
+    let dbus_conn;
+    if matches.is_present("user") {
+        dbus_conn = Connection::new_session()?;
+    } else {
+        dbus_conn = Connection::new_system()?;
+    }
+    let dbus_proxy = dbus_conn.with_proxy("com.silabs.Wisun.BorderRouter",
+                                          "/com/silabs/Wisun/BorderRouter",
+                                          Duration::from_millis(500));
 
     match matches.subcommand_name() {
-        Some("status") => do_status(dbus_user),
+        Some("status") => do_status(&dbus_proxy),
         _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
     }
 }
