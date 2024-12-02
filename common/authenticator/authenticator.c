@@ -61,13 +61,26 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->gtk, sizeof(gtk->gtk)));
 }
 
+/*
+ *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
+ * GTK_NEW_ACTIVATION_TIME: The time at which the Border Router activates the
+ * next GTK prior to expiration of the currently activated GTK. Expressed as a
+ * fraction (1/X) of GTK_EXPIRE_OFFSET.
+ */
+static void auth_gtk_activation_timer_start(struct auth_ctx *auth, const struct ws_gtk *gtk)
+{
+    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
+    const uint64_t expire_ms = gtk->expiration_timer.expire_ms;
+
+    timer_start_abs(&auth->timer_group, &auth->gtk_activation_timer,
+                    expire_ms - expire_offset_ms / auth->cfg->gtk_new_activation_time);
+}
+
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
 
-    timer_start_abs(&ctx->timer_group, &ctx->gtk_activation_timer,
-                    ctx->gtks[ctx->next_slot].expiration_timer.expire_ms -
-                    ((uint64_t)ctx->cfg->gtk_expire_offset_s * 1000) / ctx->cfg->gtk_new_activation_time);
+    auth_gtk_activation_timer_start(ctx, &ctx->gtks[ctx->next_slot]);
     if (ctx->on_gtk_change)
         ctx->on_gtk_change(ctx, ctx->gtks[ctx->next_slot].gtk, ctx->next_slot + 1, true);
     ctx->cur_slot = ctx->next_slot;
@@ -236,9 +249,7 @@ void auth_start(struct auth_ctx *ctx, const struct eui64 *eui64)
     rand_get_n_bytes_random(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk));
     auth_gtk_expiration_timer_start(ctx, &ctx->gtks[ctx->cur_slot], NULL);
     auth_gtk_install_timer_start(ctx, &ctx->gtks[ctx->cur_slot]);
-    timer_start_abs(&ctx->timer_group, &ctx->gtk_activation_timer,
-                    ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms -
-                    (uint64_t)ctx->cfg->gtk_expire_offset_s / ctx->cfg->gtk_new_activation_time * 1000);
+    auth_gtk_activation_timer_start(ctx, &ctx->gtks[ctx->cur_slot]);
     if (ctx->on_gtk_change)
         ctx->on_gtk_change(ctx, ctx->gtks[ctx->cur_slot].gtk, 1, true);
     TRACE(TR_SECURITY, "sec: authenticator started gtk=%s expiration=%"PRIu64" next_install=%"PRIu64
