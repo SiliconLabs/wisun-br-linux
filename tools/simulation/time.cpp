@@ -15,6 +15,8 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
+#include <pthread.h>
+
 #include <ns3/event-id.h>
 #include <ns3/simulator.h>
 #include <ns3/libwsbrd-ns3.hpp>
@@ -22,10 +24,17 @@
 extern "C" {
 #include "common/log.h"
 #include "common/mathutils.h"
+#include "common/timer.h"
 }
+
+static pthread_mutex_t g_timerfd_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C" int __wrap_timerfd_create(int clockid, int flags)
 {
+    int ret;
+
+    ret = pthread_mutex_lock(&g_timerfd_mutex);
+    FATAL_ON(ret, 2, "pthread_mutex_lock: %s", strerror(ret));
     return eventfd(0, 0);
 }
 
@@ -37,6 +46,28 @@ static void timer_trig(int fd)
     ret = write(fd, &val, 8);
     FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
+
+    /*
+     * Prevent ns-3 scheduler from running until the application thread has
+     * processed the timer tick. This helps greatly in reducing drift.
+     */
+    ret = pthread_mutex_lock(&g_timerfd_mutex);
+    FATAL_ON(ret, 2, "pthread_mutex_lock: %s", strerror(ret));
+}
+
+// Executed in the application thread.
+extern "C" ssize_t __real_read(int fd, void *buf, size_t buf_len);
+extern "C" ssize_t __wrap_read(int fd, void *buf, size_t buf_len)
+{
+    ssize_t ret_len;
+    int ret;
+
+    ret_len = __real_read(fd, buf, buf_len);
+    if (fd == timer_fd()) {
+        ret = pthread_mutex_unlock(&g_timerfd_mutex);
+        FATAL_ON(ret, 2, "pthread_mutex_lock: %s", strerror(ret));
+    }
+    return ret_len;
 }
 
 extern "C" int __wrap_timerfd_settime(int fd, int flags,

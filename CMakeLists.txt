@@ -520,6 +520,7 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=write
             -Wl,--wrap=writev
             -Wl,--wrap=xgetrandom
+            -Wl,--wrap=read
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime
             -Wl,--wrap=clock_gettime
@@ -543,6 +544,7 @@ if(COMPILE_DEVTOOLS)
         target_link_options(wsrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=writev
+            -Wl,--wrap=read
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime
             -Wl,--wrap=clock_gettime
