@@ -121,3 +121,30 @@ int __wrap_timerfd_settime(int fd, int flags, const struct itimerspec *new, stru
     else
         return __real_timerfd_settime(fd, flags, new, old);
 }
+
+ssize_t __real_read(int fd, void *buf, size_t buf_len);
+ssize_t __wrap_read(int fd, void *buf, size_t buf_len)
+{
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+    struct timer_entry *timer;
+    ssize_t ret;
+
+    ret = __real_read(fd, buf, buf_len);
+    if (ret < 0 || !ctxt->replay_count)
+        return ret;
+
+    if (fd == timer_fd()) {
+        timer = timer_next();
+        if (timer && timer->expire_ms < ctxt->target_time_ms) {
+            fuzz_trigger_timer(ctxt);
+            ctxt->replay_time_ms = timer->expire_ms;
+        } else {
+            ctxt->replay_time_ms = ctxt->target_time_ms;
+        }
+    } else if (fd == ctxt->wsbrd->rcp.bus.fd && !ret && ctxt->replay_i < ctxt->replay_count) {
+        // Read from the next replay file
+        ctxt->wsbrd->rcp.bus.fd = ctxt->replay_fds[ctxt->replay_i++];
+        ret = __real_read(ctxt->wsbrd->rcp.bus.fd, buf, buf_len);
+    }
+    return ret;
+}

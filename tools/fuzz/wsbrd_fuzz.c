@@ -89,30 +89,6 @@ bool __wrap_spinel_prop_is_valid(struct iobuf_read *buf, int prop)
     return true;
 }
 
-ssize_t __real_read(int fd, void *buf, size_t count);
-ssize_t __wrap_read(int fd, void *buf, size_t count)
-{
-    ssize_t size = __real_read(fd, buf, count);
-    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
-    struct timer_entry *timer;
-
-    if (fd == timer_fd() && ctxt->replay_count) {
-        timer = timer_next();
-        if (timer && timer->expire_ms < ctxt->target_time_ms) {
-            fuzz_trigger_timer(ctxt);
-            ctxt->replay_time_ms = timer->expire_ms;
-        } else {
-            ctxt->replay_time_ms = ctxt->target_time_ms;
-        }
-    } else if (fd == ctxt->wsbrd->rcp.bus.fd && !size && ctxt->replay_i < ctxt->replay_count) {
-        // Read from the next replay file
-        ctxt->wsbrd->rcp.bus.fd = ctxt->replay_fds[ctxt->replay_i++];
-        return __real_read(ctxt->wsbrd->rcp.bus.fd, buf, count);
-    }
-
-    return size;
-}
-
 int wsbr_fuzz_main(int argc, char *argv[])
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
