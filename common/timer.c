@@ -126,7 +126,7 @@ void timer_process(void)
     struct timer_entry *timer, *tmp;
     struct timer_list trig_list;
     struct timer_group *group;
-    uint64_t expire_ms, val;
+    uint64_t val;
     ssize_t ret;
 
     ret = read(ctxt->fd, &val, sizeof(val));
@@ -143,15 +143,16 @@ void timer_process(void)
         }
         SLIST_FOREACH_SAFE(timer, &trig_list, link, tmp) {
             SLIST_REMOVE_HEAD(&trig_list, link);
-            expire_ms = timer->expire_ms;
-            timer_reset(timer);
+            if (timer->period_ms) {
+                if (timer->expire_ms + timer->period_ms < now_ms)
+                    WARN_ON("periodic timer overrun");
+                timer_start(group, timer, timer->expire_ms + timer->period_ms);
+            } else {
+                timer_reset(timer);
+            }
+            // WARN: timer->callback() is allowed to free(timer)
             if (timer->callback)
                 timer->callback(group == &ctxt->group_default ? NULL : group, timer);
-            if (timer->period_ms) {
-                if (expire_ms + timer->period_ms < now_ms)
-                    WARN("periodic timer overrun");
-                timer_start_abs(group, timer, expire_ms + timer->period_ms);
-            }
         }
     }
     timer_schedule();

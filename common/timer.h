@@ -42,6 +42,10 @@
  * Periodic timers can be implemented by explicitly calling timer_start_rel()
  * from the callback function, but for convenience timer.period_ms provides an
  * automatic restart mechanism when set.
+ *
+ * Timers may be dynamically allocated, but they MUST be stopped before being
+ * freed. Timers can even be freed from their callback functions (eg. lifetime
+ * timers).
  */
 
 // Declare struct timer_list
