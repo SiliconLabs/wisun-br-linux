@@ -17,6 +17,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "common/bits.h"
+
 struct bus;
 
 #define UART_HDR_LEN_MASK 0x07ff
@@ -24,7 +26,7 @@ struct bus;
 struct bus_uart {
     bool    data_ready;
     int     rx_buf_len;
-    uint8_t rx_buf[2048];
+    uint8_t rx_buf[4 + FIELD_MAX(UART_HDR_LEN_MASK) + 2];
     bool    init_phase;
 };
 
