@@ -498,9 +498,9 @@ if(COMPILE_DEVTOOLS)
         # cannot be ensured by CMake when resolving dependencies.
         set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsbrd-ns3 SHARED
+            tools/simulation/time.cpp
             tools/simulation/wsbrd_ns3.cpp
             tools/simulation/wsbrd_rand.cpp
-            tools/simulation/wsbrd_time.cpp
             tools/simulation/wsbrd_uart.cpp
             tools/fuzz/commandline.c
             tools/fuzz/rand.c
@@ -520,8 +520,8 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=write
             -Wl,--wrap=writev
             -Wl,--wrap=xgetrandom
-            -Wl,--wrap=wsbr_common_timer_init
-            -Wl,--wrap=wsbr_common_timer_process
+            -Wl,--wrap=timerfd_create
+            -Wl,--wrap=timerfd_settime
             -Wl,--wrap=clock_gettime
             -Wl,--wrap=sigaction
             -Wl,--wrap=exit
@@ -531,8 +531,8 @@ if(COMPILE_DEVTOOLS)
 
         set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsrd-ns3 SHARED
+            tools/simulation/time.cpp
             tools/simulation/wsrd_ns3.cpp
-            tools/simulation/wsrd_time.cpp
             tools/simulation/wsrd_uart.cpp
         )
         # Prevent conflict with bitand()

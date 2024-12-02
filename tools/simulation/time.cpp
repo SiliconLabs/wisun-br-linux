@@ -31,7 +31,7 @@ extern "C" int __wrap_timerfd_create(int clockid, int flags)
     return eventfd(0, 0);
 }
 
-static void wsrd_ns3_timer_trig(int fd)
+static void timer_trig(int fd)
 {
     uint64_t val = 1;
     int ret;
@@ -58,7 +58,7 @@ extern "C" int __wrap_timerfd_settime(int fd, int flags,
     }
     if (!it_new->it_value.tv_sec && !it_new->it_value.tv_nsec)
         return 0;
-    g_timer_event = ns3::MakeEvent(wsrd_ns3_timer_trig, fd);
+    g_timer_event = ns3::MakeEvent(timer_trig, fd);
     ns3::Simulator::ScheduleWithContext(
         g_simulation_id,
         MAX(t - ns3::Now(), ns3::Time(0)),
