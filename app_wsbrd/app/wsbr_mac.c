@@ -44,7 +44,6 @@
 #include "wsbrd.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
-#include "timers.h"
 #include "tun.h"
 #include "dbus.h"
 #include "commandline_values.h"

@@ -68,7 +68,6 @@
 #include "wsbr_pcapng.h"
 #include "libwsbrd.h"
 #include "wsbrd.h"
-#include "timers.h"
 #include "rail_config.h"
 #include "dbus.h"
 #include "tun.h"
@@ -87,7 +86,6 @@ struct wsbr_ctxt g_ctxt = {
     .rcp.on_rx_ind = wsbr_rx_ind,
 
     // avoid initializating to 0 = STDIN_FILENO
-    .timerfd = -1,
     .tun.fd = -1,
     .pcapng_fd = -1,
     .rcp.bus.fd = -1,
@@ -502,8 +500,6 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_EVENT].events = POLLIN;
     ctxt->fds[POLLFD_TIMER].fd = timer_fd();
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
-    ctxt->fds[POLLFD_TIMER_LEGACY].fd = ctxt->timerfd;
-    ctxt->fds[POLLFD_TIMER_LEGACY].events = POLLIN;
     ctxt->fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
     ctxt->fds[POLLFD_DHCP_SERVER].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
@@ -561,8 +557,6 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
         rcp_rx(&ctxt->rcp);
     if (ctxt->fds[POLLFD_TIMER].revents & POLLIN)
         timer_process();
-    if (ctxt->fds[POLLFD_TIMER_LEGACY].revents & POLLIN)
-        wsbr_common_timer_process(ctxt);
     if (ctxt->fds[POLLFD_PCAP].revents & POLLERR)
         wsbr_pcapng_closed(ctxt);
 }
@@ -622,7 +616,9 @@ int wsbr_main(int argc, char *argv[])
         rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
 
     wsbr_tun_init(ctxt);
-    wsbr_common_timer_init(ctxt);
+    ctxt->timer_legacy.period_ms = WS_TIMER_GLOBAL_PERIOD_MS;
+    ctxt->timer_legacy.callback  = ws_timer_cb;
+    timer_start_rel(NULL, &ctxt->timer_legacy, WS_TIMER_GLOBAL_PERIOD_MS);
     wsbr_network_init(ctxt);
     dbus_register("com.silabs.Wisun.BorderRouter",
                   "/com/silabs/Wisun/BorderRouter",

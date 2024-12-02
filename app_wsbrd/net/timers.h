@@ -16,6 +16,9 @@
 
 #include <stdbool.h>
 
+struct timer_entry;
+struct timer_group;
+
 #define WS_TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
@@ -60,6 +63,6 @@ extern struct ws_timer g_timers[WS_TIMER_COUNT];
 void ws_timer_start(enum timer_id id);
 void ws_timer_stop(enum timer_id id);
 
-void ws_timer_global_tick();
+void ws_timer_cb(struct timer_group *group, struct timer_entry *timer);
 
 #endif

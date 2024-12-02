@@ -86,7 +86,8 @@ void ws_timer_stop(enum timer_id id)
     g_timers[id].timeout = 0;
 }
 
-void ws_timer_global_tick()
+
+void ws_timer_cb(struct timer_group *group, struct timer_entry *timer)
 {
     for (int i = 0; i < ARRAY_SIZE(g_timers); i++) {
         if (!g_timers[i].timeout)
