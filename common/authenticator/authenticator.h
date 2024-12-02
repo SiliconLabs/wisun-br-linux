@@ -51,7 +51,7 @@ struct auth_supp_ctx {
 SLIST_HEAD(auth_supp_ctx_list, auth_supp_ctx);
 
 struct auth_cfg {
-    int gtk_expire_offset_min;
+    int gtk_expire_offset_s;
     int gtk_new_install_required; // Percentage of GTK_EXPIRE_OFFSET
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
     int ptk_lifetime_min;
