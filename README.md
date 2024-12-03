@@ -59,13 +59,10 @@ To additionally compile `wsbrd_cli`:
     sudo apt-get install cargo libdbus-1-dev
     cargo fetch --manifest-path=tools/wsbrd_cli/Cargo.toml
 
-Debian does not (yet) package `mbedTLS` > 2.18 so you must build it from
-sources. Note that support for `cmake` has been added to `mbedTLS` 2.27. So, if
-you want to use `mbedTLS` < 2.27, the following process does not work. In
-addition, since `wsbrd` is mainly tested with `mbedTLS` 3.0, we suggest using
-this version.
+Debian does not (yet) package MbedTLS >= 3.0 so you must build it from
+sources. This project does not support versions < 3.0.
 
-    git clone --branch=v3.0.0 https://github.com/ARMmbed/mbedtls
+    git clone --branch=v3.6.2 https://github.com/ARMmbed/mbedtls
     cd mbedtls
     cmake -G Ninja .
     ninja

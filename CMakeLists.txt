@@ -64,9 +64,7 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 
-# Syntax "MbedTLS 2.18...<4" does not work :(
-find_package(MbedTLS REQUIRED)
-mark_as_advanced(MbedTLS_DIR)
+find_package(MbedTLS 3.0 REQUIRED)
 
 # Check if MbedTLS has been compiled with -fPIC
 set(CMAKE_REQUIRED_LIBRARIES MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
