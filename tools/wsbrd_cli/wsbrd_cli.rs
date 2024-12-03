@@ -202,8 +202,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .subcommand(
             SubCommand::with_name("pan-defect")
-                // TODO: Point to the main documentation.
-                .about("Toggle the Silicon Labs PAN Defect procedure to attempt a PAN transition")
+                .about("Toggle the Silicon Labs PAN Defect procedure to attempt a PAN transition \
+                        (see https://docs.silabs.com/wisun/latest/wisun-pan-defect)")
                 .setting(AppSettings::SubcommandRequired)
                 .subcommand(SubCommand::with_name("start").about("Start propagating the PAN Defect IE")
                     .arg(Arg::with_name("min-delay")
