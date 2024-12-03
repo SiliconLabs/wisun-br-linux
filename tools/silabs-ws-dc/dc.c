@@ -178,7 +178,7 @@ struct dc g_dc = {
 static void dc_init_tun(struct dc *dc)
 {
     strcpy(dc->tun.ifname, dc->cfg.tun_dev);
-    tun_init(&dc->tun, true);
+    tun_init(&dc->tun, dc->cfg.tun_autoconf);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", dc->tun.ifname, "accept_ra", '0');
     memcpy(dc->addr_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
     ipv6_addr_conv_iid_eui64(dc->addr_linklocal.s6_addr + 8, dc->ws.rcp.eui64.u8);

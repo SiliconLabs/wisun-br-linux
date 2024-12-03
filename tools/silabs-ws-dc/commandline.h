@@ -24,6 +24,7 @@ struct dc_cfg {
     struct auth_cfg auth_cfg;
 
     char tun_dev[IF_NAMESIZE];
+    bool tun_autoconf;
 
     int  ws_domain;
     int  ws_phy_mode_id;

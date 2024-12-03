@@ -74,6 +74,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,              conf_set_bool,        NULL },
         { "cpc_instance",                  config->rcp_cfg.cpc_instance,              conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
+        { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
@@ -113,6 +114,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     int opt;
 
     config->rcp_cfg.uart_baudrate = 115200;
+    config->tun_autoconf = true;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_uc_dwell_interval_ms = 255;
     config->tx_power = 14;
