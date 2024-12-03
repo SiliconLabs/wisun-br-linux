@@ -73,6 +73,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,            conf_set_number,      NULL },
         { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,              conf_set_bool,        NULL },
         { "cpc_instance",                  config->rcp_cfg.cpc_instance,              conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
+        { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
@@ -151,6 +152,9 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
             case 'u':
                 strcpy(info.key, "uart_device");
                 conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
+                break;
+            case 't':
+                snprintf(config->tun_dev, sizeof(config->tun_dev), "%s", optarg); // safe strncpy()
                 break;
             case 'T':
                 strcpy(info.key, "trace");

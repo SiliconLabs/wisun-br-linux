@@ -14,12 +14,16 @@
 #ifndef DC_COMMANDLINE_H
 #define DC_COMMANDLINE_H
 
+#include <net/if.h>
+
 #include "common/rcp_api.h"
 #include "common/authenticator/authenticator.h"
 
 struct dc_cfg {
     struct rcp_cfg rcp_cfg;
     struct auth_cfg auth_cfg;
+
+    char tun_dev[IF_NAMESIZE];
 
     int  ws_domain;
     int  ws_phy_mode_id;
