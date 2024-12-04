@@ -16,6 +16,7 @@
 #include "common/crypto/ws_keys.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/mbedtls_config_check.h"
+#include "common/drop_privileges.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/memutils.h"
@@ -259,6 +260,8 @@ int dc_main(int argc, char *argv[])
     auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64);
     auth_set_supp_pmk(&dc->auth_ctx, (struct eui64 *)dc->cfg.target_eui64, dc->cfg.target_pmk);
     timer_group_init(&dc->ws.neigh_table.timer_group);
+    if (dc->cfg.user[0] && dc->cfg.group[0])
+        drop_privileges(dc->cfg.user, dc->cfg.group, true); // keep privileges to manage route to target later
 
     dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;
     dc_restart_disc_timer(dc);
