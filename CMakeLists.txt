@@ -597,8 +597,8 @@ if(COMPILE_DEVTOOLS)
         set_property(TARGET libdc PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(dc-ns3 SHARED
             tools/simulation/rand.cpp
+            tools/simulation/time.cpp
             tools/simulation/dc_ns3.cpp
-            tools/simulation/dc_time.cpp
             tools/simulation/dc_uart.cpp
         )
         # Prevent conflict with bitand()
@@ -610,6 +610,7 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=uart_open
             -Wl,--wrap=writev
             -Wl,--wrap=getrandom
+            -Wl,--wrap=read
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime
             -Wl,--wrap=clock_gettime
