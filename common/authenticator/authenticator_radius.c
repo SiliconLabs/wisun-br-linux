@@ -125,6 +125,29 @@ static const struct radius_attr *radius_attr_find(const void *buf, size_t buf_le
     return NULL;
 }
 
+/*
+ *   RFC 2865 3. Packet Format
+ * ResponseAuth = MD5(Code+ID+Length+RequestAuth+Attributes+Secret)
+ */
+static int radius_verify_resp_auth(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                                   const void *buf, size_t buf_len)
+{
+    const struct radius_hdr *hdr = buf;
+    mbedtls_md5_context md5;
+    uint8_t resp_auth[16];
+
+    BUG_ON(buf_len < sizeof(struct radius_hdr));
+    mbedtls_md5_init(&md5);
+    xmbedtls_md5_starts(&md5);
+    xmbedtls_md5_update(&md5, buf, offsetof(struct radius_hdr, auth));
+    xmbedtls_md5_update(&md5, supp->radius_auth, 16);
+    xmbedtls_md5_update(&md5, (uint8_t *)buf + sizeof(*hdr), buf_len - sizeof(*hdr));
+    xmbedtls_md5_update(&md5, (uint8_t *)auth->radius_secret, strlen(auth->radius_secret));
+    xmbedtls_md5_finish(&md5, resp_auth);
+    mbedtls_md5_free(&md5);
+    return !memcmp(hdr->auth, resp_auth, 16) ? 0 : -EINVAL;
+}
+
 // RFC 2865 5.24. State
 static int radius_read_state(struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
 {
@@ -212,6 +235,12 @@ void radius_recv(struct auth_ctx *auth)
 
     TRACE(TR_SECURITY, "sec: rx-radius code=%-16s id=%u",
           tr_radius_code(hdr->code), hdr->id);
+
+    ret = radius_verify_resp_auth(auth, supp, iobuf.data, iobuf.data_size);
+    if (ret < 0) {
+        TRACE(TR_DROP, "drop %-9s: invalid response authenticator", "radius");
+        return;
+    }
 
     switch (hdr->code) {
     case RADIUS_ACCESS_CHALLENGE:
