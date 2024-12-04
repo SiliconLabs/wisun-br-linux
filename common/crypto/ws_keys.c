@@ -13,9 +13,8 @@
  */
 #include <string.h>
 
-#include <mbedtls/sha256.h>
-
 #include "common/crypto/hmac_md.h"
+#include "common/mbedtls_extra.h"
 #include "common/log.h"
 
 //   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
@@ -24,17 +23,12 @@ void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]
 {
     mbedtls_sha256_context ctx;
     uint8_t hash[32];
-    int ret;
 
     mbedtls_sha256_init(&ctx);
-    ret = mbedtls_sha256_starts(&ctx, 0);
-    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_starts: %s", __func__, tr_mbedtls_err(ret));
-    ret = mbedtls_sha256_update(&ctx, (void *)netname, strlen(netname));
-    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_update: %s", __func__, tr_mbedtls_err(ret));
-    ret = mbedtls_sha256_update(&ctx, gtk, 16);
-    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_update: %s", __func__, tr_mbedtls_err(ret));
-    ret = mbedtls_sha256_finish(&ctx, hash);
-    FATAL_ON(ret < 0, 2, "%s: mbedtls_sha256_finish: %s", __func__, tr_mbedtls_err(ret));
+    xmbedtls_sha256_starts(&ctx, 0);
+    xmbedtls_sha256_update(&ctx, (void *)netname, strlen(netname));
+    xmbedtls_sha256_update(&ctx, gtk, 16);
+    xmbedtls_sha256_finish(&ctx, hash);
     mbedtls_sha256_free(&ctx);
     memcpy(gak, hash, 16);
 }

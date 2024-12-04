@@ -24,7 +24,12 @@
 #include <stdio.h>
 
 #ifdef HAVE_MBEDTLS
+#include "common/log.h"
+
 #include <mbedtls/build_info.h>
+#include <mbedtls/md.h>
+#include <mbedtls/md5.h>
+#include <mbedtls/sha256.h>
 #include <mbedtls/ssl.h>
 
 #if MBEDTLS_VERSION_NUMBER < 0x03020000
@@ -32,6 +37,27 @@ static inline bool mbedtls_ssl_is_handshake_over(struct mbedtls_ssl_context *ssl
     return ssl_ctx->private_state == MBEDTLS_SSL_HANDSHAKE_OVER;
 }
 #endif
+
+#define XMBEDTLS(func, ...) do {                     \
+    int ret;                                         \
+                                                     \
+    ret = mbedtls_##func(__VA_ARGS__);               \
+    FATAL_ON(ret < 0, 2, "%s: mbedtls_%s: %s",       \
+             __func__, #func, tr_mbedtls_err(-ret)); \
+} while (0)
+
+#define xmbedtls_md_setup(ctx, md_info, hmac)                       XMBEDTLS(md_setup, ctx, md_info, hmac)
+#define xmbedtls_md_hmac_starts(ctx, key, keylen)                   XMBEDTLS(md_hmac_starts, ctx, key, keylen)
+#define xmbedtls_md_hmac_update(ctx, input, ilen)                   XMBEDTLS(md_hmac_update, ctx, input, ilen)
+#define xmbedtls_md_hmac_finish(ctx, output)                        XMBEDTLS(md_hmac_finish, ctx, output)
+#define xmbedtls_md_hmac(md_info, key, keylen, input, ilen, output) XMBEDTLS(md_hmac, md_info, key, keylen, input, ilen, output)
+#define xmbedtls_md5_starts(ctx)                                    XMBEDTLS(md5_starts, ctx)
+#define xmbedtls_md5_update(ctx, input, ilen)                       XMBEDTLS(md5_update, ctx, input, ilen)
+#define xmbedtls_md5_finish(ctx, output)                            XMBEDTLS(md5_finish, ctx, output)
+#define xmbedtls_sha256_starts(ctx, is224)                          XMBEDTLS(sha256_starts, ctx, is224)
+#define xmbedtls_sha256_update(ctx, input, ilen)                    XMBEDTLS(sha256_update, ctx, input, ilen)
+#define xmbedtls_sha256_finish(ctx, output)                         XMBEDTLS(sha256_finish, ctx, output)
+#define xmbedtls_sha256(input, ilen, output, is224)                 XMBEDTLS(sha256, input, ilen, output, is224)
 
 #endif
 

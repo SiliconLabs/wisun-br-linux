@@ -286,7 +286,6 @@ bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkha
 {
     uint8_t hash[32] = { };
     bool has_gtk;
-    int ret;
 
     if (!supp->running)
         return false;
@@ -294,8 +293,7 @@ bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkha
     if (timer_stopped(&supp->gtks[gtkhash_index - 1].expiration_timer)) {
         has_gtk = !memzcmp(gtkhash, 8);
     } else {
-        ret = mbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
-        FATAL_ON(ret, 2, "%s: mbedtls_sha256: %s", __func__, tr_mbedtls_err(ret));
+        xmbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
         has_gtk = !memcmp(hash + 24, gtkhash, 8);
     }
     if (!has_gtk)
