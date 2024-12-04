@@ -11,15 +11,14 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <limits.h>
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
 #include <sys/capability.h>
 #include "common/log.h"
 
-#include "commandline.h"
-
-void drop_privileges(struct wsbrd_conf *conf)
+void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap)
 {
     int ret;
     struct passwd *user;
@@ -27,13 +26,13 @@ void drop_privileges(struct wsbrd_conf *conf)
     cap_t cap_p;
     cap_value_t cap_value = CAP_NET_ADMIN;
 
-    group = getgrnam(conf->group);
-    FATAL_ON(!group, 1, "group '%s' does not exist", conf->group);
+    group = getgrnam(groupname);
+    FATAL_ON(!group, 1, "group '%s' does not exist", groupname);
     ret = cap_setgroups(group->gr_gid, 1, &group->gr_gid);
     FATAL_ON(ret, 2, "cap_setgroups: %m");
 
-    user = getpwnam(conf->user);
-    FATAL_ON(!user, 1, "user '%s' does not exist", conf->user);
+    user = getpwnam(username);
+    FATAL_ON(!user, 1, "user '%s' does not exist", username);
     ret = cap_setuid(user->pw_uid);
     FATAL_ON(ret, 2, "cap_setuid: %m"); // cap_setuid to unprivileged user drops the effective flag on all capabilities
 
@@ -41,7 +40,7 @@ void drop_privileges(struct wsbrd_conf *conf)
     FATAL_ON(!cap_p, 2, "cap_get_proc: %m");
     ret = cap_clear_flag(cap_p, CAP_PERMITTED);
     FATAL_ON(ret, 2, "cap_clear_flag: %m");
-    if (strlen(conf->neighbor_proxy)) {
+    if (keep_cap) {
         ret = cap_set_flag(cap_p, CAP_PERMITTED, 1, &cap_value, CAP_SET);
         FATAL_ON(ret, 2, "cap_set_flag: %m");
         ret = cap_set_flag(cap_p, CAP_EFFECTIVE, 1, &cap_value, CAP_SET);

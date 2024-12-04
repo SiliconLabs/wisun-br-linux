@@ -624,7 +624,7 @@ int wsbr_main(int argc, char *argv[])
                   "com.silabs.Wisun.BorderRouter",
                   wsbrd_dbus_vtable, ctxt);
     if (ctxt->config.user[0] && ctxt->config.group[0])
-        drop_privileges(&ctxt->config);
+        drop_privileges(ctxt->config.user, ctxt->config.group, ctxt->config.neighbor_proxy[0]);
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,

@@ -14,17 +14,17 @@
 #ifndef DROP_PRIVILEGES_H
 #define DROP_PRIVILEGES_H
 
-struct wsbrd_conf;
+#include <limits.h>
 
 #ifdef HAVE_LIBCAP
 
-void drop_privileges(struct wsbrd_conf *conf);
+void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap);
 
 #else
 
 #include "common/log.h"
 
-static inline void drop_privileges(struct wsbrd_conf *conf)
+static inline void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap)
 {
     FATAL(3, "options user and group need support for libcap");
 }
