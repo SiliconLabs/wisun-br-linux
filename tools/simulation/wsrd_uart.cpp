@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <ns3/libwsbrd-ns3.hpp>
+#include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
 #include "app_wsrd/app/wsrd.h"

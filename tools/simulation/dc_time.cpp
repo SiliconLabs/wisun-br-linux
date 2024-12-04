@@ -17,7 +17,7 @@
 
 #include <ns3/event-id.h>
 #include <ns3/simulator.h>
-#include <ns3/libwsbrd-ns3.hpp>
+#include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
 #include "common/log.h"

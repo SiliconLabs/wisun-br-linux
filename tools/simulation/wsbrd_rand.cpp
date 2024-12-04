@@ -20,7 +20,7 @@ extern "C" {
 
 #include <ns3/random-variable-stream.h>
 #include <ns3/rng-seed-manager.h>
-#include <ns3/libwsbrd-ns3.hpp>
+#include <ns3/sl-wisun-linux.hpp>
 
 /*
  * When fuzz capture is enabled, the wsbrd-fuzz generator is used (libc).
