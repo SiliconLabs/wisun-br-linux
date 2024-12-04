@@ -25,6 +25,8 @@ struct dc_cfg {
 
     char tun_dev[IF_NAMESIZE];
     bool tun_autoconf;
+    char user[LOGIN_NAME_MAX];
+    char group[LOGIN_NAME_MAX];
 
     int  ws_domain;
     int  ws_phy_mode_id;

@@ -75,6 +75,8 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "cpc_instance",                  config->rcp_cfg.cpc_instance,              conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
+        { "user",                          config->user,                              conf_set_string,      (void *)sizeof(config->user) },
+        { "group",                         config->group,                             conf_set_string,      (void *)sizeof(config->group) },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
@@ -182,6 +184,10 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
         FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
+    if (!config->user[0] && config->group[0])
+        WARN("group is set while user is not: privileges will not be dropped if started as root");
+    if (config->user[0] && !config->group[0])
+        WARN("user is set while group is not: privileges will not be dropped if started as root");
     if (config->list_rf_configs)
         return;
     if (config->ws_chan0_freq || config->ws_chan_spacing || config->ws_chan_count) {
