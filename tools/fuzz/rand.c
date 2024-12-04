@@ -15,15 +15,15 @@
 #include <stdint.h>
 
 #include "tools/fuzz/wsbrd_fuzz.h"
-#include "rand.h"
 
+ssize_t __real_xgetrandom(void *buf, size_t buf_len, unsigned int flags);
 ssize_t __wrap_xgetrandom(void *buf, size_t buf_len, unsigned int flags)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     uint8_t *buf8 = buf;
 
     if (!ctxt->fuzzing_enabled || buf_len <= 8)
-        return fuzz_real_getrandom(buf, buf_len, flags);
+        return __real_xgetrandom(buf, buf_len, flags);
 
     // In most of the cases, when the stack ask for an array of random uint8_t,
     // it is initializing a key or seed for cryptographic material. In this

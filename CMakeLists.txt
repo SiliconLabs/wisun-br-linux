@@ -583,6 +583,7 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=write
             -Wl,--wrap=writev
             -Wl,--wrap=xgetrandom
+            -Wl,--wrap=getrandom
             -Wl,--wrap=read
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime

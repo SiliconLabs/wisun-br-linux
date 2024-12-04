@@ -14,10 +14,6 @@
  */
 #include <sys/types.h>
 
-extern "C" {
-#include "tools/fuzz/rand.h"
-}
-
 #include <ns3/random-variable-stream.h>
 #include <ns3/rng-seed-manager.h>
 #include <ns3/sl-wisun-linux.hpp>
@@ -29,7 +25,7 @@ extern "C" {
  * currently, using the ns-3 generator does not provide any advantages, but
  * this may change in the future.
  */
-ssize_t fuzz_real_getrandom(void *buf, size_t buflen, unsigned int flags)
+extern "C" ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
     static bool init = false;
     static ns3::Ptr<ns3::UniformRandomVariable> rand_source =
