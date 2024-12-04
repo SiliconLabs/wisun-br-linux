@@ -18,7 +18,6 @@
 #include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
-#include "app_wsrd/app/wsrd.h"
 #include "common/log.h"
 #include "common/bus.h"
 #include "common/memutils.h"
@@ -33,14 +32,12 @@ extern "C" int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
     return g_uart_fd;
 }
 
+// NOTE: writev() is assumed to be only used by common/bus_uart.c
 extern "C" ssize_t __real_writev(int fd, const struct iovec *iov, int iovcnt);
 extern "C" ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
 {
     uint8_t *buf;
     ssize_t ret;
-
-    if (fd != g_wsrd.ws.rcp.bus.fd)
-        return __real_writev(fd, iov, iovcnt);
 
     BUG_ON(iovcnt != 3); // hdr | cmd + body | fcs
     // TODO: change the signature of g_uart_cb to accept iovec so rebuilding

@@ -563,8 +563,8 @@ if(COMPILE_DEVTOOLS)
         add_library(wsbrd-ns3 SHARED
             tools/simulation/rand.cpp
             tools/simulation/time.cpp
+            tools/simulation/uart.cpp
             tools/simulation/wsbrd_ns3.cpp
-            tools/simulation/wsbrd_uart.cpp
             tools/fuzz/commandline.c
             tools/fuzz/rand.c
             tools/fuzz/wsbrd_fuzz.c
@@ -580,7 +580,6 @@ if(COMPILE_DEVTOOLS)
         target_link_libraries(wsbrd-ns3 Threads::Threads)
         target_link_options(wsbrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
-            -Wl,--wrap=write
             -Wl,--wrap=writev
             -Wl,--wrap=xgetrandom
             -Wl,--wrap=getrandom
@@ -598,8 +597,8 @@ if(COMPILE_DEVTOOLS)
         add_library(dc-ns3 SHARED
             tools/simulation/rand.cpp
             tools/simulation/time.cpp
+            tools/simulation/uart.cpp
             tools/simulation/dc_ns3.cpp
-            tools/simulation/dc_uart.cpp
         )
         # Prevent conflict with bitand()
         target_compile_options(dc-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
@@ -624,8 +623,8 @@ if(COMPILE_DEVTOOLS)
         add_library(wsrd-ns3 SHARED
             tools/simulation/rand.cpp
             tools/simulation/time.cpp
+            tools/simulation/uart.cpp
             tools/simulation/wsrd_ns3.cpp
-            tools/simulation/wsrd_uart.cpp
         )
         # Prevent conflict with bitand()
         target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
