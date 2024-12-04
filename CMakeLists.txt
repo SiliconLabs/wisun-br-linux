@@ -245,7 +245,7 @@ target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto Mbed
 target_compile_definitions(libwsbrd PUBLIC HAVE_MBEDTLS)
 if(LIBCAP_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBCAP)
-    target_sources(libwsbrd PRIVATE app_wsbrd/app/drop_privileges.c)
+    target_sources(libwsbrd PRIVATE common/drop_privileges.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBCAP)
 endif()
 if(LIBSYSTEMD_FOUND)

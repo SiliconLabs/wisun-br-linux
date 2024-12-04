@@ -32,6 +32,7 @@
 #include "common/ws_regdb.h"
 #include "common/ieee802154_frame.h"
 #include "common/key_value_storage.h"
+#include "common/drop_privileges.h"
 #include "common/string_extra.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
@@ -61,7 +62,6 @@
 #include "app_wsbrd/mpl/mpl.h"
 
 #include "commandline_values.h"
-#include "drop_privileges.h"
 #include "commandline.h"
 #include "wsbr_cfg.h"
 #include "wsbr_mac.h"
