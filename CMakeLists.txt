@@ -561,9 +561,9 @@ if(COMPILE_DEVTOOLS)
         # cannot be ensured by CMake when resolving dependencies.
         set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsbrd-ns3 SHARED
+            tools/simulation/rand.cpp
             tools/simulation/time.cpp
             tools/simulation/wsbrd_ns3.cpp
-            tools/simulation/wsbrd_rand.cpp
             tools/simulation/wsbrd_uart.cpp
             tools/fuzz/commandline.c
             tools/fuzz/rand.c
@@ -596,6 +596,7 @@ if(COMPILE_DEVTOOLS)
 
         set_property(TARGET libdc PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(dc-ns3 SHARED
+            tools/simulation/rand.cpp
             tools/simulation/dc_ns3.cpp
             tools/simulation/dc_time.cpp
             tools/simulation/dc_uart.cpp
@@ -608,6 +609,7 @@ if(COMPILE_DEVTOOLS)
         target_link_options(dc-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=writev
+            -Wl,--wrap=getrandom
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime
             -Wl,--wrap=clock_gettime
@@ -619,6 +621,7 @@ if(COMPILE_DEVTOOLS)
 
         set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsrd-ns3 SHARED
+            tools/simulation/rand.cpp
             tools/simulation/time.cpp
             tools/simulation/wsrd_ns3.cpp
             tools/simulation/wsrd_uart.cpp
@@ -631,6 +634,7 @@ if(COMPILE_DEVTOOLS)
         target_link_options(wsrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=writev
+            -Wl,--wrap=getrandom
             -Wl,--wrap=read
             -Wl,--wrap=timerfd_create
             -Wl,--wrap=timerfd_settime
