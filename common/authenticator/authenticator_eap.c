@@ -25,19 +25,26 @@
 
 void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pktbuf *pktbuf)
 {
-    const struct eap_hdr *eap;
+    struct eap_hdr eap;
 
     eap_trace("tx-eap", pktbuf_head(pktbuf), pktbuf_len(pktbuf));
 
-    BUG_ON(pktbuf_len(pktbuf) < sizeof(*eap));
-    eap = (const struct eap_hdr *)pktbuf_head(pktbuf);
-    supp->eap_id = eap->identifier;
+    BUG_ON(pktbuf_len(pktbuf) < sizeof(eap));
+    eap = *(const struct eap_hdr *)pktbuf_head(pktbuf);
+    supp->eap_id = eap.identifier;
 
     eapol_write_hdr_head(pktbuf, EAPOL_PACKET_TYPE_EAP);
     auth_send_eapol(auth, supp, IEEE802159_KMP_ID_8021X,
                     pktbuf_head(pktbuf), pktbuf_len(pktbuf));
-    auth_rt_timer_start(auth, supp, IEEE802159_KMP_ID_8021X,
-                        pktbuf_head(pktbuf), pktbuf_len(pktbuf));
+
+    /*
+     *   RFC 3748 4.2. Success and Failure
+     * Because the Success and Failure packets are not acknowledged, they are
+     * not retransmitted by the authenticator, and may be potentially lost.
+     */
+    if (eap.code != EAP_CODE_SUCCESS && eap.code != EAP_CODE_FAILURE)
+        auth_rt_timer_start(auth, supp, IEEE802159_KMP_ID_8021X,
+                            pktbuf_head(pktbuf), pktbuf_len(pktbuf));
 }
 
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
