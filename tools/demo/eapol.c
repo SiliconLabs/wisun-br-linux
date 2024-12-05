@@ -104,8 +104,8 @@ int main()
 {
     const struct eui64 auth_eui64 = { .u8 = { [7] = 1 } };
     const struct eui64 supp_eui64 = { .u8 = { [7] = 2 } };
+    struct sockaddr_in6 radius_addr = { };
     struct sockaddr_in6 auth_addr = { };
-    struct in6_addr radius_addr = { };
     struct storage_parse_info info;
     struct iovec supp_cert = { };
     struct iovec supp_key = { };
@@ -147,8 +147,9 @@ int main()
     supp_reset(&ctx.supp);
 
     strcpy(ctx.auth.radius_secret, "SHARED_SECRET");
-    inet_pton(AF_INET6, "::1", &radius_addr);
-    radius_init(&ctx.auth, &radius_addr);
+    radius_addr.sin6_family = AF_INET6;
+    inet_pton(AF_INET6, "::1", &radius_addr.sin6_addr);
+    radius_init(&ctx.auth, (struct sockaddr *)&radius_addr);
     auth_start(&ctx.auth, &auth_eui64);
 
     supp_start_key_request(&ctx.supp);
