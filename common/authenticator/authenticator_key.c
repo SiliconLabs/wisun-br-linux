@@ -109,7 +109,7 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
                frame->mic, sizeof(frame->mic));
     }
 
-    auth_send_eapol(ctx, &supp->eui64, kmp_id, &message);
+    auth_send_eapol(ctx, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
 
     /*
      *  IEEE 802.11-2020, 12.7.6.6 4-way handshake implementation considerations

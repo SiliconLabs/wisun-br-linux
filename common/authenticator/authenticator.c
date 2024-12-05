@@ -136,7 +136,9 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
         return;
     }
     TRACE(TR_SECURITY, "sec: frame retry eui64=%s", tr_eui64(supp->eui64.u8));
-    auth_send_eapol(ctx, &supp->eui64, supp->rt_kmp_id, &supp->rt_buffer);
+    auth_send_eapol(ctx, supp, supp->rt_kmp_id,
+                    pktbuf_head(&supp->rt_buffer),
+                    pktbuf_len(&supp->rt_buffer));
 }
 
 static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
@@ -184,13 +186,16 @@ bool auth_get_supp_tk(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t t
     return true;
 }
 
-void auth_send_eapol(struct auth_ctx *ctx, const struct eui64 *dst, uint8_t kmp_id, struct pktbuf *buf)
+void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                     uint8_t kmp_id, const void *buf, size_t buf_len)
 {
-    uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
+    const struct eapol_hdr *hdr;
 
+    BUG_ON(buf_len < sizeof(*hdr));
+    hdr = buf;
     TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
-          val_to_str(packet_type, eapol_frames, "[UNK]"), pktbuf_len(buf));
-    ctx->sendto_mac(ctx, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
+          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), buf_len);
+    auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
 }
 
 void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *eui64,
