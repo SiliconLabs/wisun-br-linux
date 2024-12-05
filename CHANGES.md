@@ -1,3 +1,44 @@
+v2.2
+------
+  - Add Wi-SUN Linux Router (`wsrd`) demo, functioning as a *leaf node*:
+    * Send PAN Advertisement Solicit frames, listen for PAN Advertisements and
+      select a PAN.
+    * Authenticate and retrieve security keys.
+    * Send PAN Configuration Solicit frames, listen for PAN Configurations and
+      synchronize to the broadcast schedule.
+    * Send DIS packets, listen for RPL DIOs and select a parent using RPL
+      metrics.
+    * From a global unicast IPv6 address using DHCPv6.
+    * Register this address to the primary parent using NS(ARO).
+    * Send a DAO to the border router to establish a downard route.
+    * Ping and do application traffic to the rest of Wi-SUN and the backhaul.
+  - Add Silicon Labs Direct Connect tool (`silabs-ws-dc`) to communicate
+    directly with Wi-SUN nodes without routing:
+    * Request and establish a pairwaise session with a single node.
+    * Authenticate with that node using a provisioned PMK.
+    * Ping and do application traffic to that node, even if it is not
+      connected to a Wi-SUN network.
+  - Update North American OFDM PHY definitions (`phy_mode_id = 0x51-0x54`,
+    `chan_plan_id = 4` and `phy_mode_id = 0x34-0x38`, `chan_plan_id = 5`). The
+    Wi-SUN PHY specification has undergone a breaking change in version 1vA12.
+    Users of the legacy PHY settings are now expected to use `chan0_freq`,
+    `chan_spacing` and `chan_count`.
+  - Add `pan-defect` command to `wsbrd_cli` to support the [Silicon Labs PAN
+    Defect][pan-defect] procedure.
+  - Transition `wsbrd` to a new timer system which will help reduce CPU
+    consumption with future changes.
+  - Force offline compilation of `wsbrd_cli` to avoid network access during
+    build. Dependencies must now be retrieved before running CMake, using
+    `cargo fetch`.
+  - Enable mode switch by default (`phy_operating_modes = auto`) and introduce
+    `none` to disable it.
+  - Add [`/tools/demo`](tools/demo) files to test individual modules.
+  - Fix processing of the EAP identifier.
+  - Fix reception of big UART frames.
+  - Fix single channel mode.
+
+[pan-defect]: https://docs.silabs.com/wisun/latest/wisun-pan-defect
+
 v2.1.7
 ------
   - Document the RCP API in [`HIF.md`](HIF.md).
