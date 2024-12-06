@@ -43,7 +43,7 @@ static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
         // 00: ECN + DSCP + 4-bit Pad + Flow Label (4 bytes)
         tmp = pktbuf_pop_head_be32(pktbuf);
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF00_ECN,  tmp);
-        dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF00_DSCN, tmp);
+        dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF00_DSCP, tmp);
         flow = FIELD_GET(LOWPAN_MASK_IPHC_TF00_FLOW, tmp);
         break;
     case 0b01:
@@ -56,7 +56,7 @@ static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
         // 10: ECN + DSCP (1 byte), Flow Label is elided.
         tmp = pktbuf_pop_head_u8(pktbuf);
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF10_ECN,  tmp);
-        dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF10_DSCN, tmp);
+        dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF10_DSCP, tmp);
         break;
     case 0b11:
         // 11: Traffic Class and Flow Label are elided.
@@ -388,7 +388,7 @@ static uint8_t lowpan_iphc_cmpr_vtcflow(struct pktbuf *pktbuf, uint32_t vtcflow)
     } else if (!flow) {
         // 10: ECN + DSCP (1 byte), Flow Label is elided.
         pktbuf_push_head_u8(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF10_ECN,  ecn) |
-                                    FIELD_PREP(LOWPAN_MASK_IPHC_TF10_DSCN, dscp));
+                                    FIELD_PREP(LOWPAN_MASK_IPHC_TF10_DSCP, dscp));
         return 0b10;
     } else if (!dscp) {
         // 01: ECN + 2-bit Pad + Flow Label (3 bytes), DSCP is elided.
@@ -398,7 +398,7 @@ static uint8_t lowpan_iphc_cmpr_vtcflow(struct pktbuf *pktbuf, uint32_t vtcflow)
     } else {
         // 00: ECN + DSCP + 4-bit Pad + Flow Label (4 bytes)
         pktbuf_push_head_be32(pktbuf, FIELD_PREP(LOWPAN_MASK_IPHC_TF00_ECN,  ecn)  |
-                                      FIELD_PREP(LOWPAN_MASK_IPHC_TF00_DSCN, dscp) |
+                                      FIELD_PREP(LOWPAN_MASK_IPHC_TF00_DSCP, dscp) |
                                       FIELD_PREP(LOWPAN_MASK_IPHC_TF00_FLOW, flow));
         return 0b00;
     }
