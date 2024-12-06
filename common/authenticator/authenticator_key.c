@@ -124,7 +124,7 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
     pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(&message), pktbuf_len(&message));
     supp->rt_kmp_id = kmp_id;
     supp->rt_count  = 0;
-    timer_start_rel(&ctx->timer_group, &supp->rt_timer, 30 * 1000);
+    timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
 
 static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *supp, int key_slot, struct pktbuf *enc_key_data)
@@ -460,5 +460,5 @@ void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobu
     }
     // If there was an error during parsing of the message, restart retry timer
     if (ret)
-        timer_start_rel(&ctx->timer_group, &supp->rt_timer, 30 * 1000);
+        timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
