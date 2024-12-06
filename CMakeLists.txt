@@ -547,6 +547,7 @@ if(COMPILE_DEVTOOLS)
     add_dependencies(silabs-ws-dc libdc)
     target_link_libraries(silabs-ws-dc libdc)
     install(TARGETS silabs-ws-dc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(FILES examples/silabs-ws-dc.conf DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
     if(ns3_FOUND)
         if (NOT MBEDTLS_COMPILED_WITH_PIC)
