@@ -70,14 +70,14 @@ enum {
 
 // RFC 6282 - Figure 4: TF = 00: Traffic Class and Flow Label carried in-line
 #define LOWPAN_MASK_IPHC_TF00_ECN  0xc0000000
-#define LOWPAN_MASK_IPHC_TF00_DSCP 0x3c000000
+#define LOWPAN_MASK_IPHC_TF00_DSCP 0x3f000000
 #define LOWPAN_MASK_IPHC_TF00_FLOW 0x000fffff
 // RFC 6282 - Figure 5: TF = 01: Flow Label carried in-line
 #define LOWPAN_MASK_IPHC_TF01_ECN  0xc00000
 #define LOWPAN_MASK_IPHC_TF01_FLOW 0x0fffff
 // RFC 6282 - Figure 6: TF = 10: Traffic Class carried in-line
 #define LOWPAN_MASK_IPHC_TF10_ECN  0b11000000
-#define LOWPAN_MASK_IPHC_TF10_DSCP 0b00111100
+#define LOWPAN_MASK_IPHC_TF10_DSCP 0b00111111
 
 // LOWPAN_NHC Header Type
 // https://www.iana.org/assignments/_6lowpan-parameters/_6lowpan-parameters.xhtml#lowpan_nhc
