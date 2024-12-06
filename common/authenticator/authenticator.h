@@ -44,6 +44,8 @@ struct auth_supp_ctx {
     uint8_t snonce[32];
     int64_t replay_counter;
 
+    uint8_t eap_id;
+
     SLIST_ENTRY(auth_supp_ctx) link;
 };
 

@@ -127,6 +127,11 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * If the Authenticator does not receive a reply to its messages, it shall
      * attempt dot11RSNAConfigPairwiseUpdateCount transmits of the message,
      * plus a final timeout.
+     *     RFC 3748 4.1. Request and Response
+     * The authenticator is responsible for retransmitting Request messages. If
+     * the Request message is obtained from elsewhere (such as from a backend
+     * authentication server), then the authenticator will need to save a copy
+     * of the Request in order to accomplish this.
      */
     pktbuf_free(&supp->rt_buffer);
     pktbuf_init(&supp->rt_buffer, buf, buf_len);
@@ -145,6 +150,8 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
     /*
      *     IEEE 802.11-2020 C.3 MIB detail
      * dot11RSNAConfigPairwiseUpdateCount [...] DEFVAL { 3 }
+     *     RFC 3748 4.3. Retransmission Behavior
+     * A maximum of 3-5 retransmissions is suggested.
      */
     if (supp->rt_count == 3) {
         TRACE(TR_SECURITY, "sec: max retry count exceeded eui64=%s", tr_eui64(supp->eui64.u8));

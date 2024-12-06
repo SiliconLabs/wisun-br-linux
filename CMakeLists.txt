@@ -494,6 +494,7 @@ if(COMPILE_DEVTOOLS)
     add_library(libdc STATIC
         version.c
         tools/silabs-ws-dc/dc.c
+        tools/silabs-ws-dc/authenticator_stubs.c
         tools/silabs-ws-dc/commandline.c
         tools/silabs-ws-dc/ws.c
         common/authenticator/authenticator.c
