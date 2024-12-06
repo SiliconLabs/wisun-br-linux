@@ -144,13 +144,12 @@ static void supp_eap_tls_recv(struct supplicant_ctx *supp, const struct eap_hdr 
         TRACE(TR_DROP, "drop %-9s: \"length-included\" bit is set when it should not be", "eap-tls");
         return;
     }
-    if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags) && !FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags)) {
-        TRACE(TR_DROP, "drop %-9s: \"more-fragments\" bit is not set when it should be", "eap-tls");
-        return;
-    }
-
     if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags))
         supp->expected_rx_len = iobuf_pop_be32(iobuf);
+    if (FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) && !supp->expected_rx_len) {
+        TRACE(TR_DROP, "drop %-9s: \"more-fragments\" set without known length", "eap-tls");
+        return;
+    }
 
     remaining_size = iobuf_remaining_size(iobuf);
 
