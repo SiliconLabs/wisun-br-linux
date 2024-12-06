@@ -55,10 +55,11 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                              const struct rpl_opt_config *config,
                              const struct rpl_opt_prefix *prefix)
 {
+    const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
     bool update = nce->rpl->dio.rank != dio->rank;
 
     WARN_ON(nce->rpl->dio.instance_id != dio->instance_id);
-    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio.dodag_id.s6_addr, &dio->dodag_id));
+    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio.dodag_id.s6_addr, &dodag_id));
     WARN_ON(memcmp(&nce->rpl->config, config, sizeof(nce->rpl->config)));
     nce->rpl->dio = *dio;
     nce->rpl->config   = *config;
@@ -376,7 +377,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
                 TRACE(TR_DROP, "drop %-9s: unsupported prefix w/o router address", tr_icmp_rpl(RPL_CODE_DIO));
                 goto drop_neigh;
             }
-            if (!IN6_IS_ADDR_UC_GLOBAL(&prefix->prefix)) {
+            addr = prefix->prefix; // -Waddress-of-packed-member
+            if (!IN6_IS_ADDR_UC_GLOBAL(&addr)) {
                 TRACE(TR_DROP, "drop %-9s: unsupported non-global unicast prefix", tr_icmp_rpl(RPL_CODE_DIO));
                 goto drop_neigh;
             }
@@ -438,9 +440,11 @@ drop_neigh:
 
 static bool rpl_opt_solicit_matches(const struct rpl_opt_solicit *solicit, const struct rpl_dio *dio)
 {
+    const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
+
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_I && solicit->instance_id != dio->instance_id)
         return false;
-    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&solicit->dodag_id, &dio->dodag_id))
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&solicit->dodag_id, &dodag_id))
         return false;
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_V && solicit->dodag_verno != dio->dodag_verno)
         return false;
