@@ -416,6 +416,8 @@ void ws_recvfrom_tun(struct dc *dc)
         goto err;
     }
 
+    TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s", tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
+
     ipv6_addr_conv_iid_eui64(dst_eui64, hdr->ip6_dst.s6_addr + 8);
     ws_send_lowpan(dc, &pktbuf, dc->ws.rcp.eui64.u8, dst_eui64);
 
