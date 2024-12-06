@@ -129,15 +129,17 @@ more detail, refer to the `README.md` present in the relevant source folder
 Some of these are not compiled by default and require setting
 `COMPILE_DEVTOOLS=ON` when configuring the project with CMake.
 
-| Application  | Description                                                   |
-|--------------|---------------------------------------------------------------|
-| `wsbrd_cli`  | A simple application for querying the D-Bus interface         |
-| `wsbrd-fwup` | A tool for updating the RCP firmware                          |
-| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`                      |
-| `wshwping`   | A tool for testing the serial link                            |
-| `wstbu`      | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |
+| Application    | Description                                                   |
+|----------------|---------------------------------------------------------------|
+| `wsbrd_cli`    | A simple application for querying the D-Bus interface         |
+| `wsbrd-fwup`   | A tool for updating the RCP firmware                          |
+| `wsbrd-fuzz`   | A tool for fuzzing and debugging `wsbrd`                      |
+| `wshwping`     | A tool for testing the serial link                            |
+| `wstbu`        | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |
+| `silabs-ws-dc` | [Silicon Labs Wi-SUN Direct Connect][dc] Linux client         |
 
 [tbu]: https://bitbucket.org/wisunalliance/test-bed-unit-api
+[dc]: https://docs.silabs.com/wisun/latest/wisun-direct-connect
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
