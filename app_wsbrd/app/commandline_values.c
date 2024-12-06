@@ -44,7 +44,6 @@ const struct name_value valid_fan_versions[] = {
 const struct name_value valid_traces[] = {
     { "bus",        TR_BUS },
     { "cpc",        TR_CPC },
-    { "hdlc",       TR_HDLC },
     { "hif",        TR_HIF },
     { "hif-extra",  TR_HIF_EXTRA },
     { "trickle",    TR_TRICKLE },

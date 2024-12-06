@@ -213,8 +213,6 @@ int uart_legacy_tx(struct bus *bus, const void *buf, unsigned int buf_len)
     frame_len = uart_legacy_encode_hdlc(frame, buf, buf_len, crc);
     TRACE(TR_BUS, "bus tx: %s (%d bytes)",
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
-    TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
-          tr_bytes(buf, buf_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf_len);
     ret = write(bus->fd, frame, frame_len);
     BUG_ON(ret != frame_len, "write: %m");
     free(frame);
@@ -296,8 +294,6 @@ static size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len,
             return 0;
         }
     }
-    TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
-        tr_bytes(out, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     return frame_len;
 }
 

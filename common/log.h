@@ -73,7 +73,6 @@ extern bool g_enable_color_traces;
 
 enum {
     TR_BUS        = 0x00000001,
-    TR_HDLC       = 0x00000002,
     TR_CPC        = 0x00000004,
     TR_HIF        = 0x00000008,
     TR_HIF_EXTRA  = 0x00000010,

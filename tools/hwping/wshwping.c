@@ -45,7 +45,6 @@ static const struct name_value accepted_modes[] = {
 const struct name_value valid_traces[] = {
     { "bus",       TR_BUS },
     { "cpc",       TR_CPC },
-    { "hdlc",      TR_HDLC },
     { "hif",       TR_HIF },
     { "hif-extra", TR_HIF_EXTRA },
     { NULL },
@@ -85,7 +84,7 @@ void print_help(FILE *stream, int exit_code)
     fprintf(stream, "  -r, --reset            Reset the RCP before measurement\n");
     fprintf(stream, "  -q, --quiet            Do not show progress\n");
     fprintf(stream, "  -v, --verbose          Show intermediate results\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG]  Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG]  Enable traces marked with TAG. Valid tags: bus, cpc, hif,\n");
     fprintf(stream, "                         and hif-extra\n");
     fprintf(stream, "\n");
     exit(exit_code);

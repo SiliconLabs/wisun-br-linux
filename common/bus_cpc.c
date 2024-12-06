@@ -44,8 +44,6 @@ int cpc_tx(struct bus *bus, const void *buf, unsigned int buf_len)
 
     ret = cpc_write_endpoint(bus->cpc.endpoint, buf, buf_len, 0);
     FATAL_ON(ret < 0, 2, "cpc_write_endpoint: %s", strerror(-ret));
-    TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
-        tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
 }
 
@@ -55,8 +53,6 @@ int cpc_rx(struct bus *bus, void *buf, unsigned int buf_len)
 
     ret = cpc_read_endpoint(bus->cpc.endpoint, buf, buf_len, 0);
     FATAL_ON(ret < 0, 2, "cpc_read_endpoint: %s", strerror(-ret));
-    TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
-        tr_bytes(buf, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
     return ret;
 }
 
