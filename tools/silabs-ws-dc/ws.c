@@ -262,6 +262,7 @@ static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len, c
     pktbuf_push_head(&pktbuf, &hdr, sizeof(hdr));
 
     TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s", tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
+    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(&pktbuf));
 
     ret = write(dc->tun.fd, pktbuf.buf + pktbuf.offset_head, pktbuf_len(&pktbuf));
     if (ret < 0)
@@ -398,6 +399,8 @@ void ws_recvfrom_tun(struct dc *dc)
         goto err;
     }
     pktbuf.offset_tail = size;
+
+    TRACE(TR_TUN, "rx-tun: %zd bytes", size);
 
     if (!ws_is_pkt_allowed(&pktbuf))
         goto err;

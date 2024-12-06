@@ -35,6 +35,7 @@ static const struct name_value valid_traces[] = {
     { "ipv6",       TR_IPV6 },
     { "icmp",       TR_ICMP },
     { "security",   TR_SECURITY },
+    { "tun",        TR_TUN },
     { NULL },
 };
 
