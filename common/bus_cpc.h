@@ -25,8 +25,8 @@ struct bus;
 // For some reason these CPC types are declared as a struct containing only a
 // void pointer, instead of simply being void pointers, which makes casting
 // awful if they are not stored with their exact type.
-static_assert(sizeof(cpc_endpoint_t) == sizeof(void *));
-static_assert(sizeof(cpc_handle_t) == sizeof(void *));
+static_assert(sizeof(cpc_endpoint_t) == sizeof(void *), "unsupported cpc_endpoint_t");
+static_assert(sizeof(cpc_handle_t) == sizeof(void *), "unsupported cpc_handle_t");
 #else
 typedef void *cpc_endpoint_t;
 typedef void *cpc_handle_t;
