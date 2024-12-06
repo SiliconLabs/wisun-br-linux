@@ -182,12 +182,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 
 void supp_on_eap_success(struct supplicant_ctx *supp)
 {
-    timer_stop(NULL, &supp->failure_timer);
-    /*
-     * Wi-SUN does not specify any timeout between EAP-Success and 4WH message 1.
-     * 60 seconds is an arbitrary value.
-     */
-    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
+    // Wait for 4-Way Handshake message 1
+    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
 
 static void supp_failure_timer_timeout(struct timer_group *group, struct timer_entry *timer)

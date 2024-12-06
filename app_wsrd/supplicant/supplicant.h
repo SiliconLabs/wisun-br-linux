@@ -96,6 +96,14 @@ struct supplicant_ctx {
 
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   failure_timer;
+    /*
+     * Arbitrary timeout between authentication steps:
+     *   - TX EAP Response  -> RX EAP Request
+     *   - RX EAP Success   -> RX 4WH Message 1
+     *   - TX 4WH Message 2 -> RX 4WH Message 3
+     * supp.on_failure() is called when this timer expires.
+     */
+    uint64_t timeout_ms;
 
     void (*sendto_mac)(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const uint8_t dst[8]);

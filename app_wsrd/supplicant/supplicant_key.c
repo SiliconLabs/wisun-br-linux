@@ -312,12 +312,8 @@ static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const 
     supp_key_pairwise_message_4_send(supp);
     return;
 
-    /*
-     * Wi-SUN does not specify any timeout when msg 3 is not well formatted.
-     * 60 seconds is an arbitrary value.
-     */
 error:
-    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
+    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
 
 static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
@@ -371,12 +367,7 @@ static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const 
     rfc8415_txalg_stop(&supp->key_request_txalg);
 
 exit:
-    /*
-     * Wi-SUN does not specify any timeout between 4wh msg 2 and 3.
-     * It does not specify anything when msg 1 is not well formatted either.
-     * 60 seconds is an arbitrary value.
-     */
-    timer_start_rel(NULL, &supp->failure_timer, 60 * 1000);
+    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
 
 static void supp_key_pairwise_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,

@@ -89,6 +89,7 @@ struct wsrd g_wsrd = {
     .supp.on_failure  = wsrd_eapol_on_failure,
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .supp.get_target  = wsrd_eapol_get_target,
+    .supp.timeout_ms = 60 * 1000, // Arbitrary
 
     // Arbitrary default values
     .config.rcp_cfg.uart_baudrate = 115200,

@@ -121,6 +121,7 @@ int main()
         .supp.get_target    = supp_get_target,
         .supp.on_gtk_change = supp_on_gtk_change,
         .supp.on_failure    = supp_on_failure,
+        .supp.timeout_ms = 1000,
 
         .auth.cfg = &(struct auth_cfg){
             .pmk_lifetime_s           = 120,
