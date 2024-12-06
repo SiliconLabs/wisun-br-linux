@@ -445,20 +445,14 @@ void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobu
         return;
     }
 
-    timer_stop(&ctx->timer_group, &supp->rt_timer);
-
-    switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)))
-    {
+    switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
     case IEEE80211_KEY_TYPE_GROUP:
         ret = auth_key_group_message_2_recv(ctx, supp, frame, iobuf);
         break;
     case IEEE80211_KEY_TYPE_PAIRWISE:
         ret = auth_key_pairwise_recv(ctx, supp, frame, iobuf);
         break;
-    default:
-        break;
     }
-    // If there was an error during parsing of the message, restart retry timer
-    if (ret)
-        timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
+    if (!ret) // Retry on error
+        timer_stop(&ctx->timer_group, &supp->rt_timer);
 }
