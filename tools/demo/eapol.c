@@ -133,6 +133,7 @@ int main()
         .auth.sendto_mac            = auth_sendto_mac,
         .auth.on_supp_gtk_installed = auth_on_supp_gtk_installed,
         .auth.radius_fd  = -1,
+        .auth.timeout_ms = 500,
     };
 
     g_enabled_traces |= TR_DROP;

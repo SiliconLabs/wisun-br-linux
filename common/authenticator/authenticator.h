@@ -81,6 +81,7 @@ struct auth_ctx {
 
     struct auth_supp_ctx_list supplicants;
     struct timer_group timer_group;
+    uint64_t timeout_ms;
 
     void (*sendto_mac)(struct auth_ctx *ctx, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const struct eui64 *dst);

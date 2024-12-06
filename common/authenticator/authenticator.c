@@ -184,7 +184,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *
     supp->eui64 = *eui64;
     supp->radius_id = -1;
     supp->replay_counter = -1;
-    supp->rt_timer.period_ms = 30 * 1000, // Arbitrary
+    supp->rt_timer.period_ms = ctx->timeout_ms,
     supp->rt_timer.callback = auth_rt_timer_timeout;
     SLIST_INSERT_HEAD(&ctx->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
