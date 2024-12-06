@@ -119,6 +119,22 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk)));
 }
 
+void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                         uint8_t kmp_id, const void *buf, size_t buf_len)
+{
+    /*
+     *     IEEE 802.11-2020, 12.7.6.6 4-way handshake implementation considerations
+     * If the Authenticator does not receive a reply to its messages, it shall
+     * attempt dot11RSNAConfigPairwiseUpdateCount transmits of the message,
+     * plus a final timeout.
+     */
+    pktbuf_free(&supp->rt_buffer);
+    pktbuf_init(&supp->rt_buffer, buf, buf_len);
+    supp->rt_kmp_id = kmp_id;
+    supp->rt_count  = 0;
+    timer_start_rel(&auth->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
+}
+
 static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, rt_timer);

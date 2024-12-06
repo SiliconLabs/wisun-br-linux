@@ -110,20 +110,7 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
     }
 
     auth_send_eapol(ctx, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
-
-    /*
-     *  IEEE 802.11-2020, 12.7.6.6 4-way handshake implementation considerations
-     * If the Authenticator does not receive a reply to its messages, it shall attempt
-     * dot11RSNAConfigPairwiseUpdateCount transmits of the message, plus a final timeout.
-     *
-     * Wi-SUN does not specify dot11RSNAConfigPairwiseUpdateCount.
-     * 30 seconds is an arbitrary value.
-     */
-    pktbuf_free(&supp->rt_buffer);
-    pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(&message), pktbuf_len(&message));
-    supp->rt_kmp_id = kmp_id;
-    supp->rt_count  = 0;
-    timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
+    auth_rt_timer_start(ctx, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
 }
 
 static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *supp, int key_slot, struct pktbuf *enc_key_data)
