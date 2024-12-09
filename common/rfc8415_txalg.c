@@ -30,9 +30,9 @@ static inline float rfc8415_txalg_rand(struct rfc8415_txalg *txalg)
 
 static void rfc8415_txalg_fail(struct rfc8415_txalg *txalg)
 {
+    rfc8415_txalg_stop(txalg);
     if (txalg->fail)
         txalg->fail(txalg);
-    rfc8415_txalg_stop(txalg);
 }
 
 static void rfc8415_txalg_timeout_delay(struct timer_group *group, struct timer_entry *timer)
