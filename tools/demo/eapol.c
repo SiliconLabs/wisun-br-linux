@@ -37,9 +37,12 @@ struct ctx {
     int fail_count;
 };
 
+// Global needed for __wrap_read().
+static int drop_threshold = RAND_MAX / 5; // 20% loss
+
 static inline bool drop(void)
 {
-    return rand() < RAND_MAX / 5;
+    return rand() < drop_threshold;
 }
 
 static void supp_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id,
@@ -150,6 +153,8 @@ static void help(void)
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/node_key.pem");
     INFO("    --drop-seed=INTEGER Seed used for packet drop Random Number Generation (RNG)");
     INFO("                        default=0");
+    INFO("    --drop-rate=INTEGER Probability to drop packets (as percentage)");
+    INFO("                        default=20%%");
 }
 
 static void init(struct ctx *ctx, int argc, char *argv[])
@@ -172,6 +177,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         { "supp-cert",     required_argument, 0, 'C' },
         { "supp-key",      required_argument, 0, 'K' },
         { "drop-seed",     required_argument, 0, 'S' },
+        { "drop-rate",     required_argument, 0, 'd' },
         { }
     };
 
@@ -213,6 +219,10 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         case 'S':
             conf_set_number(&info, &ret, NULL);
             srand(ret);
+            break;
+        case 'd':
+            conf_set_number(&info, &ret, (struct number_limit[]){ { 0, 100 } });
+            drop_threshold = (long)RAND_MAX * ret / 100;
             break;
         case 'h':
             help();
