@@ -130,7 +130,7 @@ ssize_t __wrap_send(int fd, const void *buf, size_t buf_len, int flags)
     return __real_send(fd, buf, buf_len, flags);
 }
 
-int main()
+static void init(struct ctx *ctx)
 {
     const struct eui64 auth_eui64 = { .u8 = { [7] = 1 } };
     const struct eui64 supp_eui64 = { .u8 = { [7] = 2 } };
@@ -140,6 +140,49 @@ int main()
     struct iovec supp_cert = { };
     struct iovec supp_key = { };
     struct iovec ca_cert = { };
+    int ret;
+
+    g_enabled_traces |= TR_DROP;
+    g_enabled_traces |= TR_SECURITY;
+
+    srand(0); // Fixed seed
+
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
+    conf_set_pem(&info, &ca_cert, NULL);
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_cert.pem");
+    conf_set_pem(&info, &supp_cert, NULL);
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_key.pem");
+    conf_set_pem(&info, &supp_key, NULL);
+    supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
+    supp_reset(&ctx->supp);
+
+    strcpy(ctx->auth.radius_secret, "SHARED_SECRET");
+    radius_addr.sin6_family = AF_INET6;
+    inet_pton(AF_INET6, "::1", &radius_addr.sin6_addr);
+    radius_init(&ctx->auth, (struct sockaddr *)&radius_addr);
+    auth_start(&ctx->auth, &auth_eui64);
+
+    supp_start_key_request(&ctx->supp);
+
+    ctx->auth_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+    FATAL_ON(ctx->supp_fd < 0, 2, "socket: %m");
+    auth_addr.sin6_family = AF_INET6;
+    auth_addr.sin6_addr = in6addr_loopback;
+    auth_addr.sin6_port = htons(10000);
+    ret = bind(ctx->auth_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
+    FATAL_ON(ret < 0, 2, "bind: %m");
+
+    ctx->supp_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+    FATAL_ON(ctx->supp_fd < 0, 2, "socket: %m");
+    ret = connect(ctx->supp_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
+    FATAL_ON(ret < 0, 2, "connect: %m");
+    ret = getsockname(ctx->supp_fd, (struct sockaddr *)&ctx->supp_addr,
+                      (socklen_t[1]){ sizeof(ctx->supp_addr) });
+    FATAL_ON(ret < 0, 2, "getsockname: %m");
+}
+
+int main()
+{
     struct pollfd pfd[4] = { };
     uint8_t buf[2048];
     ssize_t ret;
@@ -166,43 +209,7 @@ int main()
         .auth.timeout_ms = 500,
     };
 
-    g_enabled_traces |= TR_DROP;
-    g_enabled_traces |= TR_SECURITY;
-
-    srand(0); // Fixed seed
-
-    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
-    conf_set_pem(&info, &ca_cert, NULL);
-    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_cert.pem");
-    conf_set_pem(&info, &supp_cert, NULL);
-    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_key.pem");
-    conf_set_pem(&info, &supp_key, NULL);
-    supp_init(&ctx.supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
-    supp_reset(&ctx.supp);
-
-    strcpy(ctx.auth.radius_secret, "SHARED_SECRET");
-    radius_addr.sin6_family = AF_INET6;
-    inet_pton(AF_INET6, "::1", &radius_addr.sin6_addr);
-    radius_init(&ctx.auth, (struct sockaddr *)&radius_addr);
-    auth_start(&ctx.auth, &auth_eui64);
-
-    supp_start_key_request(&ctx.supp);
-
-    ctx.auth_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-    FATAL_ON(ctx.supp_fd < 0, 2, "socket: %m");
-    auth_addr.sin6_family = AF_INET6;
-    auth_addr.sin6_addr = in6addr_loopback;
-    auth_addr.sin6_port = htons(10000);
-    ret = bind(ctx.auth_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
-    FATAL_ON(ret < 0, 2, "bind: %m");
-
-    ctx.supp_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-    FATAL_ON(ctx.supp_fd < 0, 2, "socket: %m");
-    ret = connect(ctx.supp_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
-    FATAL_ON(ret < 0, 2, "connect: %m");
-    ret = getsockname(ctx.supp_fd, (struct sockaddr *)&ctx.supp_addr,
-                      (socklen_t[1]){ sizeof(ctx.supp_addr) });
-    FATAL_ON(ret < 0, 2, "getsockname: %m");
+    init(&ctx);
 
     pfd[0].fd = timer_fd();
     pfd[0].events = POLLIN;
