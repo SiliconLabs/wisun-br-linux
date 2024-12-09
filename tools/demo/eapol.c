@@ -148,6 +148,8 @@ static void help(void)
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/node_cert.pem");
     INFO("    -K --supp-key=FILE  Supplicant private key");
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/node_key.pem");
+    INFO("    --drop-seed=INTEGER Seed used for packet drop Random Number Generation (RNG)");
+    INFO("                        default=0");
 }
 
 static void init(struct ctx *ctx, int argc, char *argv[])
@@ -169,11 +171,14 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         { "supp-ca",       required_argument, 0, 'A' },
         { "supp-cert",     required_argument, 0, 'C' },
         { "supp-key",      required_argument, 0, 'K' },
+        { "drop-seed",     required_argument, 0, 'S' },
         { }
     };
 
     g_enabled_traces |= TR_DROP;
     g_enabled_traces |= TR_SECURITY;
+
+    srand(0);
 
     strcpy(info.filename, "commandline");
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
@@ -205,6 +210,10 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         case 'K':
             conf_set_pem(&info, &supp_key, NULL);
             break;
+        case 'S':
+            conf_set_number(&info, &ret, NULL);
+            srand(ret);
+            break;
         case 'h':
             help();
             exit(EXIT_SUCCESS);
@@ -217,8 +226,6 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         FATAL(1, "missing --radius-secret");
     if (radius_addr.ss_family == AF_UNSPEC && ctx->auth.radius_secret[0])
         FATAL(1, "missing --radius-server");
-
-    srand(0); // Fixed seed
 
     supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
     supp_reset(&ctx->supp);
