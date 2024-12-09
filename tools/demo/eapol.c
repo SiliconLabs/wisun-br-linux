@@ -25,6 +25,7 @@
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/string_extra.h"
 
 struct ctx {
     struct supplicant_ctx supp;
@@ -145,6 +146,7 @@ static void help(void)
     INFO("    -h --help");
     INFO("    -r --radius-server=ADDRESS");
     INFO("    -s --radius-secret=STRING");
+    INFO("    -p --pmk            Generate a PMK with infinite lifetime and skip EAP-TLS");
     INFO("    -A --supp-ca=FILE   Certificate authority used to verify the TLS server certificate");
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
     INFO("    -C --supp-cert=FILE Supplicant certificate validated by the TLS server");
@@ -168,9 +170,10 @@ static void init(struct ctx *ctx, int argc, char *argv[])
     struct iovec supp_key = { };
     struct iovec ca_cert = { };
     int ret, opt;
-    const char *opts_short = "hr:s:A:C:K:";
+    const char *opts_short = "hpr:s:A:C:K:";
     const struct option opts_long[] = {
         { "help",          no_argument,       0, 'h' },
+        { "pmk",           no_argument,       0, 'p' },
         { "radius-server", required_argument, 0, 'r' },
         { "radius-secret", required_argument, 0, 's' },
         { "supp-ca",       required_argument, 0, 'A' },
@@ -201,6 +204,10 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         if (optarg)
             strncpy(info.value, optarg, sizeof(info.value) - 1);
         switch (opt) {
+        case 'p':
+            ret = getrandom(ctx->supp.pmk, 32, 0);
+            FATAL_ON(ret < 32, 2, "getrandom: %m");
+            break;
         case 'r':
             conf_set_netaddr(&info, &radius_addr, NULL);
             break;
@@ -232,6 +239,8 @@ static void init(struct ctx *ctx, int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     }
+    if (radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk, 32))
+        FATAL(1, "incompatible --radius-server and --pmk");
     if (radius_addr.ss_family != AF_UNSPEC && !ctx->auth.radius_secret[0])
         FATAL(1, "missing --radius-secret");
     if (radius_addr.ss_family == AF_UNSPEC && ctx->auth.radius_secret[0])
@@ -239,12 +248,21 @@ static void init(struct ctx *ctx, int argc, char *argv[])
 
     supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
     supp_reset(&ctx->supp);
+    // NOTE: Needed to compute the PMKID in the initial Key Request
+    if (memzcmp(ctx->supp.pmk, 32))
+        memcpy(ctx->supp.authenticator_eui64, &auth_eui64, 8);
 
     if (radius_addr.ss_family != AF_UNSPEC)
         radius_init(&ctx->auth, (struct sockaddr *)&radius_addr);
-    else
-        WARN("no RADIUS server configured");
     auth_start(&ctx->auth, &auth_eui64);
+    // NOTE: Must be done after calling auth_start()
+    if (memzcmp(ctx->supp.pmk, 32)) {
+        struct auth_supp_ctx *supp;
+
+        supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
+        memcpy(supp->pmk, ctx->supp.pmk, 32);
+        supp->pmk_expiration_s = UINT64_MAX;
+    }
 
     supp_start_key_request(&ctx->supp);
 
