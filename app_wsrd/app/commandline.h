@@ -54,7 +54,7 @@ struct wsrd_conf {
 
     int  ws_uc_dwell_interval_ms;
 
-    uint8_t ws_mac_address[8];
+    struct eui64 ws_mac_address;
 
     bool list_rf_configs;
     int  color_output;

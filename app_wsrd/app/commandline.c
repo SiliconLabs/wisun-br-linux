@@ -103,7 +103,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
-        { "mac_address",                   config->ws_mac_address,                    conf_set_array,       (void *)sizeof(config->ws_mac_address) },
+        { "mac_address",                   &config->ws_mac_address,                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -126,7 +126,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     config->ws_uc_dwell_interval_ms = 255;
     config->tx_power = 14;
     config->color_output = -1;
-    memcpy(config->ws_mac_address, &ieee802154_addr_bc, 8);
+    memcpy(&config->ws_mac_address, &ieee802154_addr_bc, 8);
     memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
