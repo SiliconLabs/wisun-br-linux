@@ -137,6 +137,15 @@ struct wsrd g_wsrd = {
     .ipv6.dhcp.get_dst     = wsrd_dhcp_get_dst,
     .ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
     .ipv6.dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
+
+    /*
+     * RFC 4861 10. Protocol Constants
+     * FIXME: BaseReachableTime and RetransTimer can be overritten by Router
+     * Advertisements in normal NDP, but Wi-SUN disables RAs without providing
+     * any sensible default values.
+     */
+    .ipv6.reach_base_ms  = 30000, // REACHABLE_TIME  30,000 milliseconds
+    .ipv6.probe_delay_ms =  1000, // RETRANS_TIMER    1,000 milliseconds
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
@@ -363,16 +372,6 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     tun_addr_add(&wsrd->ipv6.tun, &addr_linklocal, 64);
 
     timer_group_init(&wsrd->ipv6.timer_group);
-
-    // FIXME: BaseReachableTime and RetransTimer can be overritten by Router
-    // Advertisements in normal NDP, but Wi-SUN disables RAs without providing
-    // any sensible default values.
-
-    // RFC 4861 10. Protocol Constants
-    if (!wsrd->ipv6.reach_base_ms)
-        wsrd->ipv6.reach_base_ms  = 30000; // REACHABLE_TIME  30,000 milliseconds
-    if (!wsrd->ipv6.probe_delay_ms)
-        wsrd->ipv6.probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
 
     rpl_start(&wsrd->ipv6);
     dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
