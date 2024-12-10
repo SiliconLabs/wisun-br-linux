@@ -295,6 +295,8 @@ in case of transmission failure or abort.
      - `0x2000 MODE_SWITCH_TYPE` (API >= 2.1.0):
        - `0`: PHY mode switch (PHR, default before API 2.1.0)
        - `1`: MAC mode switch (MAC command frame)
+     - `0x4000 FRAME_COUNTER_8` (API >= 2.5.0): Frame includes frame counter for
+       key at index 8.
 
 Only present if `FHSS_TYPE_FFN_UC`:
 
@@ -352,6 +354,11 @@ Only present if `MODE_SWITCH`:
         ["Channel Access and Retries"][cca].
      - `int8_t tx_power_dbm`: The TX power to use with this entry, saturates to
         the value configured with [`SET_RADIO_TX_POWER`][rf-pow].
+
+Only present if `FRAME_COUNTER_8`:
+
+   Same content as `FRAME_COUNTERS`, but only for key at index 8.
+   See ["Security"][sec] for more details.
 
 ### `0x12 CNF_DATA_TX`
 
@@ -768,7 +775,11 @@ packet.
 Install a security key for encrypting/decrypting IEEE 802.15.4 frames.
 
  - `uint8_t key_index`  
-    Key index to use. Only values from 1 to 7 (inclusive) are supported.
+    Key index to use. For API >= 2.5.0, only values from 1 to 8 (inclusive)
+    are supported. For any older API version, only values from 1 to 7
+    (inclusive) are supported.
+    In the context of Wi-SUN, key at index 8 is reserved to
+    [Silicon Labs' Direct Connect][dc] feature, if used.
 
  - `uint8_t key[16]`  
     Key in cleartext. If all zeroes, the key is un-installed.
@@ -779,6 +790,8 @@ Install a security key for encrypting/decrypting IEEE 802.15.4 frames.
     The RCP is responsible for incrementing the frame counter, and the value
     is communicated to the host in [`CNF_DATA_TX`](#0x12-cnf_data_tx) after
     each encrypted transmission.
+
+[dc]: https://docs.silabs.com/wisun/latest/wisun-direct-connect
 
 ## Packet Filtering
 
