@@ -351,12 +351,38 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     rcp_req_radio_enable(&wsrd->ws.rcp);
 }
 
+static void wsrd_init_ipv6(struct wsrd *wsrd)
+{
+    struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
+    BUG_ON(!wsrd->ipv6.sendto_mac);
+
+    tun_init(&wsrd->ipv6.tun, true);
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", wsrd->ipv6.tun.ifname, "accept_ra", '0');
+
+    ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, wsrd->ws.rcp.eui64.u8);
+    tun_addr_add(&wsrd->ipv6.tun, &addr_linklocal, 64);
+
+    timer_group_init(&wsrd->ipv6.timer_group);
+
+    // FIXME: BaseReachableTime and RetransTimer can be overritten by Router
+    // Advertisements in normal NDP, but Wi-SUN disables RAs without providing
+    // any sensible default values.
+
+    // RFC 4861 10. Protocol Constants
+    if (!wsrd->ipv6.reach_base_ms)
+        wsrd->ipv6.reach_base_ms  = 30000; // REACHABLE_TIME  30,000 milliseconds
+    if (!wsrd->ipv6.probe_delay_ms)
+        wsrd->ipv6.probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
+
+    rpl_start(&wsrd->ipv6);
+}
+
 static void wsrd_init_ws(struct wsrd *wsrd)
 {
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
-    ipv6_init(&wsrd->ipv6, wsrd->ws.rcp.eui64.u8);
+    wsrd_init_ipv6(wsrd);
     dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2
