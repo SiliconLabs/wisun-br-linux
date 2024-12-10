@@ -94,7 +94,7 @@ void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *ti
     src = ipv6_prefix_linklocal;
     ipv6_addr_conv_iid_eui64(src.s6_addr + 8, dc->ws.rcp.eui64.u8);
     dst = ipv6_prefix_linklocal;
-    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, dc->cfg.target_eui64);
+    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, dc->cfg.target_eui64.u8);
 
     if (dc->probe_handle != -1) {
         TRACE(TR_TX_ABORT, "tx-abort: ns already in progress for %s", tr_ipv6(dst.s6_addr));
@@ -131,7 +131,7 @@ static void ws_on_probe_done(struct dc *dc, int handle, bool success)
      * This covers the case where the router has rebooted, but does not timeout because
      * we heard other frames from him (PAS, PCS, ...).
      */
-    ws_neigh_del(&dc->ws.neigh_table, dc->cfg.target_eui64);
+    ws_neigh_del(&dc->ws.neigh_table, dc->cfg.target_eui64.u8);
 }
 
 static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
@@ -330,7 +330,7 @@ static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
     }
 
     // Authentication started, disable discovery timer
-    if (!memcmp(ind->neigh->mac64, dc->cfg.target_eui64, sizeof(ind->neigh->mac64)))
+    if (!memcmp(ind->neigh->mac64, dc->cfg.target_eui64.u8, sizeof(ind->neigh->mac64)))
         timer_stop(NULL, &dc->disc_timer);
     auth_recv_eapol(&dc->auth_ctx, kmp_id, &ind->hdr.src, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
 }
@@ -341,7 +341,7 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     struct ws_utt_ie ie_utt;
 
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
-        if (memcmp(dc->cfg.target_eui64, ind->neigh->mac64, sizeof(dc->cfg.target_eui64))) {
+        if (memcmp(dc->cfg.target_eui64.u8, ind->neigh->mac64, sizeof(dc->cfg.target_eui64.u8))) {
             TRACE(TR_DROP, "drop %-9s: direct connect target eui64 missmatch", "15.4");
             return;
         }

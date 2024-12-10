@@ -41,7 +41,7 @@ struct dc_cfg {
     int tx_power;
 
     uint8_t target_pmk[32];
-    uint8_t target_eui64[8];
+    struct eui64 target_eui64;
     int disc_period_s;
     int disc_count_max;
 

@@ -68,11 +68,11 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
         .fhss_type     = HIF_FHSS_TYPE_ASYNC,
         .wh_ies.sl_utt = true,
         .wp_ies.us     = true,
-        .dst = (struct eui64 *)dc->cfg.target_eui64,
+        .dst = &dc->cfg.target_eui64,
     };
 
     if (dc->disc_count >= dc->cfg.disc_count_max)
-        FATAL(1, "%s is unreachable, please check your configuration", tr_eui64(dc->cfg.target_eui64));
+        FATAL(1, "%s is unreachable, please check your configuration", tr_eui64(dc->cfg.target_eui64.u8));
 
     ws_if_send(&dc->ws, &req);
     dc->disc_count++;
@@ -89,7 +89,7 @@ static void dc_remove_target_route(struct dc *dc)
     struct in6_addr client_linklocal;
 
     memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
-    ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, dc->cfg.target_eui64);
+    ipv6_addr_conv_iid_eui64(client_linklocal.s6_addr + 8, dc->cfg.target_eui64.u8);
     tun_route_del(&dc->tun, &client_linklocal);
 }
 
@@ -97,9 +97,9 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
 
-    if (memcmp(dc->cfg.target_eui64, neigh->mac64, sizeof(dc->cfg.target_eui64)))
+    if (memcmp(dc->cfg.target_eui64.u8, neigh->mac64, sizeof(dc->cfg.target_eui64.u8)))
         return;
-    INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64));
+    INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64.u8));
     dc_restart_disc_timer(dc);
     dc_remove_target_route(dc);
     dc->ws.gak_index = 0;
@@ -117,12 +117,12 @@ static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const 
 static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struct eui64 *eui64, uint8_t index)
 {
     struct dc *dc = container_of(auth_ctx, struct dc, auth_ctx);
-    struct ws_neigh *neigh = ws_neigh_get(&dc->ws.neigh_table, dc->cfg.target_eui64);
+    struct ws_neigh *neigh = ws_neigh_get(&dc->ws.neigh_table, dc->cfg.target_eui64.u8);
     struct in6_addr client_linklocal;
     struct ws_neigh *it;
     uint8_t tk[16];
 
-    if (memcmp(dc->cfg.target_eui64, eui64->u8, sizeof(dc->cfg.target_eui64)))
+    if (memcmp(&dc->cfg.target_eui64, eui64, sizeof(dc->cfg.target_eui64)))
         return;
     if (index - 1 != dc->auth_ctx.cur_slot) // Do not act when the second GTK is installed during rotation
         return;
@@ -260,7 +260,7 @@ int dc_main(int argc, char *argv[])
     dc_init_radio(dc);
     dc_init_tun(dc);
     auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64);
-    auth_set_supp_pmk(&dc->auth_ctx, (struct eui64 *)dc->cfg.target_eui64, dc->cfg.target_pmk);
+    auth_set_supp_pmk(&dc->auth_ctx, &dc->cfg.target_eui64, dc->cfg.target_pmk);
     timer_group_init(&dc->ws.neigh_table.timer_group);
     if (dc->cfg.user[0] && dc->cfg.group[0])
         drop_privileges(dc->cfg.user, dc->cfg.group, true); // keep privileges to manage route to target later

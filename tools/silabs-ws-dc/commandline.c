@@ -120,7 +120,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     config->disc_period_s = 10;
     config->disc_count_max = 6;
     memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
-    memset(config->target_eui64, 0xff, sizeof(config->target_eui64));
+    memset(&config->target_eui64, 0xff, sizeof(config->target_eui64));
     config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -210,7 +210,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!memcmp(config->target_eui64, &ieee802154_addr_bc, 8))
+    if (!memcmp(&config->target_eui64, &ieee802154_addr_bc, 8))
         FATAL(1, "missing \"target_eui64\" parameter");
     if (!memzcmp(config->target_pmk, sizeof(config->target_pmk)))
         FATAL(1, "missing \"target_pmk\" parameter");
