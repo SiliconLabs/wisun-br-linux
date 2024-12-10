@@ -13,8 +13,8 @@
 #ifndef SUPPLICANT_KEY_H
 #define SUPPLICANT_KEY_H
 
-struct supplicant_ctx;
+struct supp_ctx;
 
-void supp_key_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf);
+void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf);
 
 #endif

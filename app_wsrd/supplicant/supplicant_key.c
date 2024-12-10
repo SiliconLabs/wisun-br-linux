@@ -34,7 +34,7 @@
 
 #include "supplicant_key.h"
 
-static void supp_key_message_send(struct supplicant_ctx *supp, struct eapol_key_frame *response, uint8_t kmp_id)
+static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame *response, uint8_t kmp_id)
 {
     struct pktbuf buf = { };
 
@@ -62,7 +62,7 @@ static void supp_key_message_send(struct supplicant_ctx *supp, struct eapol_key_
     pktbuf_free(&buf);
 }
 
-static void supp_key_group_message_2_send(struct supplicant_ctx *supp)
+static void supp_key_group_message_2_send(struct supp_ctx *supp)
 {
     struct eapol_key_frame message = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -76,7 +76,7 @@ static void supp_key_group_message_2_send(struct supplicant_ctx *supp)
     supp_key_message_send(supp, &message, IEEE802159_KMP_ID_80211_GKH);
 }
 
-static void supp_key_pairwise_message_4_send(struct supplicant_ctx *supp)
+static void supp_key_pairwise_message_4_send(struct supp_ctx *supp)
 {
     struct eapol_key_frame response = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -91,7 +91,7 @@ static void supp_key_pairwise_message_4_send(struct supplicant_ctx *supp)
     supp_key_message_send(supp, &response, IEEE802159_KMP_ID_80211_4WH);
 }
 
-static void supp_key_pairwise_message_2_send(struct supplicant_ctx *supp, const struct eapol_key_frame *request)
+static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct eapol_key_frame *request)
 {
     struct eapol_key_frame response = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -110,7 +110,7 @@ static void supp_key_pairwise_message_2_send(struct supplicant_ctx *supp, const 
     supp_key_message_send(supp, &response, IEEE802159_KMP_ID_80211_4WH);
 }
 
-static bool supp_key_is_mic_valid(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                   struct iobuf_read *iobuf)
 {
     if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
@@ -127,7 +127,7 @@ static bool supp_key_is_mic_valid(struct supplicant_ctx *supp, const struct eapo
     return true;
 }
 
-static int supp_key_handle_key_data(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                     struct iobuf_read *iobuf)
 {
     uint8_t gtks_slot_min = 0;
@@ -233,7 +233,7 @@ error:
     return -EINVAL;
 }
 
-static void supp_key_group_message_1_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static void supp_key_group_message_1_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                           struct iobuf_read *iobuf)
 {
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "rx-gkh");
@@ -266,7 +266,7 @@ static void supp_key_group_message_1_recv(struct supplicant_ctx *supp, const str
     rfc8415_txalg_stop(&supp->key_request_txalg);
 }
 
-static void supp_key_pairwise_message_3_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static void supp_key_pairwise_message_3_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                              struct iobuf_read *iobuf)
 {
     TRACE(TR_SECURITY, "sec: %-8s msg=3", "rx-4wh");
@@ -316,7 +316,7 @@ error:
     timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
 
-static void supp_key_pairwise_message_1_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                              struct iobuf_read *data)
 {
     uint8_t received_pmkid[16];
@@ -370,7 +370,7 @@ exit:
     timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
 
-static void supp_key_pairwise_recv(struct supplicant_ctx *supp, const struct eapol_key_frame *frame,
+static void supp_key_pairwise_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                    struct iobuf_read *iobuf)
 {
     timer_stop(NULL, &supp->failure_timer);
@@ -388,7 +388,7 @@ static void supp_key_pairwise_recv(struct supplicant_ctx *supp, const struct eap
     }
 }
 
-void supp_key_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
+void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
 {
     const struct eapol_key_frame *frame;
 

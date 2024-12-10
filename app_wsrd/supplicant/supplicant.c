@@ -43,7 +43,7 @@
 
 static int supp_mbedtls_send(void *ctx, const unsigned char *buf, size_t len)
 {
-    struct supplicant_ctx *supp = ctx;
+    struct supp_ctx *supp = ctx;
 
     pktbuf_push_tail(&supp->tx_buffer, buf, len);
     return len;
@@ -52,7 +52,7 @@ static int supp_mbedtls_send(void *ctx, const unsigned char *buf, size_t len)
 static int supp_mbedtls_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = MBEDTLS_ERR_SSL_WANT_READ;
-    struct supplicant_ctx *supp = ctx;
+    struct supp_ctx *supp = ctx;
 
     if (!pktbuf_len(&supp->rx_buffer))
         return ret;
@@ -78,7 +78,7 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
                                      size_t secret_len, const unsigned char client_random[32],
                                      const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type)
 {
-    struct supplicant_ctx *supp = p_expkey;
+    struct supp_ctx *supp = p_expkey;
     uint8_t derived_key[128];
     uint8_t random[64];
     int ret;
@@ -118,7 +118,7 @@ static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line,
     TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
 }
 
-void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
+void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
 {
     uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
     uint8_t *dst = supp->get_target(supp);
@@ -135,7 +135,7 @@ void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf 
 
 static void supp_failure_key_request(struct rfc8415_txalg *txalg)
 {
-    struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
+    struct supp_ctx *supp = container_of(txalg, struct supp_ctx, key_request_txalg);
 
     TRACE(TR_SECURITY, "sec: no valid response to key request after %d retries", supp->key_request_txalg.mrc);
     supp->on_failure(supp);
@@ -143,7 +143,7 @@ static void supp_failure_key_request(struct rfc8415_txalg *txalg)
 
 static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 {
-    struct supplicant_ctx *supp = container_of(txalg, struct supplicant_ctx, key_request_txalg);
+    struct supp_ctx *supp = container_of(txalg, struct supp_ctx, key_request_txalg);
     struct eapol_key_frame frame = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
@@ -180,7 +180,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     pktbuf_free(&buf);
 }
 
-void supp_on_eap_success(struct supplicant_ctx *supp)
+void supp_on_eap_success(struct supp_ctx *supp)
 {
     // Wait for 4-Way Handshake message 1
     timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
@@ -188,7 +188,7 @@ void supp_on_eap_success(struct supplicant_ctx *supp)
 
 static void supp_failure_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct supplicant_ctx *supp = container_of(timer, struct supplicant_ctx, failure_timer);
+    struct supp_ctx *supp = container_of(timer, struct supp_ctx, failure_timer);
 
     /*
      *   IEEE 802.1X-2020, 8.8 Supplicant PAE counters
@@ -201,7 +201,7 @@ static void supp_failure_timer_timeout(struct timer_group *group, struct timer_e
     supp->on_failure(supp);
 }
 
-void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
+void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
                      const uint8_t authenticator_eui64[8])
 {
     const struct eapol_hdr *eapol_hdr;
@@ -272,13 +272,13 @@ void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t 
 static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
-    struct supplicant_ctx *supp = container_of((const struct ws_gtk (*)[7])(gtk - gtk->slot), struct supplicant_ctx, gtks);
+    struct supp_ctx *supp = container_of((const struct ws_gtk (*)[7])(gtk - gtk->slot), struct supp_ctx, gtks);
 
     TRACE(TR_SECURITY, "sec: gtk[%u] expired", gtk->slot + 1);
     supp->on_gtk_change(supp, NULL, gtk->slot + 1);
 }
 
-bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
+bool supp_has_gtk(struct supp_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
 {
     uint8_t hash[32] = { };
     bool has_gtk;
@@ -298,7 +298,7 @@ bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkha
     return has_gtk;
 }
 
-void supp_start_key_request(struct supplicant_ctx *supp)
+void supp_start_key_request(struct supp_ctx *supp)
 {
     if (!rfc8415_txalg_stopped(&supp->key_request_txalg) || !timer_stopped(&supp->failure_timer))
         return;
@@ -308,7 +308,7 @@ void supp_start_key_request(struct supplicant_ctx *supp)
           timer_duration_ms(&supp->key_request_txalg.timer_delay));
 }
 
-void supp_reset(struct supplicant_ctx *supp)
+void supp_reset(struct supp_ctx *supp)
 {
     supp->running = false;
     supp->replay_counter = -1;
@@ -317,7 +317,7 @@ void supp_reset(struct supplicant_ctx *supp)
     supp_eap_tls_reset(supp);
 }
 
-void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
+void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8])
 {
     /*

@@ -27,7 +27,7 @@
 
 #include "supplicant_eap.h"
 
-static void supp_eap_send_response(struct supplicant_ctx *supp, uint8_t identifier, uint8_t type, struct pktbuf *buf)
+static void supp_eap_send_response(struct supp_ctx *supp, uint8_t identifier, uint8_t type, struct pktbuf *buf)
 {
     eap_write_hdr_head(buf, EAP_CODE_RESPONSE, identifier, type);
     eap_trace("tx-eap", pktbuf_head(buf), pktbuf_len(buf));
@@ -38,7 +38,7 @@ static void supp_eap_send_response(struct supplicant_ctx *supp, uint8_t identifi
     supp->last_tx_eap_type = type;
 }
 
-static void supp_eap_tls_send_response(struct supplicant_ctx *supp, const struct eap_hdr *eap_hdr)
+static void supp_eap_tls_send_response(struct supp_ctx *supp, const struct eap_hdr *eap_hdr)
 {
     bool must_fragment = pktbuf_len(&supp->tx_buffer) > WS_MTU_BYTES;
     uint32_t tx_len = pktbuf_len(&supp->tx_buffer);
@@ -62,7 +62,7 @@ static void supp_eap_tls_send_response(struct supplicant_ctx *supp, const struct
     supp->fragment_id++;
 }
 
-static void supp_eap_do_handshake(struct supplicant_ctx *supp, const struct eap_hdr *eap_hdr)
+static void supp_eap_do_handshake(struct supp_ctx *supp, const struct eap_hdr *eap_hdr)
 {
     struct pktbuf buf = { };
     int ret;
@@ -106,7 +106,7 @@ static void supp_eap_do_handshake(struct supplicant_ctx *supp, const struct eap_
         supp_eap_tls_send_response(supp, eap_hdr);
 }
 
-static void supp_eap_tls_recv(struct supplicant_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
+static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
 {
     uint8_t flags = iobuf_pop_u8(iobuf);
     struct pktbuf buf = { };
@@ -205,7 +205,7 @@ static void supp_eap_tls_recv(struct supplicant_ctx *supp, const struct eap_hdr 
     supp->expected_rx_len = 0;
 }
 
-void supp_eap_tls_reset(struct supplicant_ctx *supp)
+void supp_eap_tls_reset(struct supp_ctx *supp)
 {
     supp->last_tx_eap_type = EAP_TYPE_NAK;
     supp->last_eap_identifier = -1;
@@ -230,7 +230,7 @@ static void supp_eap_notification_recv(struct iobuf_read *iobuf)
     TRACE(TR_SECURITY, "sec: notification=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
 }
 
-static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
+static void supp_eap_request_recv(struct supp_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
 {
     uint8_t type = iobuf_pop_u8(iobuf);
     struct pktbuf buf = { };
@@ -303,7 +303,7 @@ static void supp_eap_request_recv(struct supplicant_ctx *supp, const struct eap_
     pktbuf_free(&buf);
 }
 
-void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf)
+void supp_eap_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
 {
     const struct eap_hdr *eap_hdr;
 

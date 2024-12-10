@@ -14,10 +14,10 @@
 #ifndef SUPPLICANT_EAP_H
 #define SUPPLICANT_EAP_H
 
-struct supplicant_ctx;
+struct supp_ctx;
 struct iobuf_read;
 
-void supp_eap_tls_reset(struct supplicant_ctx *supp);
-void supp_eap_recv(struct supplicant_ctx *supp, struct iobuf_read *iobuf);
+void supp_eap_tls_reset(struct supp_ctx *supp);
+void supp_eap_recv(struct supp_ctx *supp, struct iobuf_read *iobuf);
 
 #endif

@@ -52,11 +52,11 @@ static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
-static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
+static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const uint8_t dst[8]);
-static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp);
-static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
-static void wsrd_eapol_on_failure(struct supplicant_ctx *supp);
+static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp);
+static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index);
+static void wsrd_eapol_on_failure(struct supp_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client);
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client);
@@ -207,7 +207,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
     return ws_if_send_data(&wsrd->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
 }
 
-static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
+static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
     uint8_t gak[16];
@@ -226,7 +226,7 @@ static void wsrd_eapol_on_gtk_change(struct supplicant_ctx *supp, const uint8_t 
     dbus_emit_change("Gaks");
 }
 
-static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
+static void wsrd_eapol_on_failure(struct supp_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
 
@@ -234,7 +234,7 @@ static void wsrd_eapol_on_failure(struct supplicant_ctx *supp)
     wsrd->eapol_target_eui64 = ieee802154_addr_bc;
 }
 
-static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
+static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const uint8_t dst[8])
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
@@ -242,7 +242,7 @@ static void wsrd_eapol_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id, c
     ws_if_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, (struct eui64 *)dst);
 }
 
-static uint8_t *wsrd_eapol_get_target(struct supplicant_ctx *supp)
+static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
 

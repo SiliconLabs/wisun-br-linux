@@ -46,7 +46,7 @@
 #include "common/pktbuf.h"
 #include "common/timer.h"
 
-struct supplicant_ctx {
+struct supp_ctx {
     uint8_t eui64[8];
     bool running;
 
@@ -105,23 +105,23 @@ struct supplicant_ctx {
      */
     uint64_t timeout_ms;
 
-    void (*sendto_mac)(struct supplicant_ctx *supp, uint8_t kmp_id, const void *pkt,
+    void (*sendto_mac)(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const uint8_t dst[8]);
-    uint8_t *(*get_target)(struct supplicant_ctx *supp);
-    void (*on_gtk_change)(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index);
-    void (*on_failure)(struct supplicant_ctx *supp);
+    uint8_t *(*get_target)(struct supp_ctx *supp);
+    void (*on_gtk_change)(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index);
+    void (*on_failure)(struct supp_ctx *supp);
 };
 
-void supp_init(struct supplicant_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
+void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8]);
-void supp_reset(struct supplicant_ctx *supp);
-bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtk_index);
-void supp_start_key_request(struct supplicant_ctx *supp);
+void supp_reset(struct supp_ctx *supp);
+bool supp_has_gtk(struct supp_ctx *supp, uint8_t gtkhash[8], uint8_t gtk_index);
+void supp_start_key_request(struct supp_ctx *supp);
 
-void supp_recv_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
+void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
                      const uint8_t authenticator_eui64[8]);
-void supp_send_eapol(struct supplicant_ctx *supp, uint8_t kmp_id, struct pktbuf *buf);
+void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf);
 
-void supp_on_eap_success(struct supplicant_ctx *supp);
+void supp_on_eap_success(struct supp_ctx *supp);
 
 #endif

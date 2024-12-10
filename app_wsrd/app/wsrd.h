@@ -32,7 +32,7 @@ struct wsrd {
 
     struct ipv6_ctx ipv6;
 
-    struct supplicant_ctx supp;
+    struct supp_ctx supp;
     struct eui64 eapol_target_eui64;
 
 };

@@ -28,7 +28,7 @@
 #include "common/string_extra.h"
 
 struct ctx {
-    struct supplicant_ctx supp;
+    struct supp_ctx supp;
     struct sockaddr_storage supp_addr;
     int supp_fd;
 
@@ -46,7 +46,7 @@ static inline bool drop(void)
     return rand() < drop_threshold;
 }
 
-static void supp_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id,
+static void supp_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id,
                             const void *buf, size_t buf_len, const uint8_t dst[8])
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
@@ -69,14 +69,14 @@ static void supp_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id,
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
 
-static uint8_t *supp_get_target(struct supplicant_ctx *supp)
+static uint8_t *supp_get_target(struct supp_ctx *supp)
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
 
     return ctx->auth.eui64.u8;
 }
 
-static void supp_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16], uint8_t index)
+static void supp_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
 {
     if (gtk)
         INFO("add idx=%u key=%s", index, tr_key(gtk, 16));
@@ -84,7 +84,7 @@ static void supp_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16
         INFO("del idx=%u", index);
 }
 
-static void supp_on_failure(struct supplicant_ctx *supp)
+static void supp_on_failure(struct supp_ctx *supp)
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
 
