@@ -386,7 +386,7 @@ request bit set in the header.
 
  - `uint32_t frame_counter`  
     Frame counter used in the successful transmission (see `frame_counter` in
-    [`SEC_SET_KEY`][key]). Only valid if the request included an auxiliary
+    [`SET_SEC_KEY`][key]). Only valid if the request included an auxiliary
     security header.
     <!-- TODO: Return the last used frame counter, even if unsuccessful. -->
 
@@ -678,7 +678,7 @@ If API >= 2.3.0 (optional block):
     BT-IE. Thus the RCP can track the frame counters for a single parent. These
     counters are not reset when installing a new key, so it is recommended to
     always call [`SET_FHSS_FFN_BC`][bc] with updated counters right after
-    calling [`SEC_SET_KEY`][key].
+    calling [`SET_SEC_KEY`][key].
 
 ### `0x32 SET_FHSS_LFN_BC`
 
