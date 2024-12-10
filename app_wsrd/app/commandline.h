@@ -29,6 +29,9 @@ struct wsrd_conf {
 
     char ws_netname[WS_NETNAME_LEN];
 
+    char user[LOGIN_NAME_MAX];
+    char group[LOGIN_NAME_MAX];
+
     struct trickle_cfg disc_cfg;
 
     int  ws_domain;
