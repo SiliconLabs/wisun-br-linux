@@ -213,9 +213,9 @@ void rcp_req_data_tx(struct rcp *rcp,
             hif_push_i8(&buf, rate_list[i].tx_power_dbm);
         }
     }
-    if (frame_counters_min && frame_counters_min[HIF_DC_KEY_SLOT] != UINT32_MAX) {
+    if (frame_counters_min && frame_counters_min[7] != UINT32_MAX) {
         bitfield |= HIF_MASK_DC_FRAME_COUNTER;
-        hif_push_u32(&buf, frame_counters_min[HIF_DC_KEY_SLOT]);
+        hif_push_u32(&buf, frame_counters_min[7]);
     }
 
     bitfield |= FIELD_PREP(HIF_MASK_MODE_SWITCH_TYPE, ms_mode);

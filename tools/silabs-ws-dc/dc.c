@@ -36,6 +36,8 @@
 #define DIRECT_CONNECT_SYNC_PERIOD_S 50
 #define DIRECT_CONNECT_NEIGH_LIFETIME_S 60
 
+#define DC_KEY_INDEX 8
+
 enum {
     POLLFD_RCP,
     POLLFD_TIMER,
@@ -128,9 +130,9 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
     // Direct Connect encryption relies on the Temporal Key (TK) portion of the PTK to secure traffic
     BUG_ON(!auth_get_supp_tk(auth_ctx, eui64, tk));
 
-    rcp_set_sec_key(&dc->ws.rcp, HIF_DC_KEY_SLOT + 1, tk, 0);
+    rcp_set_sec_key(&dc->ws.rcp, DC_KEY_INDEX, tk, 0);
     SLIST_FOREACH(it, &dc->ws.neigh_table.neigh_list, link)
-        it->frame_counter_min[HIF_DC_KEY_SLOT] = 0;
+        it->frame_counter_min[DC_KEY_INDEX - 1] = 0;
 
     if (!dc->ws.gak_index) {
         memcpy(client_linklocal.s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
@@ -144,7 +146,7 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
         timer_start_rel(NULL, &dc->probe_timer, dc->probe_timer.period_ms);
         ws_neigh_refresh(&dc->ws.neigh_table, neigh, DIRECT_CONNECT_NEIGH_LIFETIME_S);
     }
-    dc->ws.gak_index = HIF_DC_KEY_SLOT + 1;
+    dc->ws.gak_index = DC_KEY_INDEX;
 }
 
 struct dc g_dc = {
