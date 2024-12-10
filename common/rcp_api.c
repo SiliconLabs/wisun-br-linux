@@ -117,7 +117,7 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 #define HIF_MASK_MODE_SWITCH    0x0020
 #define HIF_MASK_FRAME_COUNTERS 0x1fc0
 #define HIF_MASK_MODE_SWITCH_TYPE 0x2000
-#define HIF_MASK_DC_FRAME_COUNTER 0x4000
+#define HIF_MASK_FRAME_COUNTER_8 0x4000
 
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
@@ -214,7 +214,7 @@ void rcp_req_data_tx(struct rcp *rcp,
         }
     }
     if (frame_counters_min && frame_counters_min[7] != UINT32_MAX) {
-        bitfield |= HIF_MASK_DC_FRAME_COUNTER;
+        bitfield |= HIF_MASK_FRAME_COUNTER_8;
         hif_push_u32(&buf, frame_counters_min[7]);
     }
 
