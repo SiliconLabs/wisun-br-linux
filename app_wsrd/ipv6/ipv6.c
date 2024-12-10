@@ -368,6 +368,9 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
+    TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
+          tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
+
     ret = ipv6_nxthop(ipv6, dst, &nxthop);
     if (ret < 0)
         return ret;
