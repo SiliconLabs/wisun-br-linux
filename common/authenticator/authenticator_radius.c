@@ -164,6 +164,51 @@ static int radius_read_state(struct auth_supp_ctx *supp, const void *buf, size_t
     return 0;
 }
 
+/*
+ *   RFC 3579 3.2. Message-Authenticator
+ * For Access-Challenge, Access-Accept, and Access-Reject packets, the Message-
+ * Authenticator is calculated as follows, using the Request-Authenticator from
+ * the Access-Request this packet is in reply to:
+ *   Message-Authenticator = HMAC-MD5(Type, Identifier, Length,
+ *                                    Request Authenticator, Attributes)
+ * When the message integrity check is calculated the signature string should
+ * be considered to be sixteen octets of zero. The shared secret is used as the
+ * key for the HMAC-MD5 message integrity check.
+ */
+static int radius_verify_msg_auth(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                                  const void *buf, size_t buf_len)
+{
+    const struct radius_attr *attr;
+    uint8_t msg_auth[16] = { };
+    mbedtls_md_context_t md;
+    int offset_msg_auth;
+
+    BUG_ON(buf_len < sizeof(struct radius_hdr));
+    attr = radius_attr_find((uint8_t *)buf + sizeof(struct radius_hdr),
+                            buf_len - sizeof(struct radius_hdr),
+                            RADIUS_ATTR_MSG_AUTH);
+    if (!attr)
+        return -ENODATA;
+    if (attr->len != sizeof(*attr) + 16)
+        return -EINVAL;
+
+    offset_msg_auth = (uintptr_t)attr - (uintptr_t)buf + sizeof(*attr);
+    mbedtls_md_init(&md);
+    xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_MD5), 1);
+    xmbedtls_md_hmac_starts(&md, (uint8_t *)auth->radius_secret, strlen(auth->radius_secret));
+    xmbedtls_md_hmac_update(&md, buf, offsetof(struct radius_hdr, auth));
+    xmbedtls_md_hmac_update(&md, supp->radius_auth, 16);
+    xmbedtls_md_hmac_update(&md, (uint8_t *)buf + sizeof(struct radius_hdr),
+                                 offset_msg_auth - sizeof(struct radius_hdr));
+    xmbedtls_md_hmac_update(&md, msg_auth, 16);
+    xmbedtls_md_hmac_update(&md, (uint8_t *)buf + offset_msg_auth + 16,
+                                 buf_len - offset_msg_auth - 16);
+    xmbedtls_md_hmac_finish(&md, msg_auth);
+    mbedtls_md_free(&md);
+    return !memcmp(attr->val, msg_auth, 16) ? 0 : -EINVAL;
+}
+
+// Read an EAP packet from the RADIUS attributes and send it to the supplicant.
 // RFC 3579 3.1. EAP-Message
 static int radius_recv_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                               const void *buf, size_t buf_len)
@@ -254,6 +299,12 @@ void radius_recv(struct auth_ctx *auth)
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code=%u", "radius", hdr->code);
+        return;
+    }
+
+    ret = radius_verify_msg_auth(auth, supp, iobuf.data, iobuf.data_size);
+    if (ret < 0) {
+        TRACE(TR_DROP, "drop %-9s: invalid message authenticator", "radius");
         return;
     }
 
