@@ -92,11 +92,10 @@ struct wsrd g_wsrd = {
 
     .config.tun_autoconf = true,
 
-    // Wi-SUN FAN 1.1v08 6.3.1 Constants
-    .config.disc_cfg.k = 1,
-    // Wi-SUN FAN 1.1v08 6.3.1.1 Configuration Parameters
+    // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
     .config.disc_cfg.Imax_ms = TRICKLE_DOUBLINGS(15, 2) * 1000,
+    .config.disc_cfg.k = 1,
     .pas_tkl.cfg = &g_wsrd.config.disc_cfg,
     .pas_tkl.debug_name  = "pas",
     .pas_tkl.on_transmit = ws_on_send_pas,
