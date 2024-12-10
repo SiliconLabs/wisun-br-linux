@@ -112,16 +112,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     };
     int opt;
 
-    config->rcp_cfg.uart_baudrate = 115200;
-    config->tun_autoconf = true;
-    config->ws_domain = REG_DOMAIN_UNDEF;
-    config->ws_uc_dwell_interval_ms = 255;
-    config->tx_power = 14;
-    config->disc_period_s = 10;
-    config->disc_count_max = 6;
-    memset(config->ws_allowed_channels, 0xff, sizeof(config->ws_allowed_channels));
-    memset(&config->target_eui64, 0xff, sizeof(config->target_eui64));
-    config->color_output = -1;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':

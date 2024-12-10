@@ -150,6 +150,18 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 }
 
 struct dc g_dc = {
+    // Arbitrary default params
+    .cfg.rcp_cfg.uart_baudrate = 115200,
+    .cfg.tun_autoconf = true,
+    .cfg.ws_domain = REG_DOMAIN_UNDEF,
+    .cfg.ws_uc_dwell_interval_ms = 255,
+    .cfg.tx_power = 14,
+    .cfg.disc_period_s = 10,
+    .cfg.disc_count_max = 6,
+    .cfg.ws_allowed_channels = { [0 ... sizeof(g_dc.cfg.ws_allowed_channels) - 1] = 0xff },
+    .cfg.target_eui64 = IEEE802154_ADDR_BC_INIT,
+    .cfg.color_output = -1,
+
     .cfg.auth_cfg.ptk_lifetime_s           = 60 * 24 * 60 * 60, // 60 days
     // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
     .cfg.auth_cfg.gtk_expire_offset_s      = 30 * 24 * 60 * 60, // 30 days
