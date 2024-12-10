@@ -102,6 +102,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "key",                           &config->key,                              conf_set_pem,         NULL },
         { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
+        { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
         { "mac_address",                   config->ws_mac_address,                    conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { }
     };
