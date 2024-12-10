@@ -252,7 +252,7 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
         auth_eap_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
         break;
     case EAPOL_PACKET_TYPE_KEY:
-        auth_key_recv(auth, supp, &iobuf);
+        auth_key_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);

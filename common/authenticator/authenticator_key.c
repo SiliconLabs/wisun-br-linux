@@ -167,7 +167,8 @@ static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_sup
 }
 
 static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                          const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+                                         const struct eapol_key_frame *frame,
+                                         const void *data, size_t data_len)
 {
     int next_key_slot;
 
@@ -177,7 +178,7 @@ static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return -EINVAL;
     }
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
+    if (!ieee80211_is_mic_valid(supp->ptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -194,7 +195,8 @@ static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp
 }
 
 static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                            const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+                                            const struct eapol_key_frame *frame,
+                                            const void *data, size_t data_len)
 {
     int next_key_slot;
 
@@ -204,7 +206,7 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return -EINVAL;
     }
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
+    if (!ieee80211_is_mic_valid(supp->ptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -248,7 +250,8 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_
 }
 
 static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                            const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+                                            const struct eapol_key_frame *frame,
+                                            const void *data, size_t data_len)
 {
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "rx-4wh");
 
@@ -260,7 +263,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     ieee80211_derive_ptk384(supp->pmk, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->ptk);
     supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ptk_lifetime_s;
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
+    if (!ieee80211_is_mic_valid(supp->ptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -292,16 +295,17 @@ void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ct
 }
 
 static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                  const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+                                  const struct eapol_key_frame *frame,
+                                  const void *data, size_t data_len)
 {
     int ret = 0;
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(frame->information))) {
     case 0:
-        ret = auth_key_pairwise_message_2_recv(auth, supp, frame, iobuf);
+        ret = auth_key_pairwise_message_2_recv(auth, supp, frame, data, data_len);
         break;
     case 1:
-        ret = auth_key_pairwise_message_4_recv(auth, supp, frame, iobuf);
+        ret = auth_key_pairwise_message_4_recv(auth, supp, frame, data, data_len);
         break;
     default:
         break;
@@ -310,7 +314,8 @@ static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
 }
 
 static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                  const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+                                  const struct eapol_key_frame *frame,
+                                  const void *data, size_t data_len)
 {
     uint8_t received_node_role;
     uint8_t received_key[16];
@@ -319,7 +324,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
 
-    if (!kde_read_gtkl(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), &supp->gtkl))
+    if (!kde_read_gtkl(data, data_len, &supp->gtkl))
         supp->gtkl = 0;
 
     /*
@@ -329,7 +334,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * install a PMK and execute the 4-way the handshake to install a PTK).
      */
     ieee80211_derive_pmkid(supp->pmk, auth->eui64.u8, supp->eui64.u8, key);
-    if (!kde_read_pmkid(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), received_key) ||
+    if (!kde_read_pmkid(data, data_len, received_key) ||
         memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->pmk_expiration_s) {
         TRACE(TR_SECURITY, "sec: pmkid out-of-date starting EAP-TLS");
         auth_eap_send_request_identity(auth, supp);
@@ -343,7 +348,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * handshake to install a PTK).
      */
     ws_derive_ptkid(supp->ptk, auth->eui64.u8, supp->eui64.u8, key);
-    if (!kde_read_ptkid(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), received_key) ||
+    if (!kde_read_ptkid(data, data_len, received_key) ||
         memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->ptk_expiration_s) {
         TRACE(TR_SECURITY, "sec: ptk out-of-date starting 4wh");
         auth_key_pairwise_message_1_send(auth, supp);
@@ -357,7 +362,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * operating as a FAN 1.0 Router. The Node Role KDE is used to determine appropriate
      * role based lifetimes for PMKs/PTKs.
      */
-    if (kde_read_nr(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), &received_node_role))
+    if (kde_read_nr(data, data_len, &received_node_role))
         supp->is_lfn = received_node_role == WS_NR_ROLE_LFN;
 
     if (supp->gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
@@ -369,13 +374,20 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     // TODO: check LGTKL
 }
 
-void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
+void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                   const void *buf, size_t buf_len)
 {
     const struct eapol_key_frame *frame;
+    struct iobuf_read iobuf = {
+        .data      = buf,
+        .data_size = buf_len,
+    };
+    const void *data;
     int ret = 0;
 
-    frame = (const struct eapol_key_frame *)iobuf_pop_data_ptr(iobuf, sizeof(struct eapol_key_frame));
-    if (!frame) {
+    frame = (const struct eapol_key_frame *)iobuf_pop_data_ptr(&iobuf, sizeof(struct eapol_key_frame));
+    data = frame ? iobuf_pop_data_ptr(&iobuf, be16toh(frame->data_length)) : NULL;
+    if (!data) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol-key frame", "eapol-key");
         return;
     }
@@ -418,7 +430,7 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iob
      * 4-way handshake or group key handshake
      */
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_REQ, be16toh(frame->information)))
-        return auth_key_request_recv(auth, supp, frame, iobuf);
+        return auth_key_request_recv(auth, supp, frame, data, be16toh(frame->data_length));
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -436,10 +448,10 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iob
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
     case IEEE80211_KEY_TYPE_GROUP:
-        ret = auth_key_group_message_2_recv(auth, supp, frame, iobuf);
+        ret = auth_key_group_message_2_recv(auth, supp, frame, data, be16toh(frame->data_length));
         break;
     case IEEE80211_KEY_TYPE_PAIRWISE:
-        ret = auth_key_pairwise_recv(auth, supp, frame, iobuf);
+        ret = auth_key_pairwise_recv(auth, supp, frame, data, be16toh(frame->data_length));
         break;
     }
     // If there was an error during parsing of the message, restart retry timer

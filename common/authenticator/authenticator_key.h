@@ -14,11 +14,13 @@
 #ifndef AUTHENTICATOR_KEY_H
 #define AUTHENTICATOR_KEY_H
 
+#include <stddef.h>
+
 struct auth_ctx;
 struct auth_supp_ctx;
-struct iobuf_read;
 
-void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf);
+void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                   const void *buf, size_t buf_len);
 void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ctx *supp);
 
 #endif
