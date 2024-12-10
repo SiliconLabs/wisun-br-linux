@@ -367,6 +367,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     BUG_ON(!wsrd->ipv6.sendto_mac);
 
+    strcpy(wsrd->ipv6.tun.ifname, wsrd->config.tun_dev);
     tun_init(&wsrd->ipv6.tun, wsrd->config.tun_autoconf);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", wsrd->ipv6.tun.ifname, "accept_ra", '0');
 

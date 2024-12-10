@@ -14,6 +14,7 @@
 #ifndef WSRD_COMMANDLINE_H
 #define WSRD_COMMANDLINE_H
 
+#include <net/if.h>
 #include <sys/uio.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -29,6 +30,7 @@ struct wsrd_conf {
 
     char ws_netname[WS_NETNAME_LEN];
 
+    char tun_dev[IF_NAMESIZE];
     bool tun_autoconf;
     char user[LOGIN_NAME_MAX];
     char group[LOGIN_NAME_MAX];
