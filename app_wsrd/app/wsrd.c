@@ -90,7 +90,15 @@ struct wsrd g_wsrd = {
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .supp.get_target  = wsrd_eapol_get_target,
 
+    // Arbitrary default values
+    .config.rcp_cfg.uart_baudrate = 115200,
     .config.tun_autoconf = true,
+    .config.ws_domain = REG_DOMAIN_UNDEF,
+    .config.ws_uc_dwell_interval_ms = 255,
+    .config.ws_allowed_channels = { [0 ... sizeof(g_wsrd.config.ws_allowed_channels) - 1] = 0xff },
+    .config.tx_power = 14,
+    .config.color_output = -1,
+    .config.ws_mac_address = IEEE802154_ADDR_BC_INIT,
 
     // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
