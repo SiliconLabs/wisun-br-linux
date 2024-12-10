@@ -145,6 +145,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
     }
     TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s",
           tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
+    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
 
     // Reinsert previously parsed IPv6 header.
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
@@ -333,6 +334,8 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         goto err;
     }
     pktbuf.offset_tail = size;
+
+    TRACE(TR_TUN, "rx-tun: %zd bytes", size);
 
     if (!ipv6_is_pkt_allowed(&pktbuf))
         goto err;

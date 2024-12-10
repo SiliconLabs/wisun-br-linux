@@ -40,6 +40,7 @@ const struct name_value valid_traces[] = {
     { "mbedtls",    TR_MBEDTLS },
     { "drop",       TR_DROP | TR_IGNORE | TR_TX_ABORT },
     { "trickle",    TR_TRICKLE },
+    { "tun",        TR_TUN },
     { NULL },
 };
 
