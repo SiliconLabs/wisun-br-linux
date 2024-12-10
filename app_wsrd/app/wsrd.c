@@ -25,6 +25,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
+#include "common/drop_privileges.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -414,6 +415,9 @@ int wsrd_main(int argc, char *argv[])
                   "/com/silabs/Wisun/Router",
                   "com.silabs.Wisun.Router",
                   wsrd_dbus_vtable, wsrd);
+
+    if (wsrd->config.user[0] && wsrd->config.group[0])
+        drop_privileges(wsrd->config.user, wsrd->config.group, true); // keep privileges to manage interface later
 
     INFO("Wi-SUN Router successfully started");
 
