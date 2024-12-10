@@ -90,6 +90,8 @@ struct wsrd g_wsrd = {
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .supp.get_target  = wsrd_eapol_get_target,
 
+    .config.tun_autoconf = true,
+
     // Wi-SUN FAN 1.1v08 6.3.1 Constants
     .config.disc_cfg.k = 1,
     // Wi-SUN FAN 1.1v08 6.3.1.1 Configuration Parameters
@@ -365,7 +367,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     BUG_ON(!wsrd->ipv6.sendto_mac);
 
-    tun_init(&wsrd->ipv6.tun, true);
+    tun_init(&wsrd->ipv6.tun, wsrd->config.tun_autoconf);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", wsrd->ipv6.tun.ifname, "accept_ra", '0');
 
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, wsrd->ws.rcp.eui64.u8);

@@ -79,6 +79,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,         conf_set_number,      NULL },
         { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,           conf_set_bool,        NULL },
         { "cpc_instance",                  config->rcp_cfg.cpc_instance,           conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
+        { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "user",                          config->user,                              conf_set_string,      (void *)sizeof(config->user) },
         { "group",                         config->group,                             conf_set_string,      (void *)sizeof(config->group) },
         { "network_name",                  config->ws_netname,                        conf_set_string,      (void *)sizeof(config->ws_netname) },

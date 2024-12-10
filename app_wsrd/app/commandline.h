@@ -29,6 +29,7 @@ struct wsrd_conf {
 
     char ws_netname[WS_NETNAME_LEN];
 
+    bool tun_autoconf;
     char user[LOGIN_NAME_MAX];
     char group[LOGIN_NAME_MAX];
 
