@@ -389,7 +389,6 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
-    wsrd_init_ipv6(wsrd);
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pcs_tkl);
     trickle_start(&wsrd->pas_tkl);
@@ -435,6 +434,7 @@ int wsrd_main(int argc, char *argv[])
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
+    wsrd_init_ipv6(wsrd);
     supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
     supp_reset(&wsrd->supp);
     dbus_register("com.silabs.Wisun.Router",
