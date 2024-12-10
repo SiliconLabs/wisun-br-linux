@@ -268,7 +268,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_su
     return 0;
 }
 
-static void auth_key_pairwise_message_1_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp)
+void auth_key_pairwise_message_1_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp)
 {
     struct eapol_key_frame message = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,

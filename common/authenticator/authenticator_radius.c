@@ -18,6 +18,7 @@
 
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_eap.h"
+#include "common/authenticator/authenticator_key.h"
 #include "common/specs/eap.h"
 #include "common/specs/eapol.h"
 #include "common/specs/ieee802159.h"
@@ -451,6 +452,9 @@ void radius_recv(struct auth_ctx *auth)
         TRACE(TR_DROP, "drop %-9s: malformed EAP frame", "radius");
         return;
     }
+
+    if (hdr->code == RADIUS_ACCESS_ACCEPT)
+        auth_key_pairwise_message_1_send(auth, supp);
 }
 
 static void radius_attr_push(struct pktbuf *pktbuf, uint8_t type, const void *val, uint8_t val_len)
