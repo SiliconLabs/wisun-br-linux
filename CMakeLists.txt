@@ -657,10 +657,15 @@ add_custom_command(OUTPUT wsbrd.conf
     COMMAND sed 's: examples/: ${CMAKE_INSTALL_FULL_DOCDIR}/examples/:'
             ${CMAKE_CURRENT_SOURCE_DIR}/examples/wsbrd.conf > wsbrd.conf
     DEPENDS examples/wsbrd.conf)
+add_custom_command(OUTPUT wsrd.conf
+    COMMAND sed 's: examples/: ${CMAKE_INSTALL_FULL_DOCDIR}/examples/:'
+            ${CMAKE_CURRENT_SOURCE_DIR}/examples/wsrd.conf > wsrd.conf
+    DEPENDS examples/wsrd.conf)
 add_custom_target(examples-wsbrd.conf ALL DEPENDS wsbrd.conf)
+add_custom_target(examples-wsrd.conf ALL DEPENDS wsrd.conf)
 install(FILES examples/br_cert.pem examples/br_key.pem examples/ca_cert.pem
               examples/node_cert.pem examples/node_key.pem
-              ${CMAKE_CURRENT_BINARY_DIR}/wsbrd.conf
+              ${CMAKE_CURRENT_BINARY_DIR}/wsbrd.conf ${CMAKE_CURRENT_BINARY_DIR}/wsrd.conf
     DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 install(FILES CHANGES.md README.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
