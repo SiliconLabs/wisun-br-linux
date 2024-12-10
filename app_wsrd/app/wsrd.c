@@ -375,6 +375,13 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
         wsrd->ipv6.probe_delay_ms =  1000; // RETRANS_TIMER    1,000 milliseconds
 
     rpl_start(&wsrd->ipv6);
+    dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_realm);    // ff03::1
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
+    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
 }
 
 static void wsrd_init_ws(struct wsrd *wsrd)
@@ -383,13 +390,6 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
     wsrd_init_ipv6(wsrd);
-    dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_rpl_nodes_link); // ff02::1a
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_realm);    // ff03::1
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
-    ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pcs_tkl);
     trickle_start(&wsrd->pas_tkl);
