@@ -342,6 +342,9 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         return;
     ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
 
+    TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
+          tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
+
     lowpan_send(ipv6, &pktbuf, ipv6->eui64, dst_eui64);
 err:
     pktbuf_free(&pktbuf);
