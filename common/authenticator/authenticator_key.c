@@ -259,7 +259,7 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
     return 0;
 }
 
-static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, int key_slot)
 {
     struct eapol_key_frame message = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -276,11 +276,11 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_
     struct pktbuf enc_key_data = { };
 
     memcpy(message.nonce, supp->anonce, sizeof(message.nonce));
-    auth_key_write_key_data(auth, supp, &message, auth->cur_slot, &enc_key_data);
+    auth_key_write_key_data(auth, supp, &message, key_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=3", "tx-4wh");
     auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data));
-    supp->last_installed_key_slot = auth->cur_slot;
+    supp->last_installed_key_slot = key_slot;
 
     pktbuf_free(&enc_key_data);
 }
@@ -289,6 +289,8 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
+    int next_key_slot;
+
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "rx-4wh");
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
@@ -302,7 +304,12 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
-    auth_key_pairwise_message_3_send(auth, supp);
+    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
+    if (next_key_slot < 0) {
+        TRACE(TR_DROP, "drop %-9s: no key to install", "eapol-key");
+        return -EAGAIN;
+    }
+    auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
     return 0;
 }
 
