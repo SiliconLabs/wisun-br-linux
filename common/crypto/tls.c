@@ -104,6 +104,7 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, co
     BUG_ON(ret);
     mbedtls_ssl_conf_cert_profile(&tls->ssl_config, &certificate_profile);
     mbedtls_ssl_conf_ca_chain(&tls->ssl_config, &tls->ca_cert, NULL);
+    mbedtls_ssl_conf_authmode(&tls->ssl_config, MBEDTLS_SSL_VERIFY_REQUIRED);
 
     mbedtls_ssl_conf_ciphersuites(&tls->ssl_config, tls_ciphersuites);
 #if MBEDTLS_VERSION_NUMBER < 0x03010000
