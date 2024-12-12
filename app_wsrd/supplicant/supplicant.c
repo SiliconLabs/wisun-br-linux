@@ -121,11 +121,6 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
     supp->replay_counter = 0;
 }
 
-static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line, const char *string)
-{
-    TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
-}
-
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
 {
     uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
@@ -328,57 +323,6 @@ void supp_reset(struct supp_ctx *supp)
 void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8])
 {
-    /*
-     * Note: mbedtls expects the given configuration variables to always be
-     * accessible at the given address.
-     * Therefore, these variables must remain static.
-     */
-    static const mbedtls_x509_crt_profile certificate_profile = {
-        .allowed_mds    = MBEDTLS_X509_ID_FLAG(MBEDTLS_MD_SHA256),
-        .allowed_pks    = MBEDTLS_X509_ID_FLAG(MBEDTLS_PK_ECDSA) | MBEDTLS_X509_ID_FLAG(MBEDTLS_PK_ECKEY),
-        .allowed_curves = MBEDTLS_X509_ID_FLAG(MBEDTLS_ECP_DP_SECP256R1),
-        .rsa_min_bitlen = 0,
-    };
-    /*
-     *   Wi-SUN FAN 1.1v08 - 6.5.2.1 EAPOL Over 802.15.4
-     * FAN nodes MUST support the EAP-TLS method with the
-     * TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 cipher suite [RFC7251].
-     */
-    static const int tls_ciphersuites[] = {
-        MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
-        0,
-    };
-    /*
-     *   Wi-SUN FAN 1.1v08 - 6.5.1 Public Key Infrastructure
-     * All Wi-SUN certificates (device, root, and intermediate CA) must contain
-     * only an EC P-256 public key in uncompressed format.
-     */
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-    static const mbedtls_ecp_group_id tls_curves[] = {
-        MBEDTLS_ECP_DP_SECP256R1,
-        MBEDTLS_ECP_DP_NONE,
-    };
-#else
-    static const uint16_t tls_curves[] = {
-        MBEDTLS_SSL_IANA_TLS_GROUP_SECP256R1,
-        MBEDTLS_SSL_IANA_TLS_GROUP_NONE,
-    };
-#endif
-    /*
-     *   Wi-SUN FAN 1.1v08 - 6.5.1 Public Key Infrastructure
-     * All Wi-SUN certificates MUST only be signed with SHA256withECDSA.
-     */
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
-    static const int tls_sig_hashes[] = {
-        MBEDTLS_MD_SHA256,
-        MBEDTLS_MD_NONE,
-    };
-#else
-    static const uint16_t tls_sig_hashes[] = {
-        (MBEDTLS_SSL_HASH_SHA256 << 8) | MBEDTLS_SSL_SIG_ECDSA,
-        MBEDTLS_TLS1_3_SIG_NONE,
-    };
-#endif
     int ret;
 
     BUG_ON(!supp->sendto_mac);
@@ -396,57 +340,10 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert,
     rfc8415_txalg_init(&supp->key_request_txalg);
     memcpy(supp->eui64, eui64, sizeof(supp->eui64));
 
+    tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, ca_cert, cert, key);
+
     mbedtls_ssl_init(&supp->ssl_ctx);
-    mbedtls_ssl_config_init(&supp->ssl_config);
-    ret = mbedtls_ssl_config_defaults(&supp->ssl_config, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM,
-                                      MBEDTLS_SSL_PRESET_DEFAULT);
-    BUG_ON(ret);
-
-    mbedtls_x509_crt_init(&supp->ca_cert);
-    mbedtls_x509_crt_init(&supp->cert);
-    mbedtls_pk_init(&supp->key);
-
-    mbedtls_entropy_init(&supp->entropy);
-    mbedtls_ctr_drbg_init(&supp->ctr_drbg);
-    ret = mbedtls_ctr_drbg_seed(&supp->ctr_drbg , mbedtls_entropy_func, &supp->entropy, NULL, 0);
-    BUG_ON(ret);
-    mbedtls_ssl_conf_rng(&supp->ssl_config, mbedtls_ctr_drbg_random, &supp->ctr_drbg);
-
-    ret = mbedtls_x509_crt_parse(&supp->ca_cert, ca_cert->iov_base, ca_cert->iov_len);
-    FATAL_ON(ret, 1, "mbedtls_x509_crt_parse: cannot parse CA certificate");
-    ret = mbedtls_x509_crt_parse(&supp->cert, cert->iov_base, cert->iov_len);
-    FATAL_ON(ret, 1, "mbedtls_x509_crt_parse: cannot parse own certificate");
-    ret = mbedtls_pk_parse_key(&supp->key, key->iov_base, key->iov_len, NULL, 0,
-                               mbedtls_ctr_drbg_random, &supp->ctr_drbg);
-    FATAL_ON(ret, 1, "mbedtls_pk_parse_key: cannot parse private key");
-
-    ret = mbedtls_ssl_conf_own_cert(&supp->ssl_config, &supp->cert, &supp->key);
-    BUG_ON(ret);
-    mbedtls_ssl_conf_cert_profile(&supp->ssl_config, &certificate_profile);
-    mbedtls_ssl_conf_ca_chain(&supp->ssl_config, &supp->ca_cert, NULL);
-
-    mbedtls_ssl_conf_ciphersuites(&supp->ssl_config, tls_ciphersuites);
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-    mbedtls_ssl_conf_curves(&supp->ssl_config, tls_curves);
-#else
-    mbedtls_ssl_conf_groups(&supp->ssl_config, tls_curves);
-#endif
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
-    mbedtls_ssl_conf_sig_hashes(&supp->ssl_config, tls_sig_hashes);
-#else
-    mbedtls_ssl_conf_sig_algs(&supp->ssl_config, tls_sig_hashes);
-#endif
-
-    if (g_enabled_traces & TR_MBEDTLS) {
-        mbedtls_ssl_conf_dbg(&supp->ssl_config, supp_mbedtls_debug, NULL);
-        mbedtls_debug_set_threshold(4);
-    }
-
-    // TLS v1.2 only
-    mbedtls_ssl_conf_min_version(&supp->ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
-    mbedtls_ssl_conf_max_version(&supp->ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
-
-    ret = mbedtls_ssl_setup(&supp->ssl_ctx, &supp->ssl_config);
+    ret = mbedtls_ssl_setup(&supp->ssl_ctx, &supp->tls.ssl_config);
     BUG_ON(ret);
 
     mbedtls_ssl_set_bio(&supp->ssl_ctx, supp, supp_mbedtls_send, supp_mbedtls_recv, NULL);

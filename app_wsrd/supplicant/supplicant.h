@@ -42,6 +42,7 @@
 #include <stdbool.h>
 
 #include "common/crypto/ws_keys.h"
+#include "common/crypto/tls.h"
 #include "common/rfc8415_txalg.h"
 #include "common/pktbuf.h"
 #include "common/timer.h"
@@ -50,13 +51,8 @@ struct supp_ctx {
     uint8_t eui64[8];
     bool running;
 
-    struct mbedtls_ssl_config  ssl_config;
+    struct tls_ctx tls;
     struct mbedtls_ssl_context ssl_ctx;
-    struct mbedtls_entropy_context  entropy;
-    struct mbedtls_ctr_drbg_context ctr_drbg;
-    struct mbedtls_x509_crt   ca_cert;
-    struct mbedtls_x509_crt   cert;
-    struct mbedtls_pk_context key;
 
     bool eap_tls_start_received;
 

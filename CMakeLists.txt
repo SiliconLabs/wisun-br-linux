@@ -292,6 +292,7 @@ if(COMPILE_WSRD)
         common/crypto/hmac_md.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
+        common/crypto/tls.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
         common/bits.c
@@ -695,6 +696,7 @@ if(COMPILE_DEMOS)
         common/crypto/ieee80211.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
+        common/crypto/tls.c
         common/bits.c
         common/eap.c
         common/eapol.c
