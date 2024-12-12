@@ -231,14 +231,41 @@ manpage][dhcrelay]):
 
 # Running `wsbrd` Without Root Privilege
 
+The recommended method to run `wsbrd` is to start it as root, let it initialize
+necessary resources as root, and then switch to a less privileged user using
+the `user` and `group` parameters, following the principle of least privilege.
+If for some reason this method is not desired, the following steps should
+enable running `wsbrd` without being the root user.
+
 To run `wsbrd` without root permissions, first ensure you have permission to
 access the UART device (you will have to logout/login after this command):
 
     sudo usermod -aG dialout YOUR_USER
 
-Then, you have to take over the creation of the network interface. This process
-can also be useful to set up unusual configurations, or if you need to access
-tun interface before `wsbrd` is launched.
+Then, `wsbrd` needs some permissions to a initialize network resources
+(sockets, virtual interface, addresses...). The following Linux
+[capabilities][capabilities] are required:
+
+  - `CAP_NET_ADMIN`: Create TUN interface, manage addresses, routes and
+    neighbor proxy entries.
+  - `CAP_NET_BIND_SERVICE`: Open sockets on privileged ports (DHCPv6).
+  - `CAP_NET_RAW`: Join multicast groups, open ICMPv6 socket for RPL.
+
+They can be assigned to the `wsbrd` binary using:
+
+    sudo setcap "cap_net_admin,cap_net_bind_service,cap_net_raw=+ep" $(which wsbrd)
+
+[capabilities]: https://man7.org/linux/man-pages/man7/capabilities.7.html
+
+Note that this is comparable to making wsbrd a "setuid" binary, but with
+selected permissions. You can now run `wsbrd` without root privileges.
+
+While giving those permissions will enable `wsbrd` to create its own network
+interface, you can also choose to configure it manually. This process can be
+useful to set up unusual configurations, or if you need to access tun interface
+before `wsbrd` is launched. Note that `wsbrd` will still need the
+aforementioned privileges to function whether you manually configure its
+network interface or not.
 
 First, create the network interface to give your user the permission to use
 it:
@@ -282,13 +309,6 @@ The network mask of the GUA must match with the `ipv6_prefix` parameter.
 Finally, bring up the interface:
 
     sudo ip link set dev tun0 up
-
-Also note, the internal DHCP will not be able to bind ports 546 and 547 without
-root privilege. You can run an external DHCP server (with `internal_dhcp=false`)
-or you can configure your system to allow normal users to bind port 546 and
-above:
-
-    sudo sysctl net.ipv4.ip_unprivileged_port_start=546
 
 Finally, you can run `wsbrd`.
 
