@@ -13,6 +13,7 @@
 #
 cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
+set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Router implementation")
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
@@ -272,96 +273,98 @@ add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_library(libwsrd STATIC
-    app_wsrd/app/commandline.c
-    app_wsrd/app/wsrd.c
-    app_wsrd/app/ws.c
-    app_wsrd/ipv6/6lowpan.c
-    app_wsrd/ipv6/ipv6.c
-    app_wsrd/ipv6/ipv6_addr_mc.c
-    app_wsrd/ipv6/ndp.c
-    app_wsrd/ipv6/rpl.c
-    app_wsrd/ipv6/rpl_mrhof.c
-    app_wsrd/supplicant/supplicant_eap.c
-    app_wsrd/supplicant/supplicant_key.c
-    app_wsrd/supplicant/supplicant.c
-    common/crypto/ieee80211.c
-    common/crypto/hmac_md.c
-    common/crypto/nist_kw.c
-    common/crypto/ws_keys.c
-    common/ipv6/6lowpan_iphc.c
-    common/ipv6/ipv6_addr.c
-    common/bits.c
-    common/bus_uart.c
-    common/capture.c
-    common/commandline.c
-    common/crc.c
-    common/dhcp_client.c
-    common/dhcp_common.c
-    common/eap.c
-    common/eapol.c
-    common/endian.c
-    common/hif.c
-    common/ieee802154_frame.c
-    common/ieee802154_ie.c
-    common/iobuf.c
-    common/kde.c
-    common/key_value_storage.c
-    common/log.c
-    common/mbedtls_config_check.c
-    common/mpx.c
-    common/named_values.c
-    common/parsers.c
-    common/pktbuf.c
-    common/rail_config.c
-    common/rand.c
-    common/rcp_api.c
-    common/rfc8415_txalg.c
-    common/timer.c
-    common/time_extra.c
-    common/trickle.c
-    common/tun.c
-    common/ws_chan_mask.c
-    common/ws_ie_validation.c
-    common/ws_ie.c
-    common/ws_interface.c
-    common/ws_neigh.c
-    common/ws_regdb.c
-    version.c
-)
-target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_options(libwsrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
-target_link_libraries(libwsrd PUBLIC MbedTLS::mbedtls PkgConfig::LIBNL_ROUTE)
-target_compile_definitions(libwsrd PUBLIC HAVE_MBEDTLS)
-if(LIBCAP_FOUND)
-    target_compile_definitions(libwsrd PRIVATE HAVE_LIBCAP)
-    target_sources(libwsrd PRIVATE common/drop_privileges.c)
-    target_link_libraries(libwsrd PRIVATE PkgConfig::LIBCAP)
-endif()
-if(LIBSYSTEMD_FOUND)
-    target_compile_definitions(libwsrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(libwsrd PRIVATE common/dbus.c app_wsrd/app/dbus.c)
-    target_link_libraries(libwsrd PRIVATE PkgConfig::LIBSYSTEMD)
-endif()
-if(BACKTRACE_FOUND)
-    target_compile_definitions(libwsrd PRIVATE HAVE_BACKTRACE)
-    target_sources(libwsrd PRIVATE common/backtrace_show.c)
-    target_link_libraries(libwsrd PUBLIC backtrace)
-endif()
-if(LIBDL_FOUND)
-    target_compile_definitions(libwsrd PRIVATE HAVE_LIBDL)
-    target_link_libraries(libwsrd PUBLIC ${CMAKE_DL_LIBS})
-endif()
-if(LIBCPC_FOUND)
-    target_compile_definitions(libwsrd PRIVATE HAVE_LIBCPC)
-    target_sources(libwsrd PRIVATE common/bus_cpc.c)
-    target_link_libraries(libwsrd PUBLIC cpc)
-endif()
+if(COMPILE_WSRD)
+    add_library(libwsrd STATIC
+        app_wsrd/app/commandline.c
+        app_wsrd/app/wsrd.c
+        app_wsrd/app/ws.c
+        app_wsrd/ipv6/6lowpan.c
+        app_wsrd/ipv6/ipv6.c
+        app_wsrd/ipv6/ipv6_addr_mc.c
+        app_wsrd/ipv6/ndp.c
+        app_wsrd/ipv6/rpl.c
+        app_wsrd/ipv6/rpl_mrhof.c
+        app_wsrd/supplicant/supplicant_eap.c
+        app_wsrd/supplicant/supplicant_key.c
+        app_wsrd/supplicant/supplicant.c
+        common/crypto/ieee80211.c
+        common/crypto/hmac_md.c
+        common/crypto/nist_kw.c
+        common/crypto/ws_keys.c
+        common/ipv6/6lowpan_iphc.c
+        common/ipv6/ipv6_addr.c
+        common/bits.c
+        common/bus_uart.c
+        common/capture.c
+        common/commandline.c
+        common/crc.c
+        common/dhcp_client.c
+        common/dhcp_common.c
+        common/eap.c
+        common/eapol.c
+        common/endian.c
+        common/hif.c
+        common/ieee802154_frame.c
+        common/ieee802154_ie.c
+        common/iobuf.c
+        common/kde.c
+        common/key_value_storage.c
+        common/log.c
+        common/mbedtls_config_check.c
+        common/mpx.c
+        common/named_values.c
+        common/parsers.c
+        common/pktbuf.c
+        common/rail_config.c
+        common/rand.c
+        common/rcp_api.c
+        common/rfc8415_txalg.c
+        common/timer.c
+        common/time_extra.c
+        common/trickle.c
+        common/tun.c
+        common/ws_chan_mask.c
+        common/ws_ie_validation.c
+        common/ws_ie.c
+        common/ws_interface.c
+        common/ws_neigh.c
+        common/ws_regdb.c
+        version.c
+    )
+    target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_options(libwsrd PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+    target_link_libraries(libwsrd PUBLIC MbedTLS::mbedtls PkgConfig::LIBNL_ROUTE)
+    target_compile_definitions(libwsrd PUBLIC HAVE_MBEDTLS)
+    if(LIBCAP_FOUND)
+        target_compile_definitions(libwsrd PRIVATE HAVE_LIBCAP)
+        target_sources(libwsrd PRIVATE common/drop_privileges.c)
+        target_link_libraries(libwsrd PRIVATE PkgConfig::LIBCAP)
+    endif()
+    if(LIBSYSTEMD_FOUND)
+        target_compile_definitions(libwsrd PRIVATE HAVE_LIBSYSTEMD)
+        target_sources(libwsrd PRIVATE common/dbus.c app_wsrd/app/dbus.c)
+        target_link_libraries(libwsrd PRIVATE PkgConfig::LIBSYSTEMD)
+    endif()
+    if(BACKTRACE_FOUND)
+        target_compile_definitions(libwsrd PRIVATE HAVE_BACKTRACE)
+        target_sources(libwsrd PRIVATE common/backtrace_show.c)
+        target_link_libraries(libwsrd PUBLIC backtrace)
+    endif()
+    if(LIBDL_FOUND)
+        target_compile_definitions(libwsrd PRIVATE HAVE_LIBDL)
+        target_link_libraries(libwsrd PUBLIC ${CMAKE_DL_LIBS})
+    endif()
+    if(LIBCPC_FOUND)
+        target_compile_definitions(libwsrd PRIVATE HAVE_LIBCPC)
+        target_sources(libwsrd PRIVATE common/bus_cpc.c)
+        target_link_libraries(libwsrd PUBLIC cpc)
+    endif()
 
-add_executable(wsrd app_wsrd/app/main.c)
-add_dependencies(wsrd libwsrd)
-target_link_libraries(wsrd libwsrd)
-install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    add_executable(wsrd app_wsrd/app/main.c)
+    add_dependencies(wsrd libwsrd)
+    target_link_libraries(wsrd libwsrd)
+    install(TARGETS wsrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
     message(STATUS "Checking for 'wsbrd_cli' dependencies")
@@ -625,31 +628,33 @@ if(COMPILE_DEVTOOLS)
         )
         install(TARGETS dc-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-        set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
-        add_library(wsrd-ns3 SHARED
-            tools/simulation/rand.cpp
-            tools/simulation/time.cpp
-            tools/simulation/uart.cpp
-            tools/simulation/wsrd_ns3.cpp
-        )
-        # Prevent conflict with bitand()
-        target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
-        target_include_directories(wsrd-ns3 PRIVATE ${NS3_INCLUDE_DIRECTORIES})
-        target_link_libraries(wsrd-ns3 libwsrd)
-        target_link_libraries(wsrd-ns3 Threads::Threads)
-        target_link_options(wsrd-ns3 PRIVATE
-            -Wl,--wrap=uart_open
-            -Wl,--wrap=writev
-            -Wl,--wrap=getrandom
-            -Wl,--wrap=read
-            -Wl,--wrap=timerfd_create
-            -Wl,--wrap=timerfd_settime
-            -Wl,--wrap=clock_gettime
-            -Wl,--wrap=signal
-            -Wl,--wrap=exit
-            -Wl,--wrap=__tr_printf
-        )
-        install(TARGETS wsrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        if(COMPILE_WSRD)
+            set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
+            add_library(wsrd-ns3 SHARED
+                tools/simulation/rand.cpp
+                tools/simulation/time.cpp
+                tools/simulation/uart.cpp
+                tools/simulation/wsrd_ns3.cpp
+            )
+            # Prevent conflict with bitand()
+            target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
+            target_include_directories(wsrd-ns3 PRIVATE ${NS3_INCLUDE_DIRECTORIES})
+            target_link_libraries(wsrd-ns3 libwsrd)
+            target_link_libraries(wsrd-ns3 Threads::Threads)
+            target_link_options(wsrd-ns3 PRIVATE
+                -Wl,--wrap=uart_open
+                -Wl,--wrap=writev
+                -Wl,--wrap=getrandom
+                -Wl,--wrap=read
+                -Wl,--wrap=timerfd_create
+                -Wl,--wrap=timerfd_settime
+                -Wl,--wrap=clock_gettime
+                -Wl,--wrap=signal
+                -Wl,--wrap=exit
+                -Wl,--wrap=__tr_printf
+            )
+            install(TARGETS wsrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        endif()
     endif()
 endif()
 
