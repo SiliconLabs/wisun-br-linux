@@ -451,6 +451,7 @@ static bool rpl_opt_solicit_matches(const struct rpl_opt_solicit *solicit, const
     return true;
 }
 
+__attribute__((unused)) // TODO: remove when full parenting ready
 static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
                          const struct in6_addr *src, const struct in6_addr *dst)
 {
@@ -579,9 +580,10 @@ static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t 
     case RPL_CODE_DIO:
         rpl_recv_dio(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
         break;
-    case RPL_CODE_DIS:
-        rpl_recv_dis(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
-        break;
+    // TODO: enable when full parenting ready
+    // case RPL_CODE_DIS:
+    //     rpl_recv_dis(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
+    //     break;
     case RPL_CODE_DAO_ACK:
         rpl_recv_dao_ack(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
         break;
