@@ -23,6 +23,8 @@ struct sockaddr;
 
 void radius_init(struct auth_ctx *auth, const struct sockaddr *sa);
 void radius_recv(struct auth_ctx *auth);
+void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                 const void *buf, size_t buf_len);
 void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                      const void *buf, size_t buf_len);
 

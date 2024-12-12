@@ -422,6 +422,7 @@ void radius_recv(struct auth_ctx *auth)
         return;
     }
     supp->radius_id = -1; // Transaction finished
+    timer_stop(&auth->timer_group, &supp->rt_timer);
 
     TRACE(TR_SECURITY, "sec: rx-radius code=%-16s id=%u",
           tr_radius_code(hdr->code), hdr->id);
@@ -500,6 +501,19 @@ static int radius_id_new(struct auth_ctx *auth)
     return cnt <= UINT8_MAX ? id : -1;
 }
 
+void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                 const void *buf, size_t buf_len)
+{
+    const struct radius_hdr *hdr = buf;
+    ssize_t ret;
+
+    BUG_ON(buf_len < sizeof(*hdr));
+    TRACE(TR_SECURITY, "sec: tx-radius code=%-16s id=%u",
+          tr_radius_code(hdr->code), hdr->id);
+    ret = send(auth->radius_fd, buf, buf_len, 0);
+    WARN_ON(ret < 0, "%s: send: %m", __func__);
+}
+
 void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                      const void *buf, size_t buf_len)
 {
@@ -507,7 +521,6 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     struct radius_hdr hdr = { };
     struct pktbuf pktbuf = { };
     int offset_msg_auth;
-    ssize_t ret;
 
     supp->radius_id = -1; // Cancel any on-going transaction
     supp->radius_id = radius_id_new(auth);
@@ -550,9 +563,7 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                      pktbuf_head(&pktbuf), pktbuf_len(&pktbuf),
                      pktbuf_head(&pktbuf) + offset_msg_auth);
 
-    TRACE(TR_SECURITY, "sec: tx-radius code=%-16s id=%u",
-          tr_radius_code(hdr.code), hdr.id);
-    ret = send(auth->radius_fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf), 0);
-    WARN_ON(ret < 0, "%s: send: %m", __func__);
+    radius_send(auth, supp, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    auth_rt_timer_start(auth, supp, 0, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     pktbuf_free(&pktbuf);
 }

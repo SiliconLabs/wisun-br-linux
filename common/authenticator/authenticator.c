@@ -35,6 +35,7 @@
 
 #include "authenticator_eap.h"
 #include "authenticator_key.h"
+#include "authenticator_radius.h"
 
 #include "authenticator.h"
 
@@ -133,6 +134,10 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * the Request message is obtained from elsewhere (such as from a backend
      * authentication server), then the authenticator will need to save a copy
      * of the Request in order to accomplish this.
+     *     RFC 2865 2.4. Why UDP?
+     * As noted, using UDP requires one thing which is built into TCP: with UDP
+     * we must artificially manage retransmission timers to the same server,
+     * although they don't require the same attention to timing provided by TCP.
      */
     pktbuf_free(&supp->rt_buffer);
     pktbuf_init(&supp->rt_buffer, buf, buf_len);
@@ -155,12 +160,21 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
      * A maximum of 3-5 retransmissions is suggested.
      */
     if (supp->rt_count == 3) {
-        TRACE(TR_SECURITY, "sec: max retry count exceeded eui64=%s", tr_eui64(supp->eui64.u8));
+        TRACE(TR_SECURITY, "sec: %s max retry count exceeded eui64=%s",
+              supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
+        if (!supp->rt_kmp_id)
+            supp->radius_id = -1; // Cancel transaction
         timer_stop(group, timer);
         return;
     }
-    TRACE(TR_SECURITY, "sec: frame retry eui64=%s", tr_eui64(supp->eui64.u8));
-    auth_send_eapol(auth, supp, supp->rt_kmp_id,
+    TRACE(TR_SECURITY, "sec: %s frame retry eui64=%s",
+          supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
+    if (supp->rt_kmp_id)
+        auth_send_eapol(auth, supp, supp->rt_kmp_id,
+                        pktbuf_head(&supp->rt_buffer),
+                        pktbuf_len(&supp->rt_buffer));
+    else
+        radius_send(auth, supp,
                     pktbuf_head(&supp->rt_buffer),
                     pktbuf_len(&supp->rt_buffer));
 }

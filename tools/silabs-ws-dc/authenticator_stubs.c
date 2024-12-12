@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/authenticator/authenticator_eap.h"
+#include "common/authenticator/authenticator_radius.h"
 #include "common/log.h"
 
 /*
@@ -28,4 +29,10 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     FATAL(3, "PMK mismatch");
+}
+
+void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                 const void *buf, size_t buf_len)
+{
+    BUG();
 }
