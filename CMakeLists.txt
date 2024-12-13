@@ -469,8 +469,8 @@ if(COMPILE_DEVTOOLS)
     )
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-    add_executable(wshwping
-        tools/hwping/wshwping.c
+    add_executable(silabs-hwping
+        tools/silabs-hwping/hwping.c
         common/bits.c
         common/log.c
         common/crc.c
@@ -481,16 +481,15 @@ if(COMPILE_DEVTOOLS)
         common/iobuf.c
         common/endian.c
     )
-    target_include_directories(wshwping PRIVATE
+    target_include_directories(silabs-hwping PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         app_wsbrd/
     )
     if(LIBCPC_FOUND)
-        target_compile_definitions(wshwping PRIVATE HAVE_LIBCPC)
-        target_sources(wshwping PRIVATE common/bus_cpc.c)
-        target_link_libraries(wshwping PRIVATE cpc)
+        target_compile_definitions(silabs-hwping PRIVATE HAVE_LIBCPC)
+        target_sources(silabs-hwping PRIVATE common/bus_cpc.c)
+        target_link_libraries(silabs-hwping PRIVATE cpc)
     endif()
-    install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     add_library(libdc STATIC
         version.c

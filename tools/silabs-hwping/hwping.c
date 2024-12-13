@@ -69,7 +69,7 @@ void print_help(FILE *stream, int exit_code)
     fprintf(stream, "Stress the hardware link between the Linux host and the Wi-SUN RCP device\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wshwping [OPTIONS] MODE\n");
+    fprintf(stream, "  silabs-hwping [OPTIONS] MODE\n");
     fprintf(stream, "\n");
     fprintf(stream, "MODE can be RX, TX or DUAL\n");
     fprintf(stream, "\n");
@@ -279,7 +279,7 @@ static void rcp_ind_fatal(struct iobuf_read *buf, bool ignore_crc)
     err_code = hif_pop_u16(buf);
     err_msg = hif_pop_str(buf);
     BUG_ON(buf->err);
-    // If a frame was canceled previously before restarting wshwping, the RCP
+    // If a frame was canceled previously before restarting hwping, the RCP
     // will emit a CRC error once its buffers are filled with by NOP request.
     if (ignore_crc && err_code == HIF_ECRC)
         return;
