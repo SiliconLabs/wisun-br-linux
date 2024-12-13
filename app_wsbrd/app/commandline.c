@@ -327,7 +327,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             case '?':
                 print_help(stderr);
                 exit(1);
-                break;
             default:
                 break;
         }
@@ -407,8 +406,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'h':
                 print_help(stdout);
-                exit(0);
-                break;
+                // fall through
             case 'v':
                 /* version is printed at the start of main */
                 exit(0);

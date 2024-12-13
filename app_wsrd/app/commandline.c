@@ -129,7 +129,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
             case '?':
                 print_help(stderr);
                 exit(1);
-                break;
             default:
                 break;
         }
@@ -162,8 +161,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                 break;
             case 'h':
                 print_help(stdout);
-                exit(EXIT_SUCCESS);
-                break;
+                // fall through
             case 'v':
                 // Version is printed at the start of main
                 exit(EXIT_SUCCESS);
