@@ -513,12 +513,13 @@ static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt
             continue; // Skip grouped target options
         if (opt_type != RPL_OPT_TRANSIT)
             break; // No more transits for the current target
-        if (!rpl_opt_transit_parse(&opt_buf, &opt_transit))
-            break;
-        has_transit = true;
-        rpl_transit_update(root, opt_target, &opt_transit);
+        if (rpl_opt_transit_parse(&opt_buf, &opt_transit)) {
+            has_transit = true;
+            rpl_transit_update(root, opt_target, &opt_transit);
+        }
+        buf.err |= opt_buf.err;
     }
-    return !opt_buf.err;
+    return !buf.err;
 }
 
 static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
