@@ -38,8 +38,8 @@ struct mlme_security {
 // Used by rcp_legacy_tx_req_legacy()
 // See IEEE standard 802.15.4-2006 (table 41) for more details
 typedef struct mcps_data_req {
-    unsigned SrcAddrMode: 2;        /**< Source address mode */
-    unsigned DstAddrMode: 2;        /**< Destination address mode */
+    unsigned SrcAddrMode;
+    unsigned DstAddrMode;
     uint16_t DstPANId;              /**< Destination PAN ID */
     uint8_t DstAddr[8];             /**< Destination address */
     uint16_t msduLength;            /**< Service data unit length */
