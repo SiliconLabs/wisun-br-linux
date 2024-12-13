@@ -87,7 +87,7 @@ typedef struct hole {
  * alignment for hole_t, and letting us manipulate uintptr_t in the conventional
  * fashion.
  */
-static hole_t *hole_pointer(const buffer_t *buf, uint16_t offset)
+static hole_t *hole_pointer(buffer_t *buf, uint16_t offset)
 {
     uintptr_t ptr = (uintptr_t)(buffer_data_pointer(buf) + offset);
 
