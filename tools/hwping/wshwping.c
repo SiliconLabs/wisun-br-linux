@@ -212,7 +212,7 @@ static void send_data(struct bus *bus, struct commandline_args *cmdline,
               tr_bytes(buf + 1, buf_len - 1, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-static void send(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
+static void send_ping(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     struct iobuf_write tx_buf = { };
     uint8_t payload_buf[cmdline->payload_size];
@@ -502,14 +502,14 @@ int main(int argc, char **argv)
     out_cnt = 0;
     in_cnt = 0;
     while (out_cnt < cmdline.window) {
-        send(&bus, &cmdline, out_cnt, is_v2);
+        send_ping(&bus, &cmdline, out_cnt, is_v2);
         print_progress(&cmdline, out_cnt, in_cnt);
         out_cnt++;
     }
     clock_gettime(CLOCK_REALTIME, &ts_start);
     while (out_cnt < cmdline.number_of_exchanges + cmdline.window) {
         while (out_cnt <= in_cnt + cmdline.window) {
-            send(&bus, &cmdline, out_cnt, is_v2);
+            send_ping(&bus, &cmdline, out_cnt, is_v2);
             print_progress(&cmdline, out_cnt, in_cnt);
             out_cnt++;
         }
