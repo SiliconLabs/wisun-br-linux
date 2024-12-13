@@ -96,7 +96,7 @@ static hole_t *hole_pointer(buffer_t *buf, uint16_t offset)
 
 static void delete_hole(buffer_t *buf, uint16_t hole, uint16_t *prev_ptr)
 {
-    hole_t *hole_ptr = hole_pointer(buf, hole);
+    const hole_t *hole_ptr = hole_pointer(buf, hole);
 
     *prev_ptr = hole_ptr->next;
 }
@@ -220,7 +220,9 @@ static void reassembly_entry_free(reassembly_interface_t *interface_ptr, reassem
     }
 }
 
-static reassembly_entry_t *reassembly_already_action(reassembly_list_t *reassembly_list, buffer_t *buf, uint16_t tag, uint16_t size)
+static reassembly_entry_t *reassembly_already_action(reassembly_list_t *reassembly_list,
+                                                     const buffer_t *buf,
+                                                     uint16_t tag, uint16_t size)
 {
     ns_list_foreach(reassembly_entry_t, reassembly_entry, reassembly_list) {
         if ((reassembly_entry->tag == tag) && (reassembly_entry->size == size) &&
