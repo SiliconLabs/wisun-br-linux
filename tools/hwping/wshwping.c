@@ -291,7 +291,7 @@ static void rcp_ind_fatal(struct iobuf_read *buf, bool ignore_crc)
         FATAL(3, "rcp error %s", hif_fatal_str(err_code));
 }
 
-static int receive(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
+static int receive_ping(struct bus *bus, struct commandline_args *cmdline, uint16_t counter, bool is_v2)
 {
     const uint8_t *payload;
     int expected_payload, val;
@@ -513,11 +513,11 @@ int main(int argc, char **argv)
             print_progress(&cmdline, out_cnt, in_cnt);
             out_cnt++;
         }
-        in_cnt = receive(&bus, &cmdline, in_cnt, is_v2);
+        in_cnt = receive_ping(&bus, &cmdline, in_cnt, is_v2);
     }
     clock_gettime(CLOCK_REALTIME, &ts_end);
     while (in_cnt < out_cnt) {
-        in_cnt = receive(&bus, &cmdline, in_cnt, is_v2);
+        in_cnt = receive_ping(&bus, &cmdline, in_cnt, is_v2);
         print_progress(&cmdline, out_cnt, in_cnt);
     }
 
