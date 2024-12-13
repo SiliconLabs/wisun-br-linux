@@ -843,12 +843,16 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
 
     //Check first
     fragmenter_tx_entry_t *tx_ptr;
-    if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf))
+    if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf)) {
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
-    else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf))
+        BUG_ON(tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
+    } else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
         tx_ptr = &interface_ptr->active_lfn_broadcast_tx_buf;
-    else
+        BUG_ON(tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
+    } else {
         tx_ptr = lowpan_listed_tx_handle_verify(confirm->hif.handle, &interface_ptr->activeUnicastList);
+        BUG_ON(tx_ptr && !tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
+    }
 
     if (!tx_ptr) {
         tr_error("No data request for this confirmation %u", confirm->hif.handle);
