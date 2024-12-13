@@ -486,6 +486,4 @@ int wsrd_main(int argc, char *argv[])
         if (pfd[POLLFD_DBUS].revents & POLLIN)
             dbus_process();
     }
-
-    return EXIT_SUCCESS;
 }

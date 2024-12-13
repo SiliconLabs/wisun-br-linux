@@ -637,6 +637,4 @@ int wsbr_main(int argc, char *argv[])
 
     while (true)
         wsbr_poll(ctxt);
-
-    return 0;
 }

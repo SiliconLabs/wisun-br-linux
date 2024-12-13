@@ -287,5 +287,4 @@ int dc_main(int argc, char *argv[])
         if (pfd[POLLFD_TUN].revents & POLLIN)
             ws_recvfrom_tun(dc);
     }
-    return 0;
 }
