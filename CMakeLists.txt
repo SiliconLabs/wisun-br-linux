@@ -408,8 +408,8 @@ if(WSBRD_CLI_DEPENDENCIES_FOUND)
 
 endif()
 
-add_executable(wsbrd-fwup
-    tools/fwup/wsbrd_fwup.c
+add_executable(silabs-fwup
+    tools/silabs-fwup/fwup.c
     common/bits.c
     common/log.c
     common/crc.c
@@ -420,8 +420,12 @@ add_executable(wsbrd-fwup
     common/endian.c
     common/named_values.c
 )
-target_include_directories(wsbrd-fwup PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-install(TARGETS wsbrd-fwup RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+target_include_directories(silabs-fwup PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+install(TARGETS silabs-fwup RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# Install symlink with legacy name for backwards compatibility
+add_custom_target(wsbrd-fwup ALL DEPENDS silabs-fwup
+                  COMMAND ${CMAKE_COMMAND} -E create_symlink silabs-fwup wsbrd-fwup)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/wsbrd-fwup DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(COMPILE_DEVTOOLS)
     add_executable(wsbrd-fuzz

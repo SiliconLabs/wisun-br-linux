@@ -20,7 +20,7 @@ In case a firmware update is needed for the RCP, a GBL file should be provided
 in `/home/pi/wisun_rcp.gbl` so that users simply need to run the following
 command:
 
-    wsbrd-fwup -u /dev/ttyAMA0 /home/pi/fw/wisun_rcp.gbl
+    silabs-fwup -u /dev/ttyAMA0 /home/pi/fw/wisun_rcp.gbl
 
 ## System preparation
 
@@ -115,7 +115,7 @@ Don't forget to refresh the services:
 
     	To update the RCP firmware:
 
-    	    sudo wsbrd-fwup -u /dev/ttyAMA0 /home/pi/fw/wisun_rcp.gbl
+    	    sudo silabs-fwup -u /dev/ttyAMA0 /home/pi/fw/wisun_rcp.gbl
 
     EOF
 

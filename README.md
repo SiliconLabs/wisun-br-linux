@@ -143,7 +143,7 @@ Some of these are not compiled by default and require setting
 | Application    | Description                                                   |
 |----------------|---------------------------------------------------------------|
 | `wsbrd_cli`    | A simple application for querying the D-Bus interface         |
-| `wsbrd-fwup`   | A tool for updating the RCP firmware                          |
+| `silabs-fwup`  | A tool for updating the RCP firmware                          |
 | `wsbrd-fuzz`   | A tool for fuzzing and debugging `wsbrd`                      |
 | `silabs-hwping`| A tool for testing the serial link                            |
 | `wstbu`        | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |

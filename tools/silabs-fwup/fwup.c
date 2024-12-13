@@ -41,13 +41,13 @@ struct commandline_args {
 void print_help(FILE *stream, int exit_code)
 {
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wsbrd-fwup [OPTIONS] GBL_FILE\n");
+    fprintf(stream, "  silabs-fwup [OPTIONS] GBL_FILE\n");
     fprintf(stream, "\n");
     fprintf(stream, "Flash the Wi-SUN Radio Co-Processor (RCP) device with GBL_FILE. GBL_FILE must be\n");
     fprintf(stream, "a Gecko Bootloader file (see Silicon Labs document UG266 for more information\n");
     fprintf(stream, "how to generate that file).\n");
     fprintf(stream, "\n");
-    fprintf(stream, "wsbrd-fwup expects the device to have the \"bootloader-uart-xmodem\" component.\n");
+    fprintf(stream, "silabs-fwup expects the device to have the \"bootloader-uart-xmodem\" component.\n");
     fprintf(stream, "Otherwise the update fails without affecting the device.\n");
     fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
