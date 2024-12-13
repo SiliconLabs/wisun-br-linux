@@ -253,14 +253,12 @@ static size_t read_data(struct bus *bus, struct commandline_args *cmdline, uint8
                 return 0;
         }
 
-        if (pollfd.revents & POLLIN || bus->uart.data_ready) {
-            if (cmdline->cpc_instance[0])
-                len = cpc_rx(bus, buf, buf_len);
-            else if (!is_v2)
-                len = uart_legacy_rx(bus, buf, buf_len);
-            else
-                len = uart_rx(bus, buf, buf_len);
-        }
+        if (cmdline->cpc_instance[0])
+            len = cpc_rx(bus, buf, buf_len);
+        else if (!is_v2)
+            len = uart_legacy_rx(bus, buf, buf_len);
+        else
+            len = uart_rx(bus, buf, buf_len);
     } while (!len);
     if (len) {
         if (!is_v2)
