@@ -90,6 +90,10 @@ int parse_escape_sequences(char *out, const char *in, size_t max_len)
 
 int parse_byte_array(uint8_t *out, int size, const char *str)
 {
+    if (!size)
+        return 0;
+    if (strlen(str) + 1 != 3 * size)
+        return -EINVAL;
     for (int i = 0; i < size; i++) {
         if (str[2] != '\0' && str[2] != ':')
             return -EINVAL;
@@ -97,8 +101,6 @@ int parse_byte_array(uint8_t *out, int size, const char *str)
             return -EINVAL;
         str += 3;
     }
-    if (str[-1] != '\0')
-        return -EINVAL;
     return 0;
 }
 
