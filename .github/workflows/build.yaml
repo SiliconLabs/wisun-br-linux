@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: LicenseRef-MSLA
+# SPDX-Copyright-Text: (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Necessary for git-describe used by version.sh
+          fetch-depth: 0
+          fetch-tags: true
+      # Forks do not copy upstream tags by default
+      - name: Update tags
+        run: |
+          git remote add upstream https://github.com/SiliconLabs/wisun-br-linux
+          git fetch upstream refs/tags/*:refs/tags/*
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build \
+                                  libnl-3-dev libnl-route-3-dev \
+                                  libcap-dev libsystemd-dev \
+                                  libdbus-1-dev
+          cargo fetch --manifest-path=tools/wsbrd_cli/Cargo.toml
+      - name: Install MbedTLS
+        run: |
+          git clone --branch v3.6.2 \
+                    --depth 1 \
+                    --recurse-submodules \
+                    --shallow-submodules \
+                    https://github.com/ARMmbed/mbedtls
+          cmake -S mbedtls \
+                -B mbedtls/build \
+                -D ENABLE_PROGRAMS=OFF \
+                -D ENABLE_TESTING=OFF \
+                -G Ninja
+          ninja -C mbedtls/build
+          sudo ninja -C mbedtls/build install
+      - name: Compile and install
+        run: |
+          cmake -S . \
+                -B build \
+                -G Ninja
+          ninja -C build
+          sudo ninja -C build install
+      - name: Run --version
+        run: wsbrd --version
