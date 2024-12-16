@@ -252,6 +252,7 @@ static void dc_init_radio(struct dc *dc)
 int dc_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
+    struct auth_supp_ctx *supp;
     struct dc *dc = &g_dc;
     int ret;
 
@@ -272,7 +273,12 @@ int dc_main(int argc, char *argv[])
     dc_init_radio(dc);
     dc_init_tun(dc);
     auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64);
-    auth_set_supp_pmk(&dc->auth_ctx, &dc->cfg.target_eui64, dc->cfg.target_pmk);
+
+    // Add supplicant entry to authenticator
+    supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);
+    memcpy(supp->pmk, dc->cfg.target_pmk, 32);
+    supp->pmk_expiration_s = UINT64_MAX; // Infinite
+
     timer_group_init(&dc->ws.neigh_table.timer_group);
     if (dc->cfg.user[0] && dc->cfg.group[0])
         drop_privileges(dc->cfg.user, dc->cfg.group, true); // keep privileges to manage route to target later

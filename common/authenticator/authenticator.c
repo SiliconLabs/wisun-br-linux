@@ -173,7 +173,7 @@ static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *ctx, const struct eu
     return supp;
 }
 
-static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp = auth_get_supp(ctx, eui64);
 
@@ -189,14 +189,6 @@ static struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct 
     SLIST_INSERT_HEAD(&ctx->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
     return supp;
-}
-
-void auth_set_supp_pmk(struct auth_ctx *ctx, const struct eui64 *eui64, const uint8_t pmk[32])
-{
-    struct auth_supp_ctx *supp = auth_fetch_supp(ctx, eui64);
-
-    memcpy(supp->pmk, pmk, sizeof(supp->pmk));
-    supp->pmk_expiration_s = UINT64_MAX; // Infinite lifetime
 }
 
 bool auth_get_supp_tk(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t tk[16])
