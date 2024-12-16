@@ -83,24 +83,24 @@ struct auth_ctx {
     struct timer_group timer_group;
     uint64_t timeout_ms;
 
-    void (*sendto_mac)(struct auth_ctx *ctx, uint8_t kmp_id, const void *pkt,
+    void (*sendto_mac)(struct auth_ctx *auth, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const struct eui64 *dst);
-    void (*on_gtk_change)(struct auth_ctx *ctx, const uint8_t gtk[16], uint8_t index, bool activate);
+    void (*on_gtk_change)(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t index, bool activate);
 
     // Called on rx of 4wh msg 4 and gkh msg 2
-    void (*on_supp_gtk_installed)(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t index);
+    void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);
 };
 
-struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64);
+struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 *eui64);
 
-bool auth_get_supp_tk(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t tk[16]);
+bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t tk[16]);
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                          uint8_t kmp_id, const void *buf, size_t buf_len);
-void auth_send_eapol(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                      uint8_t kmp_id, const void *buf, size_t buf_len);
-void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *eui64,
+void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *eui64,
                      const uint8_t *buf, size_t buf_len);
-void auth_start(struct auth_ctx *ctx, const struct eui64 *eui64);
+void auth_start(struct auth_ctx *auth, const struct eui64 *eui64);
 
 #endif

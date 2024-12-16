@@ -54,11 +54,11 @@ static void auth_gtk_expiration_timer_start(struct auth_ctx *auth, struct ws_gtk
 
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
     struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
 
-    if (ctx->on_gtk_change)
-        ctx->on_gtk_change(ctx, NULL, gtk->slot + 1, false);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, NULL, gtk->slot + 1, false);
     TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->gtk, sizeof(gtk->gtk)));
 }
 
@@ -79,16 +79,16 @@ static void auth_gtk_activation_timer_start(struct auth_ctx *auth, const struct 
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
-    auth_gtk_activation_timer_start(ctx, &ctx->gtks[ctx->next_slot]);
-    if (ctx->on_gtk_change)
-        ctx->on_gtk_change(ctx, ctx->gtks[ctx->next_slot].gtk, ctx->next_slot + 1, true);
-    ctx->cur_slot = ctx->next_slot;
+    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->next_slot]);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, auth->gtks[auth->next_slot].gtk, auth->next_slot + 1, true);
+    auth->cur_slot = auth->next_slot;
     TRACE(TR_SECURITY, "sec: activated gtk=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
-          tr_key(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk)),
-          ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms / 1000, ctx->gtk_install_timer.expire_ms / 1000,
-          ctx->gtk_activation_timer.expire_ms / 1000);
+          tr_key(auth->gtks[auth->cur_slot].gtk, sizeof(auth->gtks[auth->cur_slot].gtk)),
+          auth->gtks[auth->cur_slot].expiration_timer.expire_ms / 1000, auth->gtk_install_timer.expire_ms / 1000,
+          auth->gtk_activation_timer.expire_ms / 1000);
 }
 
 /*
@@ -109,15 +109,15 @@ static void auth_gtk_install_timer_start(struct auth_ctx *auth, const struct ws_
 
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
-    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
-    ctx->next_slot = (ctx->cur_slot + 1) % 4;
-    rand_get_n_bytes_random(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk));
-    auth_gtk_expiration_timer_start(ctx, &ctx->gtks[ctx->next_slot], &ctx->gtks[ctx->cur_slot]);
-    auth_gtk_install_timer_start(ctx, &ctx->gtks[ctx->next_slot]);
-    if (ctx->on_gtk_change)
-        ctx->on_gtk_change(ctx, ctx->gtks[ctx->next_slot].gtk, ctx->next_slot + 1, false);
-    TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(ctx->gtks[ctx->next_slot].gtk, sizeof(ctx->gtks[ctx->next_slot].gtk)));
+    auth->next_slot = (auth->cur_slot + 1) % 4;
+    rand_get_n_bytes_random(auth->gtks[auth->next_slot].gtk, sizeof(auth->gtks[auth->next_slot].gtk));
+    auth_gtk_expiration_timer_start(auth, &auth->gtks[auth->next_slot], &auth->gtks[auth->cur_slot]);
+    auth_gtk_install_timer_start(auth, &auth->gtks[auth->next_slot]);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, auth->gtks[auth->next_slot].gtk, auth->next_slot + 1, false);
+    TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(auth->gtks[auth->next_slot].gtk, sizeof(auth->gtks[auth->next_slot].gtk)));
 }
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
@@ -144,7 +144,7 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, rt_timer);
-    struct auth_ctx *ctx = container_of(group, struct auth_ctx, timer_group);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
     supp->rt_count++;
 
@@ -160,22 +160,22 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
         return;
     }
     TRACE(TR_SECURITY, "sec: frame retry eui64=%s", tr_eui64(supp->eui64.u8));
-    auth_send_eapol(ctx, supp, supp->rt_kmp_id,
+    auth_send_eapol(auth, supp, supp->rt_kmp_id,
                     pktbuf_head(&supp->rt_buffer),
                     pktbuf_len(&supp->rt_buffer));
 }
 
-static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
 
-    SLIST_FIND(supp, &ctx->supplicants, link, !memcmp(&supp->eui64, eui64, sizeof(supp->eui64)));
+    SLIST_FIND(supp, &auth->supplicants, link, !memcmp(&supp->eui64, eui64, sizeof(supp->eui64)));
     return supp;
 }
 
-struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *eui64)
+struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 *eui64)
 {
-    struct auth_supp_ctx *supp = auth_get_supp(ctx, eui64);
+    struct auth_supp_ctx *supp = auth_get_supp(auth, eui64);
 
     if (supp)
         return supp;
@@ -184,16 +184,16 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *ctx, const struct eui64 *
     supp->eui64 = *eui64;
     supp->radius_id = -1;
     supp->replay_counter = -1;
-    supp->rt_timer.period_ms = ctx->timeout_ms,
+    supp->rt_timer.period_ms = auth->timeout_ms,
     supp->rt_timer.callback = auth_rt_timer_timeout;
-    SLIST_INSERT_HEAD(&ctx->supplicants, supp, link);
+    SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
     return supp;
 }
 
-bool auth_get_supp_tk(struct auth_ctx *ctx, const struct eui64 *eui64, uint8_t tk[16])
+bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t tk[16])
 {
-    struct auth_supp_ctx *supp = auth_get_supp(ctx, eui64);
+    struct auth_supp_ctx *supp = auth_get_supp(auth, eui64);
 
     if (!supp)
         return false;
@@ -215,7 +215,7 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
 }
 
-void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *eui64,
+void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *eui64,
                      const uint8_t *buf, size_t buf_len)
 {
     struct auth_supp_ctx *supp;
@@ -245,14 +245,14 @@ void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *e
     TRACE(TR_SECURITY, "sec: %-8s type=%s length=%d", "rx-eapol",
           val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), ntohs(eapol_hdr->packet_body_length));
 
-    supp = auth_fetch_supp(ctx, eui64);
+    supp = auth_fetch_supp(auth, eui64);
 
     switch (eapol_hdr->packet_type) {
     case EAPOL_PACKET_TYPE_EAP:
-        auth_eap_recv(ctx, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+        auth_eap_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
         break;
     case EAPOL_PACKET_TYPE_KEY:
-        auth_key_recv(ctx, supp, &iobuf);
+        auth_key_recv(auth, supp, &iobuf);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
@@ -260,31 +260,31 @@ void auth_recv_eapol(struct auth_ctx *ctx, uint8_t kmp_id, const struct eui64 *e
     }
 }
 
-void auth_start(struct auth_ctx *ctx, const struct eui64 *eui64)
+void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
 {
-    BUG_ON(!ctx->sendto_mac);
-    BUG_ON(!ctx->cfg);
+    BUG_ON(!auth->sendto_mac);
+    BUG_ON(!auth->cfg);
 
-    SLIST_INIT(&ctx->supplicants);
-    timer_group_init(&ctx->timer_group);
-    ctx->gtk_activation_timer.callback = auth_gtk_activation_timer_timeout;
-    ctx->gtk_install_timer.callback    = auth_gtk_install_timer_timeout;
-    ctx->eui64 = *eui64;
-    ctx->cur_slot = 0;
-    for (int i = 0; i < ARRAY_SIZE(ctx->gtks); i++) {
-        ctx->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
-        ctx->gtks[i].slot = i;
+    SLIST_INIT(&auth->supplicants);
+    timer_group_init(&auth->timer_group);
+    auth->gtk_activation_timer.callback = auth_gtk_activation_timer_timeout;
+    auth->gtk_install_timer.callback    = auth_gtk_install_timer_timeout;
+    auth->eui64 = *eui64;
+    auth->cur_slot = 0;
+    for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++) {
+        auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
+        auth->gtks[i].slot = i;
     }
 
     // We assume the gtkhash of the generated gtk won't be full of zeros
-    rand_get_n_bytes_random(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk));
-    auth_gtk_expiration_timer_start(ctx, &ctx->gtks[ctx->cur_slot], NULL);
-    auth_gtk_install_timer_start(ctx, &ctx->gtks[ctx->cur_slot]);
-    auth_gtk_activation_timer_start(ctx, &ctx->gtks[ctx->cur_slot]);
-    if (ctx->on_gtk_change)
-        ctx->on_gtk_change(ctx, ctx->gtks[ctx->cur_slot].gtk, 1, true);
+    rand_get_n_bytes_random(auth->gtks[auth->cur_slot].gtk, sizeof(auth->gtks[auth->cur_slot].gtk));
+    auth_gtk_expiration_timer_start(auth, &auth->gtks[auth->cur_slot], NULL);
+    auth_gtk_install_timer_start(auth, &auth->gtks[auth->cur_slot]);
+    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->cur_slot]);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, auth->gtks[auth->cur_slot].gtk, 1, true);
     TRACE(TR_SECURITY, "sec: authenticator started gtk=%s expiration=%"PRIu64" next_install=%"PRIu64
-          " next_activation=%"PRIu64, tr_key(ctx->gtks[ctx->cur_slot].gtk, sizeof(ctx->gtks[ctx->cur_slot].gtk)),
-          ctx->gtks[ctx->cur_slot].expiration_timer.expire_ms / 1000, ctx->gtk_install_timer.expire_ms / 1000,
-          ctx->gtk_activation_timer.expire_ms / 1000);
+          " next_activation=%"PRIu64, tr_key(auth->gtks[auth->cur_slot].gtk, sizeof(auth->gtks[auth->cur_slot].gtk)),
+          auth->gtks[auth->cur_slot].expiration_timer.expire_ms / 1000, auth->gtk_install_timer.expire_ms / 1000,
+          auth->gtk_activation_timer.expire_ms / 1000);
 }

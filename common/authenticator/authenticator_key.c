@@ -77,7 +77,7 @@ static void auth_key_add_kde_padding(struct pktbuf *buf)
     pktbuf_push_tail(buf, NULL, padding_size);
 }
 
-static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   struct eapol_key_frame *frame, const uint8_t *key_data, size_t key_data_len,
                                   uint8_t kmp_id, bool mic)
 {
@@ -110,18 +110,18 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
                frame->mic, sizeof(frame->mic));
     }
 
-    auth_send_eapol(ctx, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
-    auth_rt_timer_start(ctx, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
+    auth_send_eapol(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
+    auth_rt_timer_start(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
 }
 
-static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *supp, int key_slot, struct pktbuf *enc_key_data)
+static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx *supp, int key_slot, struct pktbuf *enc_key_data)
 {
     struct pktbuf key_data = { };
     int ret;
 
-    kde_write_gtk(&key_data, key_slot, ctx->gtks[key_slot].gtk);
-    kde_write_lifetime(&key_data, (ctx->gtks[key_slot].expiration_timer.expire_ms - time_now_ms(CLOCK_MONOTONIC)) / 1000);
-    kde_write_gtkl(&key_data, auth_key_get_gtkl(ctx->gtks, ARRAY_SIZE(ctx->gtks)));
+    kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].gtk);
+    kde_write_lifetime(&key_data, (auth->gtks[key_slot].expiration_timer.expire_ms - time_now_ms(CLOCK_MONOTONIC)) / 1000);
+    kde_write_gtkl(&key_data, auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks)));
 
     auth_key_add_kde_padding(&key_data);
 
@@ -141,7 +141,7 @@ static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *
     pktbuf_free(&key_data);
 }
 
-static void auth_key_group_message_1_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                           int key_slot)
 {
     struct eapol_key_frame message = {
@@ -156,17 +156,17 @@ static void auth_key_group_message_1_send(struct auth_ctx *ctx, struct auth_supp
     };
     struct pktbuf enc_key_data = { };
 
-    auth_key_write_key_data(ctx, supp, key_slot, &enc_key_data);
+    auth_key_write_key_data(auth, supp, key_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-gkh");
-    auth_key_message_send(ctx, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
                           IEEE802159_KMP_ID_80211_GKH, true);
     supp->last_installed_key_slot = key_slot;
 
     pktbuf_free(&enc_key_data);
 }
 
-static int auth_key_group_message_2_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                           const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
     int next_key_slot;
@@ -182,18 +182,18 @@ static int auth_key_group_message_2_recv(struct auth_ctx *ctx, struct auth_supp_
         return -EINVAL;
     }
 
-    if (ctx->on_supp_gtk_installed)
-        ctx->on_supp_gtk_installed(ctx, &supp->eui64, supp->last_installed_key_slot + 1);
+    if (auth->on_supp_gtk_installed)
+        auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
     supp->gtkl |= BIT(supp->last_installed_key_slot);
 
-    next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
+    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
     if (next_key_slot != -1)
-        auth_key_group_message_1_send(ctx, supp, next_key_slot);
+        auth_key_group_message_1_send(auth, supp, next_key_slot);
     // TODO: LGTK
     return 0;
 }
 
-static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                             const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
     int next_key_slot;
@@ -209,18 +209,18 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_su
         return -EINVAL;
     }
 
-    if (ctx->on_supp_gtk_installed)
-        ctx->on_supp_gtk_installed(ctx, &supp->eui64, supp->last_installed_key_slot + 1);
+    if (auth->on_supp_gtk_installed)
+        auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
     supp->gtkl |= BIT(supp->last_installed_key_slot);
 
-    next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
+    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
     if (next_key_slot != -1)
-        auth_key_group_message_1_send(ctx, supp, next_key_slot);
+        auth_key_group_message_1_send(auth, supp, next_key_slot);
     // TODO: LGTK
     return 0;
 }
 
-static void auth_key_pairwise_message_3_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp)
+static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     struct eapol_key_frame message = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -237,17 +237,17 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *ctx, struct auth_s
     struct pktbuf enc_key_data = { };
 
     memcpy(message.nonce, supp->anonce, sizeof(message.nonce));
-    auth_key_write_key_data(ctx, supp, ctx->cur_slot, &enc_key_data);
+    auth_key_write_key_data(auth, supp, auth->cur_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=3", "tx-4wh");
-    auth_key_message_send(ctx, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
                           IEEE802159_KMP_ID_80211_4WH, true);
-    supp->last_installed_key_slot = ctx->cur_slot;
+    supp->last_installed_key_slot = auth->cur_slot;
 
     pktbuf_free(&enc_key_data);
 }
 
-static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                             const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "rx-4wh");
@@ -258,17 +258,17 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_su
     }
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
-    ieee80211_derive_ptk384(supp->pmk, ctx->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->ptk);
-    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_s;
+    ieee80211_derive_ptk384(supp->pmk, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->ptk);
+    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ptk_lifetime_s;
     if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
-    auth_key_pairwise_message_3_send(ctx, supp);
+    auth_key_pairwise_message_3_send(auth, supp);
     return 0;
 }
 
-void auth_key_pairwise_message_1_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp)
+void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     struct eapol_key_frame message = {
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
@@ -281,27 +281,27 @@ void auth_key_pairwise_message_1_send(struct auth_ctx *ctx, struct auth_supp_ctx
     struct pktbuf key_data = { };
     uint8_t pmkid[16];
 
-    ieee80211_generate_nonce(ctx->eui64.u8, supp->anonce);
+    ieee80211_generate_nonce(auth->eui64.u8, supp->anonce);
     memcpy(message.nonce, supp->anonce, sizeof(message.nonce));
-    ieee80211_derive_pmkid(supp->pmk, ctx->eui64.u8, supp->eui64.u8, pmkid);
+    ieee80211_derive_pmkid(supp->pmk, auth->eui64.u8, supp->eui64.u8, pmkid);
     kde_write_pmkid(&key_data, pmkid);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-4wh");
-    auth_key_message_send(ctx, supp, &message, pktbuf_head(&key_data), pktbuf_len(&key_data), IEEE802159_KMP_ID_80211_4WH, false);
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&key_data), pktbuf_len(&key_data), IEEE802159_KMP_ID_80211_4WH, false);
     pktbuf_free(&key_data);
 }
 
-static int auth_key_pairwise_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
     int ret = 0;
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(frame->information))) {
     case 0:
-        ret = auth_key_pairwise_message_2_recv(ctx, supp, frame, iobuf);
+        ret = auth_key_pairwise_message_2_recv(auth, supp, frame, iobuf);
         break;
     case 1:
-        ret = auth_key_pairwise_message_4_recv(ctx, supp, frame, iobuf);
+        ret = auth_key_pairwise_message_4_recv(auth, supp, frame, iobuf);
         break;
     default:
         break;
@@ -309,7 +309,7 @@ static int auth_key_pairwise_recv(struct auth_ctx *ctx, struct auth_supp_ctx *su
     return ret;
 }
 
-static void auth_key_request_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
     uint8_t received_node_role;
@@ -328,11 +328,11 @@ static void auth_key_request_recv(struct auth_ctx *ctx, struct auth_supp_ctx *su
      * Authenticator MUST install a new PMK and PTK on the SUP (execute EAP-TLS to
      * install a PMK and execute the 4-way the handshake to install a PTK).
      */
-    ieee80211_derive_pmkid(supp->pmk, ctx->eui64.u8, supp->eui64.u8, key);
+    ieee80211_derive_pmkid(supp->pmk, auth->eui64.u8, supp->eui64.u8, key);
     if (!kde_read_pmkid(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), received_key) ||
         memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->pmk_expiration_s) {
         TRACE(TR_SECURITY, "sec: pmkid out-of-date starting EAP-TLS");
-        auth_eap_send_request_identity(ctx, supp);
+        auth_eap_send_request_identity(auth, supp);
         return;
     }
 
@@ -342,11 +342,11 @@ static void auth_key_request_recv(struct auth_ctx *ctx, struct auth_supp_ctx *su
      * means the Authenticator MUST install a new PTK on the SUP (execute the 4-way the
      * handshake to install a PTK).
      */
-    ws_derive_ptkid(supp->ptk, ctx->eui64.u8, supp->eui64.u8, key);
+    ws_derive_ptkid(supp->ptk, auth->eui64.u8, supp->eui64.u8, key);
     if (!kde_read_ptkid(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), received_key) ||
         memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->ptk_expiration_s) {
         TRACE(TR_SECURITY, "sec: ptk out-of-date starting 4wh");
-        auth_key_pairwise_message_1_send(ctx, supp);
+        auth_key_pairwise_message_1_send(auth, supp);
         return;
     }
 
@@ -360,16 +360,16 @@ static void auth_key_request_recv(struct auth_ctx *ctx, struct auth_supp_ctx *su
     if (kde_read_nr(iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), &received_node_role))
         supp->is_lfn = received_node_role == WS_NR_ROLE_LFN;
 
-    if (supp->gtkl != auth_key_get_gtkl(ctx->gtks, ARRAY_SIZE(ctx->gtks))) {
+    if (supp->gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
         TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
-        next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
+        next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
         if (next_key_slot != -1)
-            auth_key_group_message_1_send(ctx, supp, next_key_slot);
+            auth_key_group_message_1_send(auth, supp, next_key_slot);
     }
     // TODO: check LGTKL
 }
 
-void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
+void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
 {
     const struct eapol_key_frame *frame;
     int ret = 0;
@@ -418,7 +418,7 @@ void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobu
      * 4-way handshake or group key handshake
      */
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_REQ, be16toh(frame->information)))
-        return auth_key_request_recv(ctx, supp, frame, iobuf);
+        return auth_key_request_recv(auth, supp, frame, iobuf);
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -432,17 +432,17 @@ void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobu
         return;
     }
 
-    timer_stop(&ctx->timer_group, &supp->rt_timer);
+    timer_stop(&auth->timer_group, &supp->rt_timer);
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
     case IEEE80211_KEY_TYPE_GROUP:
-        ret = auth_key_group_message_2_recv(ctx, supp, frame, iobuf);
+        ret = auth_key_group_message_2_recv(auth, supp, frame, iobuf);
         break;
     case IEEE80211_KEY_TYPE_PAIRWISE:
-        ret = auth_key_pairwise_recv(ctx, supp, frame, iobuf);
+        ret = auth_key_pairwise_recv(auth, supp, frame, iobuf);
         break;
     }
     // If there was an error during parsing of the message, restart retry timer
     if (ret)
-        timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
+        timer_start_rel(&auth->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
