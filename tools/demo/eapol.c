@@ -31,7 +31,14 @@ struct ctx {
 
     struct auth_ctx auth;
     int auth_fd;
+
+    int fail_count;
 };
+
+static inline bool drop(void)
+{
+    return rand() < RAND_MAX / 5;
+}
 
 static void supp_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id,
                             const void *buf, size_t buf_len, const uint8_t dst[8])
@@ -48,6 +55,10 @@ static void supp_sendto_mac(struct supplicant_ctx *supp, uint8_t kmp_id,
     };
     ssize_t ret;
 
+    if (drop()) {
+        INFO("packet loss (EAPoL supp -> auth)");
+        return;
+    }
     ret = sendmsg(ctx->supp_fd, &msg, 0);
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
@@ -69,8 +80,13 @@ static void supp_on_gtk_change(struct supplicant_ctx *supp, const uint8_t gtk[16
 
 static void supp_on_failure(struct supplicant_ctx *supp)
 {
-    INFO("failure");
-    exit(EXIT_FAILURE);
+    struct ctx *ctx = container_of(supp, struct ctx, supp);
+
+    if (ctx->fail_count++ > 10) {
+        INFO("failure");
+        exit(EXIT_FAILURE);
+    }
+    supp_start_key_request(supp);
 }
 
 static void auth_sendto_mac(struct auth_ctx *auth, uint8_t kmp_id,
@@ -90,6 +106,10 @@ static void auth_sendto_mac(struct auth_ctx *auth, uint8_t kmp_id,
     };
     ssize_t ret;
 
+    if (drop()) {
+        INFO("packet loss (EAPoL auth -> supp)");
+        return;
+    }
     ret = sendmsg(ctx->auth_fd, &msg, 0);
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
@@ -98,6 +118,16 @@ static void auth_on_supp_gtk_installed(struct auth_ctx *auth, const struct eui64
 {
     INFO("success");
     exit(EXIT_SUCCESS);
+}
+
+ssize_t __real_send(int fd, const void *buf, size_t buf_len, int flags);
+ssize_t __wrap_send(int fd, const void *buf, size_t buf_len, int flags)
+{
+    if (drop()) {
+        INFO("packet loss (RADIUS client -> server)");
+        return buf_len;
+    }
+    return __real_send(fd, buf, buf_len, flags);
 }
 
 int main()
@@ -116,7 +146,7 @@ int main()
     struct ctx ctx = {
         .supp.key_request_txalg.rand_min = -0.1,
         .supp.key_request_txalg.irt_s    = 1,
-        .supp.key_request_txalg.mrc      = 1,
+        .supp.key_request_txalg.mrc      = 2,
         .supp.sendto_mac    = supp_sendto_mac,
         .supp.get_target    = supp_get_target,
         .supp.on_gtk_change = supp_on_gtk_change,
@@ -138,6 +168,8 @@ int main()
 
     g_enabled_traces |= TR_DROP;
     g_enabled_traces |= TR_SECURITY;
+
+    srand(0); // Fixed seed
 
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
     conf_set_pem(&info, &ca_cert, NULL);
@@ -185,8 +217,15 @@ int main()
         FATAL_ON(ret < 0, 2, "poll: %m");
         if (pfd[0].revents & POLLIN)
             timer_process();
-        if (pfd[1].revents & POLLIN)
-            radius_recv(&ctx.auth);
+        if (pfd[1].revents & POLLIN) {
+            if (drop()) {
+                ret = recv(ctx.auth.radius_fd, buf, sizeof(buf), 0);
+                FATAL_ON(ret < 0, 2, "recv: %m");
+                INFO("packet loss (RADIUS server -> client)");
+            } else {
+                radius_recv(&ctx.auth);
+            }
+        }
         if (pfd[2].revents & POLLIN) {
             ret = recv(ctx.auth_fd, buf, sizeof(buf), 0);
             FATAL_ON(ret < 8 + 1, 2, "recv: %m");

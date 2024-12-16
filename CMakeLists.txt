@@ -716,7 +716,10 @@ if(COMPILE_DEMOS)
     )
     target_include_directories(demo-eapol PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     target_compile_definitions(demo-eapol PRIVATE HAVE_MBEDTLS)
-    target_link_options(demo-eapol PRIVATE -Wl,--wrap=time)
+    target_link_options(demo-eapol PRIVATE
+        -Wl,--wrap=send
+        -Wl,--wrap=time
+    )
     target_link_libraries(demo-eapol PRIVATE MbedTLS::mbedtls)
 endif()
 
