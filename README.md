@@ -62,7 +62,7 @@ To additionally compile `wsbrd_cli`:
 Debian does not (yet) package MbedTLS >= 3.0 so you must build it from
 sources. This project does not support versions < 3.0.
 
-    git clone --branch=v3.6.2 https://github.com/ARMmbed/mbedtls
+    git clone --branch=v3.6.2 --recurse-submodules https://github.com/ARMmbed/mbedtls
     cd mbedtls
     cmake -G Ninja .
     ninja
