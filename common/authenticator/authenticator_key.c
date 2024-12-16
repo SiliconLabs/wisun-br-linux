@@ -103,7 +103,11 @@ void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
 
     supp->replay_counter++;
     frame->replay_counter = htobe64(supp->replay_counter);
-    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
+    if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
+        return;
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        auth_key_message_set_mic(supp->tptk, &supp->rt_buffer);
+    else
         auth_key_message_set_mic(supp->ptk, &supp->rt_buffer);
 }
 
@@ -112,6 +116,7 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
                                   uint8_t kmp_id)
 {
     struct pktbuf message = { };
+    const uint8_t *ptk;
 
     supp->replay_counter++;
     frame->replay_counter = htobe64(supp->replay_counter);
@@ -121,8 +126,13 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
     pktbuf_push_tail(&message, key_data, key_data_len);
     eapol_write_hdr_head(&message, EAPOL_PACKET_TYPE_KEY);
 
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
+
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
-        auth_key_message_set_mic(supp->ptk, &message);
+        auth_key_message_set_mic(ptk, &message);
 
     auth_send_eapol(ctx, &supp->eui64, kmp_id, &message);
 
@@ -141,9 +151,11 @@ static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *su
     timer_start_rel(&ctx->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
 
-static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *supp, int key_slot, struct pktbuf *enc_key_data)
+static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+                                    const struct eapol_key_frame *frame, int key_slot, struct pktbuf *enc_key_data)
 {
     struct pktbuf key_data = { };
+    const uint8_t *ptk;
     int ret;
 
     kde_write_gtk(&key_data, key_slot, ctx->gtks[key_slot].gtk);
@@ -151,6 +163,11 @@ static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *
     kde_write_gtkl(&key_data, auth_key_get_gtkl(ctx->gtks, ARRAY_SIZE(ctx->gtks)));
 
     auth_key_add_kde_padding(&key_data);
+
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
 
     /*
      *   IEEE 802.11-2020, 4.10.4.2 Key usage
@@ -161,7 +178,7 @@ static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *
      * Note: +8 for mbedtls_nist_kw_wrap requirements, see mbedtls/nist_kw.h
      */
     pktbuf_init(enc_key_data, NULL, pktbuf_len(&key_data) + 8);
-    ret = nist_kw_wrap(supp->ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
+    ret = nist_kw_wrap(ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
                        pktbuf_head(&key_data), pktbuf_len(&key_data), pktbuf_head(enc_key_data), pktbuf_len(enc_key_data));
     FATAL_ON(-ret == EINVAL, 2, "%s: nist_kw_wrap: %s", __func__, strerror(-ret));
 
@@ -183,7 +200,7 @@ static void auth_key_group_message_1_send(struct auth_ctx *ctx, struct auth_supp
     };
     struct pktbuf enc_key_data = { };
 
-    auth_key_write_key_data(ctx, supp, key_slot, &enc_key_data);
+    auth_key_write_key_data(ctx, supp, &message, key_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-gkh");
     auth_key_message_send(ctx, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
@@ -231,7 +248,7 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_su
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return -EINVAL;
     }
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
+    if (!ieee80211_is_mic_valid(supp->tptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -239,6 +256,8 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_su
     if (ctx->on_supp_gtk_installed)
         ctx->on_supp_gtk_installed(ctx, &supp->eui64, supp->last_installed_key_slot + 1);
     supp->gtkl |= BIT(supp->last_installed_key_slot);
+    memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
+    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_s;
 
     next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
     if (next_key_slot != -1)
@@ -264,7 +283,7 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *ctx, struct auth_s
     struct pktbuf enc_key_data = { };
 
     memcpy(message.nonce, supp->anonce, sizeof(message.nonce));
-    auth_key_write_key_data(ctx, supp, ctx->cur_slot, &enc_key_data);
+    auth_key_write_key_data(ctx, supp, &message, ctx->cur_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=3", "tx-4wh");
     auth_key_message_send(ctx, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
@@ -285,9 +304,8 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_su
     }
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
-    ieee80211_derive_ptk384(supp->pmk, ctx->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->ptk);
-    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_s;
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
+    ieee80211_derive_ptk384(supp->pmk, ctx->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->tptk);
+    if (!ieee80211_is_mic_valid(supp->tptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf))) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
