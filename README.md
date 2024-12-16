@@ -87,6 +87,17 @@ CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC library:
     sudo ninja -C build install
     sudo ldconfig
 
+> [!CAUTION]
+> The RCP is responsible for encrypting and decrypting IEEE 802.15.4 frames.
+> MAC layer data appears in cleartext in HIF commands so integrators are
+> expected to secure the serial link, for example using
+> [CPC with link encpryption][cpc-sec], otherwise the system may be exposed to
+> packet injection or eavesdropping. IEEE 802.15.4 encryption keys can even be
+> stolen if a malicious actor intercepts the HIF command which transfers them
+> to the RCP.
+
+[cpc-sec]: https://github.com/SiliconLabs/cpc-daemon/blob/main/readme.md#encrypted-serial-link
+
 Then, you can compile `wsbrd` with:
 
     cd wisun-br-linux/

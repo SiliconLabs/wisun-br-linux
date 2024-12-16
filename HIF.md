@@ -737,7 +737,9 @@ Configure asynchronous transmissions for network discovery.
 > MAC layer data appears in cleartext in HIF commands so integrators are
 > expected to secure the serial link, for example using
 > [CPC with link encpryption][cpc-sec], otherwise the system may be exposed to
-> packet injection or eavesdropping.
+> packet injection or eavesdropping. IEEE 802.15.4 encryption keys can even be
+> stolen if a malicious actor intercepts the HIF command which transfers them
+> to the RCP.
 
 To encrypt transmitted IEEE 802.15.4 frames, an auxiliary security header must
 be included in the buffer passed to [`REQ_DATA_TX`](#0x10-req_data_tx), and
