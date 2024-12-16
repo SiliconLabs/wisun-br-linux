@@ -97,6 +97,16 @@ static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *messa
     memcpy(frame->mic, mic, sizeof(mic));
 }
 
+void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
+{
+    struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(&supp->rt_buffer) + sizeof(struct eapol_hdr));
+
+    supp->replay_counter++;
+    frame->replay_counter = htobe64(supp->replay_counter);
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
+        auth_key_message_set_mic(supp->ptk, &supp->rt_buffer);
+}
+
 static void auth_key_message_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
                                   struct eapol_key_frame *frame, const uint8_t *key_data, size_t key_data_len,
                                   uint8_t kmp_id)

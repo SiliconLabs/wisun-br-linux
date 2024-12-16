@@ -17,7 +17,9 @@
 struct auth_ctx;
 struct auth_supp_ctx;
 struct iobuf_read;
+struct pktbuf;
 
 void auth_key_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp, struct iobuf_read *iobuf);
+void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp);
 
 #endif
