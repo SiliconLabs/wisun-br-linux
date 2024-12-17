@@ -96,12 +96,12 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
      *
      * [1]: https://www.krackattacks.com
      */
-    if (!memcmp(supp->pmk, derived_key, sizeof(supp->pmk))) {
+    if (!memcmp(supp->pmk.key, derived_key, sizeof(supp->pmk.key))) {
         WARN("sec: ignore reinstallation of pmk");
         return;
     }
 
-    memcpy(supp->pmk, derived_key, sizeof(supp->pmk));
+    memcpy(supp->pmk.key, derived_key, sizeof(supp->pmk.key));
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -118,7 +118,7 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
      * Key Replay Counter field for message 1 in the 4-way handshake, as it
      * includes no MIC.
      */
-    supp->replay_counter = 0;
+    supp->pmk.replay_counter = 0;
 }
 
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
@@ -151,7 +151,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_REQ, true)),
-        .replay_counter = htobe64(supp->replay_counter),
+        .replay_counter = htobe64(supp->pmk.replay_counter),
     };
     struct pktbuf buf = { };
     uint8_t pmkid[16];
@@ -159,7 +159,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
 
-    ieee80211_derive_pmkid(supp->pmk, supp->authenticator_eui64, supp->eui64, pmkid);
+    ieee80211_derive_pmkid(supp->pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
     ws_derive_ptkid(supp->ptk, supp->authenticator_eui64, supp->eui64, ptkid);
 
     for (int i = 0; i < 4; i++)
@@ -169,7 +169,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
             lgtkl |= BIT(i - 4);
 
-    if (memzcmp(supp->pmk, sizeof(supp->pmk)))
+    if (memzcmp(supp->pmk.key, sizeof(supp->pmk)))
         kde_write_pmkid(&buf, pmkid);
     if (memzcmp(supp->ptk, sizeof(supp->ptk)))
         kde_write_ptkid(&buf, ptkid);

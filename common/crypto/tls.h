@@ -20,6 +20,11 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/ssl.h>
 
+struct tls_pmk {
+    uint8_t key[32]; // stored in cleartext in RAM
+    int64_t replay_counter; // reset when pmk is established
+};
+
 struct tls_ctx {
     struct mbedtls_ssl_config  ssl_config;
     struct mbedtls_entropy_context  entropy;
@@ -28,7 +33,6 @@ struct tls_ctx {
     struct mbedtls_x509_crt   cert;
     struct mbedtls_pk_context key;
 };
-
 void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
               const struct iovec *key);
 

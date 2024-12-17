@@ -230,7 +230,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
             strncpy(info.value, optarg, sizeof(info.value) - 1);
         switch (opt) {
         case 'p':
-            ret = getrandom(ctx->supp.pmk, 32, 0);
+            ret = getrandom(ctx->supp.pmk.key, 32, 0);
             FATAL_ON(ret < 32, 2, "getrandom: %m");
             break;
         case 'r':
@@ -267,7 +267,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     }
-    if (radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk, 32))
+    if (radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk.key, 32))
         FATAL(1, "incompatible --radius-server and --pmk");
     if (radius_addr.ss_family != AF_UNSPEC && !ctx->auth.radius_secret[0])
         FATAL(1, "missing --radius-secret");
@@ -277,18 +277,18 @@ static void init(struct ctx *ctx, int argc, char *argv[])
     supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
-    if (memzcmp(ctx->supp.pmk, 32))
+    if (memzcmp(ctx->supp.pmk.key, 32))
         memcpy(ctx->supp.authenticator_eui64, &auth_eui64, 8);
 
     if (radius_addr.ss_family != AF_UNSPEC)
         radius_init(&ctx->auth, (struct sockaddr *)&radius_addr);
     auth_start(&ctx->auth, &auth_eui64);
     // NOTE: Must be done after calling auth_start()
-    if (memzcmp(ctx->supp.pmk, 32)) {
+    if (memzcmp(ctx->supp.pmk.key, 32)) {
         struct auth_supp_ctx *supp;
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
-        memcpy(supp->pmk, ctx->supp.pmk, 32);
+        memcpy(supp->pmk, ctx->supp.pmk.key, 32);
         supp->pmk_expiration_s = UINT64_MAX;
     }
 
