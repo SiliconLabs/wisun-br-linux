@@ -33,6 +33,10 @@ struct tls_ctx {
     struct mbedtls_x509_crt   cert;
     struct mbedtls_pk_context key;
 };
+
+void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const unsigned char *secret,
+                     size_t secret_len, const unsigned char client_random[32],
+                     const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type);
 void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
               const struct iovec *key);
 

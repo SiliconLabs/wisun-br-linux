@@ -18,6 +18,62 @@
 
 #include "tls.h"
 
+/*
+ *   RFC5216 - 2.3. Key Hierarchy
+ * Key_Material = TLS-PRF-128(master_secret, "client EAP encryption",
+ *                            client.random || server.random)
+ * MSK          = Key_Material(0,63)
+ * Enc-RECV-Key = MSK(0,31) = Peer to Authenticator Encryption Key
+ *                (MS-MPPE-Recv-Key in [RFC2548]).  Also known as the
+ *                PMK in [IEEE-802.11].
+ */
+void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const unsigned char *secret,
+                     size_t secret_len, const unsigned char client_random[32],
+                     const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type)
+{
+    struct tls_pmk *pmk = p_expkey;
+    uint8_t derived_key[128];
+    uint8_t random[64];
+    int ret;
+
+    memcpy(random, client_random, 32);
+    memcpy(random + 32, server_random, 32);
+
+    ret = mbedtls_ssl_tls_prf(tls_prf_type, secret, secret_len, "client EAP encryption", random, sizeof(random),
+                              derived_key, sizeof(derived_key));
+    FATAL_ON(ret, 2, "%s: mbedtls_ssl_tls_prf: %s", __func__, tr_mbedtls_err(ret));
+
+    /*
+     * Do not reinstall the key if it was already installed before to prevent Key
+     * Reinstallation Attacks (KRACK)[1].
+     *
+     * [1]: https://www.krackattacks.com
+     */
+    if (!memcmp(pmk->key, derived_key, sizeof(pmk->key))) {
+        WARN("sec: ignore reinstallation of pmk");
+        return;
+    }
+
+    memcpy(pmk->key, derived_key, sizeof(pmk->key));
+
+    /*
+     *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
+     * d) Key Replay Counter. This field is represented as an unsigned integer,
+     * and is initialized to 0 when the PMK is established.
+     *
+     * [...]
+     *
+     * The Supplicant should also use the key replay counter and ignore
+     * EAPOL-Key frames with a Key Replay Counter field value smaller than or
+     * equal to any received in a valid message. The local Key Replay Counter
+     * field should not be updated until after the EAPOL-Key MIC is checked and
+     * is found to be valid. In other words, the Supplicant never updates the
+     * Key Replay Counter field for message 1 in the 4-way handshake, as it
+     * includes no MIC.
+     */
+    pmk->replay_counter = 0;
+}
+
 static void tls_debug(void *ctx, int level, const char *file, int line, const char *string)
 {
     TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
