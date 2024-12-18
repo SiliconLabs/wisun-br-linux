@@ -43,25 +43,25 @@
 
 static int supp_mbedtls_send(void *ctx, const unsigned char *buf, size_t len)
 {
-    struct supp_ctx *supp = ctx;
+    struct tls_io *tls_io = ctx;
 
-    pktbuf_push_tail(&supp->tx_buffer, buf, len);
+    pktbuf_push_tail(&tls_io->tx, buf, len);
     return len;
 }
 
 static int supp_mbedtls_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = MBEDTLS_ERR_SSL_WANT_READ;
-    struct supp_ctx *supp = ctx;
+    struct tls_io *tls_io = ctx;
 
-    if (!pktbuf_len(&supp->rx_buffer))
+    if (!pktbuf_len(&tls_io->rx))
         return ret;
 
-    ret = MIN(pktbuf_len(&supp->rx_buffer), len);
-    pktbuf_pop_head(&supp->rx_buffer, buf, ret);
+    ret = MIN(pktbuf_len(&tls_io->rx), len);
+    pktbuf_pop_head(&tls_io->rx, buf, ret);
 
-    if (!pktbuf_len(&supp->rx_buffer))
-        pktbuf_free(&supp->rx_buffer);
+    if (!pktbuf_len(&tls_io->rx))
+        pktbuf_free(&tls_io->rx);
     return ret;
 }
 

@@ -20,9 +20,16 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/ssl.h>
 
+#include "common/pktbuf.h"
+
 struct tls_pmk {
     uint8_t key[32]; // stored in cleartext in RAM
     int64_t replay_counter; // reset when pmk is established
+};
+
+struct tls_io {
+    struct pktbuf tx;
+    struct pktbuf rx;
 };
 
 struct tls_ctx {

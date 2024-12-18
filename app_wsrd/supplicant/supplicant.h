@@ -56,12 +56,12 @@ struct supp_ctx {
 
     bool eap_tls_start_received;
 
+    struct tls_io tls_io;
+
     // EAP-TLS TX Fragmentation
-    struct pktbuf tx_buffer;
     int fragment_id;
 
     // EAP-TLS RX Fragmentation
-    struct pktbuf rx_buffer;
     uint32_t expected_rx_len;
 
     // EAP Retransmission
