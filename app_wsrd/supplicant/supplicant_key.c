@@ -57,7 +57,7 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
      *   IEEE 802.11-2020, 12.7.6 4-way handshake
      * MIC(KCK, EAPOL)
      */
-    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
+    hmac_md_sha1(ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES,
                  pktbuf_head(&buf), pktbuf_len(&buf),
                  response->mic, sizeof(response->mic));
 
@@ -167,7 +167,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
      * named B1, [...] B1 is sent in an EAPOL-Key frame, encrypted under the
      * EAPOL-Key encryption key (KEK) portion of the PTK [...]
      */
-    ret = nist_kw_unwrap(ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
+    ret = nist_kw_unwrap(ieee80211_kek(ptk), IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
                          iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), pktbuf_head(&buf), pktbuf_len(&buf));
     if (ret < 0) {
         TRACE(TR_DROP, "drop %-9s: nist_kw_unwrap: %s", "eapol-key", strerror(-ret));

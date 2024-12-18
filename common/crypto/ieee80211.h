@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "common/specs/ieee80211.h"
+
 struct eapol_key_frame;
 
 /*
@@ -61,6 +63,22 @@ void ieee80211_generate_nonce(const uint8_t eui64[8], uint8_t nonce_out[32]);
  */
 void ieee80211_derive_ptk384(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                              const uint8_t auth_nonce[32], const uint8_t supp_nonce[32], uint8_t ptk[48]);
+
+
+static inline const uint8_t *ieee80211_kck(const uint8_t ptk[48])
+{
+    return ptk;
+}
+
+static inline const uint8_t *ieee80211_kek(const uint8_t ptk[48])
+{
+    return ptk + IEEE80211_AKM_1_KCK_LEN_BYTES;
+}
+
+static inline const uint8_t *ieee80211_tk(const uint8_t ptk[48])
+{
+    return ptk + IEEE80211_AKM_1_KCK_LEN_BYTES + IEEE80211_AKM_1_KEK_LEN_BYTES;
+}
 
 /*
  *   IEEE 802.11-2020, 12.7.1.3 Pairwise key hierarchy

@@ -92,7 +92,8 @@ static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *messa
      * MIC(KCK, EAPOL)
      */
     memset(frame->mic, 0, sizeof(frame->mic));
-    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(message), pktbuf_len(message), mic, sizeof(mic));
+    hmac_md_sha1(ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(message), pktbuf_len(message),
+                 mic, sizeof(mic));
 
     // Update MIC
     memcpy(frame->mic, mic, sizeof(mic));
@@ -166,7 +167,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
      * Note: +8 for mbedtls_nist_kw_wrap requirements, see mbedtls/nist_kw.h
      */
     pktbuf_init(enc_key_data, NULL, pktbuf_len(&key_data) + 8);
-    ret = nist_kw_wrap(ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
+    ret = nist_kw_wrap(ieee80211_kek(ptk), IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
                        pktbuf_head(&key_data), pktbuf_len(&key_data), pktbuf_head(enc_key_data), pktbuf_len(enc_key_data));
     FATAL_ON(-ret == EINVAL, 2, "%s: nist_kw_wrap: %s", __func__, strerror(-ret));
 

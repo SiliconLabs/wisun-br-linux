@@ -218,7 +218,7 @@ bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t 
         return false;
     if (!memzcmp(supp->ptk, sizeof(supp->ptk)))
         return false;
-    memcpy(tk, supp->ptk + IEEE80211_AKM_1_KCK_LEN_BYTES + IEEE80211_AKM_1_KEK_LEN_BYTES, IEEE80211_AKM_1_TK_LEN_BYTES);
+    memcpy(tk, ieee80211_tk(supp->ptk), IEEE80211_AKM_1_TK_LEN_BYTES);
     return true;
 }
 
