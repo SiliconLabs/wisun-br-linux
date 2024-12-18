@@ -198,8 +198,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
      * [...] when the key to be set matches either of these two keys (see 6.3.19).
      */
     for (int i = gtks_slot_min; i < gtks_size; i++)
-        if (!memcmp(supp->gtks[i].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
-            TRACE(TR_DROP, "drop %-9s: key reinstallation attack detected at index %d", "eapol-key", i);
+        if (!memcmp(supp->gtks[i].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk)) && i != key_index - 1) {
+            TRACE(TR_DROP, "drop %-9s: key reinstallation detected at index %d", "eapol-key", i);
             goto error;
         }
 
@@ -220,11 +220,23 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
                 supp->gtks[i].expiration_timer.callback(NULL, &supp->gtks[i].expiration_timer);
         }
 
-    memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
-    timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
-    supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
-    TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
-          key_index - gtks_slot_min, lifetime_kde, supp->gtks[key_index - 1].expiration_timer.expire_ms);
+    /*
+     * Do not reinstall the key if it was already installed before to prevent Key
+     * Reinstallation Attacks (KRACK)[1].
+     *
+     * [1]: https://www.krackattacks.com
+     */
+    if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
+        memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
+        timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
+        supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
+        TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
+                key_index - gtks_slot_min, lifetime_kde, supp->gtks[key_index - 1].expiration_timer.expire_ms);
+    } else {
+        TRACE(TR_SECURITY, "sec: ignore reinstallation of %s[%u] ", is_lgtk ? "lgtk" : "gtk",
+              key_index - gtks_slot_min);
+    }
+
     pktbuf_free(&buf);
     return 0;
 
