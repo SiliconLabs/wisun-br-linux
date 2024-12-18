@@ -169,6 +169,11 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
     }
     TRACE(TR_SECURITY, "sec: %s frame retry eui64=%s",
           supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
+
+    // Update replay counter and MIC on retry
+    if (supp->rt_kmp_id == IEEE802159_KMP_ID_80211_4WH || supp->rt_kmp_id == IEEE802159_KMP_ID_80211_GKH)
+        auth_key_refresh_rt_buffer(supp);
+
     if (supp->rt_kmp_id)
         auth_send_eapol(auth, supp, supp->rt_kmp_id,
                         pktbuf_head(&supp->rt_buffer),

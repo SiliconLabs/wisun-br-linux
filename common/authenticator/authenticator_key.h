@@ -18,9 +18,11 @@
 
 struct auth_ctx;
 struct auth_supp_ctx;
+struct pktbuf;
 
 void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                    const void *buf, size_t buf_len);
 void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ctx *supp);
+void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp);
 
 #endif
