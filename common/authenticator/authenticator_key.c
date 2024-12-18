@@ -77,6 +77,27 @@ static void auth_key_add_kde_padding(struct pktbuf *buf)
     pktbuf_push_tail(buf, NULL, padding_size);
 }
 
+static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *message)
+{
+    struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(message) + sizeof(struct eapol_hdr));
+    uint8_t mic[16];
+
+    /*
+     *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
+     * [...] the EAPOL Key MIC is a MIC of the EAPOL-Key frames, from and
+     * including the EAPOL protocol version field to and including the Key Data
+     * field, calculated with the Key MIC field set to 0.
+     *
+     *   IEEE 802.11-2020, 12.7.6 4-way handshake
+     * MIC(KCK, EAPOL)
+     */
+    memset(frame->mic, 0, sizeof(frame->mic));
+    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(message), pktbuf_len(message), mic, sizeof(mic));
+
+    // Update MIC
+    memcpy(frame->mic, mic, sizeof(mic));
+}
+
 static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   struct eapol_key_frame *frame, const uint8_t *key_data, size_t key_data_len,
                                   uint8_t kmp_id, bool mic)
@@ -91,24 +112,8 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     pktbuf_push_tail(&message, key_data, key_data_len);
     eapol_write_hdr_head(&message, EAPOL_PACKET_TYPE_KEY);
 
-    if (mic) {
-        /*
-         *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
-         * [...] the EAPOL Key MIC is a MIC of the EAPOL-Key frames, from and
-         * including the EAPOL protocol version field to and including the Key Data
-         * field, calculated with the Key MIC field set to 0.
-         *
-         *   IEEE 802.11-2020, 12.7.6 4-way handshake
-         * MIC(KCK, EAPOL)
-         */
-        hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
-                     pktbuf_head(&message), pktbuf_len(&message),
-                     frame->mic, sizeof(frame->mic));
-
-        // Update MIC
-        memcpy(pktbuf_head(&message) + sizeof(struct eapol_hdr) + offsetof(struct eapol_key_frame, mic),
-               frame->mic, sizeof(frame->mic));
-    }
+    if (mic)
+        auth_key_message_set_mic(supp->ptk, &message);
 
     auth_send_eapol(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
     auth_rt_timer_start(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
