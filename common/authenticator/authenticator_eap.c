@@ -69,12 +69,12 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
 {
     const struct eap_hdr *eap;
 
-    eap_trace("rx-eap", buf, buf_len);
-
     if (buf_len < sizeof(*eap)) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "eap");
         return;
     }
+
+    eap_trace("rx-eap", buf, buf_len);
     eap = buf;
     if (eap->identifier != supp->eap_id) {
         TRACE(TR_DROP, "drop %-9s: invalid identifier", "eap");
