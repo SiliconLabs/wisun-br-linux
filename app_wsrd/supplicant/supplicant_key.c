@@ -37,6 +37,7 @@
 static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame *response, uint8_t kmp_id)
 {
     struct pktbuf buf = { };
+    const uint8_t *ptk;
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -47,11 +48,16 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
     pktbuf_push_tail(&buf, response, sizeof(*response));
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
 
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
+
     /*
      *   IEEE 802.11-2020, 12.7.6 4-way handshake
      * MIC(KCK, EAPOL)
      */
-    hmac_md_sha1(supp->ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
+    hmac_md_sha1(ptk, IEEE80211_AKM_1_KCK_LEN_BYTES,
                  pktbuf_head(&buf), pktbuf_len(&buf),
                  response->mic, sizeof(response->mic));
 
@@ -113,7 +119,14 @@ static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct
 static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                   struct iobuf_read *iobuf)
 {
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
+    const uint8_t *ptk;
+
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
+
+    if (!ieee80211_is_mic_valid(ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
         return false;
 
     /*
@@ -136,11 +149,17 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     uint32_t lifetime_kde;
     uint8_t gtks_size = 4;
     bool is_lgtk = false;
+    const uint8_t *ptk;
     uint8_t key_index;
     uint8_t gtkl_kde;
     int ret;
 
     pktbuf_init(&buf, NULL, be16toh(frame->data_length));
+
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
 
     /*
      *   IEEE 802.11-2020, 4.10.4.2 Key usage
@@ -148,7 +167,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
      * named B1, [...] B1 is sent in an EAPOL-Key frame, encrypted under the
      * EAPOL-Key encryption key (KEK) portion of the PTK [...]
      */
-    ret = nist_kw_unwrap(supp->ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
+    ret = nist_kw_unwrap(ptk + IEEE80211_AKM_1_KCK_LEN_BYTES, IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
                          iobuf_ptr(iobuf), iobuf_remaining_size(iobuf), pktbuf_head(&buf), pktbuf_len(&buf));
     if (ret < 0) {
         TRACE(TR_DROP, "drop %-9s: nist_kw_unwrap: %s", "eapol-key", strerror(-ret));
@@ -228,6 +247,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
      */
     if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
         memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
+        if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+            memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
         timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
         TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
@@ -319,7 +340,7 @@ static void supp_key_pairwise_message_3_recv(struct supp_ctx *supp, const struct
         goto error;
     }
 
-   if (supp_key_handle_key_data(supp, frame, iobuf))
+    if (supp_key_handle_key_data(supp, frame, iobuf))
         goto error;
     supp_key_pairwise_message_4_send(supp);
     return;
@@ -373,7 +394,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
 
     ieee80211_generate_nonce(supp->eui64, supp->snonce);
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
-    ieee80211_derive_ptk384(supp->pmk, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->ptk);
+    ieee80211_derive_ptk384(supp->pmk, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->tptk);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
