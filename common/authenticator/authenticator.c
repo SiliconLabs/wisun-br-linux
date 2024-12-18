@@ -75,13 +75,13 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
  * next GTK prior to expiration of the currently activated GTK. Expressed as a
  * fraction (1/X) of GTK_EXPIRE_OFFSET.
  */
-static void auth_gtk_activation_timer_start(struct auth_ctx *auth, const struct ws_gtk *gtk)
+static void auth_gtk_activation_timer_start(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
 {
+    const uint64_t expire_ms = auth->gtks[gtk_group->slot_active].expiration_timer.expire_ms;
     const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
-    const uint64_t expire_ms = gtk->expiration_timer.expire_ms;
 
     if (expire_offset_ms)
-        timer_start_abs(&auth->timer_group, &auth->gtk_group.activation_timer,
+        timer_start_abs(&auth->timer_group, &gtk_group->activation_timer,
                         expire_ms - expire_offset_ms / auth->cfg->gtk_new_activation_time);
 }
 
@@ -91,7 +91,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
     gtk_group->slot_active = (gtk_group->slot_active + 1) % WS_GTK_COUNT;
-    auth_gtk_activation_timer_start(auth, &auth->gtks[gtk_group->slot_active]);
+    auth_gtk_activation_timer_start(auth, gtk_group);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, auth->gtks[gtk_group->slot_active].key, gtk_group->slot_active + 1, true);
     TRACE(TR_SECURITY, "sec: activated gtk=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
@@ -318,7 +318,7 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
                             sizeof(auth->gtks[auth->gtk_group.slot_active].key));
     auth_gtk_expiration_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active], NULL);
     auth_gtk_install_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active]);
-    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active]);
+    auth_gtk_activation_timer_start(auth, &auth->gtk_group);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, auth->gtks[auth->gtk_group.slot_active].key, 1, true);
     TRACE(TR_SECURITY, "sec: authenticator started gtk=%s expiration=%"PRIu64" next_install=%"PRIu64
