@@ -114,11 +114,11 @@ void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
 }
 
 static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
-                                  struct eapol_key_frame *frame, const uint8_t *key_data, size_t key_data_len,
-                                  uint8_t kmp_id)
+                                  struct eapol_key_frame *frame, const uint8_t *key_data, size_t key_data_len)
 {
     struct pktbuf message = { };
     const uint8_t *ptk;
+    uint8_t kmp_id;
 
     supp->replay_counter++;
     frame->replay_counter = htobe64(supp->replay_counter);
@@ -128,10 +128,13 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     pktbuf_push_tail(&message, key_data, key_data_len);
     eapol_write_hdr_head(&message, EAPOL_PACKET_TYPE_KEY);
 
-    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         ptk = supp->tptk;
-    else
+        kmp_id = IEEE802159_KMP_ID_80211_4WH;
+    } else {
         ptk = supp->ptk;
+        kmp_id = IEEE802159_KMP_ID_80211_GKH;
+    }
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
         auth_key_message_set_mic(ptk, &message);
@@ -192,8 +195,7 @@ static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_sup
     auth_key_write_key_data(auth, supp, &message, key_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-gkh");
-    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
-                          IEEE802159_KMP_ID_80211_GKH);
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data));
     supp->last_installed_key_slot = key_slot;
 
     pktbuf_free(&enc_key_data);
@@ -277,8 +279,7 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_
     auth_key_write_key_data(auth, supp, &message, auth->cur_slot, &enc_key_data);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=3", "tx-4wh");
-    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data),
-                          IEEE802159_KMP_ID_80211_4WH);
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&enc_key_data), pktbuf_len(&enc_key_data));
     supp->last_installed_key_slot = auth->cur_slot;
 
     pktbuf_free(&enc_key_data);
@@ -324,7 +325,7 @@ void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ct
     kde_write_pmkid(&key_data, pmkid);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-4wh");
-    auth_key_message_send(auth, supp, &message, pktbuf_head(&key_data), pktbuf_len(&key_data), IEEE802159_KMP_ID_80211_4WH);
+    auth_key_message_send(auth, supp, &message, pktbuf_head(&key_data), pktbuf_len(&key_data));
     pktbuf_free(&key_data);
 }
 

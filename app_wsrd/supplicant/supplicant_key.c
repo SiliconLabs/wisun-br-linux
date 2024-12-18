@@ -34,10 +34,11 @@
 
 #include "supplicant_key.h"
 
-static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame *response, uint8_t kmp_id)
+static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame *response)
 {
     struct pktbuf buf = { };
     const uint8_t *ptk;
+    uint8_t kmp_id;
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -48,10 +49,13 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
     pktbuf_push_tail(&buf, response, sizeof(*response));
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
 
-    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         ptk = supp->tptk;
-    else
+        kmp_id = IEEE802159_KMP_ID_80211_4WH;
+    } else {
         ptk = supp->ptk;
+        kmp_id = IEEE802159_KMP_ID_80211_GKH;
+    }
 
     /*
      *   IEEE 802.11-2020, 12.7.6 4-way handshake
@@ -79,7 +83,7 @@ static void supp_key_group_message_2_send(struct supp_ctx *supp)
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "tx-gkh");
-    supp_key_message_send(supp, &message, IEEE802159_KMP_ID_80211_GKH);
+    supp_key_message_send(supp, &message);
 }
 
 static void supp_key_pairwise_message_4_send(struct supp_ctx *supp)
@@ -94,7 +98,7 @@ static void supp_key_pairwise_message_4_send(struct supp_ctx *supp)
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "tx-4wh");
-    supp_key_message_send(supp, &response, IEEE802159_KMP_ID_80211_4WH);
+    supp_key_message_send(supp, &response);
 }
 
 static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct eapol_key_frame *request)
@@ -113,7 +117,7 @@ static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct
 
     memcpy(response.nonce, supp->snonce, sizeof(supp->snonce));
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "tx-4wh");
-    supp_key_message_send(supp, &response, IEEE802159_KMP_ID_80211_4WH);
+    supp_key_message_send(supp, &response);
 }
 
 static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_frame *frame,
