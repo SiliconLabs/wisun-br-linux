@@ -285,6 +285,11 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
     BUG_ON(!auth->sendto_mac);
     BUG_ON(!auth->cfg);
 
+    if (auth->cfg->radius_addr.ss_family != AF_UNSPEC)
+        radius_init(auth, (struct sockaddr *)&auth->cfg->radius_addr);
+    else
+        WARN("EAP-TLS support disabled");
+
     SLIST_INIT(&auth->supplicants);
     timer_group_init(&auth->timer_group);
     auth->gtk_activation_timer.callback = auth_gtk_activation_timer_timeout;

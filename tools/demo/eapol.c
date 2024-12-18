@@ -183,11 +183,10 @@ static void help(void)
     INFO("                        default=20%%");
 }
 
-static void init(struct ctx *ctx, int argc, char *argv[])
+static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *argv[])
 {
     const struct eui64 auth_eui64 = { .u8 = { [7] = 1 } };
     const struct eui64 supp_eui64 = { .u8 = { [7] = 2 } };
-    struct sockaddr_storage radius_addr = { };
     struct sockaddr_in6 auth_addr = { };
     struct storage_parse_info info;
     struct iovec supp_cert = { };
@@ -234,7 +233,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
             FATAL_ON(ret < 32, 2, "getrandom: %m");
             break;
         case 'r':
-            conf_set_netaddr(&info, &radius_addr, NULL);
+            conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
             break;
         case 's':
             strncpy(ctx->auth.radius_secret, optarg, sizeof(ctx->auth.radius_secret) - 1);
@@ -267,11 +266,11 @@ static void init(struct ctx *ctx, int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     }
-    if (radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk.key, 32))
+    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk.key, 32))
         FATAL(1, "incompatible --radius-server and --pmk");
-    if (radius_addr.ss_family != AF_UNSPEC && !ctx->auth.radius_secret[0])
+    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.radius_secret[0])
         FATAL(1, "missing --radius-secret");
-    if (radius_addr.ss_family == AF_UNSPEC && ctx->auth.radius_secret[0])
+    if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.radius_secret[0])
         FATAL(1, "missing --radius-server");
 
     supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
@@ -280,8 +279,6 @@ static void init(struct ctx *ctx, int argc, char *argv[])
     if (memzcmp(ctx->supp.pmk.key, 32))
         memcpy(ctx->supp.authenticator_eui64, &auth_eui64, 8);
 
-    if (radius_addr.ss_family != AF_UNSPEC)
-        radius_init(&ctx->auth, (struct sockaddr *)&radius_addr);
     auth_start(&ctx->auth, &auth_eui64);
     // NOTE: Must be done after calling auth_start()
     if (memzcmp(ctx->supp.pmk.key, 32)) {
@@ -316,6 +313,13 @@ int main(int argc, char *argv[])
     struct pollfd pfd[4] = { };
     uint8_t buf[2048];
     ssize_t ret;
+    struct auth_cfg auth_cfg = {
+        .pmk_lifetime_s           = 30,
+        .ptk_lifetime_s           = 15,
+        .gtk_expire_offset_s      = 10,
+        .gtk_new_activation_time  = 720,
+        .gtk_new_install_required = 80,
+    };
     struct ctx ctx = {
         .supp.key_request_txalg.rand_min = -0.1,
         .supp.key_request_txalg.irt_s    = 1,
@@ -326,13 +330,7 @@ int main(int argc, char *argv[])
         .supp.on_failure    = supp_on_failure,
         .supp.timeout_ms = 1000,
 
-        .auth.cfg = &(struct auth_cfg){
-            .pmk_lifetime_s           = 30,
-            .ptk_lifetime_s           = 15,
-            .gtk_expire_offset_s      = 10,
-            .gtk_new_activation_time  = 720,
-            .gtk_new_install_required = 80,
-        },
+        .auth.cfg = &auth_cfg,
         .auth.sendto_mac            = auth_sendto_mac,
         .auth.on_gtk_change         = auth_on_gtk_change,
         .auth.on_supp_gtk_installed = auth_on_supp_gtk_installed,
@@ -340,7 +338,8 @@ int main(int argc, char *argv[])
         .auth.timeout_ms = 500,
     };
 
-    init(&ctx, argc, argv);
+    // auth_cfg is mandatory considering ctx.auth.cfg is a const pointer
+    init(&ctx, &auth_cfg, argc, argv);
 
     pfd[0].fd = timer_fd();
     pfd[0].events = POLLIN;

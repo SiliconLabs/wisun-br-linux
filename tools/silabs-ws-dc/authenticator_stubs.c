@@ -36,3 +36,7 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 {
     BUG();
 }
+
+void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
+{
+}

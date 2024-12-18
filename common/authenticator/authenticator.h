@@ -14,6 +14,7 @@
 #ifndef AUTHENTICATOR_H
 #define AUTHENTICATOR_H
 
+#include <arpa/inet.h>
 #include <sys/queue.h>
 #include <stdint.h>
 
@@ -64,6 +65,7 @@ struct auth_cfg {
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
     int pmk_lifetime_s;
     int ptk_lifetime_s;
+    struct sockaddr_storage radius_addr;
 };
 
 struct auth_ctx {
