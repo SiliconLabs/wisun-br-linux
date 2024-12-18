@@ -41,6 +41,8 @@ struct tls_ctx {
     struct mbedtls_pk_context key;
 };
 
+int tls_send(void *ctx, const unsigned char *buf, size_t len);
+int tls_recv(void *ctx, unsigned char *buf, size_t len);
 void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const unsigned char *secret,
                      size_t secret_len, const unsigned char client_random[32],
                      const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type);

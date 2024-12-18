@@ -29,7 +29,6 @@
 #include "common/mbedtls_extra.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
-#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/eapol.h"
 #include "common/iobuf.h"
@@ -40,30 +39,6 @@
 #include "supplicant_key.h"
 
 #include "supplicant.h"
-
-static int supp_mbedtls_send(void *ctx, const unsigned char *buf, size_t len)
-{
-    struct tls_io *tls_io = ctx;
-
-    pktbuf_push_tail(&tls_io->tx, buf, len);
-    return len;
-}
-
-static int supp_mbedtls_recv(void *ctx, unsigned char *buf, size_t len)
-{
-    int ret = MBEDTLS_ERR_SSL_WANT_READ;
-    struct tls_io *tls_io = ctx;
-
-    if (!pktbuf_len(&tls_io->rx))
-        return ret;
-
-    ret = MIN(pktbuf_len(&tls_io->rx), len);
-    pktbuf_pop_head(&tls_io->rx, buf, ret);
-
-    if (!pktbuf_len(&tls_io->rx))
-        pktbuf_free(&tls_io->rx);
-    return ret;
-}
 
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
 {
@@ -290,6 +265,6 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert,
     ret = mbedtls_ssl_setup(&supp->ssl_ctx, &supp->tls.ssl_config);
     BUG_ON(ret);
 
-    mbedtls_ssl_set_bio(&supp->ssl_ctx, supp, supp_mbedtls_send, supp_mbedtls_recv, NULL);
+    mbedtls_ssl_set_bio(&supp->ssl_ctx, &supp->tls_io, tls_send, tls_recv, NULL);
     mbedtls_ssl_set_export_keys_cb(&supp->ssl_ctx, tls_export_keys, &supp->pmk);
 }
