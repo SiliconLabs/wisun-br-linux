@@ -64,9 +64,9 @@ sources. This project does not support versions < 3.0.
 
     git clone --branch=v3.6.2 --recurse-submodules https://github.com/ARMmbed/mbedtls
     cd mbedtls
-    cmake -G Ninja .
-    ninja
-    sudo ninja install
+    cmake -B build -G Ninja .
+    ninja -C build
+    sudo ninja -C build install
 
 `MbedTLS` is highly customizable. The default configuration is sane. However, if
 you want a stripped-down version, you can configure it with the configuration
@@ -82,7 +82,7 @@ CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC library:
 
     git clone https://github.com/SiliconLabs/cpc_daemon.git
     cd cpc_daemon
-    cmake -S . -B build -G Ninja
+    cmake -B build -G Ninja .
     ninja -C build
     sudo ninja -C build install
     sudo ldconfig
@@ -101,12 +101,12 @@ CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC library:
 Then, you can compile `wsbrd` with:
 
     cd wisun-br-linux/
-    cmake -G Ninja .
-    ninja
+    cmake -B build -G Ninja .
+    ninja -C build
 
 Finally, install the service with:
 
-    sudo ninja install
+    sudo ninja -C build install
 
 > No script for any start-up service is provided for now.
 
