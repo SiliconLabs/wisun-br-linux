@@ -199,6 +199,9 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
         { "pmk",           no_argument,       0, 'p' },
         { "radius-server", required_argument, 0, 'r' },
         { "radius-secret", required_argument, 0, 's' },
+        { "auth-ca",       required_argument, 0, 'a' },
+        { "auth-cert",     required_argument, 0, 'c' },
+        { "auth-key",      required_argument, 0, 'k' },
         { "supp-ca",       required_argument, 0, 'A' },
         { "supp-cert",     required_argument, 0, 'C' },
         { "supp-key",      required_argument, 0, 'K' },
@@ -214,6 +217,12 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     srand(0);
 
     strcpy(info.filename, "commandline");
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
+    conf_set_pem(&info, &auth_cfg->ca_cert, NULL);
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/br_cert.pem");
+    conf_set_pem(&info, &auth_cfg->cert, NULL);
+    strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/br_key.pem");
+    conf_set_pem(&info, &auth_cfg->key, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
     conf_set_pem(&info, &ca_cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_cert.pem");
@@ -237,6 +246,15 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             break;
         case 's':
             strncpy(auth_cfg->radius_secret, optarg, sizeof(auth_cfg->radius_secret) - 1);
+            break;
+        case 'a':
+            conf_set_pem(&info, &auth_cfg->ca_cert, NULL);
+            break;
+        case 'c':
+            conf_set_pem(&info, &auth_cfg->cert, NULL);
+            break;
+        case 'k':
+            conf_set_pem(&info, &auth_cfg->key, NULL);
             break;
         case 'A':
             conf_set_pem(&info, &ca_cert, NULL);
@@ -266,14 +284,24 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             exit(EXIT_FAILURE);
         }
     }
-    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk.key, 32))
-        FATAL(1, "incompatible --radius-server and --pmk");
-    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
-        FATAL(1, "missing --radius-secret");
-    if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.cfg->radius_secret[0])
-        FATAL(1, "missing --radius-server");
+    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC) {
+        if (memzcmp(ctx->supp.pmk.key, 32))
+            FATAL(1, "incompatible --radius-server and --pmk");
+        if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
+            FATAL(1, "missing --radius-secret");
+        if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.cfg->radius_secret[0])
+            FATAL(1, "missing --radius-server");
+    } else {
+        if (!auth_cfg->ca_cert.iov_base)
+            FATAL(1, "missing --auth-ca");
+        if (!auth_cfg->cert.iov_base)
+            FATAL(1, "missing --auth-cert");
+        if (!auth_cfg->key.iov_base)
+            FATAL(1, "missing --auth-key");
+        INFO("Using internal EAP-TLS authentication server");
+    }
 
-    supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
+    supp_init(&ctx->supp, &auth_cfg->ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
     if (memzcmp(ctx->supp.pmk.key, 32))

@@ -16,9 +16,11 @@
 
 #include <arpa/inet.h>
 #include <sys/queue.h>
+#include <sys/uio.h>
 #include <stdint.h>
 
 #include "common/crypto/ws_keys.h"
+#include "common/crypto/tls.h"
 #include "common/ieee802154_frame.h"
 #include "common/pktbuf.h"
 #include "common/timer.h"
@@ -65,12 +67,17 @@ struct auth_cfg {
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
     int pmk_lifetime_s;
     int ptk_lifetime_s;
+    struct iovec ca_cert;
+    struct iovec cert;
+    struct iovec key;
     struct sockaddr_storage radius_addr;
     char radius_secret[256];
 };
 
 struct auth_ctx {
     struct eui64 eui64;
+
+    struct tls_ctx tls;
 
     const struct auth_cfg *cfg;
     struct ws_gtk gtks[4];

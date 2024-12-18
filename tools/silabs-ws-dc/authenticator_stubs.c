@@ -11,6 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <sys/uio.h>
+
 #include "common/authenticator/authenticator_eap.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/log.h"
@@ -20,6 +22,8 @@
  * (PMK), which implies to disable EAP support. To do so, stubs are provided to
  * replace authenticator_eap.c.
  */
+
+struct tls_ctx;
 
 void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
 {
@@ -38,5 +42,10 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 }
 
 void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
+{
+}
+
+void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
+              const struct iovec *key)
 {
 }

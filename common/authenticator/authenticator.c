@@ -288,7 +288,7 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
     if (auth->cfg->radius_addr.ss_family != AF_UNSPEC)
         radius_init(auth, (struct sockaddr *)&auth->cfg->radius_addr);
     else
-        WARN("EAP-TLS support disabled");
+        tls_init(&auth->tls, MBEDTLS_SSL_IS_SERVER, &auth->cfg->ca_cert, &auth->cfg->cert, &auth->cfg->key);
 
     SLIST_INIT(&auth->supplicants);
     timer_group_init(&auth->timer_group);
