@@ -276,8 +276,10 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 
     /*
      * Wi-SUN requires a handshake to update the GTKL and remove a key when it
-     * is revoked earlier than expected from the Lifetime KDE. We could choose
-     * to not do the handshake and directly delete the key.
+     * is revoked earlier than expected from the Lifetime KDE. Immediately
+     * deleting the key based on a GTKHASH change is dangerous because the GTK
+     * is more likely to leak than the PTK, and authenticator packets are
+     * secured using the PTK.
      */
     for (int i = 0; i < ARRAY_SIZE(gtkhash); i++)
         if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
