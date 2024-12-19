@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "common/time_extra.h"
+
 /*
  * Timer module backed by a single timerfd. A sorted list of timers is
  * maintained and the timerfd is always set to expire at the shortest timeout.
@@ -95,6 +97,13 @@ static inline bool timer_stopped(const struct timer_entry *timer)
 static inline uint64_t timer_duration_ms(const struct timer_entry *timer)
 {
     return timer->expire_ms - timer->start_ms;
+}
+
+static inline uint64_t timer_remaining_ms(const struct timer_entry *timer)
+{
+    const uint64_t now_ms = time_now_ms(CLOCK_MONOTONIC);
+
+    return timer->expire_ms > now_ms ? timer->expire_ms - now_ms : 0;
 }
 
 #endif

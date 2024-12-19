@@ -151,7 +151,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
     int ret;
 
     kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].gtk);
-    kde_write_lifetime(&key_data, (auth->gtks[key_slot].expiration_timer.expire_ms - time_now_ms(CLOCK_MONOTONIC)) / 1000);
+    kde_write_lifetime(&key_data, timer_remaining_ms(&auth->gtks[key_slot].expiration_timer) / 1000);
     kde_write_gtkl(&key_data, auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks)));
 
     auth_key_add_kde_padding(&key_data);

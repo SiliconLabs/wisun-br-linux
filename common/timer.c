@@ -21,7 +21,6 @@
 
 #include "common/log.h"
 #include "common/sys_queue_extra.h"
-#include "common/time_extra.h"
 
 #include "timer.h"
 
