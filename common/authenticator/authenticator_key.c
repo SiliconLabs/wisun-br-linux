@@ -158,8 +158,18 @@ static void auth_key_write_key_data(struct auth_ctx *ctx, struct auth_supp_ctx *
     const uint8_t *ptk;
     int ret;
 
-    kde_write_gtk(&key_data, key_slot, ctx->gtks[key_slot].gtk);
-    kde_write_lifetime(&key_data, (ctx->gtks[key_slot].expiration_timer.expire_ms - time_now_ms(CLOCK_MONOTONIC)) / 1000);
+    /*
+     * Wi-SUN requires a handshake to update the GTKL and remove a key when it
+     * is revoked earlier than expected from the Lifetime KDE. This handshake
+     * is ambiguous because the supplicant may already have all the other GTKs,
+     * in which case the authenticator does not know which key to install. No
+     * GTK KDE is provided to prevent any potential Key Reinstallation Attack
+     * (KRACK).
+     */
+    if (key_slot >= 0) {
+        kde_write_gtk(&key_data, key_slot, ctx->gtks[key_slot].gtk);
+        kde_write_lifetime(&key_data, (ctx->gtks[key_slot].expiration_timer.expire_ms - time_now_ms(CLOCK_MONOTONIC)) / 1000);
+    }
     kde_write_gtkl(&key_data, auth_key_get_gtkl(ctx->gtks, ARRAY_SIZE(ctx->gtks)));
 
     auth_key_add_kde_padding(&key_data);
@@ -214,9 +224,12 @@ static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *
 {
     int next_key_slot;
 
-    if (auth->on_supp_gtk_installed)
-        auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
-    supp->gtkl |= BIT(supp->last_installed_key_slot);
+    if (supp->last_installed_key_slot >= 0) {
+        if (auth->on_supp_gtk_installed)
+            auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
+        supp->gtkl |= BIT(supp->last_installed_key_slot);
+    }
+    supp->last_installed_key_slot = -1;
 
     next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
     if (next_key_slot != -1)
@@ -306,10 +319,6 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *ctx, struct auth_su
         return -EINVAL;
     }
     next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
-    if (next_key_slot < 0) {
-        TRACE(TR_DROP, "drop %-9s: no key to install", "eapol-key");
-        return -EAGAIN;
-    }
     auth_key_pairwise_message_3_send(ctx, supp, next_key_slot);
     return 0;
 }
@@ -409,8 +418,7 @@ static void auth_key_request_recv(struct auth_ctx *ctx, struct auth_supp_ctx *su
     if (supp->gtkl != auth_key_get_gtkl(ctx->gtks, ARRAY_SIZE(ctx->gtks))) {
         TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
         next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
-        if (next_key_slot != -1)
-            auth_key_group_message_1_send(ctx, supp, next_key_slot);
+        auth_key_group_message_1_send(ctx, supp, next_key_slot);
     }
     // TODO: check LGTKL
 }

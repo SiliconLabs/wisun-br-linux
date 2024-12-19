@@ -33,7 +33,7 @@ struct auth_supp_ctx {
     uint8_t rt_kmp_id;
 
     // 4WH and 2WH
-    uint8_t last_installed_key_slot;
+    int     last_installed_key_slot;
     uint8_t gtkl;
     uint8_t lgtkl;
     uint8_t  pmk[32]; // stored in cleartext in RAM
