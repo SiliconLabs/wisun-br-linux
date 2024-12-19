@@ -144,7 +144,7 @@ void timer_process(void)
         while ((timer = SLIST_POP(&trig_list, link))) {
             if (timer->period_ms) {
                 if (timer->expire_ms + timer->period_ms < now_ms)
-                    WARN_ON("periodic timer overrun");
+                    WARN("periodic timer overrun");
                 timer_start(group, timer, timer->expire_ms + timer->period_ms);
             } else {
                 timer_reset(timer);
