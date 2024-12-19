@@ -278,24 +278,24 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     supp->on_gtk_change(supp, NULL, gtk->slot + 1);
 }
 
-bool supp_has_gtk(struct supp_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
+bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t gtkhash_index)
 {
     uint8_t hash[32] = { };
-    bool has_gtk;
+    bool mismatch;
 
     if (!supp->running)
-        return false;
+        return true;
 
     if (timer_stopped(&supp->gtks[gtkhash_index - 1].expiration_timer)) {
-        has_gtk = !memzcmp(gtkhash, 8);
+        mismatch = memzcmp(gtkhash, 8);
     } else {
         xmbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
-        has_gtk = !memcmp(hash + 24, gtkhash, 8);
+        mismatch = memcmp(hash + 24, gtkhash, 8);
     }
-    if (!has_gtk)
+    if (mismatch)
         TRACE(TR_SECURITY, "sec: gtkhash[%u] mismatch got:%s expected:%s", gtkhash_index,
               tr_key(hash + 24, 8), tr_key(gtkhash, 8));
-    return has_gtk;
+    return mismatch;
 }
 
 void supp_start_key_request(struct supp_ctx *supp)

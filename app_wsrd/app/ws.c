@@ -274,8 +274,13 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     }
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
+    /*
+     * Wi-SUN requires a handshake to update the GTKL and remove a key when it
+     * is revoked earlier than expected from the Lifetime KDE. We could choose
+     * to not do the handshake and directly delete the key.
+     */
     for (int i = 0; i < ARRAY_SIZE(gtkhash); i++)
-        if (!supp_has_gtk(&wsrd->supp, gtkhash[i], i + 1))
+        if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
             supp_start_key_request(&wsrd->supp);
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
     if (wsrd->ws.pan_version < 0)

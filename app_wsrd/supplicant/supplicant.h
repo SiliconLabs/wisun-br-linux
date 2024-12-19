@@ -126,7 +126,7 @@ struct supp_ctx {
 void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8]);
 void supp_reset(struct supp_ctx *supp);
-bool supp_has_gtk(struct supp_ctx *supp, uint8_t gtkhash[8], uint8_t gtk_index);
+bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t key_index);
 void supp_start_key_request(struct supp_ctx *supp);
 
 void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
