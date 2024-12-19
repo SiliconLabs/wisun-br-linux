@@ -99,6 +99,30 @@ static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *messa
     memcpy(frame->mic, mic, sizeof(mic));
 }
 
+static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct eapol_key_frame *frame,
+                                  const void *data, size_t data_len)
+{
+    const uint8_t *ptk;
+
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
+        ptk = supp->tptk;
+    else
+        ptk = supp->ptk;
+
+    if (!ieee80211_is_mic_valid(ptk, frame, data, data_len))
+        return false;
+
+    /*
+     *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
+     * d) Key Replay Counter.
+     * [...]
+     * The local Key Replay Counter field should not be updated until after the
+     * EAPOL-Key MIC is checked and is found to be valid.
+     */
+    supp->replay_counter++;
+    return true;
+}
+
 void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
 {
     struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(&supp->rt_buffer) + sizeof(struct eapol_hdr));
@@ -120,7 +144,6 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     const uint8_t *ptk;
     uint8_t kmp_id;
 
-    supp->replay_counter++;
     frame->replay_counter = htobe64(supp->replay_counter);
     frame->data_length = htobe16(key_data_len);
 
@@ -240,7 +263,7 @@ static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return -EINVAL;
     }
-    if (!ieee80211_is_mic_valid(supp->ptk, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -257,7 +280,7 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return -EINVAL;
     }
-    if (!ieee80211_is_mic_valid(supp->tptk, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
@@ -307,7 +330,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     ieee80211_derive_ptk384(supp->pmk, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->tptk);
-    if (!ieee80211_is_mic_valid(supp->tptk, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
