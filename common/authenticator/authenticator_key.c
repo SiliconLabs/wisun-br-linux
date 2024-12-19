@@ -210,11 +210,25 @@ static void auth_key_group_message_1_send(struct auth_ctx *ctx, struct auth_supp
     pktbuf_free(&enc_key_data);
 }
 
-static int auth_key_group_message_2_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
-                                          const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     int next_key_slot;
 
+    if (auth->on_supp_gtk_installed)
+        auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
+    supp->gtkl |= BIT(supp->last_installed_key_slot);
+
+    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
+    if (next_key_slot != -1)
+        auth_key_group_message_1_send(auth, supp, next_key_slot);
+    // TODO: LGTK
+
+    return 0;
+}
+
+static int auth_key_group_message_2_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
+                                          const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
+{
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "rx-gkh");
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
@@ -225,23 +239,12 @@ static int auth_key_group_message_2_recv(struct auth_ctx *ctx, struct auth_supp_
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
-
-    if (ctx->on_supp_gtk_installed)
-        ctx->on_supp_gtk_installed(ctx, &supp->eui64, supp->last_installed_key_slot + 1);
-    supp->gtkl |= BIT(supp->last_installed_key_slot);
-
-    next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
-    if (next_key_slot != -1)
-        auth_key_group_message_1_send(ctx, supp, next_key_slot);
-    // TODO: LGTK
-    return 0;
+    return auth_key_handshake_done(ctx, supp);
 }
 
 static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_supp_ctx *supp,
                                             const struct eapol_key_frame *frame, struct iobuf_read *iobuf)
 {
-    int next_key_slot;
-
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "rx-4wh");
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
@@ -252,18 +255,9 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *ctx, struct auth_su
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
-
-    if (ctx->on_supp_gtk_installed)
-        ctx->on_supp_gtk_installed(ctx, &supp->eui64, supp->last_installed_key_slot + 1);
-    supp->gtkl |= BIT(supp->last_installed_key_slot);
     memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
     supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + ctx->cfg->ptk_lifetime_s;
-
-    next_key_slot = auth_key_get_key_slot_missmatch(ctx->gtks, ARRAY_SIZE(ctx->gtks), supp->gtkl);
-    if (next_key_slot != -1)
-        auth_key_group_message_1_send(ctx, supp, next_key_slot);
-    // TODO: LGTK
-    return 0;
+    return auth_key_handshake_done(ctx, supp);
 }
 
 static void auth_key_pairwise_message_3_send(struct auth_ctx *ctx, struct auth_supp_ctx *supp, int key_slot)
