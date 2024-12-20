@@ -3,7 +3,7 @@
 Experimental implementation of a Wi-SUN Full Function Node (FFN) for Linux.
 Currently only **leaf mode** is supported: `wsrd` cannot serve as a parent
 for other nodes. Look and feel should be as close as possible to `wsbrd`, see
-[examples/wsrd.conf](examples/wsrd.conf) for available configuration
+[examples/wsrd.conf](/examples/wsrd.conf) for available configuration
 parameters.
 
 Features:
