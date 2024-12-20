@@ -36,6 +36,8 @@ struct ctx {
     int auth_fd;
 
     int fail_count;
+    int rotation_count;
+    int rotation_max;
 };
 
 // Global needed for __wrap_read().
@@ -79,9 +81,9 @@ static uint8_t *supp_get_target(struct supp_ctx *supp)
 static void supp_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
 {
     if (gtk)
-        INFO("add idx=%u key=%s", index, tr_key(gtk, 16));
+        INFO("supp install  idx=%u key=%s", index, tr_key(gtk, 16));
     else
-        INFO("del idx=%u", index);
+        INFO("supp remove   idx=%u", index);
 }
 
 static void supp_on_failure(struct supp_ctx *supp)
@@ -120,10 +122,30 @@ static void auth_sendto_mac(struct auth_ctx *auth, uint8_t kmp_id,
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
 
+static void auth_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t index, bool activate)
+{
+    struct ctx *ctx = container_of(auth, struct ctx, auth);
+
+    if (gtk) {
+        if (!activate) {
+            INFO("auth install  idx=%u key=%s", index, tr_key(gtk, 16));
+            supp_start_key_request(&ctx->supp); // supp received a new GTKHASH-IE
+        } else {
+            INFO("auth activate idx=%u key=%s", index, tr_key(gtk, 16));
+        }
+    } else {
+        INFO("auth remove   idx=%u", index);
+    }
+}
+
 static void auth_on_supp_gtk_installed(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index)
 {
-    INFO("success");
-    exit(EXIT_SUCCESS);
+    struct ctx *ctx = container_of(auth, struct ctx, auth);
+
+    if (ctx->rotation_count++ >= ctx->rotation_max) {
+        INFO("success");
+        exit(EXIT_SUCCESS);
+    }
 }
 
 ssize_t __real_send(int fd, const void *buf, size_t buf_len, int flags);
@@ -153,6 +175,8 @@ static void help(void)
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/node_cert.pem");
     INFO("    -K --supp-key=FILE  Supplicant private key");
     INFO("                        default=/usr/local/share/doc/wsbrd/examples/node_key.pem");
+    INFO("    -R --rotations=INT  Number of GTK rotations to do before exiting.");
+    INFO("                        default=0");
     INFO("    --drop-seed=INTEGER Seed used for packet drop Random Number Generation (RNG)");
     INFO("                        default=0");
     INFO("    --drop-rate=INTEGER Probability to drop packets (as percentage)");
@@ -170,7 +194,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
     struct iovec supp_key = { };
     struct iovec ca_cert = { };
     int ret, opt;
-    const char *opts_short = "hpr:s:A:C:K:";
+    const char *opts_short = "hpR:r:s:A:C:K:";
     const struct option opts_long[] = {
         { "help",          no_argument,       0, 'h' },
         { "pmk",           no_argument,       0, 'p' },
@@ -179,6 +203,7 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         { "supp-ca",       required_argument, 0, 'A' },
         { "supp-cert",     required_argument, 0, 'C' },
         { "supp-key",      required_argument, 0, 'K' },
+        { "rotations",     required_argument, 0, 'R' },
         { "drop-seed",     required_argument, 0, 'S' },
         { "drop-rate",     required_argument, 0, 'd' },
         { }
@@ -226,6 +251,9 @@ static void init(struct ctx *ctx, int argc, char *argv[])
         case 'S':
             conf_set_number(&info, &ret, NULL);
             srand(ret);
+            break;
+        case 'R':
+            conf_set_number(&info, &ctx->rotation_max, &valid_positive);
             break;
         case 'd':
             conf_set_number(&info, &ret, (struct number_limit[]){ { 0, 100 } });
@@ -299,13 +327,14 @@ int main(int argc, char *argv[])
         .supp.timeout_ms = 1000,
 
         .auth.cfg = &(struct auth_cfg){
-            .pmk_lifetime_s           = 120,
-            .ptk_lifetime_s           = 60,
-            .gtk_expire_offset_s      = 30,
+            .pmk_lifetime_s           = 30,
+            .ptk_lifetime_s           = 15,
+            .gtk_expire_offset_s      = 10,
             .gtk_new_activation_time  = 720,
             .gtk_new_install_required = 80,
         },
         .auth.sendto_mac            = auth_sendto_mac,
+        .auth.on_gtk_change         = auth_on_gtk_change,
         .auth.on_supp_gtk_installed = auth_on_supp_gtk_installed,
         .auth.radius_fd  = -1,
         .auth.timeout_ms = 500,
