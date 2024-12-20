@@ -223,9 +223,10 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
                                     struct iobuf_read *iobuf)
 {
     struct pktbuf buf = { };
+    bool has_lgtk, has_lgtkl;
     struct kde_gtk gtk_kde;
+    bool has_gtk, has_gtkl;
     uint32_t lifetime_kde;
-    bool is_lgtk = false;
     const uint8_t *ptk;
     uint8_t gtkl_kde;
     int ret;
@@ -250,31 +251,35 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         goto error;
     }
 
-    if (!kde_read_gtk(pktbuf_head(&buf), pktbuf_len(&buf), &gtk_kde)) {
-        if (!kde_read_lgtk(pktbuf_head(&buf), pktbuf_len(&buf), &gtk_kde)) {
-            TRACE(TR_DROP, "drop %-9s: GTK and LGTK KDE not found", "eapol-key");
+    has_gtk = kde_read_gtk(pktbuf_head(&buf), pktbuf_len(&buf), &gtk_kde);
+    has_lgtk = kde_read_lgtk(pktbuf_head(&buf), pktbuf_len(&buf), &gtk_kde);
+    if (has_gtk && has_lgtk) {
+        TRACE(TR_DROP, "drop %-9s: both GTK and LGTK KDE found", "eapol-key");
+        goto error;
+    }
+    if ((has_gtk || has_lgtk) &&
+        !kde_read_lifetime(pktbuf_head(&buf), pktbuf_len(&buf), &lifetime_kde)) {
+        TRACE(TR_DROP, "drop %-9s: missing Lifetime KDE", "eapol-key");
+        goto error;
+    }
+    has_gtkl = kde_read_gtkl(pktbuf_head(&buf), pktbuf_len(&buf), &gtkl_kde);
+    has_lgtkl = kde_read_lgtkl(pktbuf_head(&buf), pktbuf_len(&buf), &gtkl_kde);
+    if (has_gtkl && has_lgtkl) {
+        TRACE(TR_DROP, "drop %-9s: both GTKL and LGTKL KDE found", "eapol-key");
+        goto error;
+    }
+    if ((!has_gtkl && !has_lgtkl) || (has_gtk && !has_gtkl) || (has_lgtk && !has_lgtkl)) {
+        TRACE(TR_DROP, "drop %-9s: missing (L)GTKL KDE", "eapol-key");
+        goto error;
+    }
+
+    if (has_gtk || has_lgtk) {
+        ret = supp_key_install_gtk(supp, &gtk_kde, lifetime_kde, has_lgtk);
+        if (ret < 0)
             goto error;
-        }
-        is_lgtk = true;
-    }
-    if (!kde_read_lifetime(pktbuf_head(&buf), pktbuf_len(&buf), &lifetime_kde)) {
-        TRACE(TR_DROP, "drop %-9s: lifetime KDE not found", "eapol-key");
-        goto error;
-    }
-    if (is_lgtk && !kde_read_lgtkl(pktbuf_head(&buf), pktbuf_len(&buf), &gtkl_kde)) {
-        TRACE(TR_DROP, "drop %-9s: LGTKL KDE not found", "eapol-key");
-        goto error;
-    }
-    if (!is_lgtk && !kde_read_gtkl(pktbuf_head(&buf), pktbuf_len(&buf), &gtkl_kde)) {
-        TRACE(TR_DROP, "drop %-9s: GTKL KDE not found", "eapol-key");
-        goto error;
     }
 
-    ret = supp_key_install_gtk(supp, &gtk_kde, lifetime_kde, is_lgtk);
-    if (ret < 0)
-        goto error;
-
-    supp_key_update_gtkl(supp, gtkl_kde, is_lgtk);
+    supp_key_update_gtkl(supp, gtkl_kde, has_lgtkl);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
