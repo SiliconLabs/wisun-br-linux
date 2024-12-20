@@ -192,14 +192,39 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
     return 0;
 }
 
+static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool is_lgtk)
+{
+    const uint8_t offset = is_lgtk ? 4 : 0;
+    const uint8_t count = is_lgtk ? 3 : 4;
+    struct ws_gtk *gtk;
+
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
+     * A previously installed GTK[X] is removed from the Border Router prior to
+     * its expiration time. The Border Router disseminated a new PC Frame, with
+     * GTK[X] hash set to 0, into the PAN. Receiving FFNs, still with local
+     * GTK[X] hash value nonzero, detect the hash mismatch and attempt to
+     * acquire the new GTK[X]. The acquisition attempt will reveal that GTK[X]
+     * is no longer valid (via the GTKL KDEs returned by the authenticator) and
+     * the FFN will remove it locally (setting its GTK[X] hash to 0).
+     */
+    for (int i = 0; i < count; i++) {
+        gtk = &supp->gtks[i + offset];
+        if ((gtkl_kde & BIT(i)) || timer_stopped(&gtk->expiration_timer))
+            continue;
+        TRACE(TR_SECURITY, "sec: %s[%u] revoked", is_lgtk ? "lgtk" : "gtk", i + 1);
+        timer_stop(NULL, &gtk->expiration_timer);
+        if (gtk->expiration_timer.callback)
+            gtk->expiration_timer.callback(NULL, &gtk->expiration_timer);
+    }
+}
+
 static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                     struct iobuf_read *iobuf)
 {
-    uint8_t gtks_slot_min = 0;
     struct pktbuf buf = { };
     struct kde_gtk gtk_kde;
     uint32_t lifetime_kde;
-    uint8_t gtks_size = 4;
     bool is_lgtk = false;
     const uint8_t *ptk;
     uint8_t gtkl_kde;
@@ -231,8 +256,6 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
             goto error;
         }
         is_lgtk = true;
-        gtks_size = ARRAY_SIZE(supp->gtks);
-        gtks_slot_min = 4;
     }
     if (!kde_read_lifetime(pktbuf_head(&buf), pktbuf_len(&buf), &lifetime_kde)) {
         TRACE(TR_DROP, "drop %-9s: lifetime KDE not found", "eapol-key");
@@ -251,22 +274,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     if (ret < 0)
         goto error;
 
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
-     * iii. A previously installed GTK[X] is removed from the Border Router prior to its expiration
-     * time. The Border Router disseminated a new PC Frame, with GTK[X] hash set to 0, into the
-     * PAN. Receiving FFNs, still with local GTK[X] hash value nonzero, detect the hash
-     * mismatch and attempt to acquire the new GTK[X]. The acquisition attempt will reveal that
-     * GTK[X] is no longer valid (via the GTKL KDEs returned by the authenticator) and the FFN
-     * will remove it locally (setting its GTK[X] hash to 0).
-     */
-    for (int i = gtks_slot_min; i < gtks_size; i++)
-        if (!(gtkl_kde & BIT(i - gtks_slot_min)) && !timer_stopped(&supp->gtks[i].expiration_timer)) {
-            TRACE(TR_SECURITY, "sec: %s[%u] no longer valid", is_lgtk ? "lgtk" : "gtk", i + 1 - gtks_slot_min);
-            timer_stop(NULL, &supp->gtks[i].expiration_timer);
-            if (supp->gtks[i].expiration_timer.callback)
-                supp->gtks[i].expiration_timer.callback(NULL, &supp->gtks[i].expiration_timer);
-        }
+    supp_key_update_gtkl(supp, gtkl_kde, is_lgtk);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
