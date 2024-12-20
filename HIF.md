@@ -421,6 +421,9 @@ Status codes:
 |`0x04` | Frame spent too long in RCP (10s for unicast, 20s for broadcast, 40s for async, 300s for LFN).
 |`0x05` | RCP internal error (reach out Silicon Labs support).
 
+`0x06..0xff` are reserved for future errors. The host must accept these values and
+consider the frame has not been received by the destination.
+
 [lqi]:  https://docs.silabs.com/rail/latest/rail-api/rail-rx-packet-details-t#lqi
 [rssi]: https://docs.silabs.com/rail/latest/rail-api/rail-rx-packet-details-t#rssi
 
