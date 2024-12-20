@@ -251,6 +251,7 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
     cnf.tx_retries    = hif_pop_u8(buf);
     hif_pop_u8(buf);  // TODO: mode switch stats
     BUG_ON(buf->err);
+    WARN_ON(cnf.status >= HIF_STATUS_COUNT, "unsupported HIF status 0x%02x", cnf.status);
     rcp->on_tx_cnf(rcp, &cnf);
 }
 

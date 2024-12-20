@@ -92,6 +92,7 @@ enum hif_data_status {
     HIF_STATUS_NOACK    = 0x03, // No valid ACK received
     HIF_STATUS_TIMEDOUT = 0x04, // Buffer lifetime expired on RCP
     HIF_STATUS_INTERNAL_ERROR = 0x05, // RCP internal error
+    HIF_STATUS_COUNT    = 0x06,
 };
 
 enum hif_reg {
