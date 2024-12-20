@@ -59,6 +59,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     if (ctx->on_gtk_change)
         ctx->on_gtk_change(ctx, NULL, gtk->slot + 1, false);
     TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->gtk, sizeof(gtk->gtk)));
+    memset(gtk->gtk, 0, sizeof(gtk->gtk));
 }
 
 /*

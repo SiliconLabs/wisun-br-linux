@@ -280,6 +280,7 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     TRACE(TR_SECURITY, "sec: gtk[%u] expired", gtk->slot + 1);
     supp->on_gtk_change(supp, NULL, gtk->slot + 1);
+    memset(gtk->gtk, 0, sizeof(gtk->gtk));
 }
 
 bool supp_has_gtk(struct supplicant_ctx *supp, uint8_t gtkhash[8], uint8_t gtkhash_index)
