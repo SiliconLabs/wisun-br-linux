@@ -119,18 +119,4 @@ struct mcps_data_rx_ie_list {
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
 };
 
-static inline uint8_t mlme_status_from_hif(enum hif_data_status status)
-{
-    switch (status) {
-    case HIF_STATUS_SUCCESS:  return MLME_SUCCESS;
-    case HIF_STATUS_NOMEM:    return MLME_TRANSACTION_OVERFLOW;
-    case HIF_STATUS_CCA:      return MLME_BUSY_CHAN;
-    case HIF_STATUS_NOACK:    return MLME_TX_NO_ACK;
-    case HIF_STATUS_TIMEDOUT: return MLME_TRANSACTION_EXPIRED;
-    default:
-        WARN("unknown status 0x%02x", status);
-        return MLME_INVALID_PARAMETER; // arbitrary
-    }
-}
-
 #endif
