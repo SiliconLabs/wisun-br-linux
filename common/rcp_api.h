@@ -42,8 +42,8 @@ struct rcp_rate_info {
 };
 
 struct rcp_tx_cnf {
-    uint8_t  handle;
-    enum hif_data_status status;
+    uint8_t handle;
+    uint8_t status;
     const uint8_t *frame;
     size_t   frame_len;
     uint64_t timestamp_us;
