@@ -91,6 +91,7 @@ enum hif_data_status {
     HIF_STATUS_CCA      = 0x02, // Channel access failure
     HIF_STATUS_NOACK    = 0x03, // No valid ACK received
     HIF_STATUS_TIMEDOUT = 0x04, // Buffer lifetime expired on RCP
+    HIF_STATUS_INTERNAL_ERROR = 0x05, // RCP internal error
 };
 
 enum hif_reg {
