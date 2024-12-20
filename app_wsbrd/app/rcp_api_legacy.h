@@ -66,19 +66,6 @@ typedef struct mcps_data_req_ie_list {
     uint16_t payloadIovLength;           /**< Payload IE element list size, set 0 when no elements */
 } mcps_data_req_ie_list_t;
 
-// See IEEE standard 802.15.4-2006 for more details
-enum mcps_data_cnf_status {
-    MLME_SUCCESS                    = 0x00, /**< The requested operation was completed successfully*/
-    MLME_BUSY_CHAN                  = 0xe1, /**< CSMA-CA fail*/
-    MLME_TX_ON                      = 0x09, /**< The radio is in or is to be configured into the receiver enabled state. */
-    MLME_COUNTER_ERROR              = 0xdb, /**< Originated messages security counter is not valid */
-    MLME_INVALID_HANDLE             = 0xe7, /**< Status for Purge request when Mac not detect proper queued message*/
-    MLME_INVALID_PARAMETER          = 0xe8, /**< A parameter in the primitive is either not supported or is out of the valid range */
-    MLME_TX_NO_ACK                  = 0xe9, /**< No ack was received after macMaxFrameRetries */
-    MLME_TRANSACTION_EXPIRED        = 0xf0, /**< The transaction has expired and its information was discarded */
-    MLME_TRANSACTION_OVERFLOW       = 0xf1, /**< MAC have no capacity to store the transaction */
-};
-
 // Used by on_tx_cnf()
 // See IEEE standard 802.15.4-2006 (table 42) for more details
 typedef struct mcps_data_cnf {
