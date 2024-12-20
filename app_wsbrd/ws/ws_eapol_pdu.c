@@ -159,7 +159,6 @@ void ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx
 
 static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_cnf *data)
 {
-    uint8_t mlme_status = mlme_status_from_hif(data->hif.status);
     eapol_pdu_data_t *eapol_pdu_data = NULL;
 
     ns_list_foreach(eapol_pdu_data_t, entry, &eapol_pdu_data_list) {
@@ -177,9 +176,9 @@ static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcp
         if (msdu->handle == data->hif.handle) {
             if (msdu->tx_status) {
                 eapol_pdu_tx_status_e status = EAPOL_PDU_TX_ERR_UNSPEC;
-                if (mlme_status == MLME_SUCCESS) {
+                if (data->hif.status == HIF_STATUS_SUCCESS) {
                     status = EAPOL_PDU_TX_OK;
-                } else if (mlme_status == MLME_TX_NO_ACK) {
+                } else if (data->hif.status == HIF_STATUS_NOACK) {
                     status = EAPOL_PDU_TX_ERR_TX_NO_ACK;
                     tr_error("EAPOL TX err no ack");
                 } else {

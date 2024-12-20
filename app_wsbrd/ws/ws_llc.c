@@ -271,13 +271,11 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     struct ws_neigh *ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage, msg->dst_address);
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
-    uint8_t mlme_status;
 
     WARN_ON(!ws_neigh);
     base->temp_entries.active_eapol_session = false;
 
-    mlme_status = mlme_status_from_hif(confirm->hif.status);
-    if (ws_neigh && mlme_status == MLME_SUCCESS)
+    if (ws_neigh && confirm->hif.status == HIF_STATUS_SUCCESS)
         ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
@@ -367,7 +365,6 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                                 const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neigh *ws_neigh)
 {
-    const uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
     const struct rcp_rate_info *rate;
     struct mcps_data_cnf mpx_confirm;
@@ -377,21 +374,21 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     int ie_rsl;
 
     if (msg->ack_requested) {
-        switch (mlme_status) {
-        case MLME_SUCCESS:
-        case MLME_TX_NO_ACK:
+        switch (confirm->hif.status) {
+        case HIF_STATUS_SUCCESS:
+        case HIF_STATUS_NOACK:
             if (!ws_neigh)
                 break;
             if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
                 break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
-                if (mlme_status == MLME_SUCCESS)
+                if (confirm->hif.status == HIF_STATUS_SUCCESS)
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
                 ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
                 ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, ws_neigh->mac64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt))
-                if (mlme_status == MLME_SUCCESS)
+                if (confirm->hif.status == HIF_STATUS_SUCCESS)
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_neigh_ewma_next(ws_neigh->rsl_out_dbm, ie_rsl);

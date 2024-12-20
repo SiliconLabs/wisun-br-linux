@@ -830,8 +830,6 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
 
 static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_cnf_t *confirm)
 {
-    uint8_t mlme_status = mlme_status_from_hif(confirm->hif.status);
-
     if (!cur || !confirm) {
         return -1;
     }
@@ -860,7 +858,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     }
     buffer_t *buf = tx_ptr->buf;
 
-    if (mlme_status == MLME_SUCCESS) {
+    if (confirm->hif.status == HIF_STATUS_SUCCESS) {
         //Check is there more packets
         if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
             if (tx_ptr->fragmented_data)
@@ -870,7 +868,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
     } else {
-        if (buf->link_specific.ieee802_15_4.requestAck && mlme_status == MLME_TRANSACTION_EXPIRED) {
+        if (buf->link_specific.ieee802_15_4.requestAck && confirm->hif.status == HIF_STATUS_TIMEDOUT) {
             lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
             ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
             free(tx_ptr);
