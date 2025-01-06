@@ -47,10 +47,16 @@ void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pkt
                             pktbuf_head(pktbuf), pktbuf_len(pktbuf));
 }
 
+static void auth_eap_tls_reset_supp(struct auth_supp_ctx *supp)
+{
+    supp->eap_id = 0;
+}
+
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     struct pktbuf pktbuf = { };
 
+    auth_eap_tls_reset_supp(supp);
     eap_write_hdr_head(&pktbuf, EAP_CODE_REQUEST, supp->eap_id + 1, EAP_TYPE_IDENTITY);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
