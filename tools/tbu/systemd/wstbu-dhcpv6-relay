@@ -12,6 +12,21 @@ import sys
 WSBRD_IFNAME = 'tunwstbu'
 
 
+# dnsmasq.h
+DUMP_QUERY     = 0x0001
+DUMP_REPLY     = 0x0002
+DUMP_UP_QUERY  = 0x0004
+DUMP_UP_REPLY  = 0x0008
+DUMP_SEC_QUERY = 0x0010
+DUMP_SEC_REPLY = 0x0020
+DUMP_BOGUS     = 0x0040
+DUMP_SEC_BOGUS = 0x0080
+DUMP_DHCP      = 0x1000
+DUMP_DHCPV6    = 0x2000
+DUMP_RA        = 0x4000
+DUMP_TFTP      = 0x8000
+
+
 def fatal(msg):
     print(f'\x1b[31mfatal: {msg}\x1b[0m')
     exit(1)
@@ -41,6 +56,9 @@ def main():
         f'--dhcp-relay={wsbrd_addr},{dhcpv6_server_addr}',
         '--log-debug',
         '--log-dhcp',
+        # Dump DHCPv6 packets as viewed by dnsmasq at the socket level:
+        #'--dumpfile=/tmp/dnsmasq.pcap',
+        #f'--dumpmask={DUMP_DHCPV6}',
     ]
     print(' '.join(cmd))
     try:
