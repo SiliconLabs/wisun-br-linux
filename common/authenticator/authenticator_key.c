@@ -119,7 +119,7 @@ static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct eapol
      * The local Key Replay Counter field should not be updated until after the
      * EAPOL-Key MIC is checked and is found to be valid.
      */
-    supp->pmk.replay_counter++;
+    supp->eap_tls.tls.pmk.replay_counter++;
     return true;
 }
 
@@ -127,8 +127,8 @@ void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
 {
     struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(&supp->rt_buffer) + sizeof(struct eapol_hdr));
 
-    supp->pmk.replay_counter++;
-    frame->replay_counter = htobe64(supp->pmk.replay_counter);
+    supp->eap_tls.tls.pmk.replay_counter++;
+    frame->replay_counter = htobe64(supp->eap_tls.tls.pmk.replay_counter);
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
         return;
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
@@ -144,7 +144,7 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     const uint8_t *ptk;
     uint8_t kmp_id;
 
-    frame->replay_counter = htobe64(supp->pmk.replay_counter);
+    frame->replay_counter = htobe64(supp->eap_tls.tls.pmk.replay_counter);
     frame->data_length = htobe16(key_data_len);
 
     pktbuf_push_tail(&message, frame, sizeof(*frame));
@@ -329,7 +329,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
     }
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
-    ieee80211_derive_ptk384(supp->pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->tptk);
+    ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->tptk);
     if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
@@ -354,7 +354,7 @@ void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ct
 
     ieee80211_generate_nonce(auth->eui64.u8, supp->anonce);
     memcpy(message.nonce, supp->anonce, sizeof(message.nonce));
-    ieee80211_derive_pmkid(supp->pmk.key, auth->eui64.u8, supp->eui64.u8, pmkid);
+    ieee80211_derive_pmkid(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, pmkid);
     kde_write_pmkid(&key_data, pmkid);
 
     TRACE(TR_SECURITY, "sec: %-8s msg=1", "tx-4wh");
@@ -401,11 +401,11 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * Authenticator MUST install a new PMK and PTK on the SUP (execute EAP-TLS to
      * install a PMK and execute the 4-way the handshake to install a PTK).
      */
-    ieee80211_derive_pmkid(supp->pmk.key, auth->eui64.u8, supp->eui64.u8, key);
+    ieee80211_derive_pmkid(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, key);
     if (!kde_read_pmkid(data, data_len, received_key) ||
         memcmp(received_key, key, sizeof(received_key)) ||
         (auth->cfg->pmk_lifetime_s &&
-         time_now_s(CLOCK_MONOTONIC) >= supp->pmk.installation_s + auth->cfg->pmk_lifetime_s)) {
+         time_now_s(CLOCK_MONOTONIC) >= supp->eap_tls.tls.pmk.installation_s + auth->cfg->pmk_lifetime_s)) {
         TRACE(TR_SECURITY, "sec: pmkid out-of-date starting EAP-TLS");
         auth_eap_send_request_identity(auth, supp);
         return;
@@ -508,7 +508,7 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * The Authenticator should use the key replay counter to identify invalid messages
      * to silently discard.
      */
-    if (be64toh(frame->replay_counter) != supp->pmk.replay_counter) {
+    if (be64toh(frame->replay_counter) != supp->eap_tls.tls.pmk.replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }

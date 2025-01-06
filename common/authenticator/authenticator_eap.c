@@ -49,7 +49,10 @@ void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pkt
 
 static void auth_eap_tls_reset_supp(struct auth_supp_ctx *supp)
 {
+    pktbuf_init(&supp->eap_tls.tls.io.tx, NULL, 0);
+    pktbuf_init(&supp->eap_tls.tls.io.rx, NULL, 0);
     supp->eap_id = 0;
+    mbedtls_ssl_session_reset(&supp->eap_tls.tls.ssl_ctx);
 }
 
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)

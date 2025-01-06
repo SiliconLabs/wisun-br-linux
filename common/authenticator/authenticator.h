@@ -39,7 +39,6 @@ struct auth_supp_ctx {
     int     last_installed_key_slot;
     uint8_t gtkl;
     uint8_t lgtkl;
-    struct tls_pmk pmk;
     uint8_t  ptk[48];
     uint8_t  tptk[48];
     uint64_t ptk_expiration_s;
@@ -47,6 +46,10 @@ struct auth_supp_ctx {
     uint8_t  snonce[32];
 
     uint8_t eap_id;
+
+    struct {
+        struct tls_client_ctx tls;
+    } eap_tls;
 
     int     radius_id;
     uint8_t radius_auth[16];

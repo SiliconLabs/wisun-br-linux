@@ -24,5 +24,6 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
 void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pktbuf *pktbuf);
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp);
 void auth_eap_send_failure(struct auth_ctx *auth, struct auth_supp_ctx *supp);
+void auth_supp_eap_init(struct auth_ctx *auth, struct auth_supp_ctx *supp);
 
 #endif
