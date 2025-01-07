@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 struct auth_ctx;
+struct auth_supp_ctx;
 struct in6_addr;
 struct sockaddr;
 
