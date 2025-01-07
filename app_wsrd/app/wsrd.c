@@ -22,6 +22,7 @@
 #include "app_wsrd/app/dbus.h"
 #include "app_wsrd/app/ws.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "common/ws/eapol_relay.h"
 #include "common/ws/ws_regdb.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
@@ -44,6 +45,7 @@ enum {
     POLLFD_TUN,
     POLLFD_RPL,
     POLLFD_DHCP,
+    POLLFD_EAPOL_RELAY,
     POLLFD_DBUS,
     POLLFD_COUNT,
 };
@@ -74,6 +76,7 @@ struct wsrd g_wsrd = {
     .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.on_recv_ind                 = ws_on_recv_ind,
     .ws.on_recv_cnf                 = ws_on_recv_cnf,
+    .ws.eapol_relay_fd = -1,
     .ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .eapol_target_eui64 = IEEE802154_ADDR_BC_INIT,
 
@@ -266,29 +269,33 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         memcpy(&wsrd->eapol_target_eui64, neigh->eui64, 8);
     } else {
         wsrd->eapol_target_eui64 = ieee802154_addr_bc;
+        close(wsrd->ws.eapol_relay_fd);
+        wsrd->ws.eapol_relay_fd = -1;
         // TODO: handle parent loss
     }
 }
 
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
 {
-    struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
-    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(ipv6);
+    struct wsrd *wsrd = container_of(client, struct wsrd, ipv6.dhcp);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
 
-    BUG_ON(!pref_parent);
+    BUG_ON(!parent);
 
     // TODO: set prefix len to 128, and add default route instead
-    tun_addr_add(&ipv6->tun, &client->iaaddr.ipv6, 64);
-    ipv6_nud_set_state(ipv6, pref_parent, IPV6_NUD_PROBE);
+    tun_addr_add(&wsrd->ipv6.tun, &client->iaaddr.ipv6, 64);
+    ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
 
     // HACK: Wait for GUA to be registered by Linux, otherwise it may send
     // the DAO with a link-local address.
     usleep(100000);
 
-    rpl_start_dao(ipv6);
+    rpl_start_dao(&wsrd->ipv6);
     // TODO: enable when full parenting ready
-    // rpl_start_dio(ipv6);
+    // rpl_start_dio(&wsrd->ipv6);
+    close(wsrd->ws.eapol_relay_fd);
+    wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
@@ -406,6 +413,21 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     timer_start_rel(NULL, &wsrd->pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }
 
+static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
+{
+    struct eui64 supp_eui64;
+    uint8_t buf[1500];
+    ssize_t buf_len;
+    uint8_t kmp_id;
+
+    buf_len = eapol_relay_recv(wsrd->ws.eapol_relay_fd, buf, sizeof(buf),
+                               NULL, &supp_eui64, &kmp_id);
+    if (buf_len < 0)
+        return;
+    ws_if_send_eapol(&wsrd->ws, kmp_id, buf, buf_len, &supp_eui64,
+                     (struct eui64 *)wsrd->supp.authenticator_eui64);
+}
+
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
@@ -470,7 +492,9 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DHCP].events = POLLIN;
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
+    pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
     while (true) {
+        pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
         ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
         if (wsrd->ws.rcp.bus.uart.data_ready ||
@@ -484,6 +508,8 @@ int wsrd_main(int argc, char *argv[])
             rpl_recv(&wsrd->ipv6);
         if (pfd[POLLFD_DHCP].revents & POLLIN)
             dhcp_client_recv(&wsrd->ipv6.dhcp);
+        if (pfd[POLLFD_EAPOL_RELAY].revents & POLLIN)
+            wsrd_eapol_relay_recv(wsrd);
         if (pfd[POLLFD_DBUS].revents & POLLIN)
             dbus_process();
     }

@@ -16,6 +16,7 @@
 
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
+#include "common/ws/eapol_relay.h"
 #include "common/ws/ws_ie.h"
 #include "common/ws/ws_ie_validation.h"
 #include "common/ws/ws_interface.h"
@@ -386,6 +387,8 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
 {
     uint8_t authenticator_eui64[8];
     struct iobuf_read buf = { };
+    struct ipv6_neigh *parent;
+    struct in6_addr dodag_id;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
@@ -425,8 +428,28 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     }
 
-    supp_recv_eapol(&wsrd->supp, kmp_id, iobuf_ptr(&buf), iobuf_remaining_size(&buf),
-                    has_ea_ie ? authenticator_eui64 : NULL);
+    /*
+     * FIXME: This condition is a bit shaky, but it is not entirely clear how
+     * to properly differentiate EAPoL packets for our supplicant from those to
+     * be relayed. In particular, we should ensure that our EAPoL target does
+     * not change during a transaction.
+     */
+    if (!memcmp(&ind->hdr.src, &wsrd->eapol_target_eui64, 8)) {
+        supp_recv_eapol(&wsrd->supp, kmp_id,
+                        iobuf_ptr(&buf), iobuf_remaining_size(&buf),
+                        has_ea_ie ? authenticator_eui64 : NULL);
+    } else {
+        if (wsrd->ws.eapol_relay_fd < 0) {
+            TRACE(TR_TX_ABORT, "drop %s: eapol-relay not started", "15.4");
+            return;
+        }
+        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        BUG_ON(!parent || !parent->rpl);
+        dodag_id = parent->rpl->dio.dodag_id; // -Waddress-of-packed-member
+        eapol_relay_send(wsrd->ws.eapol_relay_fd,
+                         iobuf_ptr(&buf), iobuf_remaining_size(&buf),
+                         &dodag_id, &ind->hdr.src, kmp_id);
+    }
 }
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
