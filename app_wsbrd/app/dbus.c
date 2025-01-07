@@ -526,12 +526,6 @@ static int dbus_message_append_node(
     return 0;
 }
 
-static const struct ws_neigh *dbus_get_neighbor_info(struct wsbr_ctxt *ctxt,
-                                                               const uint8_t eui64[8])
-{
-    return ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64);
-}
-
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
 {
     struct ws_neigh neigh = {
@@ -569,7 +563,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     dbus_message_append_node_br(reply, property, ctxt);
 
     for (int i = 0; i < len_pae; i++) {
-        neighbor_info = dbus_get_neighbor_info(ctxt, eui64_pae[i]);
+        neighbor_info = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64_pae[i]);
         if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
             supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
         else
