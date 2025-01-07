@@ -432,8 +432,8 @@ def config_chan_plan_bcast():
 
 
 @dbus_errcheck
-@json_errcheck('/config/chanPlan/bcast/lfn')
-def config_chan_plan_bcast_lfn():
+@json_errcheck('/config/lfn/chanPlan/bcast')
+def config_lfn_chan_plan_bcast():
     json = flask.request.get_json(force=True, silent=True)
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
@@ -907,7 +907,8 @@ def app_build():
     app.add_url_rule('/config/chanPlan/fixed',                          view_func=config_chan_plan_fixed,                            methods=['PUT'])
     app.add_url_rule('/config/chanPlan/unicast',                        view_func=config_chan_plan_unicast,                          methods=['PUT'])
     app.add_url_rule('/config/chanPlan/bcast',                          view_func=config_chan_plan_bcast,                            methods=['PUT'])
-    app.add_url_rule('/config/chanPlan/bcast/lfn',                      view_func=config_chan_plan_bcast_lfn,                        methods=['PUT'])
+    app.add_url_rule('/config/chanPlan/bcast/lfn',                      view_func=config_lfn_chan_plan_bcast,                        methods=['PUT']) # Deprecated
+    app.add_url_rule('/config/lfn/chanPlan/bcast',                      view_func=config_lfn_chan_plan_bcast,                        methods=['PUT'])
     app.add_url_rule('/config/borderRouter',                            view_func=config_border_router,                              methods=['PUT'])
     app.add_url_rule('/config/borderRouter/gtks',                       view_func=config_border_router_gtks,                         methods=['PUT'])
     app.add_url_rule('/config/borderRouter/keyLifetimes',               view_func=config_border_router_key_lifetimes,                methods=['PUT'])
