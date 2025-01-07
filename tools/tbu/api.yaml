@@ -1,16 +1,23 @@
 # Downloaded from https://bitbucket.org/wisunalliance/test-bed-unit-api
 swagger: '2.0'
 info:
-  version: 1.1.12
+  version: 1.1.13
   title: TBU API
-  description: Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Note that optional object properties, when not included in messaging and unless noted otherwise, will assume their default values as specified in the FAN TPS. Copyright © Wi-SUN Alliance 2023. TODO LFN timing adjust. TODO LBATS handling.
-# schemes:
-#   - http
+  description: Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Note that optional object properties, when not included in messaging and unless noted otherwise, will assume their default values as specified in the FAN TPS. Copyright © Wi-SUN Alliance 2024.
+basePath: /Wi-SUN/TBU/1.1.13
+schemes:
+  - https
+  - http
 consumes:
   - application/json
 produces:
   - application/json
 paths:
+
+################################################################################
+# Run Mode Endpoints
+################################################################################
+
   /runMode/{mode}:
     put:
       description: Set the run mode of the TBU's FAN stack
@@ -32,7 +39,11 @@ paths:
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'   
+            $ref: '#/definitions/ErrorResponse'
+
+################################################################################
+# Configuration Endpoints
+################################################################################
 
   /config/phy:
     put:
@@ -41,7 +52,7 @@ paths:
       - name: body
         in: body
         required: true
-        schema: 
+        schema:
           $ref: '#/definitions/PhyConfig'
       responses:
         200:
@@ -49,7 +60,7 @@ paths:
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'  
+            $ref: '#/definitions/ErrorResponse'
 
   /config/phy/modeID:
     put:
@@ -58,7 +69,7 @@ paths:
       - name: body
         in: body
         required: true
-        schema: 
+        schema:
           $ref: '#/definitions/PhyConfigUsingModeID'
       responses:
         200:
@@ -66,12 +77,12 @@ paths:
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'  
+            $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/regId:
     put:
       description: Configure both the unicast and bcast channel plan using Regulatory Domain and Channel Plan ID.
-      parameters: 
+      parameters:
         - name: body
           in: body
           required: true
@@ -83,12 +94,12 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'  
+             $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/regOp:
     put:
       description: Configure both the unicast and bcast channel plan using Regulatory Domain and Operating Class (compatible with FAN 1.0).
-      parameters: 
+      parameters:
         - name: body
           in: body
           required: true
@@ -100,12 +111,12 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'           
+             $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/explicit:
     put:
       description: Configure both the unicast and bcast channel plan using ch0, channel spacing, and number of channels.
-      parameters: 
+      parameters:
         - name: body
           in: body
           required: true
@@ -117,12 +128,12 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'           
+             $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/fixed:
     put:
-      description: Configure both the unicast and bcast channel plan to a single fixed channel. 
-      parameters: 
+      description: Configure both the unicast and bcast channel plan to a single fixed channel.
+      parameters:
         - name: body
           in: body
           required: true
@@ -134,12 +145,12 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'           
+             $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/unicast:
     put:
       description: Configure the unicast channel plan specifics for FFNs. This method may only be issued to an FFN.
-      parameters: 
+      parameters:
         - name: body
           in: body
           required: true
@@ -151,12 +162,12 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'           
+             $ref: '#/definitions/ErrorResponse'
 
   /config/chanPlan/bcast:
     put:
       description: Configure the broadcast channel plan specifics for FFNs. This method may only be issued to a Border Router.
-      parameters: 
+      parameters:
         - name: body
           in: body
           required: true
@@ -168,418 +179,28 @@ paths:
         default:
           description: Unknown error occurred.
           schema:
-             $ref: '#/definitions/ErrorResponse'           
-
-  /config/chanPlan/unicast/lfn:
-    put:
-      description: Configure LFN unicast channel plan details. This method may only be issued to an LFN.
-      parameters: 
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/unicastChanPlanLfn'
-      responses:
-        200:
-          description: Channel plan successfully configured.
-        default:
-          description: Unknown error occurred.
-          schema:
-             $ref: '#/definitions/ErrorResponse'           
-
-  /config/chanPlan/bcast/lfn:
-    put:
-      description: Configure LFN broadcast channel plan details. This method may only be issued to a Border Router.
-      parameters: 
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/bcastChanPlanLfn'
-      responses:
-        200:
-          description: Channel plan successfully configured.
-        default:
-          description: Unknown error occurred.
-          schema:
-             $ref: '#/definitions/ErrorResponse'  
-
-  /config/borderRouter:
-    put:
-      description: Configure Border Router specific settings. This method may only be issued to a Border Router.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          $ref: '#/definitions/BorderRouterConfig'
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        501:
-          description: Optional feature is not supported.
-          schema:
-            $ref: '#/definitions/ErrorResponse'          
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /config/borderRouter/gtks:
-    put:
-      description: Configure Border Router GTKs and/or LGTKs. This method may only be issued to a Border Router.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          $ref: '#/definitions/GroupTransientKeys'
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /config/borderRouter/keyLifetimes:
-    put:
-      description: Configure Border Router key lifetimes. This method may only be issued to a Border Router. If non-default key lifetimes are needed, this call MUST be issued before setting the L/GTKs with /config/borderRouter/gtks.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          $ref: '#/definitions/KeyLifetimes'
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'              
-
-  /config/borderRouter/revokeKeys:
-    put:
-      description: This method may only be issued to a Border Router (supporting the operation described in Step 3 of [FANTPS] section 6.5.2.5 Revocation of Node Access). The Border Router destroys all group keys (GTKs or LGTKs) except the currently active group key, modifies the lifetime of the currently active group key to be (lifetime / REVOCATION_LIFETIME_REDUCTION), and installs the new group key provided by this API method. The GroupTransientKey object indicates the type of group keys (GTK or LGTK) upon which this method acts.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          $ref: '#/definitions/GroupTransientKey'
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse' 
-
-  /config/borderRouter/informationElements:
-    put:
-      description: This method may only be issued to a Border Router. It is used to force addition of one or more Information Elements (beyond those normally populated) into the Border Router's subsequently issued PC frames. This method is primarily intended to test unknown IE handling/content within the mesh. All additions and deletions trigger an increment of PAN Version in the PC and LPC, and reset of its trickle timer.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          type: array
-          items: {
-            $ref: '#/definitions/BorderRouterInformationElement'
-          }
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-    delete:
-      description: This method may only be issued to a Border Router. It is used to delete a set of Information Elements from the Border Router's subsequently issued PC frames. This method is primarily intended to test unknown IE handling/content within the mesh. All additions and deletions trigger an increment of PAN Version in the PC and LPC, and reset of its trickle timer.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          type: array
-          items: {
-            $ref: '#/definitions/BorderRouterInformationElement'
-          }
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /config/borderRouter/joinMetrics:
-    put:
-      description: Configure Border Router join metrics (JM-IE). This method may only be issued to a Border Router. As defined in [FANTPS], any change in the JM-IE contents updates the JM-IE Content Version.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          type: array
-          items: {
-            $ref: '#/definitions/BorderRouterJoinMetric'
-          }
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'              
-
-    delete:
-      description: Remove join metrics from the Border Router JM-IE.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          type: array
-          items: {
-            $ref: '#/definitions/BorderRouterJoinMetric'
-          }
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /config/borderRouter/externalResources:
-    put:
-      description: Configure a Border Router's required external services. This method may only be issued to a Border Router.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/BorderRouterExternalResources'
-      responses:
-        200:
-          description: Border Router successfully configured.
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-
-  /command/borderRouter/rpl/incrementDodagVersion:
-    post:
-      description: Increment the RPL DODAG Version Number.
-      responses:
-        200:
-          description: RPL DODAG Version Number incremented successfully
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /command/borderRouter/rpl/incrementDtsn:
-    post:
-      description: Increment the border router's RPL DTSN.
-      responses:
-        200:
-          description: RPL DTSN incremented successfully
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-
-  /command/nd/requestRegistrationRefresh:
-    post:
-      description: Force a device to execute the Registration Refresh Request procedure. The FFN will issue an unsolicited NA(EARO) with status value 11 (RFC 8505).
-      responses:
-        200:
-          description: Device will send a Neighbor Advertisement.
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-
-  /config/router:
-    put:
-      description: Configure Router specific settings. This method may be issued to any Router node (including Border Routers).
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema: 
-          $ref: '#/definitions/RouterConfig'
-      responses:
-        200:
-          description: Router successfully configured.
-        400:
-          description: Node is not a Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /command/router/ndEnableNS:
-    put:
-      description: Option for enabling/disabling the transmission of Neighbor Solicitation frames from a router.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/NDEnableNeighborSolicitations'
-      responses:
-        200:
-          description: Neighbor Solicitation enable successfully configured.
-        400:
-          description: Node is not a Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        401:
-          description: Invalid parameter.
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'
+             $ref: '#/definitions/ErrorResponse'
 
   /config/whitelist:
     put:
-      description: Configure a node's whitelist. When a node is configured with a non-empty whitelist, only frames received from EUI64 addresses within the whitelist are passed up to the MAC layer for processing. If an empty whitelist is configured, the node's whitelist is disabled.
+      description: Configure a device's whitelist. When a device is configured with a non-empty whitelist, only frames received from EUI64 addresses within the whitelist are passed up to the MAC layer for processing. If an empty whitelist is configured, the device's whitelist is disabled.
       parameters:
       - name: body
         in: body
         required: true
-        schema: 
+        schema:
           $ref: '#/definitions/MacAddresses'
       responses:
         200:
-          description: Router successfully configured.
+          description: Device successfully configured.
         default:
           description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-  /subscription/frames:
-    put:
-      description: Forward MAC frames to a specified destination (subscribe to a frame stream).
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/FrameSubscription'
-      responses:
-        200:
-          description: Listener successfully subscribed.
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'  
-
-
-  /subscription/frames/hash:
-    get:
-      description: Get current value of the subscription session hash. Support for this method is OPTIONAL. It was added to detect errors in TBC subscribed frame reception. Likely not needed for FAN 1.1.
-      responses:
-        200:
-          description: The current value of the subscription session SHA256 hash (encoded as hex ASCII ... 64 digits).
-          schema:
-            type: string
-            example: "2C43C95D0F764AAEA9A7CE3CAA48803725A887F48CB3472B7087B0BA8ED98805"
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse' 
-
-  /transmitter/udp:
-    put:
-      description: Transmit a UDP datagram.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/UDPDatagram'
-      responses:
-        200:
-          description: UDP datagram successfully transmitted.
-        default:
-          description: Unknown error occurred.
-          schema:
-            $ref: '#/definitions/ErrorResponse'               
-
-  /transmitter/icmpv6Echo:
-    put:
-      description: Transmit an ICMPv6 Echo message.
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/ICMPv6Echo'
-      responses:
-        200:
-          description: ICMPv6 Echo message successfully transmitted.
-        default:
-          description: Unknown error occurred.
           schema:
             $ref: '#/definitions/ErrorResponse'
 
   /config/ipAddresses:
     get:
-      description: Returns all unicast IPv6 addresses configured on the node's FAN interface (LL, ULA, GUA). 
+      description: Returns all unicast IPv6 addresses configured on the device's FAN interface (LL, ULA, GUA).
       responses:
         200:
           description: Unicast IPv6 addresses configured. IPv6 address strings are formatted per RFC 5952.
@@ -591,24 +212,24 @@ paths:
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'            
+            $ref: '#/definitions/ErrorResponse'
 
   /config/securityKeys:
     get:
-      description: Return the security keys populated on the node.
+      description: Return the security keys populated on the device.
       responses:
         200:
-          description: The security keys populated on the node.
+          description: The security keys populated on the device.
           schema:
             $ref: '#/definitions/GroupTransientKeys'
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'  
+            $ref: '#/definitions/ErrorResponse'
 
   /config/dodagRoutes:
     get:
-      description: Return the DODAG downward routes populated on a Border Router (indicating nodes joined to the mesh). This method may only be issued to a Border Router.
+      description: Return the DODAG downward routes populated on a Border Router (indicating devices joined to the mesh). This method may only be issued to a Border Router.
       responses:
         200:
           description: The downward routes populated on a Border Router.
@@ -618,37 +239,13 @@ paths:
               $ref: '#/definitions/DodagRouteEntry'
             }
         400:
-          description: Node is not a Border Router.
+          description: Device is not a Border Router.
           schema:
-            $ref: '#/definitions/ErrorResponse'            
+            $ref: '#/definitions/ErrorResponse'
         default:
           description: Unknown error occurred
           schema:
-            $ref: '#/definitions/ErrorResponse'              
-
-  /config/preferredParent:
-    get:
-      description: Return the preferred parent of a specific FAN node. This method may only be issued to a Border Router.
-      parameters:
-        - in: query
-          name: ipAddress
-          type: string
-          required: true
-          description: The IPv6 address of the node to be queried for its preferred parent, formatted per RFC 5952.
-      responses:
-        200:
-          description: The IPv6 address of the preferred parent, formatted per RFC 5952.
-          schema:
-            type: string
-            example: "FF02::1"
-        400:
-          description: Node is not a Border Router.
-          schema:
-            $ref: '#/definitions/ErrorResponse'            
-        default:
-          description: Unknown error occurred
-          schema:
-            $ref: '#/definitions/ErrorResponse'              
+            $ref: '#/definitions/ErrorResponse'
 
   /config/neighborTable:
     get:
@@ -666,12 +263,536 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /config/preferredParent:
+    get:
+      description: Return the preferred parent of a specific FAN device. This method may only be issued to a Border Router.
+      parameters:
+        - in: query
+          name: ipAddress
+          type: string
+          required: true
+          description: The IPv6 address of the device to be queried for its preferred parent, formatted per RFC 5952.
+      responses:
+        200:
+          description: The IPv6 address of the preferred parent, formatted per RFC 5952.
+          schema:
+            type: string
+            example: "FF02::1"
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter:
+    put:
+      description: Configure Border Router specific settings. This method may only be issued to a Border Router.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/BorderRouterConfig'
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        501:
+          description: Optional feature is not supported.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/gtks:
+    put:
+      description: Configure Border Router GTKs and/or LGTKs. This method may only be issued to a Border Router.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/GroupTransientKeys'
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/keyLifetimes:
+    put:
+      description: Configure Border Router key lifetimes. This method may only be issued to a Border Router. If non-default key lifetimes are needed, this call MUST be issued before setting the L/GTKs with /config/borderRouter/gtks.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/KeyLifetimes'
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/revokeKeys:
+    put:
+      description: This method may only be issued to a Border Router (supporting the operation described in Step 3 of [FANTPS] section 6.5.2.5 Revocation of Node Access). The Border Router destroys all group keys (GTKs or LGTKs) except the currently active group key, modifies the lifetime of the currently active group key to be (lifetime / REVOCATION_LIFETIME_REDUCTION), and installs the new group key provided by this API method. The GroupTransientKey object indicates the type of group keys (GTK or LGTK) upon which this method acts.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/GroupTransientKey'
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/informationElements:
+    put:
+      description: This method may only be issued to a Border Router. It is used to force addition of one or more Information Elements (beyond those normally populated) into the Border Router's subsequently issued PC frames. This method is primarily intended to test unknown IE handling/content within the mesh. All additions and deletions trigger an increment of PAN Version in the PC and LPC, and reset of its trickle timer.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items: {
+            $ref: '#/definitions/BorderRouterInformationElement'
+          }
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+    delete:
+      description: This method may only be issued to a Border Router. It is used to delete a set of Information Elements from the Border Router's subsequently issued PC frames. This method is primarily intended to test unknown IE handling/content within the mesh. All additions and deletions trigger an increment of PAN Version in the PC and LPC, and reset of its trickle timer.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items: {
+            $ref: '#/definitions/BorderRouterInformationElement'
+          }
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/joinMetrics:
+    put:
+      description: Configure Border Router join metrics (JM-IE). This method may only be issued to a Border Router. As defined in [FANTPS], any change in the JM-IE contents updates the JM-IE Content Version.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items: {
+            $ref: '#/definitions/BorderRouterJoinMetric'
+          }
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+    delete:
+      description: Remove join metrics from the Border Router JM-IE.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items: {
+            $ref: '#/definitions/BorderRouterJoinMetric'
+          }
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/borderRouter/externalResources:
+    put:
+      description: Configure a Border Router's required external services. This method may only be issued to a Border Router.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/BorderRouterExternalResources'
+      responses:
+        200:
+          description: Border Router successfully configured.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/router:
+    put:
+      description: Configure Router specific settings. This method may be issued to any Router device (including Border Routers).
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/RouterConfig'
+      responses:
+        200:
+          description: Router successfully configured.
+        400:
+          description: Device is not a Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/lfn:
+    put:
+      description: Configure LFN specific settings. This method may only be issued to an LFN.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/LfnConfig'
+      responses:
+        200:
+          description: LFN successfully configured.
+        400:
+          description: Device is not an LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  # Previously: /config/chanPlan/unicast/lfn
+  /config/lfn/chanPlan/unicast:
+    put:
+      description: Configure LFN unicast channel plan details. This method may only be issued to an LFN.
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/unicastChanPlanLfn'
+      responses:
+        200:
+          description: Channel plan successfully configured.
+        400:
+          description: Device is not an LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+             $ref: '#/definitions/ErrorResponse'
+
+  # Previously: /config/chanPlan/bcast/lfn
+  /config/lfn/chanPlan/bcast:
+    put:
+      description: Configure LFN broadcast channel plan details. This method may only be issued to a Border Router.
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/bcastChanPlanLfn'
+      responses:
+        200:
+          description: Channel plan successfully configured.
+        400:
+          description: Device is not an LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+             $ref: '#/definitions/ErrorResponse'
+
+################################################################################
+# Command Endpoints
+################################################################################
+
+  /command/nd/enableNS:
+    put:
+      description: Option for enabling/disabling the transmission of Neighbor Solicitation frames from an FFN router or LFN.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/NDEnableNeighborSolicitations'
+      responses:
+        200:
+          description: Neighbor Solicitation enable successfully configured.
+        400:
+          description: Device is not a Router or LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Invalid parameter.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/nd/requestRegistrationRefresh:
+    post:
+      description: Request a device to execute the Registration Refresh Request procedure described in TPS section 6.2.3.1.4.1.
+      responses:
+        200:
+          description: Device will send a Neighbor Advertisement.
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/borderRouter/rpl/incrementDodagVersion:
+    post:
+      description: Increment the RPL DODAG Version Number.
+      responses:
+        200:
+          description: RPL DODAG Version Number incremented successfully
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/borderRouter/rpl/incrementDtsn:
+    post:
+      description: Increment the border router's RPL DTSN.
+      responses:
+        200:
+          description: RPL DTSN incremented successfully
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/lfn/deregisterFromParent:
+    put:
+      description: Request an LFN to deregister from its parent, following the process described in [FANTPS] Section 6.2.3.1.4.2
+      responses:
+        200:
+          description: Device will send a deregistration request.
+        400:
+          description: Device is not an LFN.
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/lfn/joinMCGroup:
+    post:
+      description: Request an LFN to join a multicast group, following the process described in [FANTPS] section 6.2.3.1.4.3.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/MulticastGroup'
+      responses:
+        200:
+          description: Device will initiate multicast group enrollment.
+        400:
+          description: Device is not an LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/lfn/leaveMCGroup:
+    post:
+      description: Request an LFN to leave a multicast group, following the process described in [FANTPS] section 6.2.3.1.4.3.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/MulticastGroup'
+      responses:
+        200:
+          description: Device will initiate multicast group resignation.
+        400:
+          description: Device is not an LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+################################################################################
+# Frame Subscription Endpoints
+################################################################################
+
+  /subscription/frames:
+    put:
+      description: Forward MAC frames to a specified destination (subscribe to a frame stream).
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/FrameSubscription'
+      responses:
+        200:
+          description: Listener successfully subscribed.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+
+  /subscription/frames/hash:
+    get:
+      description: Get current value of the subscription session hash. Support for this method is OPTIONAL. It was added to detect errors in TBC subscribed frame reception. Likely not needed for FAN 1.1.
+      responses:
+        200:
+          description: The current value of the subscription session SHA256 hash (encoded as hex ASCII ... 64 digits).
+          schema:
+            type: string
+            example: "2C43C95D0F764AAEA9A7CE3CAA48803725A887F48CB3472B7087B0BA8ED98805"
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+################################################################################
+# Transmit Endpoints
+################################################################################
+
+  /transmitter/udp:
+    put:
+      description: Transmit a UDP datagram.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/UDPDatagram'
+      responses:
+        200:
+          description: UDP datagram successfully transmitted.
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /transmitter/icmpv6Echo:
+    put:
+      description: Transmit an ICMPv6 Echo message.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ICMPv6Echo'
+      responses:
+        200:
+          description: ICMPv6 Echo message successfully transmitted.
+        410:
+          description: Requested a mode switch, but didn't provide a PhyModeID.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        420:
+          description: Sending an LTO-IE requires both an adjustedListeningOffset and an adjustedListeningInterval, with at least one being non-zero.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+################################################################################
+# Miscellaneous Endpoints
+################################################################################
+
   /capabilities/phy/{eui64}:
     get:
-      description: Return the PHY capabilites of the node indicated by the EUI64. When the EUI64 parameter is that of the serving node, the serving node's capabilities are returned. Otherwise, the capabilities of the neighbor indicated by the EUI64 are returned.
+      description: Return the PHY capabilites of the device indicated by the EUI64. When the EUI64 parameter is that of the serving device, the serving device's capabilities are returned. Otherwise, the capabilities of the neighbor indicated by the EUI64 are returned.
       parameters:
       - name: eui64
-        description: The EUI64 of the node for which capabilities are requested.
+        description: The EUI64 of the device for which capabilities are requested.
         in: path
         required: true
         type: string
@@ -685,7 +806,12 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+################################################################################
+# Data Models
+################################################################################
+
 definitions:
+
   ErrorResponse:
     type: object
     description: API error return code and return code description.
@@ -694,7 +820,7 @@ definitions:
     - message
     properties:
       code:
-        description: Error code. 0 = unknown error, 1 = both a channel exclusion mask and range were specified, 2 = illegal run mode, 3 = node is not a border router, 4 = node is not a router, 5 = optional feature is not supported.
+        description: Error code. 0 = unknown error, 1 = both a channel exclusion mask and range were specified, 2 = illegal run mode, 3 = device is not a border router, 4 = device is not a router, 5 = optional feature is not supported.
         type: integer
         format: int32
         enum: [0, 1, 2, 3, 4, 5]
@@ -705,7 +831,7 @@ definitions:
 
   PhyConfig:
     type: object
-    description: The PHY configuration of a FAN node.
+    description: The PHY configuration of a FAN device.
     required:
       - modulation
       - symbolRate
@@ -724,15 +850,14 @@ definitions:
         type: integer
         enum: [0, 1]
 
-
   PhyConfigUsingModeID:
     type: object
-    description: The PHY configuration of a FAN node (using a mode ID).
+    description: The PHY configuration of a FAN device (using a mode ID).
     required:
       - basePhyModeID
     properties:
       basePhyModeID:
-        description: The base operating mode which MUST be set to a PhyModeID value defined in 
+        description: The base operating mode which MUST be set to a PhyModeID value defined in
           section 5.2 of [PHYTPS].
         type: integer
 
@@ -785,7 +910,7 @@ definitions:
   chanPlanFixed:
     type: object
     description: Set a fixed channel plan.
-    required: 
+    required:
     - chanNumber
     properties:
       chanNumber:
@@ -854,6 +979,7 @@ definitions:
           type: integer
         }
 
+  # Note: Breaks from OpenAPI TitleCase style guide to confirm to existing.
   unicastChanPlanLfn:
     type: object
     description: Unicast channel plan specification for FFNs.
@@ -861,10 +987,10 @@ definitions:
     - listenInterval
     - channelFunction
     - excludedChannelRange
-    - excludedChannelMask    
+    - excludedChannelMask
     properties:
       listenInterval:
-        description: Set as specified in [FANTPS] LUS-IE description.
+        description: Set as specified in [FANTPS] LUS-IE description; used for the default unicast listen interval.
         type: integer
       channelFunction:
         description: Set as specified in [FANTPS] LCP-IE description.
@@ -881,7 +1007,11 @@ definitions:
         items: {
           type: integer
         }
+      eapolListenInterval:
+        description: An optional, shorter interval used during the EAPOL exchange. When present, to be used for the unicast listen interval during EAPOL transactions. The LFN must change its listen interval to this value  with an LUS-IE in the first EAPOL frame and switch back to the lfnInterval with an LUS-IE in the LPCS frame after the EAPOL transaction.
+        type: integer
 
+  # Note: Breaks from OpenAPI TitleCase style guide to confirm to existing.
   bcastChanPlanLfn:
     type: object
     description: Broadcast channel plan specification for LFNs.
@@ -920,7 +1050,7 @@ definitions:
         type: string
       lgtk2:
         description: LFN Group Transient Key 2
-        type: string      
+        type: string
 
   GroupTransientKey:
     type: object
@@ -959,7 +1089,7 @@ definitions:
         type: string
       lfnPtkLifetime:
         description: PTK lifetime (minutes) for LFNs.
-        type: string              
+        type: string
       lgtkLifetime:
         description: LGTK lifetime (minutes) for all LGTKs.
         type: string
@@ -968,12 +1098,12 @@ definitions:
         type: integer
       lgtkRevocationLifetimeReduction:
         description: Factor by which the active LGTK lifetime is reduced during node revocation procedures. Reduced lifetime is calculated as (1/lgtkRevocationLifetimeReduction) * original lifetime.
-        type: integer        
+        type: integer
 
   BorderRouterConfig:
     type: object
     description: Several Border Router "administrative" settings.
-    required: 
+    required:
       - panId
       - panSize
       - useParentBcastSched
@@ -988,7 +1118,7 @@ definitions:
         type: integer
       useParentBcastSched:
         description: Set as specified in TPS PAN-IE description.
-        type: boolean        
+        type: boolean
       routingMethod:
         description: Set as specified in [FANTPS] PAN-IE description.
         type: integer
@@ -997,7 +1127,7 @@ definitions:
         type: string
       sixLowpanMtu:
         description: The 6LoWPAN MTU to be used by this router.
-        type: integer        
+        type: integer
       lfnJoinEnabled:
         description: True if LFN joins to the PAN are allowed, False otherwise.
         default: false
@@ -1017,7 +1147,7 @@ definitions:
       - authServerSecret
       - dhcpServerAddress
     properties:
-      authServerAddress: 
+      authServerAddress:
         description: The IPv6 address of the Authentication server to be used by the Border Router, formatted per RFC 5952.
         type: string
       authServerSecret:
@@ -1025,7 +1155,7 @@ definitions:
         type: string
       dhcpServerAddress:
         description: The IPv6 address of the DHCPv6 server to be used by the Border Router, formatted per RFC 5952.
-        type: string        
+        type: string
 
   RouterConfig:
     type: object
@@ -1043,10 +1173,10 @@ definitions:
         description: Set as specified in the [FANTPS] NETNAME-IE description.
         type: string
       panSizeOffset:
-        description: An offset to be added to the Pan Size advertised by this node.
+        description: An offset to be added to the Pan Size advertised by this device.
         type: integer
       routingCostOffset:
-        description: An offset to be added to the Routing Cost advertised by this node.
+        description: An offset to be added to the Routing Cost advertised by this device.
         type: integer
       sixLowpanMtu:
         description: The 6LoWPAN MTU to be used by this router.
@@ -1058,7 +1188,7 @@ definitions:
         description: Maximum time between a SUP detecting a LGTKHASH mismatch and the SUP initiating Msg1 of the authentication flow (causing the BR to initiate a Group Key handshake with the SUP).
         type: integer
       ndAddressRegistrationLifetime:
-        description: 16-bit unsigned integer. The amount of time in units of 60 seconds that the router should retain the NCE for the sender of the NS that includes this option. [RFC 6775 Section 4.1]
+        description: 16-bit unsigned integer. The lifetime, in units of 60 seconds, of the router's address registration. [RFC 8505] and [RFC 9010]
         type: integer
         default: 40
       lfnJoinEnabled:
@@ -1072,11 +1202,37 @@ definitions:
         maximum: 3
         default: 3
 
+  LfnConfig:
+    type: object
+    description: LFN specific settings.
+    required:
+      - routingMethod
+      - networkName
+      - sixLowpanMtu
+      - lgtkMaxMismatch
+    properties:
+      routingMethod:
+        description: Set as specified in the [FANTPS] PAN-IE description.
+        type: integer
+      networkName:
+        description: Set as specified in the [FANTPS] NETNAME-IE description.
+        type: string
+      sixLowpanMtu:
+        description: The 6LoWPAN MTU to be used by this LFN.
+        type: integer
+      lgtkMaxMismatch:
+        description: Maximum time between a SUP detecting a LGTKHASH mismatch and the SUP initiating Msg1 of the authentication flow (causing the BR to initiate a Group Key handshake with the SUP).
+        type: integer
+      ndAddressRegistrationLifetime:
+        description: 16-bit unsigned integer. The lifetime, in units of 60 seconds, of the LFN's GUA/ULA and multicast group address registrations. [RFC 6775 Section 4.1]
+        type: integer
+        default: 2160
+
   NDEnableNeighborSolicitations:
     type: object
     description: Enable or disable NS frame emission for IPv6 Neighbor Discovery
     required:
-      - enableNeighborSolicitations  
+      - enableNeighborSolicitations
     properties:
       enableNeighborSolicitations:
         description: Whether or not to enable Neighbor Solicitation (NS) frames. Default is enabled.
@@ -1090,7 +1246,7 @@ definitions:
     - macAddressList
     properties:
       macAddressList:
-        description: An array of EUI64 addresses. 
+        description: An array of EUI64 addresses.
         type: array
         items:
           type: string
@@ -1100,49 +1256,49 @@ definitions:
     description: A DODAG downward route.
     properties:
       route:
-        description: The ULA/GUA of the downward route to the node.
+        description: The ULA/GUA of the downward route to the device.
         type : string
 
   NeighborTableEntry:
     type: object
-    description: A Neighbor Table Entry. There will be an entry per neighbor.
+    description: A Neighbor Table Entry. There will be one entry per neighbor. For entries that refer to an LFN, fields that are not applicable to LFNs (e.g., etx, rsl, panSize, routingCost) MUST be set to zero.
     required:
-    - eui64
-    - etx
-    - rsl
-    - rssi
-    - panSize
-    - routingCost
-    - ipAddresses
-    - timeSinceLastRx
-    - isParentStatus
+      - eui64
+      - etx
+      - rsl
+      - rssi
+      - panSize
+      - routingCost
+      - ipAddresses
+      - timeSinceLastRx
+      - isParentStatus
     properties:
       eui64:
-        description: The EUI64 of the neighbor node.
+        description: The EUI64 of the neighbor device.
         type: string
       etx:
-        description: ETX EWMA of the neighbor node.
+        description: ETX EWMA of the neighbor device.
         type: integer
       rsl:
-        description: RSL EWMA of the neighbor node.
+        description: RSL EWMA of the neighbor device.
         type: integer
       rssi:
-        description: Raw RSSI for the neighbor node.
+        description: Raw RSSI for the neighbor device.
         type: integer
       panSize:
-        description: The node's reported PAN size.
+        description: The device's reported PAN size.
         type: integer
       routingCost:
-        description: The node's reported routing cost.
+        description: The device's reported routing cost.
         type: integer
       ipAddresses:
-        description: The IP addresses of the neighbor node. IPv6 address strings are formatted per RFC 5952.
+        description: The IP addresses of the neighbor device. IPv6 address strings are formatted per RFC 5952.
         type: array
         items:
           type: string
           example: "FF02::1"
       timeSinceLastRx:
-        description: msec since last Rx from the neighbor node.
+        description: msec since last Rx from the neighbor device.
         type: integer
         format: integer32
       isParentStatus:
@@ -1152,10 +1308,10 @@ definitions:
 
   PhyCapabilities:
     type: object
-    description: The PHY capabilities of a node (modeled after POM-IE)
+    description: The PHY capabilities of a device (modeled after POM-IE)
     properties:
       mdrCmdCapable:
-        description: MUST be set to true if the node implements the MDR Command capability, otherwise false.
+        description: MUST be set to true if the device implements the MDR Command capability, otherwise false.
         type: boolean
       phyOpModes:
         description: The list of PHY Operating modes supported by the device. Each entry in the array MUST be a PhyModeID value defined in section 5.2 of [PHYTPS]
@@ -1167,14 +1323,14 @@ definitions:
 
   FrameSubscription:
     type: object
-    description: A subscription to configure a FAN node to echo received MAC frames to a designated UDP listener's IP address / port number. The PCAP Next Generation (pcapng) Capture File Format (draft-tuexen-opsawg-pcapng) MUST be used to encapsulate forwarded frames, with the blocks sent as the data portion of a UDP datagram. When the subscription starts, the TBU MUST send a Section Header Block followed by an Interface Description Block indicating a LinkType of LINKTYPE_IEEE802_15_4_NOFCS (230). Forwarded frames MUST be provided in Enhanced Packet Blocks. Only frames that are received by the node, have a valid FCS, have passed security, and are passed to upper layer are forwarded. Further, forwarded frames MUST be unencrypted, and MUST have the Auxiliary Security Header / Security Level field set to None (0).
+    description: A subscription to configure a FAN device to echo received MAC frames to a designated UDP listener's IP address / port number. The PCAP Next Generation (pcapng) Capture File Format (draft-tuexen-opsawg-pcapng) MUST be used to encapsulate forwarded frames, with the blocks sent as the data portion of a UDP datagram. When the subscription starts, the TBU MUST send a Section Header Block followed by an Interface Description Block indicating a LinkType of LINKTYPE_IEEE802_15_4_NOFCS (230). Forwarded frames MUST be provided in Enhanced Packet Blocks. Only frames that are received by the device, have a valid FCS, have passed security, and are passed to upper layer are forwarded. Further, forwarded frames MUST be unencrypted, and MUST have the Auxiliary Security Header / Security Level field set to None (0).
     required:
     - subscriptionMode
     - fwdAddress
     - fwdPort
     properties:
-      subscriptionMode: 
-        description: The listener starts or stops a frame subscription/forwarding. Start means start forwarding frames and Stop means cease forwarding frames. If the node implements  /subscription/frames/hash, the node MUST maintain a SHA256 hash of all PCAPNG data forwarded between the acceptance of Start and Stop (inclusive), with this hash initialized to 0 upon reception of Start.
+      subscriptionMode:
+        description: The listener starts or stops a frame subscription/forwarding. Start means start forwarding frames and Stop means cease forwarding frames. If the device implements /subscription/frames/hash, the device MUST maintain a SHA256 hash of all PCAPNG data forwarded between the acceptance of Start and Stop (inclusive), with this hash initialized to 0 upon reception of Start.
         type: string
         enum: [ Start, Stop ]
       fwdAddress:
@@ -1187,7 +1343,7 @@ definitions:
   UDPDatagram:
     type: object
     description: A UDP datagram to be sent from/to a specified source/destination address and port.
-    required: 
+    required:
     - srcAddress
     - srcPort
     - destAddress
@@ -1196,7 +1352,7 @@ definitions:
     - frameExchangePattern
     properties:
       srcAddress:
-        description: The source address to be used by the sender. Must be one of the LL, ULA, GUA, or mcast addresses configured on the node. IPv6 address strings are formatted per RFC 5952.
+        description: The source address to be used by the sender. Must be one of the LL, ULA, GUA, or mcast addresses configured on the device. IPv6 address strings are formatted per RFC 5952.
         type: string
       srcPort:
         description: The port from which the datagram will be sent.
@@ -1218,17 +1374,17 @@ definitions:
   ICMPv6Echo:
     type: object
     description: An ICMPv6Echo message to be sent from/to a specified source/destination address. NOTE The response to this command should not wait for the Echo response. modeSwitch and phyModeID properties are optional FAN 1.1 additions.
-    required: 
-    - srcAddress
-    - destAddress
-    - hopLimit
-    - echoBody
-    - frameExchangePattern
-    - identifier
-    - sequenceNumber
+    required:
+      - srcAddress
+      - destAddress
+      - hopLimit
+      - echoBody
+      - frameExchangePattern
+      - identifier
+      - sequenceNumber
     properties:
       srcAddress:
-        description: The source address to be used by the sender. Must be one of the LL, ULA, GUA, or mcast addresses configured on the node. IPv6 address strings are formatted per RFC 5952.
+        description: The source address to be used by the sender. Must be one of the LL, ULA, GUA, or mcast addresses configured on the device. IPv6 address strings are formatted per RFC 5952.
         type: string
       destAddress:
         description: The destination address to which the ICMPv6Echo message will be sent. IPv6 address strings are formatted per RFC 5952.
@@ -1257,13 +1413,19 @@ definitions:
         description: 0 == do not attempt mode switch. 1 == the transmitter MUST attempt PHY mode switch. 2 == the transmitter MUST attempt MAC Command mode switch.
         type: integer
       phyModeID:
-        description: The PhyModeID to which the node will attempt to switch. This value MUST be set to a PhyModeID value defined in section 5.2 of [PHYTPS].
+        description: The PhyModeID to which the device will attempt to switch. This value MUST be set to a PhyModeID value defined in section 5.2 of [PHYTPS].
+        type: integer
+      adjustedListeningOffset:
+        description: The adjusted listening offset in milliseconds to send in an LTO-IE to an LFN destination.
+        type: integer
+      adjustedListeningInterval:
+        description: The adjusted listening interval in milliseconds to send in an LTO-IE to an LFN destination.
         type: integer
 
   BorderRouterInformationElement:
     type: object
     description: Information element to be included within Border Router PC frame. Content field is omitted when the object is used with the DELETE method.
-    required: 
+    required:
     - format
     - subID
     properties:
@@ -1271,7 +1433,7 @@ definitions:
         description: 0 == header IE, 1 == short payload IE, 2 == long payload IE.
         type: integer
       subID:
-        description: Set to WH-IE subID or WP-IE first nested subID (only one nested payload sub IE is supported). 
+        description: Set to WH-IE subID or WP-IE first nested subID (only one nested payload sub IE is supported).
         type: integer
       content:
         description: Arbitrary payload for the subID. Encoded as HEX string.
@@ -1281,7 +1443,7 @@ definitions:
   BorderRouterJoinMetric:
     type: object
     description: A Join Metric as used within the Join Metrics IE described in [FANTPS].
-    required: 
+    required:
       - metricId
     properties:
       metricId:
@@ -1293,15 +1455,15 @@ definitions:
       metricData:
         description: Set as specified in [FANTPS] JM-IE description. Encoded as HEX string.
         type: string
-        example: "000102030405060708090A0B0C0D0E0F"      
+        example: "000102030405060708090A0B0C0D0E0F"
 
-# Added by API Auto Mocking Plugin
-# host: localhost:8080
-# basePath: /Wi-SUN/TBU/0.1.0
-# Added by API Auto Mocking Plugin
-#host: virtserver.swaggerhub.com
-basePath: /Wi-SUN/TBU/1.1.12
-schemes:
- - https
- - http
+  MulticastGroup:
+    type: object
+    description: A multicast group to be joined or left.
+    required:
+      - multicastAddress
+    properties:
+      multicastAddress:
+        description: The multicast address to be joined or left. IPv6 address strings are formatted per RFC 5952.
+        type: string
 
