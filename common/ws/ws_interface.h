@@ -104,6 +104,7 @@ struct ws_ctx {
     uint8_t  handle_next;
     struct ws_frame_ctx_list frame_ctx_list;
     struct eui64 edfe_src;
+    int     eapol_relay_fd;
     uint8_t gak_index;
 
     void (*on_recv_ind)(struct ws_ctx *ws, struct ws_ind *ind);

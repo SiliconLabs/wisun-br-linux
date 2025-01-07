@@ -21,6 +21,7 @@
 #include "app_wsrd/supplicant/supplicant.h"
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_radius.h"
+#include "common/ws/eapol_relay.h"
 #include "common/commandline.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
@@ -321,7 +322,8 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     FATAL_ON(ctx->supp_fd < 0, 2, "socket: %m");
     auth_addr.sin6_family = AF_INET6;
     auth_addr.sin6_addr = in6addr_loopback;
-    auth_addr.sin6_port = htons(10253);
+    // Use EAPoL relay port for Wireshark dissection
+    auth_addr.sin6_port = htons(EAPOL_RELAY_PORT);
     ret = bind(ctx->auth_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
     FATAL_ON(ret < 0, 2, "bind: %m");
 

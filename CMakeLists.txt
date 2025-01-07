@@ -318,6 +318,7 @@ if(COMPILE_WSRD)
         common/crypto/tls.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
+        common/ws/eapol_relay.c
         common/ws/ws_chan_mask.c
         common/ws/ws_ie_validation.c
         common/ws/ws_ie.c
