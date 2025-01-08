@@ -19,6 +19,7 @@
 #include "common/eap.h"
 #include "common/eapol.h"
 #include "common/iobuf.h"
+#include "common/bits.h"
 #include "common/log.h"
 
 #include "authenticator_eap.h"
@@ -74,11 +75,64 @@ void auth_eap_send_failure(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     pktbuf_free(&pktbuf);
 }
 
+static void auth_eap_send_tls(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
+{
+    struct pktbuf pktbuf = { };
+
+    pktbuf_push_tail(&pktbuf, buf, buf_len);
+    eap_write_hdr_head(&pktbuf, EAP_CODE_REQUEST, supp->eap_id + 1, EAP_TYPE_TLS);
+    auth_eap_send(auth, supp, &pktbuf);
+    pktbuf_free(&pktbuf);
+}
+
+static void auth_eap_send_tls_start(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    uint8_t flags = FIELD_PREP(EAP_TLS_FLAGS_START_MASK, 1);
+
+    auth_eap_send_tls(auth, supp, &flags, sizeof(flags));
+}
+
+static void auth_eap_recv_resp_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
+{
+    TRACE(TR_SECURITY, "sec: identity=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
+
+    /*
+     *   RFC5216 - 2.1.1. Base Case
+     * The EAP-TLS conversation will then begin, with the peer sending an
+     * EAP-Response packet with EAP-Type=EAP-TLS.
+     */
+    auth_eap_send_tls_start(auth, supp);
+}
+
+static void auth_eap_recv_resp(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
+{
+    uint8_t type = iobuf_pop_u8(iobuf);
+
+    if (iobuf->err) {
+        TRACE(TR_DROP, "drop %-9s: invalid eap response", "eap");
+        return;
+    }
+
+    switch (type) {
+    case EAP_TYPE_IDENTITY:
+        auth_eap_recv_resp_identity(auth, supp, iobuf);
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported type", "eap");
+        break;
+    }
+}
+
 void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
 {
+    struct iobuf_read iobuf = {
+        .data      = buf,
+        .data_size = buf_len,
+    };
     const struct eap_hdr *eap;
 
-    if (buf_len < sizeof(*eap)) {
+    eap = iobuf_pop_data_ptr(&iobuf, sizeof(struct eap_hdr));
+    if (!eap) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "eap");
         return;
     }
@@ -93,8 +147,14 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
     timer_stop(&auth->timer_group, &supp->rt_timer);
 
     if (auth->radius_fd >= 0)
-        radius_send_eap(auth, supp, buf, buf_len);
-    else
-        // TODO: internal EAP-TLS implementation without RADIUS
-        TRACE(TR_DROP, "drop %-9s: support disabled", "eap");
+        return radius_send_eap(auth, supp, buf, buf_len);
+
+    switch (eap->code) {
+    case EAP_CODE_RESPONSE:
+        auth_eap_recv_resp(auth, supp, &iobuf);
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported eap code %d", "eap", eap->code);
+        break;
+    }
 }
