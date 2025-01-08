@@ -109,3 +109,8 @@ extern "C" void __wrap_exit(int status)
     ns3::FatalImpl::FlushStreams();
     std::terminate();
 }
+
+extern "C" void __wrap_auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    // ignore request instead of FATAL()
+}

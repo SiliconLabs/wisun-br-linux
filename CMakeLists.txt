@@ -627,6 +627,7 @@ if(COMPILE_DEVTOOLS)
             -Wl,--wrap=signal
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
+            -Wl,--wrap=auth_eap_send_request_identity
         )
         install(TARGETS dc-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
