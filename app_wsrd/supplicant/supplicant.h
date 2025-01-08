@@ -75,11 +75,11 @@ struct supp_ctx {
 
     // 4WH and 2WH
     struct ws_gtk gtks[7];
-    uint8_t authenticator_eui64[8];
-    int64_t replay_counter;
-    uint8_t anonce[32];
-    uint8_t snonce[32];
-    uint8_t pmk[32]; // stored in cleartext in RAM
+    uint8_t  authenticator_eui64[8];
+    uint64_t replay_counter;
+    uint8_t  anonce[32];
+    uint8_t  snonce[32];
+    uint8_t  pmk[32]; // stored in cleartext in RAM
 
     /*
      * +-----------------------------------------------------------+

@@ -458,8 +458,16 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
      * The Supplicant should also use the key replay counter and ignore
      * EAPOL-Key frames with a Key Replay Counter field value smaller than or
      * equal to any received in a valid message.
+     *
+     * Note: we always accept frames if our current replay counter is 0.
+     * The replay counter is set to 0 after the PMK is established.
+     * The replay counter is updated only when a frame with a valid MIC is
+     * received.
+     *
+     * Therefore, we will always accept replayed 4WH msg 1 after the PMK is
+     * established.
      */
-    if (supp->replay_counter != -1 && be64toh(frame->replay_counter) <= supp->replay_counter) {
+    if (supp->replay_counter && be64toh(frame->replay_counter) <= supp->replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }

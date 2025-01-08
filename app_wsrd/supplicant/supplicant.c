@@ -106,11 +106,8 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
      * is found to be valid. In other words, the Supplicant never updates the
      * Key Replay Counter field for message 1 in the 4-way handshake, as it
      * includes no MIC.
-     *
-     * Note: setting this variable to -1 will ensure we allow message 1 and
-     * potential retransmissions.
      */
-    supp->replay_counter = -1;
+    supp->replay_counter = 0;
 }
 
 static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line, const char *string)
