@@ -75,6 +75,23 @@ enum WsFrameType {
     Ext   = 15,
 }
 
+const EUI64_BC: [u8; 8] = [0xff; 8];
+
+fn parse_eui64(input: &str) -> Result<[u8; 8], String> {
+    let segments: Vec<&str> = input.split(':').collect();
+    if segments.len() != 8 {
+        return Err(format!("expected 8 segments but found {}", segments.len()))
+    }
+    let mut eui64: [u8; 8] = [0; 8];
+    for (i, seg) in segments.iter().enumerate() {
+        match u8::from_str_radix(seg, 16) {
+            Ok(val) => eui64[i] = val,
+            Err(err) => return Err(err.to_string()),
+        }
+    }
+    Ok(eui64)
+}
+
 fn format_byte_array(input: &[u8]) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<_>>().join(":")
 }
@@ -194,6 +211,15 @@ fn do_pan_defect_stop(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(),
     Ok(())
 }
 
+fn do_revoke(dbus_proxy: &dyn ComSilabsWisunBorderRouter, eui64: &[u8; 8]) -> Result<(), Box<dyn std::error::Error>> {
+    if *eui64 == EUI64_BC {
+        dbus_proxy.revoke_group_keys(vec![], vec![])?;
+    } else {
+        dbus_proxy.revoke_pairwise_keys(eui64.to_vec())?;
+    }
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = App::new("wsbrd_cli")
         .setting(AppSettings::SubcommandRequired)
@@ -216,6 +242,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
             .subcommand(SubCommand::with_name("stop")
                 .about("Return to normal operation")
+            )
+        )
+        .subcommand(SubCommand::with_name("revoke")
+            .about("Revoke security keys. If the broadcast address is given, force GTK and LGTK \
+                    rotation. Otherwise, revoke the device PMK and PTK. Read the Wi-SUN \
+                    specification for details on the device revocation procedure.")
+            .arg(Arg::with_name("eui64")
+                .help("Device MAC address (EUI-64) or broadcast address")
+                .default_value("ff:ff:ff:ff:ff:ff:ff:ff")
+                .validator(|val| { parse_eui64(&val)?; Ok(()) })
             )
         )
         .get_matches();
@@ -242,6 +278,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ("stop", _) => do_pan_defect_stop(&dbus_proxy),
                 _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
             }
+        }
+        ("revoke", Some(submatches)) => {
+            let eui64 = parse_eui64(submatches.value_of("eui64").unwrap()).unwrap();
+            do_revoke(&dbus_proxy, &eui64)
         }
         _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
     }
