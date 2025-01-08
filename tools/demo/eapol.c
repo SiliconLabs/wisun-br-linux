@@ -323,7 +323,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     FATAL_ON(ctx->supp_fd < 0, 2, "socket: %m");
     auth_addr.sin6_family = AF_INET6;
     auth_addr.sin6_addr = in6addr_loopback;
-    auth_addr.sin6_port = htons(10000);
+    auth_addr.sin6_port = htons(10253);
     ret = bind(ctx->auth_fd, (struct sockaddr *)&auth_addr, sizeof(auth_addr));
     FATAL_ON(ret < 0, 2, "bind: %m");
 
