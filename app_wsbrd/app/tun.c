@@ -124,9 +124,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
         addr.s6_addr[8] ^= 0x02;
 
         memcpy(addr.s6_addr, ADDR_LINK_LOCAL_PREFIX, 8);
-        tun_addr_add(&ctxt->tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
-        if (ctxt->config.neighbor_proxy[0])
-            tun_add_node_to_proxy_neightbl(NULL, addr.s6_addr);
+        tun_addr_add(&ctxt->tun, &addr, 64);
 
         memcpy(addr.s6_addr, &ctxt->config.ipv6_prefix, 8);
         tun_addr_add(&ctxt->tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
