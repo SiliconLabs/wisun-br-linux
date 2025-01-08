@@ -198,23 +198,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = App::new("wsbrd_cli")
         .setting(AppSettings::SubcommandRequired)
         .args_from_usage("--user 'Use user bus instead of system bus'")
-        .subcommand(
-            SubCommand::with_name("status").about("Display a brief status of the Wi-SUN network"),
+        .subcommand(SubCommand::with_name("status")
+            .about("Display a brief status of the Wi-SUN network")
         )
-        .subcommand(
-            SubCommand::with_name("pan-defect")
-                .about("Toggle the Silicon Labs PAN Defect procedure to attempt a PAN transition \
-                        (see https://docs.silabs.com/wisun/latest/wisun-pan-defect)")
-                .setting(AppSettings::SubcommandRequired)
-                .subcommand(SubCommand::with_name("start").about("Start propagating the PAN Defect IE")
-                    .arg(Arg::with_name("min-delay")
-                        .help("Minimum delay (seconds) between PAN defect IE reception and PAN switch")
-                    )
-                    .arg(Arg::with_name("max-delay")
-                        .help("Maximum delay (seconds) between PAN defect IE reception and PAN switch")
-                    )
-                )
-                .subcommand(SubCommand::with_name("stop").about("Return to normal operation")
+        .subcommand(SubCommand::with_name("pan-defect")
+            .about("Toggle the Silicon Labs PAN Defect procedure to attempt a PAN transition \
+                    (see https://docs.silabs.com/wisun/latest/wisun-pan-defect)")
+            .setting(AppSettings::SubcommandRequired)
+            .subcommand(SubCommand::with_name("start")
+                .about("Start propagating the PAN Defect IE")
+                .args(&[
+                    Arg::with_name("min-delay")
+                        .help("Minimum delay (seconds) between PAN defect IE reception and PAN switch"),
+                    Arg::with_name("max-delay")
+                        .help("Maximum delay (seconds) between PAN defect IE reception and PAN switch"),
+                ])
+            )
+            .subcommand(SubCommand::with_name("stop")
+                .about("Return to normal operation")
             )
         )
         .get_matches();
