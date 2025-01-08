@@ -41,9 +41,9 @@ struct auth_supp_ctx {
     uint8_t  ptk[48];
     uint8_t  tptk[48];
     uint64_t ptk_expiration_s;
-    uint8_t anonce[32];
-    uint8_t snonce[32];
-    int64_t replay_counter;
+    uint8_t  anonce[32];
+    uint8_t  snonce[32];
+    uint64_t replay_counter;
 
     uint8_t eap_id;
 

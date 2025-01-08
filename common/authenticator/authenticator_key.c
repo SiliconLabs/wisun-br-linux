@@ -506,7 +506,7 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * The Authenticator should use the key replay counter to identify invalid messages
      * to silently discard.
      */
-    if (supp->replay_counter != -1 && be64toh(frame->replay_counter) != supp->replay_counter) {
+    if (be64toh(frame->replay_counter) != supp->replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }
