@@ -311,7 +311,6 @@ void supp_start_key_request(struct supp_ctx *supp)
 void supp_reset(struct supp_ctx *supp)
 {
     supp->running = false;
-    supp->replay_counter = -1;
     rfc8415_txalg_stop(&supp->key_request_txalg);
     timer_stop(NULL, &supp->failure_timer);
     supp_eap_tls_reset(supp);
