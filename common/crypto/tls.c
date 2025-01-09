@@ -12,8 +12,10 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
+#define _GNU_SOURCE
 #include <mbedtls/debug.h>
 
+#include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/log.h"
 
@@ -80,6 +82,7 @@ void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const uns
     }
 
     memcpy(pmk->key, derived_key, sizeof(pmk->key));
+    pmk->installation_s = time_now_s(CLOCK_MONOTONIC);
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
