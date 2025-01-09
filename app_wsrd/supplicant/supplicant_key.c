@@ -265,8 +265,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
                 key_index - gtks_slot_min, lifetime_kde, supp->gtks[key_index - 1].expiration_timer.expire_ms);
     } else {
-        TRACE(TR_SECURITY, "sec: ignore reinstallation of %s[%u] ", is_lgtk ? "lgtk" : "gtk",
-              key_index - gtks_slot_min);
+        WARN("sec: ignore reinstallation of %s[%u] ", is_lgtk ? "lgtk" : "gtk",
+             key_index - gtks_slot_min);
     }
 
     pktbuf_free(&buf);
