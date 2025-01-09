@@ -90,6 +90,17 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
                               derived_key, sizeof(derived_key));
     FATAL_ON(ret, 2, "%s: mbedtls_ssl_tls_prf: %s", __func__, tr_mbedtls_err(ret));
 
+    /*
+     * Do not reinstall the key if it was already installed before to prevent Key
+     * Reinstallation Attacks (KRACK)[1].
+     *
+     * [1]: https://www.krackattacks.com
+     */
+    if (!memcmp(supp->pmk, derived_key, sizeof(supp->pmk))) {
+        WARN("sec: ignore reinstallation of pmk");
+        return;
+    }
+
     memcpy(supp->pmk, derived_key, sizeof(supp->pmk));
 
     /*
