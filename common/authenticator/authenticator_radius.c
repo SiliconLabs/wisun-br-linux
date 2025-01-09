@@ -304,6 +304,18 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
     key_len = iobuf_pop_u8(&iobuf);
     if (key_len != sizeof(supp->pmk))
         return -EINVAL;
+
+    /*
+     * Do not reinstall the key if it was already installed before to prevent Key
+     * Reinstallation Attacks (KRACK)[1].
+     *
+     * [1]: https://www.krackattacks.com
+     */
+    if (!memcmp(supp->pmk, iobuf_ptr(&iobuf), sizeof(supp->pmk))) {
+        WARN("sec: ignore reinstallation of pmk");
+        return 0;
+    }
+
     iobuf_pop_data(&iobuf, supp->pmk, sizeof(supp->pmk));
     supp->pmk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->pmk_lifetime_s;
     /*
