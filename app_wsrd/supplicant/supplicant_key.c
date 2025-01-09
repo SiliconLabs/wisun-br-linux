@@ -255,7 +255,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
             // TODO: callback to install TK
             TRACE(TR_SECURITY, "sec: PTK installed");
         } else {
-            TRACE(TR_SECURITY, "sec: ignore reinstallation of ptk");
+            WARN("sec: ignore reinstallation of ptk");
         }
     }
     if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
