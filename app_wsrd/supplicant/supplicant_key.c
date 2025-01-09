@@ -246,13 +246,14 @@ static int supp_key_handle_key_data(struct supplicant_ctx *supp, const struct ea
      *
      * [1]: https://www.krackattacks.com
      */
-    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE &&
-        memcmp(supp->ptk, supp->tptk, sizeof(supp->tptk))) {
-        memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
-        // TODO: callback to install TK
-        TRACE(TR_SECURITY, "sec: PTK installed");
-    } else {
-        TRACE(TR_SECURITY, "sec: ignore reinstallation of ptk");
+    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
+        if (memcmp(supp->ptk, supp->tptk, sizeof(supp->tptk))) {
+            memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
+            // TODO: callback to install TK
+            TRACE(TR_SECURITY, "sec: PTK installed");
+        } else {
+            TRACE(TR_SECURITY, "sec: ignore reinstallation of ptk");
+        }
     }
     if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
         memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
