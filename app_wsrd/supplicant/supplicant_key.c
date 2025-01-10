@@ -144,6 +144,54 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
     return true;
 }
 
+static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk_kde, uint32_t lifetime_kde, bool is_lgtk)
+{
+    const uint8_t offset = is_lgtk ? 4 : 0;
+    const uint8_t count = is_lgtk ? 3 : 4;
+    uint8_t key_id, key_index;
+
+    /*
+     *   Wi-SUN FAN 1.1v08, 6.3.2.2.4 Group Transient Key KDE (GTK)
+     * The TX field MUST be set to 0 and ignored upon reception.
+     */
+    if (gtk_kde->flags & KDE_GTK_MASK_TX)
+        TRACE(TR_IGNORE, "ignore: unsupported GTK KDE tx bit");
+
+    key_id = FIELD_GET(KDE_GTK_MASK_KEY_ID, gtk_kde->flags);
+    if (key_id > count) {
+        TRACE(TR_DROP, "drop %-9s: invalid key-id=%u", "eapol-key", key_id);
+        return -EINVAL;
+    }
+    key_index = key_id + 1 + offset;
+
+    /*
+     *   IEEE 802.11-2020, 12.7.7.4 Group key handshake implementation considerations
+     * To prevent key reinstallation attacks, the Supplicant shall maintain a
+     * copy of the most recent GTK [...] The Supplicant shall not install a GTK
+     * [...] when the key to be set matches either of these two keys (see 6.3.19).
+     */
+    for (int i = offset; i < offset + count; i++) {
+        if (!memcmp(supp->gtks[i].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk)) && i != key_index - 1) {
+            TRACE(TR_DROP, "drop %-9s: key reinstallation detected at index %d", "eapol-key", i);
+            return -EPERM;
+        }
+    }
+
+    // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
+    if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
+        memcpy(supp->gtks[key_index - 1].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk));
+        timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
+        supp->on_gtk_change(supp, gtk_kde->gtk, key_index);
+        TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime=%us",
+              is_lgtk ? "lgtk" : "gtk", key_index - offset, lifetime_kde);
+    } else {
+        WARN("sec: ignore reinstallation of %s[%u] ",
+             is_lgtk ? "lgtk" : "gtk", key_index - offset);
+    }
+
+    return 0;
+}
+
 static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                     struct iobuf_read *iobuf)
 {
@@ -154,7 +202,6 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     uint8_t gtks_size = 4;
     bool is_lgtk = false;
     const uint8_t *ptk;
-    uint8_t key_index;
     uint8_t gtkl_kde;
     int ret;
 
@@ -200,31 +247,9 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         goto error;
     }
 
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.3.2.2.4 Group Transient Key KDE (GTK)
-     * The TX field MUST be set to 0 and ignored upon reception.
-     */
-    if (FIELD_GET(KDE_GTK_MASK_TX, gtk_kde.flags))
-        TRACE(TR_IGNORE, "ignore: unsupported GTK KDE tx bit");
-
-    // the key ID field starts at 0
-    key_index = FIELD_GET(KDE_GTK_MASK_KEY_ID, gtk_kde.flags) + 1 + gtks_slot_min;
-    if (key_index > gtks_size) {
-        TRACE(TR_DROP, "drop %-9s: invalid key id %u", "eapol-key", key_index - 1 - gtks_slot_min);
+    ret = supp_key_install_gtk(supp, &gtk_kde, lifetime_kde, is_lgtk);
+    if (ret < 0)
         goto error;
-    }
-
-    /*
-     *   IEEE 802.11-2020, 12.7.7.4 Group key handshake implementation considerations
-     * To prevent key reinstallation attacks, the Supplicant shall maintain a
-     * copy of the most recent GTK [...] The Supplicant shall not install a GTK
-     * [...] when the key to be set matches either of these two keys (see 6.3.19).
-     */
-    for (int i = gtks_slot_min; i < gtks_size; i++)
-        if (!memcmp(supp->gtks[i].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk)) && i != key_index - 1) {
-            TRACE(TR_DROP, "drop %-9s: key reinstallation detected at index %d", "eapol-key", i);
-            goto error;
-        }
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
@@ -243,13 +268,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
                 supp->gtks[i].expiration_timer.callback(NULL, &supp->gtks[i].expiration_timer);
         }
 
-    /*
-     * Do not reinstall the key if it was already installed before to prevent Key
-     * Reinstallation Attacks (KRACK)[1].
-     *
-     * [1]: https://www.krackattacks.com
-     */
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
+        // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
         if (memcmp(supp->ptk, supp->tptk, sizeof(supp->tptk))) {
             memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
             // TODO: callback to install TK
@@ -257,16 +277,6 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         } else {
             WARN("sec: ignore reinstallation of ptk");
         }
-    }
-    if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk))) {
-        memcpy(supp->gtks[key_index - 1].gtk, gtk_kde.gtk, sizeof(gtk_kde.gtk));
-        timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
-        supp->on_gtk_change(supp, gtk_kde.gtk, key_index);
-        TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime:%us expiration:%"PRIu64, is_lgtk ? "lgtk" : "gtk",
-                key_index - gtks_slot_min, lifetime_kde, supp->gtks[key_index - 1].expiration_timer.expire_ms);
-    } else {
-        WARN("sec: ignore reinstallation of %s[%u] ", is_lgtk ? "lgtk" : "gtk",
-             key_index - gtks_slot_min);
     }
 
     pktbuf_free(&buf);
