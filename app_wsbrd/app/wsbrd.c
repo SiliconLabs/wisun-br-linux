@@ -228,30 +228,30 @@ static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
 {
     struct sec_timing timing_ffn = {
-        .pmk_lifetime_s          = ctxt->config.ws_pmk_lifetime_s,
-        .ptk_lifetime_s          = ctxt->config.ws_ptk_lifetime_s,
-        .expire_offset           = ctxt->config.ws_gtk_expire_offset_s,
-        .new_act_time            = ctxt->config.ws_gtk_new_activation_time,
-        .new_install_req         = ctxt->config.ws_gtk_new_install_required,
+        .pmk_lifetime_s          = ctxt->config.auth_cfg.ffn.pmk_lifetime_s,
+        .ptk_lifetime_s          = ctxt->config.auth_cfg.ffn.ptk_lifetime_s,
+        .expire_offset           = ctxt->config.auth_cfg.ffn.gtk_expire_offset_s,
+        .new_act_time            = ctxt->config.auth_cfg.ffn.gtk_new_activation_time,
+        .new_install_req         = ctxt->config.auth_cfg.ffn.gtk_new_install_required,
         .revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction,
     };
     struct sec_timing timing_lfn = {
-        .pmk_lifetime_s          = ctxt->config.ws_lpmk_lifetime_s,
-        .ptk_lifetime_s          = ctxt->config.ws_lptk_lifetime_s,
-        .expire_offset           = ctxt->config.ws_lgtk_expire_offset_s,
-        .new_act_time            = ctxt->config.ws_lgtk_new_activation_time,
-        .new_install_req         = ctxt->config.ws_lgtk_new_install_required,
+        .pmk_lifetime_s          = ctxt->config.auth_cfg.lfn.pmk_lifetime_s,
+        .ptk_lifetime_s          = ctxt->config.auth_cfg.lfn.ptk_lifetime_s,
+        .expire_offset           = ctxt->config.auth_cfg.lfn.gtk_expire_offset_s,
+        .new_act_time            = ctxt->config.auth_cfg.lfn.gtk_new_activation_time,
+        .new_install_req         = ctxt->config.auth_cfg.lfn.gtk_new_install_required,
         .revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction,
     };
     struct arm_certificate_entry tls_br = {
-        .cert     = ctxt->config.br_cert.iov_base,
-        .cert_len = ctxt->config.br_cert.iov_len,
-        .key      = ctxt->config.br_key.iov_base,
-        .key_len  = ctxt->config.br_key.iov_len,
+        .cert     = ctxt->config.auth_cfg.cert.iov_base,
+        .cert_len = ctxt->config.auth_cfg.cert.iov_len,
+        .key      = ctxt->config.auth_cfg.key.iov_base,
+        .key_len  = ctxt->config.auth_cfg.key.iov_len,
     };
     struct arm_certificate_entry tls_ca = {
-        .cert     = ctxt->config.ca_cert.iov_base,
-        .cert_len = ctxt->config.ca_cert.iov_len,
+        .cert     = ctxt->config.auth_cfg.ca_cert.iov_base,
+        .cert_len = ctxt->config.auth_cfg.ca_cert.iov_len,
     };
     uint8_t *lgtks[3] = { };
     bool lgtk_force = false;
@@ -263,12 +263,12 @@ static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
                                 &timing_ffn, &timing_lfn,
                                 &size_params[ctxt->config.ws_size].security_protocol_config);
 
-    if (strlen(ctxt->config.radius_secret) != 0)
-        if (ws_pae_controller_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.radius_secret),
-                                                       (uint8_t *)ctxt->config.radius_secret))
+    if (strlen(ctxt->config.auth_cfg.radius_secret) != 0)
+        if (ws_pae_controller_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.auth_cfg.radius_secret),
+                                                       (uint8_t *)ctxt->config.auth_cfg.radius_secret))
             WARN("ws_pae_controller_radius_shared_secret_set");
-    if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
-        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.radius_server))
+    if (ctxt->config.auth_cfg.radius_addr.ss_family != AF_UNSPEC)
+        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.auth_cfg.radius_addr))
             WARN("ws_pae_controller_radius_address_set");
 
     for (int i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {

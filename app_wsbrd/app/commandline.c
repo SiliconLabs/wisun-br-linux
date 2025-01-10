@@ -191,11 +191,11 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
-        { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
-        { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
-        { "key",                           &config->br_key,                           conf_set_pem,         NULL },
-        { "certificate",                   &config->br_cert,                          conf_set_pem,         NULL },
-        { "authority",                     &config->ca_cert,                          conf_set_pem,         NULL },
+        { "radius_server",                 &config->auth_cfg.radius_addr,             conf_set_netaddr,     NULL },
+        { "radius_secret",                 config->auth_cfg.radius_secret,            conf_set_string,      (void *)sizeof(config->auth_cfg.radius_secret) },
+        { "key",                           &config->auth_cfg.key,                     conf_set_pem,         NULL },
+        { "certificate",                   &config->auth_cfg.cert,                    conf_set_pem,         NULL },
+        { "authority",                     &config->auth_cfg.ca_cert,                 conf_set_pem,         NULL },
         { "network_name",                  config->ws_name,                           conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          &config->ws_size,                          conf_set_enum,        &valid_ws_size },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
@@ -223,17 +223,17 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "broadcast_interval",            &config->bc_interval,                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        &config->lfn_bc_interval,                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     &config->lfn_bc_sync_period,               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "pmk_lifetime",                  &config->ws_pmk_lifetime_s,                conf_set_seconds_from_minutes, &valid_unsigned },
-        { "ptk_lifetime",                  &config->ws_ptk_lifetime_s,                conf_set_seconds_from_minutes, &valid_unsigned },
-        { "gtk_expire_offset",             &config->ws_gtk_expire_offset_s,           conf_set_seconds_from_minutes, &valid_unsigned },
-        { "gtk_new_activation_time",       &config->ws_gtk_new_activation_time,       conf_set_number,      &valid_positive },
-        { "gtk_new_install_required",      &config->ws_gtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
+        { "pmk_lifetime",                  &config->auth_cfg.ffn.pmk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
+        { "ptk_lifetime",                  &config->auth_cfg.ffn.ptk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
+        { "gtk_expire_offset",             &config->auth_cfg.ffn.gtk_expire_offset_s, conf_set_seconds_from_minutes, &valid_unsigned },
+        { "gtk_new_activation_time",       &config->auth_cfg.ffn.gtk_new_activation_time, conf_set_number,  &valid_positive },
+        { "gtk_new_install_required",      &config->auth_cfg.ffn.gtk_new_install_required, conf_set_number, &valid_gtk_new_install_required },
         { "ffn_revocation_lifetime_reduction", &config->ws_ffn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
-        { "lpmk_lifetime",                 &config->ws_lpmk_lifetime_s,               conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lptk_lifetime",                 &config->ws_lptk_lifetime_s,               conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lgtk_expire_offset",             &config->ws_lgtk_expire_offset_s,         conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
-        { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
+        { "lpmk_lifetime",                 &config->auth_cfg.lfn.pmk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
+        { "lptk_lifetime",                 &config->auth_cfg.lfn.ptk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
+        { "lgtk_expire_offset",            &config->auth_cfg.lfn.gtk_expire_offset_s, conf_set_seconds_from_minutes, &valid_unsigned },
+        { "lgtk_new_activation_time",      &config->auth_cfg.lfn.gtk_new_activation_time, conf_set_number,  &valid_positive },
+        { "lgtk_new_install_required",     &config->auth_cfg.lfn.gtk_new_install_required, conf_set_number, &valid_gtk_new_install_required },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
         { "mac_address",                   config->ws_mac_address,                    conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "allowed_mac64",                 config,                                    conf_set_macaddr,     (bool[1]){ true } },
@@ -293,17 +293,17 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->lfn_bc_sync_period = 5;
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
-    config->ws_pmk_lifetime_s = 172800 * 60;
-    config->ws_ptk_lifetime_s = 86400 * 60;
-    config->ws_gtk_expire_offset_s = 43200 * 60;
-    config->ws_gtk_new_activation_time = 720;
-    config->ws_gtk_new_install_required = 80;
+    config->auth_cfg.ffn.pmk_lifetime_s = 172800 * 60;
+    config->auth_cfg.ffn.ptk_lifetime_s = 86400 * 60;
+    config->auth_cfg.ffn.gtk_expire_offset_s = 43200 * 60;
+    config->auth_cfg.ffn.gtk_new_activation_time = 720;
+    config->auth_cfg.ffn.gtk_new_install_required = 80;
     config->ws_ffn_revocation_lifetime_reduction = 30;
-    config->ws_lpmk_lifetime_s = 172800 * 60;
-    config->ws_lptk_lifetime_s = 525600 * 60;
-    config->ws_lgtk_expire_offset_s = 129600 * 60;
-    config->ws_lgtk_new_activation_time = 180;
-    config->ws_lgtk_new_install_required = 90;
+    config->auth_cfg.lfn.pmk_lifetime_s = 172800 * 60;
+    config->auth_cfg.lfn.ptk_lifetime_s = 525600 * 60;
+    config->auth_cfg.lfn.gtk_expire_offset_s = 129600 * 60;
+    config->auth_cfg.lfn.gtk_new_activation_time = 180;
+    config->auth_cfg.lfn.gtk_new_install_required = 90;
     config->ws_lfn_revocation_lifetime_reduction = 30;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
@@ -380,15 +380,15 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_pem(&info, &config->br_key, NULL);
+                conf_set_pem(&info, &config->auth_cfg.key, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_pem(&info, &config->br_cert, NULL);
+                conf_set_pem(&info, &config->auth_cfg.cert, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_pem(&info, &config->ca_cert, NULL);
+                conf_set_pem(&info, &config->auth_cfg.ca_cert, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
@@ -477,23 +477,23 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (storage_check_access(config->storage_prefix))
         FATAL(1, "%s: %m", config->storage_prefix);
-    if (config->radius_server.ss_family == AF_UNSPEC) {
-        if (!config->br_key.iov_base)
-            FATAL(1, "missing \"key\" (or \"radius_server\") parameter");
-        if (!config->br_cert.iov_base)
-            FATAL(1, "missing \"certificate\" (or \"radius_server\") parameter");
-        if (!config->ca_cert.iov_base)
-            FATAL(1, "missing \"authority\" (or \"radius_server\") parameter");
+    if (config->auth_cfg.radius_addr.ss_family == AF_UNSPEC) {
+        if (!config->auth_cfg.key.iov_base)
+            FATAL(1, "missing \"key\" (or \"auth_cfg.radius_addr\") parameter");
+        if (!config->auth_cfg.cert.iov_base)
+            FATAL(1, "missing \"certificate\" (or \"auth_cfg.radius_addr\") parameter");
+        if (!config->auth_cfg.ca_cert.iov_base)
+            FATAL(1, "missing \"authority\" (or \"auth_cfg.radius_addr\") parameter");
     } else {
-        if (config->br_key.iov_len || config->br_cert.iov_len || config->ca_cert.iov_len)
+        if (config->auth_cfg.key.iov_len || config->auth_cfg.cert.iov_len || config->auth_cfg.ca_cert.iov_len)
             WARN("ignore certificates and key since an external radius server is in use");
     }
     if (!config->enable_lfn)
         if (config->ws_lgtk_force[0] || config->ws_lgtk_force[1] || config->ws_lgtk_force[2])
             FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
-    if (config->ws_gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
+    if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
-    if (config->ws_lgtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
+    if (config->auth_cfg.lfn.gtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
     if (IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");

@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <net/if.h>
 
+#include "common/authenticator/authenticator.h"
 #include "common/specs/ws.h"
 #include "common/rcp_api.h"
 #include "common/bits.h"
@@ -65,30 +66,16 @@ struct wsbrd_conf {
     char storage_prefix[PATH_MAX];
     bool storage_delete;
     bool storage_exit;
-    struct iovec br_key;
-    struct iovec br_cert;
-    struct iovec ca_cert;
     uint8_t ws_gtk[4][16];
     bool ws_gtk_force[4];
     uint8_t ws_lgtk[4][16];
     bool ws_lgtk_force[4];
-    struct sockaddr_storage radius_server;
-    char radius_secret[256];
 
     int  tx_power;
     int  ws_pan_id;
     int  ws_fan_version;
-    int  ws_pmk_lifetime_s;
-    int  ws_ptk_lifetime_s;
-    int  ws_gtk_expire_offset_s;
-    int  ws_gtk_new_activation_time;
-    int  ws_gtk_new_install_required;
+    struct auth_cfg auth_cfg;
     int  ws_ffn_revocation_lifetime_reduction;
-    int  ws_lpmk_lifetime_s;
-    int  ws_lptk_lifetime_s;
-    int  ws_lgtk_expire_offset_s;
-    int  ws_lgtk_new_activation_time;
-    int  ws_lgtk_new_install_required;
     int  ws_lfn_revocation_lifetime_reduction;
     int  ws_async_frag_duration;
     int  uc_dwell_interval;
