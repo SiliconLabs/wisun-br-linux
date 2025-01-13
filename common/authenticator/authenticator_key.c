@@ -406,7 +406,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         memcmp(received_key, key, sizeof(received_key)) ||
         (auth->cfg->pmk_lifetime_s &&
          time_now_s(CLOCK_MONOTONIC) >= supp->eap_tls.tls.pmk.installation_s + auth->cfg->pmk_lifetime_s)) {
-        TRACE(TR_SECURITY, "sec: pmkid out-of-date starting EAP-TLS");
+        TRACE(TR_SECURITY, "sec: pmk out-of-date starting EAP-TLS");
         auth_eap_send_request_identity(auth, supp);
         return;
     }
