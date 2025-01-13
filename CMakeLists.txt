@@ -16,6 +16,7 @@ project(wsbrd)
 set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Router implementation")
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 set(COMPILE_DEMOS    OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
+set(AUTH_LEGACY      ON  CACHE BOOL "Keep set if you don't consider to develop new features")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
@@ -186,19 +187,10 @@ add_library(libwsbrd STATIC
     app_wsbrd/ws/ws_bootstrap.c
     app_wsbrd/ws/ws_bootstrap_6lbr.c
     app_wsbrd/ws/ws_common.c
-    app_wsbrd/ws/ws_eapol_auth_relay.c
-    app_wsbrd/ws/ws_eapol_pdu.c
-    app_wsbrd/ws/ws_eapol_relay.c
-    app_wsbrd/ws/ws_eapol_relay_lib.c
     app_wsbrd/ws/ws_ie_custom.c
     app_wsbrd/ws/ws_ie_validation.c
     app_wsbrd/ws/ws_llc.c
     app_wsbrd/ws/ws_mngt.c
-    app_wsbrd/ws/ws_auth_legacy.c
-    app_wsbrd/ws/ws_pae_auth.c
-    app_wsbrd/ws/ws_pae_controller.c
-    app_wsbrd/ws/ws_pae_key_storage.c
-    app_wsbrd/ws/ws_pae_lib.c
     app_wsbrd/ipv6/icmpv6.c
     app_wsbrd/ipv6/ipv6.c
     app_wsbrd/ipv6/ipv6_resolution.c
@@ -214,27 +206,43 @@ add_library(libwsbrd STATIC
     app_wsbrd/rpl/rpl_storage.c
     app_wsbrd/rpl/rpl_srh.c
     app_wsbrd/rpl/rpl.c
-    app_wsbrd/security/eapol/eapol_helper.c
-    app_wsbrd/security/eapol/kde_helper.c
-    app_wsbrd/security/kmp/kmp_addr.c
-    app_wsbrd/security/kmp/kmp_api.c
-    app_wsbrd/security/kmp/kmp_socket_if.c
-    app_wsbrd/security/pana/pana_eap_header.c
-    app_wsbrd/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
-    app_wsbrd/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-    app_wsbrd/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-    app_wsbrd/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-    app_wsbrd/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-    app_wsbrd/security/protocols/key_sec_prot/key_sec_prot.c
-    app_wsbrd/security/protocols/msg_sec_prot/msg_sec_prot.c
-    app_wsbrd/security/protocols/radius_sec_prot/avp_helper.c
-    app_wsbrd/security/protocols/radius_sec_prot/radius_client_sec_prot.c
-    app_wsbrd/security/protocols/sec_prot_certs.c
-    app_wsbrd/security/protocols/sec_prot_keys.c
-    app_wsbrd/security/protocols/sec_prot_lib.c
-    app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot.c
-    app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
 )
+if(AUTH_LEGACY)
+    target_sources(libwsbrd PRIVATE
+        app_wsbrd/ws/ws_auth_legacy.c
+        app_wsbrd/ws/ws_eapol_auth_relay.c
+        app_wsbrd/ws/ws_eapol_pdu.c
+        app_wsbrd/ws/ws_eapol_relay.c
+        app_wsbrd/ws/ws_eapol_relay_lib.c
+        app_wsbrd/ws/ws_pae_auth.c
+        app_wsbrd/ws/ws_pae_controller.c
+        app_wsbrd/ws/ws_pae_key_storage.c
+        app_wsbrd/ws/ws_pae_lib.c
+        app_wsbrd/security/eapol/eapol_helper.c
+        app_wsbrd/security/eapol/kde_helper.c
+        app_wsbrd/security/kmp/kmp_addr.c
+        app_wsbrd/security/kmp/kmp_api.c
+        app_wsbrd/security/kmp/kmp_socket_if.c
+        app_wsbrd/security/pana/pana_eap_header.c
+        app_wsbrd/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
+        app_wsbrd/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
+        app_wsbrd/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
+        app_wsbrd/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
+        app_wsbrd/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
+        app_wsbrd/security/protocols/key_sec_prot/key_sec_prot.c
+        app_wsbrd/security/protocols/msg_sec_prot/msg_sec_prot.c
+        app_wsbrd/security/protocols/radius_sec_prot/avp_helper.c
+        app_wsbrd/security/protocols/radius_sec_prot/radius_client_sec_prot.c
+        app_wsbrd/security/protocols/sec_prot_certs.c
+        app_wsbrd/security/protocols/sec_prot_keys.c
+        app_wsbrd/security/protocols/sec_prot_lib.c
+        app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot.c
+        app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
+    )
+    target_compile_definitions(libwsbrd PUBLIC HAVE_AUTH_LEGACY)
+else()
+    message(FATAL_ERROR "AUTH_LEGACY=OFF unsupported")
+endif()
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     app_wsbrd/

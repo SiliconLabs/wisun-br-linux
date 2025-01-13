@@ -48,6 +48,8 @@ struct ws_sec_timer_cfg;
 struct ws_sec_prot_cfg;
 struct ws_timing_cfg;
 
+#ifdef HAVE_AUTH_LEGACY
+
 /**
  * ws_pae_controller_authenticator_start start PAE authenticator
  *
@@ -299,5 +301,22 @@ sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, b
 void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);
 
 int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *network_name);
+
+#else
+static inline void ws_pae_controller_fast_timer(int ticks)
+{
+    // empty
+}
+
+static inline void ws_pae_controller_slow_timer(int ticks)
+{
+    // empty
+}
+
+static inline void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter)
+{
+    // empty
+}
+#endif
 
 #endif

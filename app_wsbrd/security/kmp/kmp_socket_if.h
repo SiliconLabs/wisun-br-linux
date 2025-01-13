@@ -25,6 +25,7 @@
 
 typedef struct kmp_service kmp_service_t;
 
+#ifdef HAVE_AUTH_LEGACY
 /*
  * Authenticator KMP socket interface to/from EAPOL authenticator relay. EAPOL
  * authenticator relay address and port are provided in register call (remote
@@ -72,6 +73,15 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
 
 int kmp_socket_if_get_radius_sockfd();
 uint8_t kmp_socket_if_radius_socket_cb(int fd);
-
+#else
+static inline int kmp_socket_if_get_pae_socket_fd()
+{
+    return -1;
+}
+static inline void kmp_socket_if_pae_socket_cb(int fd)
+{
+    // empty
+}
+#endif
 
 #endif

@@ -22,6 +22,7 @@
 
 struct net_if;
 
+#ifdef HAVE_AUTH_LEGACY
 /*
  * EAPOL relay conveys EAPOL PDUs between authenticator EAPOL relay and local
  * MPX interface.
@@ -53,5 +54,16 @@ void ws_eapol_relay_socket_cb(int fd);
  *
  */
 int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+#else
+static inline int ws_eapol_relay_get_socket_fd(void)
+{
+    return -1;
+}
+
+static inline void ws_eapol_relay_socket_cb(int fd)
+{
+    // empty
+}
+#endif
 
 #endif
