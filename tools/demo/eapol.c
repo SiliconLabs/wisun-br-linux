@@ -236,7 +236,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
             break;
         case 's':
-            strncpy(ctx->auth.radius_secret, optarg, sizeof(ctx->auth.radius_secret) - 1);
+            strncpy(auth_cfg->radius_secret, optarg, sizeof(auth_cfg->radius_secret) - 1);
             break;
         case 'A':
             conf_set_pem(&info, &ca_cert, NULL);
@@ -268,9 +268,9 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     }
     if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && memzcmp(ctx->supp.pmk.key, 32))
         FATAL(1, "incompatible --radius-server and --pmk");
-    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.radius_secret[0])
+    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
         FATAL(1, "missing --radius-secret");
-    if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.radius_secret[0])
+    if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.cfg->radius_secret[0])
         FATAL(1, "missing --radius-server");
 
     supp_init(&ctx->supp, &ca_cert, &supp_cert, &supp_key, supp_eui64.u8);

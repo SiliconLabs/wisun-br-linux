@@ -197,7 +197,7 @@ static int radius_verify_resp_auth(struct auth_ctx *auth, struct auth_supp_ctx *
     xmbedtls_md5_update(&md5, buf, offsetof(struct radius_hdr, auth));
     xmbedtls_md5_update(&md5, supp->radius_auth, 16);
     xmbedtls_md5_update(&md5, (uint8_t *)buf + sizeof(*hdr), buf_len - sizeof(*hdr));
-    xmbedtls_md5_update(&md5, (uint8_t *)auth->radius_secret, strlen(auth->radius_secret));
+    xmbedtls_md5_update(&md5, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md5_finish(&md5, resp_auth);
     mbedtls_md5_free(&md5);
     return !memcmp(hdr->auth, resp_auth, 16) ? 0 : -EINVAL;
@@ -296,7 +296,7 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
         return -EINVAL;
 
     radius_ms_mppe_key_decrypt(string, iobuf_ptr(&iobuf), sizeof(string),
-                               auth->radius_secret, supp->radius_auth, salt);
+                               auth->cfg->radius_secret, supp->radius_auth, salt);
 
     iobuf.cnt       = 0;
     iobuf.data      = string;
@@ -358,7 +358,7 @@ static int radius_verify_msg_auth(struct auth_ctx *auth, struct auth_supp_ctx *s
     offset_msg_auth = (uintptr_t)attr - (uintptr_t)buf + sizeof(*attr);
     mbedtls_md_init(&md);
     xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_MD5), 1);
-    xmbedtls_md_hmac_starts(&md, (uint8_t *)auth->radius_secret, strlen(auth->radius_secret));
+    xmbedtls_md_hmac_starts(&md, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md_hmac_update(&md, buf, offsetof(struct radius_hdr, auth));
     xmbedtls_md_hmac_update(&md, supp->radius_auth, 16);
     xmbedtls_md_hmac_update(&md, (uint8_t *)buf + sizeof(struct radius_hdr),
@@ -577,7 +577,7 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
            &hdr.len, sizeof(hdr.len));
 
     xmbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
-                     (uint8_t *)auth->radius_secret, strlen(auth->radius_secret),
+                     (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret),
                      pktbuf_head(&pktbuf), pktbuf_len(&pktbuf),
                      pktbuf_head(&pktbuf) + offset_msg_auth);
 

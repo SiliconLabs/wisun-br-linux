@@ -66,6 +66,7 @@ struct auth_cfg {
     int pmk_lifetime_s;
     int ptk_lifetime_s;
     struct sockaddr_storage radius_addr;
+    char radius_secret[256];
 };
 
 struct auth_ctx {
@@ -79,7 +80,6 @@ struct auth_ctx {
     uint8_t next_slot;
 
     int     radius_fd;
-    char    radius_secret[256];
     uint8_t radius_id_next;
 
     struct auth_supp_ctx_list supplicants;
