@@ -92,6 +92,21 @@ static void auth_eap_send_tls_start(struct auth_ctx *auth, struct auth_supp_ctx 
     auth_eap_send_tls(auth, supp, &flags, sizeof(flags));
 }
 
+static void auth_eap_recv_resp_nak(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    /*
+     *   RFC 3748 5.3. Nak
+     * The legacy Nak Type is valid only in Response messages. It is sent in
+     * reply to a Request where the desired authentication Type is
+     * unacceptable.
+     *
+     * This implementation only supports the TLS authentication type,
+     * therefore we send an EAP-Failure directly.
+     */
+    TRACE(TR_SECURITY, "sec: TLS authentication type unsupported by peer");
+    auth_eap_send_failure(auth, supp);
+}
+
 static void auth_eap_recv_resp_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
 {
     TRACE(TR_SECURITY, "sec: identity=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
@@ -116,6 +131,9 @@ static void auth_eap_recv_resp(struct auth_ctx *auth, struct auth_supp_ctx *supp
     switch (type) {
     case EAP_TYPE_IDENTITY:
         auth_eap_recv_resp_identity(auth, supp, iobuf);
+        break;
+    case EAP_TYPE_NAK:
+        auth_eap_recv_resp_nak(auth, supp);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported type", "eap");
