@@ -313,7 +313,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
         struct auth_supp_ctx *supp;
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
-        memcpy(supp->pmk, ctx->supp.pmk.key, 32);
+        memcpy(supp->pmk.key, ctx->supp.pmk.key, 32);
         auth_cfg->pmk_lifetime_s = 0; // Infinite
     }
 

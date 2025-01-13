@@ -23,8 +23,9 @@
 #include "common/pktbuf.h"
 
 struct tls_pmk {
-    uint8_t key[32]; // stored in cleartext in RAM
-    int64_t replay_counter; // reset when pmk is established
+    uint8_t  key[32]; // stored in cleartext in RAM
+    int64_t  replay_counter; // reset when pmk is established
+    uint64_t installation_s; // not used by supplicant
 };
 
 struct tls_io {

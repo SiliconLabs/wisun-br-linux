@@ -278,7 +278,7 @@ int dc_main(int argc, char *argv[])
 
     // Add supplicant entry to authenticator
     supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);
-    memcpy(supp->pmk, dc->cfg.target_pmk, 32);
+    memcpy(supp->pmk.key, dc->cfg.target_pmk, 32);
 
     timer_group_init(&dc->ws.neigh_table.timer_group);
     if (dc->cfg.user[0] && dc->cfg.group[0])
