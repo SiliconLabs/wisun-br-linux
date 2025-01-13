@@ -20,7 +20,7 @@
 
 struct ws_gtk {
     uint8_t slot;
-    uint8_t gtk[16];
+    uint8_t key[16];
     struct timer_entry expiration_timer;
 };
 

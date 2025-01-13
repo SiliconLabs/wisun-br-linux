@@ -171,15 +171,15 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
      * [...] when the key to be set matches either of these two keys (see 6.3.19).
      */
     for (int i = offset; i < offset + count; i++) {
-        if (!memcmp(supp->gtks[i].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk)) && i != key_index - 1) {
+        if (!memcmp(supp->gtks[i].key, gtk_kde->gtk, sizeof(gtk_kde->gtk)) && i != key_index - 1) {
             TRACE(TR_DROP, "drop %-9s: key reinstallation detected at index %d", "eapol-key", i);
             return -EPERM;
         }
     }
 
     // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-    if (memcmp(supp->gtks[key_index - 1].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
-        memcpy(supp->gtks[key_index - 1].gtk, gtk_kde->gtk, sizeof(gtk_kde->gtk));
+    if (memcmp(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
+        memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
         timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk_kde->gtk, key_index);
         TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime=%us",

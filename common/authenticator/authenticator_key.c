@@ -182,7 +182,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
      * (KRACK).
      */
     if (key_slot >= 0) {
-        kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].gtk);
+        kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].key);
         kde_write_lifetime(&key_data, timer_remaining_ms(&auth->gtks[key_slot].expiration_timer) / 1000);
     }
     kde_write_gtkl(&key_data, auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks)));

@@ -198,7 +198,7 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     TRACE(TR_SECURITY, "sec: gtk[%u] expired", gtk->slot + 1);
     supp->on_gtk_change(supp, NULL, gtk->slot + 1);
-    memset(gtk->gtk, 0, sizeof(gtk->gtk));
+    memset(gtk->key, 0, sizeof(gtk->key));
 }
 
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t gtkhash_index)
@@ -212,7 +212,7 @@ bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint
     if (timer_stopped(&supp->gtks[gtkhash_index - 1].expiration_timer)) {
         mismatch = memzcmp(gtkhash, 8);
     } else {
-        xmbedtls_sha256(supp->gtks[gtkhash_index - 1].gtk, 16, hash, 0);
+        xmbedtls_sha256(supp->gtks[gtkhash_index - 1].key, 16, hash, 0);
         mismatch = memcmp(hash + 24, gtkhash, 8);
     }
     if (mismatch)

@@ -114,7 +114,7 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
 
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < 4; i++) {
-        ws_generate_gak(wsrd->config.ws_netname, wsrd->supp.gtks[i].gtk, gak);
+        ws_generate_gak(wsrd->config.ws_netname, wsrd->supp.gtks[i].key, gak);
         sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);
