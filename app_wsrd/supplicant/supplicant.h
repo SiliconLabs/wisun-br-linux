@@ -51,12 +51,10 @@ struct supp_ctx {
     uint8_t eui64[8];
     bool running;
 
+    struct tls_client_ctx tls_client;
     struct tls_ctx tls;
-    struct mbedtls_ssl_context ssl_ctx;
 
     bool eap_tls_start_received;
-
-    struct tls_io tls_io;
 
     // EAP-TLS TX Fragmentation
     int fragment_id;
@@ -74,7 +72,6 @@ struct supp_ctx {
     uint8_t authenticator_eui64[8];
     uint8_t anonce[32];
     uint8_t snonce[32];
-    struct tls_pmk pmk;
 
     /*
      * +-----------------------------------------------------------+

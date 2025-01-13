@@ -70,7 +70,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_REQ, true)),
-        .replay_counter = htobe64(supp->pmk.replay_counter),
+        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
     };
     struct pktbuf buf = { };
     uint8_t pmkid[16];
@@ -78,7 +78,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
 
-    ieee80211_derive_pmkid(supp->pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
+    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
     ws_derive_ptkid(supp->ptk, supp->authenticator_eui64, supp->eui64, ptkid);
 
     for (int i = 0; i < 4; i++)
@@ -88,7 +88,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
             lgtkl |= BIT(i - 4);
 
-    if (memzcmp(supp->pmk.key, sizeof(supp->pmk)))
+    if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk)))
         kde_write_pmkid(&buf, pmkid);
     if (memzcmp(supp->ptk, sizeof(supp->ptk)))
         kde_write_ptkid(&buf, ptkid);
@@ -168,7 +168,7 @@ void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, 
      * may be potentially lost. A peer MUST allow for this circumstance as
      * described in this note.
      */
-    if (mbedtls_ssl_is_handshake_over(&supp->ssl_ctx) &&
+    if (mbedtls_ssl_is_handshake_over(&supp->tls_client.ssl_ctx) &&
         eapol_hdr->packet_type != EAPOL_PACKET_TYPE_EAP && !timer_stopped(&supp->failure_timer))
         supp_on_eap_success(supp);
 
@@ -242,8 +242,6 @@ void supp_reset(struct supp_ctx *supp)
 void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
                const uint8_t eui64[8])
 {
-    int ret;
-
     BUG_ON(!supp->sendto_mac);
     BUG_ON(!supp->get_target);
     BUG_ON(!supp->on_gtk_change);
@@ -260,11 +258,5 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert,
     memcpy(supp->eui64, eui64, sizeof(supp->eui64));
 
     tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, ca_cert, cert, key);
-
-    mbedtls_ssl_init(&supp->ssl_ctx);
-    ret = mbedtls_ssl_setup(&supp->ssl_ctx, &supp->tls.ssl_config);
-    BUG_ON(ret);
-
-    mbedtls_ssl_set_bio(&supp->ssl_ctx, &supp->tls_io, tls_send, tls_recv, NULL);
-    mbedtls_ssl_set_export_keys_cb(&supp->ssl_ctx, tls_export_keys, &supp->pmk);
+    tls_init_client(&supp->tls, &supp->tls_client);
 }

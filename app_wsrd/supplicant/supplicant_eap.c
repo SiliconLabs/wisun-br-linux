@@ -40,8 +40,8 @@ static void supp_eap_send_response(struct supp_ctx *supp, uint8_t identifier, ui
 
 static void supp_eap_tls_send_response(struct supp_ctx *supp, const struct eap_hdr *eap_hdr)
 {
-    bool must_fragment = pktbuf_len(&supp->tls_io.tx) > WS_MTU_BYTES;
-    uint32_t tx_len = pktbuf_len(&supp->tls_io.tx);
+    bool must_fragment = pktbuf_len(&supp->tls_client.io.tx) > WS_MTU_BYTES;
+    uint32_t tx_len = pktbuf_len(&supp->tls_client.io.tx);
     struct pktbuf buf = { };
     uint8_t flags = 0;
 
@@ -49,9 +49,9 @@ static void supp_eap_tls_send_response(struct supp_ctx *supp, const struct eap_h
     if (!supp->fragment_id)
         flags |= FIELD_PREP(EAP_TLS_FLAGS_LENGTH_MASK, must_fragment);
 
-    pktbuf_push_tail(&buf, NULL, MIN(pktbuf_len(&supp->tls_io.tx), WS_MTU_BYTES));
-    pktbuf_pop_head(&supp->tls_io.tx, pktbuf_head(&buf),
-                    MIN(pktbuf_len(&supp->tls_io.tx), WS_MTU_BYTES));
+    pktbuf_push_tail(&buf, NULL, MIN(pktbuf_len(&supp->tls_client.io.tx), WS_MTU_BYTES));
+    pktbuf_pop_head(&supp->tls_client.io.tx, pktbuf_head(&buf),
+                    MIN(pktbuf_len(&supp->tls_client.io.tx), WS_MTU_BYTES));
 
     if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags))
         pktbuf_push_head_be32(&buf, tx_len);
@@ -68,10 +68,10 @@ static void supp_eap_do_handshake(struct supp_ctx *supp, const struct eap_hdr *e
     struct pktbuf buf = { };
     int ret;
 
-    pktbuf_free(&supp->tls_io.tx);
+    pktbuf_free(&supp->tls_client.io.tx);
     supp->fragment_id = 0;
 
-    ret = mbedtls_ssl_handshake(&supp->ssl_ctx);
+    ret = mbedtls_ssl_handshake(&supp->tls_client.ssl_ctx);
     /*
      *   RFC5216 - 2.1.3. Termination
      * If the EAP server authenticates successfully, the peer MUST send an
@@ -103,7 +103,7 @@ static void supp_eap_do_handshake(struct supp_ctx *supp, const struct eap_hdr *e
      * server authentication failure is a terminal condition.
      */
     WARN_ON(ret != MBEDTLS_ERR_SSL_WANT_READ, "%s: mbedtls_ssl_handshake: %s", __func__, tr_mbedtls_err(ret));
-    if (pktbuf_len(&supp->tls_io.tx) || ret != MBEDTLS_ERR_SSL_WANT_READ)
+    if (pktbuf_len(&supp->tls_client.io.tx) || ret != MBEDTLS_ERR_SSL_WANT_READ)
         supp_eap_tls_send_response(supp, eap_hdr);
 }
 
@@ -154,12 +154,12 @@ static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_h
     remaining_size = iobuf_remaining_size(iobuf);
 
     if (supp->expected_rx_len && !FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) &&
-        pktbuf_len(&supp->tls_io.rx) + remaining_size != supp->expected_rx_len) {
+        pktbuf_len(&supp->tls_client.io.rx) + remaining_size != supp->expected_rx_len) {
         TRACE(TR_DROP, "drop %-9s: invalid final fragment size", "eap-tls");
         return;
     }
     if (supp->expected_rx_len && FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) &&
-        pktbuf_len(&supp->tls_io.rx) + remaining_size >= supp->expected_rx_len) {
+        pktbuf_len(&supp->tls_client.io.rx) + remaining_size >= supp->expected_rx_len) {
         TRACE(TR_DROP, "drop %-9s: \"more-fragments\" bit is set when it not should be", "eap-tls");
         return;
     }
@@ -187,7 +187,7 @@ static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_h
         return;
     }
 
-    pktbuf_push_tail(&supp->tls_io.rx, iobuf_pop_data_ptr(iobuf, remaining_size), remaining_size);
+    pktbuf_push_tail(&supp->tls_client.io.rx, iobuf_pop_data_ptr(iobuf, remaining_size), remaining_size);
 
     /*
      *   RFC5216, 2.1.5 - Fragmentation
@@ -211,12 +211,12 @@ void supp_eap_tls_reset(struct supp_ctx *supp)
     supp->last_tx_eap_type = EAP_TYPE_NAK;
     supp->last_eap_identifier = -1;
     supp->eap_tls_start_received = false;
-    pktbuf_init(&supp->tls_io.tx, NULL, 0);
-    pktbuf_init(&supp->tls_io.rx, NULL, 0);
+    pktbuf_init(&supp->tls_client.io.tx, NULL, 0);
+    pktbuf_init(&supp->tls_client.io.rx, NULL, 0);
     pktbuf_init(&supp->rt_buffer, NULL, 0);
     supp->expected_rx_len = 0;
     supp->fragment_id = 0;
-    mbedtls_ssl_session_reset(&supp->ssl_ctx);
+    mbedtls_ssl_session_reset(&supp->tls_client.ssl_ctx);
 }
 
 /*
@@ -330,7 +330,7 @@ void supp_eap_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
          * On the peer, after success result indications have been exchanged by
          * both sides, a Failure packet MUST be silently discarded.
          */
-        if (mbedtls_ssl_is_handshake_over(&supp->ssl_ctx))
+        if (mbedtls_ssl_is_handshake_over(&supp->tls_client.ssl_ctx))
             break;
         /*
          *   IEEE 802.1X-2020, 8.8 Supplicant PAE counters

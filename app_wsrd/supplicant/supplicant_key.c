@@ -79,7 +79,7 @@ static void supp_key_group_message_2_send(struct supp_ctx *supp)
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_MIC, 1) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_SECURE, 1)),
-        .replay_counter = htobe64(supp->pmk.replay_counter),
+        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "tx-gkh");
@@ -94,7 +94,7 @@ static void supp_key_pairwise_message_4_send(struct supp_ctx *supp)
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_TYPE, IEEE80211_KEY_TYPE_PAIRWISE) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_MIC, 1) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_SECURE, 1)),
-        .replay_counter = htobe64(supp->pmk.replay_counter),
+        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "tx-4wh");
@@ -140,7 +140,7 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
      * The local Key Replay Counter field should not be updated until after the
      * EAPOL-Key MIC is checked and is found to be valid.
      */
-    supp->pmk.replay_counter = be64toh(frame->replay_counter);
+    supp->tls_client.pmk.replay_counter = be64toh(frame->replay_counter);
     return true;
 }
 
@@ -405,7 +405,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
         goto exit;
     }
 
-    ieee80211_derive_pmkid(supp->pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
+    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
 
     if (!kde_read_pmkid(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
         TRACE(TR_DROP, "drop %-9s: missing pmkid", "eapol-key");
@@ -428,7 +428,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
 
     ieee80211_generate_nonce(supp->eui64, supp->snonce);
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
-    ieee80211_derive_ptk384(supp->pmk.key, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->tptk);
+    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->tptk);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
@@ -490,7 +490,7 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
      * Therefore, we will always accept replayed 4WH msg 1 after the PMK is
      * established.
      */
-    if (supp->pmk.replay_counter && be64toh(frame->replay_counter) <= supp->pmk.replay_counter) {
+    if (supp->tls_client.pmk.replay_counter && be64toh(frame->replay_counter) <= supp->tls_client.pmk.replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }
