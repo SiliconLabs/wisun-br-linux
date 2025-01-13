@@ -317,7 +317,7 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
     }
 
     iobuf_pop_data(&iobuf, supp->pmk, sizeof(supp->pmk));
-    supp->pmk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->pmk_lifetime_s;
+    supp->pmk_installation_s = time_now_s(CLOCK_MONOTONIC);
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
      * d) Key Replay Counter. This field is represented as an unsigned integer,

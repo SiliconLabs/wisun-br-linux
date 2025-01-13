@@ -314,7 +314,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
         memcpy(supp->pmk, ctx->supp.pmk.key, 32);
-        supp->pmk_expiration_s = UINT64_MAX;
+        auth_cfg->pmk_lifetime_s = 0; // Infinite
     }
 
     supp_start_key_request(&ctx->supp);

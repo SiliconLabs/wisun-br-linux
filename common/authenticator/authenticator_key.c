@@ -403,7 +403,9 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      */
     ieee80211_derive_pmkid(supp->pmk, auth->eui64.u8, supp->eui64.u8, key);
     if (!kde_read_pmkid(data, data_len, received_key) ||
-        memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->pmk_expiration_s) {
+        memcmp(received_key, key, sizeof(received_key)) ||
+        (auth->cfg->pmk_lifetime_s &&
+         time_now_s(CLOCK_MONOTONIC) >= supp->pmk_installation_s + auth->cfg->pmk_lifetime_s)) {
         TRACE(TR_SECURITY, "sec: pmkid out-of-date starting EAP-TLS");
         auth_eap_send_request_identity(auth, supp);
         return;

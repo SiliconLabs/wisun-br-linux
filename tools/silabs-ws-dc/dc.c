@@ -162,6 +162,7 @@ struct dc g_dc = {
     .cfg.target_eui64 = IEEE802154_ADDR_BC_INIT,
     .cfg.color_output = -1,
 
+    .cfg.auth_cfg.pmk_lifetime_s           = 0, // Infinite
     .cfg.auth_cfg.ptk_lifetime_s           = 60 * 24 * 60 * 60, // 60 days
     // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
     .cfg.auth_cfg.gtk_expire_offset_s      = 30 * 24 * 60 * 60, // 30 days
@@ -278,7 +279,6 @@ int dc_main(int argc, char *argv[])
     // Add supplicant entry to authenticator
     supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);
     memcpy(supp->pmk, dc->cfg.target_pmk, 32);
-    supp->pmk_expiration_s = UINT64_MAX; // Infinite
 
     timer_group_init(&dc->ws.neigh_table.timer_group);
     if (dc->cfg.user[0] && dc->cfg.group[0])

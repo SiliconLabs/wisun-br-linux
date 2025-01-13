@@ -40,7 +40,7 @@ struct auth_supp_ctx {
     uint8_t gtkl;
     uint8_t lgtkl;
     uint8_t  pmk[32]; // stored in cleartext in RAM
-    uint64_t pmk_expiration_s;
+    uint64_t pmk_installation_s;
     uint8_t  ptk[48];
     uint8_t  tptk[48];
     uint64_t ptk_expiration_s;
@@ -65,7 +65,7 @@ struct auth_cfg {
     int gtk_expire_offset_s;
     int gtk_new_install_required; // Percentage of GTK_EXPIRE_OFFSET
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
-    int pmk_lifetime_s;
+    int pmk_lifetime_s; // 0 for infinite
     int ptk_lifetime_s;
     struct iovec ca_cert;
     struct iovec cert;
