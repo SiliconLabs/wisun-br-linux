@@ -12,40 +12,18 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <errno.h>
-#include <limits.h>
-#include <sys/queue.h>
-#include <arpa/inet.h>
-#include <systemd/sd-bus.h>
 #include <math.h>
-#include "app/tun.h"
-#include "common/crypto/ws_keys.h"
-#include "common/bits.h"
-#include "common/string_extra.h"
-#include "common/named_values.h"
-#include "common/memutils.h"
-#include "common/version.h"
+
+#include "app_wsbrd/app/wsbrd.h"
+#include "app_wsbrd/app/commandline_values.h"
+#include "app_wsbrd/ws/ws_auth.h"
+#include "app_wsbrd/ws/ws_llc.h"
 #include "common/log.h"
-#include "common/specs/ws.h"
-#include "common/ns_list.h"
-#include "common/mathutils.h"
-#include "common/ws_neigh.h"
-#include "common/ws_regdb.h"
+#include "common/string_extra.h"
+#include "common/tun.h"
+#include "common/version.h"
 
-#include "ws/ws_auth.h"
-#include "ws/ws_common.h"
-#include "ws/ws_pae_controller.h"
-#include "ws/ws_pae_key_storage.h"
-#include "ws/ws_pae_lib.h"
-#include "ws/ws_pae_auth.h"
-#include "ws/ws_llc.h"
-#include "net/protocol.h"
-#include "security/protocols/sec_prot_keys.h"
-#include "ipv6/ipv6_routing_table.h"
-
-#include "commandline_values.h"
-#include "wsbrd.h"
-#include "tun.h"
-
+#include "dbus_auth.h"
 #include "dbus.h"
 
 int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -267,52 +245,6 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
-
-static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
-{
-    struct wsbr_ctxt *ctxt = userdata;
-    uint8_t *gtk, *lgtk;
-    size_t len;
-    int ret;
-
-    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (!len)
-        gtk = NULL;
-    else if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
-    if (!len)
-        lgtk = NULL;
-    else if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, false, gtk);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
-static int dbus_install_group_key(sd_bus_message *m, void *userdata,
-                                  sd_bus_error *ret_error, bool is_lgtk)
-{
-    struct wsbr_ctxt *ctxt = userdata;
-    const uint8_t *gtk;
-    size_t len;
-
-    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    ws_pae_auth_gtk_install(ctxt->net_if.id, gtk, is_lgtk);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
 static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
@@ -425,32 +357,27 @@ int dbus_deny_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
     return dbus_set_filter_src64(m, userdata, ret_error, false);
 }
 
-static void dbus_message_open_info(sd_bus_message *m, const char *property,
-                                  const char *name, const char *type)
+void dbus_message_open_info(sd_bus_message *m, const char *property,
+                            const char *name, const char *type)
 {
     sd_bus_message_open_container(m, 'e', "sv");
     sd_bus_message_append(m, "s", name);
     sd_bus_message_open_container(m, 'v', type);
 }
 
-static void dbus_message_close_info(sd_bus_message *m, const char *property)
+void dbus_message_close_info(sd_bus_message *m, const char *property)
 {
     sd_bus_message_close_container(m);
     sd_bus_message_close_container(m);
 }
 
-static int dbus_message_append_node(
-    sd_bus_message *m,
-    const char *property,
-    const uint8_t self[8],
-    bool is_br,
-    supp_entry_t *supp,
-    const struct ws_neigh *neighbor)
+void dbus_message_append_node(sd_bus_message *m, const char *property,
+                              const struct eui64 *eui64,
+                              bool is_br, const void *supp,
+                              const struct ws_neigh *neighbor)
 {
-    int val;
-
     sd_bus_message_open_container(m, 'r', "aya{sv}");
-    sd_bus_message_append_array(m, 'y', self, 8);
+    sd_bus_message_append_array(m, 'y', eui64, 8);
     sd_bus_message_open_container(m, 'a', "{sv}");
     {
         if (is_br) {
@@ -462,15 +389,7 @@ static int dbus_message_append_node(
             sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
             dbus_message_close_info(m, property);
         } else if (supp) {
-            dbus_message_open_info(m, property, "is_authenticated", "b");
-            val = true;
-            sd_bus_message_append(m, "b", val);
-            dbus_message_close_info(m, property);
-            if (ws_common_is_valid_nr(supp->sec_keys.node_role)) {
-                dbus_message_open_info(m, property, "node_role", "y");
-                sd_bus_message_append(m, "y", supp->sec_keys.node_role);
-                dbus_message_close_info(m, property);
-            }
+            dbus_message_append_supp(m, property, supp);
         }
         if (neighbor) {
             dbus_message_open_info(m, property, "is_neighbor", "b");
@@ -521,7 +440,6 @@ static int dbus_message_append_node(
     }
     sd_bus_message_close_container(m);
     sd_bus_message_close_container(m);
-    return 0;
 }
 
 void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
@@ -542,37 +460,7 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
     memcpy(neigh.pom_ie.phy_op_mode_id,
            ctxt->net_if.ws_info.phy_config.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
-    dbus_message_append_node(m, property, ctxt->rcp.eui64.u8, true, NULL, &neigh);
-}
-
-int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
-                       const char *property, sd_bus_message *reply,
-                       void *userdata, sd_bus_error *ret_error)
-{
-    const struct ws_neigh *neighbor_info;
-    struct wsbr_ctxt *ctxt = userdata;
-    int len_pae;
-    uint8_t eui64_pae[4096][8];
-    supp_entry_t *supp;
-
-    len_pae = ws_pae_auth_supp_list(ctxt->net_if.id, eui64_pae, sizeof(eui64_pae));
-
-    sd_bus_message_open_container(reply, 'a', "(aya{sv})");
-    dbus_message_append_node_br(reply, property, ctxt);
-
-    for (int i = 0; i < len_pae; i++) {
-        neighbor_info = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, eui64_pae[i]);
-        if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
-            supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
-        else
-            supp = NULL;
-        dbus_message_append_node(reply, property, eui64_pae[i],
-                                 false, supp, neighbor_info);
-        if (supp)
-            free(supp);
-    }
-    sd_bus_message_close_container(reply);
-    return 0;
+    dbus_message_append_node(m, property, &ctxt->rcp.eui64, true, NULL, &neigh);
 }
 
 static void dbus_message_append_rpl_target(sd_bus_message *reply, struct rpl_target *target, uint8_t pcs)
