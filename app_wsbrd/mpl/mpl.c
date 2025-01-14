@@ -309,7 +309,7 @@ static void mpl_free_space(void)
 }
 
 
-static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *domain, mpl_seed_t *seed, uint8_t sequence, uint8_t hop_limit)
+static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *domain, mpl_seed_t *seed, uint8_t sequence, uint8_t hop_limit, bool seeding)
 {
     /* IP layer ensures buffer length == IP length */
     uint16_t ip_len = buffer_data_length(buf);
@@ -347,6 +347,12 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->timestamp = g_monotonic_time_100ms;
     /* Make sure trickle structure is initialised */
     trickle_legacy_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
+
+    if (seeding) {
+        // When seeding, the first message is sent immediately
+        // Make sure it is only sent TimerExpirations times in this case
+        message->trickle.e = 1;
+    }
 
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
@@ -569,7 +575,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
         return true;
     }
 
-    message = mpl_buffer_create(buf, domain, seed, sequence, hop_limit);
+    message = mpl_buffer_create(buf, domain, seed, sequence, hop_limit, seeding);
     if (!message) {
         tr_debug("MPL Buffer Craete fail");
     }
