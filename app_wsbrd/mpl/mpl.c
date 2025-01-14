@@ -646,7 +646,8 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
                 tr_error("modify");
                 return buffer_free(buf);
             }
-            /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
+            // Set the M flag for seeded messages as they are messages with the highest sequence that the device knows of.
+            ext[4] |= MPL_OPT_M;
             ext[5] = domain->sequence++;
             buf->options.ip_extflags &= ~ IPEXT_HBH_MPL_UNFILLED;
             buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
