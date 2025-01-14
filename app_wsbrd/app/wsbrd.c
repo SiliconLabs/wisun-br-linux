@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include "common/ws/ws_regdb.h"
 #include "common/mbedtls_config_check.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
@@ -24,12 +25,10 @@
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/bus.h"
-#include "common/ws_regdb.h"
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/mathutils.h"
 #include "common/version.h"
-#include "common/ws_regdb.h"
 #include "common/ieee802154_frame.h"
 #include "common/key_value_storage.h"
 #include "common/drop_privileges.h"

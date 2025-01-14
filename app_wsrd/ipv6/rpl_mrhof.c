@@ -15,9 +15,9 @@
 
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "common/ws/ws_neigh.h"
 #include "common/mathutils.h"
 #include "common/log.h"
-#include "common/ws_neigh.h"
 
 #include "rpl_mrhof.h"
 

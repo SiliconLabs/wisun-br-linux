@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "common/ws/ws_ie_validation.h"
+#include "common/ws/ws_interface.h"
 #include "common/specs/ieee802159.h"
 #include "common/specs/6lowpan.h"
 #include "common/specs/icmpv6.h"
@@ -23,8 +25,6 @@
 #include "common/ipv6/6lowpan_iphc.h"
 #include "common/ipv6/ipv6_cksum.h"
 #include "common/ipv6/ipv6_addr.h"
-#include "common/ws_ie_validation.h"
-#include "common/ws_interface.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
 #include "common/sl_ws.h"

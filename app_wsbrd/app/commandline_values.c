@@ -11,10 +11,10 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/ws/ws_regdb.h"
 #include "common/bits.h"
 #include "common/hif.h"
 #include "common/log.h"
-#include "common/ws_regdb.h"
 #include "common/specs/ws.h"
 
 #include "wsbr_cfg.h"

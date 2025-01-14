@@ -20,10 +20,11 @@
 #include <math.h>
 #include <inttypes.h>
 #include <limits.h>
+#include "common/ws/ws_regdb.h"
+#include "common/ws/ws_types.h"
 #include "common/sys_queue_extra.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
-#include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/endian.h"
 #include "common/mathutils.h"
@@ -32,7 +33,6 @@
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/specs/ws.h"
-#include "common/ws_types.h"
 
 #include "ws_neigh.h"
 

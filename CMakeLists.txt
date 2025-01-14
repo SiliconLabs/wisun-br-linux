@@ -138,6 +138,10 @@ add_library(libwsbrd STATIC
     common/crypto/nist_kw.c
     common/crypto/ws_keys.c
     common/ipv6/ipv6_flow_label.c
+    common/ws/ws_chan_mask.c
+    common/ws/ws_ie.c
+    common/ws/ws_neigh.c
+    common/ws/ws_regdb.c
     common/crc.c
     common/bus_uart.c
     common/capture.c
@@ -161,8 +165,6 @@ add_library(libwsbrd STATIC
     common/hif.c
     common/spinel.c
     common/trickle_legacy.c
-    common/ws_chan_mask.c
-    common/ws_regdb.c
     common/key_value_storage.c
     common/ieee802154_frame.c
     common/ieee802154_ie.c
@@ -173,8 +175,6 @@ add_library(libwsbrd STATIC
     common/rcp_api.c
     common/timer.c
     common/tun.c
-    common/ws_ie.c
-    common/ws_neigh.c
     app_wsbrd/6lowpan/lowpan_adaptation_interface.c
     app_wsbrd/6lowpan/bootstraps/protocol_6lowpan.c
     app_wsbrd/6lowpan/fragmentation/cipv6_fragmenter.c
@@ -318,6 +318,12 @@ if(COMPILE_WSRD)
         common/crypto/tls.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
+        common/ws/ws_chan_mask.c
+        common/ws/ws_ie_validation.c
+        common/ws/ws_ie.c
+        common/ws/ws_interface.c
+        common/ws/ws_neigh.c
+        common/ws/ws_regdb.c
         common/bits.c
         common/bus_uart.c
         common/capture.c
@@ -348,12 +354,6 @@ if(COMPILE_WSRD)
         common/time_extra.c
         common/trickle.c
         common/tun.c
-        common/ws_chan_mask.c
-        common/ws_ie_validation.c
-        common/ws_ie.c
-        common/ws_interface.c
-        common/ws_neigh.c
-        common/ws_regdb.c
         version.c
     )
     target_include_directories(libwsrd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -533,6 +533,12 @@ if(COMPILE_DEVTOOLS)
         common/crypto/ws_keys.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
+        common/ws/ws_chan_mask.c
+        common/ws/ws_ie.c
+        common/ws/ws_ie_validation.c
+        common/ws/ws_interface.c
+        common/ws/ws_neigh.c
+        common/ws/ws_regdb.c
         common/bits.c
         common/bus_uart.c
         common/capture.c
@@ -558,12 +564,6 @@ if(COMPILE_DEVTOOLS)
         common/time_extra.c
         common/timer.c
         common/tun.c
-        common/ws_ie_validation.c
-        common/ws_ie.c
-        common/ws_interface.c
-        common/ws_neigh.c
-        common/ws_regdb.c
-        common/ws_chan_mask.c
     )
 
     target_include_directories(libdc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -15,10 +15,10 @@
 #define WS_TYPES_H
 #include <stdint.h>
 
+#include "common/ws/ws_chan_mask.h"
+#include "common/ws/ws_regdb.h"
 #include "common/bits.h"
 #include "common/int24.h"
-#include "common/ws_chan_mask.h"
-#include "common/ws_regdb.h"
 #include "common/specs/ws.h"
 
 struct ws_fhss_config {

@@ -13,6 +13,8 @@
  */
 #include <poll.h>
 
+#include "common/ws/ws_neigh.h"
+#include "common/ws/ws_regdb.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
 #include "common/bits.h"
@@ -25,8 +27,6 @@
 #include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/version.h"
-#include "common/ws_neigh.h"
-#include "common/ws_regdb.h"
 #include "common/specs/ws.h"
 
 #include "rcp_api.h"

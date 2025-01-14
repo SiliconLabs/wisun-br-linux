@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "common/ws/ws_regdb.h"
 #include "common/log.h"
 #include "common/bus.h"
 #include "common/named_values.h"
@@ -30,7 +31,6 @@
 #include "common/iobuf.h"
 #include "common/memutils.h"
 #include "common/version.h"
-#include "common/ws_regdb.h"
 #include "common/ieee802154_frame.h"
 #include "common/ieee802154_ie.h"
 #include "common/specs/ieee802154.h"

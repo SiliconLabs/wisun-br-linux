@@ -15,7 +15,7 @@
 #define DC_H
 #include <netinet/in.h>
 
-#include "common/ws_interface.h"
+#include "common/ws/ws_interface.h"
 #include "common/tun.h"
 
 #include "commandline.h"

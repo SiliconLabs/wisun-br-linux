@@ -21,13 +21,13 @@
 #include <unistd.h>
 
 #include "common/specs/ws.h"
+#include "common/ws/ws_regdb.h"
 #include "common/bits.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/named_values.h"
 #include "common/netinet_in_extra.h"
 #include "common/parsers.h"
-#include "common/ws_regdb.h"
 
 #include "commandline.h"
 

@@ -13,9 +13,9 @@
  */
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
+#include "common/ws/ws_ie.h"
+#include "common/ws/ws_regdb.h"
 #include "common/log.h"
-#include "common/ws_ie.h"
-#include "common/ws_regdb.h"
 
 #include "ws_ie_validation.h"
 

@@ -22,6 +22,8 @@
 #include <inttypes.h>
 #include <errno.h>
 #include <math.h>
+#include "common/ws/ws_ie.h"
+#include "common/ws/ws_regdb.h"
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/endian.h"
@@ -36,13 +38,11 @@
 #include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/mpx.h"
-#include "common/ws_regdb.h"
 #include "common/version.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
-#include "common/ws_ie.h"
 
 #include "app/wsbrd.h"
 #include "app/wsbr_mac.h"

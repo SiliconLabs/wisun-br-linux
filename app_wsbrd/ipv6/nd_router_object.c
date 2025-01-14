@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include "common/ws/ws_neigh.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/iobuf.h"
@@ -27,7 +28,6 @@
 #include "common/specs/ndp.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
-#include "common/ws_neigh.h"
 
 #include "app/tun.h" // FIXME
 #include "net/protocol.h"

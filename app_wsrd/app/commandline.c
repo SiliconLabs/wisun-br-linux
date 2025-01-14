@@ -14,12 +14,12 @@
 #define _GNU_SOURCE
 #include <getopt.h>
 
+#include "common/ws/ws_regdb.h"
 #include "common/commandline.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/named_values.h"
-#include "common/ws_regdb.h"
 
 #include "commandline.h"
 

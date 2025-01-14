@@ -13,10 +13,10 @@
  */
 #include <stdint.h>
 
+#include "common/ws/ws_regdb.h"
 #include "common/commandline.h"
 #include "common/log.h"
 #include "common/rcp_api.h"
-#include "common/ws_regdb.h"
 #include "rail_config.h"
 
 static void rail_print_config(const struct phy_params *phy_params, const struct chan_params *chan_params,

@@ -23,11 +23,11 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include "common/ws/ws_chan_mask.h"
+#include "common/ws/ws_ie.h"
 #include "common/int24.h"
 #include "common/timer.h"
 #include "common/hif.h"
-#include "common/ws_chan_mask.h"
-#include "common/ws_ie.h"
 
 #define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 600
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200

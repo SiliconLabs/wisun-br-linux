@@ -17,6 +17,8 @@
  */
 #include <string.h>
 #include <stdint.h>
+#include "common/ws/ws_regdb.h"
+#include "common/ws/ws_types.h"
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/endian.h"
@@ -26,8 +28,6 @@
 #include "common/memutils.h"
 #include "common/iobuf.h"
 #include "common/mathutils.h"
-#include "common/ws_regdb.h"
-#include "common/ws_types.h"
 #include "common/sl_ws.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"

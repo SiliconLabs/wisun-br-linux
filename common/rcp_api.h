@@ -17,10 +17,10 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "common/ws/ws_chan_mask.h"
 #include "common/bus.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"
-#include "common/ws_chan_mask.h"
 
 struct bus;
 struct ws_neigh_fhss;

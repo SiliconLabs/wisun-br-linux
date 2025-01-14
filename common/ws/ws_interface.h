@@ -16,8 +16,8 @@
 #include <inttypes.h>
 
 #include "common/ieee802154_frame.h"
-#include "common/ws_types.h"
-#include "common/ws_neigh.h"
+#include "common/ws/ws_neigh.h"
+#include "common/ws/ws_types.h"
 #include "common/rcp_api.h"
 #include "common/iobuf.h"
 

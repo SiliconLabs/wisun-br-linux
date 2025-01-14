@@ -25,9 +25,9 @@
 
 #include "common/authenticator/authenticator.h"
 #include "common/specs/ws.h"
+#include "common/ws/ws_chan_mask.h"
 #include "common/rcp_api.h"
 #include "common/bits.h"
-#include "common/ws_chan_mask.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {

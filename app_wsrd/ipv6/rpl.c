@@ -16,6 +16,7 @@
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 
+#include "common/ws/ws_neigh.h"
 #include "common/bits.h"
 #include "common/dbus.h"
 #include "common/iobuf.h"
@@ -28,7 +29,6 @@
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
-#include "common/ws_neigh.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 #include "common/ipv6/ipv6_addr.h"

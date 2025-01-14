@@ -21,8 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "common/ws_types.h"
-#include "common/ws_neigh.h"
+#include "common/ws/ws_neigh.h"
+#include "common/ws/ws_types.h"
 
 #include "ws/ws_mngt.h"
 #include "ws/ws_ie_custom.h"

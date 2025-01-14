@@ -12,11 +12,11 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <time.h>
+#include "common/ws/ws_ie.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/trickle_legacy.h"
 #include "common/specs/ieee802154.h"
-#include "common/ws_ie.h"
 #include "common/specs/ws.h"
 
 #include "net/timers.h"

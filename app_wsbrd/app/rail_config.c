@@ -13,10 +13,10 @@
  */
 #define _GNU_SOURCE
 #include <stdint.h>
+#include "common/ws/ws_regdb.h"
 #include "common/version.h"
 #include "common/memutils.h"
 #include "common/log.h"
-#include "common/ws_regdb.h"
 #include "common/named_values.h"
 
 #include "net/protocol.h"

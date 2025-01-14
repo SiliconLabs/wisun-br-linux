@@ -19,11 +19,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/ws/ws_ie.h"
+#include "common/ws/ws_neigh.h"
+#include "common/ws/ws_regdb.h"
 #include "common/bits.h"
 #include "common/dbus.h"
 #include "common/log.h"
 #include "common/rand.h"
-#include "common/ws_regdb.h"
 #include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
@@ -38,8 +40,6 @@
 #include "common/specs/ws.h"
 #include "common/random_early_detection.h"
 #include "common/memutils.h"
-#include "common/ws_neigh.h"
-#include "common/ws_ie.h"
 
 #include "net/ns_address_internal.h"
 #include "net/timers.h"

@@ -18,11 +18,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/ws/ws_ie.h"
+#include "common/ws/ws_neigh.h"
+#include "common/ws/ws_regdb.h"
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/rand.h"
 #include "common/mathutils.h"
-#include "common/ws_regdb.h"
 #include "common/trickle_legacy.h"
 #include "common/named_values.h"
 #include "common/endian.h"
@@ -33,8 +35,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
-#include "common/ws_neigh.h"
-#include "common/ws_ie.h"
 
 #include "app/rcp_api_legacy.h"
 #include "app/commandline_values.h"

@@ -19,10 +19,10 @@
 #include <limits.h>
 #include <stdbool.h>
 
-#include "common/ws_chan_mask.h"
+#include "common/ws/ws_chan_mask.h"
+#include "common/ws/ws_ie.h"
 #include "common/trickle.h"
 #include "common/rcp_api.h"
-#include "common/ws_ie.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsrd_conf {

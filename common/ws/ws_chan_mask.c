@@ -13,11 +13,11 @@
  */
 #include <errno.h>
 
+#include "common/ws/ws_regdb.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/hif.h"
 #include "common/parsers.h"
-#include "common/ws_regdb.h"
 
 #include "ws_chan_mask.h"
 

@@ -20,9 +20,9 @@
 #define WS_LLC_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "common/ws_interface.h"
+#include "common/ws/ws_interface.h"
+#include "common/ws/ws_neigh.h"
 #include "common/ns_list.h"
-#include "common/ws_neigh.h"
 #include "app/rcp_api_legacy.h"
 
 #include "ws/ws_common.h"

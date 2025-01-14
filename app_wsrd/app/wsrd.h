@@ -14,7 +14,7 @@
 #ifndef WSRD_H
 #define WSRD_H
 
-#include "common/ws_interface.h"
+#include "common/ws/ws_interface.h"
 #include "common/trickle.h"
 #include "common/timer.h"
 #include "app_wsrd/supplicant/supplicant.h"
