@@ -20,6 +20,7 @@
 #include "common/specs/ws.h"
 #include "common/mathutils.h"
 #include "common/eap.h"
+#include "common/endian.h"
 #include "common/eapol.h"
 #include "common/iobuf.h"
 #include "common/bits.h"
@@ -313,6 +314,10 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
     eap = iobuf_pop_data_ptr(&iobuf, sizeof(struct eap_hdr));
     if (!eap) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "eap");
+        return;
+    }
+    if (be16toh(eap->length) > buf_len) {
+        TRACE(TR_DROP, "drop %-9s: invalid packet length", "eap");
         return;
     }
 
