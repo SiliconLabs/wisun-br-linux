@@ -68,7 +68,7 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
     // Update MIC
     pktbuf_pop_tail(&buf, NULL, sizeof(*response));
     pktbuf_push_tail(&buf, response, sizeof(*response));
-    supp_send_eapol(supp, kmp_id, &buf);
+    supp_send_eapol(supp, kmp_id, pktbuf_head(&buf), pktbuf_len(&buf));
     pktbuf_free(&buf);
 }
 

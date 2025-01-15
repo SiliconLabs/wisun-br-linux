@@ -34,7 +34,7 @@ static void supp_eap_send_response(struct supp_ctx *supp, uint8_t identifier, ui
     eapol_write_hdr_head(buf, EAPOL_PACKET_TYPE_EAP);
     pktbuf_free(&supp->rt_buffer);
     pktbuf_push_tail(&supp->rt_buffer, pktbuf_head(buf), pktbuf_len(buf));
-    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, buf);
+    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, pktbuf_head(buf), pktbuf_len(buf));
     supp->last_tx_eap_type = type;
 }
 
@@ -248,7 +248,7 @@ static void supp_eap_request_recv(struct supp_ctx *supp, const struct eap_hdr *e
      * without reprocessing the Request.
      */
     if (supp->last_eap_identifier == eap_hdr->identifier) {
-        supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, &supp->rt_buffer);
+        supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, pktbuf_head(&supp->rt_buffer), pktbuf_len(&supp->rt_buffer));
         return;
     }
 

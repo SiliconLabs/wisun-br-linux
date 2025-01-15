@@ -123,7 +123,7 @@ void supp_start_key_request(struct supp_ctx *supp);
 
 void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
                      const uint8_t authenticator_eui64[8]);
-void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf);
+void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len);
 
 void supp_on_eap_success(struct supp_ctx *supp);
 

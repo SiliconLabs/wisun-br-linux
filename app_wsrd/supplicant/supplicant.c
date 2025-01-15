@@ -40,10 +40,13 @@
 
 #include "supplicant.h"
 
-void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
+void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len)
 {
-    uint8_t packet_type = *(pktbuf_head(buf) + offsetof(struct eapol_hdr, packet_type));
     uint8_t *dst = supp->get_target(supp);
+    const struct eapol_hdr *hdr;
+
+    BUG_ON(buf_len < sizeof(*hdr));
+    hdr = buf;
 
     if (!memcmp(dst, &ieee802154_addr_bc, 8)) {
         TRACE(TR_DROP, "drop %-9s: no eapol target available", "eapol");
@@ -51,8 +54,8 @@ void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, struct pktbuf *buf)
     }
 
     TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
-          val_to_str(packet_type, eapol_frames, "[UNK]"), pktbuf_len(buf));
-    supp->sendto_mac(supp, kmp_id, pktbuf_head(buf), pktbuf_len(buf), dst);
+          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), buf_len);
+    supp->sendto_mac(supp, kmp_id, buf, buf_len, dst);
 }
 
 static void supp_failure_key_request(struct rfc8415_txalg *txalg)
@@ -98,7 +101,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     frame.data_length = htobe16(pktbuf_len(&buf));
     pktbuf_push_head(&buf, &frame, sizeof(frame));
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
-    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, &buf);
+    supp_send_eapol(supp, IEEE802159_KMP_ID_8021X, pktbuf_head(&buf), pktbuf_len(&buf));
     pktbuf_free(&buf);
 }
 
