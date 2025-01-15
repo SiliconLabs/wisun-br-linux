@@ -37,21 +37,12 @@ static int backtrace_cb(void *data, uintptr_t pc, const char *filename, int line
     if (!function)
         function = get_symbol_with_libdl(pc);
 
-    if (sizeof(void *) > 4) {
-        if (!function)
-            fprintf(stderr, "  %016lx ??\n", (unsigned long)pc);
-        else if (!filename)
-            fprintf(stderr, "  %016lx %s() at ??\n", (unsigned long)pc, function);
-        else
-            fprintf(stderr, "  %016lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
-    } else {
-        if (!function)
-            fprintf(stderr, "  %08lx ??\n", (unsigned long)pc);
-        else if (!filename)
-            fprintf(stderr, "  %08lx %s() at ??\n", (unsigned long)pc, function);
-        else
-            fprintf(stderr, "  %08lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
-    }
+    if (!function)
+        fprintf(stderr, "  %p ??\n", (void *)pc);
+    else if (!filename)
+        fprintf(stderr, "  %p %s() at ??\n", (void *)pc, function);
+    else
+        fprintf(stderr, "  %p %s() at %s:%d\n", (void *)pc, function, filename, lineno);
     return 0;
 }
 
