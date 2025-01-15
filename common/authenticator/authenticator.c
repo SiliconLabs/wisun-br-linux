@@ -231,8 +231,8 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 
     BUG_ON(buf_len < sizeof(*hdr));
     hdr = buf;
-    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
-          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), buf_len);
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
+          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
     auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
 }
 
