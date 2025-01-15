@@ -164,7 +164,7 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
         TRACE(TR_SECURITY, "sec: %s max retry count exceeded eui64=%s",
               supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
         if (!supp->rt_kmp_id)
-            supp->radius_id = -1; // Cancel transaction
+            supp->radius.id = -1; // Cancel transaction
         timer_stop(group, timer);
         return;
     }
@@ -202,7 +202,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
 
     supp = zalloc(sizeof(struct auth_supp_ctx));
     supp->eui64 = *eui64;
-    supp->radius_id = -1;
+    supp->radius.id = -1;
     supp->last_installed_key_slot = -1;
     supp->rt_timer.period_ms = auth->timeout_ms,
     supp->rt_timer.callback = auth_rt_timer_timeout;

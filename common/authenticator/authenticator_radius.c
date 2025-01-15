@@ -195,7 +195,7 @@ static int radius_verify_resp_auth(struct auth_ctx *auth, struct auth_supp_ctx *
     mbedtls_md5_init(&md5);
     xmbedtls_md5_starts(&md5);
     xmbedtls_md5_update(&md5, buf, offsetof(struct radius_hdr, auth));
-    xmbedtls_md5_update(&md5, supp->radius_auth, 16);
+    xmbedtls_md5_update(&md5, supp->radius.auth, 16);
     xmbedtls_md5_update(&md5, (uint8_t *)buf + sizeof(*hdr), buf_len - sizeof(*hdr));
     xmbedtls_md5_update(&md5, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md5_finish(&md5, resp_auth);
@@ -214,8 +214,8 @@ static int radius_read_state(struct auth_supp_ctx *supp, const void *buf, size_t
                             RADIUS_ATTR_STATE);
     if (!attr)
         return -EINVAL;
-    supp->radius_state_len = attr->len - sizeof(*attr);
-    memcpy(supp->radius_state, attr->val, supp->radius_state_len);
+    supp->radius.state_len = attr->len - sizeof(*attr);
+    memcpy(supp->radius.state, attr->val, supp->radius.state_len);
     return 0;
 }
 
@@ -296,7 +296,7 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
         return -EINVAL;
 
     radius_ms_mppe_key_decrypt(string, iobuf_ptr(&iobuf), sizeof(string),
-                               auth->cfg->radius_secret, supp->radius_auth, salt);
+                               auth->cfg->radius_secret, supp->radius.auth, salt);
 
     iobuf.cnt       = 0;
     iobuf.data      = string;
@@ -360,7 +360,7 @@ static int radius_verify_msg_auth(struct auth_ctx *auth, struct auth_supp_ctx *s
     xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_MD5), 1);
     xmbedtls_md_hmac_starts(&md, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md_hmac_update(&md, buf, offsetof(struct radius_hdr, auth));
-    xmbedtls_md_hmac_update(&md, supp->radius_auth, 16);
+    xmbedtls_md_hmac_update(&md, supp->radius.auth, 16);
     xmbedtls_md_hmac_update(&md, (uint8_t *)buf + sizeof(struct radius_hdr),
                                  offset_msg_auth - sizeof(struct radius_hdr));
     xmbedtls_md_hmac_update(&md, msg_auth, 16);
@@ -434,12 +434,12 @@ void radius_recv(struct auth_ctx *auth)
     }
     iobuf.data_size = ntohs(hdr->len);
 
-    supp = SLIST_FIND(supp, &auth->supplicants, link, supp->radius_id == hdr->id);
+    supp = SLIST_FIND(supp, &auth->supplicants, link, supp->radius.id == hdr->id);
     if (!supp) {
         TRACE(TR_DROP, "drop %-9s: unknown id=%u", "radius", hdr->id);
         return;
     }
-    supp->radius_id = -1; // Transaction finished
+    supp->radius.id = -1; // Transaction finished
     timer_stop(&auth->timer_group, &supp->rt_timer);
 
     TRACE(TR_SECURITY, "sec: rx-radius code=%-16s id=%u",
@@ -513,7 +513,7 @@ static int radius_id_new(struct auth_ctx *auth)
     // If next handle is already in use (unlikely), use the next available one.
     for (cnt = 0; cnt <= UINT8_MAX; cnt++) {
         id = auth->radius_id_next++;
-        if (!SLIST_FIND(supp, &auth->supplicants, link, supp->radius_id == id))
+        if (!SLIST_FIND(supp, &auth->supplicants, link, supp->radius.id == id))
             break;
     }
     return cnt <= UINT8_MAX ? id : -1;
@@ -540,18 +540,18 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     struct pktbuf pktbuf = { };
     int offset_msg_auth;
 
-    supp->radius_id = -1; // Cancel any on-going transaction
-    supp->radius_id = radius_id_new(auth);
-    if (supp->radius_id < 0) {
+    supp->radius.id = -1; // Cancel any on-going transaction
+    supp->radius.id = radius_id_new(auth);
+    if (supp->radius.id < 0) {
         TRACE(TR_DROP, "drop %-9s: too many on-going transations", "radius");
         return;
     }
 
     BUG_ON(buf_len < sizeof(*eap));
     hdr.code = RADIUS_ACCESS_REQUEST;
-    hdr.id   = supp->radius_id;
-    rand_get_n_bytes_random(supp->radius_auth, 16);
-    memcpy(hdr.auth, supp->radius_auth, 16);
+    hdr.id   = supp->radius.id;
+    rand_get_n_bytes_random(supp->radius.auth, 16);
+    memcpy(hdr.auth, supp->radius.auth, 16);
     pktbuf_push_tail(&pktbuf, &hdr, sizeof(hdr));
 
     // RFC 3579 3.1. EAP-Message
@@ -567,9 +567,9 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     offset_msg_auth = pktbuf.offset_tail + sizeof(struct radius_attr);
     radius_attr_push(&pktbuf, RADIUS_ATTR_MSG_AUTH, NULL, 16);
 
-    if (supp->radius_state_len)
+    if (supp->radius.state_len)
         radius_attr_push(&pktbuf, RADIUS_ATTR_STATE,
-                         supp->radius_state, supp->radius_state_len);
+                         supp->radius.state, supp->radius.state_len);
 
     // Fill length
     hdr.len = htons(pktbuf_len(&pktbuf));

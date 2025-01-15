@@ -54,10 +54,12 @@ struct auth_supp_ctx {
         int last_mbedtls_status; // Used to send EAP-Success/Failure messages
     } eap_tls;
 
-    int     radius_id;
-    uint8_t radius_auth[16];
-    uint8_t radius_state[253];
-    uint8_t radius_state_len;
+    struct {
+        int     id;
+        uint8_t auth[16];
+        uint8_t state[253];
+        uint8_t state_len;
+    } radius;
 
     SLIST_ENTRY(auth_supp_ctx) link;
 };
