@@ -53,8 +53,8 @@ void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, siz
         return;
     }
 
-    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%zu", "tx-eapol",
-          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), buf_len);
+    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
+          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
     supp->sendto_mac(supp, kmp_id, buf, buf_len, dst);
 }
 
