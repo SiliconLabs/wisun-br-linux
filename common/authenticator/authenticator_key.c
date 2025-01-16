@@ -381,14 +381,36 @@ static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     return ret;
 }
 
+static bool auth_is_pmkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t pmkid_kde[16])
+{
+    const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;
+    uint8_t pmkid[16];
+
+    ieee80211_derive_pmkid(pmk->key, auth->eui64.u8, supp->eui64.u8, pmkid);
+    if (memcmp(pmkid_kde, pmkid, 16))
+        return false;
+    if (!auth->cfg->pmk_lifetime_s) // Infinite lifetime
+        return true;
+    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + auth->cfg->pmk_lifetime_s;
+}
+
+static bool auth_is_ptkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t ptkid_kde[16])
+{
+    uint8_t ptkid[16];
+
+    ws_derive_ptkid(supp->ptk, auth->eui64.u8, supp->eui64.u8, ptkid);
+    if (memcmp(ptkid_kde, ptkid, 16))
+        return false;
+    return time_now_s(CLOCK_MONOTONIC) < supp->ptk_expiration_s;
+}
+
 static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   const struct eapol_key_frame *frame,
                                   const void *data, size_t data_len)
 {
+    uint8_t pmkid[16], ptkid[16];
     uint8_t received_node_role;
-    uint8_t received_key[16];
     int next_key_slot;
-    uint8_t key[16];
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
 
@@ -401,11 +423,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * Authenticator MUST install a new PMK and PTK on the SUP (execute EAP-TLS to
      * install a PMK and execute the 4-way the handshake to install a PTK).
      */
-    ieee80211_derive_pmkid(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, key);
-    if (!kde_read_pmkid(data, data_len, received_key) ||
-        memcmp(received_key, key, sizeof(received_key)) ||
-        (auth->cfg->pmk_lifetime_s &&
-         time_now_s(CLOCK_MONOTONIC) >= supp->eap_tls.tls.pmk.installation_s + auth->cfg->pmk_lifetime_s)) {
+    if (!kde_read_pmkid(data, data_len, pmkid) || !auth_is_pmkid_valid(auth, supp, pmkid)) {
         TRACE(TR_SECURITY, "sec: pmk out-of-date starting EAP-TLS");
         auth_eap_send_request_identity(auth, supp);
         return;
@@ -417,9 +435,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * means the Authenticator MUST install a new PTK on the SUP (execute the 4-way the
      * handshake to install a PTK).
      */
-    ws_derive_ptkid(supp->ptk, auth->eui64.u8, supp->eui64.u8, key);
-    if (!kde_read_ptkid(data, data_len, received_key) ||
-        memcmp(received_key, key, sizeof(received_key)) || time_now_s(CLOCK_MONOTONIC) >= supp->ptk_expiration_s) {
+    if (!kde_read_ptkid(data, data_len, ptkid) || !auth_is_ptkid_valid(auth, supp, ptkid)) {
         TRACE(TR_SECURITY, "sec: ptk out-of-date starting 4wh");
         auth_key_pairwise_message_1_send(auth, supp);
         return;
