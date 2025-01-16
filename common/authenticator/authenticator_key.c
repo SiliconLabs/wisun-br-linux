@@ -26,6 +26,7 @@
 #include "common/crypto/nist_kw.h"
 #include "common/crypto/ws_keys.h"
 #include "common/time_extra.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
 #include "common/eapol.h"
@@ -170,6 +171,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
                                     const struct eapol_key_frame *frame, int key_slot, struct pktbuf *enc_key_data)
 {
     struct pktbuf key_data = { };
+    const struct ws_gtk *gtk;
     const uint8_t *ptk;
     int ret;
 
@@ -182,8 +184,9 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
      * (KRACK).
      */
     if (key_slot >= 0) {
-        kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].key);
-        kde_write_lifetime(&key_data, timer_remaining_ms(&auth->gtks[key_slot].expiration_timer) / 1000);
+        gtk = &auth->gtks[key_slot];
+        kde_write_gtk(&key_data, key_slot, gtk->key);
+        kde_write_lifetime(&key_data, MIN(timer_remaining_ms(&gtk->expiration_timer) / 1000, UINT32_MAX));
     }
     kde_write_gtkl(&key_data, auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks)));
 

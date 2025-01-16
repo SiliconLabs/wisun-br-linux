@@ -124,8 +124,6 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 
     if (memcmp(&dc->cfg.target_eui64, eui64, sizeof(dc->cfg.target_eui64)))
         return;
-    if (index - 1 != dc->auth_ctx.cur_slot) // Do not act when the second GTK is installed during rotation
-        return;
     BUG_ON(!neigh);
     // Direct Connect encryption relies on the Temporal Key (TK) portion of the PTK to secure traffic
     BUG_ON(!auth_get_supp_tk(auth_ctx, eui64, tk));
@@ -162,12 +160,9 @@ struct dc g_dc = {
     .cfg.target_eui64 = IEEE802154_ADDR_BC_INIT,
     .cfg.color_output = -1,
 
-    .cfg.auth_cfg.pmk_lifetime_s           = 0, // Infinite
-    .cfg.auth_cfg.ptk_lifetime_s           = 0, // Infinite
-    // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
-    .cfg.auth_cfg.gtk_expire_offset_s      = 30 * 24 * 60 * 60, // 30 days
-    .cfg.auth_cfg.gtk_new_activation_time  = 720,
-    .cfg.auth_cfg.gtk_new_install_required = 80,
+    .cfg.auth_cfg.pmk_lifetime_s      = 0, // Infinite
+    .cfg.auth_cfg.ptk_lifetime_s      = 0, // Infinite
+    .cfg.auth_cfg.gtk_expire_offset_s = 0, // Infinite
 
     .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
     .auth_ctx.radius_fd             = -1,

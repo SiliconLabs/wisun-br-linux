@@ -50,7 +50,11 @@ static void auth_gtk_expiration_timer_start(struct auth_ctx *auth, struct ws_gtk
     const uint64_t start_ms = prev ? prev->expiration_timer.expire_ms : time_now_ms(CLOCK_MONOTONIC);
     const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
 
-    timer_start_abs(&auth->timer_group, &gtk->expiration_timer, start_ms + expire_offset_ms);
+    if (expire_offset_ms)
+        timer_start_abs(&auth->timer_group, &gtk->expiration_timer, start_ms + expire_offset_ms);
+    else
+        // Start a very long timer since GTK Liveness is determined by timer_stopped()
+        timer_start_abs(&auth->timer_group, &gtk->expiration_timer, UINT64_MAX);
 }
 
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -75,8 +79,9 @@ static void auth_gtk_activation_timer_start(struct auth_ctx *auth, const struct 
     const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
     const uint64_t expire_ms = gtk->expiration_timer.expire_ms;
 
-    timer_start_abs(&auth->timer_group, &auth->gtk_activation_timer,
-                    expire_ms - expire_offset_ms / auth->cfg->gtk_new_activation_time);
+    if (expire_offset_ms)
+        timer_start_abs(&auth->timer_group, &auth->gtk_activation_timer,
+                        expire_ms - expire_offset_ms / auth->cfg->gtk_new_activation_time);
 }
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -105,8 +110,9 @@ static void auth_gtk_install_timer_start(struct auth_ctx *auth, const struct ws_
     uint64_t lifetime_ms = timer_duration_ms(&gtk->expiration_timer);
     uint64_t start_ms = gtk->expiration_timer.start_ms;
 
-    timer_start_abs(&auth->timer_group, &auth->gtk_install_timer,
-                    start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
+    if (auth->cfg->gtk_expire_offset_s)
+        timer_start_abs(&auth->timer_group, &auth->gtk_install_timer,
+                        start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
 }
 
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
