@@ -180,7 +180,7 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
     // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
     if (memcmp(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
         memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
-        timer_start_rel(NULL, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
+        timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk_kde->gtk, key_index);
         TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime=%us",
               is_lgtk ? "lgtk" : "gtk", key_index - offset, lifetime_kde);
@@ -213,9 +213,9 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
         if ((gtkl_kde & BIT(i)) || timer_stopped(&gtk->expiration_timer))
             continue;
         TRACE(TR_SECURITY, "sec: %s[%u] revoked", is_lgtk ? "lgtk" : "gtk", i + 1);
-        timer_stop(NULL, &gtk->expiration_timer);
+        timer_stop(&supp->timer_group, &gtk->expiration_timer);
         if (gtk->expiration_timer.callback)
-            gtk->expiration_timer.callback(NULL, &gtk->expiration_timer);
+            gtk->expiration_timer.callback(&supp->timer_group, &gtk->expiration_timer);
     }
 }
 

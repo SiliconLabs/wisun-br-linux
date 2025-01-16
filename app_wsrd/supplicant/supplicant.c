@@ -196,8 +196,8 @@ void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, 
  */
 static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
+    struct supp_ctx *supp = container_of(group, struct supp_ctx, timer_group);
     struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
-    struct supp_ctx *supp = container_of((const struct ws_gtk (*)[7])(gtk - gtk->slot), struct supp_ctx, gtks);
 
     TRACE(TR_SECURITY, "sec: gtk[%u] expired", gtk->slot + 1);
     supp->on_gtk_change(supp, NULL, gtk->slot + 1);
@@ -250,6 +250,7 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert,
     BUG_ON(!supp->on_gtk_change);
     BUG_ON(!supp->on_failure);
 
+    timer_group_init(&supp->timer_group);
     supp->failure_timer.callback = supp_failure_timer_timeout;
     supp->key_request_txalg.tx = supp_timeout_key_request;
     supp->key_request_txalg.fail = supp_failure_key_request;

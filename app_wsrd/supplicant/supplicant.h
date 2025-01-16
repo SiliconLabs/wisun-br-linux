@@ -99,6 +99,7 @@ struct supp_ctx {
 
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   failure_timer;
+    struct timer_group   timer_group;
     /*
      * Arbitrary timeout between authentication steps:
      *   - TX EAP Response  -> RX EAP Request
