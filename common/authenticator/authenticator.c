@@ -56,9 +56,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, NULL, slot + 1, false);
-    TRACE(TR_SECURITY, "sec: expired %s[%u]",
-          slot < WS_GTK_COUNT ? "gtk" : "lgtk",
-          slot < WS_GTK_COUNT ? slot + 1 : slot - WS_GTK_COUNT + 1);
+    TRACE(TR_SECURITY, "sec: expired %s", tr_gtkname(slot));
     memset(gtk->key, 0, sizeof(gtk->key));
 }
 
@@ -89,9 +87,8 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     auth_gtk_activation_timer_start(auth, gtk_group);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, auth->gtks[gtk_group->slot_active].key, gtk_group->slot_active + 1, true);
-    TRACE(TR_SECURITY, "sec: activated %s[%u]=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
-          gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
-          gtk_group == &auth->gtk_group ? gtk_group->slot_active + 1 : gtk_group->slot_active - WS_GTK_COUNT + 1,
+    TRACE(TR_SECURITY, "sec: activated %s=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
+          tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
           auth->gtks[gtk_group->slot_active].expiration_timer.expire_ms / 1000,
           gtk_group->install_timer.expire_ms / 1000,
@@ -146,10 +143,8 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, slot_install + 1, false);
-    TRACE(TR_SECURITY, "sec: installed %s[%u]=%s",
-          slot_install < WS_GTK_COUNT ? "gtk" : "lgtk",
-          slot_install < WS_GTK_COUNT ? slot_install + 1 : slot_install + 1 - WS_GTK_COUNT,
-          tr_key(new->key, sizeof(new->key)));
+    TRACE(TR_SECURITY, "sec: installed %s=%s",
+          tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
 }
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,

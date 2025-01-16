@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#include "common/crypto/ws_keys.h"
 #include "common/mbedtls_extra.h"
 #include "common/bits.h"
 
@@ -306,5 +307,19 @@ const char *tr_mbedtls_err(int err)
     mbedtls_strerror(err, out, sizeof(trace_buffer) - trace_idx);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
+    return out;
+}
+
+const char *tr_gtkname(uint8_t slot)
+{
+    char *out = trace_buffer + trace_idx;
+    int len;
+
+    len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s[%u]",
+                   slot < WS_GTK_COUNT ? "gtk" : "lgtk",
+                   slot < WS_GTK_COUNT ? slot : slot - WS_GTK_COUNT);
+    if (len >= sizeof(trace_buffer) - trace_idx)
+        return "[OVERFLOW]";
+    trace_idx += len + 1;
     return out;
 }

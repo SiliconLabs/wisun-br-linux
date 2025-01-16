@@ -182,11 +182,10 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
         timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk_kde->gtk, key_index);
-        TRACE(TR_SECURITY, "sec: %s[%u] installed lifetime=%us",
-              is_lgtk ? "lgtk" : "gtk", key_index - offset, lifetime_kde);
+        TRACE(TR_SECURITY, "sec: %s installed lifetime=%us",
+              tr_gtkname(key_index - 1), lifetime_kde);
     } else {
-        WARN("sec: ignore reinstallation of %s[%u] ",
-             is_lgtk ? "lgtk" : "gtk", key_index - offset);
+        WARN("sec: ignore reinstallation of %s", tr_gtkname(key_index - 1));
     }
 
     return 0;
@@ -212,7 +211,7 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
         gtk = &supp->gtks[i + offset];
         if ((gtkl_kde & BIT(i)) || timer_stopped(&gtk->expiration_timer))
             continue;
-        TRACE(TR_SECURITY, "sec: %s[%u] revoked", is_lgtk ? "lgtk" : "gtk", i + 1);
+        TRACE(TR_SECURITY, "sec: %s revoked", tr_gtkname(i + offset));
         timer_stop(&supp->timer_group, &gtk->expiration_timer);
         if (gtk->expiration_timer.callback)
             gtk->expiration_timer.callback(&supp->timer_group, &gtk->expiration_timer);

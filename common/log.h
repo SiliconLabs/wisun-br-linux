@@ -145,6 +145,7 @@ const char *tr_ipv4_prefix(uint8_t in[], int prefix_len);
 const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len);
 const char *tr_bytes(const void *in, int len, const void **in_done, int max_out, int opt);
 const char *tr_mbedtls_err(int err);
+const char *tr_gtkname(uint8_t slot);
 
 void __tr_enter();
 void __tr_exit();
