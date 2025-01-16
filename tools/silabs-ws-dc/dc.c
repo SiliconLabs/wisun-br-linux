@@ -160,9 +160,9 @@ struct dc g_dc = {
     .cfg.target_eui64 = IEEE802154_ADDR_BC_INIT,
     .cfg.color_output = -1,
 
-    .cfg.auth_cfg.pmk_lifetime_s      = 0, // Infinite
-    .cfg.auth_cfg.ptk_lifetime_s      = 0, // Infinite
-    .cfg.auth_cfg.gtk_expire_offset_s = 0, // Infinite
+    .cfg.auth_cfg.ffn.pmk_lifetime_s      = 0, // Infinite
+    .cfg.auth_cfg.ffn.ptk_lifetime_s      = 0, // Infinite
+    .cfg.auth_cfg.ffn.gtk_expire_offset_s = 0, // Infinite
 
     .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
     .auth_ctx.radius_fd             = -1,

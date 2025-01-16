@@ -314,7 +314,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
         memcpy(supp->eap_tls.tls.pmk.key, ctx->supp.tls_client.pmk.key, 32);
-        auth_cfg->pmk_lifetime_s = 0; // Infinite
+        auth_cfg->ffn.pmk_lifetime_s = 0; // Infinite
     }
 
     supp_start_key_request(&ctx->supp);
@@ -342,11 +342,11 @@ int main(int argc, char *argv[])
     uint8_t buf[2048];
     ssize_t ret;
     struct auth_cfg auth_cfg = {
-        .pmk_lifetime_s           = 30,
-        .ptk_lifetime_s           = 15,
-        .gtk_expire_offset_s      = 10,
-        .gtk_new_activation_time  = 720,
-        .gtk_new_install_required = 80,
+        .ffn.pmk_lifetime_s           = 30,
+        .ffn.ptk_lifetime_s           = 15,
+        .ffn.gtk_expire_offset_s      = 10,
+        .ffn.gtk_new_activation_time  = 720,
+        .ffn.gtk_new_install_required = 80,
     };
     struct ctx ctx = {
         .supp.key_request_txalg.rand_min = -0.1,

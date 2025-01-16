@@ -351,8 +351,8 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         return -EINVAL;
     }
     memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
-    if (auth->cfg->ptk_lifetime_s)
-        supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ptk_lifetime_s;
+    if (auth->cfg->ffn.ptk_lifetime_s)
+        supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ffn.ptk_lifetime_s;
     else
         supp->ptk_expiration_s = UINT64_MAX;
     return auth_key_handshake_done(auth, supp);
@@ -458,9 +458,9 @@ static bool auth_is_pmkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *sup
     ieee80211_derive_pmkid(pmk->key, auth->eui64.u8, supp->eui64.u8, pmkid);
     if (memcmp(pmkid_kde, pmkid, 16))
         return false;
-    if (!auth->cfg->pmk_lifetime_s) // Infinite lifetime
+    if (!auth->cfg->ffn.pmk_lifetime_s) // Infinite lifetime
         return true;
-    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + auth->cfg->pmk_lifetime_s;
+    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + auth->cfg->ffn.pmk_lifetime_s;
 }
 
 static bool auth_is_ptkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t ptkid_kde[16])
