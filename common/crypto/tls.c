@@ -54,9 +54,11 @@ int tls_recv(void *ctx, unsigned char *buf, size_t len)
  *                (MS-MPPE-Recv-Key in [RFC2548]).  Also known as the
  *                PMK in [IEEE-802.11].
  */
-void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type, const unsigned char *secret,
-                     size_t secret_len, const unsigned char client_random[32],
-                     const unsigned char server_random[32], mbedtls_tls_prf_types tls_prf_type)
+static void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type,
+                            const unsigned char *secret, size_t secret_len,
+                            const unsigned char client_random[32],
+                            const unsigned char server_random[32],
+                            mbedtls_tls_prf_types tls_prf_type)
 {
     struct tls_pmk *pmk = p_expkey;
     uint8_t derived_key[128];
