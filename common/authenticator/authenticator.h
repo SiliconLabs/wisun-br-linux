@@ -27,7 +27,7 @@
 
 struct auth_supp_ctx {
     struct eui64 eui64;
-    bool is_lfn;
+    uint8_t node_role;
 
     // Retransmissions
     struct timer_entry rt_timer;

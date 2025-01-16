@@ -415,7 +415,6 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
                                   const void *data, size_t data_len)
 {
     uint8_t pmkid[16], ptkid[16];
-    uint8_t received_node_role;
     int next_key_slot;
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
@@ -454,8 +453,8 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      * operating as a FAN 1.0 Router. The Node Role KDE is used to determine appropriate
      * role based lifetimes for PMKs/PTKs.
      */
-    if (kde_read_nr(data, data_len, &received_node_role))
-        supp->is_lfn = received_node_role == WS_NR_ROLE_LFN;
+    if (!kde_read_nr(data, data_len, &supp->node_role))
+        supp->node_role = WS_NR_ROLE_UNKNOWN;
 
     if (supp->gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
         TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
