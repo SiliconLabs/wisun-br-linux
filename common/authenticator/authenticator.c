@@ -15,6 +15,7 @@
 #define _DEFAULT_SOURCE
 #include <netinet/in.h>
 #include <inttypes.h>
+#include <errno.h>
 #include <string.h>
 
 #include "common/specs/ieee802159.h"
@@ -238,6 +239,22 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
     return supp;
+}
+
+int auth_revoke_pmk(struct auth_ctx *auth, const struct eui64 *eui64)
+{
+    struct auth_supp_ctx *supp;
+    struct tls_pmk *pmk;
+
+    supp = auth_get_supp(auth, eui64);
+    if (!supp)
+        return -ENODEV;
+    pmk = &supp->eap_tls.tls.pmk;
+    memset(pmk->key, 0, sizeof(pmk->key));
+    pmk->installation_s = 0;
+    memset(supp->ptk, 0, sizeof(supp->ptk));
+    supp->ptk_expiration_s = 0;
+    return 0;
 }
 
 bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t tk[16])
