@@ -241,7 +241,16 @@ if(AUTH_LEGACY)
     )
     target_compile_definitions(libwsbrd PUBLIC HAVE_AUTH_LEGACY)
 else()
-    message(FATAL_ERROR "AUTH_LEGACY=OFF unsupported")
+    target_sources(libwsbrd PRIVATE
+        app_wsbrd/ws/ws_auth.c
+        common/authenticator/authenticator.c
+        common/authenticator/authenticator_key.c
+        common/authenticator/authenticator_eap.c
+        common/authenticator/authenticator_radius.c
+        common/crypto/tls.c
+        common/eap.c
+        common/kde.c
+    )
 endif()
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -260,7 +269,11 @@ endif()
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus.c)
-    target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth_legacy.c)
+    if(AUTH_LEGACY)
+        target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth_legacy.c)
+    else()
+        target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth.c)
+    endif()
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)

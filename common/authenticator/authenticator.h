@@ -124,6 +124,7 @@ struct auth_ctx {
     void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);
 };
 
+#ifndef HAVE_AUTH_LEGACY
 struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 *eui64);
 
 int auth_revoke_pmk(struct auth_ctx *auth, const struct eui64 *eui64);
@@ -136,5 +137,15 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *eui64,
                      const uint8_t *buf, size_t buf_len);
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn);
+#else
+#include "common/log.h"
+
+static inline void auth_recv_eapol(struct auth_ctx *auth,
+                                   uint8_t kmp_id, const struct eui64 *eui64,
+                                   const uint8_t *buf, size_t buf_len)
+{
+    BUG();
+}
+#endif
 
 #endif

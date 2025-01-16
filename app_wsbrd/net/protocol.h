@@ -29,6 +29,7 @@
 #include "rpl/rpl.h"
 
 typedef struct buffer buffer_t;
+struct auth_ctx;
 
 void protocol_push(buffer_t *buf);
 void protocol_core_init(void);
@@ -64,6 +65,7 @@ struct net_if {
     struct ws_info ws_info;
 
     struct rcp *rcp;
+    struct auth_ctx *auth;
     arm_15_4_mac_parameters_t mac_parameters;
 
     struct rpl_root rpl_root;

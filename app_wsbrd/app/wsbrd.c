@@ -78,6 +78,21 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target, bool updated_transit);
 
+static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t key_index, bool activate)
+{
+    struct wsbr_ctxt *ctxt = container_of(auth, struct wsbr_ctxt, auth);
+    uint8_t gak[16];
+
+    if (gtk) {
+        ws_generate_gak(ctxt->net_if.ws_info.network_name, gtk, gak);
+        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, gak, 0);
+    } else {
+        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, NULL, 0);
+    }
+    if (activate)
+        ws_bootstrap_nw_key_index_set(&ctxt->net_if, key_index - 1);
+}
+
 // See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
@@ -92,6 +107,13 @@ struct wsbr_ctxt g_ctxt = {
     .rcp.bus.fd = -1,
     .dhcp_server.fd = -1,
     .net_if.rpl_root.sockfd = -1,
+
+    .net_if.auth = &g_ctxt.auth,
+    .auth.cfg = &g_ctxt.config.auth_cfg,
+    .auth.radius_fd = -1,
+    .auth.timeout_ms = 60 * 1000, // Arbitrary
+    .auth.sendto_mac    = ws_llc_auth_sendto_mac,
+    .auth.on_gtk_change = wsbr_on_gtk_change,
 
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
     .net_if.rpl_root.dio_i_min        = 19,

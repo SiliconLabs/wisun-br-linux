@@ -24,6 +24,7 @@
 typedef struct sd_bus sd_bus;
 #endif
 
+#include "common/authenticator/authenticator.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/rcp_api.h"
@@ -57,6 +58,7 @@ struct wsbr_ctxt {
     struct timer_entry timer_legacy;
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;
+    struct auth_ctx auth;
     struct net_if net_if;
     sd_bus *dbus;
 

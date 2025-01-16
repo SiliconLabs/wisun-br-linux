@@ -35,6 +35,7 @@ struct ws_neigh;
 struct ws_neighbor_temp_class;
 struct mpx_api;
 struct ws_info;
+struct auth_ctx;
 
 struct ws_llc_mngt_req {
     uint8_t frame_type;
@@ -94,5 +95,8 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
 typedef struct mcps_data_ind         mcps_data_ind_t;
 void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
                               const struct mcps_data_rx_ie_list *ie_ext);
+
+void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
+                            const void *buf, size_t buf_len, const struct eui64 *dst);
 
 #endif

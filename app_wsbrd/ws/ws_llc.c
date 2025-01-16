@@ -26,6 +26,7 @@
 #include "common/bits.h"
 #include "common/endian.h"
 #include "common/string_extra.h"
+#include "common/mbedtls_extra.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
@@ -92,6 +93,7 @@ typedef struct llc_message {
     unsigned        src_address_type: 2; /**<  Source address type */
     uint8_t         msg_handle;         /**< LLC genetaed unique MAC handle */
     uint8_t         mpx_user_handle;    /**< This MPX user defined handle */
+    uint8_t         kmp_id;
     struct iobuf_write ie_buf_header;
     struct iovec    ie_iov_header;
     struct iobuf_write ie_buf_payload;
@@ -280,10 +282,13 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
         ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
-    if (mpx_usr && mpx_usr->data_confirm) {
+    if (mpx_usr && mpx_usr->data_confirm) { // HAVE_AUTH_LEGACY path
         mpx_confirm = *confirm;
         mpx_confirm.hif.handle = msg->mpx_user_handle;
         mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
+    } else {
+        free(msg->ie_iov_payload[1].iov_base);
+        msg->ie_iov_payload[1].iov_base = NULL;
     }
 
     msg = ns_list_get_first(&base->temp_entries.llc_eap_pending_list);
@@ -746,6 +751,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     mcps_data_ind_t data_ind = *data;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
+    struct iobuf_read ie_mpx;
     bool duplicated = false;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -754,9 +760,6 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     bool has_us, has_bs;
 
     if (!base)
-        return;
-    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
-    if (!mpx_user)
         return;
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
@@ -791,9 +794,27 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    data_ind.msdu_ptr = mpx_frame.frame_ptr;
-    data_ind.msduLength = mpx_frame.frame_length;
-    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
+                               IEEE802154_IE_ID_MPX, &ie_mpx);
+    if (!mpx_ie_parse(ie_mpx.data, ie_mpx.data_size, &mpx_frame) ||
+        mpx_frame.multiplex_id  != MPX_ID_KMP ||
+        mpx_frame.transfer_type != MPX_FT_FULL_FRAME ||
+        mpx_frame.frame_length < 1) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", tr_ws_frame(WS_FT_EAPOL));
+        return;
+    }
+
+    mpx_user = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
+    if (mpx_user && mpx_user->data_ind) {
+        // HAVE_AUTH_LEGACY path
+        data_ind.msdu_ptr = mpx_frame.frame_ptr;
+        data_ind.msduLength = mpx_frame.frame_length;
+        mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+    } else {
+        auth_recv_eapol(base->interface_ptr->auth,
+                        mpx_frame.frame_ptr[0], (struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
+    }
 }
 
 static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
@@ -805,6 +826,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct iobuf_read ie_wp;
+    struct iobuf_read ie_mpx;
     struct ws_lcp_ie ie_lcp;
     bool duplicated = false;
     bool has_lus, has_lcp;
@@ -812,9 +834,6 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     struct mpx_ie mpx_frame;
 
     if (!base)
-        return;
-    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
-    if (!mpx_user)
         return;
 
     has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
@@ -858,9 +877,27 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    data_ind.msdu_ptr = mpx_frame.frame_ptr;
-    data_ind.msduLength = mpx_frame.frame_length;
-    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
+                               IEEE802154_IE_ID_MPX, &ie_mpx);
+    if (!mpx_ie_parse(ie_mpx.data, ie_mpx.data_size, &mpx_frame) ||
+        mpx_frame.multiplex_id  != MPX_ID_KMP ||
+        mpx_frame.transfer_type != MPX_FT_FULL_FRAME ||
+        mpx_frame.frame_length < 1) {
+        TRACE(TR_DROP, "drop %s: invalid MPX-IE", tr_ws_frame(WS_FT_EAPOL));
+        return;
+    }
+
+    mpx_user = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
+    if (mpx_user && mpx_user->data_ind) {
+        // HAVE_AUTH_LEGACY path
+        data_ind.msdu_ptr = mpx_frame.frame_ptr;
+        data_ind.msduLength = mpx_frame.frame_length;
+        mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+    } else {
+        auth_recv_eapol(base->interface_ptr->auth,
+                        mpx_frame.frame_ptr[0], (struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
+    }
 }
 
 static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
@@ -1178,6 +1215,8 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_MPX);
     mpx_ie_write(&message->ie_buf_payload, &mpx_header);
+    if (message->kmp_id)
+        iobuf_push_u8(&message->ie_buf_payload, message->kmp_id);
     ie_len = message->ie_buf_payload.len - ie_offset - 2 + message->ie_iov_payload[1].iov_len;
     ieee802154_ie_set_len(&message->ie_buf_payload, ie_offset, ie_len, IEEE802154_IE_PAYLOAD_LEN_MASK);
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1430,8 +1469,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 }
 
-
-static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
+static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, uint8_t kmp_id)
 {
     bool eapol_handshake_first_msg = ws_auth_is_1st_msg(base->interface_ptr, data->msdu, data->msduLength);
     struct wh_ie_list wh_ies = {
@@ -1451,11 +1489,13 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
         memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
         data_conf.hif.handle = data->msduHandle;
         data_conf.hif.status = HIF_STATUS_NOMEM;
-        user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
+        if (user_cb) // HAVE_AUTH_LEGACY path
+            user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
+    message->kmp_id = kmp_id;
 
     message->src_address_type = data->SrcAddrMode;
     memcpy(message->dst_address, data->DstAddr, 8);
@@ -1465,7 +1505,12 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->security = data->Key;
 
     ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
-    message->ie_iov_payload[1].iov_base = data->msdu;
+    if (user_cb) { // HAVE_AUTH_LEGACY path
+        message->ie_iov_payload[1].iov_base = data->msdu;
+    } else {
+        message->ie_iov_payload[1].iov_base = xalloc(data->msduLength);
+        memcpy(message->ie_iov_payload[1].iov_base, data->msdu, data->msduLength);
+    }
     message->ie_iov_payload[1].iov_len = data->msduLength;
     message->ie_ext.payloadIovLength = 2;
 
@@ -1479,6 +1524,23 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     }
 }
 
+void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
+                            const void *buf, size_t buf_len, const struct eui64 *dst)
+{
+    struct llc_data_base *base = &g_llc_base;
+    struct mcps_data_req req = {
+        .TxAckReq    = true,
+        .SrcAddrMode = IEEE802154_ADDR_MODE_64_BIT,
+        .DstAddrMode = IEEE802154_ADDR_MODE_64_BIT,
+        .DstPANId    = base->interface_ptr->ws_info.pan_information.pan_id,
+        .msdu        = (void *)buf,
+        .msduLength  = buf_len,
+        .msduHandle  = 0,
+    };
+
+    memcpy(req.DstAddr, dst, 8);
+    ws_llc_mpx_eapol_request(&g_llc_base, NULL, &req, kmp_id);
+}
 
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id)
 {
@@ -1490,7 +1552,7 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
     }
 
     if (user_id == MPX_ID_KMP) {
-        ws_llc_mpx_eapol_request(base, user_cb, data);
+        ws_llc_mpx_eapol_request(base, user_cb, data, 0); // HAVE_LEGACY_AUTH path
     } else if (user_id == MPX_ID_6LOWPAN) {
         ws_llc_lowpan_mpx_data_request(base, user_cb, data);
     }
