@@ -72,7 +72,7 @@ struct auth_cfg {
     int gtk_new_install_required; // Percentage of GTK_EXPIRE_OFFSET
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
     int pmk_lifetime_s; // 0 for infinite
-    int ptk_lifetime_s;
+    int ptk_lifetime_s; // 0 for infinite
     struct iovec ca_cert;
     struct iovec cert;
     struct iovec key;

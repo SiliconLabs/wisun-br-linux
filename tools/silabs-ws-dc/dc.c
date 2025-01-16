@@ -163,7 +163,7 @@ struct dc g_dc = {
     .cfg.color_output = -1,
 
     .cfg.auth_cfg.pmk_lifetime_s           = 0, // Infinite
-    .cfg.auth_cfg.ptk_lifetime_s           = 60 * 24 * 60 * 60, // 60 days
+    .cfg.auth_cfg.ptk_lifetime_s           = 0, // Infinite
     // Wi-SUN FAN 1.1v08, 6.3.1.1 Configuration Parameters
     .cfg.auth_cfg.gtk_expire_offset_s      = 30 * 24 * 60 * 60, // 30 days
     .cfg.auth_cfg.gtk_new_activation_time  = 720,

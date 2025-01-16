@@ -285,7 +285,10 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         return -EINVAL;
     }
     memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
-    supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ptk_lifetime_s;
+    if (auth->cfg->ptk_lifetime_s)
+        supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ptk_lifetime_s;
+    else
+        supp->ptk_expiration_s = UINT64_MAX;
     return auth_key_handshake_done(auth, supp);
 }
 
