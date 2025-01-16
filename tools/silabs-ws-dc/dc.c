@@ -270,7 +270,7 @@ int dc_main(int argc, char *argv[])
 
     dc_init_radio(dc);
     dc_init_tun(dc);
-    auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64);
+    auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64, false);
 
     // Add supplicant entry to authenticator
     supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);

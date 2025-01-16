@@ -307,7 +307,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     if (memzcmp(ctx->supp.tls_client.pmk.key, 32))
         memcpy(ctx->supp.authenticator_eui64, &auth_eui64, 8);
 
-    auth_start(&ctx->auth, &auth_eui64);
+    auth_start(&ctx->auth, &auth_eui64, true);
     // NOTE: Must be done after calling auth_start()
     if (memzcmp(ctx->supp.tls_client.pmk.key, 32)) {
         struct auth_supp_ctx *supp;

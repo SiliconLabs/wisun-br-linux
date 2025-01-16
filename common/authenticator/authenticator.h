@@ -126,6 +126,6 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                      uint8_t kmp_id, const void *buf, size_t buf_len);
 void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *eui64,
                      const uint8_t *buf, size_t buf_len);
-void auth_start(struct auth_ctx *auth, const struct eui64 *eui64);
+void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn);
 
 #endif

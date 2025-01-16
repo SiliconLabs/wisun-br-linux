@@ -312,7 +312,7 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
     }
 }
 
-void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
+void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn)
 {
     BUG_ON(auth->radius_fd >= 0);
     BUG_ON(!auth->sendto_mac);
@@ -338,6 +338,8 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
     // Install the 1st key
     auth_gtk_install_timer_timeout(&auth->timer_group, &auth->gtk_group.install_timer);
     auth_gtk_activation_timer_start(auth, &auth->gtk_group);
-    auth_gtk_install_timer_timeout(&auth->timer_group, &auth->lgtk_group.install_timer);
-    auth_gtk_activation_timer_start(auth, &auth->lgtk_group);
+    if (enable_lfn) {
+        auth_gtk_install_timer_timeout(&auth->timer_group, &auth->lgtk_group.install_timer);
+        auth_gtk_activation_timer_start(auth, &auth->lgtk_group);
+    }
 }
