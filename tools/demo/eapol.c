@@ -49,6 +49,14 @@ static inline bool drop(void)
     return rand() < drop_threshold;
 }
 
+// stub
+void eapol_relay_send(int fd, const void *buf, size_t buf_len,
+                      const struct in6_addr *dst,
+                      const struct eui64 *supp_eui64, uint8_t kmp_id)
+{
+    BUG();
+}
+
 static void supp_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id,
                             const void *buf, size_t buf_len, const uint8_t dst[8])
 {

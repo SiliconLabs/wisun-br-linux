@@ -23,6 +23,7 @@
 #include "common/specs/eapol.h"
 #include "common/specs/ws.h"
 #include "common/crypto/ieee80211.h"
+#include "common/ws/eapol_relay.h"
 #include "common/sys_queue_extra.h"
 #include "common/named_values.h"
 #include "common/string_extra.h"
@@ -275,11 +276,16 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 {
     const struct eapol_hdr *hdr;
 
-    BUG_ON(buf_len < sizeof(*hdr));
-    hdr = buf;
-    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
-          val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
-    auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
+    if (IN6_IS_ADDR_UNSPECIFIED(&supp->eapol_target)) {
+        BUG_ON(buf_len < sizeof(*hdr));
+        hdr = buf;
+        TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
+              val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
+        auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
+    } else {
+        eapol_relay_send(auth->eapol_relay_fd, buf, buf_len,
+                         &supp->eapol_target, &supp->eui64, kmp_id);
+    }
 }
 
 void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *eui64,

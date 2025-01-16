@@ -15,6 +15,7 @@
 
 #include "common/authenticator/authenticator_eap.h"
 #include "common/authenticator/authenticator_radius.h"
+#include "common/ws/eapol_relay.h"
 #include "common/log.h"
 
 /*
@@ -53,4 +54,11 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, co
 
 void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
 {
+}
+
+void eapol_relay_send(int fd, const void *buf, size_t buf_len,
+                      const struct in6_addr *dst,
+                      const struct eui64 *supp_eui64, uint8_t kmp_id)
+{
+    BUG();
 }

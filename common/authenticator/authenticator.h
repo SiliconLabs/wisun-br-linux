@@ -15,6 +15,7 @@
 #define AUTHENTICATOR_H
 
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/queue.h>
 #include <sys/uio.h>
 #include <stdint.h>
@@ -61,6 +62,8 @@ struct auth_supp_ctx {
         uint8_t state_len;
     } radius;
 
+    struct in6_addr eapol_target;
+
     SLIST_ENTRY(auth_supp_ctx) link;
 };
 
@@ -103,6 +106,8 @@ struct auth_ctx {
 
     int     radius_fd;
     uint8_t radius_id_next;
+
+    int eapol_relay_fd;
 
     struct auth_supp_ctx_list supplicants;
     struct timer_group timer_group;

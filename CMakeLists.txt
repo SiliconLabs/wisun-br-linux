@@ -248,6 +248,7 @@ else()
         common/authenticator/authenticator_eap.c
         common/authenticator/authenticator_radius.c
         common/crypto/tls.c
+        common/ws/eapol_relay.c
         common/eap.c
         common/kde.c
     )
