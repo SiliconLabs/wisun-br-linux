@@ -90,7 +90,6 @@ struct auth_ctx {
     struct timer_entry gtk_activation_timer;
     struct timer_entry gtk_install_timer;
     uint8_t cur_slot;
-    uint8_t next_slot;
 
     int     radius_fd;
     uint8_t radius_id_next;
