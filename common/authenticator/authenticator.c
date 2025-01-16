@@ -39,6 +39,14 @@
 
 #include "authenticator.h"
 
+static inline int auth_gtk_slot_next(int slot)
+{
+    if (slot < WS_GTK_COUNT)
+        return slot + 1 < WS_GTK_COUNT ? slot + 1 : 0;
+    else
+        return slot + 1 < WS_GTK_COUNT + WS_LGTK_COUNT ? slot + 1 : WS_GTK_COUNT;
+}
+
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
@@ -47,7 +55,9 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, NULL, slot + 1, false);
-    TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->key, sizeof(gtk->key)));
+    TRACE(TR_SECURITY, "sec: expired %s[%u]",
+          slot < WS_GTK_COUNT ? "gtk" : "lgtk",
+          slot < WS_GTK_COUNT ? slot + 1 : slot - WS_GTK_COUNT + 1);
     memset(gtk->key, 0, sizeof(gtk->key));
 }
 
@@ -72,11 +82,13 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, activation_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
-    gtk_group->slot_active = (gtk_group->slot_active + 1) % WS_GTK_COUNT;
+    gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_gtk_activation_timer_start(auth, gtk_group);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, auth->gtks[gtk_group->slot_active].key, gtk_group->slot_active + 1, true);
-    TRACE(TR_SECURITY, "sec: activated gtk=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
+    TRACE(TR_SECURITY, "sec: activated %s[%u]=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
+          gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
+          gtk_group == &auth->gtk_group ? gtk_group->slot_active + 1 : gtk_group->slot_active - WS_GTK_COUNT + 1,
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
           auth->gtks[gtk_group->slot_active].expiration_timer.expire_ms / 1000,
           gtk_group->install_timer.expire_ms / 1000,
@@ -96,7 +108,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     if (timer_stopped(&cur->expiration_timer))
         slot_install = gtk_group->slot_active;
     else
-        slot_install = (gtk_group->slot_active + 1) % WS_GTK_COUNT;
+        slot_install = auth_gtk_slot_next(gtk_group->slot_active);
     new = &auth->gtks[slot_install];
 
     rand_get_n_bytes_random(new->key, sizeof(new->key));
@@ -124,12 +136,15 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     start_ms = new->expiration_timer.start_ms;
     lifetime_ms = timer_duration_ms(&new->expiration_timer);
     if (expire_offset_ms)
-        timer_start_abs(&auth->timer_group, &auth->gtk_group.install_timer,
+        timer_start_abs(&auth->timer_group, &gtk_group->install_timer,
                         start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, slot_install + 1, false);
-    TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(new->key, sizeof(new->key)));
+    TRACE(TR_SECURITY, "sec: installed %s[%u]=%s",
+          slot_install < WS_GTK_COUNT ? "gtk" : "lgtk",
+          slot_install < WS_GTK_COUNT ? slot_install + 1 : slot_install + 1 - WS_GTK_COUNT,
+          tr_key(new->key, sizeof(new->key)));
 }
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
@@ -305,14 +320,19 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
 
     SLIST_INIT(&auth->supplicants);
     timer_group_init(&auth->timer_group);
+    auth->eui64 = *eui64;
     auth->gtk_group.activation_timer.callback = auth_gtk_activation_timer_timeout;
     auth->gtk_group.install_timer.callback    = auth_gtk_install_timer_timeout;
-    auth->eui64 = *eui64;
     auth->gtk_group.slot_active = 0;
+    auth->lgtk_group.activation_timer.callback = auth_gtk_activation_timer_timeout;
+    auth->lgtk_group.install_timer.callback    = auth_gtk_install_timer_timeout;
+    auth->lgtk_group.slot_active = 4;
     for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++)
         auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
 
     // Install the 1st key
     auth_gtk_install_timer_timeout(&auth->timer_group, &auth->gtk_group.install_timer);
     auth_gtk_activation_timer_start(auth, &auth->gtk_group);
+    auth_gtk_install_timer_timeout(&auth->timer_group, &auth->lgtk_group.install_timer);
+    auth_gtk_activation_timer_start(auth, &auth->lgtk_group);
 }

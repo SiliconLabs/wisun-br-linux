@@ -92,8 +92,9 @@ struct auth_ctx {
     struct tls_ctx tls;
 
     const struct auth_cfg *cfg;
-    struct ws_gtk gtks[WS_GTK_COUNT];
+    struct ws_gtk gtks[WS_GTK_COUNT + WS_LGTK_COUNT];
     struct auth_gtk_group gtk_group;
+    struct auth_gtk_group lgtk_group;
 
     int     radius_fd;
     uint8_t radius_id_next;
