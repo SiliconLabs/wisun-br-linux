@@ -110,6 +110,14 @@ struct auth_ctx {
 
     void (*sendto_mac)(struct auth_ctx *auth, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const struct eui64 *dst);
+    /*
+     * | gtk  | activate | action                               |
+     * |------|----------|--------------------------------------|
+     * |!NULL | false    | Install                              |
+     * | NULL | true     | Activate                             |
+     * | NULL | false    | Remove                               |
+     * |!NULL | true     | Install and activate (boot sequence) |
+     */
     void (*on_gtk_change)(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t index, bool activate);
 
     // Called on rx of 4wh msg 4 and gkh msg 2

@@ -86,7 +86,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_gtk_activation_timer_start(auth, gtk_group);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, auth->gtks[gtk_group->slot_active].key, gtk_group->slot_active + 1, true);
+        auth->on_gtk_change(auth, NULL, gtk_group->slot_active + 1, true);
     TRACE(TR_SECURITY, "sec: activated %s=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
           tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
@@ -105,9 +105,11 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     uint64_t start_ms, lifetime_ms;
     struct ws_gtk *cur, *new;
     int slot_install;
+    bool init;
 
     cur = &auth->gtks[gtk_group->slot_active];
-    if (timer_stopped(&cur->expiration_timer))
+    init = timer_stopped(&cur->expiration_timer);
+    if (init)
         slot_install = gtk_group->slot_active;
     else
         slot_install = auth_gtk_slot_next(gtk_group->slot_active);
@@ -142,7 +144,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
                         start_ms + lifetime_ms * cfg->gtk_new_install_required / 100);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, new->key, slot_install + 1, false);
+        auth->on_gtk_change(auth, new->key, slot_install + 1, init);
     TRACE(TR_SECURITY, "sec: installed %s=%s",
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
 }

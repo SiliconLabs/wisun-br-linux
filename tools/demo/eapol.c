@@ -127,15 +127,13 @@ static void auth_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
     struct ctx *ctx = container_of(auth, struct ctx, auth);
 
     if (gtk) {
-        if (!activate) {
-            INFO("auth install  idx=%u key=%s", index, tr_key(gtk, 16));
-            supp_start_key_request(&ctx->supp); // supp received a new GTKHASH-IE
-        } else {
-            INFO("auth activate idx=%u key=%s", index, tr_key(gtk, 16));
-        }
+        INFO("auth install  idx=%u key=%s", index, tr_key(gtk, 16));
+        supp_start_key_request(&ctx->supp); // supp received a new GTKHASH-IE
     } else {
         INFO("auth remove   idx=%u", index);
     }
+    if (activate)
+        INFO("auth activate idx=%u", index);
 }
 
 static void auth_on_supp_gtk_installed(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index)
