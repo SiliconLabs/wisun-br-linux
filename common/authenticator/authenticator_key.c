@@ -40,15 +40,7 @@
 
 #include "authenticator_key.h"
 
-static int auth_key_get_key_slot_missmatch(struct ws_gtk *gtks, int gtks_size, uint8_t gtkl)
-{
-    for (int i = 0; i < gtks_size; i++)
-        if (!timer_stopped(&gtks[i].expiration_timer) && !(gtkl & BIT(i)))
-            return i;
-    return -1;
-}
-
-static uint8_t auth_key_get_gtkl(struct ws_gtk *gtks, int gtks_size)
+static uint8_t auth_key_get_gtkl(const struct ws_gtk *gtks, int gtks_size)
 {
     uint8_t gtkl = 0;
 
@@ -56,6 +48,22 @@ static uint8_t auth_key_get_gtkl(struct ws_gtk *gtks, int gtks_size)
         if (!timer_stopped(&gtks[i].expiration_timer))
             gtkl |= BIT(i);
     return gtkl;
+}
+
+static int auth_key_get_key_slot_missmatch(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
+{
+    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
+
+    if (supp->node_role != WS_NR_ROLE_LFN)
+        for (int i = 0; i < WS_GTK_COUNT; i++)
+            if (auth_gtkl & ~supp->gtkl & BIT(i))
+                return i;
+    if (supp->node_role != WS_NR_ROLE_UNKNOWN)
+        for (int i = 0; i < WS_LGTK_COUNT; i++)
+            if (auth_lgtkl & ~supp->lgtkl & BIT(i))
+                return i + WS_GTK_COUNT;
+    return -1;
 }
 
 /*
@@ -170,6 +178,8 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
 static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                     const struct eapol_key_frame *frame, int key_slot, struct pktbuf *enc_key_data)
 {
+    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
     struct pktbuf key_data = { };
     const struct ws_gtk *gtk;
     const uint8_t *ptk;
@@ -185,10 +195,33 @@ static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx 
      */
     if (key_slot >= 0) {
         gtk = &auth->gtks[key_slot];
-        kde_write_gtk(&key_data, key_slot, gtk->key);
+        if (key_slot < WS_GTK_COUNT) {
+            kde_write_gtkl(&key_data, auth_gtkl);
+            kde_write_gtk(&key_data, key_slot, auth->gtks[key_slot].key);
+        } else {
+            kde_write_lgtkl(&key_data, auth_lgtkl);
+            kde_write_lgtk(&key_data, key_slot - WS_GTK_COUNT, auth->gtks[key_slot].key);
+        }
         kde_write_lifetime(&key_data, MIN(timer_remaining_ms(&gtk->expiration_timer) / 1000, UINT32_MAX));
+    } else { // GTK revocation
+        switch (supp->node_role) {
+        case WS_NR_ROLE_UNKNOWN:
+            kde_write_gtkl(&key_data, auth_gtkl);
+            break;
+        case WS_NR_ROLE_ROUTER:
+            if (supp->gtkl != auth_gtkl)
+                kde_write_gtkl(&key_data, auth_gtkl);
+            else
+                kde_write_lgtkl(&key_data, auth_lgtkl);
+            break;
+        case WS_NR_ROLE_LFN:
+            kde_write_lgtkl(&key_data, auth_lgtkl);
+            break;
+        default:
+            WARN("unsupported node-role=%u", supp->node_role);
+            break;
+        }
     }
-    kde_write_gtkl(&key_data, auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks)));
 
     auth_key_add_kde_padding(&key_data);
 
@@ -239,16 +272,46 @@ static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_sup
 
 static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
+    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
     int next_key_slot;
 
     if (supp->last_installed_key_slot >= 0) {
         if (auth->on_supp_gtk_installed)
             auth->on_supp_gtk_installed(auth, &supp->eui64, supp->last_installed_key_slot + 1);
-        supp->gtkl |= BIT(supp->last_installed_key_slot);
+        if (supp->last_installed_key_slot < WS_GTK_COUNT) {
+            supp->gtkl |= BIT(supp->last_installed_key_slot);
+            supp->gtkl &= auth_gtkl;
+        } else {
+            supp->lgtkl |= BIT(supp->last_installed_key_slot - WS_GTK_COUNT);
+            supp->lgtkl &= auth_lgtkl;
+        }
+    } else { // GTK revocation
+        switch (supp->node_role) {
+        case WS_NR_ROLE_UNKNOWN:
+            supp->gtkl &= auth_gtkl;
+            break;
+        case WS_NR_ROLE_ROUTER:
+            /*
+             * In case both a GTK and a LGTK have been revoked at the same
+             * time, the supplicant will need to initiate 2 handshakes. The
+             * authenticator never includes both a GTKL and a LGTKL, and it
+             * will not start the 2nd handshake by itself if there is no new
+             * LGTK to distribute.
+             */
+            if (supp->gtkl != auth_gtkl)
+                supp->gtkl &= auth_gtkl;
+            else
+                supp->lgtkl &= auth_lgtkl;
+            break;
+        case WS_NR_ROLE_LFN:
+            supp->lgtkl &= auth_lgtkl;
+            break;
+        }
     }
     supp->last_installed_key_slot = -1;
 
-    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
+    next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     if (next_key_slot != -1)
         auth_key_group_message_1_send(auth, supp, next_key_slot);
     // TODO: LGTK
@@ -340,7 +403,7 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return -EINVAL;
     }
-    next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
+    next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
     return 0;
 }
@@ -416,11 +479,26 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
 {
     uint8_t pmkid[16], ptkid[16];
     int next_key_slot;
+    uint8_t supp_gtkl;
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
 
-    if (!kde_read_gtkl(data, data_len, &supp->gtkl))
-        supp->gtkl = 0;
+    /*
+     *   Wi-SUN FAN 1.1v09 6.5.2.2 Authentication and PMK Installation Flow
+     * The Node Role KDE MUST be present to indicate the node is operating as a
+     * FAN 1.1 FFN or LFN. Absence of the Node Role KDE MUST be interpreted to
+     * mean the node is operating as a FAN 1.0 Router. The Node Role KDE is
+     * used to determine appropriate role based lifetimes for PMKs/PTKs.
+     */
+    if (!kde_read_nr(data, data_len, &supp->node_role))
+        supp->node_role = WS_NR_ROLE_UNKNOWN;
+
+    supp->gtkl = supp->lgtkl = 0;
+    if (supp->node_role != WS_NR_ROLE_LFN)
+        kde_read_gtkl(data, data_len, &supp->gtkl);
+    if (supp->node_role != WS_NR_ROLE_UNKNOWN)
+        kde_read_lgtkl(data, data_len, &supp->lgtkl);
+    supp_gtkl = supp->gtkl | (supp->lgtkl << WS_GTK_COUNT);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.5.2.2 Authentication and PMK Installation Flow
@@ -446,22 +524,11 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         return;
     }
 
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.5.2.2 Authentication and PMK Installation Flow
-     * The Node Role KDE MUST be present to indicate the node is operating as a FAN 1.1
-     * FFN or LFN. Absence of the Node Role KDE MUST be interpreted to mean the node is
-     * operating as a FAN 1.0 Router. The Node Role KDE is used to determine appropriate
-     * role based lifetimes for PMKs/PTKs.
-     */
-    if (!kde_read_nr(data, data_len, &supp->node_role))
-        supp->node_role = WS_NR_ROLE_UNKNOWN;
-
-    if (supp->gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
+    if (supp_gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
         TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
-        next_key_slot = auth_key_get_key_slot_missmatch(auth->gtks, ARRAY_SIZE(auth->gtks), supp->gtkl);
+        next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
         auth_key_group_message_1_send(auth, supp, next_key_slot);
     }
-    // TODO: check LGTKL
 }
 
 void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
