@@ -277,6 +277,7 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
 {
     const struct radius_attr *attr;
     struct iobuf_read iobuf = { };
+    const uint8_t *pmk;
     uint8_t string[48];
     uint8_t salt[2];
     uint8_t key_len;
@@ -304,26 +305,10 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
     key_len = iobuf_pop_u8(&iobuf);
     if (key_len != sizeof(supp->eap_tls.tls.pmk.key))
         return -EINVAL;
-
-    /*
-     * Do not reinstall the key if it was already installed before to prevent Key
-     * Reinstallation Attacks (KRACK)[1].
-     *
-     * [1]: https://www.krackattacks.com
-     */
-    if (!memcmp(supp->eap_tls.tls.pmk.key, iobuf_ptr(&iobuf), sizeof(supp->eap_tls.tls.pmk.key))) {
-        WARN("sec: ignore reinstallation of pmk");
-        return 0;
-    }
-
-    iobuf_pop_data(&iobuf, supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key));
-    supp->eap_tls.tls.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
-    /*
-     *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
-     * d) Key Replay Counter. This field is represented as an unsigned integer,
-     * and is initialized to 0 when the PMK is established.
-     */
-    supp->eap_tls.tls.pmk.replay_counter = 0;
+    pmk = iobuf_pop_data_ptr(&iobuf, key_len);
+    if (!pmk)
+        return -EINVAL;
+    tls_install_pmk(&supp->eap_tls.tls.pmk, pmk);
     return 0;
 }
 
