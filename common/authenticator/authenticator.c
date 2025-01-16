@@ -81,22 +81,24 @@ static void auth_gtk_activation_timer_start(struct auth_ctx *auth, const struct 
     const uint64_t expire_ms = gtk->expiration_timer.expire_ms;
 
     if (expire_offset_ms)
-        timer_start_abs(&auth->timer_group, &auth->gtk_activation_timer,
+        timer_start_abs(&auth->timer_group, &auth->gtk_group.activation_timer,
                         expire_ms - expire_offset_ms / auth->cfg->gtk_new_activation_time);
 }
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
+    struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, activation_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
-    auth->cur_slot = (auth->cur_slot + 1) % WS_GTK_COUNT;
-    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->cur_slot]);
+    gtk_group->slot_active = (gtk_group->slot_active + 1) % WS_GTK_COUNT;
+    auth_gtk_activation_timer_start(auth, &auth->gtks[gtk_group->slot_active]);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, auth->gtks[auth->cur_slot].key, auth->cur_slot + 1, true);
+        auth->on_gtk_change(auth, auth->gtks[gtk_group->slot_active].key, gtk_group->slot_active + 1, true);
     TRACE(TR_SECURITY, "sec: activated gtk=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
-          tr_key(auth->gtks[auth->cur_slot].key, sizeof(auth->gtks[auth->cur_slot].key)),
-          auth->gtks[auth->cur_slot].expiration_timer.expire_ms / 1000, auth->gtk_install_timer.expire_ms / 1000,
-          auth->gtk_activation_timer.expire_ms / 1000);
+          tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
+          auth->gtks[gtk_group->slot_active].expiration_timer.expire_ms / 1000,
+          gtk_group->install_timer.expire_ms / 1000,
+          gtk_group->activation_timer.expire_ms / 1000);
 }
 
 /*
@@ -112,18 +114,19 @@ static void auth_gtk_install_timer_start(struct auth_ctx *auth, const struct ws_
     uint64_t start_ms = gtk->expiration_timer.start_ms;
 
     if (auth->cfg->gtk_expire_offset_s)
-        timer_start_abs(&auth->timer_group, &auth->gtk_install_timer,
+        timer_start_abs(&auth->timer_group, &auth->gtk_group.install_timer,
                         start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
 }
 
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
+    struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
-    const int slot_install = (auth->cur_slot + 1) % WS_GTK_COUNT;
+    const int slot_install = (gtk_group->slot_active + 1) % WS_GTK_COUNT;
     struct ws_gtk *new = &auth->gtks[slot_install];
 
     rand_get_n_bytes_random(new->key, sizeof(new->key));
-    auth_gtk_expiration_timer_start(auth, new, &auth->gtks[auth->cur_slot]);
+    auth_gtk_expiration_timer_start(auth, new, &auth->gtks[gtk_group->slot_active]);
     auth_gtk_install_timer_start(auth, new);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, slot_install + 1, false);
@@ -303,22 +306,26 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
 
     SLIST_INIT(&auth->supplicants);
     timer_group_init(&auth->timer_group);
-    auth->gtk_activation_timer.callback = auth_gtk_activation_timer_timeout;
-    auth->gtk_install_timer.callback    = auth_gtk_install_timer_timeout;
+    auth->gtk_group.activation_timer.callback = auth_gtk_activation_timer_timeout;
+    auth->gtk_group.install_timer.callback    = auth_gtk_install_timer_timeout;
     auth->eui64 = *eui64;
-    auth->cur_slot = 0;
+    auth->gtk_group.slot_active = 0;
     for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++)
         auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
 
     // We assume the gtkhash of the generated gtk won't be full of zeros
-    rand_get_n_bytes_random(auth->gtks[auth->cur_slot].key, sizeof(auth->gtks[auth->cur_slot].key));
-    auth_gtk_expiration_timer_start(auth, &auth->gtks[auth->cur_slot], NULL);
-    auth_gtk_install_timer_start(auth, &auth->gtks[auth->cur_slot]);
-    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->cur_slot]);
+    rand_get_n_bytes_random(auth->gtks[auth->gtk_group.slot_active].key,
+                            sizeof(auth->gtks[auth->gtk_group.slot_active].key));
+    auth_gtk_expiration_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active], NULL);
+    auth_gtk_install_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active]);
+    auth_gtk_activation_timer_start(auth, &auth->gtks[auth->gtk_group.slot_active]);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, auth->gtks[auth->cur_slot].key, 1, true);
+        auth->on_gtk_change(auth, auth->gtks[auth->gtk_group.slot_active].key, 1, true);
     TRACE(TR_SECURITY, "sec: authenticator started gtk=%s expiration=%"PRIu64" next_install=%"PRIu64
-          " next_activation=%"PRIu64, tr_key(auth->gtks[auth->cur_slot].key, sizeof(auth->gtks[auth->cur_slot].key)),
-          auth->gtks[auth->cur_slot].expiration_timer.expire_ms / 1000, auth->gtk_install_timer.expire_ms / 1000,
-          auth->gtk_activation_timer.expire_ms / 1000);
+          " next_activation=%"PRIu64,
+          tr_key(auth->gtks[auth->gtk_group.slot_active].key,
+                 sizeof(auth->gtks[auth->gtk_group.slot_active].key)),
+          auth->gtks[auth->gtk_group.slot_active].expiration_timer.expire_ms / 1000,
+          auth->gtk_group.install_timer.expire_ms / 1000,
+          auth->gtk_group.activation_timer.expire_ms / 1000);
 }

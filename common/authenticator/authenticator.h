@@ -80,6 +80,12 @@ struct auth_cfg {
     char radius_secret[256];
 };
 
+struct auth_gtk_group {
+    struct timer_entry activation_timer;
+    struct timer_entry install_timer;
+    int slot_active;
+};
+
 struct auth_ctx {
     struct eui64 eui64;
 
@@ -87,9 +93,7 @@ struct auth_ctx {
 
     const struct auth_cfg *cfg;
     struct ws_gtk gtks[WS_GTK_COUNT];
-    struct timer_entry gtk_activation_timer;
-    struct timer_entry gtk_install_timer;
-    uint8_t cur_slot;
+    struct auth_gtk_group gtk_group;
 
     int     radius_fd;
     uint8_t radius_id_next;
