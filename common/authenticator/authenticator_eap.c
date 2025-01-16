@@ -66,7 +66,8 @@ void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx 
 {
     struct pktbuf pktbuf = { };
 
-    auth_eap_tls_reset_supp(supp);
+    if (auth->radius_fd < 0)
+        auth_eap_tls_reset_supp(supp);
     eap_write_hdr_head(&pktbuf, EAP_CODE_REQUEST, supp->eap_id + 1, EAP_TYPE_IDENTITY);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
@@ -79,7 +80,8 @@ void auth_eap_send_success(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     eap_write_hdr_head(&pktbuf, EAP_CODE_SUCCESS, supp->eap_id + 1, 0);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
-    auth_eap_tls_reset_supp(supp); // free mbedtls buffers
+    if (auth->radius_fd < 0)
+        auth_eap_tls_reset_supp(supp);
     auth_key_pairwise_message_1_send(auth, supp);
 }
 
@@ -90,7 +92,8 @@ void auth_eap_send_failure(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     eap_write_hdr_head(&pktbuf, EAP_CODE_FAILURE, supp->eap_id + 1, 0);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
-    auth_eap_tls_reset_supp(supp); // free mbedtls buffers
+    if (auth->radius_fd < 0)
+        auth_eap_tls_reset_supp(supp);
 }
 
 static void auth_eap_send_tls(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
