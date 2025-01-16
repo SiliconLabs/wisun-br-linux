@@ -170,6 +170,7 @@ struct dc g_dc = {
     .cfg.auth_cfg.gtk_new_install_required = 80,
 
     .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
+    .auth_ctx.radius_fd             = -1,
     .auth_ctx.on_supp_gtk_installed = dc_auth_on_supp_gtk_installed,
     .auth_ctx.sendto_mac            = dc_auth_sendto_mac,
     .auth_ctx.timeout_ms            = 30 * 1000, // Arbitrary

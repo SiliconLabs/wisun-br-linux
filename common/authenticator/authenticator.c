@@ -283,6 +283,7 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
 
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
 {
+    BUG_ON(auth->radius_fd >= 0);
     BUG_ON(!auth->sendto_mac);
     BUG_ON(!auth->cfg);
 
