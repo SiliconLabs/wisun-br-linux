@@ -39,24 +39,6 @@
 
 #include "authenticator.h"
 
-/*
- *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
- * GTK_EXPIRE_OFFSET: The expiration time of a GTK is calculated as the
- * expiration time of the GTK most recently installed at the Border Router
- * plus GTK_EXPIRE_OFFSET.
- */
-static void auth_gtk_expiration_timer_start(struct auth_ctx *auth, struct ws_gtk *gtk, const struct ws_gtk *prev)
-{
-    const uint64_t start_ms = prev->expiration_timer.expire_ms ? : time_now_ms(CLOCK_MONOTONIC);
-    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
-
-    if (expire_offset_ms)
-        timer_start_abs(&auth->timer_group, &gtk->expiration_timer, start_ms + expire_offset_ms);
-    else
-        // Start a very long timer since GTK Liveness is determined by timer_stopped()
-        timer_start_abs(&auth->timer_group, &gtk->expiration_timer, UINT64_MAX);
-}
-
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
@@ -101,27 +83,12 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
           gtk_group->activation_timer.expire_ms / 1000);
 }
 
-/*
- *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
- * GTK_NEW_INSTALL_REQUIRED: The amount of time elapsed in the active GTK’s
- * lifetime (as a percentage of lifetime provided in Lifetime KDE) at which a
- * new GTK must be installed on the Border Router (supporting overlapping
- * lifespans).
- */
-static void auth_gtk_install_timer_start(struct auth_ctx *auth, const struct ws_gtk *gtk)
-{
-    uint64_t lifetime_ms = timer_duration_ms(&gtk->expiration_timer);
-    uint64_t start_ms = gtk->expiration_timer.start_ms;
-
-    if (auth->cfg->gtk_expire_offset_s)
-        timer_start_abs(&auth->timer_group, &auth->gtk_group.install_timer,
-                        start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
-}
-
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
+    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->gtk_expire_offset_s * 1000;
+    uint64_t start_ms, lifetime_ms;
     struct ws_gtk *cur, *new;
     int slot_install;
 
@@ -133,8 +100,33 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     new = &auth->gtks[slot_install];
 
     rand_get_n_bytes_random(new->key, sizeof(new->key));
-    auth_gtk_expiration_timer_start(auth, new, cur);
-    auth_gtk_install_timer_start(auth, new);
+
+    /*
+     *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
+     * GTK_EXPIRE_OFFSET: The expiration time of a GTK is calculated as the
+     * expiration time of the GTK most recently installed at the Border Router
+     * plus GTK_EXPIRE_OFFSET.
+     */
+    start_ms = cur->expiration_timer.expire_ms ? : time_now_ms(CLOCK_MONOTONIC);
+    if (expire_offset_ms)
+        timer_start_abs(&auth->timer_group, &new->expiration_timer, start_ms + expire_offset_ms);
+    else
+        // Start a very long timer since GTK Liveness is determined by timer_stopped()
+        timer_start_abs(&auth->timer_group, &new->expiration_timer, UINT64_MAX);
+
+    /*
+     *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
+     * GTK_NEW_INSTALL_REQUIRED: The amount of time elapsed in the active GTK’s
+     * lifetime (as a percentage of lifetime provided in Lifetime KDE) at which
+     * a new GTK must be installed on the Border Router (supporting overlapping
+     * lifespans).
+     */
+    start_ms = new->expiration_timer.start_ms;
+    lifetime_ms = timer_duration_ms(&new->expiration_timer);
+    if (expire_offset_ms)
+        timer_start_abs(&auth->timer_group, &auth->gtk_group.install_timer,
+                        start_ms + lifetime_ms * auth->cfg->gtk_new_install_required / 100);
+
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, slot_install + 1, false);
     TRACE(TR_SECURITY, "sec: installed gtk=%s", tr_key(new->key, sizeof(new->key)));
