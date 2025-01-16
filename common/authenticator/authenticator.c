@@ -61,9 +61,10 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
     struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
+    const int slot = (int)(gtk - auth->gtks);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, gtk->slot + 1, false);
+        auth->on_gtk_change(auth, NULL, slot + 1, false);
     TRACE(TR_SECURITY, "sec: expired gtk=%s", tr_key(gtk->key, sizeof(gtk->key)));
     memset(gtk->key, 0, sizeof(gtk->key));
 }
@@ -306,10 +307,8 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64)
     auth->gtk_install_timer.callback    = auth_gtk_install_timer_timeout;
     auth->eui64 = *eui64;
     auth->cur_slot = 0;
-    for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++) {
+    for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++)
         auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
-        auth->gtks[i].slot = i;
-    }
 
     // We assume the gtkhash of the generated gtk won't be full of zeros
     rand_get_n_bytes_random(auth->gtks[auth->cur_slot].key, sizeof(auth->gtks[auth->cur_slot].key));
