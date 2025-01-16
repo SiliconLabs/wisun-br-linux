@@ -146,8 +146,8 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
 
 static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk_kde, uint32_t lifetime_kde, bool is_lgtk)
 {
-    const uint8_t offset = is_lgtk ? 4 : 0;
-    const uint8_t count = is_lgtk ? 3 : 4;
+    const uint8_t count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    const uint8_t offset = is_lgtk ? WS_GTK_COUNT : 0;
     uint8_t key_id, key_index;
 
     /*
@@ -194,8 +194,8 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
 
 static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool is_lgtk)
 {
-    const uint8_t offset = is_lgtk ? 4 : 0;
-    const uint8_t count = is_lgtk ? 3 : 4;
+    const uint8_t count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    const uint8_t offset = is_lgtk ? WS_GTK_COUNT : 0;
     struct ws_gtk *gtk;
 
     /*

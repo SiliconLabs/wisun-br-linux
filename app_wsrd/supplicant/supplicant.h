@@ -68,7 +68,7 @@ struct supp_ctx {
     uint8_t last_tx_eap_type;
 
     // 4WH and 2WH
-    struct ws_gtk gtks[7];
+    struct ws_gtk gtks[WS_GTK_COUNT + WS_LGTK_COUNT];
     uint8_t authenticator_eui64[8];
     uint8_t anonce[32];
     uint8_t snonce[32];

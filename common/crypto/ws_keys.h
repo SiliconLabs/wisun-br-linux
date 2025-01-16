@@ -23,6 +23,9 @@ struct ws_gtk {
     struct timer_entry expiration_timer;
 };
 
+#define WS_GTK_COUNT  4
+#define WS_LGTK_COUNT 3
+
 void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]);
 void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                      uint8_t ptkid[16]);

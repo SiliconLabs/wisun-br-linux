@@ -89,7 +89,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
-    auth->cur_slot = (auth->cur_slot + 1) % 4;
+    auth->cur_slot = (auth->cur_slot + 1) % WS_GTK_COUNT;
     auth_gtk_activation_timer_start(auth, &auth->gtks[auth->cur_slot]);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, auth->gtks[auth->cur_slot].key, auth->cur_slot + 1, true);
@@ -119,7 +119,7 @@ static void auth_gtk_install_timer_start(struct auth_ctx *auth, const struct ws_
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
-    const int slot_install = (auth->cur_slot + 1) % 4;
+    const int slot_install = (auth->cur_slot + 1) % WS_GTK_COUNT;
     struct ws_gtk *new = &auth->gtks[slot_install];
 
     rand_get_n_bytes_random(new->key, sizeof(new->key));

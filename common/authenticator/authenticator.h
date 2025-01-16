@@ -86,7 +86,7 @@ struct auth_ctx {
     struct tls_ctx tls;
 
     const struct auth_cfg *cfg;
-    struct ws_gtk gtks[4];
+    struct ws_gtk gtks[WS_GTK_COUNT];
     struct timer_entry gtk_activation_timer;
     struct timer_entry gtk_install_timer;
     uint8_t cur_slot;
