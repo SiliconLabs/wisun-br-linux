@@ -206,7 +206,8 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->last_installed_key_slot = -1;
     supp->rt_timer.period_ms = auth->timeout_ms,
     supp->rt_timer.callback = auth_rt_timer_timeout;
-    tls_init_client(&auth->tls, &supp->eap_tls.tls);
+    if (auth->radius_fd < 0)
+        tls_init_client(&auth->tls, &supp->eap_tls.tls);
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
     return supp;
