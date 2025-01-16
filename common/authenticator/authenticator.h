@@ -83,6 +83,7 @@ struct auth_gtk_group {
 
 struct auth_cfg {
     struct auth_node_cfg ffn;
+    struct auth_node_cfg lfn;
     struct iovec ca_cert;
     struct iovec cert;
     struct iovec key;

@@ -340,6 +340,9 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
+    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ?
+                                      &auth->cfg->lfn : &auth->cfg->ffn;
+
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "rx-4wh");
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
@@ -351,8 +354,8 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         return -EINVAL;
     }
     memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
-    if (auth->cfg->ffn.ptk_lifetime_s)
-        supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + auth->cfg->ffn.ptk_lifetime_s;
+    if (cfg->ptk_lifetime_s)
+        supp->ptk_expiration_s = time_now_s(CLOCK_MONOTONIC) + cfg->ptk_lifetime_s;
     else
         supp->ptk_expiration_s = UINT64_MAX;
     return auth_key_handshake_done(auth, supp);
@@ -452,15 +455,16 @@ static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
 
 static bool auth_is_pmkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t pmkid_kde[16])
 {
+    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;
     uint8_t pmkid[16];
 
     ieee80211_derive_pmkid(pmk->key, auth->eui64.u8, supp->eui64.u8, pmkid);
     if (memcmp(pmkid_kde, pmkid, 16))
         return false;
-    if (!auth->cfg->ffn.pmk_lifetime_s) // Infinite lifetime
+    if (!cfg->pmk_lifetime_s) // Infinite lifetime
         return true;
-    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + auth->cfg->ffn.pmk_lifetime_s;
+    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + cfg->pmk_lifetime_s;
 }
 
 static bool auth_is_ptkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t ptkid_kde[16])

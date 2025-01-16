@@ -70,12 +70,14 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
  */
 static void auth_gtk_activation_timer_start(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
 {
+    const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
+                                      &auth->cfg->ffn : &auth->cfg->lfn;
     const uint64_t expire_ms = auth->gtks[gtk_group->slot_active].expiration_timer.expire_ms;
-    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->ffn.gtk_expire_offset_s * 1000;
+    const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
 
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer,
-                        expire_ms - expire_offset_ms / auth->cfg->ffn.gtk_new_activation_time);
+                        expire_ms - expire_offset_ms / cfg->gtk_new_activation_time);
 }
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -100,7 +102,9 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
 {
     struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
-    const uint64_t expire_offset_ms = (uint64_t)auth->cfg->ffn.gtk_expire_offset_s * 1000;
+    const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
+                                      &auth->cfg->ffn : &auth->cfg->lfn;
+    const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
     uint64_t start_ms, lifetime_ms;
     struct ws_gtk *cur, *new;
     int slot_install;
@@ -138,7 +142,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     lifetime_ms = timer_duration_ms(&new->expiration_timer);
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer,
-                        start_ms + lifetime_ms * auth->cfg->ffn.gtk_new_install_required / 100);
+                        start_ms + lifetime_ms * cfg->gtk_new_install_required / 100);
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, slot_install + 1, false);

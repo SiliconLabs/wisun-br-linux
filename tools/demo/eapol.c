@@ -347,6 +347,11 @@ int main(int argc, char *argv[])
         .ffn.gtk_expire_offset_s      = 10,
         .ffn.gtk_new_activation_time  = 720,
         .ffn.gtk_new_install_required = 80,
+        .lfn.pmk_lifetime_s           = 60,
+        .lfn.ptk_lifetime_s           = 30,
+        .lfn.gtk_expire_offset_s      = 20,
+        .lfn.gtk_new_activation_time  = 720,
+        .lfn.gtk_new_install_required = 80,
     };
     struct ctx ctx = {
         .supp.key_request_txalg.rand_min = -0.1,
