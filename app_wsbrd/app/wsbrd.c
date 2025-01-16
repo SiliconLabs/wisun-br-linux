@@ -42,6 +42,7 @@
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_pan_info_storage.h"
+#include "ws/ws_auth.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
@@ -225,79 +226,6 @@ static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
     }
 }
 
-static void wsbr_pae_controller_configure(struct wsbr_ctxt *ctxt)
-{
-    struct sec_timing timing_ffn = {
-        .pmk_lifetime_s          = ctxt->config.auth_cfg.ffn.pmk_lifetime_s,
-        .ptk_lifetime_s          = ctxt->config.auth_cfg.ffn.ptk_lifetime_s,
-        .expire_offset           = ctxt->config.auth_cfg.ffn.gtk_expire_offset_s,
-        .new_act_time            = ctxt->config.auth_cfg.ffn.gtk_new_activation_time,
-        .new_install_req         = ctxt->config.auth_cfg.ffn.gtk_new_install_required,
-        .revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction,
-    };
-    struct sec_timing timing_lfn = {
-        .pmk_lifetime_s          = ctxt->config.auth_cfg.lfn.pmk_lifetime_s,
-        .ptk_lifetime_s          = ctxt->config.auth_cfg.lfn.ptk_lifetime_s,
-        .expire_offset           = ctxt->config.auth_cfg.lfn.gtk_expire_offset_s,
-        .new_act_time            = ctxt->config.auth_cfg.lfn.gtk_new_activation_time,
-        .new_install_req         = ctxt->config.auth_cfg.lfn.gtk_new_install_required,
-        .revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction,
-    };
-    struct arm_certificate_entry tls_br = {
-        .cert     = ctxt->config.auth_cfg.cert.iov_base,
-        .cert_len = ctxt->config.auth_cfg.cert.iov_len,
-        .key      = ctxt->config.auth_cfg.key.iov_base,
-        .key_len  = ctxt->config.auth_cfg.key.iov_len,
-    };
-    struct arm_certificate_entry tls_ca = {
-        .cert     = ctxt->config.auth_cfg.ca_cert.iov_base,
-        .cert_len = ctxt->config.auth_cfg.ca_cert.iov_len,
-    };
-    uint8_t *lgtks[3] = { };
-    bool lgtk_force = false;
-    uint8_t *gtks[4] = { };
-    bool gtk_force = false;
-    int ret;
-
-    ws_pae_controller_configure(&ctxt->net_if,
-                                &timing_ffn, &timing_lfn,
-                                &size_params[ctxt->config.ws_size].security_protocol_config);
-
-    if (strlen(ctxt->config.auth_cfg.radius_secret) != 0)
-        if (ws_pae_controller_radius_shared_secret_set(ctxt->net_if.id, strlen(ctxt->config.auth_cfg.radius_secret),
-                                                       (uint8_t *)ctxt->config.auth_cfg.radius_secret))
-            WARN("ws_pae_controller_radius_shared_secret_set");
-    if (ctxt->config.auth_cfg.radius_addr.ss_family != AF_UNSPEC)
-        if (ws_pae_controller_radius_address_set(ctxt->net_if.id, &ctxt->config.auth_cfg.radius_addr))
-            WARN("ws_pae_controller_radius_address_set");
-
-    for (int i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {
-        if (ctxt->config.ws_gtk_force[i]) {
-            gtk_force = true;
-            gtks[i] = ctxt->config.ws_gtk[i];
-        }
-    }
-    if (gtk_force) {
-        ret = ws_pae_controller_gtk_update(ctxt->net_if.id, gtks);
-        WARN_ON(ret);
-    }
-    for (int i = 0; i < ARRAY_SIZE(ctxt->config.ws_lgtk_force); i++) {
-        if (ctxt->config.ws_lgtk_force[i]) {
-            lgtk_force = true;
-            lgtks[i] = ctxt->config.ws_lgtk[i];
-        }
-    }
-    if (lgtk_force) {
-        ret = ws_pae_controller_lgtk_update(ctxt->net_if.id, lgtks);
-        WARN_ON(ret);
-    }
-
-    ret = ws_pae_controller_own_certificate_add(&tls_br);
-    WARN_ON(ret);
-    ret = ws_pae_controller_trusted_certificate_add(&tls_ca);
-    WARN_ON(ret);
-}
-
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     struct ws_info *ws_info = &ctxt->net_if.ws_info;
@@ -394,8 +322,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
     ws_info->tx_power_dbm = ctxt->config.tx_power;
-
-    wsbr_pae_controller_configure(ctxt);
 
     ws_enable_mac_filtering(ctxt);
 
@@ -505,11 +431,11 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_RPL].events = POLLIN;
     ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
     ctxt->fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
-    ctxt->fds[POLLFD_EAPOL_RELAY].fd = ws_eapol_auth_relay_get_socket_fd();
+    ctxt->fds[POLLFD_EAPOL_RELAY].fd = ws_auth_fd_eapol_relay(&ctxt->net_if);
     ctxt->fds[POLLFD_EAPOL_RELAY].events = POLLIN;
     ctxt->fds[POLLFD_PAE_AUTH].fd = kmp_socket_if_get_pae_socket_fd();
     ctxt->fds[POLLFD_PAE_AUTH].events = POLLIN;
-    ctxt->fds[POLLFD_RADIUS].fd = kmp_socket_if_get_radius_sockfd();
+    ctxt->fds[POLLFD_RADIUS].fd = ws_auth_fd_radius(&ctxt->net_if);
     ctxt->fds[POLLFD_RADIUS].events = POLLIN;
 }
 
@@ -538,11 +464,11 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
         ws_eapol_relay_socket_cb(ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
-        ws_eapol_auth_relay_socket_cb(ctxt->fds[POLLFD_EAPOL_RELAY].fd);
+        ws_auth_recv_eapol_relay(&ctxt->net_if);
     if (ctxt->fds[POLLFD_PAE_AUTH].revents & POLLIN)
         kmp_socket_if_pae_socket_cb(ctxt->fds[POLLFD_PAE_AUTH].fd);
     if (ctxt->fds[POLLFD_RADIUS].revents & POLLIN)
-        kmp_socket_if_radius_socket_cb(ctxt->fds[POLLFD_RADIUS].fd);
+        ws_auth_recv_radius(&ctxt->net_if);
     if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (ctxt->fds[POLLFD_EVENT].revents & POLLIN) {
@@ -630,6 +556,7 @@ int wsbr_main(int argc, char *argv[])
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
+    ws_auth_init(&ctxt->net_if, &ctxt->config);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 

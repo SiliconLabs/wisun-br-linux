@@ -49,4 +49,10 @@ void ws_bootstrap_ip_stack_activate(struct net_if *cur);
 
 void ws_bootstrap_packet_congestion_init(struct net_if *cur);
 
+void ws_bootstrap_nw_key_set(struct net_if *cur,
+                             uint8_t key_index,
+                             const uint8_t key[16],
+                             uint32_t frame_counter);
+void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
+
 #endif

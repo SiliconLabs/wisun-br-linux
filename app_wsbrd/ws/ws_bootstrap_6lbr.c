@@ -57,10 +57,6 @@
 #include "ws/ws_eapol_relay.h"
 #include "ws/ws_mngt.h"
 
-#define EAPOL_RELAY_SOCKET_PORT               10253
-#define BR_EAPOL_RELAY_SOCKET_PORT            10255
-#define PAE_AUTH_SOCKET_PORT                  10254
-
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     const struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
@@ -85,18 +81,6 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
     ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params, fhss->regional_regulation);
     rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
-    return 0;
-}
-
-static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
-{
-    const uint8_t *addr;
-
-    addr = addr_select_with_prefix(interface_ptr, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
-    if (!addr)
-        return -1;
-
-    memcpy(address, addr, 16);
     return 0;
 }
 
@@ -252,9 +236,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
-    //Clear Pending Key Index State
-    cur->ws_info.ffn_gtk_index = 0;
-    cur->ws_info.lfn_gtk_index = 0;
 
     ipv6_destination_cache_clean(cur->id);
 
@@ -264,7 +245,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_packet_congestion_init(cur);
 
     ws_bootstrap_ip_stack_reset(cur);
-    ws_pae_controller_auth_init(cur);
 
     cur->ws_info.pan_information.jm.plf = 0;
     cur->ws_info.pan_information.routing_cost = 0;
@@ -280,24 +260,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     INFO("");
     ws_bootstrap_6lbr_print_interop(cur);
     INFO("");
-
-    uint8_t ll_addr[16];
-    addr_interface_get_ll_address(cur, ll_addr, 1);
-
-    // Set EAPOL relay to port 10255 and authenticator relay to 10253 (and to own ll address)
-    ws_eapol_relay_start(cur, BR_EAPOL_RELAY_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
-
-    // Set authenticator relay to port 10253 and PAE to 10254 (and to own ll address)
-    ws_eapol_auth_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, ll_addr, PAE_AUTH_SOCKET_PORT);
-
-    // Send network name to controller
-    ws_pae_controller_network_name_set(cur, cur->ws_info.network_name);
-
-    // Set backbone IP address get callback
-    ws_pae_controller_auth_cb_register(cur, ws_bootstrap_6lbr_backbone_ip_addr_get);
-
-    // Set PAE port to 10254 and authenticator relay to 10253 (and to own ll address)
-    ws_pae_controller_authenticator_start(cur, PAE_AUTH_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
 
     // Initialize eapol congestion tracking
     ws_bootstrap_6lbr_eapol_congestion_init(cur);

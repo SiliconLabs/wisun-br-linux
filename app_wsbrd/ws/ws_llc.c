@@ -52,6 +52,7 @@
 #include "security/eapol/eapol_helper.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
+#include "ws/ws_auth.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_ie_validation.h"
@@ -1047,6 +1048,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                          rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     struct ws_ie_custom *ie_custom;
     bool has_ie_custom_wp = false;
+    uint8_t gtkhash[4][8];
     int ie_offset;
     uint8_t plf;
 
@@ -1114,8 +1116,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_netname_write(&msg->ie_buf_payload, info->network_name);
         if (wp_ies->panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
-        if (wp_ies->gtkhash)
-            ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
+        if (wp_ies->gtkhash) {
+            ws_auth_gtkhash(base->interface_ptr, gtkhash);
+            ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, gtkhash);
+        }
         if (wp_ies->pom)
             ws_wp_nested_pom_write(&msg->ie_buf_payload, info->phy_config.phy_op_modes, true);
         if (wp_ies->lcp)
@@ -1123,9 +1127,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &info->fhss_config);
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
-        if (wp_ies->lgtkhash)
-            ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
-                                        ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
+        if (wp_ies->lgtkhash) {
+            ws_auth_lgtkhash(base->interface_ptr, gtkhash);
+            ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, gtkhash, ws_auth_lgtk_index(base->interface_ptr));
+        }
         if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
@@ -1158,33 +1163,6 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true);
     }
     return header_size;
-}
-
-static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct net_if *cur)
-{
-    eapol_pdu_t eapol_pdu;
-    uint8_t kmp_type = *pdu++;
-    length--;
-    if (!eapol_parse_pdu_header(pdu, length, &eapol_pdu)) {
-        return false;
-    }
-    if (eapol_pdu.packet_type == EAPOL_EAP_TYPE) {
-        if (eapol_pdu.msg.eap.eap_code == EAP_REQ && eapol_pdu.msg.eap.type == EAP_IDENTITY) {
-            return true;
-        }
-    } else {
-
-        uint8_t key_mask = eapol_pdu_key_mask_get(&eapol_pdu);
-        if (kmp_type == 6 && key_mask == KEY_INFO_KEY_ACK) {
-            //FWK first message validation
-            return true;
-        } else if (kmp_type == 7 && key_mask == (KEY_INFO_KEY_ACK | KEY_INFO_KEY_MIC | KEY_INFO_SECURED_KEY_FRAME)) {
-            //GWK first message validation
-            return true;
-        }
-    }
-
-    return false;
 }
 
 // message->ie_iov_payload[1].iov_len must be set prior to calling this function
@@ -1455,7 +1433,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
-    bool eapol_handshake_first_msg = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
+    bool eapol_handshake_first_msg = ws_auth_is_1st_msg(base->interface_ptr, data->msdu, data->msduLength);
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,

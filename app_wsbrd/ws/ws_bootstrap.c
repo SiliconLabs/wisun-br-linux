@@ -153,10 +153,10 @@ void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh 
         ws_timer_stop(WS_TIMER_LTS);
 }
 
-static void ws_bootstrap_nw_key_set(struct net_if *cur,
-                                    uint8_t key_index,
-                                    const uint8_t key[16],
-                                    uint32_t frame_counter)
+void ws_bootstrap_nw_key_set(struct net_if *cur,
+                             uint8_t key_index,
+                             const uint8_t key[16],
+                             uint32_t frame_counter)
 {
     struct ws_neigh *neigh;
 
@@ -181,7 +181,7 @@ static void ws_bootstrap_nw_key_set(struct net_if *cur,
         neigh->frame_counter_min[key_index - 1] = key ? 0 : UINT32_MAX;
 }
 
-static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
+void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
     if (cur->ws_info.lfn_gtk_index != 0 &&
         cur->ws_info.lfn_gtk_index != index + 1 &&
@@ -194,33 +194,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         cur->ws_info.ffn_gtk_index = index + 1;
     else if (index >= 4 && index < 7)
         cur->ws_info.lfn_gtk_index = index + 1;
-}
-
-static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur)
-{
-    if (cur == NULL) {
-        return false;
-    }
-
-    bool return_value = false;
-    uint16_t adaptation_average = 0;
-    uint16_t llc_average = 0;
-    uint16_t llc_eapol_average = 0;
-    uint16_t average_sum = 0;
-
-    // Read the values for adaptation and LLC queues
-    adaptation_average = red_aq_get(&cur->random_early_detection);
-    llc_average = red_aq_get(&cur->llc_random_early_detection);
-    llc_eapol_average  = red_aq_get(&cur->llc_eapol_random_early_detection);
-    // Calculate combined average
-    average_sum = adaptation_average + llc_average + llc_eapol_average;
-    // Check drop probability
-    average_sum = red_aq_calc(&cur->pae_random_early_detection, average_sum);
-    return_value = red_congestion_check(&cur->pae_random_early_detection);
-
-    tr_info("Congestion check, summed averageQ: %i adapt averageQ: %i LLC averageQ: %i LLC EAPOL averageQ: %i drop: %s", average_sum, adaptation_average, llc_average, llc_eapol_average, return_value ? "T" : "F");
-
-    return return_value;
 }
 
 void ws_bootstrap_init(int8_t interface_id)
@@ -239,19 +212,6 @@ void ws_bootstrap_init(int8_t interface_id)
 
     //Register MPXUser to adapatation layer
     lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN);
-
-    //Init PAE controller and set callback
-    ws_pae_controller_init(cur);
-    ws_pae_controller_cb_register(cur,
-                                  ws_bootstrap_nw_key_set,
-                                  ws_bootstrap_nw_key_index_set,
-                                  ws_mngt_pan_version_increase,
-                                  ws_mngt_lfn_version_increase,
-                                  ws_bootstrap_eapol_congestion_get);
-
-    //Init EAPOL PDU handler and register it to MPX
-    ws_eapol_pdu_init(cur);
-    ws_eapol_pdu_mpx_register(cur, mpx_api, MPX_ID_KMP);
 
     ws_bootstrap_configuration_reset(cur);
 

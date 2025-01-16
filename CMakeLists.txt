@@ -194,6 +194,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/ws/ws_ie_validation.c
     app_wsbrd/ws/ws_llc.c
     app_wsbrd/ws/ws_mngt.c
+    app_wsbrd/ws/ws_auth_legacy.c
     app_wsbrd/ws/ws_pae_auth.c
     app_wsbrd/ws/ws_pae_controller.c
     app_wsbrd/ws/ws_pae_key_storage.c

@@ -31,6 +31,7 @@
 #include "common/ws_neigh.h"
 #include "common/ws_regdb.h"
 
+#include "ws/ws_auth.h"
 #include "ws/ws_common.h"
 #include "ws/ws_pae_controller.h"
 #include "ws/ws_pae_key_storage.h"
@@ -194,14 +195,12 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
 static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
                                    sd_bus_error *ret_error, bool is_lfn)
 {
-    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
-    const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
+    const int count = is_lfn ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    const int offset = is_lfn ? WS_GTK_COUNT : 0;
 
-    if (!gtks)
-        return sd_bus_error_set_errno(ret_error, EBADR);
     sd_bus_message_open_container(reply, 'a', "ay");
-    for (int i = 0; i < key_cnt; i++)
-        sd_bus_message_append_array(reply, 'y', gtks->gtk[i].key, ARRAY_SIZE(gtks->gtk[i].key));
+    for (int i = 0; i < count; i++)
+        sd_bus_message_append_array(reply, 'y', ws_auth_gtk(net_if, i + offset + 1), 16);
     sd_bus_message_close_container(reply);
     return 0;
 }
@@ -223,17 +222,16 @@ static int dbus_get_lgtks(sd_bus *bus, const char *path, const char *interface,
 static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
                              sd_bus_error *ret_error, bool is_lfn)
 {
-    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_transient_keys(net_if->id, is_lfn);
-    const int key_cnt = is_lfn ? LGTK_NUM : GTK_NUM;
+    const int count = is_lfn ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    const int offset = is_lfn ? WS_GTK_COUNT : 0;
     uint8_t gak[16];
 
-    if (!gtks)
-        return sd_bus_error_set_errno(ret_error, EBADR);
     sd_bus_message_open_container(reply, 'a', "ay");
-    for (int i = 0; i < key_cnt; i++) {
+    for (int i = 0; i < count; i++) {
         // GAK is SHA256 of network name concatened with GTK
-        ws_generate_gak(net_if->ws_info.network_name, gtks->gtk[i].key, gak);
-        sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
+        ws_generate_gak(net_if->ws_info.network_name,
+                        ws_auth_gtk(net_if, i + offset + 1), gak);
+        sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);
     return 0;
@@ -256,16 +254,16 @@ static int dbus_get_lgaks(sd_bus *bus, const char *path, const char *interface,
 static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
+    const struct eui64 *eui64;
     size_t eui64_len;
-    uint8_t *eui64;
     int ret;
 
     sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_pae_controller_node_keys_remove(ctxt->net_if.id, eui64);
+    ret = ws_auth_revoke_pmk(&ctxt->net_if, eui64);
     if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
+        return sd_bus_error_set_errno(ret_error, -ret);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }

@@ -384,7 +384,7 @@ int8_t ws_pae_auth_nw_key_index_update(struct net_if *interface_ptr, uint8_t ind
     return 0;
 }
 
-int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui_64)
+int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, const uint8_t eui_64[8])
 {
     int8_t ret_value = -1;
 

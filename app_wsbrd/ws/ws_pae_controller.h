@@ -149,8 +149,8 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
-int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[3]);
+int8_t ws_pae_controller_gtk_update(int8_t interface_id, const uint8_t *gtk[4]);
+int8_t ws_pae_controller_lgtk_update(int8_t interface_id, const uint8_t *lgtk[3]);
 
 /**
  * ws_pae_controller_node_keys_remove remove node's keys
@@ -162,7 +162,7 @@ int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[3]);
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64);
+int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, const uint8_t eui64[8]);
 
 /**
  * ws_pae_controller_node_access_revoke_start start node's access revoke

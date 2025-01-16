@@ -876,7 +876,7 @@ int8_t ws_pae_controller_radius_shared_secret_set(int8_t interface_id, const uin
     return 0;
 }
 
-int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
+int8_t ws_pae_controller_gtk_update(int8_t interface_id, const uint8_t *gtk[GTK_NUM])
 {
     if (!gtk) {
         return -1;
@@ -919,7 +919,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
     return 0;
 }
 
-int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[LGTK_NUM])
+int8_t ws_pae_controller_lgtk_update(int8_t interface_id, const uint8_t *lgtk[LGTK_NUM])
 {
     if (!lgtk) {
         return -1;
@@ -962,7 +962,7 @@ int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[LGTK_NUM
     return 0;
 }
 
-int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64)
+int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, const uint8_t eui_64[8])
 {
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
     if (!controller) {

@@ -154,7 +154,7 @@ int8_t ws_pae_auth_nw_key_index_update(struct net_if *interface_ptr, uint8_t ind
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui64);
+int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, const uint8_t eui64[8]);
 
 /**
  * ws_pae_auth_node_access_revoke_start start node's access revoke
