@@ -150,11 +150,11 @@ const struct chan_params chan_params_table[] = {
          domain   class regional_reg    |   chan0_freq      |     |    valid_phy_modes */
     { REG_DOMAIN_AZ, 1, HIF_REG_NONE,  48,  915200000,  200000,  64, {  2,  3, 18, 19              }, }, // REG_DOMAIN_AZ and REG_DOMAIN_NZ share the same ID
     { REG_DOMAIN_AZ, 2, HIF_REG_NONE,  49,  915400000,  400000,  32, {  5,  6,  8, 21, 22, 24      }, },
-    { REG_DOMAIN_BZ, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, {  2,  3, 18, 19, 84, 85, 86, }, .chan_allowed = "0-25,65-128", },
-    { REG_DOMAIN_BZ, 2, HIF_REG_NONE,   2,  902400000,  400000,  64, {  5,  6, 21, 22, 68, 69, 70, }, .chan_allowed = "0-11,33-63", },
-    { REG_DOMAIN_BZ, 3, HIF_REG_NONE,   3,  902600000,  600000,  42, {  8, 24,                     }, .chan_allowed = "0-7,22-41", },
-    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 51, 52, 53, 54,             }, .chan_allowed = "0-5,16-31", },
-    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 34, 35, 36, 37, 38,         }, .chan_allowed = "0-2,11-20", },
+    { REG_DOMAIN_BZ, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, {  2,  3, 18, 19, 84, 85, 86, }, .chan_allowed = "0-13,65-128", },
+    { REG_DOMAIN_BZ, 2, HIF_REG_NONE,   2,  902400000,  400000,  64, {  5,  6, 21, 22, 68, 69, 70, }, .chan_allowed = "0-5,33-63", },
+    { REG_DOMAIN_BZ, 3, HIF_REG_NONE,   3,  902600000,  600000,  42, {  8, 24,                     }, .chan_allowed = "0-3,22-41", },
+    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 51, 52, 53, 54,             }, .chan_allowed = "0-1,17-31", },
+    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 34, 35, 36, 37, 38,         }, .chan_allowed = "0,11-19", },
     { REG_DOMAIN_CN, 1, HIF_REG_NONE, 160,  470200000,  200000, 199, {  2,  3,  5, 18, 19, 21      }, },
     { REG_DOMAIN_CN, 2, HIF_REG_NONE,   0,  779200000,  200000,  39, {  2,  3,                     }, },
     { REG_DOMAIN_CN, 3, HIF_REG_NONE,   0,  779400000,  400000,  19, {  5,  6,  8,                 }, },
