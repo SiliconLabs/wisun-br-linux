@@ -45,7 +45,7 @@ static void protocol_6lowpan_stack(buffer_t *b)
         return;
     }
     /* Protocol Buffer Handle until Buffer Go out from Stack */
-    while (b) {
+    do {
         /* Buffer Direction Select Switch */
         if ((b->info & B_DIR_MASK) == B_DIR_DOWN) {
             /* Direction DOWN */
@@ -111,7 +111,7 @@ static void protocol_6lowpan_stack(buffer_t *b)
                     break;
             }
         }
-    }
+    } while (b);
 }
 
 /* Return length of option always, and write option if opt_out != NULL */
