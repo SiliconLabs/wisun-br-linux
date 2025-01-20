@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#[allow(dead_code)]
 mod wsbrddbusapi;
 
 #[macro_use]
