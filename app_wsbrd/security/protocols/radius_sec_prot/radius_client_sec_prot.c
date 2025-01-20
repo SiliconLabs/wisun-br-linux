@@ -916,6 +916,7 @@ static int8_t radius_client_sec_prot_ms_mppe_recv_key_pmk_decrypt(sec_prot_t *pr
 
     mbedtls_md5_context ctx;
 
+    memset(plain_text, 0, cipher_text_len);
     while (cipher_text_len >= MS_MPPE_RECV_KEY_BLOCK_LEN) {
         mbedtls_md5_init(&ctx);
 
