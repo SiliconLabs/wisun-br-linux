@@ -697,7 +697,7 @@ int lowpan_adaptation_queue_size(int8_t interface_id)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
 
-    return interface_ptr->directTxQueue_size;
+    return interface_ptr ? interface_ptr->directTxQueue_size : 0;
 }
 
 int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
