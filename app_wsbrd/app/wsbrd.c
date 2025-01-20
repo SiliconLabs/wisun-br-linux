@@ -577,7 +577,7 @@ int wsbr_main(int argc, char *argv[])
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
-    ws_auth_init(&ctxt->net_if, &ctxt->config);
+    ws_auth_init(&ctxt->net_if, &ctxt->config, ctxt->tun.ifname);
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 

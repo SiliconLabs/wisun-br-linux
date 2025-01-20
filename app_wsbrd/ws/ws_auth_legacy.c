@@ -76,7 +76,7 @@ static int8_t ws_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address
     return 0;
 }
 
-void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf)
+void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const char ifname[IF_NAMESIZE])
 {
     struct mpx_api *mpx_api = ws_llc_mpx_api_get(net_if);
     struct sec_timing timing_ffn = {

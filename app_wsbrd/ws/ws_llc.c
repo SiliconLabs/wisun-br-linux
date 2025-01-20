@@ -749,6 +749,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neigh *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
+    struct auth_supp_ctx *supp;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
     struct iobuf_read ie_mpx;
@@ -761,6 +762,10 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 
     if (!base)
         return;
+
+    supp = auth_get_supp(net_if->auth, (struct eui64 *)data->SrcAddr);
+    if (supp)
+        supp->eapol_target = in6addr_any;
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
@@ -823,6 +828,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neigh *ws_neigh = NULL;
     mcps_data_ind_t data_ind = *data;
+    struct auth_supp_ctx *supp;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct iobuf_read ie_wp;
@@ -835,6 +841,10 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 
     if (!base)
         return;
+
+    supp = auth_get_supp(net_if->auth, (struct eui64 *)data->SrcAddr);
+    if (supp)
+        supp->eapol_target = in6addr_any;
 
     has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);

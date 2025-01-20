@@ -17,11 +17,12 @@
 #include "app_wsbrd/net/protocol.h"
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_radius.h"
+#include "common/ws/eapol_relay.h"
 #include "common/mbedtls_extra.h"
 
 #include "ws_auth.h"
 
-void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf)
+void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const char ifname[IF_NAMESIZE])
 {
     for (int i = 0; i < WS_GTK_COUNT; i++)
         if (conf->ws_gtk_force[i])
@@ -29,17 +30,31 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf)
     for (int i = 0; i < WS_LGTK_COUNT; i++)
         if (conf->ws_lgtk_force[i])
             FATAL(2, "unsupported \"lgtk[%d]\"", i);
+    net_if->auth->eapol_relay_fd = eapol_relay_start(ifname);
     auth_start(net_if->auth, &net_if->rcp->eui64, conf->enable_lfn);
 }
 
 int ws_auth_fd_eapol_relay(struct net_if *net_if)
 {
-    return -1; // TODO
+    return net_if->auth->eapol_relay_fd;
 }
 
 void ws_auth_recv_eapol_relay(struct net_if *net_if)
 {
-    // TODO
+    struct in6_addr eapol_target;
+    struct auth_supp_ctx *supp;
+    struct eui64 supp_eui64;
+    uint8_t buf[1500];
+    ssize_t buf_len;
+    uint8_t kmp_id;
+
+    buf_len = eapol_relay_recv(net_if->auth->eapol_relay_fd, buf, sizeof(buf),
+                               &eapol_target, &supp_eui64, &kmp_id);
+    if (buf_len < 0)
+        return;
+    supp = auth_fetch_supp(net_if->auth, &supp_eui64);
+    supp->eapol_target = eapol_target;
+    auth_recv_eapol(net_if->auth, kmp_id, &supp_eui64, buf, buf_len);
 }
 
 int ws_auth_fd_radius(struct net_if *net_if)

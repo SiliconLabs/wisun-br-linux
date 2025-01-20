@@ -215,7 +215,7 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
                     pktbuf_len(&supp->rt_buffer));
 }
 
-static struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64)
+struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
 

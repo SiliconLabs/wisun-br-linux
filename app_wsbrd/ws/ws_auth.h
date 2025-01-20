@@ -14,13 +14,17 @@
 #ifndef WS_AUTH_H
 #define WS_AUTH_H
 
+#include <net/if.h>
+
 #include "common/crypto/ws_keys.h"
 
 struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf);
+void ws_auth_init(struct net_if *net_if,
+                  const struct wsbrd_conf *conf,
+                  const char ifname[IF_NAMESIZE]);
 
 int  ws_auth_fd_eapol_relay(struct net_if *net_if);
 void ws_auth_recv_eapol_relay(struct net_if *net_if);
