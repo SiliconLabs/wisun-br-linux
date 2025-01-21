@@ -104,7 +104,8 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
                                       &auth->cfg->ffn : &auth->cfg->lfn;
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
     uint64_t start_ms, lifetime_ms;
-    struct ws_gtk *cur, *new;
+    const struct ws_gtk *cur;
+    struct ws_gtk *new;
     int slot_install;
     bool init;
 
@@ -333,7 +334,7 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     BUG_ON(!auth->cfg);
 
     if (auth->cfg->radius_addr.ss_family != AF_UNSPEC)
-        radius_init(auth, (struct sockaddr *)&auth->cfg->radius_addr);
+        radius_init(auth, (const struct sockaddr *)&auth->cfg->radius_addr);
     else
         tls_init(&auth->tls, MBEDTLS_SSL_IS_SERVER, &auth->cfg->ca_cert, &auth->cfg->cert, &auth->cfg->key);
 

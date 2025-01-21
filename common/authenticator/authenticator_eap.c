@@ -269,7 +269,8 @@ static void auth_eap_recv_resp_nak(struct auth_ctx *auth, struct auth_supp_ctx *
     auth_eap_send_failure(auth, supp);
 }
 
-static void auth_eap_recv_resp_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct iobuf_read *iobuf)
+static void auth_eap_recv_resp_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+                                        const struct iobuf_read *iobuf)
 {
     TRACE(TR_SECURITY, "sec: identity=\"%.*s\"", iobuf_remaining_size(iobuf), (char *)iobuf_ptr(iobuf));
 

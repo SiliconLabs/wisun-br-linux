@@ -184,7 +184,8 @@ static const struct radius_attr *radius_attr_find_vendor(const void *buf, size_t
  *   RFC 2865 3. Packet Format
  * ResponseAuth = MD5(Code+ID+Length+RequestAuth+Attributes+Secret)
  */
-static int radius_verify_resp_auth(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static int radius_verify_resp_auth(const struct auth_ctx *auth,
+                                   const struct auth_supp_ctx *supp,
                                    const void *buf, size_t buf_len)
 {
     const struct radius_hdr *hdr = buf;
@@ -196,8 +197,8 @@ static int radius_verify_resp_auth(struct auth_ctx *auth, struct auth_supp_ctx *
     xmbedtls_md5_starts(&md5);
     xmbedtls_md5_update(&md5, buf, offsetof(struct radius_hdr, auth));
     xmbedtls_md5_update(&md5, supp->radius.auth, 16);
-    xmbedtls_md5_update(&md5, (uint8_t *)buf + sizeof(*hdr), buf_len - sizeof(*hdr));
-    xmbedtls_md5_update(&md5, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
+    xmbedtls_md5_update(&md5, (const uint8_t *)buf + sizeof(*hdr), buf_len - sizeof(*hdr));
+    xmbedtls_md5_update(&md5, (const uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md5_finish(&md5, resp_auth);
     mbedtls_md5_free(&md5);
     return !memcmp(hdr->auth, resp_auth, 16) ? 0 : -EINVAL;
@@ -251,7 +252,7 @@ static void radius_ms_mppe_key_decrypt(void *restrict out, const void *restrict 
 
     for (int i = len / 16 - 1; i > 0; i--) {
         xmbedtls_md5_starts(&md5);
-        xmbedtls_md5_update(&md5, (uint8_t *)secret, strlen(secret));
+        xmbedtls_md5_update(&md5, (const uint8_t *)secret, strlen(secret));
         xmbedtls_md5_update(&md5, in8 + 16 * (i - 1), 16);
         xmbedtls_md5_finish(&md5, b);
 
@@ -260,7 +261,7 @@ static void radius_ms_mppe_key_decrypt(void *restrict out, const void *restrict 
     }
 
     xmbedtls_md5_starts(&md5);
-    xmbedtls_md5_update(&md5, (uint8_t *)secret, strlen(secret));
+    xmbedtls_md5_update(&md5, (const uint8_t *)secret, strlen(secret));
     xmbedtls_md5_update(&md5, auth, 16);
     xmbedtls_md5_update(&md5, salt, 2);
     xmbedtls_md5_finish(&md5, b);
@@ -272,7 +273,8 @@ static void radius_ms_mppe_key_decrypt(void *restrict out, const void *restrict 
 }
 
 // RFC 2548 2.4.3. MS-MPPE-Recv-Key
-static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static int radius_read_ms_mppe_recv_key(const struct auth_ctx *auth,
+                                        struct auth_supp_ctx *supp,
                                         const void *buf, size_t buf_len)
 {
     const struct radius_attr *attr;
@@ -323,7 +325,8 @@ static int radius_read_ms_mppe_recv_key(struct auth_ctx *auth, struct auth_supp_
  * be considered to be sixteen octets of zero. The shared secret is used as the
  * key for the HMAC-MD5 message integrity check.
  */
-static int radius_verify_msg_auth(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static int radius_verify_msg_auth(const struct auth_ctx *auth,
+                                  const struct auth_supp_ctx *supp,
                                   const void *buf, size_t buf_len)
 {
     const struct radius_attr *attr;
@@ -562,7 +565,7 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
            &hdr.len, sizeof(hdr.len));
 
     xmbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
-                     (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret),
+                     (const uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret),
                      pktbuf_head(&pktbuf), pktbuf_len(&pktbuf),
                      pktbuf_head(&pktbuf) + offset_msg_auth);
 

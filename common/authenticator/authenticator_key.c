@@ -175,7 +175,7 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     auth_rt_timer_start(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
 }
 
-static void auth_key_write_key_data(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static void auth_key_write_key_data(struct auth_ctx *auth, const struct auth_supp_ctx *supp,
                                     const struct eapol_key_frame *frame, int key_slot, struct pktbuf *enc_key_data)
 {
     const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
@@ -453,7 +453,9 @@ static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     return ret;
 }
 
-static bool auth_is_pmkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t pmkid_kde[16])
+static bool auth_is_pmkid_valid(const struct auth_ctx *auth,
+                                const struct auth_supp_ctx *supp,
+                                const uint8_t pmkid_kde[16])
 {
     const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;
@@ -467,7 +469,9 @@ static bool auth_is_pmkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *sup
     return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + cfg->pmk_lifetime_s;
 }
 
-static bool auth_is_ptkid_valid(struct auth_ctx *auth, struct auth_supp_ctx *supp, const uint8_t ptkid_kde[16])
+static bool auth_is_ptkid_valid(const struct auth_ctx *auth,
+                                const struct auth_supp_ctx *supp,
+                                const uint8_t ptkid_kde[16])
 {
     uint8_t ptkid[16];
 
