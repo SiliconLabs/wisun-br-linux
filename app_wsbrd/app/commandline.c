@@ -203,8 +203,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { "rpl_rpi_ignorable",             &config->rpl_rpi_ignorable,                conf_set_bool,        NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
-        { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         (void *)ARRAY_SIZE(config->ws_gtk) },
-        { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         (void *)ARRAY_SIZE(config->ws_lgtk) },
+        { "gtk\\[*]",                      config->auth_cfg.gtk_init,                 conf_set_gtk,         (void *)WS_GTK_COUNT },
+        { "lgtk\\[*]",                     config->auth_cfg.gtk_init + WS_GTK_COUNT,  conf_set_gtk,         (void *)WS_LGTK_COUNT },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
@@ -477,7 +477,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             WARN("ignore certificates and key since an external radius server is in use");
     }
     if (!config->enable_lfn)
-        if (memzcmp(config->ws_lgtk, sizeof(config->ws_lgtk)))
+        if (memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
             FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
@@ -492,8 +492,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
             WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
                  val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
-    if ((memzcmp(config->ws_gtk, sizeof(config->ws_gtk)) ||
-         memzcmp(config->ws_lgtk, sizeof(config->ws_lgtk))) && config->ws_pan_id != -1)
+    if (memzcmp(config->auth_cfg.gtk_init, sizeof(config->auth_cfg.gtk_init)) &&
+         config->ws_pan_id != -1)
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
     if (config->capture[0] && !config->storage_delete)
         WARN("--capture used without --delete-storage");

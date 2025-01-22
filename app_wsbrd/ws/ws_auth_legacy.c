@@ -132,20 +132,20 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         ws_pae_controller_radius_address_set(net_if->id, &conf->auth_cfg.radius_addr);
 
     force = false;
-    for (int i = 0; i < ARRAY_SIZE(conf->ws_gtk); i++) {
-        if (memzcmp(conf->ws_gtk[i], 16)) {
+    for (int i = 0; i < WS_GTK_COUNT; i++) {
+        if (memzcmp(conf->auth_cfg.gtk_init[i], 16)) {
             force = true;
-            gtks[i] = conf->ws_gtk[i];
+            gtks[i] = conf->auth_cfg.gtk_init[i];
         }
     }
     if (force)
         ws_pae_controller_gtk_update(net_if->id, gtks);
 
     force = false;
-    for (int i = 0; i < ARRAY_SIZE(conf->ws_lgtk); i++) {
-        if (memzcmp(conf->ws_lgtk[i], 16)) {
+    for (int i = 0; i < WS_LGTK_COUNT; i++) {
+        if (memzcmp(conf->auth_cfg.gtk_init[i + WS_GTK_COUNT], 16)) {
             force = true;
-            lgtks[i] = conf->ws_lgtk[i];
+            lgtks[i] = conf->auth_cfg.gtk_init[i + WS_GTK_COUNT];
         }
     }
     if (force)

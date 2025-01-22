@@ -89,6 +89,7 @@ struct auth_cfg {
     struct iovec key;
     struct sockaddr_storage radius_addr;
     char radius_secret[256];
+    uint8_t gtk_init[WS_GTK_COUNT + WS_LGTK_COUNT][16];
 };
 
 struct auth_ctx {

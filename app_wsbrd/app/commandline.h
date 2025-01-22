@@ -66,8 +66,6 @@ struct wsbrd_conf {
     char storage_prefix[PATH_MAX];
     bool storage_delete;
     bool storage_exit;
-    uint8_t ws_gtk[4][16];
-    uint8_t ws_lgtk[4][16];
 
     int  tx_power;
     int  ws_pan_id;
