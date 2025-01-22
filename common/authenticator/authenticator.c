@@ -118,7 +118,10 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
         slot_install = auth_gtk_slot_next(gtk_group->slot_active);
     new = &auth->gtks[slot_install];
 
-    rand_get_n_bytes_random(new->key, sizeof(new->key));
+    if (init && memzcmp(auth->cfg->gtk_init[slot_install], 16))
+        memcpy(new->key, auth->cfg->gtk_init[slot_install], 16);
+    else
+        rand_get_n_bytes_random(new->key, sizeof(new->key));
 
     /*
      *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
