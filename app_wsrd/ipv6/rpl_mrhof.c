@@ -127,6 +127,18 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
               pref_parent_new->rpl->dio.instance_id,
               pref_parent_new->rpl->dio.dodag_verno,
               tr_ipv6(pref_parent_new->rpl->dio.dodag_id.s6_addr));
+    /*
+     *   Wi-SUN FAN 1.1v09 - 6.2.3.1.4.1 FFN Neighbor Discovery
+     * If an FFN decides to change its parent or leave the network, it is
+     * RECOMMENDED that the FFN attempt to de-register with its current
+     * parent by sending an NS(ARO) with zero lifetime (see also [RFC6775]
+     * Section 5.5).
+     */
+    // FIXME: Send NS(ARO) with 0 lifetime on DAO-ACK of new parent
+    if (pref_parent_cur) {
+        timer_stop(&ipv6->timer_group, &pref_parent_cur->aro_timer);
+        ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
+    }
     if (mrhof->on_pref_parent_change)
         mrhof->on_pref_parent_change(mrhof, pref_parent_new);
     // TODO: support secondary parents

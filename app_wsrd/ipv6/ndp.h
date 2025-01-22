@@ -89,6 +89,8 @@ void ipv6_neigh_clean(struct ipv6_ctx *ipv6);
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);
 
+int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes);
+
 /*
  *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery
  * Neighbor Advertisement MUST NOT be transmitted in response to successful

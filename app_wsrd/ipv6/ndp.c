@@ -48,9 +48,8 @@ static const char *tr_nud_state(int state)
     return val_to_str(state, table, "UNKNOWN");
 }
 
-static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
 {
-    uint16_t lifetime_minutes = ipv6->aro_lifetime_ms / 1000 / 60;
     struct nd_neighbor_solicit ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
@@ -178,7 +177,7 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
          * a default router.
          */
         if (neigh->rpl && neigh->rpl->is_parent)
-            neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh);
+            neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
         else
             neigh->ns_handle = ipv6_send_ns(ipv6, neigh);
         neigh->nud_probe_count++;
