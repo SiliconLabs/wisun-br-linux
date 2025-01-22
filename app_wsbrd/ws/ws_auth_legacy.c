@@ -28,6 +28,7 @@
 #include "common/specs/ieee802159.h"
 #include "common/log_legacy.h"
 #include "common/memutils.h"
+#include "common/string_extra.h"
 
 #include "ws_auth.h"
 
@@ -131,8 +132,8 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         ws_pae_controller_radius_address_set(net_if->id, &conf->auth_cfg.radius_addr);
 
     force = false;
-    for (int i = 0; i < ARRAY_SIZE(conf->ws_gtk_force); i++) {
-        if (conf->ws_gtk_force[i]) {
+    for (int i = 0; i < ARRAY_SIZE(conf->ws_gtk); i++) {
+        if (memzcmp(conf->ws_gtk[i], 16)) {
             force = true;
             gtks[i] = conf->ws_gtk[i];
         }
@@ -141,8 +142,8 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         ws_pae_controller_gtk_update(net_if->id, gtks);
 
     force = false;
-    for (int i = 0; i < ARRAY_SIZE(conf->ws_lgtk_force); i++) {
-        if (conf->ws_lgtk_force[i]) {
+    for (int i = 0; i < ARRAY_SIZE(conf->ws_lgtk); i++) {
+        if (memzcmp(conf->ws_lgtk[i], 16)) {
             force = true;
             lgtks[i] = conf->ws_lgtk[i];
         }

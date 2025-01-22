@@ -67,9 +67,7 @@ struct wsbrd_conf {
     bool storage_delete;
     bool storage_exit;
     uint8_t ws_gtk[4][16];
-    bool ws_gtk_force[4];
     uint8_t ws_lgtk[4][16];
-    bool ws_lgtk_force[4];
 
     int  tx_power;
     int  ws_pan_id;

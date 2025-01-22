@@ -150,26 +150,14 @@ static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_de
 
 static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    struct wsbrd_conf *config = raw_dest;
-    bool is_lgtk = *(bool *)raw_param;
-    uint8_t (*gtk)[16];
-    uint8_t gtk_count;
-    bool *gtk_force;
+    uintptr_t gtk_count = (uintptr_t)raw_param;
+    uint8_t (*gtks)[16] = raw_dest;
 
-    if (is_lgtk) {
-        gtk = config->ws_lgtk;
-        gtk_force = config->ws_lgtk_force;
-        gtk_count = 3;
-    } else {
-        gtk = config->ws_gtk;
-        gtk_force = config->ws_gtk_force;
-        gtk_count = 4;
-    }
     if (info->key_array_index < 0 || info->key_array_index >= gtk_count)
         FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
-    if (parse_byte_array(gtk[info->key_array_index], 16, info->value))
+    if (parse_byte_array(gtks[info->key_array_index], 16, info->value) ||
+        !memzcmp(gtks[info->key_array_index], 16))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    gtk_force[info->key_array_index] = true;
 }
 
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
@@ -215,8 +203,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { "rpl_rpi_ignorable",             &config->rpl_rpi_ignorable,                conf_set_bool,        NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
-        { "gtk\\[*]",                      config,                                    conf_set_gtk,         (bool[1]){ false } },
-        { "lgtk\\[*]",                     config,                                    conf_set_gtk,         (bool[1]){ true } },
+        { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         (void *)ARRAY_SIZE(config->ws_gtk) },
+        { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         (void *)ARRAY_SIZE(config->ws_lgtk) },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
@@ -489,7 +477,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             WARN("ignore certificates and key since an external radius server is in use");
     }
     if (!config->enable_lfn)
-        if (config->ws_lgtk_force[0] || config->ws_lgtk_force[1] || config->ws_lgtk_force[2])
+        if (memzcmp(config->ws_lgtk, sizeof(config->ws_lgtk)))
             FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
@@ -504,8 +492,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
             WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
                  val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
-    if ((memzcmp(config->ws_gtk_force, sizeof(config->ws_gtk_force)) ||
-         memzcmp(config->ws_lgtk_force, sizeof(config->ws_lgtk_force))) && config->ws_pan_id != -1)
+    if ((memzcmp(config->ws_gtk, sizeof(config->ws_gtk)) ||
+         memzcmp(config->ws_lgtk, sizeof(config->ws_lgtk))) && config->ws_pan_id != -1)
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
     if (config->capture[0] && !config->storage_delete)
         WARN("--capture used without --delete-storage");
