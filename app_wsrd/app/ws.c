@@ -36,6 +36,7 @@
 #include "common/time_extra.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
+#include "app_wsrd/app/join_state.h"
 #include "app_wsrd/app/wsrd.h"
 
 #include "ws.h"
@@ -92,7 +93,6 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
             selected_candidate = candidate;
     }
 
-    trickle_stop(&wsrd->pas_tkl);
     memcpy(&wsrd->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
     // TODO: reset PAN ID when transitioning to join state 1
     wsrd->ws.pan_id = selected_pan_id;
@@ -103,6 +103,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
          selected_candidate->pan_cost, selected_candidate->plf);
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
+    join_state_1_exit(wsrd);
     supp_start_key_request(&wsrd->supp);
 }
 

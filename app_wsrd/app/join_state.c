@@ -29,3 +29,10 @@ void join_state_1_enter(struct wsrd *wsrd)
     trickle_start(&wsrd->pas_tkl);
     timer_start_rel(NULL, &wsrd->pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }
+
+void join_state_1_exit(struct wsrd *wsrd)
+{
+    BUG_ON(timer_stopped(&wsrd->pas_tkl.timer_interval));
+
+    trickle_stop(&wsrd->pas_tkl);
+}
