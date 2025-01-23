@@ -122,6 +122,9 @@ static void supp_mbedtls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type
      * potential retransmissions.
      */
     supp->replay_counter = -1;
+
+    // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
+    memset(supp->ptk, 0, sizeof(supp->ptk));
 }
 
 static void supp_mbedtls_debug(void *ctx, int level, const char *file, int line, const char *string)
