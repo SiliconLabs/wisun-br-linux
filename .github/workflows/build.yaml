@@ -56,3 +56,10 @@ jobs:
           sudo ninja -C build install
       - name: Run --version
         run: wsbrd --version
+      - name: Compile new authenticator
+        run: |
+          cmake -S . \
+                -B build-auth \
+                -D AUTH_LEGACY=OFF \
+                -G Ninja
+          ninja -C build-auth wsbrd
