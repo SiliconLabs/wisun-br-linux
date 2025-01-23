@@ -422,8 +422,6 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     else
         rpl_neigh_update(ipv6, nce, dio, config, prefix);
 
-    rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
-
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
 
