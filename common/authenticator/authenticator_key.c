@@ -340,9 +340,6 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
-    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ?
-                                      &auth->cfg->lfn : &auth->cfg->ffn;
-
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "rx-4wh");
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
@@ -354,10 +351,7 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
         return -EINVAL;
     }
     memcpy(supp->eap_tls.tls.ptk.key, supp->eap_tls.tls.ptk.tkey, sizeof(supp->eap_tls.tls.ptk.key));
-    if (cfg->ptk_lifetime_s)
-        supp->eap_tls.tls.ptk.expiration_s = time_now_s(CLOCK_MONOTONIC) + cfg->ptk_lifetime_s;
-    else
-        supp->eap_tls.tls.ptk.expiration_s = UINT64_MAX;
+    supp->eap_tls.tls.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     return auth_key_handshake_done(auth, supp);
 }
 
@@ -473,12 +467,16 @@ static bool auth_is_ptkid_valid(const struct auth_ctx *auth,
                                 const struct auth_supp_ctx *supp,
                                 const uint8_t ptkid_kde[16])
 {
+    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
+    const struct tls_ptk *ptk = &supp->eap_tls.tls.ptk;
     uint8_t ptkid[16];
 
-    ws_derive_ptkid(supp->eap_tls.tls.ptk.key, auth->eui64.u8, supp->eui64.u8, ptkid);
+    ws_derive_ptkid(ptk->key, auth->eui64.u8, supp->eui64.u8, ptkid);
     if (memcmp(ptkid_kde, ptkid, 16))
         return false;
-    return time_now_s(CLOCK_MONOTONIC) < supp->eap_tls.tls.ptk.expiration_s;
+    if (!cfg->ptk_lifetime_s) // Infinite lifetime
+        return true;
+    return time_now_s(CLOCK_MONOTONIC) < ptk->installation_s + cfg->ptk_lifetime_s;
 }
 
 static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,

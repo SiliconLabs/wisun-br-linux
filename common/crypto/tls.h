@@ -41,7 +41,7 @@ struct tls_ptk {
      * KEK = Key Encryption Key
      */
     uint8_t  key[48];
-    uint64_t expiration_s; // not used by supplicant
+    uint64_t installation_s; // not used by supplicant
     /*
      *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
      * - TPTK. This variable represents the current PTK until message 3 of the
