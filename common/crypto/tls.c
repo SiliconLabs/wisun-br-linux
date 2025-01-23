@@ -65,6 +65,8 @@ void tls_install_pmk(struct tls_client_ctx *tls_client, const uint8_t key[32])
 
     // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
     memset(&tls_client->ptk, 0, sizeof(tls_client->ptk));
+
+    TRACE(TR_SECURITY, "sec: pmk installed");
 }
 
 /*
