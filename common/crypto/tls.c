@@ -45,23 +45,26 @@ int tls_recv(void *ctx, unsigned char *buf, size_t len)
     return ret;
 }
 
-void tls_install_pmk(struct tls_pmk *pmk, const uint8_t key[32])
+void tls_install_pmk(struct tls_client_ctx *tls_client, const uint8_t key[32])
 {
     // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-    if (!memcmp(pmk->key, key, sizeof(pmk->key))) {
+    if (!memcmp(tls_client->pmk.key, key, sizeof(tls_client->pmk.key))) {
         WARN("sec: ignore reinstallation of pmk");
         return;
     }
 
-    memcpy(pmk->key, key, sizeof(pmk->key));
-    pmk->installation_s = time_now_s(CLOCK_MONOTONIC);
+    memcpy(tls_client->pmk.key, key, sizeof(tls_client->pmk.key));
+    tls_client->pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
 
     /*
      *     IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
      * d) Key Replay Counter. This field is represented as an unsigned integer,
      *    and is initialized to 0 when the PMK is established.
      */
-    pmk->replay_counter = 0;
+    tls_client->pmk.replay_counter = 0;
+
+    // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
+    memset(&tls_client->ptk, 0, sizeof(tls_client->ptk));
 }
 
 /*
@@ -79,7 +82,7 @@ static void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type,
                             const unsigned char server_random[32],
                             mbedtls_tls_prf_types tls_prf_type)
 {
-    struct tls_pmk *pmk = p_expkey;
+    struct tls_client_ctx *tls_client = p_expkey;
     uint8_t derived_key[128];
     uint8_t random[64];
     int ret;
@@ -91,7 +94,7 @@ static void tls_export_keys(void *p_expkey, mbedtls_ssl_key_export_type type,
                               derived_key, sizeof(derived_key));
     FATAL_ON(ret, 2, "%s: mbedtls_ssl_tls_prf: %s", __func__, tr_mbedtls_err(ret));
 
-    tls_install_pmk(pmk, derived_key);
+    tls_install_pmk(tls_client, derived_key);
 }
 
 void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
@@ -103,7 +106,7 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
     BUG_ON(ret);
 
     mbedtls_ssl_set_bio(&tls_client->ssl_ctx, &tls_client->io, tls_send, tls_recv, NULL);
-    mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, tls_export_keys, &tls_client->pmk);
+    mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, tls_export_keys, tls_client);
 }
 
 static void tls_debug(void *ctx, int level, const char *file, int line, const char *string)
