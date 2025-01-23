@@ -205,10 +205,17 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     struct supp_ctx *supp = container_of(group, struct supp_ctx, timer_group);
     struct ws_gtk *gtk = container_of(timer, struct ws_gtk, expiration_timer);
     const int slot = (int)(gtk - supp->gtks);
+    const int count = slot >= WS_GTK_COUNT ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    const int offset = slot >= WS_GTK_COUNT ? WS_GTK_COUNT : 0;
 
     TRACE(TR_SECURITY, "sec: %s expired", tr_gtkname(slot));
     supp->on_gtk_change(supp, NULL, slot + 1);
     memset(gtk->key, 0, sizeof(gtk->key));
+    for (int i = offset; i < count; i++)
+        if (!timer_stopped(&supp->gtks[i].expiration_timer))
+            return;
+    TRACE(TR_SECURITY, "sec: no more %s installed", slot >= WS_GTK_COUNT ? "LGTK" : "GTK");
+    supp->on_failure(supp);
 }
 
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t gtkhash_index)

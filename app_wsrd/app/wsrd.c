@@ -243,6 +243,7 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
 
     supp_reset(supp);
     wsrd->eapol_target_eui64 = ieee802154_addr_bc;
+    // TODO: transition to join state 1
 }
 
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
