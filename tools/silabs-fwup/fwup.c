@@ -109,13 +109,10 @@ static size_t read_data(struct bus *bus, uint8_t *buf, int buf_len,
     int ret;
 
     while (1) {
-        if (!bus->uart.data_ready) {
-            ret = poll(&pollfd, 1, 5000);
-            if (ret < 0)
-                FATAL(2, "poll: %m");
-            if (!ret)
-                return 0;
-        }
+        ret = poll(&pollfd, 1, bus->uart.data_ready ? 5000 : 0);
+        FATAL_ON(ret < 0, 2, "poll: %m");
+        if (!bus->uart.data_ready && !ret)
+            return 0;
 
         if (pollfd.revents & POLLIN || bus->uart.data_ready) {
             ret = rx(bus, buf, buf_len);
