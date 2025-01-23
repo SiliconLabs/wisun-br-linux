@@ -44,6 +44,10 @@ jobs:
         run: |
           cmake -S . \
                 -B build \
+                -D CMAKE_C_FLAGS="-Werror \
+                                  -fanalyzer \
+                                  -Wno-analyzer-fd-leak \
+                                  -Wno-analyzer-mismatching-deallocation" \
                 -G Ninja
           ninja -C build
           sudo ninja -C build install
