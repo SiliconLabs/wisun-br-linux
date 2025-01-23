@@ -44,6 +44,9 @@ jobs:
         run: |
           cmake -S . \
                 -B build \
+                -D COMPILE_WSRD=ON \
+                -D COMPILE_DEVTOOLS=ON \
+                -D COMPILE_DEMOS=ON \
                 -D CMAKE_C_FLAGS="-Werror \
                                   -fanalyzer \
                                   -Wno-analyzer-fd-leak \
