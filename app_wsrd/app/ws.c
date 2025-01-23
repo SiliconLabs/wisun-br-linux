@@ -287,11 +287,12 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
             supp_start_key_request(&wsrd->supp);
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
-    if (wsrd->ws.pan_version < 0)
+    if (wsrd->ws.pan_version < 0) {
+        join_state_3_exit(wsrd);
         rpl_start_dis(&wsrd->ipv6);
+    }
     if (wsrd->ws.pan_version != pan_version) {
         wsrd->ws.pan_version = pan_version;
-        trickle_stop(&wsrd->pcs_tkl);
         dbus_emit_change("PanVersion");
     }
 

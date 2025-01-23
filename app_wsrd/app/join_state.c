@@ -83,3 +83,10 @@ void join_state_3_enter(struct wsrd *wsrd)
     INFO("Join state 3: Acquire PAN Config");
     trickle_start(&wsrd->pcs_tkl);
 }
+
+void join_state_3_exit(struct wsrd *wsrd)
+{
+    BUG_ON(timer_stopped(&wsrd->pcs_tkl.timer_interval));
+
+    trickle_stop(&wsrd->pcs_tkl);
+}
