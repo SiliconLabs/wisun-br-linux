@@ -28,6 +28,33 @@ struct tls_pmk {
     uint64_t installation_s; // not used by supplicant
 };
 
+struct tls_ptk {
+    /*
+     * +-----------------------------------------------------------+
+     * |                Pairwise Transient Key (PTK)               |
+     * +-----------------------------------------------------------+
+     * | KCK (16 bytes) | KEK (16 bytes) | Temporal Key (16 bytes) |
+     * +-----------------------------------------------------------+
+     *
+     * where,
+     * KCK = Key Confirmation Key
+     * KEK = Key Encryption Key
+     */
+    uint8_t  key[48];
+    uint64_t expiration_s; // not used by supplicant
+    /*
+     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
+     * - TPTK. This variable represents the current PTK until message 3 of the
+     *         4-way handshake arrives and is verified.
+     *
+     * [...]
+     *
+     * NOTE 1 — TPTK is used to stop attackers changing the PTK on the Supplicant
+     * by sending the first message of the 4-way handshake.
+     */
+    uint8_t tkey[48];
+};
+
 struct tls_io {
     struct pktbuf tx;
     struct pktbuf rx;
@@ -36,6 +63,7 @@ struct tls_io {
 struct tls_client_ctx {
     struct mbedtls_ssl_context ssl_ctx;
     struct tls_pmk pmk;
+    struct tls_ptk ptk;
     struct tls_io io;
 };
 

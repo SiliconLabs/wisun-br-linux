@@ -247,15 +247,16 @@ int auth_revoke_pmk(struct auth_ctx *auth, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
     struct tls_pmk *pmk;
+    struct tls_ptk *ptk;
 
     supp = auth_get_supp(auth, eui64);
     if (!supp)
         return -ENODEV;
     pmk = &supp->eap_tls.tls.pmk;
+    ptk = &supp->eap_tls.tls.ptk;
     memset(pmk->key, 0, sizeof(pmk->key));
     pmk->installation_s = 0;
-    memset(supp->ptk, 0, sizeof(supp->ptk));
-    supp->ptk_expiration_s = 0;
+    memset(ptk, 0, sizeof(*ptk));
     return 0;
 }
 
@@ -265,9 +266,9 @@ bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t 
 
     if (!supp)
         return false;
-    if (!memzcmp(supp->ptk, sizeof(supp->ptk)))
+    if (!memzcmp(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key)))
         return false;
-    memcpy(tk, ieee80211_tk(supp->ptk), IEEE80211_AKM_1_TK_LEN_BYTES);
+    memcpy(tk, ieee80211_tk(supp->eap_tls.tls.ptk.key), IEEE80211_AKM_1_TK_LEN_BYTES);
     return true;
 }
 

@@ -50,10 +50,10 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
-        ptk = supp->tptk;
+        ptk = supp->tls_client.ptk.tkey;
         kmp_id = IEEE802159_KMP_ID_80211_4WH;
     } else {
-        ptk = supp->ptk;
+        ptk = supp->tls_client.ptk.key;
         kmp_id = IEEE802159_KMP_ID_80211_GKH;
     }
 
@@ -126,9 +126,9 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
     const uint8_t *ptk;
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->tptk;
+        ptk = supp->tls_client.ptk.tkey;
     else
-        ptk = supp->ptk;
+        ptk = supp->tls_client.ptk.key;
 
     if (!ieee80211_is_mic_valid(ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
         return false;
@@ -233,9 +233,9 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     pktbuf_init(&buf, NULL, be16toh(frame->data_length));
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->tptk;
+        ptk = supp->tls_client.ptk.tkey;
     else
-        ptk = supp->ptk;
+        ptk = supp->tls_client.ptk.key;
 
     /*
      *   IEEE 802.11-2020, 4.10.4.2 Key usage
@@ -282,8 +282,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-        if (memcmp(supp->ptk, supp->tptk, sizeof(supp->tptk))) {
-            memcpy(supp->ptk, supp->tptk, sizeof(supp->ptk));
+        if (memcmp(supp->tls_client.ptk.key, supp->tls_client.ptk.tkey, sizeof(supp->tls_client.ptk.tkey))) {
+            memcpy(supp->tls_client.ptk.key, supp->tls_client.ptk.tkey, sizeof(supp->tls_client.ptk.key));
             // TODO: callback to install TK
             TRACE(TR_SECURITY, "sec: PTK installed");
         } else {
@@ -427,7 +427,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
 
     ieee80211_generate_nonce(supp->eui64, supp->snonce);
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
-    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->tptk);
+    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, supp->anonce, supp->snonce, supp->tls_client.ptk.tkey);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);

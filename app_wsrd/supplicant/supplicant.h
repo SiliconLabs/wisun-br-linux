@@ -73,30 +73,6 @@ struct supp_ctx {
     uint8_t anonce[32];
     uint8_t snonce[32];
 
-    /*
-     * +-----------------------------------------------------------+
-     * |                Pairwise Transient Key (PTK)               |
-     * +-----------------------------------------------------------+
-     * | KCK (16 bytes) | KEK (16 bytes) | Temporal Key (16 bytes) |
-     * +-----------------------------------------------------------+
-     *
-     * where,
-     * KCK = Key Confirmation Key
-     * KEK = Key Encryption Key
-     */
-    uint8_t ptk[48];
-    /*
-     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
-     * - TPTK. This variable represents the current PTK until message 3 of the
-     *         4-way handshake arrives and is verified.
-     *
-     * [...]
-     *
-     * NOTE 1 — TPTK is used to stop attackers changing the PTK on the Supplicant
-     * by sending the first message of the 4-way handshake.
-     */
-    uint8_t tptk[48];
-
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   failure_timer;
     struct timer_group   timer_group;

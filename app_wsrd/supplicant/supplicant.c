@@ -83,7 +83,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     int i;
 
     ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
-    ws_derive_ptkid(supp->ptk, supp->authenticator_eui64, supp->eui64, ptkid);
+    ws_derive_ptkid(supp->tls_client.ptk.key, supp->authenticator_eui64, supp->eui64, ptkid);
 
     for (i = 0; i < WS_GTK_COUNT; i++)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
@@ -94,7 +94,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 
     if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk)))
         kde_write_pmkid(&buf, pmkid);
-    if (memzcmp(supp->ptk, sizeof(supp->ptk)))
+    if (memzcmp(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)))
         kde_write_ptkid(&buf, ptkid);
     kde_write_gtkl(&buf, gtkl);
     kde_write_lgtkl(&buf, lgtkl);
