@@ -104,7 +104,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
     join_state_1_exit(wsrd);
-    supp_start_key_request(&wsrd->supp);
+    join_state_2_enter(wsrd);
 }
 
 /*
