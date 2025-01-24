@@ -261,7 +261,6 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         join_state_4_choose_parent_exit(wsrd);
         join_state_4_routing_enter(wsrd);
     } else if (neigh) {
-        rpl_start_dao(&wsrd->ipv6);
         /*
          *   Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
          * A Router operating as a SUP MUST direct EAPOL frames to a node designated
@@ -290,11 +289,6 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
 
-    // HACK: Wait for GUA to be registered by Linux, otherwise it may send
-    // the DAO with a link-local address.
-    usleep(100000);
-
-    rpl_start_dao(&wsrd->ipv6);
     // TODO: enable when full parenting ready
     // rpl_start_dio(&wsrd->ipv6);
     close(wsrd->ws.eapol_relay_fd);

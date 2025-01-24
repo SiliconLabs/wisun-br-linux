@@ -27,6 +27,7 @@
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/ndp_pkt.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "app_wsrd/app/join_state.h"
 
 #include "ndp.h"
 
@@ -109,8 +110,12 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!neigh)
         return;
     neigh->ns_handle = -1;
-    if (success)
+    if (success) {
         ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
+        // TODO: do not call for registration refresh
+        if (neigh->rpl && neigh->rpl->is_parent)
+            rpl_start_dao(ipv6);
+    }
 }
 
 static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
