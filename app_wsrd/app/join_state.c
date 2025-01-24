@@ -100,3 +100,10 @@ void join_state_4_choose_parent_enter(struct wsrd *wsrd)
     INFO("Join state 4: Configure Routing - Choose Parent");
     rpl_start_dis(&wsrd->ipv6);
 }
+
+void join_state_4_choose_parent_exit(struct wsrd *wsrd)
+{
+    BUG_ON(rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dis_txalg));
+
+    rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
+}

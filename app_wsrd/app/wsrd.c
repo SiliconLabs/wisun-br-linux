@@ -258,7 +258,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ipv6.rpl.mrhof);
 
     if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6) && !wsrd->ipv6.dhcp.running) {
-        rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
+        join_state_4_choose_parent_exit(wsrd);
         dhcp_client_start(&wsrd->ipv6.dhcp);
     } else if (neigh) {
         rpl_start_dao(&wsrd->ipv6);
