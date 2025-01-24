@@ -145,3 +145,13 @@ void join_state_5_enter(struct wsrd *wsrd)
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
 }
+
+void join_state_5_exit(struct wsrd *wsrd)
+{
+    BUG_ON(wsrd->ws.eapol_relay_fd < 0);
+
+    // TODO: inform the network that we are leaving
+    close(wsrd->ws.eapol_relay_fd);
+    wsrd->ws.eapol_relay_fd = -1;
+    // TODO: stop DIO, PA, PC
+}
