@@ -66,6 +66,16 @@ static void supp_failure_key_request(struct rfc8415_txalg *txalg)
     supp->on_failure(supp);
 }
 
+uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len)
+{
+    uint8_t gtkl = 0;
+
+    for (size_t i = 0; i < gtks_len; i++)
+        if (!timer_stopped(&gtks[i].expiration_timer))
+            gtkl |= BIT(i);
+    return gtkl;
+}
+
 static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 {
     struct supp_ctx *supp = container_of(txalg, struct supp_ctx, key_request_txalg);
@@ -80,17 +90,12 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t ptkid[16];
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
-    int i;
 
     ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
     ws_derive_ptkid(supp->tls_client.ptk.key, supp->authenticator_eui64, supp->eui64, ptkid);
 
-    for (i = 0; i < WS_GTK_COUNT; i++)
-        if (!timer_stopped(&supp->gtks[i].expiration_timer))
-            gtkl |= BIT(i);
-    for (; i < ARRAY_SIZE(supp->gtks); i++)
-        if (!timer_stopped(&supp->gtks[i].expiration_timer))
-            lgtkl |= BIT(i - WS_GTK_COUNT);
+    gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
+    lgtkl = supp_get_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
 
     if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk)))
         kde_write_pmkid(&buf, pmkid);
