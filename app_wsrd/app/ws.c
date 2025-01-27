@@ -76,7 +76,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
             selected_candidate = candidate;
         if (candidate->plf != 0xff && candidate->plf < selected_candidate->plf)
             selected_candidate = candidate;
-        else if (candidate->pan_cost < selected_candidate->pan_cost)
+        else if (ws_neigh_get_pan_cost(candidate) < ws_neigh_get_pan_cost(selected_candidate))
             selected_candidate = candidate;
     }
     if (!selected_candidate)
@@ -89,7 +89,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
             candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
             WS_CAND_PARENT_HYSTERESIS_DB)
             continue;
-        if (candidate->pan_cost < selected_candidate->pan_cost)
+        if (ws_neigh_get_pan_cost(candidate) < ws_neigh_get_pan_cost(selected_candidate))
             selected_candidate = candidate;
     }
 
@@ -100,7 +100,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
          tr_eui64(selected_candidate->mac64), selected_candidate->pan_id,
-         selected_candidate->pan_cost, selected_candidate->plf);
+         ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
     join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
@@ -120,20 +120,9 @@ void ws_on_pas_interval_done(struct trickle *tkl)
 
 static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws_pan_ie *ie_pan, struct ws_jm_ie *ie_jm)
 {
+    uint32_t pan_cost = ws_neigh_get_pan_cost(ind->neigh);
     bool added = !ind->neigh->last_pa_rx_time_s;
 
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
-     * PanCost = (PanRoutingCost / PRC_WEIGHT_FACTOR) + (PanSize / PS_WEIGHT_FACTOR)
-     *
-     * where,
-     * PRC_WEIGHT_FACTOR = 256
-     * PS_WEIGHT_FACTOR  = 64
-     *
-     * NOTE: PanCost precision is improved by avoiding truncation caused by
-     * integer division.
-     */
-    ind->neigh->pan_cost = ie_pan->routing_cost + ie_pan->pan_size * 4;
     ind->neigh->pan_id   = ind->hdr.pan_id;
     ind->neigh->last_pa_rx_time_s = time_now_s(CLOCK_MONOTONIC);
     if (ie_jm->mask & BIT(WS_JM_PLF))
@@ -142,7 +131,7 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
         ind->neigh->plf = 0xff;
 
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
-         tr_eui64(ind->neigh->mac64), ind->neigh->pan_id, ind->neigh->pan_cost, ind->neigh->plf);
+         tr_eui64(ind->neigh->mac64), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN

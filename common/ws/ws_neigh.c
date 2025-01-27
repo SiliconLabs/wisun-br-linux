@@ -624,3 +624,19 @@ float ws_neigh_ewma_next(float cur, float val, float smoothing_factor)
     // EWMA(t) = S(X(t)) + (1-S)(EWMA(t-1))
     return smoothing_factor * (val - cur) + cur;
 }
+
+/*
+ *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
+ * PanCost = (PanRoutingCost / PRC_WEIGHT_FACTOR) + (PanSize / PS_WEIGHT_FACTOR)
+ *
+ * where,
+ * PRC_WEIGHT_FACTOR = 256
+ * PS_WEIGHT_FACTOR  = 64
+ *
+ * NOTE: PanCost precision is improved by avoiding truncation caused by
+ * integer division.
+ */
+uint32_t ws_neigh_get_pan_cost(struct ws_neigh *neigh)
+{
+    return neigh->ie_pan.routing_cost + neigh->ie_pan.pan_size * 4;
+}
