@@ -1,3 +1,21 @@
+v2.2.1
+------
+  - Fix link-local routing when using IPv6 neighbor proxy.
+  - Fix sending 1 too many packets when initiating MPL multicast traffic.
+  - Correctly set the `M` bit in MPL packets when initiating traffic.
+  - Prevent [Key Reinstallation Attacks][krack] in the `wsrd` supplicant and
+    `silabs-ws-dc` authenticator:
+    * Refuse to re-install PMK during TLS handshake.
+    * Refuse to re-install PTK during 4-way handshake.
+    * Refuse to re-install GTK during 4-way and group key handshakes.
+    * Correctly increment EAPoL replay counter on authenticator retries.
+    * Only reset EAPoL replay counter on PMK installation.
+    * Invalidate PTK on PMK installation.
+    * Never send a GTK to a supplicant that already knows it based on the GTKL
+      KDE.
+
+[krack]: https://www.krackattacks.com/
+
 v2.2
 ------
   - Add Wi-SUN Linux Router (`wsrd`) demo, functioning as a *leaf node*:
