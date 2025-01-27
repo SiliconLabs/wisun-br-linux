@@ -230,7 +230,8 @@ def run_mode(mode: int):
         elif state != 'active':
             return error(500, WSTBU_ERR_UNKNOWN, f'wisun-borderrouter.service {state}')
         # HACK: /config/borderRouter/joinMetrics may be called before /runMode/1
-        wsbrd_set_join_metrics(jm_list, jm_version)
+        if jm_list:
+            wsbrd_set_join_metrics(jm_list, jm_version)
     else:
         return error(400, WSTBU_ERR_RUN_MODE, 'invalid run mode')
     return success()
