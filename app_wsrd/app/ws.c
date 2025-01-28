@@ -42,6 +42,29 @@
 
 #include "ws.h"
 
+/*
+ *   Wi-SUN FAN1.1v09 6.3.2.3.2.3 PAN Information Element (PAN-IE)
+ * The Routing Cost field is a 16 bit unsigned integer which MUST be set to an
+ * estimate of the transmitting node’s routing path ETX to the Border Router.
+ * This value is calculated as the transmitting node’s ETX to its routing parent
+ * added to the Routing Cost reported by that parent [...].
+ */
+static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
+{
+    const struct ipv6_neigh *ipv6_parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    const struct ws_neigh *ws_parent;
+
+    if (!ipv6_parent)
+        return 0xffff;
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64);
+    BUG_ON(!ws_parent);
+
+    // Note: overflow during float to int conversion is undefined behavior
+    if (ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->etx > 0xffff)
+        return 0xffff;
+    return ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->etx;
+}
+
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
@@ -147,6 +170,7 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
 
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 {
+    uint16_t own_routing_cost = ws_get_own_routing_cost(wsrd);
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
     struct ws_jm_ie ie_jm;
@@ -171,6 +195,19 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
+
+    /*
+     *   Wi-SUN FAN 1.1v09, 6.3.4.6.3.1 Usage of Trickle Timers
+     * The Advertisement Trickle timer controls transmission rate of the PAN
+     * Advertisement frame.
+     * [...]
+     * A consistent transmission is defined as a PAN Advertisement received by
+     * an FFN with PAN ID and NETNAME-IE / Network Name matching that of the
+     * receiving FFN, and with a PAN-IE / Routing Cost the same or worse (equal
+     * to or greater, but different from 0xFFFF) than that of the receiving FFN.
+     */
+    if (ie_pan.routing_cost != 0xffff && ie_pan.routing_cost >= own_routing_cost)
+        trickle_consistent(&wsrd->pa_tkl);
 
     ind->neigh->ie_pan = ie_pan;
 
@@ -207,11 +244,20 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
     /*
-     *   Wi-SUN FAN 1.1v08 - 6.3.4.6.3.1 Usage of Trickle Timers
-     * A consistent transmission is defined as a PAN Advertisement Solicit with
-     * NETNAME-IE / Network Name matching that configured on the FFN.
+     *   Wi-SUN FAN 1.1v09, 6.3.4.6.3.1 Usage of Trickle Timers
+     * The Advertisement Solicit Trickle timer controls transmission rate of
+     * the PAN Advertisement Solicit frame.
+     * [...]
+     * b. A consistent transmission is defined as a PAN Advertisement Solicit
+     *    with NETNAME-IE / Network Name matching that configured on the FFN.
+     * [...]
+     * The Advertisement Trickle timer controls transmission rate of the PAN
+     * Advertisement frame.
+     * c. An inconsistent transmission is defined as a PAN Advertisement Solicit
+     *    with NETNAME-IE matching that of the receiving FFN.
      */
     trickle_consistent(&wsrd->pas_tkl);
+    trickle_inconsistent(&wsrd->pa_tkl);
 }
 
 static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)
@@ -513,6 +559,20 @@ void ws_on_send_pas(struct trickle *tkl)
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pas_tkl);
 
     ws_if_send_pas(&wsrd->ws);
+}
+
+void ws_on_send_pa(struct trickle *tkl)
+{
+    struct wsrd *wsrd = container_of(tkl, struct wsrd, pa_tkl);
+    const struct ipv6_neigh *ipv6_parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    uint16_t own_routing_cost = ws_get_own_routing_cost(wsrd);
+    const struct ws_neigh *ws_parent;
+
+    BUG_ON(!ipv6_parent);
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64);
+    BUG_ON(!ws_parent);
+
+    ws_if_send_pa(&wsrd->ws, ws_parent->ie_pan.pan_size, own_routing_cost);
 }
 
 void ws_on_send_pcs(struct trickle *tkl)

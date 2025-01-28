@@ -120,6 +120,9 @@ struct wsrd g_wsrd = {
     .pas_tkl.debug_name  = "pas",
     .pas_tkl.on_transmit = ws_on_send_pas,
     .pas_tkl.on_interval_done = ws_on_pas_interval_done,
+    .pa_tkl.cfg = &g_wsrd.config.disc_cfg,
+    .pa_tkl.debug_name  = "pa",
+    .pa_tkl.on_transmit = ws_on_send_pa,
     .pcs_tkl.cfg         = &g_wsrd.config.disc_cfg,
     .pcs_tkl.debug_name  = "pcs",
     .pcs_tkl.on_transmit = ws_on_send_pcs,
@@ -405,6 +408,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
     trickle_init(&wsrd->pas_tkl);
+    trickle_init(&wsrd->pa_tkl);
     trickle_init(&wsrd->pcs_tkl);
     supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
     supp_reset(&wsrd->supp);

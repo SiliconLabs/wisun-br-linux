@@ -28,6 +28,7 @@ void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const str
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer);
 void ws_on_pas_interval_done(struct trickle *tkl);
 void ws_on_send_pas(struct trickle *tkl);
+void ws_on_send_pa(struct trickle *tkl);
 void ws_on_send_pcs(struct trickle *tkl);
 
 #endif

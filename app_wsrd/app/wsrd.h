@@ -30,6 +30,7 @@ struct wsrd {
     struct ws_ctx ws;
 
     struct trickle pas_tkl;
+    struct trickle pa_tkl;
     struct timer_entry pan_selection_timer;
     struct trickle pcs_tkl;
     int pcs_nb; // -1 to disable

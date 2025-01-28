@@ -169,6 +169,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     // rpl_start_dio(&wsrd->ipv6);
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
+    trickle_start(&wsrd->pa_tkl);
 }
 
 static void join_state_5_exit(struct wsrd *wsrd)
@@ -179,6 +180,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
     // TODO: stop DIO, PA, PC
+    trickle_stop(&wsrd->pa_tkl);
 }
 
 static const struct wsrd_state_transition state_discovery_transitions[] = {
