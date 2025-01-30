@@ -21,6 +21,7 @@
  * option-specific values.
  */
 
+#include <netinet/in.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
@@ -34,22 +35,41 @@
 
 #include "dhcp_common.h"
 
-const struct name_value dhcp_frames[] = {
-    { "sol",      DHCPV6_MSG_SOLICIT },
-    { "adv",      DHCPV6_MSG_ADVERT },
-    { "req",      DHCPV6_MSG_REQUEST },
-    { "confirm",  DHCPV6_MSG_CONFIRM },
-    { "renew",    DHCPV6_MSG_RENEW },
-    { "rebind",   DHCPV6_MSG_REBIND },
-    { "rply",     DHCPV6_MSG_REPLY },
-    { "release",  DHCPV6_MSG_RELEASE },
-    { "decline",  DHCPV6_MSG_DECLINE },
-    { "reconfig", DHCPV6_MSG_RECONFIGURE },
-    { "info-req", DHCPV6_MSG_INFO_REQUEST },
-    { "rel-fwd",  DHCPV6_MSG_RELAY_FWD },
-    { "rel-rply", DHCPV6_MSG_RELAY_REPLY },
-    { NULL        },
-};
+static const char *tr_dhcp_type(uint8_t type)
+{
+    static const struct name_value table[] = {
+        { "sol",      DHCPV6_MSG_SOLICIT },
+        { "adv",      DHCPV6_MSG_ADVERT },
+        { "req",      DHCPV6_MSG_REQUEST },
+        { "confirm",  DHCPV6_MSG_CONFIRM },
+        { "renew",    DHCPV6_MSG_RENEW },
+        { "rebind",   DHCPV6_MSG_REBIND },
+        { "rply",     DHCPV6_MSG_REPLY },
+        { "release",  DHCPV6_MSG_RELEASE },
+        { "decline",  DHCPV6_MSG_DECLINE },
+        { "reconfig", DHCPV6_MSG_RECONFIGURE },
+        { "info-req", DHCPV6_MSG_INFO_REQUEST },
+        { "rel-fwd",  DHCPV6_MSG_RELAY_FWD },
+        { "rel-rply", DHCPV6_MSG_RELAY_REPLY },
+        { }
+    };
+
+    return val_to_str(type, table, "unknown");
+}
+
+void dhcp_trace_rx(const void *buf, size_t buf_len, const struct in6_addr *src)
+{
+    TRACE(TR_DHCP, "rx-dhcp %-9s src=%s",
+          tr_dhcp_type(buf_len >= 1 ? *(const uint8_t *)buf : 0),
+          tr_ipv6(src->s6_addr));
+}
+
+void dhcp_trace_tx(const void *buf, size_t buf_len, const struct in6_addr *dst)
+{
+    TRACE(TR_DHCP, "tx-dhcp %-9s dst=%s",
+          tr_dhcp_type(buf_len >= 1 ? *(const uint8_t *)buf : 0),
+          tr_ipv6(dst->s6_addr));
+}
 
 int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload)
 {

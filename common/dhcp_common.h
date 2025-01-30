@@ -14,13 +14,15 @@
 #ifndef DHCP_COMMON_H
 #define DHCP_COMMON_H
 
-#include "common/named_values.h"
+#include <stdint.h>
 
+struct in6_addr;
 struct iobuf_write;
 struct iobuf_read;
 struct timespec;
 
-extern const struct name_value dhcp_frames[];
+void dhcp_trace_rx(const void *buf, size_t buf_len, const struct in6_addr *src);
+void dhcp_trace_tx(const void *buf, size_t buf_len, const struct in6_addr *dst);
 
 int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload);
 void dhcp_fill_client_id(struct iobuf_write *buf, uint16_t hwaddr_type, const uint8_t *hwaddr);

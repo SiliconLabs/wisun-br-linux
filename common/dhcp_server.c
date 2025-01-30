@@ -35,9 +35,7 @@ static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
     int ret;
 
     dest->sin6_scope_id = dhcp->tun_if_id;
-    TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
-          val_to_str(reply->data[0], dhcp_frames, "[UNK]"),
-          tr_ipv6(dest->sin6_addr.s6_addr));
+    dhcp_trace_tx(reply->data, reply->len, &dest->sin6_addr);
     ret = xsendto(dhcp->fd, reply->data, reply->len, 0,
                   (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
     WARN_ON(ret < 0, "%s: sendmsg: %m", __func__);
@@ -138,9 +136,7 @@ void dhcp_recv(struct dhcp_server *dhcp)
         TRACE(TR_DROP, "drop %-9s: not IPv6", "dhcp");
         return;
     }
-    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
-          val_to_str(req.data[0], dhcp_frames, "[UNK]"),
-          tr_ipv6(src_addr.sin6_addr.s6_addr));
+    dhcp_trace_rx(req.data, req.data_size, &src_addr.sin6_addr);
     if (!dhcp_handle_request(dhcp, &req, &reply))
         dhcp_send_reply(dhcp, &src_addr, &reply);
     iobuf_free(&reply);

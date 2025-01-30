@@ -41,7 +41,7 @@ static void dhcp_client_send(struct dhcp_client *client, struct iobuf_write *buf
      };
     int ret;
 
-    TRACE(TR_DHCP, "dhcp tx %s", val_to_str(buf->data[0], dhcp_frames, "[UNK]"));
+    dhcp_trace_tx(buf->data, buf->len, &dst.sin6_addr);
     ret = xsendto(client->fd, buf->data, buf->len, 0, (struct sockaddr *)&dst, sizeof(struct sockaddr_in6));
     WARN_ON(ret < 0, "%s: xsendto: %m", __func__);
 }
@@ -244,8 +244,7 @@ void dhcp_client_recv(struct dhcp_client *client)
         return;
     }
 
-    TRACE(TR_DHCP, "dhcp rx %-9s src:%s", val_to_str(req.data[0], dhcp_frames, "[UNK]"),
-          tr_ipv6(src_addr.sin6_addr.s6_addr));
+    dhcp_trace_rx(req.data, req.data_size, &src_addr.sin6_addr);
 
     msg_type = iobuf_pop_u8(&req);
     if (msg_type != DHCPV6_MSG_REPLY) {
