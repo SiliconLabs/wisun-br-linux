@@ -123,7 +123,7 @@ void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
     default:
         BUG();
     }
-    auth->radius_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+    auth->radius_fd = socket(sa->sa_family, SOCK_DGRAM, IPPROTO_UDP);
     FATAL_ON(auth->radius_fd < 0, 2, "%s: socket: %m", __func__);
     ret = connect(auth->radius_fd, &u.sa, sizeof(u));
     FATAL_ON(ret < 0, 2, "%s: connect: %m", __func__);
