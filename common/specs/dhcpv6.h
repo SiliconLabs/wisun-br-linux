@@ -15,6 +15,10 @@
 #ifndef DHCPV6_H
 #define DHCPV6_H
 
+#include <netinet/in.h>
+
+#include "common/endian.h"
+
 // RFC3315 - Section 5.2
 // https://datatracker.ietf.org/doc/html/rfc3315#section-5.2
 enum {
@@ -84,5 +88,19 @@ enum {
     DHCPV6_DUID_HW_TYPE_IEEE802 = 6,
     DHCPV6_DUID_HW_TYPE_EUI64   = 27,
 };
+
+// RFC 8415 Figure 3: Relay Agent/Server Message Format
+struct dhcpv6_relay_hdr {
+    uint8_t type;
+    uint8_t hops;
+    struct in6_addr link;
+    struct in6_addr peer;
+} __attribute__((packed));
+
+// RFC 8415 21.1. Format of DHCP Options
+struct dhcpv6_opt {
+    be16_t code;
+    be16_t len;
+} __attribute__((packed));
 
 #endif

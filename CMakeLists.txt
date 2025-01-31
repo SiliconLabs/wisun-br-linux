@@ -159,6 +159,7 @@ add_library(libwsbrd STATIC
     common/parsers.c
     common/pcapng.c
     common/pktbuf.c
+    common/dhcp_relay.c
     common/dhcp_server.c
     common/dhcp_common.c
     common/iobuf.c
