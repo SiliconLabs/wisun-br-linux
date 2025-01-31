@@ -160,6 +160,19 @@ static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, 
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
 }
 
+static void conf_set_dhcp_internal(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    struct sockaddr_in6 *dest = raw_dest;
+    bool internal_dhcp;
+
+    WARN("\"internal_dhcp\" is deprecated, use \"dhcp_server\" instead");
+    conf_set_bool(info, &internal_dhcp, NULL);
+    if (internal_dhcp)
+        dest->sin6_addr = in6addr_any;
+    else
+        dest->sin6_addr = in6addr_loopback;
+}
+
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
@@ -178,7 +191,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
-        { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
+        { "internal_dhcp",                 &config->dhcp_server,                      conf_set_dhcp_internal, NULL },
+        { "dhcp_server",                   &config->dhcp_server,                      conf_set_netaddr,     &valid_ipv6 },
         { "radius_server",                 &config->auth_cfg.radius_addr,             conf_set_netaddr,     &valid_ipv4or6 },
         { "radius_secret",                 config->auth_cfg.radius_secret,            conf_set_string,      (void *)sizeof(config->auth_cfg.radius_secret) },
         { "key",                           &config->auth_cfg.key,                     conf_set_pem,         NULL },
@@ -266,7 +280,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     // Keep these values in sync with examples/wsbrd.conf
     config->rcp_cfg.uart_baudrate = 115200;
     config->tun_autoconf = true;
-    config->internal_dhcp = true;
+    config->dhcp_server.sin6_family = AF_INET6;
+    config->dhcp_server.sin6_addr = in6addr_any;
     config->ws_class = 0;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;

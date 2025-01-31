@@ -387,8 +387,11 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     ws_bootstrap_up(&ctxt->net_if, gua.s6_addr);
     wsbr_check_link_local_addr(ctxt);
-    if (ctxt->config.internal_dhcp)
+    if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr)) {
         dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64.u8, gua.s6_addr);
+    } else if (!IN6_IS_ADDR_LOOPBACK(&ctxt->config.dhcp_server.sin6_addr)) {
+        FATAL(2, "unsupported \"dhcp_server\"");
+    }
 
     memcpy(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16);
     rpl_storage_load(&ctxt->net_if.rpl_root);

@@ -39,7 +39,7 @@ struct wsbrd_conf {
     char tun_dev[IF_NAMESIZE];
     char neighbor_proxy[IF_NAMESIZE];
     bool tun_autoconf;
-    bool internal_dhcp;
+    struct sockaddr_in6 dhcp_server;
 
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_size;
