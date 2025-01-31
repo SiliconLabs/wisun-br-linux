@@ -180,23 +180,25 @@ launch a DHCPv6 relay.
 `wsbrd` has been tested with ISC DHCP and dnsmasq. Both projects provide DHCP
 server and DHCP relay implementations.
 
-First you have to deactivate the internal dhcp server of `wsbrd` in wbsrd.conf:
+The server address must be specified in `wsbrd.conf`. To run the server
+locally, use the loopback address:
 
-    internal_dhcp = false
+    dhcp_server = ::1
 
-Obviously, the DHCP server/relay needs a network interface to run. You can
-launch the DHCP server/relay just after `wsbrd` (you have to ensure the DHCP
+When running the server locally, the DHCP server needs a network interface to
+run. You can launch the server just after `wsbrd` (you have to ensure the DHCP
 service is started before Wi-SUN nodes connect, but they will not connect before
 at least several dozen seconds) or [create the interface before launching
 `wsbrd`](#running-wsbrd-without-root-privilege).
 
-## Using `dnsmasq`
+If the address is not loopback, `wsbrd` will start a DHCP Relay Agent and
+forward the DHCP packets to the server.
+
+### Using `dnsmasq`
 
 Because of [this issue][dnsmasq], `dnsmasq` is supported from the version 2.87.
 
 [dnsmasq]: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg16394.html
-
-### Using `dnsmasq` as DHCP Server
 
 `dnsmasq` does not need any specific options. A classical invocation can be
 used. We suggest increasing the lease time (`336h`) and disabling DNS server
@@ -204,22 +206,10 @@ used. We suggest increasing the lease time (`336h`) and disabling DNS server
 
     sudo dnsmasq -d -C /dev/null -p 0 -i tun0 --dhcp-range 2001:db8::,2001:db8::ffff,64,336h
 
-### Using `dnsmasq` as DHCP Relay
-
-To start the DHCP relay, you have to bind the `Wi-SUN` and the upstream network
-interfaces (`tun0` and `eth0`). Then specify the IP addresses of the DHCP server
-(`2001:db8:a::1`) and of the `wsbrd` interface (`2001:db8:b::1`) to the
-`--dhcp-relay` option. You can also disable the DNS server (which is useless in
-this case) with `-p 0`:
-
-    sudo dnsmasq -d -C /dev/null -p 0 -i tun0,eth0 --dhcp-relay 2001:db8:a::1,2001:db8:b::1
-
 ## Using `isc-dhcp`
 
 Note that ISC DHCP needs to be patched to comply with Wi-SUN specification (for
 relay and server). We provide the needed patches in `misc/`.
-
-### Using `isc-dhcpd` as DHCP Server
 
 `isc-dhcpd` will not start if the lease file does not exist:
 
@@ -230,17 +220,6 @@ We provide a sample configuration file for isc-dhcp. See `examples/dhcpd.conf`
 for details:
 
     sudo dhcpd -6 --no-pid -lf /var/lib/dhcpd/dhcpd.leases -cf examples/dhcpd.conf tun0
-
-### Using `isc-dhcrelay` as DHCP Relay
-
-To start the DHCP relay, you have to provide the `wsbrd` network interface
-(`tun0`), the address of the DHCP server (`2001:db8::1` in the example below),
-and the network interface associated with this address (see [dhcprelay
-manpage][dhcrelay]):
-
-    sudo dhcrelay -6 --no-pid -l tun0 -u 2001:db8::1%eth0
-
-[dhcrelay]: https://linux.die.net/man/8/dhcrelay
 
 # Running `wsbrd` Without Root Privilege
 
