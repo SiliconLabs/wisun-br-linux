@@ -14,6 +14,8 @@
 #ifndef COMMANDLINE_H
 #define COMMANDLINE_H
 
+#include <netdb.h>
+
 #include "common/named_values.h"
 
 struct storage_parse_info;
@@ -38,6 +40,9 @@ extern const struct number_limit valid_uint16;
 
 extern const struct name_value valid_tristate[];
 extern const struct name_value valid_booleans[];
+
+extern const struct addrinfo valid_ipv4or6;
+extern const struct addrinfo valid_ipv6;
 
 void conf_deprecated(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_bool(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);

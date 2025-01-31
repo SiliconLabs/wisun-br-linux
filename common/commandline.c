@@ -17,7 +17,6 @@
 #include <fnmatch.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <netdb.h>
 #include <unistd.h>
 
 #include "common/specs/ws.h"
@@ -78,6 +77,16 @@ const struct name_value valid_booleans[] = {
     { "1",       1 },
     { "0",       0 },
     { NULL },
+};
+
+const struct addrinfo valid_ipv4or6 = {
+    .ai_family = AF_UNSPEC,
+    .ai_flags = AI_ADDRCONFIG,
+};
+
+const struct addrinfo valid_ipv6 = {
+    .ai_family = AF_INET6,
+    .ai_flags = AI_ADDRCONFIG,
 };
 
 void conf_deprecated(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
@@ -202,8 +211,7 @@ void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, con
     struct addrinfo *results;
     int err;
 
-    BUG_ON(raw_param);
-    err = getaddrinfo(info->value, NULL, NULL, &results);
+    err = getaddrinfo(info->value, NULL, raw_param, &results);
     if (err != 0)
         FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value, gai_strerror(err));
     BUG_ON(!results);
