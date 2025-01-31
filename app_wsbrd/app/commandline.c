@@ -512,4 +512,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
     if (config->capture[0] && !config->storage_delete)
         WARN("--capture used without --delete-storage");
+    if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
+        WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
 }
