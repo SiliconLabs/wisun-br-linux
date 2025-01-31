@@ -119,6 +119,10 @@ struct wsbr_ctxt g_ctxt = {
     .auth.sendto_mac    = ws_llc_auth_sendto_mac,
     .auth.on_gtk_change = wsbr_on_gtk_change,
 
+    .dhcp_relay.fd = -1,
+    // RFC 8415 7.6. Transmission and Retransmission Parameters
+    .dhcp_relay.hop_limit = 8,
+
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.1.1 Configuration Parameters
     .net_if.rpl_root.dio_i_min        = 19,
     .net_if.rpl_root.dio_i_doublings  = 1,
@@ -390,7 +394,9 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr)) {
         dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64.u8, gua.s6_addr);
     } else if (!IN6_IS_ADDR_LOOPBACK(&ctxt->config.dhcp_server.sin6_addr)) {
-        FATAL(2, "unsupported \"dhcp_server\"");
+        ctxt->dhcp_relay.server_addr = ctxt->config.dhcp_server.sin6_addr;
+        ctxt->dhcp_relay.link_addr = gua;
+        dhcp_relay_start(&ctxt->dhcp_relay);
     }
 
     memcpy(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16);
@@ -454,8 +460,9 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_EVENT].events = POLLIN;
     ctxt->fds[POLLFD_TIMER].fd = timer_fd();
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
-    ctxt->fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
-    ctxt->fds[POLLFD_DHCP_SERVER].events = POLLIN;
+    ctxt->fds[POLLFD_DHCP].fd = IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr) ?
+                                ctxt->dhcp_server.fd : ctxt->dhcp_relay.fd;
+    ctxt->fds[POLLFD_DHCP].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
     ctxt->fds[POLLFD_RPL].events = POLLIN;
     ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
@@ -486,8 +493,12 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
 
     if (ctxt->fds[POLLFD_DBUS].revents & POLLIN)
         dbus_process();
-    if (ctxt->fds[POLLFD_DHCP_SERVER].revents & POLLIN)
-        dhcp_recv(&ctxt->dhcp_server);
+    if (ctxt->fds[POLLFD_DHCP].revents & POLLIN) {
+        if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr))
+            dhcp_recv(&ctxt->dhcp_server);
+        else
+            dhcp_relay_recv(&ctxt->dhcp_relay);
+    }
     if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
         rpl_recv(&ctxt->net_if.rpl_root);
     if (ctxt->fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)

@@ -25,6 +25,7 @@ typedef struct sd_bus sd_bus;
 #endif
 
 #include "common/authenticator/authenticator.h"
+#include "common/dhcp_relay.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "common/rcp_api.h"
@@ -42,7 +43,7 @@ enum {
     POLLFD_DBUS,
     POLLFD_EVENT,
     POLLFD_TIMER,
-    POLLFD_DHCP_SERVER,
+    POLLFD_DHCP,
     POLLFD_RPL,
     POLLFD_BR_EAPOL_RELAY, // HAVE_AUTH_LEGACY only
     POLLFD_EAPOL_RELAY,
@@ -57,6 +58,7 @@ struct wsbr_ctxt {
     struct events_scheduler scheduler;
     struct timer_entry timer_legacy;
     struct wsbrd_conf config;
+    struct dhcp_relay dhcp_relay;
     struct dhcp_server dhcp_server;
     struct auth_ctx auth;
     struct net_if net_if;
