@@ -69,21 +69,10 @@ command:
     ninja -C /home/pi/src/wisun-br-linux/build -j $(nproc)
     sudo ninja -C /home/pi/src/wisun-br-linux/build install
 
-## `Dnsmasq`
-
-    git clone                               \
-        --branch=v2.89                      \
-        git://thekelleys.org.uk/dnsmasq.git \
-        /home/pi/src/dnsmasq
-    make -C /home/pi/src/dnsmasq -j $(nproc)
-    sudo make -C /home/pi/src/dnsmasq install
-
 ## TBU server
 
     sudo pip3 install -r /home/pi/src/wisun-br-linux/tbu/requirements.txt
     sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wisun-borderrouter.service /etc/systemd/system
-    sudo install -m 0644 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay.service /usr/local/lib/systemd/system
-    sudo install -m 0755 /home/pi/src/wisun-br-linux/tools/tbu/systemd/wstbu-dhcpv6-relay         /usr/local/bin
 
 To setup a service for the TBU server:
 

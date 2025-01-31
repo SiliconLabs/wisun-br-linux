@@ -1,8 +1,6 @@
 [Unit]
 Description=Wi-SUN Border Router service for the Wi-SUN Test Bed Unit
 Documentation=file:///usr/local/share/doc/wsbrd/examples/wsbrd.conf
-Requires=wstbu-dhcpv6-relay.service
-Before=wstbu-dhcpv6-relay.service
 
 [Service]
 BusName=com.silabs.Wisun.BorderRouter

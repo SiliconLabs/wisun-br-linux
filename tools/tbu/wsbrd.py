@@ -39,7 +39,6 @@ def config_default(wstbu_config):
         size           = 'CERT',
         enable_lfn     = False,
         enable_ffn10   = True,
-        internal_dhcp  = 'n',
         storage_prefix = TMPDIR + '/nvm/',
         fan_version    = wstbu_config['fan_version'],
         gtk_new_install_required  = 0,
@@ -48,6 +47,8 @@ def config_default(wstbu_config):
         join_metrics   = 'none',
         trace          = '15.4,eap,icmp,dhcp,drop',
     )
+    if 'dhcpv6_server' in wstbu_config:
+        config['dhcpv6_server'] = wstbu_config['dhcpv6_server']
     if 'radius_server' in wstbu_config:
         config['radius_server'] = wstbu_config['radius_server']
     if 'radius_secret' in wstbu_config:

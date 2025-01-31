@@ -7,12 +7,6 @@ This project implements the [Wi-SUN TBU REST API][1] for [`wsbrd`][1].
 
 ## Setup
 
-[`Dnsmasq`][3] is used as a DHCPv6 relay. The version used must be at least
-`v2.87`. Compiling from source may be required for distributions providing an
-older version through their package manager.
-
-    sudo apt install dnsmasq
-
 The server needs to be run as root, so the Python dependencies must be
 installed for the root user:
 
@@ -21,8 +15,6 @@ installed for the root user:
 A couple `systemd` services need to be installed:
 
     sudo install -m 0644 systemd/wisun-borderrouter.service /etc/systemd/system
-    sudo install -m 0644 systemd/wstbu-dhcpv6-relay.service /usr/local/lib/systemd/system
-    sudo install -m 0755 systemd/wstbu-dhcpv6-relay         /usr/local/bin
     sudo systemctl daemon-reload
 
 > [!NOTE]
@@ -35,8 +27,6 @@ The TBU server is configured using a configuration file. An example given in
 Finally, the server can be run using:
 
     sudo python3 wstbu.py config.ini
-
-[3]: https://thekelleys.org.uk/dnsmasq/doc.html
 
 ## Known limitations
 

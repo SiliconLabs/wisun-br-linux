@@ -214,9 +214,6 @@ def run_mode(mode: int):
         jm_list = dict()
         jm_version = 0
     elif mode == 1:
-        if 'dhcpv6_server' not in config:
-            return error(500, WSTBU_ERR_UNKNOWN, 'missing DHCPv6 server')
-        configutils.write('/etc/wstbu-dhcpv6-relay.conf', dhcpv6_server=config['dhcpv6_server'])
         configutils.write('/etc/wsbrd.conf', **wsbrd.config)
         wsbrd.service.start('fail')
         while wsbrd.service.active_state == 'activating':
@@ -634,10 +631,7 @@ def config_border_router_external_resources():
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     json = flask.request.get_json(force=True, silent=True)
-    dhcpv6_server = utils.parse_ipv6(json['dhcpServerAddress'])
-    if not dhcpv6_server:
-        return error(400, WSTBU_ERR_UNKNOWN, 'invalid dhcpServerAddress')
-    config['dhcpv6_server'] = dhcpv6_server
+    wsbrd.config['dhcpv6_server'] = json['dhcpServerAddress']
     wsbrd.config['radius_server'] = json['authServerAddress']
     wsbrd.config['radius_secret'] = json['authServerSecret']
     return success()
