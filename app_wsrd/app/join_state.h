@@ -58,8 +58,6 @@ struct wsrd_state_entry {
 struct wsrd;
 
 void join_state_1_enter(struct wsrd *wsrd);
-void join_state_3_reconnect_enter(struct wsrd *wsrd);
-void join_state_5_exit(struct wsrd *wsrd);
 
 void join_state_transition(struct wsrd *wsrd, enum wsrd_event event);
 

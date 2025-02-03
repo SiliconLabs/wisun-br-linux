@@ -50,7 +50,7 @@ static void join_state_1_exit(struct wsrd *wsrd)
  * the opportunity to change PAN if any eligible is found.
  * This is why we start sending both PAS and PCS.
  */
-void join_state_3_reconnect_enter(struct wsrd *wsrd)
+static void join_state_3_reconnect_enter(struct wsrd *wsrd)
 {
     // TODO: handle RX of PA from new PAN
     BUG_ON(wsrd->ws.pan_id == 0xffff);
@@ -146,7 +146,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
 }
 
-void join_state_5_exit(struct wsrd *wsrd)
+static void join_state_5_exit(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.eapol_relay_fd < 0);
 

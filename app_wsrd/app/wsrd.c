@@ -275,9 +275,8 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         memcpy(&wsrd->eapol_target_eui64, neigh->eui64, 8);
     } else {
         wsrd->eapol_target_eui64 = ieee802154_addr_bc;
-        join_state_5_exit(wsrd);
         // TODO: handle parent loss
-        join_state_3_reconnect_enter(wsrd);
+        join_state_transition(wsrd, WSRD_EVENT_RPL_NO_CANDIDATE);
     }
 }
 
