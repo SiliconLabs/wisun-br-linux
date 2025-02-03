@@ -34,7 +34,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     timer_start_rel(NULL, &wsrd->pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }
 
-void join_state_1_exit(struct wsrd *wsrd)
+static void join_state_1_exit(struct wsrd *wsrd)
 {
     BUG_ON(timer_stopped(&wsrd->pas_tkl.timer_interval));
 
@@ -69,7 +69,7 @@ static void join_state_3_reconnect_exit(struct wsrd *wsrd)
     trickle_stop(&wsrd->pcs_tkl);
 }
 
-void join_state_2_enter(struct wsrd *wsrd)
+static void join_state_2_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
 

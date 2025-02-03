@@ -58,9 +58,7 @@ struct wsrd_state_entry {
 struct wsrd;
 
 void join_state_1_enter(struct wsrd *wsrd);
-void join_state_1_exit(struct wsrd *wsrd);
 void join_state_3_reconnect_enter(struct wsrd *wsrd);
-void join_state_2_enter(struct wsrd *wsrd);
 void join_state_3_enter(struct wsrd *wsrd);
 void join_state_3_exit(struct wsrd *wsrd);
 void join_state_4_choose_parent_enter(struct wsrd *wsrd);

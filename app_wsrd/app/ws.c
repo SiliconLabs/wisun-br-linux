@@ -103,8 +103,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
          selected_candidate->pan_cost, selected_candidate->plf);
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
-    join_state_1_exit(wsrd);
-    join_state_2_enter(wsrd);
+    join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
 }
 
 /*
