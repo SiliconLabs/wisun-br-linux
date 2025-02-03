@@ -240,3 +240,12 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
         rpl_neigh_del(ipv6, neigh);
     free(neigh);
 }
+
+void ipv6_neigh_clean(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *neigh;
+    struct ipv6_neigh *tmp;
+
+    SLIST_FOREACH_SAFE(neigh, &ipv6->neigh_cache, link, tmp)
+        ipv6_neigh_del(ipv6, neigh);
+}
