@@ -182,6 +182,15 @@ void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64)
     }
 }
 
+void ws_neigh_clean(struct ws_neigh_table *table)
+{
+    struct ws_neigh *neigh;
+    struct ws_neigh *tmp;
+
+    SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
+        ws_neigh_del(table, neigh->mac64);
+}
+
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
 {
     return SLIST_SIZE(&table->neigh_list, link);

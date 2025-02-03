@@ -157,6 +157,7 @@ struct ws_neigh_table {
 struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const uint8_t *mac64);
 
 void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64);
+void ws_neigh_clean(struct ws_neigh_table *table);
 
 // Unicast Timing update
 void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
