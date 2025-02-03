@@ -36,3 +36,31 @@ void join_state_1_exit(struct wsrd *wsrd)
 
     trickle_stop(&wsrd->pas_tkl);
 }
+
+/*
+ * Join state 3: Reconnect
+ * - PAN ID is known
+ * - GTKs are known
+ *
+ * This state allows to reconnect to a previously known PAN while giving us
+ * the opportunity to change PAN if any eligible is found.
+ * This is why we start sending both PAS and PCS.
+ */
+void join_state_3_reconnect_enter(struct wsrd *wsrd)
+{
+    // TODO: handle RX of PA from new PAN
+    BUG_ON(wsrd->ws.pan_id == 0xffff);
+    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+
+    INFO("Join state 3: Reconnect");
+    wsrd->ws.pan_version = -1;
+
+    trickle_start(&wsrd->pas_tkl);
+    trickle_start(&wsrd->pcs_tkl);
+}
+
+static void join_state_3_reconnect_exit(struct wsrd *wsrd)
+{
+    trickle_stop(&wsrd->pas_tkl);
+    trickle_stop(&wsrd->pcs_tkl);
+}

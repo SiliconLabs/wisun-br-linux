@@ -273,6 +273,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         close(wsrd->ws.eapol_relay_fd);
         wsrd->ws.eapol_relay_fd = -1;
         // TODO: handle parent loss
+        join_state_3_reconnect_enter(wsrd);
     }
 }
 
