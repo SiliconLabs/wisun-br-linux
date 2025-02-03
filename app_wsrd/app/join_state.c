@@ -105,14 +105,14 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
     rpl_start_dis(&wsrd->ipv6);
 }
 
-void join_state_4_choose_parent_exit(struct wsrd *wsrd)
+static void join_state_4_choose_parent_exit(struct wsrd *wsrd)
 {
     BUG_ON(rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dis_txalg));
 
     rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
 }
 
-void join_state_4_routing_enter(struct wsrd *wsrd)
+static void join_state_4_routing_enter(struct wsrd *wsrd)
 {
     const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
 

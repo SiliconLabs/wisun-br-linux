@@ -264,10 +264,8 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 {
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ipv6.rpl.mrhof);
 
-    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6) && !wsrd->ipv6.dhcp.running) {
-        join_state_4_choose_parent_exit(wsrd);
-        join_state_4_routing_enter(wsrd);
-    } else if (neigh) {
+    if (neigh) {
+        join_state_transition(wsrd, WSRD_EVENT_RPL_NEW_PREF_PARENT);
         /*
          *   Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
          * A Router operating as a SUP MUST direct EAPOL frames to a node designated
