@@ -34,7 +34,6 @@ struct wsrd {
 
     struct supp_ctx supp;
     struct eui64 eapol_target_eui64;
-
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.
