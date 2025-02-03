@@ -19,6 +19,7 @@
 
 #include "app_wsrd/app/commandline.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
+#include "app_wsrd/app/join_state.h"
 #include "app_wsrd/app/dbus.h"
 #include "app_wsrd/app/ws.h"
 #include "app_wsrd/ipv6/rpl.h"
@@ -409,8 +410,9 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pcs_tkl);
-    trickle_start(&wsrd->pas_tkl);
-    timer_start_rel(NULL, &wsrd->pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
+    supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
+    supp_reset(&wsrd->supp);
+    join_state_1_enter(wsrd);
 }
 
 static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
@@ -468,8 +470,6 @@ int wsrd_main(int argc, char *argv[])
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);
     wsrd_init_ipv6(wsrd);
-    supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
-    supp_reset(&wsrd->supp);
     dbus_register("com.silabs.Wisun.Router",
                   "/com/silabs/Wisun/Router",
                   "com.silabs.Wisun.Router",

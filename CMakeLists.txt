@@ -303,6 +303,7 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(COMPILE_WSRD)
     add_library(libwsrd STATIC
         app_wsrd/app/commandline.c
+        app_wsrd/app/join_state.c
         app_wsrd/app/wsrd.c
         app_wsrd/app/ws.c
         app_wsrd/ipv6/6lowpan.c
