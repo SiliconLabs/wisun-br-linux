@@ -88,14 +88,14 @@ static void join_state_3_enter(struct wsrd *wsrd)
     trickle_start(&wsrd->pcs_tkl);
 }
 
-void join_state_3_exit(struct wsrd *wsrd)
+static void join_state_3_exit(struct wsrd *wsrd)
 {
     BUG_ON(timer_stopped(&wsrd->pcs_tkl.timer_interval));
 
     trickle_stop(&wsrd->pcs_tkl);
 }
 
-void join_state_4_choose_parent_enter(struct wsrd *wsrd)
+static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));

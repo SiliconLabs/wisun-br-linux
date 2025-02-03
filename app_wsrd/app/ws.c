@@ -289,10 +289,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
     if (cur_pan_version != pan_version) {
         wsrd->ws.pan_version = pan_version;
-        if (cur_pan_version < 0) {
-            join_state_3_exit(wsrd);
-            join_state_4_choose_parent_enter(wsrd);
-        }
+        join_state_transition(wsrd, WSRD_EVENT_PC_RX);
         dbus_emit_change("PanVersion");
     }
 
