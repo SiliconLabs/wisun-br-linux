@@ -230,8 +230,7 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
     if (gtk) {
         ws_generate_gak(wsrd->ws.netname, gtk, gak);
         rcp_set_sec_key(&wsrd->ws.rcp, index, gak, 0);
-        if (wsrd->ws.pan_version < 0)
-            join_state_3_enter(wsrd);
+        join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
     } else {
         rcp_set_sec_key(&wsrd->ws.rcp, index, NULL, 0);
     }

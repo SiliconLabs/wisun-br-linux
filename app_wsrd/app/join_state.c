@@ -77,7 +77,7 @@ static void join_state_2_enter(struct wsrd *wsrd)
     supp_start_key_request(&wsrd->supp);
 }
 
-void join_state_3_enter(struct wsrd *wsrd)
+static void join_state_3_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
