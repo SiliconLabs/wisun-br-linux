@@ -155,3 +155,116 @@ void join_state_5_exit(struct wsrd *wsrd)
     wsrd->ws.eapol_relay_fd = -1;
     // TODO: stop DIO, PA, PC
 }
+
+static const struct wsrd_state_transition state_discovery_transitions[] = {
+    { WSRD_EVENT_PA_FROM_NEW_PAN, WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_reconnect_transitions[] = {
+    { WSRD_EVENT_PC_RX,            WSRD_STATE_RPL_PARENT },
+    { WSRD_EVENT_PA_FROM_PREV_PAN, WSRD_STATE_CONFIGURE },
+    { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_authenticate_transitions[] = {
+    { WSRD_EVENT_AUTH_SUCCESS,    WSRD_STATE_CONFIGURE },
+    { WSRD_EVENT_AUTH_FAIL,       WSRD_STATE_DISCOVERY },
+    { WSRD_EVENT_PA_FROM_NEW_PAN, WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_configure_transitions[] = {
+    { WSRD_EVENT_PC_RX,           WSRD_STATE_RPL_PARENT },
+    { WSRD_EVENT_PC_TIMEOUT,      WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_PA_FROM_NEW_PAN, WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
+    { WSRD_EVENT_RPL_NEW_PREF_PARENT, WSRD_STATE_ROUTING },
+    { WSRD_EVENT_PAN_TIMEOUT,         WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_RPL_NO_CANDIDATE,    WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_PA_FROM_NEW_PAN,     WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_routing_transitions[] = {
+    { WSRD_EVENT_ROUTING_SUCCESS,  WSRD_STATE_OPERATIONAL },
+    { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_transition state_operational_transitions[] = {
+    { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { },
+};
+
+static const struct wsrd_state_entry join_states[] = {
+    [WSRD_STATE_DISCOVERY] = {
+        .state = WSRD_STATE_DISCOVERY,
+        .enter = join_state_1_enter,
+        .exit  = join_state_1_exit,
+        .transitions = state_discovery_transitions,
+    },
+    [WSRD_STATE_RECONNECT] = {
+        .state = WSRD_STATE_RECONNECT,
+        .enter = join_state_3_reconnect_enter,
+        .exit  = join_state_3_reconnect_exit,
+        .transitions = state_reconnect_transitions,
+    },
+    [WSRD_STATE_AUTHENTICATE] = {
+        .state = WSRD_STATE_AUTHENTICATE,
+        .enter = join_state_2_enter,
+        .exit  = NULL,
+        .transitions = state_authenticate_transitions,
+    },
+    [WSRD_STATE_CONFIGURE] = {
+        .state = WSRD_STATE_CONFIGURE,
+        .enter = join_state_3_enter,
+        .exit  = join_state_3_exit,
+        .transitions = state_configure_transitions,
+    },
+    [WSRD_STATE_RPL_PARENT] = {
+        .state = WSRD_STATE_RPL_PARENT,
+        .enter = join_state_4_choose_parent_enter,
+        .exit  = join_state_4_choose_parent_exit,
+        .transitions = state_rpl_parent_transitions,
+    },
+    [WSRD_STATE_ROUTING] = {
+        .state = WSRD_STATE_ROUTING,
+        .enter = join_state_4_routing_enter,
+        .exit  = NULL,
+        .transitions = state_routing_transitions,
+    },
+    [WSRD_STATE_OPERATIONAL] = {
+        .state = WSRD_STATE_OPERATIONAL,
+        .enter = join_state_5_enter,
+        .exit  = join_state_5_exit,
+        .transitions = state_operational_transitions,
+    },
+};
+
+void join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
+{
+    const struct wsrd_state_entry *state = &join_states[wsrd->state];
+
+    for (const struct wsrd_state_transition *transition = state->transitions; transition->event; transition++) {
+        if (transition->event != event)
+            continue;
+        if (state->exit)
+            state->exit(wsrd);
+
+        wsrd->state = transition->next_state;
+        state = &join_states[wsrd->state];
+
+        if (state->enter)
+            state->enter(wsrd);
+        break;
+    }
+}

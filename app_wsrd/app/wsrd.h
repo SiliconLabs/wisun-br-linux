@@ -19,10 +19,13 @@
 #include "common/timer.h"
 #include "app_wsrd/supplicant/supplicant.h"
 #include "app_wsrd/app/commandline.h"
+#include "app_wsrd/app/join_state.h"
 #include "app_wsrd/ipv6/ipv6.h"
 
 struct wsrd {
     struct wsrd_conf config;
+
+    enum wsrd_state state;
 
     struct ws_ctx ws;
 
