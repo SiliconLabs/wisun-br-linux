@@ -234,6 +234,7 @@ static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
 
 static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
     int cur_pan_version = wsrd->ws.pan_version;
     uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
     struct chan_params chan_params;
@@ -299,17 +300,17 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     // TODO: only update on BS-IE change, or parent change
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
     ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
-    // TODO: use parent address and frame counters only
-    rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
-                        ie_bs.broadcast_interval,
-                        ie_bs.broadcast_schedule_identifier,
-                        ie_bs.dwell_interval,
-                        bc_chan_mask,
-                        ind->hif->timestamp_us,
-                        ie_bt.broadcast_slot_number,
-                        ie_bt.broadcast_interval_offset,
-                        ind->neigh->mac64,
-                        ind->neigh->frame_counter_min);
+    if (!parent || !memcmp(parent->eui64, ind->neigh->mac64, sizeof(parent->eui64)))
+        rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
+                            ie_bs.broadcast_interval,
+                            ie_bs.broadcast_schedule_identifier,
+                            ie_bs.dwell_interval,
+                            bc_chan_mask,
+                            ind->hif->timestamp_us,
+                            ie_bt.broadcast_slot_number,
+                            ie_bt.broadcast_interval_offset,
+                            ind->neigh->mac64,
+                            ind->neigh->frame_counter_min);
 }
 
 static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
