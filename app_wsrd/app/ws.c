@@ -345,6 +345,7 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
 void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 {
     struct ws_us_ie ie_us;
+    struct ws_bt_ie ie_bt;
     struct mpx_ie ie_mpx;
 
     if (wsrd->ws.pan_id == 0xffff) {
@@ -357,6 +358,10 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
     }
     if (!ind->hdr.key_index) {
         TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
+        return;
+    }
+    if (!ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt)) {
+        TRACE(TR_DROP, "drop %s: missing BT-IE", "15.4");
         return;
     }
 
