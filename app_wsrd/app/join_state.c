@@ -114,7 +114,7 @@ static void join_state_4_choose_parent_exit(struct wsrd *wsrd)
 
 static void join_state_4_routing_enter(struct wsrd *wsrd)
 {
-    const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
@@ -122,7 +122,17 @@ static void join_state_4_routing_enter(struct wsrd *wsrd)
     BUG_ON(!parent);
 
     INFO("Join state 4: Configure Routing - DHCP/NS(ARO)/DAO");
-    dhcp_client_start(&wsrd->ipv6.dhcp);
+    if (!wsrd->ipv6.dhcp.running) {
+        dhcp_client_start(&wsrd->ipv6.dhcp);
+        return;
+    }
+    // We are trying to renew our address
+    if (!rfc8415_txalg_stopped(&wsrd->ipv6.dhcp.solicit_txalg)) {
+        rfc8415_txalg_start(&wsrd->ipv6.dhcp.solicit_txalg);
+        return;
+    }
+    // Send NS(ARO) to register our address
+    ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
 }
 
 static void join_state_5_enter(struct wsrd *wsrd)
