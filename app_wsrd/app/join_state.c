@@ -178,6 +178,7 @@ static const struct wsrd_state_transition state_reconnect_transitions[] = {
     { WSRD_EVENT_PC_RX,            WSRD_STATE_RPL_PARENT },
     { WSRD_EVENT_PA_FROM_PREV_PAN, WSRD_STATE_CONFIGURE },
     { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     { },
 };
 
@@ -192,6 +193,7 @@ static const struct wsrd_state_transition state_configure_transitions[] = {
     { WSRD_EVENT_PC_RX,           WSRD_STATE_RPL_PARENT },
     { WSRD_EVENT_PC_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_PA_FROM_NEW_PAN, WSRD_STATE_AUTHENTICATE },
+    { WSRD_EVENT_AUTH_FAIL,       WSRD_STATE_DISCOVERY },
     { },
 };
 
@@ -200,6 +202,7 @@ static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,         WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE,    WSRD_STATE_RECONNECT },
     { WSRD_EVENT_PA_FROM_NEW_PAN,     WSRD_STATE_AUTHENTICATE },
+    { WSRD_EVENT_AUTH_FAIL,           WSRD_STATE_DISCOVERY },
     { },
 };
 
@@ -208,6 +211,7 @@ static const struct wsrd_state_transition state_routing_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
     { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     { },
 };
 
@@ -215,6 +219,7 @@ static const struct wsrd_state_transition state_operational_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
     { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
+    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     { },
 };
 
