@@ -17,6 +17,7 @@
 #include "common/ws/eapol_relay.h"
 
 #include "wsrd.h"
+#include "ws.h"
 
 #include "join_state.h"
 
@@ -58,6 +59,7 @@ static void join_state_3_reconnect_enter(struct wsrd *wsrd)
 
     INFO("Join state 3: Reconnect");
     wsrd->ws.pan_version = -1;
+    wsrd->pcs_nb = -1;
 
     trickle_start(&wsrd->pas_tkl);
     trickle_start(&wsrd->pcs_tkl);
@@ -83,6 +85,7 @@ static void join_state_3_enter(struct wsrd *wsrd)
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     wsrd->ws.pan_version = -1;
+    wsrd->pcs_nb  = 0;
 
     INFO("Join state 3: Acquire PAN Config");
     trickle_start(&wsrd->pcs_tkl);

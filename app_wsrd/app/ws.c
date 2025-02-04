@@ -502,5 +502,12 @@ void ws_on_send_pcs(struct trickle *tkl)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pcs_tkl);
 
+    // Wi-SUN FAN 1.1v09 6.3.1 Constants PCS_MAX
+    if (wsrd->pcs_nb == 5) {
+        join_state_transition(wsrd, WSRD_EVENT_PC_TIMEOUT);
+        return;
+    }
+    if (wsrd->pcs_nb != -1)
+        wsrd->pcs_nb++;
     ws_if_send_pcs(&wsrd->ws);
 }
