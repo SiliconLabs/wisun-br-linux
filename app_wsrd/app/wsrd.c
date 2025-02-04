@@ -259,7 +259,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 
     if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6) && !wsrd->ipv6.dhcp.running) {
         join_state_4_choose_parent_exit(wsrd);
-        dhcp_client_start(&wsrd->ipv6.dhcp);
+        join_state_4_routing_enter(wsrd);
     } else if (neigh) {
         rpl_start_dao(&wsrd->ipv6);
         /*

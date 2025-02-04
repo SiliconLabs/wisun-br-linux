@@ -107,3 +107,16 @@ void join_state_4_choose_parent_exit(struct wsrd *wsrd)
 
     rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
 }
+
+void join_state_4_routing_enter(struct wsrd *wsrd)
+{
+    const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+
+    BUG_ON(wsrd->ws.pan_id == 0xffff);
+    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(wsrd->ws.pan_version < 0);
+    BUG_ON(!parent);
+
+    INFO("Join state 4: Configure Routing - DHCP/NS(ARO)/DAO");
+    dhcp_client_start(&wsrd->ipv6.dhcp);
+}
