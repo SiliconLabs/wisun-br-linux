@@ -1,3 +1,33 @@
+v2.3
+------
+  - Update PHY definitions based on Wi-SUN PHY specification 2v03:
+    * Realign Singapore PHY definitions with FAN 1.0 (supported ChanPlanIds
+      changed from 32,33,38 to 41,42,43).
+    * Update Brazil channel masks.
+  - Add DHCPv6 Relay Agent implementation to simplify the setup of an external
+    DHCPv6 server. See `dhcp_server` in [`wsbrd.conf`][conf].
+  - Add `revoke` command to `wsbrd_cli` to force key rotation or invalidation.
+  - Add simple GitHub action to compile the project.
+  - Support `wsbrd -DD` without providing Wi-SUN parameters.
+  - Rename tools for consistency: `wsbrd-fwup` becomes `silabs-fwup` and
+    `wshwping` becomes `silabs-hwping`.
+  - Rename TBU LFN endpoints according to version 1.1.13.
+  - Fix empty JM-IE insersion at boot with TBU.
+  - Add CMake rules to build demo programs.
+  - New experimental authenticator implementation and integration into `wsbrd`,
+    using `AUTH_LEGACY=OFF` in CMake:
+    * Increased maintainability compared to the legacy implementation, using a
+      straight-forward architecture: ~10k less lines of code, less confusing
+      control flow and memory ownership.
+    * GTK and LGTK rotation.
+    * Internal EAP-TLS implementation.
+    * External RADIUS server support.
+    * [Key Reinstallation Attack][krack] resilience.
+    * [Demo program](/tools/demo/eapol.c) to test and show how the new
+      security modules work, including packet loss and key rotation.
+
+[conf]: /examples/wsbrd.conf
+
 v2.2.1
 ------
   - Fix link-local routing when using IPv6 neighbor proxy.
