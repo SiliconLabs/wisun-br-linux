@@ -128,6 +128,8 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
     // Direct Connect encryption relies on the Temporal Key (TK) portion of the PTK to secure traffic
     BUG_ON(!auth_get_supp_tk(auth_ctx, eui64, tk));
 
+    TRACE(TR_SECURITY, "sec: installed tk=%s", tr_key(tk, sizeof(tk)));
+
     rcp_set_sec_key(&dc->ws.rcp, DC_KEY_INDEX, tk, 0);
     SLIST_FOREACH(it, &dc->ws.neigh_table.neigh_list, link)
         it->frame_counter_min[DC_KEY_INDEX - 1] = 0;
