@@ -327,7 +327,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     supp_start_key_request(&ctx->supp);
 
     ctx->auth_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-    FATAL_ON(ctx->supp_fd < 0, 2, "socket: %m");
+    FATAL_ON(ctx->auth_fd < 0, 2, "socket: %m");
     auth_addr.sin6_family = AF_INET6;
     auth_addr.sin6_addr = in6addr_loopback;
     // Use EAPoL relay port for Wireshark dissection
