@@ -10,18 +10,18 @@ base parameters, and one for the PHY parameters. For example:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf
 
-Configuration files are provided in [`tools/tbu/dut/`](/tools/tbu/dut):
+Configuration files are provided in [`tools/dut/`](/tools/dut):
 
-  - [`dut.conf`](/tools/tbu/dut/dut.conf) contains the base parameters to be
+  - [`dut.conf`](/tools/dut/dut.conf) contains the base parameters to be
     used with all tests. It should be edited according to the test bed
     configuration.
   - Sub-directories are provided for [North America][na], [Brazil][bz], and
     [Japan][jp]. Each file corresponds to a PHY definition from the Wi-SUN
     Conformance Tests Specification.
 
-[na]: /tools/tbu/dut/na
-[bz]: /tools/tbu/dut/bz
-[jp]: /tools/tbu/dut/jp
+[na]: /tools/dut/na
+[bz]: /tools/dut/bz
+[jp]: /tools/dut/jp
 
 Once the test has run, the border router can be stopped using Ctrl+C.
 
@@ -52,7 +52,7 @@ border router, for example:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/lifecycle.conf
 
-[lifecycle]: /tools/tbu/dut/sec/lifecycle.conf
+[lifecycle]: /tools/dut/sec/lifecycle.conf
 
 ### Pairwise Key Revocation
 
@@ -86,8 +86,8 @@ any arguments:
 
     sudo sec/revoke.bash
 
-[revoke-cnf]: /tools/tbu/dut/sec/revoke.conf
-[revoke-sh]:  /tools/tbu/dut/sec/revoke.bash
+[revoke-cnf]: /tools/dut/sec/revoke.conf
+[revoke-sh]:  /tools/dut/sec/revoke.bash
 
 ### Powercycle
 
