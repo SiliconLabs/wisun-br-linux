@@ -58,7 +58,7 @@ border router, for example:
 
 The test `SEC-REVOKE-GTK-1` requires the following operations:
 
-A special configuration file [`sec/revoke.conf`][revoke] is provided to
+A special configuration file [`sec/revoke.conf`][revoke-cnf] is provided to
 configure the key lifetimes. It should be added to the command which starts the
 border router, for example:
 
@@ -73,18 +73,21 @@ configuration.
 
 > Step 8: Border Router DUT revokes the PMK and PTK from Test Bed Device I
 
-This is performed by the following command using the MAC address of Device I:
+A dedicated script [revoke.bash][revoke-sh] is provided, it can be run with
+the MAC address of Device I as argument:
 
-    sudo wsbrd_cli revoke 00:00:5e:ef:10:00:00:00
+    sudo sec/revoke.bash 00:00:5e:ef:10:00:00:00
 
 > Step 9: Border Router DUT destroys all GTKs except the currently active GTK,
 > reduces the lifetime of the currently active GTK and adds a new GTK
 
-This is performed by the following command without any argument:
+A dedicated script [revoke.bash][revoke-sh] is provided, it can be run without
+any arguments:
 
-    sudo wsbrd_cli revoke
+    sudo sec/revoke.bash
 
-[revoke]: /tools/tbu/dut/sec/revoke.conf
+[revoke-cnf]: /tools/tbu/dut/sec/revoke.conf
+[revoke-sh]:  /tools/tbu/dut/sec/revoke.bash
 
 ### Powercycle
 
