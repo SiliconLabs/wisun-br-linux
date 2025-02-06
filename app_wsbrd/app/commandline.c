@@ -420,6 +420,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
+    if ((config->storage_exit || !config->list_rf_configs) && storage_check_access(config->storage_prefix))
+        FATAL(1, "%s: %m", config->storage_prefix);
+    if (config->storage_exit)
+        return;
     if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
@@ -478,8 +482,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
-    if (storage_check_access(config->storage_prefix))
-        FATAL(1, "%s: %m", config->storage_prefix);
     if (config->auth_cfg.radius_addr.ss_family == AF_UNSPEC) {
         if (!config->auth_cfg.key.iov_base)
             FATAL(1, "missing \"key\" (or \"auth_cfg.radius_addr\") parameter");
