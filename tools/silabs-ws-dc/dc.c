@@ -170,7 +170,7 @@ struct dc g_dc = {
     .auth_ctx.radius_fd             = -1,
     .auth_ctx.on_supp_gtk_installed = dc_auth_on_supp_gtk_installed,
     .auth_ctx.sendto_mac            = dc_auth_sendto_mac,
-    .auth_ctx.timeout_ms            = 30 * 1000, // Arbitrary
+    .auth_ctx.timeout_ms            = 5 * 1000, // Arbitrary
 
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = dc_on_rcp_reset,
