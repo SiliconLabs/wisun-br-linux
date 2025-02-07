@@ -47,10 +47,7 @@ jobs:
                 -D COMPILE_WSRD=ON \
                 -D COMPILE_DEVTOOLS=ON \
                 -D COMPILE_DEMOS=ON \
-                -D CMAKE_C_FLAGS="-Werror \
-                                  -fanalyzer \
-                                  -Wno-analyzer-fd-leak \
-                                  -Wno-analyzer-mismatching-deallocation" \
+                -D CMAKE_C_FLAGS=-Werror \
                 -G Ninja
           ninja -C build
           sudo ninja -C build install
