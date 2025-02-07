@@ -117,61 +117,63 @@ void pktbuf_pop_tail(struct pktbuf *pktbuf, void *buf, size_t buf_len)
     pktbuf->offset_tail -= buf_len;
 }
 
-#define PKTBUF_PUSH_DEFINE(at, suffix, type, size, conv)              \
-    void pktbuf_push_##at##_##suffix(struct pktbuf *pktbuf, type val) \
-    {                                                                 \
-        pktbuf_push_##at(pktbuf, (type[1]){ conv(val) }, size);       \
+#define PKTBUF_PUSH_DEFINE(at, endian, bits) \
+    void pktbuf_push_##at##_##endian##bits(struct pktbuf *pktbuf, uint##bits##_t val) \
+    { \
+        pktbuf_push_##at(pktbuf, (uint##bits##_t[1]){ hto##endian##bits(val) }, bits / 8); \
     }
 
+#define htou8(x)   (x)
 #define htobe24(x) htobe32((x) << 8)
 #define htole24(x) htole32((x) & 0xffffff)
 
-PKTBUF_PUSH_DEFINE(head, u8,   uint8_t,  1,        )
-PKTBUF_PUSH_DEFINE(head, be16, uint16_t, 2, htobe16)
-PKTBUF_PUSH_DEFINE(head, le16, uint16_t, 2, htole16)
-PKTBUF_PUSH_DEFINE(head, be24, uint24_t, 3, htobe24)
-PKTBUF_PUSH_DEFINE(head, le24, uint24_t, 3, htole24)
-PKTBUF_PUSH_DEFINE(head, be32, uint32_t, 4, htobe32)
-PKTBUF_PUSH_DEFINE(head, le32, uint32_t, 4, htole32)
-PKTBUF_PUSH_DEFINE(head, be64, uint64_t, 8, htobe64)
-PKTBUF_PUSH_DEFINE(head, le64, uint64_t, 8, htole64)
-PKTBUF_PUSH_DEFINE(tail, u8,   uint8_t,  1,        )
-PKTBUF_PUSH_DEFINE(tail, be16, uint16_t, 2, htobe16)
-PKTBUF_PUSH_DEFINE(tail, le16, uint16_t, 2, htole16)
-PKTBUF_PUSH_DEFINE(tail, be24, uint24_t, 3, htobe24)
-PKTBUF_PUSH_DEFINE(tail, le24, uint24_t, 3, htole24)
-PKTBUF_PUSH_DEFINE(tail, be32, uint32_t, 4, htobe32)
-PKTBUF_PUSH_DEFINE(tail, le32, uint32_t, 4, htole32)
-PKTBUF_PUSH_DEFINE(tail, be64, uint64_t, 8, htobe64)
-PKTBUF_PUSH_DEFINE(tail, le64, uint64_t, 8, htole64)
+PKTBUF_PUSH_DEFINE(head, u,   8)
+PKTBUF_PUSH_DEFINE(head, be, 16)
+PKTBUF_PUSH_DEFINE(head, le, 16)
+PKTBUF_PUSH_DEFINE(head, be, 24)
+PKTBUF_PUSH_DEFINE(head, le, 24)
+PKTBUF_PUSH_DEFINE(head, be, 32)
+PKTBUF_PUSH_DEFINE(head, le, 32)
+PKTBUF_PUSH_DEFINE(head, be, 64)
+PKTBUF_PUSH_DEFINE(head, le, 64)
+PKTBUF_PUSH_DEFINE(tail, u,   8)
+PKTBUF_PUSH_DEFINE(tail, be, 16)
+PKTBUF_PUSH_DEFINE(tail, le, 16)
+PKTBUF_PUSH_DEFINE(tail, be, 24)
+PKTBUF_PUSH_DEFINE(tail, le, 24)
+PKTBUF_PUSH_DEFINE(tail, be, 32)
+PKTBUF_PUSH_DEFINE(tail, le, 32)
+PKTBUF_PUSH_DEFINE(tail, be, 64)
+PKTBUF_PUSH_DEFINE(tail, le, 64)
 
-#define PKTBUF_POP_DEFINE(at, suffix, type, size, conv)    \
-    type pktbuf_pop_##at##_##suffix(struct pktbuf *pktbuf) \
-    {                                                      \
-        type val;                                          \
-                                                           \
-        pktbuf_pop_##at(pktbuf, &val, size);               \
-        return conv(val);                                  \
+#define PKTBUF_POP_DEFINE(at, endian, bits) \
+    uint##bits##_t pktbuf_pop_##at##_##endian##bits(struct pktbuf *pktbuf) \
+    {                                            \
+        uint##bits##_t val;                      \
+                                                 \
+        pktbuf_pop_##at(pktbuf, &val, bits / 8); \
+        return endian##bits##toh(val);           \
     }
 
+#define u8toh(x)   (x)
 #define be24toh(x) be32toh((x) >> 8)
 #define le24toh(x) le32toh((x) & 0xffffff)
 
-PKTBUF_POP_DEFINE(head, u8,   uint8_t,  1,        )
-PKTBUF_POP_DEFINE(head, be16, uint16_t, 2, be16toh)
-PKTBUF_POP_DEFINE(head, le16, uint16_t, 2, le16toh)
-PKTBUF_POP_DEFINE(head, be24, uint24_t, 3, be24toh)
-PKTBUF_POP_DEFINE(head, le24, uint24_t, 3, be24toh)
-PKTBUF_POP_DEFINE(head, be32, uint32_t, 4, be32toh)
-PKTBUF_POP_DEFINE(head, le32, uint32_t, 4, be32toh)
-PKTBUF_POP_DEFINE(head, be64, uint64_t, 8, be64toh)
-PKTBUF_POP_DEFINE(head, le64, uint64_t, 8, be64toh)
-PKTBUF_POP_DEFINE(tail, u8,   uint8_t,  1,        )
-PKTBUF_POP_DEFINE(tail, be16, uint16_t, 2, be16toh)
-PKTBUF_POP_DEFINE(tail, le16, uint16_t, 2, le16toh)
-PKTBUF_POP_DEFINE(tail, be24, uint24_t, 3, be24toh)
-PKTBUF_POP_DEFINE(tail, le24, uint24_t, 3, be24toh)
-PKTBUF_POP_DEFINE(tail, be32, uint32_t, 4, be32toh)
-PKTBUF_POP_DEFINE(tail, le32, uint32_t, 4, be32toh)
-PKTBUF_POP_DEFINE(tail, be64, uint64_t, 8, be64toh)
-PKTBUF_POP_DEFINE(tail, le64, uint64_t, 8, be64toh)
+PKTBUF_POP_DEFINE(head, u,   8)
+PKTBUF_POP_DEFINE(head, be, 16)
+PKTBUF_POP_DEFINE(head, le, 16)
+PKTBUF_POP_DEFINE(head, be, 24)
+PKTBUF_POP_DEFINE(head, le, 24)
+PKTBUF_POP_DEFINE(head, be, 32)
+PKTBUF_POP_DEFINE(head, le, 32)
+PKTBUF_POP_DEFINE(head, be, 64)
+PKTBUF_POP_DEFINE(head, le, 64)
+PKTBUF_POP_DEFINE(tail, u,   8)
+PKTBUF_POP_DEFINE(tail, be, 16)
+PKTBUF_POP_DEFINE(tail, le, 16)
+PKTBUF_POP_DEFINE(tail, be, 24)
+PKTBUF_POP_DEFINE(tail, le, 24)
+PKTBUF_POP_DEFINE(tail, be, 32)
+PKTBUF_POP_DEFINE(tail, le, 32)
+PKTBUF_POP_DEFINE(tail, be, 64)
+PKTBUF_POP_DEFINE(tail, le, 64)
