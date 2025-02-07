@@ -36,8 +36,6 @@ struct rpl_mrhof {
     float cand_parent_threshold;
     float cand_parent_hysteresis;
 
-    float cur_min_path_cost;
-
     // Required for retrieving link metrics.
     const struct ws_neigh_table *ws_neigh_table;
 

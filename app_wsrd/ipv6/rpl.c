@@ -640,7 +640,6 @@ void rpl_start(struct ipv6_ctx *ipv6)
     BUG_ON(!ipv6->rpl.mrhof.ws_neigh_table);
     BUG_ON(!ipv6->rpl.mrhof.max_link_metric);
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
-    ipv6->rpl.mrhof.cur_min_path_cost = ipv6->rpl.mrhof.max_path_cost;
 
     strcpy(ipv6->rpl.dio_trickle.debug_name, "dio");
     ipv6->rpl.dio_trickle.cfg = &ipv6->rpl.dio_trickle_cfg;

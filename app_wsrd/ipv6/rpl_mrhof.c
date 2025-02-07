@@ -57,13 +57,20 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
 // RFC 6719 3.2.2. Parent Selection Algorithm
 void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
     struct ipv6_neigh *pref_parent_new = NULL;
-    struct ipv6_neigh *pref_parent_cur;
+    float cur_min_path_cost;
     struct ipv6_neigh *nce;
     float pref_path_cost;
     float path_cost;
     float etx;
+
+    // Compute min path cost of current parent to reflect changes on ETX/Rank
+    if (pref_parent_cur)
+        cur_min_path_cost = rpl_mrhof_path_cost(ipv6, pref_parent_cur);
+    else
+        cur_min_path_cost = mrhof->max_path_cost;
 
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
@@ -103,17 +110,15 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         pref_parent_new = nce;
     }
 
+    if (pref_parent_new == pref_parent_cur)
+        return;
+
     /*
      * If the smallest path cost for paths through the candidate neighbors is
      * smaller than cur_min_path_cost by less than PARENT_SWITCH_THRESHOLD, the
      * node MAY continue to use the current preferred parent.
      */
-    if (pref_path_cost + mrhof->parent_switch_threshold > mrhof->cur_min_path_cost)
-        return;
-    mrhof->cur_min_path_cost = pref_path_cost;
-
-    pref_parent_cur = rpl_neigh_pref_parent(ipv6);
-    if (pref_parent_new == pref_parent_cur)
+    if (pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost)
         return;
 
     if (pref_parent_cur)
