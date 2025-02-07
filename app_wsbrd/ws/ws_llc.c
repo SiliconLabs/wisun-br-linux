@@ -395,7 +395,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 if (confirm->hif.status == HIF_STATUS_SUCCESS)
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
-                ws_neigh->rsl_out_dbm = ws_neigh_ewma_next(ws_neigh->rsl_out_dbm, ie_rsl);
+                ws_neigh->rsl_out_dbm = ws_neigh_ewma_next(ws_neigh->rsl_out_dbm, ie_rsl, WS_EWMA_SF);
                 rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
                 ws_llc_update_txpow(ws_info, ws_neigh,
                                     rate ? rate->phy_mode_id : ws_info->phy_config.phy_mode_id_ms_base,
@@ -614,9 +614,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             ws_neigh->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm);
+        ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm, WS_EWMA_SF);
         ws_neigh->rx_power_dbm = data->hif.rx_power_dbm;
-        ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+        ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm, WS_EWMA_SF);
         ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
         ws_neigh->lqi = data->hif.lqi;
         ws_neigh->lqi_unsecured = data->hif.lqi;
@@ -705,9 +705,9 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh->unicast_data_rx = true;
 
     // Calculate RSL for all UDATA packets heard
-    ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm);
+    ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm, WS_EWMA_SF);
     ws_neigh->rx_power_dbm = data->hif.rx_power_dbm;
-    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm, WS_EWMA_SF);
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi = data->hif.lqi;
     ws_neigh->lqi_unsecured = data->hif.lqi;
@@ -775,7 +775,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
 
     ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
-    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm, WS_EWMA_SF);
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;
 
@@ -861,7 +861,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
 
     ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
-    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm);
+    ws_neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm_unsecured, data->hif.rx_power_dbm, WS_EWMA_SF);
     ws_neigh->rx_power_dbm_unsecured = data->hif.rx_power_dbm;
     ws_neigh->lqi_unsecured = data->hif.lqi;
 

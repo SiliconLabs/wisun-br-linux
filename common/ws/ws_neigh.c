@@ -79,10 +79,17 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
         etx = WS_ETX_MAX;
 
     /*
+     * Arbitrary: we give less weight to the first few ETX calculations.
+     * This allows to converge to a more accurate ETX value faster.
+     */
+    if (neigh->etx_compute_cnt < 8)
+        neigh->etx_compute_cnt++;
+
+    /*
      * The ETX calculation is performed at a defined epoch, with the ETX result
      * fed into an EWMA using smoothing factor of 1/8.
      */
-    neigh->etx = ws_neigh_ewma_next(neigh->etx, etx);
+    neigh->etx = ws_neigh_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
 
     neigh->etx_tx_cnt  = 0;
     neigh->etx_ack_cnt = 0;
@@ -587,11 +594,11 @@ void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint
  * ETX_EWMA_SF    ETX EWMA Smoothing Factor   1/8
  * RSL_EWMA_SF    RSL EWMA Smoothing Factor   1/8
  */
-float ws_neigh_ewma_next(float cur, float val)
+float ws_neigh_ewma_next(float cur, float val, float smoothing_factor)
 {
     // EWMA(0) = X(0)
     if (isnan(cur))
         return val;
     // EWMA(t) = S(X(t)) + (1-S)(EWMA(t-1))
-    return (val + 7 * cur) / 8;
+    return smoothing_factor * (val - cur) + cur;
 }

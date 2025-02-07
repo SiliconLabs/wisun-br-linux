@@ -194,4 +194,11 @@ enum {
 #define WS_CAND_PARENT_THRESHOLD_DB  10
 #define WS_CAND_PARENT_HYSTERESIS_DB 3
 
+/*
+ *   Wi-SUN FAN 1.1v08 6.2.1 Constants
+ * ETX_EWMA_SF    ETX EWMA Smoothing Factor   1/8
+ * RSL_EWMA_SF    RSL EWMA Smoothing Factor   1/8
+ */
+#define WS_EWMA_SF (1.0 / 8.0)
+
 #endif

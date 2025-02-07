@@ -126,6 +126,7 @@ struct ws_neigh {
     float etx;
     int etx_tx_cnt;
     int etx_ack_cnt;
+    int etx_compute_cnt;
     struct timer_entry etx_timer_compute;
     struct timer_entry etx_timer_outdated;
 
@@ -207,6 +208,6 @@ void ws_neigh_etx_update(struct ws_neigh_table *table,
                          struct ws_neigh *neigh,
                          int tx_count, bool ack);
 
-float ws_neigh_ewma_next(float cur, float val);
+float ws_neigh_ewma_next(float cur, float val, float smoothing_factor);
 
 #endif

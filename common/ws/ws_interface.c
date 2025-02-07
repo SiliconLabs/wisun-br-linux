@@ -137,12 +137,12 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
                        ind.hif->timestamp_us, ind.hdr.src.u8);
     ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
-                                                         hif_ind->rx_power_dbm);
+                                                         hif_ind->rx_power_dbm, WS_EWMA_SF);
     if (ind.hdr.key_index) {
         ws_neigh_ut_update(&ind.neigh->fhss_data, ie_utt.ufsi,
                            ind.hif->timestamp_us, ind.hdr.src.u8);
         ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
-                                                   hif_ind->rx_power_dbm);
+                                                   hif_ind->rx_power_dbm, WS_EWMA_SF);
     }
 
     ws_print_ind(&ind, ie_utt.message_type);
@@ -230,11 +230,11 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         // TODO: check frame counter
         ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
         neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(neigh->rsl_in_dbm_unsecured,
-                                                         cnf->rx_power_dbm);
+                                                         cnf->rx_power_dbm, WS_EWMA_SF);
         if (hdr.key_index)
-            neigh->rsl_in_dbm = ws_neigh_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm);
+            neigh->rsl_in_dbm = ws_neigh_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
-            neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl);
+            neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
         if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
             ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, neigh->mac64);
             if (hdr.key_index)
