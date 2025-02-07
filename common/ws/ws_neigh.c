@@ -135,8 +135,18 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     for (uint8_t key_index = 1; key_index <= HIF_KEY_COUNT; key_index++)
         if (!(key_index_mask & BIT(key_index)))
             neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
+
+    /*
+     *  Wi-SUN FAN 1.1v09 6.2.3.1.6.1 Link Metrics
+     * A Router SHOULD refresh its neighbor link metrics at least every 30
+     * minutes.
+     *
+     * Note:
+     * - this neighbor link metrics refresh only applies to wsrd
+     * - 2200s gives a 7min margin for probe retries.
+     */
+    neigh->lifetime_s = WS_NEIGHBOR_LINK_TIMEOUT;
     memcpy(neigh->mac64, mac64, 8);
-    neigh->lifetime_s = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME;
     neigh->timer.callback = ws_neigh_timer_cb;
     timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     neigh->rsl_in_dbm = NAN;

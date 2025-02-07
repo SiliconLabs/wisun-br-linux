@@ -926,7 +926,7 @@ static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, sup
     }
 
     // 90 percent of the EAPOL temporary entry lifetime (10 ticks per second)
-    supp_entry->waiting_ticks = WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME * 900 / 100;
+    supp_entry->waiting_ticks = 600 * 900 / 100;
 
     tr_info("PAE: to waiting, list size %i, retry %i, eui-64: %s", pae_auth->waiting_supp_list_size, supp_entry->waiting_ticks, tr_eui64(supp_entry->addr.eui_64));
 

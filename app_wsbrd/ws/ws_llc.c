@@ -385,8 +385,6 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
         case HIF_STATUS_NOACK:
             if (!ws_neigh)
                 break;
-            if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-                break;
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (confirm->hif.status == HIF_STATUS_SUCCESS)
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
@@ -716,10 +714,7 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     if (data->Key.SecurityLevel)
         ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
-    if (ws_neigh->lifetime_s == WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME)
-        ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, WS_NEIGHBOR_LINK_TIMEOUT);
-    else
-        ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
+    ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
     if (has_pom && !duplicated)
         ws_neigh->pom_ie = ie_pom;
     if (duplicated) {

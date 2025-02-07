@@ -29,7 +29,6 @@
 #include "common/timer.h"
 #include "common/hif.h"
 
-#define WS_NEIGHBOUR_TEMPORARY_ENTRY_LIFETIME 600
 #define WS_NEIGHBOR_LINK_TIMEOUT 2200
 
 struct ws_fhss_config;
