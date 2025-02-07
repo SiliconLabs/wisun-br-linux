@@ -139,6 +139,9 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         timer_stop(&ipv6->timer_group, &pref_parent_cur->aro_timer);
         ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
     }
+    // If we do not have a GUA, the NS(ARO) will be sent after receiving one
+    if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
+        ipv6_nud_set_state(ipv6, pref_parent_new, IPV6_NUD_PROBE);
     if (mrhof->on_pref_parent_change)
         mrhof->on_pref_parent_change(mrhof, pref_parent_new);
     // TODO: support secondary parents
