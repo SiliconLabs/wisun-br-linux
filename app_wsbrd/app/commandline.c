@@ -493,9 +493,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         if (config->auth_cfg.key.iov_len || config->auth_cfg.cert.iov_len || config->auth_cfg.ca_cert.iov_len)
             WARN("ignore certificates and key since an external radius server is in use");
     }
-    if (!config->enable_lfn)
-        if (memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
-            FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
+    if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
+        FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
     if (config->auth_cfg.lfn.gtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))

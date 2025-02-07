@@ -252,8 +252,8 @@ void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest
 {
     struct storage_parse_info sub_info = *info; // Copy struct to reuse conf_set_enum_int
     uint8_t *dest = raw_dest;
-    char *tmp, *substr;
     int phy_mode_id;
+    char *tmp;
     int i;
 
     memset(dest, 0, FIELD_MAX(WS_MASK_POM_COUNT) + 1 - 1);
@@ -266,7 +266,7 @@ void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest
         return;
     i = 0;
     tmp = strdup(info->value);
-    for (substr = strtok(tmp, ","); substr; substr = strtok(NULL, ",")) {
+    for (char *substr = strtok(tmp, ","); substr; substr = strtok(NULL, ",")) {
         // Keep room for sentinel
         FATAL_ON(i >= FIELD_MAX(WS_MASK_POM_COUNT) - 1, 1,
                  "%s:%d: too many entries (max: %u)",

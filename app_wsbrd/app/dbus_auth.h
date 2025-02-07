@@ -14,10 +14,10 @@
 #ifndef WSBR_DBUS_AUTH_H
 #define WSBR_DBUS_AUTH_H
 
-struct net_if;
-
 #include <stdbool.h>
 #include <systemd/sd-bus.h>
+
+struct net_if;
 
 int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error);
 int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk);

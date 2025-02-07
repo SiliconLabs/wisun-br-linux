@@ -45,15 +45,18 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 
 void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
 {
+    // empty
 }
 
 void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
               const struct iovec *key)
 {
+    // empty
 }
 
 void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
 {
+    // empty
 }
 
 void eapol_relay_send(int fd, const void *buf, size_t buf_len,
