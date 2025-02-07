@@ -26,6 +26,6 @@ struct dhcp_relay {
 
 void dhcp_relay_start(struct dhcp_relay *relay);
 void dhcp_relay_stop(struct dhcp_relay *relay);
-void dhcp_relay_recv(struct dhcp_relay *relay);
+void dhcp_relay_recv(const struct dhcp_relay *relay);
 
 #endif

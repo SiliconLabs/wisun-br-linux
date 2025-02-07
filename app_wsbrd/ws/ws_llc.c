@@ -763,7 +763,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!base)
         return;
 
-    supp = auth_get_supp(net_if->auth, (struct eui64 *)data->SrcAddr);
+    supp = auth_get_supp(net_if->auth, (const struct eui64 *)data->SrcAddr);
     if (supp)
         supp->eapol_target = in6addr_any;
 
@@ -817,7 +817,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
     } else {
         auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], (struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr[0], (const struct eui64 *)data->SrcAddr,
                         mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
     }
 }
@@ -842,7 +842,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!base)
         return;
 
-    supp = auth_get_supp(net_if->auth, (struct eui64 *)data->SrcAddr);
+    supp = auth_get_supp(net_if->auth, (const struct eui64 *)data->SrcAddr);
     if (supp)
         supp->eapol_target = in6addr_any;
 
@@ -905,7 +905,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
     } else {
         auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], (struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr[0], (const struct eui64 *)data->SrcAddr,
                         mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
     }
 }
@@ -1479,7 +1479,8 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 }
 
-static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, uint8_t kmp_id)
+static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *user_cb,
+                                     const struct mcps_data_req *data, uint8_t kmp_id)
 {
     bool eapol_handshake_first_msg = ws_auth_is_1st_msg(base->interface_ptr, data->msdu, data->msduLength);
     struct wh_ie_list wh_ies = {
@@ -1549,7 +1550,7 @@ void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
     };
 
     memcpy(req.DstAddr, dst, 8);
-    ws_llc_mpx_eapol_request(&g_llc_base, NULL, &req, kmp_id);
+    ws_llc_mpx_eapol_request(base, NULL, &req, kmp_id);
 }
 
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id)

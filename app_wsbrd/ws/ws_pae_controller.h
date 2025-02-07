@@ -185,7 +185,7 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_l
  * \return pointer to GTK has storage or NULL
  *
  */
-gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr);
+const gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(const struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_lgtk_hash_ptr_get get pointer to LFN-GTK hash storage
@@ -195,9 +195,9 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr);
  * \return pointer to LFN-GTK has storage or NULL
  *
  */
-gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr);
+const gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(const struct net_if *interface_ptr);
 
-int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
+int8_t ws_pae_controller_lgtk_active_index_get(const struct net_if *interface_ptr);
 
 typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr,
                                           uint8_t key_index,
@@ -296,7 +296,7 @@ void ws_pae_controller_fast_timer(int ticks);
  */
 void ws_pae_controller_slow_timer(int seconds);
 
-sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn);
+const sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn);
 
 void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter);
 

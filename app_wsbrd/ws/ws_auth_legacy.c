@@ -127,7 +127,7 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
 
     if (conf->auth_cfg.radius_secret[0])
         ws_pae_controller_radius_shared_secret_set(net_if->id, strlen(conf->auth_cfg.radius_secret),
-                                                   (uint8_t *)conf->auth_cfg.radius_secret);
+                                                   (const uint8_t *)conf->auth_cfg.radius_secret);
     if (conf->auth_cfg.radius_addr.ss_family != AF_UNSPEC)
         ws_pae_controller_radius_address_set(net_if->id, &conf->auth_cfg.radius_addr);
 
@@ -172,7 +172,7 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
     ws_pae_controller_authenticator_start(net_if, PAE_AUTH_SOCKET_PORT, addr_linklocal, EAPOL_RELAY_SOCKET_PORT);
 }
 
-int ws_auth_fd_eapol_relay(struct net_if *net_if)
+int ws_auth_fd_eapol_relay(const struct net_if *net_if)
 {
     return ws_eapol_auth_relay_get_socket_fd();
 }
@@ -182,7 +182,7 @@ void ws_auth_recv_eapol_relay(struct net_if *net_if)
     ws_eapol_auth_relay_socket_cb(ws_auth_fd_eapol_relay(net_if));
 }
 
-int ws_auth_fd_radius(struct net_if *net_if)
+int ws_auth_fd_radius(const struct net_if *net_if)
 {
     return kmp_socket_if_get_radius_sockfd();
 }
@@ -192,32 +192,32 @@ void ws_auth_recv_radius(struct net_if *net_if)
     kmp_socket_if_radius_socket_cb(ws_auth_fd_radius(net_if));
 }
 
-const uint8_t *ws_auth_gtk(struct net_if *net_if, int key_index)
+const uint8_t *ws_auth_gtk(const struct net_if *net_if, int key_index)
 {
     const bool is_lgtk = key_index > WS_GTK_COUNT;
     const int offset = is_lgtk ? WS_GTK_COUNT : 0;
-    sec_prot_gtk_keys_t *keys;
+    const sec_prot_gtk_keys_t *keys;
 
     keys = ws_pae_controller_get_transient_keys(net_if->id, is_lgtk);
     return keys->gtk[key_index - offset - 1].key;
 }
 
-void ws_auth_gtkhash(struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8])
+void ws_auth_gtkhash(const struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8])
 {
     memcpy(gtkhash, ws_pae_controller_gtk_hash_ptr_get(net_if), WS_GTK_COUNT * 8);
 }
 
-void ws_auth_lgtkhash(struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8])
+void ws_auth_lgtkhash(const struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8])
 {
     memcpy(lgtkhash, ws_pae_controller_lgtk_hash_ptr_get(net_if), WS_LGTK_COUNT * 8);
 }
 
-uint8_t ws_auth_lgtk_index(struct net_if *net_if)
+uint8_t ws_auth_lgtk_index(const struct net_if *net_if)
 {
     return ws_pae_controller_lgtk_active_index_get(net_if);
 }
 
-bool ws_auth_is_1st_msg(struct net_if *net_if, const void *buf, size_t buf_len)
+bool ws_auth_is_1st_msg(const struct net_if *net_if, const void *buf, size_t buf_len)
 {
     const uint8_t *buf_ptr = buf;
     eapol_pdu_t eapol_pdu;

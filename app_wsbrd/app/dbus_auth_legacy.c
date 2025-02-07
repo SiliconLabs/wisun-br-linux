@@ -25,7 +25,7 @@
 
 int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
-    struct wsbr_ctxt *ctxt = userdata;
+    const struct wsbr_ctxt *ctxt = userdata;
     uint8_t *gtk, *lgtk;
     size_t len;
     int ret;
@@ -54,7 +54,7 @@ int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_
 
 int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk)
 {
-    struct wsbr_ctxt *ctxt = userdata;
+    const struct wsbr_ctxt *ctxt = userdata;
     const uint8_t *gtk;
     size_t len;
 

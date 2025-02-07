@@ -109,7 +109,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
 static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr);
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr);
-static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
+static pae_controller_t *ws_pae_controller_get(const struct net_if *interface_ptr);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
@@ -1016,7 +1016,7 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
         ws_mngt_lpc_pae_cb(&interface_ptr->ws_info);
 }
 
-gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)
+const gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(const struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1026,7 +1026,7 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)
     return controller->gtks.gtkhash;
 }
 
-gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr)
+const gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(const struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1036,7 +1036,7 @@ gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr)
     return controller->lgtks.gtkhash;
 }
 
-int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr)
+int8_t ws_pae_controller_lgtk_active_index_get(const struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1064,7 +1064,7 @@ void ws_pae_controller_slow_timer(int seconds)
     }
 }
 
-static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr)
+static pae_controller_t *ws_pae_controller_get(const struct net_if *interface_ptr)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
         if (entry->interface_ptr == interface_ptr) {
@@ -1092,7 +1092,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
     return controller;
 }
 
-sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn)
+const sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     pae_controller_t *controller = ws_pae_controller_get(cur);

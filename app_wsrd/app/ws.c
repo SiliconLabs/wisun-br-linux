@@ -385,9 +385,9 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 
 void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
 {
+    const struct ipv6_neigh *parent;
     uint8_t authenticator_eui64[8];
     struct iobuf_read buf = { };
-    struct ipv6_neigh *parent;
     struct in6_addr dodag_id;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;

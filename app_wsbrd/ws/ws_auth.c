@@ -36,7 +36,7 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
     auth_start(net_if->auth, &net_if->rcp->eui64, conf->enable_lfn);
 }
 
-int ws_auth_fd_eapol_relay(struct net_if *net_if)
+int ws_auth_fd_eapol_relay(const struct net_if *net_if)
 {
     return net_if->auth->eapol_relay_fd;
 }
@@ -59,7 +59,7 @@ void ws_auth_recv_eapol_relay(struct net_if *net_if)
     auth_recv_eapol(net_if->auth, kmp_id, &supp_eui64, buf, buf_len);
 }
 
-int ws_auth_fd_radius(struct net_if *net_if)
+int ws_auth_fd_radius(const struct net_if *net_if)
 {
     return net_if->auth->radius_fd;
 }
@@ -69,7 +69,7 @@ void ws_auth_recv_radius(struct net_if *net_if)
     radius_recv(net_if->auth);
 }
 
-const uint8_t *ws_auth_gtk(struct net_if *net_if, int key_index)
+const uint8_t *ws_auth_gtk(const struct net_if *net_if, int key_index)
 {
     return net_if->auth->gtks[key_index - 1].key;
 }
@@ -88,22 +88,22 @@ static void ws_auth_gtkhash_common(const struct auth_ctx *auth, uint8_t gtkhash[
     }
 }
 
-void ws_auth_gtkhash(struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8])
+void ws_auth_gtkhash(const struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8])
 {
     ws_auth_gtkhash_common(net_if->auth, gtkhash, 0, WS_GTK_COUNT);
 }
 
-void ws_auth_lgtkhash(struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8])
+void ws_auth_lgtkhash(const struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8])
 {
     ws_auth_gtkhash_common(net_if->auth, lgtkhash, WS_GTK_COUNT, WS_LGTK_COUNT);
 }
 
-uint8_t ws_auth_lgtk_index(struct net_if *net_if)
+uint8_t ws_auth_lgtk_index(const struct net_if *net_if)
 {
     return net_if->auth->lgtk_group.slot_active - WS_GTK_COUNT;
 }
 
-bool ws_auth_is_1st_msg(struct net_if *net_if, const void *buf, size_t buf_len)
+bool ws_auth_is_1st_msg(const struct net_if *net_if, const void *buf, size_t buf_len)
 {
     return true; // TODO
 }

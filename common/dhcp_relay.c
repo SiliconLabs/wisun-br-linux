@@ -50,7 +50,7 @@ void dhcp_relay_stop(struct dhcp_relay *relay)
 }
 
 // RFC 8415 19.1. Relaying a Client Message or a Relay-forward Message
-static void dhcp_relay_fwd(struct dhcp_relay *relay,
+static void dhcp_relay_fwd(const struct dhcp_relay *relay,
                            const void *buf, size_t buf_len,
                            const struct sockaddr_in6 *peer, uint8_t hops)
 {
@@ -95,7 +95,7 @@ static void dhcp_relay_fwd(struct dhcp_relay *relay,
 }
 
 // RFC 8415 19.2. Relaying a Relay-reply Message
-static void dhcp_relay_reply(struct dhcp_relay *relay,
+static void dhcp_relay_reply(const struct dhcp_relay *relay,
                              const void *buf, size_t buf_len)
 {
     const struct dhcpv6_relay_hdr *hdr;
@@ -129,7 +129,7 @@ static void dhcp_relay_reply(struct dhcp_relay *relay,
 }
 
 // RFC 8415 19. Relay Agent Behavior
-void dhcp_relay_recv(struct dhcp_relay *relay)
+void dhcp_relay_recv(const struct dhcp_relay *relay)
 {
     const struct dhcpv6_relay_hdr *hdr;
     struct sockaddr_in6 src;

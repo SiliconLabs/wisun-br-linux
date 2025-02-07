@@ -346,13 +346,13 @@ static int radius_verify_msg_auth(const struct auth_ctx *auth,
     offset_msg_auth = (uintptr_t)attr - (uintptr_t)buf + sizeof(*attr);
     mbedtls_md_init(&md);
     xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_MD5), 1);
-    xmbedtls_md_hmac_starts(&md, (uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
+    xmbedtls_md_hmac_starts(&md, (const uint8_t *)auth->cfg->radius_secret, strlen(auth->cfg->radius_secret));
     xmbedtls_md_hmac_update(&md, buf, offsetof(struct radius_hdr, auth));
     xmbedtls_md_hmac_update(&md, supp->radius.auth, 16);
-    xmbedtls_md_hmac_update(&md, (uint8_t *)buf + sizeof(struct radius_hdr),
+    xmbedtls_md_hmac_update(&md, (const uint8_t *)buf + sizeof(struct radius_hdr),
                                  offset_msg_auth - sizeof(struct radius_hdr));
     xmbedtls_md_hmac_update(&md, msg_auth, 16);
-    xmbedtls_md_hmac_update(&md, (uint8_t *)buf + offset_msg_auth + 16,
+    xmbedtls_md_hmac_update(&md, (const uint8_t *)buf + offset_msg_auth + 16,
                                  buf_len - offset_msg_auth - 16);
     xmbedtls_md_hmac_finish(&md, msg_auth);
     mbedtls_md_free(&md);
