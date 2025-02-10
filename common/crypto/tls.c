@@ -14,6 +14,8 @@
 
 #define _GNU_SOURCE
 #include <mbedtls/debug.h>
+#include <mbedtls/pem.h>
+#include <mbedtls/oid.h>
 
 #include "common/time_extra.h"
 #include "common/mathutils.h"
@@ -116,6 +118,49 @@ static void tls_debug(void *ctx, int level, const char *file, int line, const ch
     TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
 }
 
+static int tls_validate_cert_ext(void *ctx, mbedtls_x509_crt const *crt, mbedtls_x509_buf const *oid,
+                                              int critical, const unsigned char *p, const unsigned char *end)
+{
+    int ext_type = 0;
+    int ret;
+
+    ret = mbedtls_oid_get_x509_ext_type(oid, &ext_type);
+    if (!ret && ext_type == MBEDTLS_OID_X509_EXT_CERTIFICATE_POLICIES)
+        return 0;
+    return -1;
+}
+
+int tls_load_pem(struct mbedtls_x509_crt *cert, const uint8_t *buf, size_t buf_len)
+{
+    mbedtls_pem_context pem;
+    size_t consumed_len = 0;
+    const void *parsed_buf;
+    size_t parsed_buf_len;
+    int loaded_certs = 0;
+    size_t used_len = 0;
+    int ret = 0;
+
+    mbedtls_pem_init(&pem);
+
+    while (true) {
+        ret = mbedtls_pem_read_buffer(&pem, "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----",
+                                      buf + consumed_len, NULL, 0, &used_len);
+        if (ret == MBEDTLS_ERR_PEM_NO_HEADER_FOOTER_PRESENT)
+            break; // No more PEM certificates
+        FATAL_ON(ret, 1, "%s: mbedtls_pem_read_buffer: %s", __func__, tr_mbedtls_err(ret));
+        parsed_buf = mbedtls_pem_get_buffer(&pem, &parsed_buf_len);
+        consumed_len += used_len;
+        ret = mbedtls_x509_crt_parse_der_with_ext_cb(cert, parsed_buf, parsed_buf_len, true,
+                                                     tls_validate_cert_ext, NULL);
+        FATAL_ON(ret, 1, "%s: mbedtls_x509_crt_parse_der_with_ext_cb: %s", __func__, tr_mbedtls_err(ret));
+        mbedtls_pem_free(&pem);
+        loaded_certs++;
+    }
+    WARN_ON(consumed_len != buf_len - 1, "%s: trailing bytes in certificate", __func__);
+    mbedtls_pem_free(&pem);
+    return loaded_certs;
+}
+
 void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
               const struct iovec *key)
 {
@@ -175,10 +220,10 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, co
     mbedtls_x509_crt_init(&tls->ca_cert);
     mbedtls_x509_crt_init(&tls->cert);
     mbedtls_pk_init(&tls->key);
-    ret = mbedtls_x509_crt_parse(&tls->ca_cert, ca_cert->iov_base, ca_cert->iov_len);
-    FATAL_ON(ret, 1, "mbedtls_x509_crt_parse: cannot parse CA certificate");
-    ret = mbedtls_x509_crt_parse(&tls->cert, cert->iov_base, cert->iov_len);
-    FATAL_ON(ret, 1, "mbedtls_x509_crt_parse: cannot parse own certificate");
+    ret = tls_load_pem(&tls->ca_cert, ca_cert->iov_base, ca_cert->iov_len);
+    FATAL_ON(!ret, 1, "%s: tls_load_pem: CA certificate not found", __func__);
+    ret = tls_load_pem(&tls->cert, cert->iov_base, cert->iov_len);
+    FATAL_ON(!ret, 1, "%s: tls_load_pem: own certificate not found", __func__);
     ret = mbedtls_pk_parse_key(&tls->key, key->iov_base, key->iov_len, NULL, 0,
                                mbedtls_ctr_drbg_random, &tls->ctr_drbg);
     FATAL_ON(ret, 1, "mbedtls_pk_parse_key: cannot parse private key");
