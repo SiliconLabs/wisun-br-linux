@@ -113,7 +113,7 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
     mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, tls_export_keys, tls_client);
 }
 
-static void tls_debug(void *ctx, int level, const char *file, int line, const char *string)
+void tls_debug(void *ctx, int level, const char *file, int line, const char *string)
 {
     TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
 }

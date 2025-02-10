@@ -349,6 +349,11 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     mbedtls_ssl_set_verify(&sec->ssl, tls_sec_prot_lib_x509_crt_verify, sec);
 #endif
 
+    if (g_enabled_traces & TR_MBEDTLS) {
+        mbedtls_ssl_conf_dbg(&sec->conf, tls_debug, NULL);
+        mbedtls_debug_set_threshold(4);
+    }
+
     /* Currently assuming we are running fast enough HW that ECC calculations are not blocking any normal operation.
      *
      * If there is a problem with ECC calculations and those are taking too long in border router
