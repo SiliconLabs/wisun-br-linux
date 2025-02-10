@@ -63,6 +63,7 @@ const struct name_value valid_traces[] = {
     { "neigh-ipv6", TR_NEIGH_IPV6 },
     { "queue",      TR_QUEUE },
     { "security",   TR_SECURITY | TR_EAP },
+    { "mbedtls",    TR_MBEDTLS },
     { NULL },
 };
 
