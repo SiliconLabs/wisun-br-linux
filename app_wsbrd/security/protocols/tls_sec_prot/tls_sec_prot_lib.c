@@ -31,6 +31,7 @@
 #include <mbedtls/debug.h>
 #include <mbedtls/oid.h>
 #include "common/endian.h"
+#include "common/crypto/tls.h"
 #include "common/rand.h"
 #include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
@@ -178,6 +179,8 @@ void tls_sec_prot_lib_free(tls_security_t *sec)
 
 static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const sec_prot_certs_t *certs)
 {
+    int ret;
+
     if (!certs->own_cert_chain.cert[0]) {
         tr_error("no own cert");
         return -1;
@@ -195,10 +198,8 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
             }
             break;
         }
-        if (mbedtls_x509_crt_parse(&sec->owncert, cert, cert_len) < 0) {
-            tr_error("Own cert parse eror");
-            return -1;
-        }
+        ret = tls_load_pem(&sec->owncert, cert, cert_len);
+        FATAL_ON(!ret, 1, "%s: tls_load_pem: own certificate not found", __func__);
         index++;
     }
 
@@ -238,10 +239,8 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
                 }
                 break;
             }
-            if (mbedtls_x509_crt_parse(&sec->cacert, cert, cert_len) < 0) {
-                tr_error("Trusted cert parse error");
-                return -1;
-            }
+            ret = tls_load_pem(&sec->cacert, cert, cert_len);
+            FATAL_ON(!ret, 1, "%s: tls_load_pem: CA certificate not found", __func__);
             index++;
         }
     }
