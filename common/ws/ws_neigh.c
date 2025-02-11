@@ -64,8 +64,12 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
      * calculation epoch (to speed boot time).
      */
     if (!((neigh->etx_tx_cnt >= 4 && timer_stopped(&neigh->etx_timer_compute)) ||
-          isnan(neigh->etx)))
+          isnan(neigh->etx))) {
+        // Probe right now until we reach the 4 necessary measurements
+        if (timer_stopped(&neigh->etx_timer_outdated) && table->on_etx_outdated)
+            table->on_etx_outdated(table, neigh);
         return;
+    }
 
     /*
      * ETX MUST be calculated as
