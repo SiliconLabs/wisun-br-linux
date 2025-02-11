@@ -549,6 +549,8 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         if (nce->rpl)
             nce->rpl->dao_ack_received = false;
     parent->rpl->dao_ack_received = true;
+    if (ipv6->rpl.on_dao_ack)
+        ipv6->rpl.on_dao_ack(ipv6);
     dbus_emit_change("PrimaryParent");
 }
 

@@ -46,6 +46,8 @@ struct rpl_ctx {
     struct rfc8415_txalg dao_txalg;
     uint8_t dao_seq;
     struct rpl_mrhof mrhof;
+
+    void (*on_dao_ack)(struct ipv6_ctx *ipv6);
 };
 
 void rpl_start(struct ipv6_ctx *ipv6);

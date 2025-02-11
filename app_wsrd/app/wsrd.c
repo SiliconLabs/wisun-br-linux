@@ -65,6 +65,13 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client);
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client);
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
+static void wsrd_on_dao_ack(struct ipv6_ctx *ipv6)
+{
+    struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
+
+    join_state_5_enter(wsrd);
+}
+
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
@@ -123,6 +130,7 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.dis_txalg.mrt_s = 180,
     .ipv6.rpl.dis_txalg.rand_min = -0.5,
     .ipv6.rpl.dis_txalg.rand_max =  0.0,
+    .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
     // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
     .ipv6.rpl.dao_txalg.irt_s = 3,
     .ipv6.rpl.dao_txalg.mrc   = 3,
@@ -288,11 +296,6 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     tun_addr_add(&wsrd->ipv6.tun, &client->iaaddr.ipv6, 64);
     ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
     // TODO: NS(ARO) error handling
-
-    // TODO: enable when full parenting ready
-    // rpl_start_dio(&wsrd->ipv6);
-    close(wsrd->ws.eapol_relay_fd);
-    wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)

@@ -12,6 +12,10 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
+#include <unistd.h>
+
+#include "common/ws/eapol_relay.h"
+
 #include "wsrd.h"
 
 #include "join_state.h"
@@ -119,4 +123,25 @@ void join_state_4_routing_enter(struct wsrd *wsrd)
 
     INFO("Join state 4: Configure Routing - DHCP/NS(ARO)/DAO");
     dhcp_client_start(&wsrd->ipv6.dhcp);
+}
+
+void join_state_5_enter(struct wsrd *wsrd)
+{
+    const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+
+    BUG_ON(wsrd->ws.pan_id == 0xffff);
+    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(wsrd->ws.pan_version < 0);
+    BUG_ON(!parent);
+    BUG_ON(!wsrd->ipv6.dhcp.running);
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6));
+    // TODO: make sure NS(ARO) refresh timer is running
+    BUG_ON(!parent->rpl->dao_ack_received);
+    // TODO: make sure DAO refresh timer is running
+
+    INFO("Join state 5: Operational");
+    // TODO: enable when full parenting ready
+    // rpl_start_dio(&wsrd->ipv6);
+    close(wsrd->ws.eapol_relay_fd);
+    wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
 }
