@@ -125,7 +125,7 @@ static void join_state_4_routing_enter(struct wsrd *wsrd)
     dhcp_client_start(&wsrd->ipv6.dhcp);
 }
 
-void join_state_5_enter(struct wsrd *wsrd)
+static void join_state_5_enter(struct wsrd *wsrd)
 {
     const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
 

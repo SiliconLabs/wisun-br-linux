@@ -69,7 +69,7 @@ static void wsrd_on_dao_ack(struct ipv6_ctx *ipv6)
 {
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
 
-    join_state_5_enter(wsrd);
+    join_state_transition(wsrd, WSRD_EVENT_ROUTING_SUCCESS);
 }
 
 struct wsrd g_wsrd = {
