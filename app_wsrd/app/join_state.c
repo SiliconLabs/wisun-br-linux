@@ -100,11 +100,22 @@ static void join_state_3_exit(struct wsrd *wsrd)
 
 static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
 {
+    struct ws_neigh *neigh;
+
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
 
     INFO("Join state 4: Configure Routing - Choose Parent");
+    /*
+     * Before getting passed join state 3, the broadcast schedule is not configured,
+     * which means that we may have sent unicast frames on a broadcast slot.
+     * This would results in retries and therefore increase ETX of neighbors.
+     * We reset the ETX of all neighbors to avoid this side effect during
+     * parent selection.
+     */
+    SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
+        ws_neigh_etx_reset(&wsrd->ws.neigh_table, neigh);
     rpl_start_dis(&wsrd->ipv6);
 }
 

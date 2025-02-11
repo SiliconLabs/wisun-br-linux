@@ -212,6 +212,16 @@ void ws_neigh_clean(struct ws_neigh_table *table)
         ws_neigh_del(table, neigh->mac64);
 }
 
+void ws_neigh_etx_reset(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    neigh->etx = NAN;
+    neigh->etx_tx_cnt = 0;
+    neigh->etx_ack_cnt = 0;
+    neigh->etx_compute_cnt = 0;
+    timer_stop(&table->timer_group, &neigh->etx_timer_compute);
+    timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
+}
+
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
 {
     return SLIST_SIZE(&table->neigh_list, link);
