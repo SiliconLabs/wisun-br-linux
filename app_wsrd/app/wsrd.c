@@ -128,8 +128,8 @@ struct wsrd g_wsrd = {
     // Arbitrary parameters
     .ipv6.rpl.dis_txalg.irt_s = 5,
     .ipv6.rpl.dis_txalg.mrt_s = 180,
-    .ipv6.rpl.dis_txalg.rand_min = -0.5,
-    .ipv6.rpl.dis_txalg.rand_max =  0.0,
+    .ipv6.rpl.dis_txalg.rand_min = -0.1,
+    .ipv6.rpl.dis_txalg.rand_max = +0.1,
     .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
     // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.rpl.dao_txalg.irt_s = 3,
