@@ -224,9 +224,7 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dis_txalg);
     struct in6_addr dst = ipv6_prefix_linklocal;
-    struct ipv6_neigh *nce;
     struct ws_neigh *neigh;
-    int cnt = 0;
 
     /*
      *   Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
@@ -237,24 +235,19 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
      * NOTE: This implementation sends unicast DIS packets to a limited
      * number of neighboring nodes.
      */
+    if (SLIST_EMPTY(&ipv6->rpl.mrhof.ws_neigh_table->neigh_list)) {
+        rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
+        return;
+    }
     SLIST_FOREACH(neigh, &ipv6->rpl.mrhof.ws_neigh_table->neigh_list, link) {
         // TODO: Determine better creterias to filter out bad candidates (eg.
         // network name, PAN ID, PAN-IE routing metric, RSL...).
         if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
             continue;
 
-        nce = ipv6_neigh_get_from_eui64(ipv6, neigh->mac64);
-        if (nce && nce->rpl)
-            continue;
-
         ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->mac64);
         rpl_send_dis(ipv6, &dst);
-
-        if (++cnt >= 4) // Arbitrary limit to not flood the network
-            break;
     }
-    if (!cnt)
-        rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
 }
 
 void rpl_start_dis(struct ipv6_ctx *ipv6)
