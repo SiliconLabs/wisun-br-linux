@@ -131,13 +131,13 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.dis_txalg.rand_min = -0.5,
     .ipv6.rpl.dis_txalg.rand_max =  0.0,
     .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
-    // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
+    // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.rpl.dao_txalg.irt_s = 3,
     .ipv6.rpl.dao_txalg.mrc   = 3,
     .ipv6.rpl.dao_txalg.mrt_s = 0,
     .ipv6.rpl.dao_txalg.mrd_s = 0,
-    .ipv6.rpl.dao_txalg.rand_min = -0.5,
-    .ipv6.rpl.dao_txalg.rand_max =  0.0,
+    .ipv6.rpl.dao_txalg.rand_min = -0.1,
+    .ipv6.rpl.dao_txalg.rand_max = +0.1,
     // RFC 6719 5. MRHOF Variables and Parameters
     .ipv6.rpl.mrhof.max_link_metric         =   512, // 128 * 4
     .ipv6.rpl.mrhof.max_path_cost           = 32768, // 128 * 256
