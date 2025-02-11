@@ -93,8 +93,12 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
      * The ETX calculation is performed at a defined epoch, with the ETX result
      * fed into an EWMA using smoothing factor of 1/8.
      */
-    neigh->etx = ws_neigh_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
+    etx = ws_neigh_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
 
+    TRACE(TR_NEIGH_15_4, "15.4 neighbor %s etx update tx=%u / ack=%u => old=%.2f new=%.2f",
+          tr_eui64(neigh->mac64), neigh->etx_tx_cnt, neigh->etx_ack_cnt, neigh->etx, etx);
+
+    neigh->etx = etx;
     neigh->etx_tx_cnt  = 0;
     neigh->etx_ack_cnt = 0;
     timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 60 * 1000);
