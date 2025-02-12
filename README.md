@@ -439,6 +439,20 @@ prevents packet forwarding][docker-fwd].
 
 [docker-fwd]: https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-on-a-router
 
+## I Do Not See Intermediate Hops Using `traceroute`
+
+Wi-SUN routing works using [IPv6-in-IPv6 tunnels][tunnel]. This means that
+from the perspective of tools like `traceroute`, traffic from the border router
+to *any* Wi-SUN node is seen as a single IPv6 hop, even though there may have
+been more intermediate hops handled by the tunnel.
+
+The sequence of Wi-SUN nodes traversed for routing from the border router can
+be reconstructed using the D-Bus property [`RoutingGraph`][graph]. Note that
+this approach does not generate any traffic contrary to `traceroute`.
+
+[tunnel]: https://datatracker.ietf.org/doc/html/rfc2473
+[graph]:  /DBUS.md#routinggraph-aaybaay
+
 ## I Have Issues when Trying to Send UDP Data
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
