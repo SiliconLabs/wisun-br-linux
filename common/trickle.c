@@ -106,6 +106,7 @@ void trickle_consistent(struct trickle *tkl)
      * increments the counter c.
      */
     tkl->c++;
+    TRACE(TR_TRICKLE, "tkl %-4s consistent: c=%u", tkl->debug_name, tkl->c);
 }
 
 void trickle_inconsistent(struct trickle *tkl)
@@ -119,6 +120,7 @@ void trickle_inconsistent(struct trickle *tkl)
      */
     if (tkl->I_ms <= tkl->cfg->Imin_ms)
         return;
+    TRACE(TR_TRICKLE, "tkl %-4s inconsistent", tkl->debug_name);
     tkl->I_ms = tkl->cfg->Imin_ms;
     trickle_interval_begin(tkl);
 }
