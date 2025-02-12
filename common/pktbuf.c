@@ -63,10 +63,10 @@ static void pktbuf_extend_head(struct pktbuf *pktbuf, size_t len)
     pktbuf->offset_tail += len;
 }
 
-void pktbuf_push_head(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
+void *pktbuf_push_head(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
 {
     if (pktbuf->err)
-        return;
+        return NULL;
     if (pktbuf_len_head(pktbuf) < buf_len)
         pktbuf_extend_head(pktbuf, buf_len - pktbuf_len_head(pktbuf));
     if (buf)
@@ -74,12 +74,13 @@ void pktbuf_push_head(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
     else
         memset(pktbuf_head(pktbuf) - buf_len, 0, buf_len);
     pktbuf->offset_head -= buf_len;
+    return pktbuf_head(pktbuf);
 }
 
-void pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
+void *pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
 {
     if (pktbuf->err)
-        return;
+        return NULL;
     if (pktbuf_len_tail(pktbuf) < buf_len)
         pktbuf_extend_tail(pktbuf, buf_len - pktbuf_len_tail(pktbuf));
     if (buf)
@@ -87,6 +88,7 @@ void pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
     else
         memset(pktbuf_tail(pktbuf), 0, buf_len);
     pktbuf->offset_tail += buf_len;
+    return pktbuf_tail(pktbuf) - buf_len;
 }
 
 void pktbuf_pop_head(struct pktbuf *pktbuf, void *buf, size_t buf_len)

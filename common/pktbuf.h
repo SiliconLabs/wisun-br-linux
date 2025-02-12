@@ -48,8 +48,8 @@ static inline size_t pktbuf_len(const struct pktbuf *pktbuf)
 void pktbuf_init(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
 void pktbuf_free(struct pktbuf *pktbuf);
 
-// Use buf = NULL to reserve bytes (0-init)
-void pktbuf_push_head(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
+// Use buf = NULL to reserve bytes (0-init), returns a pointer to the new head.
+void *pktbuf_push_head(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
 void pktbuf_push_head_u8(struct pktbuf *pktbuf, uint8_t val);
 void pktbuf_push_head_be16(struct pktbuf *pktbuf, uint16_t val);
 void pktbuf_push_head_le16(struct pktbuf *pktbuf, uint16_t val);
@@ -60,8 +60,8 @@ void pktbuf_push_head_le32(struct pktbuf *pktbuf, uint32_t val);
 void pktbuf_push_head_be64(struct pktbuf *pktbuf, uint64_t val);
 void pktbuf_push_head_le64(struct pktbuf *pktbuf, uint64_t val);
 
-// Use buf = NULL to reserve bytes (0-init)
-void pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
+// Use buf = NULL to reserve bytes (0-init), returns a pointer to the old tail.
+void *pktbuf_push_tail(struct pktbuf *pktbuf, const void *buf, size_t buf_len);
 void pktbuf_push_tail_u8(struct pktbuf *pktbuf, uint8_t val);
 void pktbuf_push_tail_be16(struct pktbuf *pktbuf, uint16_t val);
 void pktbuf_push_tail_le16(struct pktbuf *pktbuf, uint16_t val);
