@@ -38,20 +38,19 @@ enum {
     NDP_ARO_STATUS_INVALTOPO =  8, // Registered Address Topologically Incorrect
     NDP_ARO_STATUS_NOMEMBR   =  9, // 6LBR Registry Saturated
     NDP_ARO_STATUS_VALIDFAIL = 10, // Validation Failed
-    //   draft-ietf-6lo-multicast-registration-19
-    // 14.7. New Address Registration Option Status Values
     NDP_ARO_STATUS_REFRESH   = 11, // Registration Refresh Request
     NDP_ARO_STATUS_INVALREG  = 12, // Invalid Registration
 };
 
-// RFC 8505 4.1. Extended Address Registration Option (EARO)
+// Address Registration Option Flags
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-adress-registration-option-flags
 #define NDP_MASK_ARO_T 0x01
 #define NDP_MASK_ARO_R 0x02
 #define NDP_MASK_ARO_I 0x0c
-// draft-ietf-6lo-multicast-registration-19 14.3. New EARO flags
 #define NDP_MASK_ARO_P 0x30
 
-// draft-ietf-6lo-multicast-registration-19 14.1. New P-Field values Registry
+// P-Field Values
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#p-field-values
 enum {
     NDP_ADDR_TYPE_UNICAST   = 0,
     NDP_ADDR_TYPE_MULTICAST = 1,
