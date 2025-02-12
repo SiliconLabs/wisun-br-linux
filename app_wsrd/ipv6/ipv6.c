@@ -31,6 +31,7 @@
 #include "common/specs/ipv6.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
+#include "app_wsrd/ipv6/rpl_srh.h"
 #include "ipv6.h"
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
@@ -63,9 +64,17 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         }
         rthdr = (struct ip6_rthdr *)pktbuf_head(pktbuf);
         if (rthdr->ip6r_segleft) {
-            // TODO: handle RPL SRH
-            TRACE(TR_DROP, "drop %-9s: unsupported routing header", "ipv6");
-            return;
+            switch (rthdr->ip6r_type) {
+            case IPV6_ROUTING_RPL_SRH:
+                ret = rpl_srh_process(ipv6, pktbuf, &hdr);
+                if (ret < 0)
+                    return;
+                ipv6_sendto_mac(ipv6, pktbuf, hdr.ip6_nxt, hdr.ip6_hlim, &hdr.ip6_src, &hdr.ip6_dst);
+                return;
+            default:
+                TRACE(TR_DROP, "drop %-9s: unsupported routing header", "ipv6");
+                return;
+            }
         }
 
         // HACK: Linux drops IPv6 packets that include a SRH even with 0

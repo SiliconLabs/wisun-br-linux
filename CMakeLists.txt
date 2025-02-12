@@ -317,6 +317,7 @@ if(COMPILE_WSRD)
         app_wsrd/ipv6/ndp.c
         app_wsrd/ipv6/rpl.c
         app_wsrd/ipv6/rpl_mrhof.c
+        app_wsrd/ipv6/rpl_srh.c
         app_wsrd/supplicant/supplicant_eap.c
         app_wsrd/supplicant/supplicant_key.c
         app_wsrd/supplicant/supplicant.c
