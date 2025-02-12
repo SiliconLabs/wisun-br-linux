@@ -48,11 +48,6 @@
 #include "dbus.h"
 #include "commandline_values.h"
 
-struct ws_neigh *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
-{
-    return ws_neigh_get(&cur->ws_info.neighbor_storage, eui64);
-}
-
 void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
@@ -76,7 +71,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     BUG_ON(ie_ext->headerIovLength != 1);
     BUG_ON(data->Key.SecurityLevel && data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64);
 
-    neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
+    neighbor_ws = ws_neigh_get(&cur->ws_info.neighbor_storage, data->DstAddr);
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
         ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
