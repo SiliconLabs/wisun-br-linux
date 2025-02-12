@@ -427,6 +427,18 @@ After a restart, since `wsbrd` does not have the necessary frequency hopping
 timing information to send such frames, LFN devices will consider that their
 parent is not present anymore and perform a full join procedure.
 
+## I Cannot Communicate Between Wi-SUN and the Backhaul
+
+Make sure that IPv6 forwarding is enabled:
+
+    sudo sysctl net.ipv6.conf.all.forwarding=1
+
+If forwarding still does not work, consider checking the `ip6tables`
+configuration. If Docker is installed, it will by default add [a rule which
+prevents packet forwarding][docker-fwd].
+
+[docker-fwd]: https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-on-a-router
+
 ## I Have Issues when Trying to Send UDP Data
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
