@@ -86,13 +86,20 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
+    bool is_parent = nce->rpl->is_parent;
+
     TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
-    if (nce->rpl->is_parent) {
-        nce->rpl->dio.rank = RPL_RANK_INFINITE;
-        rpl_mrhof_select_parent(ipv6);
-    }
+
+    /*
+     * We immediatly remove the RPL ctx from the neighbor.
+     * This ensures we do not send any NS(ARO) lifetime 0 to the
+     * old parent that is actually being deleted.
+     *
+     */
     free(nce->rpl);
     nce->rpl = NULL;
+    if (is_parent)
+        rpl_mrhof_select_parent(ipv6);
 }
 
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
