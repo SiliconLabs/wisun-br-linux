@@ -47,56 +47,83 @@ static const char *tr_nud_state(int state)
     return val_to_str(state, table, "UNKNOWN");
 }
 
-static void ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
-    const bool has_gua = !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6);
     struct nd_neighbor_solicit ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
     struct ndp_opt_earo aro;
+    int handle;
 
     if (neigh->ns_handle >= 0) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
-              has_gua ? "ns(aro)" : "ns", tr_ipv6(neigh->eui64));
-        return;
+              "ns(aro)", tr_ipv6(neigh->gua.s6_addr));
+        return neigh->ns_handle;
     }
 
-    if (has_gua) {
-        //   RFC 6775 4.1. Address Registration Option
-        // [...] the address that is to be registered MUST be the IPv6 source
-        // address of the NS message.
-        src = ipv6->dhcp.iaaddr.ipv6;
-        dst = neigh->gua;
-    } else {
-        src = ipv6_prefix_linklocal;
-        ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64);
-        dst = ipv6_prefix_linklocal;
-        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64);
-    }
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
+
+    //   RFC 6775 4.1. Address Registration Option
+    // [...] the address that is to be registered MUST be the IPv6 source
+    // address of the NS message.
+    src = ipv6->dhcp.iaaddr.ipv6;
+    dst = neigh->gua;
 
     memset(&ns, 0, sizeof(ns));
     ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
     ns.nd_ns_target = dst;
     pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
 
-    // TODO: Figure out how NUD works with children.
-    if (has_gua && neigh->rpl && neigh->rpl->is_parent) {
-        memset(&aro, 0, sizeof(aro));
-        aro.type = NDP_OPT_ARO;
-        aro.len  = sizeof(aro) / 8;
-        aro.lifetime_minutes = UINT16_MAX;
-        memcpy(aro.eui64, ipv6->eui64, 8);
-        pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
-    }
+    memset(&aro, 0, sizeof(aro));
+    aro.type = NDP_OPT_ARO;
+    aro.len  = sizeof(aro) / 8;
+    aro.lifetime_minutes = UINT16_MAX;
+    memcpy(aro.eui64, ipv6->eui64, 8);
+    pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
 
     ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
 
-    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", has_gua ? "ns(aro)" : "ns", tr_ipv6(dst.s6_addr));
-    neigh->ns_handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s lifetime=%ds", "ns(aro)", tr_ipv6(dst.s6_addr), UINT16_MAX * 60);
+    handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
     pktbuf_free(&pktbuf);
+    return handle;
+}
+
+static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    struct nd_neighbor_solicit ns;
+    struct pktbuf pktbuf = { };
+    struct in6_addr src, dst;
+    int handle;
+
+    if (neigh->ns_handle >= 0) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
+              "ns", tr_ipv6(neigh->gua.s6_addr));
+        return neigh->ns_handle;
+    }
+
+    src = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64);
+    dst = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64);
+
+    memset(&ns, 0, sizeof(ns));
+    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns.nd_ns_target = dst;
+    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+
+    ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
+                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
+           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "ns", tr_ipv6(dst.s6_addr));
+    handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    pktbuf_free(&pktbuf);
+    return handle;
 }
 
 void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
@@ -128,7 +155,17 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
         // cease and the entry SHOULD be deleted.
         ipv6_neigh_del(ipv6, neigh);
     } else {
-        ipv6_send_ns(ipv6, neigh);
+        /*
+         *   RFC 6775 4.1. Address Registration Option
+         * [...]
+         * Thus, it can be included in the unicast NS messages that a
+         * host sends as part of NUD to determine that it can still reach
+         * a default router.
+         */
+        if (neigh->rpl && neigh->rpl->is_parent)
+            neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh);
+        else
+            neigh->ns_handle = ipv6_send_ns(ipv6, neigh);
         neigh->nud_probe_count++;
         timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, ipv6->probe_delay_ms);
     }
