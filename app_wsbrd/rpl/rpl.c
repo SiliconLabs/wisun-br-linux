@@ -33,19 +33,6 @@
 #include "rpl_lollipop.h"
 #include "rpl.h"
 
-struct rpl_opt_target {
-    uint8_t prefix_len;
-    uint8_t prefix[16];
-};
-
-struct rpl_opt_transit {
-    bool external;
-    uint8_t path_ctl;
-    uint8_t path_seq;
-    uint8_t path_lifetime;
-    uint8_t parent[16];
-};
-
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
     0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a,
 };
@@ -390,33 +377,9 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     }
 }
 
-static bool rpl_opt_target_parse(struct iobuf_read *opt_buf,
-                                 struct rpl_opt_target *opt_target)
-{
-    iobuf_pop_u8(opt_buf); // Flags
-    opt_target->prefix_len = iobuf_pop_u8(opt_buf);
-    if (opt_target->prefix_len > 128) {
-        opt_buf->err = true;
-        return false;
-    }
-    iobuf_pop_data(opt_buf, opt_target->prefix, roundup(opt_target->prefix_len, 8) / 8);
-    return !opt_buf->err;
-}
-
-static bool rpl_opt_transit_parse(struct iobuf_read *opt_buf,
-                                  struct rpl_opt_transit *transit)
-{
-    transit->external      = FIELD_GET(RPL_MASK_OPT_TRANSIT_E, iobuf_pop_u8(opt_buf));
-    transit->path_ctl      = iobuf_pop_u8(opt_buf);
-    transit->path_seq      = iobuf_pop_u8(opt_buf);
-    transit->path_lifetime = iobuf_pop_u8(opt_buf);
-    iobuf_pop_data(opt_buf, transit->parent, 16);
-    return !opt_buf->err;
-}
-
 static void rpl_transit_update(struct rpl_root *root,
-                               struct rpl_opt_target *opt_target,
-                               struct rpl_opt_transit *opt_transit)
+                               const struct rpl_opt_target *opt_target,
+                               const struct rpl_opt_transit *opt_transit)
 {
     bool path_ctl_desync, path_ctl_old;
     bool updated_lifetime = false;
@@ -425,14 +388,14 @@ static void rpl_transit_update(struct rpl_root *root,
     struct rpl_target *target;
 
     BUG_ON(opt_target->prefix_len != 128);
-    memcpy(transit.parent, opt_transit->parent, 16);
+    memcpy(transit.parent, opt_transit->parent_addr.s6_addr, 16);
     transit.path_lifetime_s = opt_transit->path_lifetime * root->lifetime_unit_s;
 
-    target = rpl_target_get(root, opt_target->prefix);
+    target = rpl_target_get(root, opt_target->prefix.s6_addr);
     if (!target) {
-        target = rpl_target_new(root, opt_target->prefix);
+        target = rpl_target_new(root, opt_target->prefix.s6_addr);
         BUG_ON(!target);
-        target->external = opt_transit->external;
+        target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
         updated_lifetime = true;
@@ -466,8 +429,8 @@ static void rpl_transit_update(struct rpl_root *root,
         }
     }
 
-    WARN_ON(opt_transit->external != target->external);
-    target->external = opt_transit->external;
+    WARN_ON(target->external != (bool)(opt_transit->flags & RPL_MASK_OPT_TRANSIT_E));
+    target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
 
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!(opt_transit->path_ctl & BIT(7 - i)))
@@ -487,16 +450,16 @@ static void rpl_transit_update(struct rpl_root *root,
     rpl_transit_update_timer(root, target);
 }
 
-static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt_target, const uint8_t *opts,
-                               size_t opts_len)
+static bool rpl_apply_transits(struct rpl_root *root,
+                               const struct rpl_opt_target *opt_target,
+                               const uint8_t *opts, size_t opts_len)
 {
-    struct rpl_opt_transit opt_transit;
+    const struct rpl_opt_transit *opt_transit = NULL;
     struct iobuf_read opt_buf;
     struct iobuf_read buf = {
         .data_size = opts_len,
         .data = opts,
     };
-    bool has_transit = false;
     uint8_t opt_type;
 
     while (iobuf_remaining_size(&buf)) {
@@ -509,14 +472,13 @@ static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt
         opt_buf.cnt       = 0;
         if (opt_type == RPL_OPT_PADN)
             continue;
-        if (opt_type == RPL_OPT_TARGET && !has_transit)
+        if (opt_type == RPL_OPT_TARGET && !opt_transit)
             continue; // Skip grouped target options
         if (opt_type != RPL_OPT_TRANSIT)
             break; // No more transits for the current target
-        if (rpl_opt_transit_parse(&opt_buf, &opt_transit)) {
-            has_transit = true;
-            rpl_transit_update(root, opt_target, &opt_transit);
-        }
+        opt_transit = iobuf_pop_data_ptr(&opt_buf, sizeof(*opt_transit));
+        if (opt_transit)
+            rpl_transit_update(root, opt_target, opt_transit);
         buf.err |= opt_buf.err;
     }
     return !buf.err;
@@ -525,14 +487,13 @@ static bool rpl_apply_transits(struct rpl_root *root, struct rpl_opt_target *opt
 static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
                          const uint8_t src[16], const uint8_t dst[16])
 {
+    const struct rpl_opt_target *opt_target = NULL;
     struct iobuf_read opt_buf;
     struct iobuf_read buf = {
         .data_size = size,
         .data = pkt,
     };
     const uint8_t *dodag_id = NULL;
-    struct rpl_opt_target opt_target;
-    bool has_target = false;
     uint8_t instance_id;
     uint8_t bitfield;
     uint8_t opt_type;
@@ -566,22 +527,22 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         case RPL_OPT_PADN:
             break;
         case RPL_OPT_TARGET:
-            if (!rpl_opt_target_parse(&opt_buf, &opt_target))
+            opt_target = iobuf_pop_data_ptr(&opt_buf, sizeof(*opt_target));
+            if (!opt_target)
                 break;
-            if (opt_target.prefix_len != 128) {
+            if (opt_target->prefix_len != 128) {
                 TRACE(TR_IGNORE, "ignore: rpl-dao target prefix length != 128");
                 break;
             }
-            opt_buf.err = !rpl_apply_transits(root, &opt_target, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
-            has_target = true;
+            opt_buf.err = !rpl_apply_transits(root, opt_target, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
             break;
         case RPL_OPT_TRANSIT:
             // Transits are handled in rpl_apply_transit()
-            if (!has_target)
+            if (!opt_target)
                 TRACE(TR_IGNORE, "ignore: rpl-dao transit without target");
             break;
         default:
-            has_target = false;
+            opt_target = NULL;
             TRACE(TR_IGNORE, "ignore: rpl-dao unsupported option %u", opt_type);
             break;
         }

@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #include "app_wsrd/ipv6/rpl_mrhof.h"
-#include "app_wsrd/ipv6/rpl_pkt.h"
+#include "common/specs/rpl.h"
 #include "common/rfc8415_txalg.h"
 #include "common/trickle.h"
 

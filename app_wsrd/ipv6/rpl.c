@@ -33,7 +33,6 @@
 #include "common/specs/rpl.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "app_wsrd/ipv6/rpl_mrhof.h"
-#include "app_wsrd/ipv6/rpl_pkt.h"
 #include "app_wsrd/ipv6/ipv6.h"
 #include "rpl.h"
 
