@@ -125,14 +125,18 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
                      const void *buf, size_t buf_len,
                      const struct in6_addr *dst)
 {
-    uint8_t icmpv6_hdr[4] = { ICMPV6_TYPE_RPL, code }; // Checksum filled by kernel
+    struct icmpv6_hdr hdr = {
+        .type  = ICMPV6_TYPE_RPL,
+        .code  = code,
+        .cksum = 0, // Filled by kernel
+    };
     struct sockaddr_in6 addr = {
         .sin6_family = AF_INET6,
         .sin6_addr   = *dst,
     };
     struct iovec iov[2] = {
-        { .iov_base = icmpv6_hdr,  .iov_len = sizeof(icmpv6_hdr) },
-        { .iov_base = (void *)buf, .iov_len = buf_len            },
+        { &hdr,        sizeof(hdr) },
+        { (void *)buf, buf_len },
     };
     struct msghdr msg = {
         .msg_name    = &addr,
@@ -144,7 +148,7 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
 
     TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s", tr_icmp_rpl(code), tr_ipv6(dst->s6_addr));
     ret = sendmsg(ipv6->rpl.fd, &msg, 0);
-    if (ret < sizeof(icmpv6_hdr) + buf_len)
+    if (ret < sizeof(hdr) + buf_len)
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
 }
 
