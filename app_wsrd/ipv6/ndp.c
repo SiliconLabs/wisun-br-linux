@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#define _GNU_SOURCE
 #include <netinet/icmp6.h>
 
 #include "common/ipv6/ipv6_cksum.h"
@@ -49,6 +50,7 @@ static const char *tr_nud_state(int state)
 
 static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
+    uint16_t lifetime_minutes = ipv6->aro_lifetime_ms / 1000 / 60;
     struct nd_neighbor_solicit ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
@@ -77,7 +79,7 @@ static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     memset(&aro, 0, sizeof(aro));
     aro.type = NDP_OPT_ARO;
     aro.len  = sizeof(aro) / 8;
-    aro.lifetime_minutes = UINT16_MAX;
+    aro.lifetime_minutes = htobe16(lifetime_minutes);
     memcpy(aro.eui64, ipv6->eui64, 8);
     pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
 
@@ -86,7 +88,7 @@ static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
            &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
 
-    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s lifetime=%ds", "ns(aro)", tr_ipv6(dst.s6_addr), UINT16_MAX * 60);
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s lifetime=%ds", "ns(aro)", tr_ipv6(dst.s6_addr), lifetime_minutes * 60);
     handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
     pktbuf_free(&pktbuf);
     return handle;
@@ -139,6 +141,19 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     neigh->ns_handle = -1;
     if (success) {
         ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
+        /*
+         *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
+         * Even if the host doesn't have data to send, but is expecting others
+         * to try to send packets to the host, the host needs to maintain its
+         * NCEs in the routers. This is done by sending NS messages with an ARO
+         * to the router well in advance of the Registration Lifetime expiring.
+         *
+         * Note: we give a 5 minute window for retries.
+         * We assume that if the neighbor is not our parent anymore that a
+         * NS(ARO) lifetime 0 has already been sent.
+         */
+        if (neigh->rpl && neigh->rpl->is_parent)
+            timer_start_rel(&ipv6->timer_group, &neigh->aro_timer, ipv6->aro_lifetime_ms - 5 * 60 * 1000);
         // TODO: do not call for registration refresh
         if (neigh->rpl && neigh->rpl->is_parent)
             rpl_start_dao(ipv6);
@@ -221,6 +236,15 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     }
 }
 
+static void ipv6_on_aro_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ipv6_neigh *neigh = container_of(timer, struct ipv6_neigh, aro_timer);
+    struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
+
+    BUG_ON(!neigh->rpl || !neigh->rpl->is_parent);
+    ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_PROBE);
+}
+
 struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
                                            const struct in6_addr *gua)
 {
@@ -265,6 +289,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
     neigh->gua = *gua;
     memcpy(neigh->eui64, eui64, 8);
     neigh->nud_timer.callback = ipv6_nud_expire;
+    neigh->aro_timer.callback = ipv6_on_aro_timer_timeout;
     neigh->ns_handle = -1;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
@@ -275,6 +300,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
+    timer_stop(&ipv6->timer_group, &neigh->aro_timer);
     SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));

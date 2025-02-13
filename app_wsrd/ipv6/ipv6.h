@@ -31,6 +31,7 @@ struct ipv6_ctx {
 
     int reach_base_ms;  // BaseReachableTime
     int probe_delay_ms; // RetransDelay
+    uint64_t aro_lifetime_ms;
     struct ipv6_neigh_cache neigh_cache;
     uint8_t eui64[8];
 

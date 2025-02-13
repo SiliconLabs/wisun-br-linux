@@ -160,6 +160,8 @@ struct wsrd g_wsrd = {
     .ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
     .ipv6.dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
 
+    // Arbitrary, same lifetime as MAC neighbors
+    .ipv6.aro_lifetime_ms = WS_NEIGHBOR_LINK_TIMEOUT * 1000,
     /*
      * RFC 4861 10. Protocol Constants
      * FIXME: BaseReachableTime and RetransTimer can be overritten by Router
