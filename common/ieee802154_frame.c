@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <errno.h>
+#include <endian.h>
 
 #include "common/bits.h"
 #include "common/endian.h"

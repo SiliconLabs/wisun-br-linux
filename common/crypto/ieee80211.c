@@ -17,6 +17,7 @@
  */
 #include <string.h>
 #include <stdint.h>
+#include <endian.h>
 #include <mbedtls/md.h>
 #include "common/specs/ieee80211.h"
 #include "common/specs/eapol.h"
