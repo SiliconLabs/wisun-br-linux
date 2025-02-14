@@ -29,12 +29,19 @@
 #include <mbedtls/build_info.h>
 #include <mbedtls/md.h>
 #include <mbedtls/md5.h>
+#include <mbedtls/pem.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/ssl.h>
 
 #if MBEDTLS_VERSION_NUMBER < 0x03020000
 static inline bool mbedtls_ssl_is_handshake_over(struct mbedtls_ssl_context *ssl_ctx) {
     return ssl_ctx->private_state == MBEDTLS_SSL_HANDSHAKE_OVER;
+}
+
+static inline const unsigned char *mbedtls_pem_get_buffer(mbedtls_pem_context *ctx, size_t *buflen)
+{
+    *buflen = ctx->MBEDTLS_PRIVATE(buflen);
+    return ctx->MBEDTLS_PRIVATE(buf);
 }
 #endif
 
