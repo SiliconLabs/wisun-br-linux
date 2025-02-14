@@ -14,9 +14,9 @@
 
 #define _GNU_SOURCE
 #include <mbedtls/debug.h>
-#include <mbedtls/pem.h>
 #include <mbedtls/oid.h>
 
+#include "common/mbedtls_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/log.h"
