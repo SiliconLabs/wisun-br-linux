@@ -146,7 +146,6 @@ add_library(libwsbrd STATIC
     common/bus_uart.c
     common/capture.c
     common/commandline.c
-    common/dbus.c
     common/events_scheduler.c
     common/log.c
     common/bits.c
@@ -271,7 +270,7 @@ if(LIBCAP_FOUND)
 endif()
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus.c)
+    target_sources(libwsbrd PRIVATE common/dbus.c app_wsbrd/app/dbus.c)
     if(AUTH_LEGACY)
         target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth_legacy.c)
     else()
