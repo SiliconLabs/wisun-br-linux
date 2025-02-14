@@ -5,8 +5,27 @@
 Description=Wi-SUN Border Router Service
 Documentation=file:///usr/local/share/doc/wsbrd/examples/wsbrd.conf
 After=network.target
-After=freeradius.service
-# If you rely on an external DHCP server, don't forget to add a dependency here
+
+# Other dependencies may need to be added depending on the border router
+# configuration, for example:
+
+# UART device
+# Prefer using predictable aliases (eg. from dev-serial-by\x2did) over raw tty
+# device names which may change.
+#Requires=dev-ttyACM0.device
+#After=dev-ttyACM0.device
+
+# CPC daemon
+#Requires=cpcd.service
+#After=cpcd.service
+
+# RADIUS server
+#Requires=freeradius.service
+#After=freeradius.service
+
+# DHCPv6 server
+#Requires=dhcpd.service
+#After=dhcpd.service
 
 [Service]
 BusName=com.silabs.Wisun.BorderRouter
