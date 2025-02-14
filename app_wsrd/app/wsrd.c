@@ -162,6 +162,8 @@ struct wsrd g_wsrd = {
 
     // Arbitrary, same lifetime as MAC neighbors
     .ipv6.aro_lifetime_ms = WS_NEIGHBOR_LINK_TIMEOUT * 1000,
+    // Arbitrary (default RETRANS_TIMER of 1s is not suited for Wi-SUN)
+    .ipv6.probe_delay_ms =  5000,
     /*
      * RFC 4861 10. Protocol Constants
      * FIXME: BaseReachableTime and RetransTimer can be overritten by Router
@@ -169,7 +171,6 @@ struct wsrd g_wsrd = {
      * any sensible default values.
      */
     .ipv6.reach_base_ms  = 30000, // REACHABLE_TIME  30,000 milliseconds
-    .ipv6.probe_delay_ms =  1000, // RETRANS_TIMER    1,000 milliseconds
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
