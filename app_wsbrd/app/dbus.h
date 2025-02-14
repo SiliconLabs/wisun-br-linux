@@ -21,7 +21,7 @@ struct wsbr_ctxt;
 
 extern const struct sd_bus_vtable wsbrd_dbus_vtable[];
 #else
-static const struct sd_bus_vtable *wsbrd_dbus_vtable;
+static const struct sd_bus_vtable *const wsbrd_dbus_vtable;
 #endif
 
 #endif
