@@ -21,6 +21,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/eui64.h"
+#include "common/iobuf.h"
 #include "common/log.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -34,9 +35,56 @@
 #include "app_wsrd/ipv6/rpl_srh.h"
 #include "ipv6.h"
 
+static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+{
+    struct iobuf_read iobuf = { };
+    const struct ip6_hbh *hbh;
+    struct ip6_opt *opt;
+
+    hbh = (struct ip6_hbh *)pktbuf_head(pktbuf);
+    if (pktbuf_len(pktbuf) < sizeof(struct ip6_hbh) ||
+        pktbuf_len(pktbuf) < (hbh->ip6h_len + 1) * 8) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6-hbh");
+        pktbuf->err = true;
+        return NULL;
+    }
+    pktbuf_pop_head(pktbuf, NULL, (hbh->ip6h_len + 1) * 8);
+    iobuf.data      = (const uint8_t *)(hbh + 1);
+    iobuf.data_size = (hbh->ip6h_len + 1) * 8 - sizeof(struct ip6_hbh);
+    while (iobuf_remaining_size(&iobuf)) {
+        opt = (struct ip6_opt *)iobuf_ptr(&iobuf);
+        if (opt->ip6o_type == IP6OPT_PAD1)
+            continue;
+        if (!iobuf_pop_data_ptr(&iobuf, sizeof(struct ip6_opt)) ||
+            !iobuf_pop_data_ptr(&iobuf, opt->ip6o_len)) {
+            TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6-hbh");
+            pktbuf->err = true;
+            return NULL;
+        }
+        switch (opt->ip6o_type) {
+        case IP6OPT_PADN:
+            continue;
+        default:
+            switch (IP6OPT_TYPE(opt->ip6o_type)) {
+            case IP6OPT_TYPE_SKIP:
+                TRACE(TR_IGNORE, "ignore %-9s: unsupported opt=0x%02x", "ipv6-hbh", opt->ip6o_type);
+                continue;
+            case IP6OPT_TYPE_DISCARD:
+            case IP6OPT_TYPE_FORCEICMP: // TODO
+            case IP6OPT_TYPE_ICMP: // TODO
+                TRACE(TR_DROP, "drop %-9s: unsupported opt=0x%02x", "ipv6-hbh", opt->ip6o_type);
+                pktbuf->err = true;
+                return NULL;
+            }
+        }
+    }
+    return hbh;
+}
+
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
+    const struct ip6_hbh *hbh = NULL;
     const struct ip6_rthdr *rthdr;
     struct icmpv6_hdr icmp;
     struct ip6_hdr hdr;
@@ -48,6 +96,32 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         TRACE(TR_DROP, "drop %-9s: invalid IP version", "ipv6");
         return;
     }
+
+    /*
+     *     RFC 8200 4. IPv6 Extension Headers
+     * Extension headers (except for the Hop-by-Hop Options header) are not
+     * processed, inserted, or deleted by any node along a packet's delivery
+     * path, until the packet reaches the node [...] identified in the
+     * Destination Address field of the IPv6 header.
+     */
+    if (hdr.ip6_nxt == IPPROTO_HOPOPTS) {
+        hbh = ipv6_process_hopopts(ipv6, pktbuf);
+        if (!hbh)
+            return;
+        /*
+         * FIXME: Do not drop hop-by-hop header. This should be fine most of
+         * the time in Wi-SUN because of:
+         *
+         *         Wi-SUN FAN 1.1v09 6.2.3.1.7 Unicast Forwarding
+         *     The outer header MUST contain a parent’s IPv6 address
+         *
+         * But this way of doing prevent processing both a hop-by-hop header
+         * and a routing header.
+         */
+        hdr.ip6_plen = htons(ntohs(hdr.ip6_plen) - (1 + hbh->ip6h_len) * 8);
+        hdr.ip6_nxt  = hbh->ip6h_nxt;
+    }
+
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
         !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &addr_linklocal)) &&
@@ -58,6 +132,10 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
     }
 
     if (hdr.ip6_nxt == IPPROTO_ROUTING) {
+        if (hbh) {
+            TRACE(TR_DROP, "drop %-9s: unsupported hop-by-hop + routing header", "ipv6");
+            return;
+        }
         if (pktbuf_len(pktbuf) < sizeof(struct ip6_rthdr)) {
             TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
             return;
