@@ -57,7 +57,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
     }
 
     if (hdr.ip6_nxt == IPPROTO_ROUTING) {
-        if (pktbuf_len(pktbuf) < sizeof(rthdr)) {
+        if (pktbuf_len(pktbuf) < sizeof(struct ip6_rthdr)) {
             TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
             return;
         }
