@@ -32,6 +32,7 @@
 #include "common/specs/ipv6.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
+#include "app_wsrd/ipv6/rpl_rpi.h"
 #include "app_wsrd/ipv6/rpl_srh.h"
 #include "ipv6.h"
 
@@ -40,6 +41,7 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct 
     struct iobuf_read iobuf = { };
     const struct ip6_hbh *hbh;
     struct ip6_opt *opt;
+    int ret;
 
     hbh = (struct ip6_hbh *)pktbuf_head(pktbuf);
     if (pktbuf_len(pktbuf) < sizeof(struct ip6_hbh) ||
@@ -64,6 +66,12 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct 
         switch (opt->ip6o_type) {
         case IP6OPT_PADN:
             continue;
+        case IPV6_OPTION_RPI:
+        case IPV6_OPTION_RPI_DEPRECATED:
+            ret = rpl_rpi_process(ipv6, opt);
+            if (ret < 0)
+                return NULL;
+            break;
         default:
             switch (IP6OPT_TYPE(opt->ip6o_type)) {
             case IP6OPT_TYPE_SKIP:

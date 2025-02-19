@@ -168,9 +168,14 @@ struct rpl_opt_prefix {
 } __attribute__((packed));
 
 // RFC 6553 - Figure 1: RPL Option
+struct rpl_rpi {
+    uint8_t flags;
 #define RPL_MASK_RPI_O 0x80
 #define RPL_MASK_RPI_R 0x40
 #define RPL_MASK_RPI_F 0x20
+    uint8_t instance_id;
+    be16_t  sender_rank;
+} __attribute__((packed));
 
 // RFC 6554 - 3. Format of the RPL Routing Header
 #define RPL_MASK_SRH_CMPRI 0xf0000000
