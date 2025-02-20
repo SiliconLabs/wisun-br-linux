@@ -102,13 +102,18 @@ The same script is used, using the MAC address of device J:
 
 The test `POWERCYCLE-LBR-1` requires the following operation:
 
+A special configuration file [`sec/powercycle.conf`][powercycle] is provided to
+configure the key lifetimes.
+
 > Step 7: Power the LBR DUT off, wait 2 minutes, and power back up the LBR DUT.
 
 This is achieved by stopping the border router with Ctrl+C, and restarting it
 **without** deleting the storage. The full test sequence should look like:
 
     sudo wsbrd -DD
-    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/gtk.conf
+    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/powercycle.conf -F sec/gtk.conf
     ...
     ^C
-    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf
+    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/powercycle.conf
+
+[powercycle]:  /tools/dut/sec/powercycle.conf
