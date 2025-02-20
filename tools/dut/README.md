@@ -5,11 +5,12 @@ executions:
 
     sudo wsbrd -DD
 
-The border router should be started with 2 configuration files, one for the
-base parameters, and one for the PHY parameters. For example:
+The border router should be started with at least 2 configuration files, one
+for the base parameters, and one for the PHY parameters. For example:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf
 
+More config files can be appended using `-F` depending on the specific test.
 Configuration files are provided in [`tools/dut/`](/tools/dut):
 
   - [`dut.conf`](/tools/dut/dut.conf) contains the base parameters to be
@@ -18,10 +19,13 @@ Configuration files are provided in [`tools/dut/`](/tools/dut):
   - Sub-directories are provided for [North America][na], [Brazil][bz], and
     [Japan][jp]. Each file corresponds to a PHY definition from the Wi-SUN
     Conformance Tests Specification.
+  - Some tests expect hard-coded GTKs, add [`sec/gtk.conf`][gtk] to the command
+    in that case.
 
 [na]: /tools/dut/na
 [bz]: /tools/dut/bz
 [jp]: /tools/dut/jp
+[gtk]: /tools/dut/sec/gtk.conf
 
 Once the test has run, the border router can be stopped using Ctrl+C.
 
@@ -104,7 +108,7 @@ This is achieved by stopping the border router with Ctrl+C, and restarting it
 **without** deleting the storage. The full test sequence should look like:
 
     sudo wsbrd -DD
-    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf
+    sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/gtk.conf
     ...
     ^C
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf
