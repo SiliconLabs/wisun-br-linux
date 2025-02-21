@@ -631,7 +631,7 @@ def config_border_router_external_resources():
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     json = flask.request.get_json(force=True, silent=True)
-    wsbrd.config['dhcpv6_server'] = json['dhcpServerAddress']
+    wsbrd.config['dhcp_server'] = json['dhcpServerAddress']
     wsbrd.config['radius_server'] = json['authServerAddress']
     wsbrd.config['radius_secret'] = json['authServerSecret']
     return success()

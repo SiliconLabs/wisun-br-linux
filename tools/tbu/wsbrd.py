@@ -48,7 +48,7 @@ def config_default(wstbu_config):
         trace          = '15.4,eap,icmp,dhcp,drop',
     )
     if 'dhcpv6_server' in wstbu_config:
-        config['dhcpv6_server'] = wstbu_config['dhcpv6_server']
+        config['dhcp_server'] = wstbu_config['dhcpv6_server']
     if 'radius_server' in wstbu_config:
         config['radius_server'] = wstbu_config['radius_server']
     if 'radius_secret' in wstbu_config:
