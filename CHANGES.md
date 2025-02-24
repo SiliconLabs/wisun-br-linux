@@ -1,3 +1,22 @@
+v2.3.1
+------
+  - Refresh children IPv6 address registration on reception of inner IPv6
+    header with matching source address. Previously only the outer header would
+    be analyzed, causing interoperability issues.
+  - Accept certificates using the Certificate Policy extension, as used by some
+    Wi-SUN intermediate certificates.
+  - Increment LFN version on reboot.
+  - Improve documentation:
+    * Describe `traceroute` limitations.
+    * Document common issues with IPv6 forwarding.
+    * Improve DUT instructions and add missing configuration files.
+    * Add suggestions to [`wisun-borderrouter.service`][service] to help
+      integrators.
+  - Fix build issues with `endian.h` and `systemd/sd-bus.h`.
+  - Fix TBU startup.
+
+[service]: /misc/wisun-borderrouter.service
+
 v2.3
 ------
   - Update PHY definitions based on Wi-SUN PHY specification 2v03:
