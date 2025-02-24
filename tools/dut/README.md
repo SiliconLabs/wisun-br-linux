@@ -73,18 +73,23 @@ configuration.
 
 > Step 8: Border Router DUT revokes the PMK and PTK from Test Bed Device I
 
-A dedicated script [revoke.bash][revoke-sh] is provided, it can be run with
-the MAC address of Device I as argument:
-
-    sudo sec/revoke.bash 00:00:5e:ef:10:00:00:00
-
 > Step 9: Border Router DUT destroys all GTKs except the currently active GTK,
 > reduces the lifetime of the currently active GTK and adds a new GTK
 
-A dedicated script [revoke.bash][revoke-sh] is provided, it can be run without
-any arguments:
+A dedicated script [revoke.bash][revoke-sh] is provided to perform these two
+steps. It can be run with the MAC address of Device I as argument:
 
-    sudo sec/revoke.bash
+    sudo sec/revoke.bash 00:00:5e:ef:10:00:00:00
+
+> Step 17: Border Router DUT revokes the PMK and PTK from Test Bed Device J
+
+> Step 18: Border Router DUT performs GTK revocation procedure, [...] the
+> existing key remains, the next GTK’s lifetime is reduced and a new GTK is
+> installed.
+
+The same script is used, using the MAC address of device J:
+
+    sudo sec/revoke.bash 00:00:5e:ef:10:00:00:01
 
 [revoke-cnf]: /tools/dut/sec/revoke.conf
 [revoke-sh]:  /tools/dut/sec/revoke.bash
