@@ -447,9 +447,9 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
 {
     const struct ipv6_neigh *parent;
-    uint8_t authenticator_eui64[8];
     struct iobuf_read buf = { };
     struct in6_addr dodag_id;
+    struct eui64 auth_eui64;
     struct ws_us_ie ie_us;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
@@ -474,7 +474,7 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      * possible in the 802.1X messaging flow, but the EA-IE SHOULD NOT be
      * repeated in every EAPOL frame addressed to a SUP.
      */
-    has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, authenticator_eui64);
+    has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, auth_eui64.u8);
 
     if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
@@ -498,7 +498,7 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     if (!memcmp(&ind->hdr.src, &wsrd->eapol_target_eui64, 8)) {
         supp_recv_eapol(&wsrd->supp, kmp_id,
                         iobuf_ptr(&buf), iobuf_remaining_size(&buf),
-                        has_ea_ie ? authenticator_eui64 : NULL);
+                        has_ea_ie ? &auth_eui64 : NULL);
     } else {
         if (wsrd->ws.eapol_relay_fd < 0) {
             TRACE(TR_TX_ABORT, "drop %s: eapol-relay not started", "15.4");

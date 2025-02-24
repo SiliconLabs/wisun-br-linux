@@ -56,8 +56,8 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst);
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
-                                  size_t pkt_len, const uint8_t dst[8]);
-static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp);
+                                  size_t pkt_len, const struct eui64 *dst);
+static struct eui64 wsrd_eapol_get_target(struct supp_ctx *supp);
 static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index);
 static void wsrd_eapol_on_failure(struct supp_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
@@ -255,18 +255,18 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
 }
 
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
-                                  size_t pkt_len, const uint8_t dst[8])
+                                  size_t pkt_len, const struct eui64 *dst)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
 
-    ws_if_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, (const struct eui64 *)dst, NULL);
+    ws_if_send_eapol(&wsrd->ws, kmp_id, pkt, pkt_len, dst, NULL);
 }
 
-static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp)
+static struct eui64 wsrd_eapol_get_target(struct supp_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
 
-    return wsrd->eapol_target_eui64.u8;
+    return wsrd->eapol_target_eui64;
 }
 
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh)
@@ -414,7 +414,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pa_tkl);
     trickle_init(&wsrd->pcs_tkl);
-    supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, wsrd->ws.rcp.eui64.u8);
+    supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, &wsrd->ws.rcp.eui64);
     supp_reset(&wsrd->supp);
     join_state_1_enter(wsrd);
 }
@@ -430,8 +430,7 @@ static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
                                NULL, &supp_eui64, &kmp_id);
     if (buf_len < 0)
         return;
-    ws_if_send_eapol(&wsrd->ws, kmp_id, buf, buf_len, &supp_eui64,
-                     (struct eui64 *)wsrd->supp.authenticator_eui64);
+    ws_if_send_eapol(&wsrd->ws, kmp_id, buf, buf_len, &supp_eui64, &wsrd->supp.auth_eui64);
 }
 
 int wsrd_main(int argc, char *argv[])

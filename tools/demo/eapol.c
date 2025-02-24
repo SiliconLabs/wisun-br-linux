@@ -58,13 +58,13 @@ void eapol_relay_send(int fd, const void *buf, size_t buf_len,
 }
 
 static void supp_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id,
-                            const void *buf, size_t buf_len, const uint8_t dst[8])
+                            const void *buf, size_t buf_len, const struct eui64 *dst)
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
     struct iovec iov[] = {
-        { .iov_base = supp->eui64, .iov_len = 8 },
-        { .iov_base = &kmp_id,     .iov_len = 1 },
-        { .iov_base = (void *)buf, .iov_len = buf_len },
+        { &supp->eui64, sizeof(supp->eui64) },
+        { &kmp_id,      sizeof(kmp_id) },
+        { (void *)buf,  buf_len },
     };
     struct msghdr msg = {
         .msg_iov    = iov,
@@ -80,11 +80,11 @@ static void supp_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id,
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
 
-static uint8_t *supp_get_target(struct supp_ctx *supp)
+static struct eui64 supp_get_target(struct supp_ctx *supp)
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
 
-    return ctx->auth.eui64.u8;
+    return ctx->auth.eui64;
 }
 
 static void supp_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
@@ -308,11 +308,11 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
         INFO("Using internal EAP-TLS authentication server");
     }
 
-    supp_init(&ctx->supp, &auth_cfg->ca_cert, &supp_cert, &supp_key, supp_eui64.u8);
+    supp_init(&ctx->supp, &auth_cfg->ca_cert, &supp_cert, &supp_key, &supp_eui64);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
     if (memzcmp(ctx->supp.tls_client.pmk.key, 32))
-        memcpy(ctx->supp.authenticator_eui64, &auth_eui64, 8);
+        ctx->supp.auth_eui64 = auth_eui64;
 
     auth_start(&ctx->auth, &auth_eui64, true);
     // NOTE: Must be done after calling auth_start()
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
             FATAL_ON(ret < 8 + 1, 2, "recv: %m");
             supp_recv_eapol(&ctx.supp, buf[8],
                             buf + 8 + 1, ret - 8 - 1,
-                            ctx.auth.eui64.u8);
+                            &ctx.auth.eui64);
         }
     }
 }

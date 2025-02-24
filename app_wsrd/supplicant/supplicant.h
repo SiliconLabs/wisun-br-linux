@@ -45,10 +45,11 @@
 #include "common/crypto/tls.h"
 #include "common/rfc8415_txalg.h"
 #include "common/pktbuf.h"
+#include "common/eui64.h"
 #include "common/timer.h"
 
 struct supp_ctx {
-    uint8_t eui64[8];
+    struct eui64 eui64;
     bool running;
 
     struct tls_client_ctx tls_client;
@@ -69,7 +70,7 @@ struct supp_ctx {
 
     // 4WH and 2WH
     struct ws_gtk gtks[WS_GTK_COUNT + WS_LGTK_COUNT];
-    uint8_t authenticator_eui64[8];
+    struct eui64 auth_eui64;
     uint8_t anonce[32];
     uint8_t snonce[32];
 
@@ -85,22 +86,25 @@ struct supp_ctx {
      */
     uint64_t timeout_ms;
 
-    void (*sendto_mac)(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
-                       size_t pkt_len, const uint8_t dst[8]);
-    uint8_t *(*get_target)(struct supp_ctx *supp);
+    void (*sendto_mac)(struct supp_ctx *supp, uint8_t kmp_id,
+                       const void *pkt, size_t pkt_len,
+                       const struct eui64 *dst);
+    struct eui64 (*get_target)(struct supp_ctx *supp);
     void (*on_gtk_change)(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index);
     void (*on_failure)(struct supp_ctx *supp);
 };
 
-void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
-               const uint8_t eui64[8]);
+void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
+               struct iovec *cert, struct iovec *key,
+               const struct eui64 *eui64);
 void supp_reset(struct supp_ctx *supp);
 uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len);
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t key_index);
 void supp_start_key_request(struct supp_ctx *supp);
 
-void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
-                     const uint8_t authenticator_eui64[8]);
+void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id,
+                     const uint8_t *buf, size_t buf_len,
+                     const struct eui64 *auth_eui64);
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len);
 
 void supp_on_eap_success(struct supp_ctx *supp);

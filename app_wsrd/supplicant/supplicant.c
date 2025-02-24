@@ -42,20 +42,20 @@
 
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len)
 {
-    uint8_t *dst = supp->get_target(supp);
+    struct eui64 dst = supp->get_target(supp);
     const struct eapol_hdr *hdr;
 
     BUG_ON(buf_len < sizeof(*hdr));
     hdr = buf;
 
-    if (!memcmp(dst, &EUI64_BC, 8)) {
+    if (!memcmp(&dst, &EUI64_BC, 8)) {
         TRACE(TR_DROP, "drop %-9s: no eapol target available", "eapol");
         return;
     }
 
     TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
           val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
-    supp->sendto_mac(supp, kmp_id, buf, buf_len, dst);
+    supp->sendto_mac(supp, kmp_id, buf, buf_len, &dst);
 }
 
 static void supp_failure_key_request(struct rfc8415_txalg *txalg)
@@ -91,8 +91,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
 
-    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->authenticator_eui64, supp->eui64, pmkid);
-    ws_derive_ptkid(supp->tls_client.ptk.key, supp->authenticator_eui64, supp->eui64, ptkid);
+    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->eui64.u8, pmkid);
+    ws_derive_ptkid(supp->tls_client.ptk.key, supp->auth_eui64.u8, supp->eui64.u8, ptkid);
 
     gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
     lgtkl = supp_get_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
@@ -132,8 +132,9 @@ static void supp_failure_timer_timeout(struct timer_group *group, struct timer_e
     supp->on_failure(supp);
 }
 
-void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, size_t buf_len,
-                     const uint8_t authenticator_eui64[8])
+void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id,
+                     const uint8_t *buf, size_t buf_len,
+                     const struct eui64 *auth_eui64)
 {
     const struct eapol_hdr *eapol_hdr;
     struct iobuf_read iobuf = {
@@ -167,8 +168,8 @@ void supp_recv_eapol(struct supp_ctx *supp, uint8_t kmp_id, const uint8_t *buf, 
     TRACE(TR_SECURITY, "sec: %-8s type=%s length=%d", "rx-eapol",
           val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), ntohs(eapol_hdr->packet_body_length));
 
-    if (authenticator_eui64)
-        memcpy(supp->authenticator_eui64, authenticator_eui64, sizeof(supp->authenticator_eui64));
+    if (auth_eui64)
+        supp->auth_eui64 = *auth_eui64;
 
     /*
      *   RFC3748 - 4.2. Success and Failure
@@ -256,8 +257,9 @@ void supp_reset(struct supp_ctx *supp)
     supp_eap_tls_reset(supp);
 }
 
-void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert, struct iovec *key,
-               const uint8_t eui64[8])
+void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
+               struct iovec *cert, struct iovec *key,
+               const struct eui64 *eui64)
 {
     BUG_ON(!supp->sendto_mac);
     BUG_ON(!supp->get_target);
@@ -271,7 +273,7 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert, struct iovec *cert,
     for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++)
         supp->gtks[i].expiration_timer.callback = supp_gtk_expiration_timer_timeout;
     rfc8415_txalg_init(&supp->key_request_txalg);
-    memcpy(supp->eui64, eui64, sizeof(supp->eui64));
+    supp->eui64 = *eui64;
 
     tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, ca_cert, cert, key);
     tls_init_client(&supp->tls, &supp->tls_client);
