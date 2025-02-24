@@ -393,10 +393,13 @@ static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])
     };
 
     ws_llc_mngt_lfn_request(&req, dst);
+    if (!dst)
+        ws_info->mngt.lpc_count++;
 }
 
 void ws_mngt_lpc_pae_cb(struct ws_info *ws_info)
 {
+    ws_info->mngt.lpc_count = 0;
     if (ws_neigh_lfn_count(&ws_info->neighbor_storage))
         ws_mngt_lpc_send(ws_info, NULL);
 }
@@ -584,7 +587,19 @@ void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct ws_info *ws_info = container_of(timer, struct ws_info, mngt.lts_timer);
 
-    ws_mngt_lts_send(ws_info);
+    /*
+     *     Wi-SUN FAN 1.1v09 6.5.4.4.4 LGTK Distribution to FFNs and LFNs
+     * Transmission of the LPC MUST be repeated LFN_MAINTAIN_PARENT_TIME.
+     *     Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
+     * LFN_MAINTAIN_PARENT_TIME Recommended Default Value 5
+     *
+     * NOTE: To achieve this, LTS frame transmissions are replaced with
+     * broadcast LPC frames.
+     */
+    if (ws_info->mngt.lpc_count < 5)
+        ws_mngt_lpc_send(ws_info, NULL);
+    else
+        ws_mngt_lts_send(ws_info);
 }
 
 void ws_mngt_pan_version_increase(struct ws_info *ws_info)

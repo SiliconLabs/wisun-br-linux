@@ -29,6 +29,7 @@ struct ws_mngt {
     trickle_legacy_t trickle_pc;
     struct timer_entry lts_timer;
     uint8_t lpa_dst[8];
+    int lpc_count;
     bool pan_advert_running;
     bool pan_config_running;
 };
