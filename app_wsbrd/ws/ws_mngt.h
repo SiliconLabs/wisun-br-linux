@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "common/trickle_legacy.h"
+#include "common/timer.h"
 
 struct mcps_data_rx_ie_list;
 struct mcps_data_ind;
@@ -26,6 +27,7 @@ struct ws_mngt {
     trickle_legacy_params_t trickle_params;
     trickle_legacy_t trickle_pa;
     trickle_legacy_t trickle_pc;
+    struct timer_entry lts_timer;
     uint8_t lpa_dst[8];
     bool pan_advert_running;
     bool pan_config_running;
@@ -56,7 +58,7 @@ void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info);
 void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks);
 
 void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8]);
-void ws_mngt_lts_send(struct ws_info *ws_info);
+void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer);
 
 // Broadcast an LPC frame on LGTK hash, or active LGTK index change
 void ws_mngt_lpc_pae_cb(struct ws_info *ws_info);

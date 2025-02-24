@@ -1774,7 +1774,8 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     } else {
         // FIXME: This timer should be restarted at confirmation instead
         if (req->wh_ies.lbt)
-            ws_timer_start(WS_TIMER_LTS);
+            timer_start_rel(NULL, &base->interface_ptr->ws_info.mngt.lts_timer,
+                            base->interface_ptr->ws_info.mngt.lts_timer.period_ms);
         // Broadcast LPC are the only LFN frames that include a source PAN ID
         if (req->frame_type == WS_FT_LPC)
             data_req.PanIdSuppressed = false;

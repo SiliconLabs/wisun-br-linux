@@ -43,7 +43,6 @@ enum timer_id {
     WS_TIMER_PAE_SLOW, // HAVE_AUTH_LEGACY only
     WS_TIMER_DHCPV6_SOCKET,
     WS_TIMER_LPA,
-    WS_TIMER_LTS,
     WS_TIMER_COUNT,
 };
 

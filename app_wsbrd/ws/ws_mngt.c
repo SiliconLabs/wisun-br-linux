@@ -15,6 +15,7 @@
 #include "common/ws/ws_ie.h"
 #include "common/log.h"
 #include "common/rand.h"
+#include "common/memutils.h"
 #include "common/trickle_legacy.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
@@ -564,7 +565,7 @@ void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks)
         ws_mngt_pc_send(ws_info);
 }
 
-void ws_mngt_lts_send(struct ws_info *ws_info)
+static void ws_mngt_lts_send(struct ws_info *ws_info)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LTS,
@@ -577,6 +578,13 @@ void ws_mngt_lts_send(struct ws_info *ws_info)
     };
 
     ws_llc_mngt_lfn_request(&req, NULL);
+}
+
+void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_info *ws_info = container_of(timer, struct ws_info, mngt.lts_timer);
+
+    ws_mngt_lts_send(ws_info);
 }
 
 void ws_mngt_pan_version_increase(struct ws_info *ws_info)

@@ -308,8 +308,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rail_fill_pom(ctxt);
 
-    g_timers[WS_TIMER_LTS].period_ms =
-        rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
+    ws_info->mngt.lts_timer.callback = ws_mngt_lts_timeout;
+    ws_info->mngt.lts_timer.period_ms = ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period;
     fhss->async_frag_duration_ms = ctxt->config.ws_async_frag_duration;
 
     ws_pan_info_storage_read(&fhss->bsi, &ws_info->pan_information.pan_id,

@@ -40,12 +40,6 @@ static void timer_send_lpa(int time_update)
     ws_mngt_lpa_send(&interface->ws_info, interface->ws_info.mngt.lpa_dst);
 }
 
-static void timer_send_lts(int time_update)
-{
-    struct net_if *interface = protocol_stack_interface_info_get();
-    ws_mngt_lts_send(&interface->ws_info);
-}
-
 static void timer_update_async(int time_update)
 {
     struct net_if *interface = protocol_stack_interface_info_get();
@@ -69,7 +63,6 @@ struct ws_timer g_timers[] = {
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
     timer_entry(LPA,                    timer_send_lpa,                             0,                       false),
-    timer_entry(LTS,                    timer_send_lts,                             0,                       true),
 };
 static_assert(ARRAY_SIZE(g_timers) == WS_TIMER_COUNT, "missing timer declarations");
 

@@ -132,8 +132,9 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
     struct net_if *net_if = container_of(table, struct net_if, ws_info.neighbor_storage);
     struct ipv6_neighbour *ipv6_neighbor;
 
-    if (ws_neigh->node_role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
-        ws_timer_start(WS_TIMER_LTS);
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN && timer_stopped(&net_if->ws_info.mngt.lts_timer))
+        timer_start_rel(NULL, &net_if->ws_info.mngt.lts_timer,
+                        net_if->ws_info.mngt.lts_timer.period_ms);
 
     ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, ws_neigh->mac64);
     if (ipv6_neighbor) {
@@ -150,7 +151,7 @@ void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, neigh->mac64, ADDR_802_15_4_LONG);
     nd_remove_aro_routes_by_eui64(cur, neigh->mac64);
     if (!ws_neigh_lfn_count(&cur->ws_info.neighbor_storage))
-        ws_timer_stop(WS_TIMER_LTS);
+        timer_stop(NULL, &cur->ws_info.mngt.lts_timer);
 }
 
 void ws_bootstrap_nw_key_set(struct net_if *cur,
