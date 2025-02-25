@@ -502,7 +502,7 @@ OFDM configurations, all MCS are defined in the same entry.
     Number of radio configuration entries in next field.
 
  - `struct rf_config[]`  
-    - `uint16_t flags`
+    - `uint16_t flags`  
         - `0x0001`: If set, this entry is in same group than the previous.
         - `0x01FE`: Bitfield of supported OFDM MCS (from MCS0 to MCS11).
     - `uint8_t rail_phy_mode_id`  
@@ -639,7 +639,23 @@ Configure unicast schedule for reception.
     Unicast dwell interval in milliseconds (from US-IE).
 
  - `struct chan_seq`  
-   See ["Channel Sequence"][chan-seq].
+    See ["Channel Sequence"][chan-seq].
+
+If API >= 2.6.0 (optional block):
+
+ - `uint8_t ms_chan_mask_len`  
+    Number of entries in the following `ms_chan_mask` array with
+    one entry per channel spacing (i.e. per channel mask) supported for
+    mode-switch.
+
+ - `struct ms_chan_mask[]`  
+    - `uint32_t channel_spacing_hz`  
+       Channel spacing associated with the mask in Hertz.
+    - `uint8_t chan_mask_len`  
+       Number of bytes in the following channel mask.
+    - `uint8_t chan_mask[]`  
+       Mode switch channel mask. See the same field in
+       ["Channel Sequence"][chan-seq] for more details.
 
 ### `0x31 SET_FHSS_FFN_BC`
 
