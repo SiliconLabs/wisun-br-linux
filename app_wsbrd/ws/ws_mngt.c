@@ -260,7 +260,13 @@ void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
         .wh_ies.lbs     = true,
         .wh_ies.panid   = true,
         .wp_ies.bs      = true,
-        .wp_ies.pan     = true,
+        .wp_ies.pan     = &(struct ws_pan_ie) {
+            // PAN size is filled later
+            .routing_cost     = 0, // Border router routing cost is 0
+            // Remaining field are ignored
+            // Reserved
+            .fan_tps_version  = ws_info->pan_information.version,
+        },
         .wp_ies.netname = true,
         .wp_ies.lcp     = true,
         .wp_ies.jm      = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)),
@@ -492,7 +498,13 @@ void ws_mngt_pa_send(struct ws_info *ws_info)
         .frame_type = WS_FT_PA,
         .wh_ies.utt     = true,
         .wp_ies.us      = true,
-        .wp_ies.pan     = true,
+        .wp_ies.pan     = &(struct ws_pan_ie) {
+            // PAN size is filled later
+            .routing_cost     = 0, // Border router routing cost is 0
+            // Remaining field are ignored
+            // Reserved
+            .fan_tps_version  = ws_info->pan_information.version,
+        },
         .wp_ies.netname = true,
         .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
         .wp_ies.jm      = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)),

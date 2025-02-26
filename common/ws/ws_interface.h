@@ -45,7 +45,7 @@ struct wh_ie_list {
 struct wp_ie_list {
     bool us;
     bool bs;
-    bool pan;
+    struct ws_pan_ie *pan;
     bool netname;
     bool panver;
     bool gtkhash;
