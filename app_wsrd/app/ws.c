@@ -180,6 +180,8 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
     // TODO: POM-IE
 
+    ind->neigh->ie_pan = ie_pan;
+
     if (!memcmp(&wsrd->eapol_target_eui64, &ieee802154_addr_bc, 8))
         ws_eapol_target_add(wsrd, ind, &ie_pan, &ie_jm);
 }

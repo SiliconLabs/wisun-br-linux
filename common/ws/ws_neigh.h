@@ -92,6 +92,9 @@ struct ws_neigh {
     uint8_t  plf;
     time_t   last_pa_rx_time_s;
 
+    // PA
+    struct ws_pan_ie ie_pan;
+
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
