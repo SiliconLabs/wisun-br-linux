@@ -429,8 +429,9 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_fhss_config 
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size,
-                            uint16_t routing_cost, uint8_t tps_version)
+void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uint16_t routing_cost,
+                            uint8_t use_parent_bs_ie, uint8_t routing_method,
+                            uint8_t lfn_window_style, uint8_t tps_version)
 {
     uint8_t tmp8;
     int offset;
@@ -439,9 +440,9 @@ void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size,
     iobuf_push_le16(buf, pan_size);
     iobuf_push_le16(buf, routing_cost);
     tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_MASK_PAN_PARENT_BS, 1); // use parent BS
-    tmp8 |= FIELD_PREP(WS_MASK_PAN_ROUTING,   1); // RPL routed
-    tmp8 |= FIELD_PREP(WS_MASK_PAN_LFN_STYLE, 0); // LFN managed tx
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_PARENT_BS, use_parent_bs_ie);
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_ROUTING,   routing_method);
+    tmp8 |= FIELD_PREP(WS_MASK_PAN_LFN_STYLE, lfn_window_style);
     tmp8 |= FIELD_PREP(WS_MASK_PAN_TPS, tps_version);
     iobuf_push_u8(buf, tmp8);
     ieee802154_ie_fill_len_nested(buf, offset, false);

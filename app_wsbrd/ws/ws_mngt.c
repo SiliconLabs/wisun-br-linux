@@ -263,7 +263,9 @@ void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
         .wp_ies.pan     = &(struct ws_pan_ie) {
             // PAN size is filled later
             .routing_cost     = 0, // Border router routing cost is 0
-            // Remaining field are ignored
+            .use_parent_bs_ie = 1, // use parent BS
+            .routing_method   = 1, // RPL routed
+            .lfn_window_style = 0, // LFN managed tx
             // Reserved
             .fan_tps_version  = ws_info->pan_information.version,
         },
@@ -501,7 +503,9 @@ void ws_mngt_pa_send(struct ws_info *ws_info)
         .wp_ies.pan     = &(struct ws_pan_ie) {
             // PAN size is filled later
             .routing_cost     = 0, // Border router routing cost is 0
-            // Remaining field are ignored
+            .use_parent_bs_ie = 1, // use parent BS
+            .routing_method   = 1, // RPL routed
+            .lfn_window_style = 0, // LFN managed tx
             // Reserved
             .fan_tps_version  = ws_info->pan_information.version,
         },

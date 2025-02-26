@@ -1154,7 +1154,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->fhss_config);
         if (wp_ies->pan)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, pan_size, wp_ies->pan->routing_cost,
-                                   wp_ies->pan->fan_tps_version);
+                                   wp_ies->pan->use_parent_bs_ie, wp_ies->pan->routing_method,
+                                   wp_ies->pan->lfn_window_style, wp_ies->pan->fan_tps_version);
         if (wp_ies->netname)
             ws_wp_nested_netname_write(&msg->ie_buf_payload, info->network_name);
         if (wp_ies->panver)
