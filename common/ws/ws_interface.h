@@ -124,6 +124,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                       const struct eui64 *dst,
                       const struct eui64 *ea);
 void ws_if_send_pas(struct ws_ctx *ws);
+void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost);
 void ws_if_send_pcs(struct ws_ctx *ws);
 void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req);
 

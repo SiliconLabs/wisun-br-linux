@@ -90,8 +90,13 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
     offset = ieee802154_ie_push_payload(iobuf, IEEE802154_IE_ID_WP);
     if (wp_ies->us)
         ws_wp_nested_us_write(iobuf, &ws->fhss);
+    if (wp_ies->pan)
+        ws_wp_nested_pan_write(iobuf, wp_ies->pan->pan_size, wp_ies->pan->routing_cost, wp_ies->pan->use_parent_bs_ie,
+                               wp_ies->pan->routing_method, wp_ies->pan->lfn_window_style, wp_ies->pan->fan_tps_version);
     if (wp_ies->netname)
         ws_wp_nested_netname_write(iobuf, ws->netname);
+    if (wp_ies->jm)
+        ws_wp_nested_jm_write(iobuf, &ws->jm);
     // TODO: remaning WP-IEs
     ieee802154_ie_fill_len_payload(iobuf, offset);
 }
@@ -160,7 +165,7 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
         return NULL;
     }
-    if ((type == WS_FT_PAS || type == WS_FT_PCS) &&
+    if ((type == WS_FT_PAS || type == WS_FT_PA || type == WS_FT_PCS) &&
         SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
         WARN("%s tx overlap, consider increasing trickle Imin", tr_ws_frame(type));
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
@@ -407,6 +412,56 @@ void ws_if_send_pas(struct ws_ctx *ws)
     ws_write_ies(ws, &iobuf, WS_FT_PAS, &wh_ies, &wp_ies, 0);
 
     TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(WS_FT_PAS));
+    rcp_req_data_tx(&ws->rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    HIF_FHSS_TYPE_ASYNC,
+                    NULL, 0,
+                    NULL, 0);
+    iobuf_free(&iobuf);
+}
+
+void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
+{
+    struct ieee802154_hdr hdr = {
+        .frame_type = IEEE802154_FRAME_TYPE_DATA,
+        .seqno      = -1,
+        .pan_id     = ws->pan_id,
+        .dst        = IEEE802154_ADDR_BC_INIT,
+        .src        = ws->rcp.eui64,
+    };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+    };
+    struct wp_ie_list wp_ies = {
+        .us  = true,
+        .pan = &(struct ws_pan_ie) {
+            .pan_size         = pan_size,
+            .routing_cost     = routing_cost,
+            .use_parent_bs_ie = 1,
+            .routing_method   = 1,
+            .lfn_window_style = 0,
+            // Reserved
+            .fan_tps_version  = WS_FAN_VERSION_1_1,
+        },
+        .netname = true,
+        .jm      = memzcmp(ws->jm.metrics, sizeof(ws->jm.metrics)),
+        // TODO: POM-IE
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    uint8_t frame_type = WS_FT_PA;
+
+    frame_ctx = ws_if_frame_ctx_new(ws, frame_type);
+    if (!frame_ctx)
+        return;
+    frame_ctx->dst = hdr.dst;
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_write_ies(ws, &iobuf, frame_type, &wh_ies, &wp_ies, 0);
+
+    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(frame_type));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
