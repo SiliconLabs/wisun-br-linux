@@ -137,6 +137,7 @@ add_library(libwsbrd STATIC
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
     common/crypto/ws_keys.c
+    common/ipv6/ipv6_addr.c
     common/ipv6/ipv6_flow_label.c
     common/ws/ws_chan_mask.c
     common/ws/ws_ie.c
