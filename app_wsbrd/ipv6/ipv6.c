@@ -710,7 +710,9 @@ drop:
     return buffer_free(buf);
 }
 
-static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
+static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur,
+                                     uint8_t *ptr, uint16_t payload_length,
+                                     uint16_t *hdrlen_out, bool pre_fragment)
 {
     uint8_t *opt_type_ptr;
 
@@ -831,7 +833,7 @@ static buffer_t *ipv6_tun_up(buffer_t *b)
     return buffer_free(b);
 }
 
-static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct net_if *cur, const sockaddr_t *ll_src)
+static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct net_if *cur)
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
@@ -1160,7 +1162,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             // RFC 2675 - return "Parameter problem", pointing at Payload Length
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, 4);
         }
-        buf = ipv6_handle_options(buf, cur, ptr, payload_length, &hdrlen, &ll_src, ptr - buffer_data_pointer(buf) < frag_offset);
+        buf = ipv6_handle_options(buf, cur, ptr, payload_length, &hdrlen,
+                                  ptr - buffer_data_pointer(buf) < frag_offset);
         if (hdrlen == 0) {
             /* Something went wrong - it will have freed buf or turned it into an ICMP error */
             return buf;
@@ -1204,7 +1207,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             ipv6_refresh_neighbor_lifetime(buf, ll_src.address + PAN_ID_LEN);
 
         if (!for_us)
-            return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
+            return ipv6_consider_forwarding_unicast_packet(buf, cur);
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
     }
@@ -1221,7 +1224,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             case IPV6_NH_NONE:
                 return buffer_free(buf);
             case IPV6_NH_DEST_OPT:
-                buf = ipv6_handle_options(buf, cur, ptr, payload_length, &hdrlen, &ll_src, ptr - buffer_data_pointer(buf) < frag_offset);
+                buf = ipv6_handle_options(buf, cur, ptr, payload_length, &hdrlen,
+                                          ptr - buffer_data_pointer(buf) < frag_offset);
                 nh_ptr = ptr;
                 break;
             case IPV6_NH_ROUTING: {
@@ -1232,7 +1236,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                      * actually ours. We do want to always treat it as forwarding, as we do
                      * want hop counts decremented, etc.
                      */
-                    return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
+                    return ipv6_consider_forwarding_unicast_packet(buf, cur);
                 }
                 nh_ptr = ptr;
                 break;
