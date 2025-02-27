@@ -1024,11 +1024,17 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
     }
 }
 
-static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const uint8_t *eui64)
+static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const sockaddr_t *ll_src)
 {
     ipv6_neighbour_t *ipv6_neighbour = ipv6_neighbour_lookup(&buf->interface->ipv6_neighbour_cache, buf->src_sa.address);
     struct ws_neigh *ws_neigh;
     struct ipv6_nd_opt_earo aro;
+    uint8_t eui64[8];
+
+    if (ll_src->addr_type == ADDR_802_15_4_LONG)
+        memcpy(eui64, ll_src->address + PAN_ID_LEN, 8);
+    else
+        return;
 
     if (!ipv6_neighbour || ipv6_neighbour->type != IP_NEIGHBOUR_REGISTERED)
         return;
@@ -1200,8 +1206,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
     } else { /* unicast */
-        if (ll_src.addr_type == ADDR_802_15_4_LONG && buf->link_specific.ieee802_15_4.requestAck)
-            ipv6_refresh_neighbor_lifetime(buf, ll_src.address + PAN_ID_LEN);
+        if (buf->link_specific.ieee802_15_4.requestAck)
+            ipv6_refresh_neighbor_lifetime(buf, &ll_src);
 
         if (!for_us)
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
