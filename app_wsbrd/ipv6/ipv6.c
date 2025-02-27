@@ -23,6 +23,7 @@
 #include "common/ipv6/ipv6_flow_label.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ndp.h"
@@ -1033,6 +1034,8 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const sockaddr_t *ll_s
 
     if (ll_src->addr_type == ADDR_802_15_4_LONG)
         memcpy(eui64, ll_src->address + PAN_ID_LEN, 8);
+    else if (ll_src->addr_type == ADDR_IPV6 && IN6_IS_ADDR_LINKLOCAL(ll_src->address))
+        ipv6_addr_conv_iid_eui64(eui64, ll_src->address + 8);
     else
         return;
 
