@@ -364,6 +364,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
             if (opt->len < sizeof(*config))
                 goto malformed;
             config = (const struct rpl_opt_config *)(opt + 1);
+            if (!config->min_hop_rank_inc)
+                goto malformed;
             break;
         case RPL_OPT_PREFIX:
             if (opt->len < sizeof(*prefix))
