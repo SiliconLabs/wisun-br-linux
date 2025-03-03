@@ -58,7 +58,7 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
     else
         tr_domain = TR_15_4_MNGT;
 
-    if (ind->hdr.pan_id >= 0 && ind->hdr.pan_id != 0xffff)
+    if (ind->hdr.pan_id != UINT16_MAX)
         TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)",
               tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
               ind->hdr.pan_id, ind->hif->rx_power_dbm);
@@ -258,7 +258,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         .ack_req    = neigh,
         .dst        = *dst,
         .src        = ws->rcp.eui64,
-        .pan_id     = neigh ? -1 : ws->pan_id,
+        .pan_id     = neigh ? UINT16_MAX : ws->pan_id,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
         .key_index  = ws->gak_index,
     };
@@ -326,7 +326,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
         .dst        = *dst,
         .src        = ws->rcp.eui64,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
-        .pan_id     = -1,
+        .pan_id     = UINT16_MAX,
     };
     struct mpx_ie ie_mpx = {
         .transfer_type = MPX_FT_FULL_FRAME,
@@ -382,7 +382,7 @@ void ws_if_send_pas(struct ws_ctx *ws)
     struct ieee802154_hdr hdr = {
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
-        .pan_id       = -1,
+        .pan_id       = UINT16_MAX,
         .dst          = IEEE802154_ADDR_BC_INIT,
         .src          = ws->rcp.eui64,
     };
@@ -462,7 +462,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
     struct ieee802154_hdr hdr = {
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = req->pkt || req->fhss_type == HIF_FHSS_TYPE_FFN_BC ? ws->seqno++ : -1,
-        .pan_id       = req->fhss_type != HIF_FHSS_TYPE_FFN_UC ? ws->pan_id : -1,
+        .pan_id       = req->fhss_type != HIF_FHSS_TYPE_FFN_UC ? ws->pan_id : UINT16_MAX,
         .ack_req      = req->fhss_type == HIF_FHSS_TYPE_FFN_UC,
         .key_index    = req->gak_index,
         .src          = ws->rcp.eui64,
