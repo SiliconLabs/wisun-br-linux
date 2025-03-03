@@ -92,7 +92,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
             lgtkl |= BIT(i - WS_GTK_COUNT);
 
-    if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk)))
+    if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key)))
         kde_write_pmkid(&buf, pmkid);
     if (memzcmp(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)))
         kde_write_ptkid(&buf, ptkid);
