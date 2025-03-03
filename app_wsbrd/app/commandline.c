@@ -337,7 +337,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     optind = 1; /* reset getopt */
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         if (optarg)
-            strcpy(info.value, optarg);
+            strlcpy(info.value, optarg, sizeof(info.value));
         switch (opt) {
             case 'F':
                 break;
