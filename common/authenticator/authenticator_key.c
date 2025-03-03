@@ -75,7 +75,7 @@ static int auth_key_get_key_slot_missmatch(const struct auth_ctx *auth, const st
  */
 static void auth_key_add_kde_padding(struct pktbuf *buf)
 {
-    int padding_size = 8 - pktbuf_len(buf) % 8;
+    int padding_size = (8 - pktbuf_len(buf) % 8) % 8;
 
     if (!padding_size && pktbuf_len(buf) > 16)
         return;
