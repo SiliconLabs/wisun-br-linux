@@ -483,7 +483,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         case RPL_OPT_PADN:
             continue;
         case RPL_OPT_SOLICIT:
-            solicit = (struct rpl_opt_solicit *)iobuf_pop_data_ptr(&iobuf, sizeof(solicit));
+            solicit = (struct rpl_opt_solicit *)iobuf_pop_data_ptr(&iobuf, sizeof(*solicit));
             if (!solicit)
                 goto malformed;
             if (!rpl_opt_solicit_matches(solicit, &parent->rpl->dio)) {
