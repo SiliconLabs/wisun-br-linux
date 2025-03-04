@@ -79,7 +79,7 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     aro.type = NDP_OPT_ARO;
     aro.len  = sizeof(aro) / 8;
     aro.lifetime_minutes = htobe16(lifetime_minutes);
-    memcpy(aro.eui64, ipv6->eui64, 8);
+    memcpy(aro.eui64, &ipv6->eui64, 8);
     pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
 
     ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
@@ -107,9 +107,9 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     }
 
     src = ipv6_prefix_linklocal;
-    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64);
+    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64.u8);
     dst = ipv6_prefix_linklocal;
-    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64);
+    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
 
     memset(&ns, 0, sizeof(ns));
     ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
@@ -254,17 +254,17 @@ struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
 }
 
 struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
-                                             const uint8_t eui64[8])
+                                             const struct eui64 *eui64)
 {
     struct ipv6_neigh *neigh;
 
     return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
-                      !memcmp(neigh->eui64, eui64, 8));
+                      !memcmp(&neigh->eui64, eui64, 8));
 }
 
 struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
                                     const struct in6_addr *gua,
-                                    const uint8_t eui64[8])
+                                    const struct eui64 *eui64)
 {
     struct ipv6_neigh *neigh;
 
@@ -277,7 +277,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
     }
     neigh = ipv6_neigh_get_from_gua(ipv6, gua);
     if (neigh) {
-        if (!memcmp(neigh->eui64, eui64, 8))
+        if (!memcmp(&neigh->eui64, eui64, 8))
             return neigh;
         WARN("neigh-ipv6 overwrite");
         ipv6_neigh_del(ipv6, neigh);
@@ -286,12 +286,12 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
     neigh = zalloc(sizeof(*neigh));
     SLIST_INSERT_HEAD(&ipv6->neigh_cache, neigh, link);
     neigh->gua = *gua;
-    memcpy(neigh->eui64, eui64, 8);
+    neigh->eui64 = *eui64;
     neigh->nud_timer.callback = ipv6_nud_expire;
     neigh->aro_timer.callback = ipv6_on_aro_timer_timeout;
     neigh->ns_handle = -1;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
-          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
+          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64.u8));
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
     return neigh;
 }
@@ -302,7 +302,7 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     timer_stop(&ipv6->timer_group, &neigh->aro_timer);
     SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
-          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64));
+          tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64.u8));
     if (neigh->rpl)
         rpl_neigh_del(ipv6, neigh);
     free(neigh);

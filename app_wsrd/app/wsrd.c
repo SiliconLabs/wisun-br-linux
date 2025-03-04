@@ -54,7 +54,7 @@ enum {
 static void wsrd_on_rcp_reset(struct rcp *rcp);
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
 static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
-static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
+static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst);
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const uint8_t dst[8]);
 static uint8_t *wsrd_eapol_get_target(struct supp_ctx *supp);
@@ -205,7 +205,7 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
      * In the absence of other messaging, a Router SHOULD initiate NUD
      * messaging to refresh the ETX value for that neighbor.
      */
-    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, (struct eui64 *)neigh->mac64);
     if (!nce)
         return;
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
@@ -216,17 +216,17 @@ static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *ne
     struct wsrd *wsrd = container_of(table, struct wsrd, ws.neigh_table);
     struct ipv6_neigh *nce;
 
-    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, (struct eui64 *)neigh->mac64);
     if (!nce || !nce->rpl)
         return;
     rpl_mrhof_select_parent(&wsrd->ipv6);
 }
 
-static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8])
+static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst)
 {
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
 
-    return ws_if_send_data(&wsrd->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+    return ws_if_send_data(&wsrd->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
 static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
@@ -281,7 +281,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
          * as its EAPOL target. When a Router has determined a RPL parent, it shall
          * use that parent as the EAPOL target.
          */
-        memcpy(&wsrd->eapol_target_eui64, neigh->eui64, 8);
+        wsrd->eapol_target_eui64 = neigh->eui64;
     } else {
         wsrd->eapol_target_eui64 = EUI64_BC;
         // TODO: handle parent loss
@@ -317,7 +317,7 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
     struct in6_addr parent_ll = ipv6_prefix_linklocal;
 
     BUG_ON(!pref_parent);
-    ipv6_addr_conv_iid_eui64(parent_ll.s6_addr + 8, pref_parent->eui64);
+    ipv6_addr_conv_iid_eui64(parent_ll.s6_addr + 8, pref_parent->eui64.u8);
     return parent_ll;
 }
 
@@ -469,7 +469,7 @@ int wsrd_main(int argc, char *argv[])
     // native EUI-64.
     if (memcmp(&wsrd->config.ws_mac_address, &EUI64_BC, 8))
         rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address.u8);
-    memcpy(wsrd->ipv6.eui64, &wsrd->ws.rcp.eui64, 8);
+    wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);

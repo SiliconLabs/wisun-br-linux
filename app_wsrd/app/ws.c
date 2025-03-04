@@ -55,7 +55,7 @@ static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
 
     if (!ipv6_parent)
         return 0xffff;
-    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64);
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64.u8);
     BUG_ON(!ws_parent);
 
     // Note: overflow during float to int conversion is undefined behavior
@@ -356,7 +356,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     // TODO: only update on BS-IE change, or parent change
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
     ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
-    if (!parent || !memcmp(parent->eui64, ind->neigh->mac64, sizeof(parent->eui64)))
+    if (!parent || !memcmp(&parent->eui64, ind->neigh->mac64, 8))
         rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
                             ie_bs.broadcast_interval,
                             ie_bs.broadcast_schedule_identifier,
@@ -441,7 +441,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 
     lowpan_recv(&wsrd->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
-                ind->hdr.src.u8, ind->hdr.dst.u8);
+                &ind->hdr.src, &ind->hdr.dst);
 }
 
 void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
@@ -568,7 +568,7 @@ void ws_on_send_pa(struct trickle *tkl)
     const struct ws_neigh *ws_parent;
 
     BUG_ON(!ipv6_parent);
-    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64);
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64.u8);
     BUG_ON(!ws_parent);
 
     ws_if_send_pa(&wsrd->ws, ws_parent->ie_pan.pan_size, own_routing_cost);

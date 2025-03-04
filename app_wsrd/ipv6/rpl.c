@@ -319,7 +319,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     const struct rpl_opt *opt;
     struct ipv6_neigh *nce;
     struct in6_addr addr;
-    uint8_t eui64[8];
+    struct eui64 eui64;
     struct iobuf_read iobuf = {
         .data_size = buf_len,
         .data = buf,
@@ -416,8 +416,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
      * being created here instead.
      */
     addr = prefix->prefix; // Prevent GCC warning -Waddress-of-packed-member
-    ipv6_addr_conv_iid_eui64(eui64, src->s6_addr + 8);
-    nce = ipv6_neigh_fetch(ipv6, &addr, eui64);
+    ipv6_addr_conv_iid_eui64(eui64.u8, src->s6_addr + 8);
+    nce = ipv6_neigh_fetch(ipv6, &addr, &eui64);
 
     if (!nce->rpl)
         rpl_neigh_add(ipv6, nce, dio, config, prefix);

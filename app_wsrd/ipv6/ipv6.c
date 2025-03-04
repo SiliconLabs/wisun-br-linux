@@ -47,7 +47,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         TRACE(TR_DROP, "drop %-9s: invalid IP version", "ipv6");
         return;
     }
-    ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64);
+    ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
         !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &addr_linklocal)) &&
         !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6))) {
@@ -190,7 +190,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
 
 static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
                                  const struct in6_addr *nxthop,
-                                 uint8_t eui64[8])
+                                 struct eui64 *eui64)
 {
     struct ipv6_neigh *nce;
 
@@ -198,7 +198,7 @@ static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
     // IPv6 level multicast packets MUST be carried as link-layer broadcast
     // frames in IEEE 802.15.4 networks.
     if (IN6_IS_ADDR_MULTICAST(nxthop)) {
-        memcpy(eui64, &EUI64_BC, 8);
+        *eui64 = EUI64_BC;
         return;
     }
 
@@ -206,12 +206,12 @@ static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
     // It is assumed that link-local addresses are formed [...] from the
     // EUI-64, and address resolution is not performed.
     if (IN6_IS_ADDR_LINKLOCAL(nxthop)) {
-        ipv6_addr_conv_iid_eui64(eui64, nxthop->s6_addr + 8);
+        ipv6_addr_conv_iid_eui64(eui64->u8, nxthop->s6_addr + 8);
         return;
     }
 
     nce = container_of(nxthop, struct ipv6_neigh, gua);
-    memcpy(eui64, nce->eui64, 8);
+    *eui64 = nce->eui64;
 }
 
 static bool ipv6_is_exthdr(uint8_t ipproto)
@@ -298,7 +298,7 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
     const struct in6_addr *nxthop;
     struct pktbuf pktbuf = { };
     const struct ip6_hdr *hdr;
-    uint8_t dst_eui64[8];
+    struct eui64 dst_eui64;
     ssize_t size;
 
     pktbuf_init(&pktbuf, NULL, 1500);
@@ -317,12 +317,12 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
 
     if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop))
         return;
-    ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
+    ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
 
     TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
           tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
 
-    lowpan_send(ipv6, &pktbuf, ipv6->eui64, dst_eui64);
+    lowpan_send(ipv6, &pktbuf, &ipv6->eui64, &dst_eui64);
 err:
     pktbuf_free(&pktbuf);
 }
@@ -332,7 +332,7 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
                      const struct in6_addr *src, const struct in6_addr *dst)
 {
     const struct in6_addr *nxthop;
-    uint8_t dst_eui64[8];
+    struct eui64 dst_eui64;
     struct ip6_hdr hdr = {
         .ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6)),
         .ip6_plen = htons(pktbuf_len(pktbuf)),
@@ -351,11 +351,11 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
     ret = ipv6_nxthop(ipv6, dst, &nxthop);
     if (ret < 0)
         return ret;
-    ipv6_addr_resolution(ipv6, nxthop, dst_eui64);
+    ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
 
     // TODO: MPL
     // TODO: RPL Option
     // TODO: IPv6 Tunnel
 
-    return lowpan_send(ipv6, pktbuf, ipv6->eui64, dst_eui64);
+    return lowpan_send(ipv6, pktbuf, &ipv6->eui64, &dst_eui64);
 }

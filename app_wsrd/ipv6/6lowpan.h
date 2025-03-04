@@ -18,16 +18,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+struct eui64;
 struct ipv6_ctx;
 struct pktbuf;
 
 void lowpan_recv(struct ipv6_ctx *ipv6,
                  const uint8_t *buf, size_t buf_len,
-                 const uint8_t src[8], const uint8_t dst[8]);
+                 const struct eui64 *src, const struct eui64 *dst);
 
 int lowpan_send(struct ipv6_ctx *ipv6,
                 struct pktbuf *pktbuf,
-                const uint8_t src[8],
-                const uint8_t dst[8]);
+                const struct eui64 *src,
+                const struct eui64 *dst);
 
 #endif

@@ -25,14 +25,14 @@
 
 void lowpan_recv(struct ipv6_ctx *ipv6,
                  const uint8_t *buf, size_t buf_len,
-                 const uint8_t src[8], const uint8_t dst[8])
+                 const struct eui64 *src, const struct eui64 *dst)
 {
     uint8_t src_iid[8], dst_iid[8];
     struct pktbuf pktbuf = { };
     uint8_t dispatch;
 
-    ipv6_addr_conv_iid_eui64(src_iid, src);
-    ipv6_addr_conv_iid_eui64(dst_iid, dst);
+    ipv6_addr_conv_iid_eui64(src_iid, src->u8);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
     pktbuf_init(&pktbuf, buf, buf_len);
 
@@ -54,14 +54,14 @@ err:
 }
 
 int lowpan_send(struct ipv6_ctx *ipv6,
-                 struct pktbuf *pktbuf,
-                 const uint8_t src[8],
-                 const uint8_t dst[8])
+                struct pktbuf *pktbuf,
+                const struct eui64 *src,
+                const struct eui64 *dst)
 {
     uint8_t src_iid[8], dst_iid[8];
 
-    ipv6_addr_conv_iid_eui64(src_iid, src);
-    ipv6_addr_conv_iid_eui64(dst_iid, dst);
+    ipv6_addr_conv_iid_eui64(src_iid, src->u8);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
     lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
     if (pktbuf->err)

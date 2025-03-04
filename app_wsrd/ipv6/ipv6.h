@@ -17,6 +17,7 @@
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "common/dhcp_client.h"
+#include "common/eui64.h"
 #include "common/timer.h"
 #include "common/tun.h"
 
@@ -33,12 +34,12 @@ struct ipv6_ctx {
     int probe_delay_ms; // RetransDelay
     uint64_t aro_lifetime_ms;
     struct ipv6_neigh_cache neigh_cache;
-    uint8_t eui64[8];
+    struct eui64 eui64;
 
     struct timer_group timer_group;
     struct rpl_ctx rpl;
 
-    int (*sendto_mac)(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const uint8_t dst[8]);
+    int (*sendto_mac)(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst);
 };
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);

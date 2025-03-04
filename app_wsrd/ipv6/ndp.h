@@ -21,6 +21,7 @@ struct ipv6_ctx;
 #include <sys/queue.h>
 #include <stdbool.h>
 
+#include "common/eui64.h"
 #include "common/timer.h"
 
 struct ipv6_ctx;
@@ -59,7 +60,7 @@ enum {
  * event is scheduled to take place.
  */
 struct ipv6_neigh {
-    uint8_t eui64[8];    // Link-layer address (EUI-64)
+    struct eui64 eui64;  // Link-layer address (EUI-64)
     struct in6_addr gua; // Global Unicast Address (IPv6)
 
     int  nud_state;
@@ -78,12 +79,12 @@ struct ipv6_neigh {
 SLIST_HEAD(ipv6_neigh_cache, ipv6_neigh);
 
 struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
-                                             const uint8_t eui64[8]);
+                                             const struct eui64 *eui64);
 struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
                                            const struct in6_addr *gua);
 struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
                                     const struct in6_addr *gua,
-                                    const uint8_t eui64[8]);
+                                    const struct eui64 *eui64);
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 void ipv6_neigh_clean(struct ipv6_ctx *ipv6);
 
