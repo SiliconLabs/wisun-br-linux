@@ -21,6 +21,11 @@
 #include "common/int24.h"
 #include "common/specs/ws.h"
 
+struct ws_ms_chan_mask {
+    uint32_t chan_spacing;
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+};
+
 struct ws_fhss_config {
     const struct chan_params *chan_params;
     int      regional_regulation;

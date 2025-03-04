@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "common/ws/ws_chan_mask.h"
+#include "common/ws/ws_types.h"
 #include "common/bus.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"
@@ -114,7 +115,8 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
 
 void rcp_set_fhss_uc(struct rcp *rcp,
                      uint8_t dwell_interval_ms,
-                     const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
+                     const uint8_t chan_mask[WS_CHAN_MASK_LEN],
+                     const struct ws_ms_chan_mask *ms_chan_mask);
 void rcp_set_fhss_ffn_bc(struct rcp *rcp,
                          uint24_t interval_ms,
                          uint16_t bsi,

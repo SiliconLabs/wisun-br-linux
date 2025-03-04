@@ -242,7 +242,7 @@ static void dc_init_radio(struct dc *dc)
     bitand(chan_mask, dc->cfg.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    rcp_set_fhss_uc(&dc->ws.rcp, dc->cfg.ws_uc_dwell_interval_ms, chan_mask);
+    rcp_set_fhss_uc(&dc->ws.rcp, dc->cfg.ws_uc_dwell_interval_ms, chan_mask, NULL);
     // Disable async fragmentation for faster advertisement
     rcp_set_fhss_async(&dc->ws.rcp, UINT32_MAX, chan_mask);
 

@@ -369,7 +369,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask);
+    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, NULL);
     rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
 
     rcp_req_radio_enable(&wsrd->ws.rcp);

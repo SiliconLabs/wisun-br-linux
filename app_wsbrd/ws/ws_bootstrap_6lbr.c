@@ -106,7 +106,8 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
     fill_ms_chan_masks(cur, ms_chan_mask);
     rcp_set_fhss_uc(cur->rcp,
                     fhss->uc_dwell_interval,
-                    fhss->uc_chan_mask);
+                    fhss->uc_chan_mask,
+                    ms_chan_mask);
     rcp_set_fhss_ffn_bc(cur->rcp,
                         fhss->bc_interval,
                         fhss->bsi,

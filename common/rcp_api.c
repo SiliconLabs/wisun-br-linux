@@ -382,11 +382,14 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
 
 void rcp_set_fhss_uc(struct rcp *rcp,
                      uint8_t dwell_interval_ms,
-                     const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+                     const uint8_t chan_mask[WS_CHAN_MASK_LEN],
+                     const struct ws_ms_chan_mask *ms_chan_mask)
 {
     int fixed_channel = ws_chan_mask_get_fixed(chan_mask);
     uint8_t chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
+    const struct ws_ms_chan_mask *it;
     struct iobuf_write buf = { };
+    int ms_chan_mask_len;
 
     hif_push_u8(&buf, HIF_CMD_SET_FHSS_UC);
     hif_push_u8(&buf, dwell_interval_ms);
@@ -406,6 +409,20 @@ void rcp_set_fhss_uc(struct rcp *rcp,
         BUG("unsupported channel function");
         break;
     }
+
+    for (it = ms_chan_mask, ms_chan_mask_len = 0; it && it->chan_spacing; it++, ms_chan_mask_len++)
+        ;
+    if (ms_chan_mask_len)
+        FATAL_ON(version_older_than(rcp->version_api, 2, 6, 0), 3, "mode-switch requires RCP API >= 2.6.0");
+    if (!version_older_than(rcp->version_api, 2, 6, 0)) {
+        hif_push_u8(&buf, ms_chan_mask_len);
+        for (int i = 0; i < ms_chan_mask_len; i++) {
+            hif_push_u32(&buf, ms_chan_mask[i].chan_spacing);
+            hif_push_u8(&buf, WS_CHAN_MASK_LEN);
+            hif_push_fixed_u8_array(&buf, ms_chan_mask[i].chan_mask, WS_CHAN_MASK_LEN);
+        }
+    }
+
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
 }
