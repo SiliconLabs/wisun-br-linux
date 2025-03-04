@@ -117,3 +117,10 @@ This is achieved by stopping the border router with Ctrl+C, and restarting it
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/powercycle.conf
 
 [powercycle]:  /tools/dut/sec/powercycle.conf
+
+### LFN support
+
+The test `CORE-LE-UNSUPPORTED-1` requires disabling LFN support. This is
+achieved by adding `-o enable_lfn=false` to the command line:
+
+    sudo wsbrd -F dut.conf -F na/chan-plan-2-fixed.conf -F sec/gtk.conf -o enable_lfn=false
