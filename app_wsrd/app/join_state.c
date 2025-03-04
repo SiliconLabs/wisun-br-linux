@@ -170,6 +170,9 @@ static void join_state_5_enter(struct wsrd *wsrd)
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
     trickle_start(&wsrd->pa_tkl);
+    wsrd->dhcp_relay.server_addr = parent->rpl->dio.dodag_id;
+    wsrd->dhcp_relay.link_addr   = wsrd->ipv6.dhcp.iaaddr.ipv6;
+    dhcp_relay_start(&wsrd->dhcp_relay);
 }
 
 static void join_state_5_exit(struct wsrd *wsrd)
@@ -179,6 +182,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
     // TODO: inform the network that we are leaving
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
+    dhcp_relay_stop(&wsrd->dhcp_relay);
     // TODO: stop DIO, PA, PC
     trickle_stop(&wsrd->pa_tkl);
 }

@@ -46,6 +46,7 @@ enum {
     POLLFD_TUN,
     POLLFD_RPL,
     POLLFD_DHCP,
+    POLLFD_DHCP_RELAY,
     POLLFD_EAPOL_RELAY,
     POLLFD_DBUS,
     POLLFD_COUNT,
@@ -162,6 +163,10 @@ struct wsrd g_wsrd = {
     .ipv6.dhcp.get_dst     = wsrd_dhcp_get_dst,
     .ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
     .ipv6.dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
+
+    .dhcp_relay.fd = -1,
+    // RFC 8415 7.6. Transmission and Retransmission Parameters
+    .dhcp_relay.hop_limit = 8,
 
     // Arbitrary, same lifetime as MAC neighbors
     .ipv6.aro_lifetime_ms = WS_NEIGHBOR_LINK_TIMEOUT * 1000,
@@ -490,10 +495,12 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_RPL].events = POLLIN;
     pfd[POLLFD_DHCP].fd = wsrd->ipv6.dhcp.fd;
     pfd[POLLFD_DHCP].events = POLLIN;
+    pfd[POLLFD_DHCP_RELAY].events = POLLIN;
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
     while (true) {
+        pfd[POLLFD_DHCP_RELAY].fd  = wsrd->dhcp_relay.fd;
         pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
         ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -508,6 +515,8 @@ int wsrd_main(int argc, char *argv[])
             rpl_recv(&wsrd->ipv6);
         if (pfd[POLLFD_DHCP].revents & POLLIN)
             dhcp_client_recv(&wsrd->ipv6.dhcp);
+        if (pfd[POLLFD_DHCP_RELAY].revents & POLLIN)
+            dhcp_relay_recv(&wsrd->dhcp_relay);
         if (pfd[POLLFD_EAPOL_RELAY].revents & POLLIN)
             wsrd_eapol_relay_recv(wsrd);
         if (pfd[POLLFD_DBUS].revents & POLLIN)

@@ -15,6 +15,7 @@
 #define WSRD_H
 
 #include "common/ws/ws_interface.h"
+#include "common/dhcp_relay.h"
 #include "common/trickle.h"
 #include "common/timer.h"
 #include "app_wsrd/supplicant/supplicant.h"
@@ -39,6 +40,7 @@ struct wsrd {
 
     struct supp_ctx supp;
     struct eui64 eapol_target_eui64;
+    struct dhcp_relay dhcp_relay;
 };
 
 // Necessary for simulation and fuzzing, prefer passing a pointer when possible.

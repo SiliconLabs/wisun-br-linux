@@ -341,6 +341,7 @@ if(COMPILE_WSRD)
         common/crc.c
         common/dhcp_client.c
         common/dhcp_common.c
+        common/dhcp_relay.c
         common/eap.c
         common/eapol.c
         common/endian.c
