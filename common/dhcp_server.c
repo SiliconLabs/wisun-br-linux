@@ -132,8 +132,8 @@ void dhcp_recv(struct dhcp_server *dhcp)
     req.data = buf;
     req.data_size = xrecvfrom(dhcp->fd, buf, sizeof(buf), 0,
                               (struct sockaddr *)&src_addr, &src_addr_len);
-    if (src_addr.sin6_family != AF_INET6) {
-        TRACE(TR_DROP, "drop %-9s: not IPv6", "dhcp");
+    if (req.data_size < 0) {
+        WARN("%s: recvfrom: %m", __func__);
         return;
     }
     dhcp_trace_rx(req.data, req.data_size, &src_addr.sin6_addr);
