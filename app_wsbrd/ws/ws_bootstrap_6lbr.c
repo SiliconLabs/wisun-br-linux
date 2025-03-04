@@ -57,11 +57,53 @@
 #include "ws/ws_eapol_relay.h"
 #include "ws/ws_mngt.h"
 
+static void fill_ms_chan_masks(struct net_if *cur, struct ws_ms_chan_mask *ms_chan_mask)
+{
+    struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    struct ws_ms_chan_mask *it;
+    int i;
+
+    base_rail_params = cur->rcp->rail_config_list + phy_config->rcp_rail_config_index;
+    for (i = 0; phy_config->phy_op_modes[i]; i++) {
+        for (rail_params = cur->rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
+            if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
+                continue;
+            phy_params = ws_regdb_phy_params(phy_config->phy_op_modes[i], 0);
+            FATAL_ON(!phy_params, 1, "unknown phy parameters for phy %d", phy_config->phy_op_modes[i]);
+            if (phy_params->rail_phy_mode_id != rail_params->rail_phy_mode_id)
+                continue;
+            chan_params = ws_regdb_chan_params_from_rf_settings(fhss->chan_params->reg_domain,
+                                                                rail_params->chan0_freq,
+                                                                rail_params->chan_spacing,
+                                                                rail_params->chan_count);
+            FATAL_ON(!chan_params, 1, "unknown channel parameters for phy %d", phy_config->phy_op_modes[i]);
+            // Insert if unique
+            for (it = ms_chan_mask; it->chan_spacing; it++)
+                if (it->chan_spacing != chan_params->chan_spacing)
+                    break;
+            ws_chan_mask_calc_reg(chan_mask, chan_params, fhss->regional_regulation);
+            if (it->chan_spacing) {
+                WARN_ON(memcmp(it->chan_mask, chan_mask, sizeof(chan_mask)), "ambiguous channel masks for spacing %u", chan_params->chan_spacing);
+                continue;
+            }
+            it->chan_spacing = chan_params->chan_spacing;
+            memcpy(it->chan_mask, chan_mask, sizeof(chan_mask));
+        }
+    }
+}
+
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
+    struct ws_ms_chan_mask ms_chan_mask[FIELD_MAX(WS_MASK_POM_COUNT) + 1] = { 0 };
     const struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
     uint8_t chan_mask_async[WS_CHAN_MASK_LEN];
 
+    fill_ms_chan_masks(cur, ms_chan_mask);
     rcp_set_fhss_uc(cur->rcp,
                     fhss->uc_dwell_interval,
                     fhss->uc_chan_mask);
