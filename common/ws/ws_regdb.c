@@ -288,6 +288,22 @@ const struct chan_params * ws_regdb_chan_params(int reg_domain, int chan_plan_id
     return chan_params;
 }
 
+const struct chan_params *ws_regdb_chan_params_from_rf_settings(int reg_domain, uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count)
+{
+    const struct chan_params *it, *ret = NULL;
+
+    for (it = chan_params_table; it->chan0_freq; it++) {
+        if (it->reg_domain == reg_domain &&
+            it->chan0_freq == chan0_freq &&
+            it->chan_spacing == chan_spacing &&
+            it->chan_count == chan_count) {
+            FATAL_ON(ret, 1, "ambiguous channel parameters");
+            ret = it;
+        }
+    }
+    return ret;
+}
+
 static const struct {
     int val;
     int id;
