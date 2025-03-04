@@ -26,7 +26,6 @@
 #include "common/specs/ndp.h"
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/ipv6/ndp.h"
-#include "app_wsrd/ipv6/ndp_pkt.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "app_wsrd/app/join_state.h"
 
@@ -46,6 +45,19 @@ static const char *tr_nud_state(int state)
     };
 
     return val_to_str(state, table, "UNKNOWN");
+}
+
+static void ndp_opt_push(struct pktbuf *pktbuf, uint8_t type,
+                         const void *buf, size_t buf_len)
+{
+    struct nd_opt_hdr opt = {
+        .nd_opt_type = type,
+        .nd_opt_len  = (sizeof(opt) + buf_len) / 8,
+    };
+
+    BUG_ON((sizeof(opt) + buf_len) % 8);
+    pktbuf_push_tail(pktbuf, &opt, sizeof(opt));
+    pktbuf_push_tail(pktbuf, buf, buf_len);
 }
 
 int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
@@ -76,11 +88,9 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
 
     memset(&aro, 0, sizeof(aro));
-    aro.type = NDP_OPT_ARO;
-    aro.len  = sizeof(aro) / 8;
-    aro.lifetime_minutes = htobe16(lifetime_minutes);
-    memcpy(aro.eui64, &ipv6->eui64, 8);
-    pktbuf_push_tail(&pktbuf, &aro, sizeof(aro));
+    aro.lifetime_minutes = UINT16_MAX;
+    aro.eui64 = ipv6->eui64.be64;
+    ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
 
     ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
