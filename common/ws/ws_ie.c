@@ -549,6 +549,23 @@ void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
+/*
+ *   Wi-SUN FAN 1.1v09 6.3.2.3.2.12 Join Metrics Information Element (JM-IE)
+ * The Metric Length field MUST be set to indicate the length of the Metric
+ * Data field, where:
+ * 1. 0 indicates the Metric Data field is 0 octets in length.
+ * 2. 1 indicates the Metric Data field is 1 octets in length.
+ * 3. 2 indicates the Metric Data field is 2 octets in length.
+ * 4. 3 indicates the Metric Data field is 4 octets in length.
+ */
+static uint8_t ws_wp_nested_jm_get_metric_len(uint8_t metric_len)
+{
+    static const int jm_len_conversion[] = { 0, 1, 2, 4 };
+
+    BUG_ON(metric_len > ARRAY_SIZE(jm_len_conversion));
+    return jm_len_conversion[metric_len];
+}
+
 void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm)
 {
     uint8_t tmp8;
@@ -1026,17 +1043,7 @@ bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie 
             jm->plf = iobuf_pop_u8(&ie_buf);
         } else {
             TRACE(TR_IGNORE, "ignore: unsupported join metric %d", FIELD_GET(WS_MASK_JM_ID, metric));
-            /*
-             *   Wi-SUN FAN 1.1v08, 6.3.2.3.2.12 Join Metrics Information Element (JM-IE)
-             * The Metric Length field MUST be set to indicate the length of the
-             * Metric Data field, where:
-             *   1. 0 indicates the Metric Data field is 0 octets in length.
-             *   2. 1 indicates the Metric Data field is 1 octets in length.
-             *   3. 2 indicates the Metric Data field is 2 octets in length.
-             *   4. 3 indicates the Metric Data field is 4 octets in length.
-             */
-            BUG_ON(FIELD_GET(WS_MASK_JM_LEN, metric) > ARRAY_SIZE(jm_len_conversion));
-            iobuf_pop_data_ptr(&ie_buf, jm_len_conversion[FIELD_GET(WS_MASK_JM_LEN, metric)]);
+            iobuf_pop_data_ptr(&ie_buf, ws_wp_nested_jm_get_metric_len(FIELD_GET(WS_MASK_JM_LEN, metric)));
         }
     }
     return !ie_buf.err;
