@@ -1086,6 +1086,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               const struct wp_ie_list *wp_ies)
 {
     struct ws_info *info = &base->interface_ptr->ws_info;
+    struct ws_jm *jm_plf = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
                          rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     struct ws_ie_custom *ie_custom;
@@ -1094,10 +1095,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     int ie_offset;
     uint8_t plf;
 
-    if (info->pan_information.jm.mask & BIT(WS_JM_PLF)) {
+    if (jm_plf) {
         plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
-        if (plf != info->pan_information.jm.plf) {
-            info->pan_information.jm.plf = plf;
+        if (plf != *jm_plf->data) {
+            *jm_plf->data = plf;
             info->pan_information.jm.version++;
         }
     }
@@ -1302,7 +1303,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         .bs  = !data->TxAckReq,
         .pom = ws_info->phy_config.phy_op_modes[0],
         // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
-        .jm  = ws_info->pan_information.jm.mask &&
+        .jm  = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)) &&
                data->DstAddrMode == IEEE802154_ADDR_MODE_NONE &&
                ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_params.k,
     };

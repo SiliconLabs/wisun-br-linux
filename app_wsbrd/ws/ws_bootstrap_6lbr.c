@@ -289,7 +289,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     ws_bootstrap_ip_stack_reset(cur);
 
-    cur->ws_info.pan_information.jm.plf = 0;
     cur->ws_info.pan_information.routing_cost = 0;
 
     ws_mngt_pan_version_increase(&cur->ws_info);

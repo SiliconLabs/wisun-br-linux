@@ -266,7 +266,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                      ctxt->config.ws_mode);
     BUG_ON(!ws_info->phy_config.params);
 
-    ws_info->pan_information.jm.mask = ctxt->config.ws_join_metrics;
+    if (ctxt->config.ws_join_metrics & BIT(WS_JM_PLF)) {
+        ws_info->pan_information.jm.metrics[0].hdr |= FIELD_PREP(WS_MASK_JM_ID,  WS_JM_PLF);
+        ws_info->pan_information.jm.metrics[0].hdr |= FIELD_PREP(WS_MASK_JM_LEN, 1);
+    }
 
     fhss->chan_params = ws_regdb_chan_params(ctxt->config.ws_domain,
                                              ctxt->config.ws_chan_plan_id,

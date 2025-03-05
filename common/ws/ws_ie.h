@@ -136,10 +136,25 @@ struct ws_pan_ie {
     unsigned fan_tps_version: 3;
 };
 
+/*
+ *   Wi-SUN FAN 1.1v09, 6.3.2.3.2.12 Join Metrics Information Element (JM-IE)
+ * [...]
+ * The List of Metrics field is a variable length list of JM-IE Metrics, which
+ * MAY contain zero or up to 4 metrics.
+ * [...]
+ * The Metric Length field MUST be set to indicate the length of the Metric Data
+ * field, where:
+ * [...]
+ * 4. 3 indicates the Metric Data field is 4 octets in length.
+ */
+struct ws_jm {
+    uint8_t hdr;
+    uint8_t data[4];
+};
+
 struct ws_jm_ie {
-    unsigned int mask;
     uint8_t version;
-    uint8_t plf; // PAN Load Factor
+    struct ws_jm metrics[5]; // +1 for sentinel
 };
 
 struct ws_channel_plan_zero {
@@ -295,6 +310,7 @@ bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lba
 bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, uint8_t lgtkhash[3][8], unsigned *active_lgtk_index);
 bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, struct ws_lcp_ie *ws_lcp_ie);
+struct ws_jm *ws_wp_nested_jm_get_metric(struct ws_jm_ie *jm, uint8_t metric_id);
 bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie *jm);
 
 #endif

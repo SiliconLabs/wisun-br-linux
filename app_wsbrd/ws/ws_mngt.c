@@ -18,6 +18,7 @@
 #include "common/trickle_legacy.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
+#include "common/string_extra.h"
 
 #include "net/timers.h"
 #include "ws/ws_pan_info_storage.h"
@@ -262,7 +263,7 @@ void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.lcp     = true,
-        .wp_ies.jm      = ws_info->pan_information.jm.mask,
+        .wp_ies.jm      = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)),
     };
 
     ws_llc_mngt_lfn_request(&req, dst);
@@ -494,7 +495,7 @@ void ws_mngt_pa_send(struct ws_info *ws_info)
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.pom     = schedule->phy_op_modes[0] && schedule->phy_op_modes[1],
-        .wp_ies.jm      = ws_info->pan_information.jm.mask,
+        .wp_ies.jm      = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)),
     };
 
     ws_info->pan_information.routing_cost = 0;

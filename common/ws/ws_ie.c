@@ -568,17 +568,13 @@ static uint8_t ws_wp_nested_jm_get_metric_len(uint8_t metric_len)
 
 void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm_ie *jm)
 {
-    uint8_t tmp8;
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_JM, false);
     iobuf_push_u8(buf, jm->version);
-    if (jm->mask & BIT(WS_JM_PLF)) {
-        tmp8 = 0;
-        tmp8 |= FIELD_PREP(WS_MASK_JM_ID,  WS_JM_PLF);
-        tmp8 |= FIELD_PREP(WS_MASK_JM_LEN, 1);
-        iobuf_push_u8(buf, tmp8);
-        iobuf_push_u8(buf, jm->plf);
+    for (const struct ws_jm *metric = jm->metrics; metric->hdr; metric++) {
+        iobuf_push_u8(buf, metric->hdr);
+        iobuf_push_data(buf, metric->data, ws_wp_nested_jm_get_metric_len(FIELD_GET(WS_MASK_JM_LEN, metric->hdr)));
     }
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
@@ -1025,26 +1021,32 @@ bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, st
     return !ie_buf.err;
 }
 
+struct ws_jm *ws_wp_nested_jm_get_metric(struct ws_jm_ie *jm, uint8_t metric_id)
+{
+    for (struct ws_jm *metric = jm->metrics; metric->hdr; metric++)
+        if (FIELD_GET(WS_MASK_JM_ID, metric->hdr) == metric_id)
+            return metric;
+    return NULL;
+}
+
 bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie *jm)
 {
-    static const int jm_len_conversion[] = { 0, 1, 2, 4 };
     struct iobuf_read ie_buf;
-    uint8_t metric;
+    uint8_t hdr;
+    int i = 0;
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_JM, &ie_buf, false);
     jm->version = iobuf_pop_u8(&ie_buf);
-    while (iobuf_remaining_size(&ie_buf)) {
-        metric = iobuf_pop_u8(&ie_buf);
+    while (iobuf_remaining_size(&ie_buf) && i < ARRAY_SIZE(jm->metrics) - 1) {
+        hdr = iobuf_pop_u8(&ie_buf);
         if (ie_buf.err)
             return !ie_buf.err;
-        if (FIELD_GET(WS_MASK_JM_ID, metric) == WS_JM_PLF &&
-            FIELD_GET(WS_MASK_JM_LEN, metric) == 1) {
-            jm->mask |= BIT(WS_JM_PLF);
-            jm->plf = iobuf_pop_u8(&ie_buf);
-        } else {
-            TRACE(TR_IGNORE, "ignore: unsupported join metric %d", FIELD_GET(WS_MASK_JM_ID, metric));
-            iobuf_pop_data_ptr(&ie_buf, ws_wp_nested_jm_get_metric_len(FIELD_GET(WS_MASK_JM_LEN, metric)));
-        }
+        jm->metrics[i].hdr = hdr;
+        iobuf_pop_data(&ie_buf, jm->metrics[i].data,
+                       ws_wp_nested_jm_get_metric_len(FIELD_GET(WS_MASK_JM_LEN, hdr)));
+        i++;
     }
+    if (iobuf_remaining_size(&ie_buf))
+        return false;
     return !ie_buf.err;
 }
