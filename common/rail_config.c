@@ -80,7 +80,7 @@ static void rail_print_config(const struct phy_params *phy_params, const struct 
         sprintf(str + strlen(str), "  OQPSK");
         sprintf(str + strlen(str), "   --");
         sprintf(str + strlen(str), "   --");
-        sprintf(str + strlen(str), " %4dkchip/s", phy_params->oqpsk_chip_rate / 1000);
+        sprintf(str + strlen(str), " %4ukchip/s", phy_params->oqpsk_chip_rate / 1000);
         sprintf(str + strlen(str), "    %1d", phy_params->oqpsk_rate_mode);
         sprintf(str + strlen(str), "      %1d", phy_params->oqpsk_spreading_mode);
         sprintf(str + strlen(str), "   --");
@@ -95,12 +95,12 @@ static void rail_print_config(const struct phy_params *phy_params, const struct 
     }
 
     if (phy_params)
-        sprintf(str + strlen(str), " %4dkbps", phy_params->datarate / 1000);
+        sprintf(str + strlen(str), " %4ukbps", phy_params->datarate / 1000);
     else
         sprintf(str + strlen(str), "       ??");
 
     sprintf(str + strlen(str), " %4.1fMHz", (double)rail_params->chan0_freq / 1000000);
-    sprintf(str + strlen(str), " %4dkHz", rail_params->chan_spacing / 1000);
+    sprintf(str + strlen(str), " %4ukHz", rail_params->chan_spacing / 1000);
     sprintf(str + strlen(str), "  %3d", rail_params->chan_count);
 
     is_std = false;
