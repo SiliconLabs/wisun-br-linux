@@ -240,15 +240,14 @@ bool hif_pop_bool(struct iobuf_read *buf)
 
 unsigned int __hif_pop_uint(struct iobuf_read *buf)
 {
-    unsigned int val = 0;
-    uint8_t cur;
+    unsigned int cur, val = 0;
     int i = 0;
 
     do {
         cur = iobuf_pop_u8(buf);
         val |= (cur & 0x7F) << i;
         i += 7;
-        if (i > 32) {
+        if (i >= 32) {
             buf->err = true;
             return 0;
         }
