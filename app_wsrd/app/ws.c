@@ -34,6 +34,7 @@
 #include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
+#include "common/seqno.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/join_state.h"
@@ -149,6 +150,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
     struct ws_jm_ie ie_jm;
+    bool has_jm;
 
     if (ind->hdr.pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: missing PAN ID", "15.4");
@@ -164,7 +166,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
-    ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
+    has_jm = ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -174,6 +176,23 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
     if (!memcmp(&wsrd->eapol_target_eui64, &ieee802154_addr_bc, 8))
         ws_eapol_target_add(wsrd, ind, &ie_pan, &ie_jm);
+    if (!has_jm)
+        return;
+    /*
+     *   Wi-SUN FAN 1.1v09, 6.3.2.3.5.1 Frames for FFN-FFN Messaging
+     * The PAN Advertisement frame (PA):
+     * [...]
+     * If multiple JM-IEs are received from a single PAN with different Content
+     * Versions, the JM-IE with the newest Content Version MUST be used for
+     * processing and transmission.
+     * [...]
+     * If a Join Metric is not received in the latest JM-IE it MUST be removed
+     * from the node’s list of join metrics and not forwarded in transmitted
+     * JM-IEs.
+     */
+    if (!memzcmp(wsrd->ws.jm.metrics, sizeof(wsrd->ws.jm.metrics)) ||
+        seqno_cmp8(ie_jm.version, wsrd->ws.jm.version) > 0)
+        wsrd->ws.jm = ie_jm;
 }
 
 static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)

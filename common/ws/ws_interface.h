@@ -96,6 +96,8 @@ struct ws_ctx {
     uint16_t pan_id; // 0xffff if not set
     int pan_version; // -1 if not set
 
+    struct ws_jm_ie jm;
+
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;
     struct ws_neigh_table neigh_table;

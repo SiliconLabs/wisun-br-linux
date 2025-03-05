@@ -25,6 +25,7 @@ void join_state_1_enter(struct wsrd *wsrd)
 {
     // Entering join state 1 means we probably want a fresh start
     wsrd->ws.pan_id = 0xffff;
+    memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
     supp_reset(&wsrd->supp);
     wsrd->eapol_target_eui64 = ieee802154_addr_bc;
     wsrd->ws.pan_version = -1;
