@@ -527,10 +527,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
     }
     tx_entry->fragmenter_buf = interface_ptr->fragment_indirect_tx_buffer;
 
-    if (!tx_entry) {
-        return NULL;
-    }
-
     lowpan_active_buffer_state_reset(tx_entry);
 
     return tx_entry;
