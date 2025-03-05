@@ -315,7 +315,7 @@ const char *tr_gtkname(uint8_t slot)
     char *out = trace_buffer + trace_idx;
     int len;
 
-    len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s[%u]",
+    len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s[%i]",
                    slot < WS_GTK_COUNT ? "gtk" : "lgtk",
                    slot < WS_GTK_COUNT ? slot : slot - WS_GTK_COUNT);
     if (len >= sizeof(trace_buffer) - trace_idx)
