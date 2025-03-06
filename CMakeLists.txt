@@ -146,6 +146,7 @@ add_library(libwsbrd STATIC
     common/ipv6/ipv6_flow_label.c
     common/ws/ws_chan_mask.c
     common/ws/ws_ie.c
+    common/ws/ws_ie_custom.c
     common/ws/ws_neigh.c
     common/ws/ws_regdb.c
     common/crc.c
@@ -193,7 +194,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/ws/ws_bootstrap.c
     app_wsbrd/ws/ws_bootstrap_6lbr.c
     app_wsbrd/ws/ws_common.c
-    app_wsbrd/ws/ws_ie_custom.c
     app_wsbrd/ws/ws_ie_validation.c
     app_wsbrd/ws/ws_llc.c
     app_wsbrd/ws/ws_mngt.c

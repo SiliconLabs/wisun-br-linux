@@ -21,11 +21,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "common/ws/ws_ie_custom.h"
 #include "common/ws/ws_neigh.h"
 #include "common/ws/ws_types.h"
 
 #include "ws/ws_mngt.h"
-#include "ws/ws_ie_custom.h"
 
 extern int DEVICE_MIN_SENS;
 
