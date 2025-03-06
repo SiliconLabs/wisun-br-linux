@@ -140,7 +140,6 @@ ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uin
 ipv6_neighbour_t *ipv6_neighbour_lookup_mc(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64);
 ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64);
 void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 ipv6_neighbour_t *ipv6_neighbour_lookup_gua_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/);
 ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_e ll_type, const uint8_t *ll_address);
@@ -188,7 +187,6 @@ typedef struct ipv6_route {
 /* Callbacks for route providers that dynamically compute next hop */
 typedef bool ipv6_route_next_hop_fn_t(const uint8_t *dest, ipv6_route_info_t *route_info);
 
-uint8_t ipv6_route_pref_to_metric(int_fast8_t pref);
 ipv6_route_t *ipv6_route_add(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int_fast8_t pref);
 ipv6_route_t *ipv6_route_add_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int_fast8_t pref);
 ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, uint8_t metric);
@@ -197,7 +195,6 @@ int_fast8_t ipv6_route_delete(const uint8_t *prefix, uint8_t prefix_len, int8_t 
 int_fast8_t ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int_fast16_t source_id);
 ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id);
 
-void ipv6_route_table_remove_interface(int8_t interface_id);
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t *fn);
 void ipv6_route_table_ttl_update(int seconds);
 bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src);

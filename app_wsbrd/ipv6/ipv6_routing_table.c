@@ -255,16 +255,6 @@ static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_e ll_type
     return false;
 }
 
-bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
-{
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list)
-        if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE &&
-            !memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8) &&
-            !IN6_IS_ADDR_MULTICAST(cur->ip_address))
-            return true;
-    return false;
-}
-
 ipv6_neighbour_t *ipv6_neighbour_lookup_gua_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list)
@@ -832,14 +822,6 @@ ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_
 
 #define PREF_TO_METRIC(pref) (128 - 64 * (pref))
 
-uint8_t ipv6_route_pref_to_metric(int_fast8_t pref)
-{
-    if (pref < -1 || pref > +1) {
-        pref = 0;
-    }
-    return PREF_TO_METRIC(pref);
-}
-
 ipv6_route_t *ipv6_route_add(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int_fast8_t pref)
 {
     return ipv6_route_add_with_info(prefix, prefix_len, interface_id, next_hop, source, NULL, 0, lifetime, pref);
@@ -956,15 +938,6 @@ int_fast8_t ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_le
 
     ipv6_route_entry_remove(route);
     return 0;
-}
-
-void ipv6_route_table_remove_interface(int8_t interface_id)
-{
-    ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id) {
-            ipv6_route_entry_remove(r);
-        }
-    }
 }
 
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source)
