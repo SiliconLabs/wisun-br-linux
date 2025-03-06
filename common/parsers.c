@@ -97,7 +97,7 @@ int parse_byte_array(uint8_t *out, int size, const char *str)
     for (int i = 0; i < size; i++) {
         if (str[2] != '\0' && str[2] != ':')
             return -EINVAL;
-        if (sscanf(str, "%hhx", out + i) != 1)
+        if (sscanf(str, "%hhx", &out[i]) != 1)
             return -EINVAL;
         str += 3;
     }
