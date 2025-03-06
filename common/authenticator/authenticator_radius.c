@@ -526,6 +526,7 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     const struct eap_hdr *eap = buf;
     struct radius_hdr hdr = { };
     struct pktbuf pktbuf = { };
+    const uint8_t *buf_ptr;
     int offset_msg_auth;
 
     supp->radius.id = -1; // Cancel any on-going transaction
@@ -543,14 +544,15 @@ void radius_send_eap(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     pktbuf_push_tail(&pktbuf, &hdr, sizeof(hdr));
 
     // RFC 3579 3.1. EAP-Message
+    buf_ptr = buf;
     while (buf_len > UINT8_MAX - sizeof(struct radius_attr)) {
         radius_attr_push(&pktbuf, RADIUS_ATTR_EAP_MSG,
-                         buf, UINT8_MAX - sizeof(struct radius_attr));
-        buf     += UINT8_MAX - sizeof(struct radius_attr);
+                         buf_ptr, UINT8_MAX - sizeof(struct radius_attr));
+        buf_ptr += UINT8_MAX - sizeof(struct radius_attr);
         buf_len -= UINT8_MAX - sizeof(struct radius_attr);
     }
     if (buf_len)
-        radius_attr_push(&pktbuf, RADIUS_ATTR_EAP_MSG, buf, buf_len);
+        radius_attr_push(&pktbuf, RADIUS_ATTR_EAP_MSG, buf_ptr, buf_len);
 
     offset_msg_auth = pktbuf.offset_tail + sizeof(struct radius_attr);
     radius_attr_push(&pktbuf, RADIUS_ATTR_MSG_AUTH, NULL, 16);
