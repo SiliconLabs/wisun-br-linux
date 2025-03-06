@@ -33,16 +33,6 @@ static inline int memzcmp(const void *src, size_t size)
     return memcmp(buf, buf + 1, size - 1);
 }
 
-static inline void *memrcpy(void *dst, const void *src, size_t size)
-{
-    const uint8_t *src8 = src;
-    uint8_t *dst8 = dst;
-
-    for (int i = 0; i < size; i++)
-        dst8[i] = src8[size - i - 1];
-    return dst;
-}
-
 static inline void memswap(void *buf1, void *buf2, size_t size)
 {
     uint8_t *a = buf1;
