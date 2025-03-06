@@ -60,3 +60,39 @@ jobs:
                 -D AUTH_LEGACY=OFF \
                 -G Ninja
           ninja -C build-auth wsbrd
+      - name: Download Coverity
+        if: github.ref == 'refs/heads/main'
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        run: |
+          wget -qO- "https://scan.coverity.com/download/cxx/linux64" \
+              --post-data "token=${COVERITY_SCAN_TOKEN}&project=wisun-br-linux" \
+              | tar -xz --one-top-level=/opt/coverity/ --strip-components=1
+          ln -sfn /opt/coverity/bin/cov* /usr/local/bin
+          coverity --version
+      - name: Compile with Coverity
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cmake -S . \
+                -B build-cov \
+                -D COMPILE_WSRD=ON \
+                -D COMPILE_DEVTOOLS=ON \
+                -D COMPILE_DEMOS=ON \
+                -D CMAKE_C_FLAGS=-Werror \
+                -G Ninja
+          cov-build --dir cov-int ninja -C build-cov
+      - name: Upload Coverity Scan Results
+        if: github.ref == 'refs/heads/main'
+        env:
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          COVERITY_SCAN_EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
+          COVERITY_SCAN_VERSION: ${{ github.sha }}
+        run: |
+          tar czf cov-int.tgz cov-int
+          curl --fail \
+               --form token="$COVERITY_SCAN_TOKEN" \
+               --form email="$COVERITY_SCAN_EMAIL" \
+               --form file=@cov-int.tgz \
+               --form version="$COVERITY_SCAN_VERSION" \
+               --form description="Coverity scan results for commit $COVERITY_SCAN_VERSION" \
+               "https://scan.coverity.com/builds?project=wisun-br-linux"
