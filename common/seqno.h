@@ -39,4 +39,9 @@ static inline int seqno_cmp8(uint8_t a, uint8_t b)
     return (int8_t)(a - b);
 }
 
+static inline int seqno_cmp16(uint16_t a, uint16_t b)
+{
+    return (int16_t)(a - b);
+}
+
 #endif

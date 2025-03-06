@@ -369,7 +369,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     }
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
-    if (cur_pan_version != pan_version)
+    if (cur_pan_version == -1 || seqno_cmp16(pan_version, cur_pan_version) > 0)
         ws_pan_version_update(wsrd, pan_version, gtkhash);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
