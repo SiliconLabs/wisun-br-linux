@@ -288,6 +288,22 @@ static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
     ws->gak_index = key_index;
 }
 
+/*
+ *   Wi-SUN FAN 1.1v09 6.3.4.6.3.2.5 FFN Join State 5: Operational
+ * If an FFN receives a PAN Configuration indicating a PAN version number
+ * (PANVER-IE) that is greater than (newer than) that already known to the FFN:
+ */
+static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version)
+{
+    /*
+     * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
+     * Version.
+     */
+    wsrd->ws.pan_version = new_pan_version;
+    join_state_transition(wsrd, WSRD_EVENT_PC_RX);
+    dbus_emit_change("PanVersion");
+}
+
 static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
     struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
@@ -343,12 +359,8 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     for (int i = 0; i < ARRAY_SIZE(gtkhash); i++)
         if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
             supp_start_key_request(&wsrd->supp);
-    // TODO: Handle change of PAN version, see Wi-SUN FAN 1.1v08 - 6.3.4.6.3.2.5 FFN Join State 5: Operational
-    if (cur_pan_version != pan_version) {
-        wsrd->ws.pan_version = pan_version;
-        join_state_transition(wsrd, WSRD_EVENT_PC_RX);
-        dbus_emit_change("PanVersion");
-    }
+    if (cur_pan_version != pan_version)
+        ws_pan_version_update(wsrd, pan_version);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
