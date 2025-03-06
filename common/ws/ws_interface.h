@@ -16,6 +16,7 @@
 #include <inttypes.h>
 
 #include "common/ieee802154_frame.h"
+#include "common/crypto/ws_keys.h"
 #include "common/ws/ws_neigh.h"
 #include "common/ws/ws_types.h"
 #include "common/rcp_api.h"
@@ -95,6 +96,11 @@ struct ws_ctx {
     char     netname[WS_NETNAME_LEN];
     uint16_t pan_id; // 0xffff if not set
     int pan_version; // -1 if not set
+    /*
+     * The following does NOT reflect the locally owned GTKs.
+     * It is a copy of the latest GTKHASH-IE.
+     */
+    uint8_t gtkhash[WS_GTK_COUNT][8];
 
     struct ws_jm_ie jm;
 

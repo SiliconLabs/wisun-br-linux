@@ -307,6 +307,12 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      */
     wsrd->ws.pan_version = new_pan_version;
     /*
+     *   Wi-SUN FAN 1.1v09 6.3.2.3.2.6 GTK Hash Information Element (GTKHASH-IE)
+     * A Router MUST report the GTK Hash values received with the latest
+     * received PAN Version.
+     */
+    memcpy(wsrd->ws.gtkhash, gtkhash, sizeof(wsrd->ws.gtkhash));
+    /*
      * 2. The FFN must examine the content of the PAN Configuration to
      * determine incoming changes and take appropriate action:
      *
