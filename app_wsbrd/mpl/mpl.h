@@ -48,6 +48,5 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 uint16_t seed_set_entry_lifetime, uint8_t seed_id_mode,
                                 const struct trickle_legacy_params *data_trickle_params);
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
-bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);
 
 #endif

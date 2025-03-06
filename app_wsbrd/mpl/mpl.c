@@ -147,17 +147,6 @@ static mpl_domain_t *mpl_domain_lookup_ignoring_scop(struct net_if *cur, const u
     return NULL;
 }
 
-static int mpl_domain_count_on_interface(struct net_if *cur)
-{
-    int count = 0;
-    ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
-        if (domain->interface == cur) {
-            count++;
-        }
-    }
-    return count;
-}
-
 mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 uint16_t seed_set_entry_lifetime, uint8_t seed_id_mode,
                                 const trickle_legacy_params_t *data_trickle_params)
@@ -195,32 +184,6 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
     //ipv6_route_add_with_info(address, 128, cur->id, NULL, ROUTE_MPL, domain, 0, 0xffffffff, 0);
     addr_add_group(cur, address);
     return domain;
-}
-
-bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
-{
-    mpl_domain_t *domain = mpl_domain_lookup(cur, address);
-    if (!domain) {
-        return false;
-    }
-    int count = mpl_domain_count_on_interface(cur);
-
-    /* Don't let them delete all-mpl-forwarders unless it's the last */
-    if (addr_ipv6_equal(address, ADDR_ALL_MPL_FORWARDERS)) {
-        if (count != 1) {
-            return true;
-        }
-    }
-
-    ns_list_foreach_safe(mpl_seed_t, seed, &domain->seeds) {
-        mpl_seed_delete(domain, seed);
-    }
-
-    //ipv6_route_delete(address, 128, cur->id, NULL, ROUTE_MPL);
-    addr_remove_group(cur, address);
-    ns_list_remove(&mpl_domains, domain);
-    free(domain);
-    return true;
 }
 
 static mpl_seed_t *mpl_seed_lookup(const mpl_domain_t *domain, uint8_t id_len, const uint8_t *seed_id)
