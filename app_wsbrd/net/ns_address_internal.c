@@ -226,14 +226,6 @@ static int_fast8_t addr_policy_table_add_entry(const char *_netmask, uint8_t pre
     return 0;
 }
 
-/// @TODO do we need this test print anymore ?
-void addr_policy_table_print(void)
-{
-    ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table)
-        tr_debug("%3d %3d %s", entry->precedence, entry->label,
-                 tr_ipv6_prefix(entry->prefix, entry->prefix_len));
-}
-
 static void addr_policy_table_reset(void)
 {
     ns_list_foreach_safe(addr_policy_table_entry_t, entry, &addr_policy_table) {
@@ -251,7 +243,6 @@ static void addr_policy_table_reset(void)
     addr_policy_table_add_entry("::/96",          1,  3);
     addr_policy_table_add_entry("fec0::/10",      1, 11);
     addr_policy_table_add_entry("3ffe::/16",      1, 12);
-    //addr_policy_table_print();
 }
 
 static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[16])

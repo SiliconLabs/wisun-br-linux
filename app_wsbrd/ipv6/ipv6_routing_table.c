@@ -456,14 +456,6 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
     }
 }
 
-void ipv6_destination_cache_print()
-{
-    tr_debug("Destination Cache:");
-    ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        tr_debug(" %s (%d id) (life %u)", tr_ipv6(entry->destination), entry->interface_id, entry->lifetime);
-    }
-}
-
 /* Unlike original version, this does NOT perform routing check - it's pure destination cache look-up
  *
  * We no longer attempt to cache route lookups in the destination cache, as
@@ -651,14 +643,6 @@ static void ipv6_route_print(const ipv6_route_t *route)
         tr_debug("     On-link (met %d)", total_metric(route));
     } else {
         tr_debug("     next-hop %s (met %d)", tr_ipv6(route->info.next_hop_addr), total_metric(route));
-    }
-}
-
-void ipv6_route_table_print()
-{
-    tr_debug("Routing table:");
-    ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        ipv6_route_print(r);
     }
 }
 

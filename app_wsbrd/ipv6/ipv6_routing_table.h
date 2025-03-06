@@ -166,7 +166,6 @@ typedef struct ipv6_destination {
     ns_list_link_t                  link;
 } ipv6_destination_t;
 
-void ipv6_destination_cache_print();
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);
 ipv6_destination_t *ipv6_destination_lookup_or_create_with_route(const uint8_t *address, int8_t interface_id, ipv6_route_info_t *route_out);
 void ipv6_destination_cache_timer(int ticks);
@@ -201,7 +200,6 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
 void ipv6_route_table_remove_interface(int8_t interface_id);
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t *fn);
 void ipv6_route_table_ttl_update(int seconds);
-void ipv6_route_table_print();
 bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src);
 void ipv6_route_table_source_invalidated_reset(void);
 
