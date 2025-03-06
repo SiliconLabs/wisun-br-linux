@@ -293,13 +293,33 @@ static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
  * If an FFN receives a PAN Configuration indicating a PAN version number
  * (PANVER-IE) that is greater than (newer than) that already known to the FFN:
  */
-static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version)
+static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, const uint8_t gtkhash[4][8])
 {
     /*
      * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
      * Version.
      */
     wsrd->ws.pan_version = new_pan_version;
+    /*
+     * 2. The FFN must examine the content of the PAN Configuration to
+     * determine incoming changes and take appropriate action:
+     *
+     * b. An FFN MUST confirm that it possesses the correct set of PAN GTKs as
+     * indicated by the GTKHASH-IE. If the FFN determines the hash of a GTK in
+     * its possession does not match that reported by the Border Router, the
+     * FFN MUST execute the security flow (described in section 6.5) to acquire
+     * that GTK.
+     *
+     * Further clarification:
+     * Wi-SUN requires a handshake to update the GTKL and remove a key when it
+     * is revoked earlier than expected from the Lifetime KDE. Immediately
+     * deleting the key based on a GTKHASH change is dangerous because the GTK
+     * is more likely to leak than the PTK, and authenticator packets are
+     * secured using the PTK.
+     */
+    for (int i = 0; i < WS_GTK_COUNT; i++)
+        if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
+            supp_start_key_request(&wsrd->supp);
     join_state_transition(wsrd, WSRD_EVENT_PC_RX);
     dbus_emit_change("PanVersion");
 }
@@ -349,18 +369,8 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     }
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
-    /*
-     * Wi-SUN requires a handshake to update the GTKL and remove a key when it
-     * is revoked earlier than expected from the Lifetime KDE. Immediately
-     * deleting the key based on a GTKHASH change is dangerous because the GTK
-     * is more likely to leak than the PTK, and authenticator packets are
-     * secured using the PTK.
-     */
-    for (int i = 0; i < ARRAY_SIZE(gtkhash); i++)
-        if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
-            supp_start_key_request(&wsrd->supp);
     if (cur_pan_version != pan_version)
-        ws_pan_version_update(wsrd, pan_version);
+        ws_pan_version_update(wsrd, pan_version, gtkhash);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
