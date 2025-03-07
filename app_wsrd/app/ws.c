@@ -392,7 +392,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
      * helps to avoid a case where the parent sends us a PC with an outdated
      * PAN version.
      */
-    // TODO: update on parent change
     if (pan_version_update || (eui64_eq(&wsrd->eapol_target_eui64, &ind->neigh->eui64) &&
                                !wsrd->fhss_bc_synced_to_target && seqno_cmp16(pan_version, wsrd->ws.pan_version) >= 0))
         ws_sync_fhss_bc(wsrd, ind->neigh);

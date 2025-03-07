@@ -272,9 +272,14 @@ static struct eui64 wsrd_eapol_get_target(struct supp_ctx *supp)
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh)
 {
     struct wsrd *wsrd = container_of(mrhof, struct wsrd, ipv6.rpl.mrhof);
+    struct ws_neigh *ws_neigh;
 
     if (neigh) {
+        ws_neigh = ws_neigh_get(&wsrd->ws.neigh_table, &neigh->eui64);
+        BUG_ON(!ws_neigh);
         join_state_transition(wsrd, WSRD_EVENT_RPL_NEW_PREF_PARENT);
+        if (eui64_eq(&wsrd->eapol_target_eui64, &neigh->eui64))
+            return;
         /*
          *   Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
          * A Router operating as a SUP MUST direct EAPOL frames to a node designated
@@ -282,6 +287,11 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
          * use that parent as the EAPOL target.
          */
         wsrd->eapol_target_eui64 = neigh->eui64;
+        if (!ws_neigh_has_bs(&ws_neigh->fhss_data_unsecured)) {
+            wsrd->fhss_bc_synced_to_target = false;
+            return;
+        }
+        ws_sync_fhss_bc(wsrd, ws_neigh);
     } else {
         wsrd->eapol_target_eui64 = EUI64_BC;
         // TODO: handle parent loss
