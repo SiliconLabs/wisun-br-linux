@@ -1041,7 +1041,7 @@ bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie 
     while (iobuf_remaining_size(&ie_buf) && i < ARRAY_SIZE(jm->metrics) - 1) {
         hdr = iobuf_pop_u8(&ie_buf);
         if (ie_buf.err)
-            return !ie_buf.err;
+            return false;
         jm->metrics[i].hdr = hdr;
         iobuf_pop_data(&ie_buf, jm->metrics[i].data,
                        ws_wp_nested_jm_get_metric_len(FIELD_GET(WS_MASK_JM_LEN, hdr)));
