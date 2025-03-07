@@ -245,7 +245,7 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
         if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
             continue;
 
-        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->mac64);
+        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
         rpl_send_dis(ipv6, &dst);
     }
 }

@@ -133,19 +133,19 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     ieee802154_ie_find_payload(ie_payload.data, ie_payload.data_size,
                                IEEE802154_IE_ID_MPX, &ind.ie_mpx);
 
-    ind.neigh = ws_neigh_get(&ws->neigh_table, ind.hdr.src.u8);
+    ind.neigh = ws_neigh_get(&ws->neigh_table, &ind.hdr.src);
     if (!ind.neigh)
         // TODO: TX power (APC), active key indices
-        ind.neigh = ws_neigh_add(&ws->neigh_table, ind.hdr.src.u8, WS_NR_ROLE_ROUTER, 16, 0x02);
+        ind.neigh = ws_neigh_add(&ws->neigh_table, &ind.hdr.src, WS_NR_ROLE_ROUTER, 16, 0x02);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
     ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
-                       ind.hif->timestamp_us, ind.hdr.src.u8);
+                       ind.hif->timestamp_us, &ind.hdr.src);
     ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
                                                          hif_ind->rx_power_dbm, WS_EWMA_SF);
     if (ind.hdr.key_index) {
         ws_neigh_ut_update(&ind.neigh->fhss_data, ie_utt.ufsi,
-                           ind.hif->timestamp_us, ind.hdr.src.u8);
+                           ind.hif->timestamp_us, &ind.hdr.src);
         ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
                                                    hif_ind->rx_power_dbm, WS_EWMA_SF);
     }
@@ -218,11 +218,11 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 
     // DCS are async unicast packets to the chosen target
     if (frame_ctx->type != SL_FT_DCS && memcmp(&frame_ctx->dst, &EUI64_BC, 8)) {
-        neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst.u8);
+        neigh = ws_neigh_get(&ws->neigh_table, &frame_ctx->dst);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
             // TODO: TX power (APC), active key indices
-            neigh = ws_neigh_add(&ws->neigh_table, frame_ctx->dst.u8, WS_NR_ROLE_ROUTER, 16, BIT(1));
+            neigh = ws_neigh_add(&ws->neigh_table, &frame_ctx->dst, WS_NR_ROLE_ROUTER, 16, BIT(1));
         }
     }
 
@@ -241,9 +241,9 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
             neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
         if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
-            ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, neigh->mac64);
+            ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
             if (hdr.key_index)
-                ws_neigh_ut_update(&neigh->fhss_data, ie_utt.ufsi, cnf->timestamp_us, neigh->mac64);
+                ws_neigh_ut_update(&neigh->fhss_data, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
         }
     }
     if (neigh)
@@ -257,7 +257,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 
 int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struct eui64 *dst)
 {
-    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
+    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, dst);
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .ack_req    = neigh,
@@ -350,7 +350,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     struct ws_neigh *neigh;
     int offset;
 
-    neigh = ws_neigh_get(&ws->neigh_table, dst->u8);
+    neigh = ws_neigh_get(&ws->neigh_table, dst);
     if (!neigh) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return;
@@ -513,7 +513,7 @@ void ws_if_send_pcs(struct ws_ctx *ws)
 
 void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
 {
-    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, req->dst->u8);
+    struct ws_neigh *neigh = ws_neigh_get(&ws->neigh_table, req->dst);
     struct ieee802154_hdr hdr = {
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = req->pkt || req->fhss_type == HIF_FHSS_TYPE_FFN_BC ? ws->seqno++ : -1,

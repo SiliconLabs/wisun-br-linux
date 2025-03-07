@@ -56,7 +56,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     dbus_message_append_node_br(reply, property, ctxt);
     SLIST_FOREACH(supp, &ctxt->auth.supplicants, link) {
-        neigh = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, supp->eui64.u8);
+        neigh = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, &supp->eui64);
         dbus_message_append_node(reply, property, &supp->eui64, false, supp, neigh);
     }
     sd_bus_message_close_container(reply);

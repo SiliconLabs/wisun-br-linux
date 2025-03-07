@@ -210,7 +210,8 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
             return true;
         }
 
-        ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage, na_earo->eui64);
+        ws_neigh = ws_neigh_get(&cur_interface->ws_info.neighbor_storage,
+                                (struct eui64 *)na_earo->eui64);
         if (!ws_neigh) {
             na_earo->status = NDP_ARO_STATUS_INVALTOPO;
             na_earo->present = true;

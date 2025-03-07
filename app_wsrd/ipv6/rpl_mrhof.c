@@ -23,7 +23,7 @@
 
 static float rpl_mrhof_etx(const struct rpl_mrhof *mrhof, const struct ipv6_neigh *nce)
 {
-    struct ws_neigh *neigh = ws_neigh_get(mrhof->ws_neigh_table, nce->eui64.u8);
+    struct ws_neigh *neigh = ws_neigh_get(mrhof->ws_neigh_table, &nce->eui64);
 
     return neigh ? neigh->etx : NAN;
 }

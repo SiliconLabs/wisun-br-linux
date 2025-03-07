@@ -205,7 +205,7 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
      * In the absence of other messaging, a Router SHOULD initiate NUD
      * messaging to refresh the ETX value for that neighbor.
      */
-    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, (struct eui64 *)neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce)
         return;
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
@@ -216,7 +216,7 @@ static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *ne
     struct wsrd *wsrd = container_of(table, struct wsrd, ws.neigh_table);
     struct ipv6_neigh *nce;
 
-    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, (struct eui64 *)neigh->mac64);
+    nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce || !nce->rpl)
         return;
     rpl_mrhof_select_parent(&wsrd->ipv6);

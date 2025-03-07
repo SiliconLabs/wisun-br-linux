@@ -97,7 +97,7 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
 
-    if (memcmp(dc->cfg.target_eui64.u8, neigh->mac64, sizeof(dc->cfg.target_eui64.u8)))
+    if (memcmp(&dc->cfg.target_eui64, &neigh->eui64, 8))
         return;
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64.u8));
     dc_restart_disc_timer(dc);
@@ -117,7 +117,7 @@ static void dc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id, const 
 static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struct eui64 *eui64, uint8_t index)
 {
     struct dc *dc = container_of(auth_ctx, struct dc, auth_ctx);
-    struct ws_neigh *neigh = ws_neigh_get(&dc->ws.neigh_table, dc->cfg.target_eui64.u8);
+    struct ws_neigh *neigh = ws_neigh_get(&dc->ws.neigh_table, &dc->cfg.target_eui64);
     struct in6_addr client_linklocal;
     struct ws_neigh *it;
     uint8_t tk[16];

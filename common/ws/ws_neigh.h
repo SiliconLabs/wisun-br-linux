@@ -25,6 +25,7 @@
 
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
+#include "common/eui64.h"
 #include "common/int24.h"
 #include "common/timer.h"
 #include "common/hif.h"
@@ -64,6 +65,8 @@ struct lto_info {
 };
 
 struct ws_neigh {
+    struct eui64 eui64;
+
     /**
      * Theses fields were introduced to differentiate FHSS data read in secured
      * frames and FHSS data read in unsecured frames.
@@ -107,7 +110,6 @@ struct ws_neigh {
     struct lto_info lto_info;
     uint8_t node_role;
     uint32_t frame_counter_min[HIF_KEY_COUNT];
-    uint8_t mac64[8];                                      /*!< MAC64 */
     uint32_t expiration_s;
     uint32_t lifetime_s;                                   /*!< Life time in seconds */
     uint8_t ms_phy_mode_id;                                /*!< PhyModeId selected for Mode Switch with this neighbor */
@@ -156,14 +158,14 @@ struct ws_neigh_table {
     void (*on_etx_update)(struct ws_neigh_table *table, struct ws_neigh *neigh);
 };
 
-struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const uint8_t *mac64);
+struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const struct eui64 *eui64);
 
-void ws_neigh_del(struct ws_neigh_table *table, const uint8_t *mac64);
+void ws_neigh_del(struct ws_neigh_table *table, const struct eui64 *eui64);
 void ws_neigh_clean(struct ws_neigh_table *table);
 
 // Unicast Timing update
 void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
-                        uint64_t tstamp_us, const uint8_t eui64[8]);
+                        uint64_t tstamp_us, const struct eui64 *eui64);
 // LFN Unicast timing update
 void ws_neigh_lut_update(struct ws_neigh_fhss *fhss_data,
                          uint16_t slot_number, uint24_t interval_offset,
@@ -195,9 +197,9 @@ bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, ui
 int ws_neigh_lfn_count(struct ws_neigh_table *table);
 
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
-                             const uint8_t mac64[8],
-                             uint8_t role, int8_t tx_power_dbm,
-                             unsigned int key_index_mask);
+                              const struct eui64 *eui64,
+                              uint8_t role, int8_t tx_power_dbm,
+                              unsigned int key_index_mask);
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 

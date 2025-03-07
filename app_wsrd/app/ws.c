@@ -55,7 +55,7 @@ static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
 
     if (!ipv6_parent)
         return 0xffff;
-    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64.u8);
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, &ipv6_parent->eui64);
     BUG_ON(!ws_parent);
 
     // Note: overflow during float to int conversion is undefined behavior
@@ -116,13 +116,13 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
             selected_candidate = candidate;
     }
 
-    memcpy(&wsrd->eapol_target_eui64, selected_candidate->mac64, sizeof(selected_candidate->mac64));
+    memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
     // TODO: reset PAN ID when transitioning to join state 1
     wsrd->ws.pan_id = selected_pan_id;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
-         tr_eui64(selected_candidate->mac64), selected_candidate->pan_id,
+         tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
          ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
@@ -155,7 +155,7 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
         ind->neigh->plf = 0xff;
 
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
-         tr_eui64(ind->neigh->mac64), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
+         tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
@@ -356,7 +356,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     // TODO: only update on BS-IE change, or parent change
     ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
     ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
-    if (!parent || !memcmp(&parent->eui64, ind->neigh->mac64, 8))
+    if (!parent || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
         rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
                             ie_bs.broadcast_interval,
                             ie_bs.broadcast_schedule_identifier,
@@ -365,7 +365,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
                             ind->hif->timestamp_us,
                             ie_bt.broadcast_slot_number,
                             ie_bt.broadcast_interval_offset,
-                            ind->neigh->mac64,
+                            ind->neigh->eui64.u8,
                             ind->neigh->frame_counter_min);
 }
 
@@ -568,7 +568,7 @@ void ws_on_send_pa(struct trickle *tkl)
     const struct ws_neigh *ws_parent;
 
     BUG_ON(!ipv6_parent);
-    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, ipv6_parent->eui64.u8);
+    ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, &ipv6_parent->eui64);
     BUG_ON(!ws_parent);
 
     ws_if_send_pa(&wsrd->ws, ws_parent->ie_pan.pan_size, own_routing_cost);
