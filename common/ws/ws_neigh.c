@@ -397,6 +397,14 @@ bool ws_neigh_has_us(const struct ws_neigh_fhss *fhss_data)
     return memzcmp(fhss_data->uc_channel_list, WS_CHAN_MASK_LEN);
 }
 
+void ws_neigh_bt_update(struct ws_neigh_fhss *fhss_data, uint16_t slot_number, uint24_t interval_offset,
+                        uint64_t tstamp_us)
+{
+    fhss_data->ffn.bt_rx_tstamp_us        = tstamp_us;
+    fhss_data->ffn.bc_slot_number         = slot_number;
+    fhss_data->ffn.bc_interval_offset_ms  = interval_offset;
+}
+
 void ws_neigh_bs_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
                         const struct ws_bs_ie *bs_ie)
 {

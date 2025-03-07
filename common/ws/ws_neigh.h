@@ -43,6 +43,10 @@ struct ws_neigh_fhss {
             uint32_t bc_interval_ms;        // from BS-IE
             uint8_t  bc_dwell_interval_ms;  // from BS-IE
             uint16_t bsi;                   // from BS-IE
+            // BT-IE fields are always set if BS-IE fields are
+            uint16_t bc_slot_number;        // from BT-IE
+            uint24_t bc_interval_offset_ms; // from BT-IE
+            uint64_t bt_rx_tstamp_us;
         } ffn;
         struct {
             uint24_t uc_listen_interval_ms; // from LUS-IE
@@ -183,6 +187,10 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neig
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval);
 bool ws_neigh_has_us(const struct ws_neigh_fhss *fhss_data);
+
+// Broadcast Timing update
+void ws_neigh_bt_update(struct ws_neigh_fhss *fhss_data, uint16_t slot_number, uint24_t interval_offset,
+                        uint64_t tstamp_us);
 
 // Broadcast Schedule update
 void ws_neigh_bs_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,

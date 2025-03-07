@@ -205,6 +205,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     struct ws_neigh *neigh = NULL;
     struct ieee802154_hdr hdr;
     struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
     int ret, rsl;
 
     if (cnf->status != HIF_STATUS_SUCCESS)
@@ -244,6 +245,13 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
             if (hdr.key_index)
                 ws_neigh_ut_update(&neigh->fhss_data, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
+        }
+        if (ws_wh_bt_read(ie_header.data, ie_header.data_size, &ie_bt)) {
+            ws_neigh_bt_update(&neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+                               ie_bt.broadcast_interval_offset, cnf->timestamp_us);
+            if (hdr.key_index)
+                ws_neigh_bt_update(&neigh->fhss_data, ie_bt.broadcast_slot_number,
+                                   ie_bt.broadcast_interval_offset, cnf->timestamp_us);
         }
     }
     if (neigh)

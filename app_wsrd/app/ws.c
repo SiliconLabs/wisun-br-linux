@@ -360,6 +360,8 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data, &ie_bs);
     ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
+    ws_neigh_bt_update(&ind->neigh->fhss_data, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
+    ws_neigh_bt_update(&ind->neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
 
     // TODO: only update on BS-IE change, or parent change
     if (!parent || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
@@ -368,9 +370,9 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
                             ind->neigh->fhss_data_unsecured.ffn.bsi,
                             ind->neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms,
                             ind->neigh->fhss_data_unsecured.bc_channel_list,
-                            ind->hif->timestamp_us,
-                            ie_bt.broadcast_slot_number,
-                            ie_bt.broadcast_interval_offset,
+                            ind->neigh->fhss_data_unsecured.ffn.bt_rx_tstamp_us,
+                            ind->neigh->fhss_data_unsecured.ffn.bc_slot_number,
+                            ind->neigh->fhss_data_unsecured.ffn.bc_interval_offset_ms,
                             ind->neigh->eui64.u8,
                             ind->neigh->frame_counter_min);
 }
@@ -422,10 +424,6 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
         return;
     }
-    if (!ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt)) {
-        TRACE(TR_DROP, "drop %s: missing BT-IE", "15.4");
-        return;
-    }
 
     if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
         ie_mpx.multiplex_id  != MPX_ID_6LOWPAN ||
@@ -437,6 +435,18 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
     if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    }
+    /*
+     *   Wi-SUN FAN 1.1v09 6.3.2.3.5.3 Frames for General Purpose Messaging
+     * The Upper Layer Application Data frame (ULAD):
+     * b. MUST include the BT-IE after the node reaches Join State 5 and
+     *    MAY be included during earlier join states
+     */
+    if (ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt)) {
+        ws_neigh_bt_update(&ind->neigh->fhss_data, ie_bt.broadcast_slot_number,
+                           ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
+        ws_neigh_bt_update(&ind->neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+                           ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
     }
 
     /*
@@ -458,10 +468,12 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     struct eui64 auth_eui64;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
+    struct ws_bt_ie ie_bt;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
     bool has_ea_ie;
     bool has_bs_ie;
+    bool has_bt_ie;
 
     if (wsrd->ws.pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
@@ -470,6 +482,12 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     has_bs_ie = ws_wp_nested_bs_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_bs);
     if (has_bs_ie && !ws_ie_validate_bs(&wsrd->ws.fhss, &ind->ie_wp, &ie_bs))
         return;
+    has_bt_ie = ws_wh_bt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_bt);
+    // We refuse EAPOL frames with a BS-IE but no BT-IE as it does not make sense
+    if (has_bs_ie && !has_bt_ie) {
+        TRACE(TR_DROP, "drop %s: have BS-IE but missing BT-IE", "15.4");
+        return;
+    }
 
     if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
         ie_mpx.multiplex_id  != MPX_ID_KMP ||
@@ -493,6 +511,15 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     }
     if (has_bs_ie)
         ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
+    /*
+     *   Wi-SUN FAN 1.1v09 6.3.2.3.5.3 Frames for General Purpose Messaging
+     * The EAPOL frame (EAPOL):
+     * b. MUST include the BT-IE after the node reaches Join State 5 and
+     *    MAY be included during earlier join states
+     */
+    if (has_bt_ie)
+        ws_neigh_bt_update(&ind->neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+                           ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
 
     buf.data = ie_mpx.frame_ptr;
     buf.data_size = ie_mpx.frame_length;
