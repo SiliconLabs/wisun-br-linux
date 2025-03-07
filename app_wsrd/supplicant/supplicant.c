@@ -25,12 +25,12 @@
 #include "common/specs/ws.h"
 #include "common/crypto/ieee80211.h"
 #include "common/crypto/ws_keys.h"
-#include "common/ieee802154_frame.h"
 #include "common/mbedtls_extra.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
 #include "common/eapol.h"
+#include "common/eui64.h"
 #include "common/iobuf.h"
 #include "common/bits.h"
 #include "common/kde.h"
@@ -48,7 +48,7 @@ void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, siz
     BUG_ON(buf_len < sizeof(*hdr));
     hdr = buf;
 
-    if (!memcmp(dst, &ieee802154_addr_bc, 8)) {
+    if (!memcmp(dst, &EUI64_BC, 8)) {
         TRACE(TR_DROP, "drop %-9s: no eapol target available", "eapol");
         return;
     }

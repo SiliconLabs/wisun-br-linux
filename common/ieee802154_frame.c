@@ -40,8 +40,6 @@
 #define IEEE802154_MASK_SECHDR_DEL_FRAMECTR 0b00100000
 #define IEEE802154_MASK_SECHDR_ASN_IN_NONCE 0b01000000
 
-const struct eui64 ieee802154_addr_bc = IEEE802154_ADDR_BC_INIT;
-
 // IEEE 802.15.4-2020 Table 7-2 PAN ID Compression field value for frame version 0b10
 static const struct {
     uint8_t dst_addr_mode;
@@ -204,7 +202,7 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
     if (ieee802154_table_pan_id_cmpr[i].dst_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
         hdr->dst.be64 = htobe64(iobuf_pop_le64(&iobuf));
     else
-        hdr->dst = ieee802154_addr_bc;
+        hdr->dst = EUI64_BC;
 
     hdr->pan_id = 0xffff;
     if (ieee802154_table_pan_id_cmpr[i].has_src_pan_id)
@@ -214,7 +212,7 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
     if (ieee802154_table_pan_id_cmpr[i].src_addr_mode == IEEE802154_ADDR_MODE_64_BIT)
         hdr->src.be64 = htobe64(iobuf_pop_le64(&iobuf));
     else
-        hdr->src = ieee802154_addr_bc;
+        hdr->src = EUI64_BC;
 
     hdr->key_index = 0;
     if (FIELD_GET(IEEE802154_MASK_FCF_SECURED, fcf)) {
@@ -243,10 +241,10 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
 void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
                                 const struct ieee802154_hdr *hdr)
 {
-    uint8_t dst_addr_mode = !memcmp(&ieee802154_addr_bc, &hdr->dst, 8) ?
+    uint8_t dst_addr_mode = !memcmp(&EUI64_BC, &hdr->dst, 8) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
-    uint8_t src_addr_mode = !memcmp(&ieee802154_addr_bc, &hdr->src, 8) ?
+    uint8_t src_addr_mode = !memcmp(&EUI64_BC, &hdr->src, 8) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
     int i;

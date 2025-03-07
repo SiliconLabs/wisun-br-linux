@@ -122,7 +122,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     }
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
-        if (memcmp(&ind.hdr.src, &ieee802154_addr_bc, 8))
+        if (memcmp(&ind.hdr.src, &EUI64_BC, 8))
             ws->edfe_src = ind.hdr.src;
         else
             ind.hdr.src = ws->edfe_src;
@@ -217,7 +217,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     }
 
     // DCS are async unicast packets to the chosen target
-    if (frame_ctx->type != SL_FT_DCS && memcmp(&frame_ctx->dst, &ieee802154_addr_bc, 8)) {
+    if (frame_ctx->type != SL_FT_DCS && memcmp(&frame_ctx->dst, &EUI64_BC, 8)) {
         neigh = ws_neigh_get(&ws->neigh_table, frame_ctx->dst.u8);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
@@ -280,7 +280,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     struct iobuf_write iobuf = { };
     int offset;
 
-    if (memcmp(dst, &ieee802154_addr_bc, 8) && !neigh) {
+    if (memcmp(dst, &EUI64_BC, 8) && !neigh) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return -ETIMEDOUT;
     }
@@ -388,7 +388,7 @@ void ws_if_send_pas(struct ws_ctx *ws)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = UINT16_MAX,
-        .dst          = IEEE802154_ADDR_BC_INIT,
+        .dst          = EUI64_BC,
         .src          = ws->rcp.eui64,
     };
     struct wh_ie_list wh_ies = {
@@ -427,7 +427,7 @@ void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
         .seqno      = -1,
         .pan_id     = ws->pan_id,
-        .dst        = IEEE802154_ADDR_BC_INIT,
+        .dst        = EUI64_BC,
         .src        = ws->rcp.eui64,
     };
     struct wh_ie_list wh_ies = {
@@ -477,7 +477,7 @@ void ws_if_send_pcs(struct ws_ctx *ws)
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
         .pan_id       = ws->pan_id,
-        .dst          = IEEE802154_ADDR_BC_INIT,
+        .dst          = EUI64_BC,
         .src          = ws->rcp.eui64,
         .key_index    = ws->gak_index,
     };

@@ -18,21 +18,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "common/endian.h"
+#include "common/eui64.h"
 
 struct iobuf_read;
 struct iobuf_write;
-
-struct eui64 {
-    union {
-        uint8_t u8[8];
-        be64_t  be64;
-    };
-};
-
-#define IEEE802154_ADDR_BC_INIT { .u8 = { [0 ... 7] = 0xff } }
-
-extern const struct eui64 ieee802154_addr_bc; // ff:ff:ff:ff:ff:ff:ff:ff
 
 struct ieee802154_hdr {
     uint8_t  frame_type;

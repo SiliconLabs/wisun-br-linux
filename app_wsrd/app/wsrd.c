@@ -33,7 +33,6 @@
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
-#include "common/ieee802154_frame.h"
 #include "common/string_extra.h"
 #include "common/rail_config.h"
 #include "common/version.h"
@@ -87,7 +86,7 @@ struct wsrd g_wsrd = {
     .ws.on_recv_cnf                 = ws_on_recv_cnf,
     .ws.eapol_relay_fd = -1,
     .ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
-    .eapol_target_eui64 = IEEE802154_ADDR_BC_INIT,
+    .eapol_target_eui64 = EUI64_BC,
 
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60
@@ -111,7 +110,7 @@ struct wsrd g_wsrd = {
     .config.ws_allowed_channels = { [0 ... sizeof(g_wsrd.config.ws_allowed_channels) - 1] = 0xff },
     .config.tx_power = 14,
     .config.color_output = -1,
-    .config.ws_mac_address = IEEE802154_ADDR_BC_INIT,
+    .config.ws_mac_address = EUI64_BC,
 
     // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
@@ -284,7 +283,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
          */
         memcpy(&wsrd->eapol_target_eui64, neigh->eui64, 8);
     } else {
-        wsrd->eapol_target_eui64 = ieee802154_addr_bc;
+        wsrd->eapol_target_eui64 = EUI64_BC;
         // TODO: handle parent loss
         join_state_transition(wsrd, WSRD_EVENT_RPL_NO_CANDIDATE);
     }
@@ -468,7 +467,7 @@ int wsrd_main(int argc, char *argv[])
     }
     // NOTE: destination address filtering is enabled by default with the
     // native EUI-64.
-    if (memcmp(&wsrd->config.ws_mac_address, &ieee802154_addr_bc, 8))
+    if (memcmp(&wsrd->config.ws_mac_address, &EUI64_BC, 8))
         rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address.u8);
     memcpy(wsrd->ipv6.eui64, &wsrd->ws.rcp.eui64, 8);
 

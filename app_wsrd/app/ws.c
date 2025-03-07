@@ -23,7 +23,6 @@
 #include "common/ws/ws_regdb.h"
 #include "common/ws/ws_types.h"
 #include "common/hif.h"
-#include "common/ieee802154_frame.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
 #include "common/log.h"
@@ -211,7 +210,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
     ind->neigh->ie_pan = ie_pan;
 
-    if (!memcmp(&wsrd->eapol_target_eui64, &ieee802154_addr_bc, 8))
+    if (!memcmp(&wsrd->eapol_target_eui64, &EUI64_BC, 8))
         ws_eapol_target_add(wsrd, ind, &ie_pan, &ie_jm);
     if (!has_jm)
         return;
@@ -409,7 +408,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
-    if (!memcmp(&ind->hdr.dst, &ieee802154_addr_bc, 8) && ind->hdr.pan_id != wsrd->ws.pan_id) {
+    if (!memcmp(&ind->hdr.dst, &EUI64_BC, 8) && ind->hdr.pan_id != wsrd->ws.pan_id) {
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }

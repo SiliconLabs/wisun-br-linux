@@ -27,7 +27,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->ws.pan_id = 0xffff;
     memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
     supp_reset(&wsrd->supp);
-    wsrd->eapol_target_eui64 = ieee802154_addr_bc;
+    wsrd->eapol_target_eui64 = EUI64_BC;
     wsrd->ws.pan_version = -1;
     ipv6_neigh_clean(&wsrd->ipv6);
     ws_neigh_clean(&wsrd->ws.neigh_table);

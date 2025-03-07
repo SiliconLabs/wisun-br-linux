@@ -200,7 +200,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!memcmp(&config->target_eui64, &ieee802154_addr_bc, 8))
+    if (!memcmp(&config->target_eui64, &EUI64_BC, 8))
         FATAL(1, "missing \"target_eui64\" parameter");
     if (!memzcmp(config->target_pmk, sizeof(config->target_pmk)))
         FATAL(1, "missing \"target_pmk\" parameter");

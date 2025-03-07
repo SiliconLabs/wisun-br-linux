@@ -20,7 +20,7 @@
 
 #include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
-#include "common/ieee802154_frame.h"
+#include "common/eui64.h"
 #include "common/log.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -198,7 +198,7 @@ static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
     // IPv6 level multicast packets MUST be carried as link-layer broadcast
     // frames in IEEE 802.15.4 networks.
     if (IN6_IS_ADDR_MULTICAST(nxthop)) {
-        memcpy(eui64, &ieee802154_addr_bc, 8);
+        memcpy(eui64, &EUI64_BC, 8);
         return;
     }
 
