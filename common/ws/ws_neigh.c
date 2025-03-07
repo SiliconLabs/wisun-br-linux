@@ -397,6 +397,26 @@ bool ws_neigh_has_us(const struct ws_neigh_fhss *fhss_data)
     return memzcmp(fhss_data->uc_channel_list, WS_CHAN_MASK_LEN);
 }
 
+void ws_neigh_bs_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
+                        const struct ws_bs_ie *bs_ie)
+{
+    fhss_data->bc_chan_func = bs_ie->chan_plan.channel_function;
+    if (bs_ie->chan_plan.channel_function == WS_CHAN_FUNC_FIXED) {
+        memset(fhss_data->bc_channel_list, 0, sizeof(fhss_data->bc_channel_list));
+        bitset(fhss_data->bc_channel_list, bs_ie->chan_plan.function.zero.fixed_channel);
+    } else {
+        ws_neigh_set_chan_list(fhss_config, fhss_data->bc_channel_list, &bs_ie->chan_plan);
+    }
+    fhss_data->ffn.bc_interval_ms = bs_ie->broadcast_interval;
+    fhss_data->ffn.bc_dwell_interval_ms = bs_ie->dwell_interval;
+    fhss_data->ffn.bsi = bs_ie->broadcast_schedule_identifier;
+}
+
+bool ws_neigh_has_bs(const struct ws_neigh_fhss *fhss_data)
+{
+    return memzcmp(fhss_data->bc_channel_list, WS_CHAN_MASK_LEN);
+}
+
 // Compute the divisors of val closest to q_ref, possibly including 1 and val
 static void ws_neigh_calc_closest_divisors(uint24_t val, uint24_t q_ref,
                                            uint24_t *below, uint24_t *above)

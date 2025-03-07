@@ -259,25 +259,6 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     trickle_inconsistent(&wsrd->pa_tkl);
 }
 
-static void ws_chan_params_from_ie(const struct ws_generic_channel_info *ie, struct chan_params *params)
-{
-    memset(params, 0, sizeof(*params));
-    params->reg_domain = REG_DOMAIN_UNDEF;
-    switch (ie->channel_plan) {
-    case 0:
-        *params = *ws_regdb_chan_params(ie->plan.zero.regulatory_domain, 0, ie->plan.zero.operating_class);
-        break;
-    case 1:
-        params->chan0_freq   = ie->plan.one.ch0 * 1000;
-        params->chan_spacing = ws_regdb_chan_spacing_from_id(ie->plan.one.channel_spacing);
-        params->chan_count   = ie->plan.one.number_of_channel;
-        break;
-    case 2:
-        *params = *ws_regdb_chan_params(ie->plan.two.regulatory_domain, ie->plan.two.channel_plan_id, 0);
-        break;
-    }
-}
-
 static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
 {
     // TODO: handle LGTKs
@@ -293,7 +274,8 @@ static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
  * If an FFN receives a PAN Configuration indicating a PAN version number
  * (PANVER-IE) that is greater than (newer than) that already known to the FFN:
  */
-static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, const uint8_t gtkhash[4][8])
+static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, const uint8_t gtkhash[4][8],
+                                  const struct ws_ind *ind, const struct ws_bs_ie *ie_bs)
 {
     /*
      * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
@@ -303,6 +285,10 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
     /*
      * 2. The FFN must examine the content of the PAN Configuration to
      * determine incoming changes and take appropriate action:
+     *
+     * a. An FFN MUST implement any changes in Broadcast Schedule indicated by
+     * the BS-IE.
+     * Note: Handled in ws_recv_pc().
      *
      * b. An FFN MUST confirm that it possesses the correct set of PAN GTKs as
      * indicated by the GTKHASH-IE. If the FFN determines the hash of a GTK in
@@ -328,8 +314,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
     struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
     int cur_pan_version = wsrd->ws.pan_version;
-    uint8_t bc_chan_mask[WS_CHAN_MASK_LEN];
-    struct chan_params chan_params;
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -370,20 +354,20 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
     if (cur_pan_version == -1 || seqno_cmp16(pan_version, cur_pan_version) > 0)
-        ws_pan_version_update(wsrd, pan_version, gtkhash);
+        ws_pan_version_update(wsrd, pan_version, gtkhash, ind, &ie_bs);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data, &ie_bs);
+    ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
 
     // TODO: only update on BS-IE change, or parent change
-    ws_chan_params_from_ie(&ie_bs.chan_plan, &chan_params);
-    ws_chan_mask_calc_reg(bc_chan_mask, &chan_params, HIF_REG_NONE);
     if (!parent || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
         rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
-                            ie_bs.broadcast_interval,
-                            ie_bs.broadcast_schedule_identifier,
-                            ie_bs.dwell_interval,
-                            bc_chan_mask,
+                            ind->neigh->fhss_data_unsecured.ffn.bc_interval_ms,
+                            ind->neigh->fhss_data_unsecured.ffn.bsi,
+                            ind->neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms,
+                            ind->neigh->fhss_data_unsecured.bc_channel_list,
                             ind->hif->timestamp_us,
                             ie_bt.broadcast_slot_number,
                             ie_bt.broadcast_interval_offset,
@@ -473,14 +457,19 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     struct in6_addr dodag_id;
     struct eui64 auth_eui64;
     struct ws_us_ie ie_us;
+    struct ws_bs_ie ie_bs;
     struct mpx_ie ie_mpx;
     uint8_t kmp_id;
     bool has_ea_ie;
+    bool has_bs_ie;
 
     if (wsrd->ws.pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
+    has_bs_ie = ws_wp_nested_bs_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_bs);
+    if (has_bs_ie && !ws_ie_validate_bs(&wsrd->ws.fhss, &ind->ie_wp, &ie_bs))
+        return;
 
     if (!mpx_ie_parse(ind->ie_mpx.data, ind->ie_mpx.data_size, &ie_mpx) ||
         ie_mpx.multiplex_id  != MPX_ID_KMP ||
@@ -502,6 +491,8 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
+    if (has_bs_ie)
+        ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
 
     buf.data = ie_mpx.frame_ptr;
     buf.data_size = ie_mpx.frame_length;

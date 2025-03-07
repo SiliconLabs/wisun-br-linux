@@ -40,6 +40,9 @@ struct ws_neigh_fhss {
             uint8_t  uc_dwell_interval_ms;  // from US-IE
             uint24_t ufsi;                  // from UTT-IE
             uint64_t utt_rx_tstamp_us;
+            uint32_t bc_interval_ms;        // from BS-IE
+            uint8_t  bc_dwell_interval_ms;  // from BS-IE
+            uint16_t bsi;                   // from BS-IE
         } ffn;
         struct {
             uint24_t uc_listen_interval_ms; // from LUS-IE
@@ -56,6 +59,8 @@ struct ws_neigh_fhss {
     };
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
     uint8_t  uc_channel_list[WS_CHAN_MASK_LEN]; // Neighbor unicast channel list
+    uint8_t  bc_chan_func;  // from BS-IE or LBS-IE/LCP-IE
+    uint8_t  bc_channel_list[WS_CHAN_MASK_LEN]; // Neighbor broadcast channel list
 };
 
 struct lto_info {
@@ -178,6 +183,12 @@ void ws_neigh_us_update(const struct ws_fhss_config *fhss_config, struct ws_neig
                         const struct ws_generic_channel_info *chan_info,
                         uint8_t dwell_interval);
 bool ws_neigh_has_us(const struct ws_neigh_fhss *fhss_data);
+
+// Broadcast Schedule update
+void ws_neigh_bs_update(const struct ws_fhss_config *fhss_config, struct ws_neigh_fhss *fhss_data,
+                        const struct ws_bs_ie *bs_ie);
+bool ws_neigh_has_bs(const struct ws_neigh_fhss *fhss_data);
+
 // LFN Unicast Schedule update
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
                          struct ws_neigh_fhss *fhss_data,
