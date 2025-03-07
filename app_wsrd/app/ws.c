@@ -505,10 +505,8 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      */
     has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, auth_eui64.u8);
 
-    if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
-        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
+    if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-    }
     if (has_bs_ie)
         ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
     /*
