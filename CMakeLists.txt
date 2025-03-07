@@ -46,6 +46,11 @@ check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
+check_symbol_exists(strlcpy string.h STRLCPY_FOUND)
+if(STRLCPY_FOUND)
+    add_compile_definitions(HAVE_STRLCPY)
+endif()
+
 find_package(Rust 1.38)
 find_package(Cargo 1.38)
 

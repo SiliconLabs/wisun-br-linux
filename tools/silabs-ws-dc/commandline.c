@@ -132,7 +132,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
             case 'F':
                 break;
             case 'o':
-                snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
+                strlcpy(info.line, optarg, sizeof(info.line));
                 if (sscanf(info.line, " %256[^= ] = %256s", info.key, info.value) != 2)
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
@@ -144,7 +144,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
                 conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
                 break;
             case 't':
-                snprintf(config->tun_dev, sizeof(config->tun_dev), "%s", optarg); // safe strncpy()
+                strlcpy(config->tun_dev, optarg, sizeof(config->tun_dev));
                 break;
             case 'T':
                 strcpy(info.key, "trace");

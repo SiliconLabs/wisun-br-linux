@@ -56,4 +56,19 @@ static inline void memswap(void *buf1, void *buf2, size_t size)
     }
 }
 
+#ifndef HAVE_STRLCPY
+static inline size_t strlcpy(char *restrict dst, const char *restrict src, size_t dst_len)
+{
+    size_t src_len = strlen(src);
+
+    if (src_len >= dst_len) {
+        memcpy(dst, src, dst_len - 1);
+        dst[dst_len - 1] = '\0';
+    } else {
+        memcpy(dst, src, src_len + 1);
+    }
+    return src_len;
+}
+#endif
+
 #endif

@@ -242,7 +242,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             if (opt == opt_long->val)
                 strcpy(info.key, opt_long->name);
         if (optarg)
-            strncpy(info.value, optarg, sizeof(info.value) - 1);
+            strlcpy(info.value, optarg, sizeof(info.value));
         switch (opt) {
         case 'p':
             ret = getrandom(ctx->supp.tls_client.pmk.key, 32, 0);
@@ -252,7 +252,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
             break;
         case 's':
-            strncpy(auth_cfg->radius_secret, optarg, sizeof(auth_cfg->radius_secret) - 1);
+            strlcpy(auth_cfg->radius_secret, optarg, sizeof(auth_cfg->radius_secret));
             break;
         case 'a':
             conf_set_pem(&info, &auth_cfg->ca_cert, NULL);
