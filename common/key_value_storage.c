@@ -21,6 +21,7 @@
 
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/string_extra.h"
 
 #include "key_value_storage.h"
 
@@ -45,7 +46,7 @@ struct storage_parse_info *storage_open(const char *filename, const char *mode)
     struct storage_parse_info *info;
 
     info = zalloc(sizeof(struct storage_parse_info));
-    snprintf(info->filename, sizeof(info->filename), "%s", filename);
+    strlcpy(info->filename, filename, sizeof(info->filename));
     info->file = fopen(info->filename, mode);
     if (!info->file) {
         free(info);

@@ -35,6 +35,7 @@
 #include "common/log_legacy.h"
 #include "common/memutils.h"
 #include "common/ns_list.h"
+#include "common/string_extra.h"
 #include "common/time_extra.h"
 
 #include "net/ns_address.h"
@@ -239,7 +240,8 @@ int8_t ws_pae_controller_network_name_set(struct net_if *interface_ptr, char *ne
     }
 
     if (network_name && strcmp(controller->sec_keys_nw_info.network_name, network_name) != 0) {
-        strncpy(controller->sec_keys_nw_info.network_name, network_name, 32);
+        strlcpy(controller->sec_keys_nw_info.network_name, network_name,
+                sizeof(controller->sec_keys_nw_info.network_name));
         controller->sec_keys_nw_info.updated = true;
     }
     return 0;

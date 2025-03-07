@@ -317,7 +317,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (memzcmp(ws_info->network_name, sizeof(ws_info->network_name)) &&
         strcmp(ws_info->network_name, ctxt->config.ws_name))
         FATAL(1, "Network Name out-of-date in storage (see -D)");
-    strncpy(ws_info->network_name, ctxt->config.ws_name, sizeof(ws_info->network_name));
+    strlcpy(ws_info->network_name, ctxt->config.ws_name, sizeof(ws_info->network_name));
 
     if (ctxt->config.ws_pan_id != -1 && ws_info->pan_information.pan_id != -1 &&
         ws_info->pan_information.pan_id != ctxt->config.ws_pan_id)

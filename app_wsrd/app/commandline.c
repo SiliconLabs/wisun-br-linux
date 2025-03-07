@@ -20,6 +20,7 @@
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/named_values.h"
+#include "common/string_extra.h"
 
 #include "commandline.h"
 
@@ -141,7 +142,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
             case 'F':
                 break;
             case 'o':
-                snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
+                strlcpy(info.line, optarg, sizeof(info.line));
                 if (sscanf(info.line, " %256[^= ] = %256s", info.key, info.value) != 2)
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)

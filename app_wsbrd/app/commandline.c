@@ -342,10 +342,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             case 'F':
                 break;
             case 'u':
-                snprintf(config->rcp_cfg.uart_dev, sizeof(config->rcp_cfg.uart_dev), "%s", optarg); // safe strncpy()
+                strlcpy(config->rcp_cfg.uart_dev, optarg, sizeof(config->rcp_cfg.uart_dev));
                 break;
             case 'o':
-                snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
+                strlcpy(info.line, optarg, sizeof(info.line));
                 if (sscanf(info.line, " %256[^= ] = %256s", info.key, info.value) != 2)
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
@@ -356,14 +356,14 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 config->list_rf_configs = true;
                 break;
             case 't':
-                snprintf(config->tun_dev, sizeof(config->tun_dev), "%s", optarg); // safe strncpy()
+                strlcpy(config->tun_dev, optarg, sizeof(config->tun_dev));
                 break;
             case 'T':
                 strcpy(info.key, "trace");
                 conf_add_flags(&info, &g_enabled_traces, valid_traces);
                 break;
             case 'n':
-                snprintf(config->ws_name, sizeof(config->ws_name), "%s", optarg); // safe strncpy()
+                strlcpy(config->ws_name, optarg, sizeof(config->ws_name));
                 break;
             case 'd':
                 strcpy(info.key, "domain");
@@ -405,7 +405,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 config->storage_delete = true;
                 break;
             case 'r':
-                snprintf(config->capture, sizeof(config->capture), "%s", optarg); // safe strncpy()
+                strlcpy(config->capture, optarg, sizeof(config->capture));
                 break;
             case 'h':
                 print_help(stdout);
