@@ -54,6 +54,18 @@ static bool ws_mngt_ie_us_validate(struct ws_info *ws_info,
     return ws_ie_validate_us(ws_info, ie_us);
 }
 
+static bool ws_mngt_ie_bs_validate(struct ws_info *ws_info,
+                                   const struct mcps_data_rx_ie_list *ie_ext,
+                                   struct ws_bs_ie *ie_bs, uint8_t frame_type)
+{
+    // FIXME: see comment in ws_llc_mngt_ind
+    if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, ie_bs)) {
+        TRACE(TR_DROP, "drop %-9s: missing BS-IE", tr_ws_frame(frame_type));
+        return false;
+    }
+    return ws_ie_validate_bs(ws_info, ie_bs);
+}
+
 static bool ws_mngt_ie_netname_validate(struct ws_info *ws_info,
                                         const struct mcps_data_rx_ie_list *ie_ext,
                                         uint8_t frame_type)
@@ -191,11 +203,8 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
     }
     if (!ws_mngt_ie_us_validate(ws_info, ie_ext, &ie_us, WS_FT_PC))
         return;
-    // FIXME: see comment in ws_llc_mngt_ind
-    if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_bs)) {
-        TRACE(TR_DROP, "drop %-9s: missing BS-IE", tr_ws_frame(WS_FT_PC));
+    if (!ws_mngt_ie_bs_validate(ws_info, ie_ext, &ie_bs, WS_FT_PC))
         return;
-    }
     // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
         TRACE(TR_DROP, "drop %-9s: missing PANVER-IE", tr_ws_frame(WS_FT_PC));
