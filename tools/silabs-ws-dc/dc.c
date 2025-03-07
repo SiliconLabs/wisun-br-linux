@@ -97,7 +97,7 @@ static void dc_on_neigh_del(struct ws_neigh_table *table, struct ws_neigh *neigh
 {
     struct dc *dc = container_of(table, struct dc, ws.neigh_table);
 
-    if (memcmp(&dc->cfg.target_eui64, &neigh->eui64, 8))
+    if (!eui64_eq(&dc->cfg.target_eui64, &neigh->eui64))
         return;
     INFO("Direct Connection with %s lost, attempting to reconnect...", tr_eui64(dc->cfg.target_eui64.u8));
     dc_restart_disc_timer(dc);
@@ -122,7 +122,7 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
     struct ws_neigh *it;
     uint8_t tk[16];
 
-    if (memcmp(&dc->cfg.target_eui64, eui64, sizeof(dc->cfg.target_eui64)))
+    if (!eui64_eq(&dc->cfg.target_eui64, eui64))
         return;
     BUG_ON(!neigh);
     // Direct Connect encryption relies on the Temporal Key (TK) portion of the PTK to secure traffic

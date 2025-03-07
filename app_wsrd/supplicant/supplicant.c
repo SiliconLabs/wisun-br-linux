@@ -48,7 +48,7 @@ void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, siz
     BUG_ON(buf_len < sizeof(*hdr));
     hdr = buf;
 
-    if (!memcmp(&dst, &EUI64_BC, 8)) {
+    if (eui64_is_bc(&dst)) {
         TRACE(TR_DROP, "drop %-9s: no eapol target available", "eapol");
         return;
     }

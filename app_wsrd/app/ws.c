@@ -210,7 +210,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
     ind->neigh->ie_pan = ie_pan;
 
-    if (!memcmp(&wsrd->eapol_target_eui64, &EUI64_BC, 8))
+    if (eui64_is_bc(&wsrd->eapol_target_eui64))
         ws_eapol_target_add(wsrd, ind, &ie_pan, &ie_jm);
     if (!has_jm)
         return;
@@ -408,7 +408,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
-    if (!memcmp(&ind->hdr.dst, &EUI64_BC, 8) && ind->hdr.pan_id != wsrd->ws.pan_id) {
+    if (eui64_is_bc(&ind->hdr.dst) && ind->hdr.pan_id != wsrd->ws.pan_id) {
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
@@ -495,7 +495,7 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      * be relayed. In particular, we should ensure that our EAPoL target does
      * not change during a transaction.
      */
-    if (!memcmp(&ind->hdr.src, &wsrd->eapol_target_eui64, 8)) {
+    if (eui64_eq(&ind->hdr.src, &wsrd->eapol_target_eui64)) {
         supp_recv_eapol(&wsrd->supp, kmp_id,
                         iobuf_ptr(&buf), iobuf_remaining_size(&buf),
                         has_ea_ie ? &auth_eui64 : NULL);

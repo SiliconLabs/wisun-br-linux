@@ -222,7 +222,7 @@ struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *e
 {
     struct auth_supp_ctx *supp;
 
-    SLIST_FIND(supp, &auth->supplicants, link, !memcmp(&supp->eui64, eui64, sizeof(supp->eui64)));
+    SLIST_FIND(supp, &auth->supplicants, link, eui64_eq(&supp->eui64, eui64));
     return supp;
 }
 

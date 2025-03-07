@@ -192,7 +192,7 @@ struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const struct e
     struct ws_neigh *neigh;
 
     return SLIST_FIND(neigh, &table->neigh_list, link,
-                      !memcmp(&neigh->eui64, eui64, 8));
+                      eui64_eq(&neigh->eui64, eui64));
 }
 
 void ws_neigh_del(struct ws_neigh_table *table, const struct eui64 *eui64)

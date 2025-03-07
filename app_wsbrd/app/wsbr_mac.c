@@ -154,10 +154,10 @@ void wsbr_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
         return;
 
     mcps_ind.TxAckReq = hdr.ack_req;
-    mcps_ind.SrcAddrMode = !memcmp(&hdr.src, &EUI64_BC, 8)
+    mcps_ind.SrcAddrMode = eui64_is_bc(&hdr.src)
                          ? IEEE802154_ADDR_MODE_NONE
                          : IEEE802154_ADDR_MODE_64_BIT;
-    mcps_ind.DstAddrMode = !memcmp(&hdr.dst, &EUI64_BC, 8)
+    mcps_ind.DstAddrMode = eui64_is_bc(&hdr.dst)
                          ? IEEE802154_ADDR_MODE_NONE
                          : IEEE802154_ADDR_MODE_64_BIT;
     memcpy(mcps_ind.DstAddr, &hdr.dst, 8);

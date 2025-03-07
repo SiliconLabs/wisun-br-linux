@@ -259,7 +259,7 @@ struct ipv6_neigh *ipv6_neigh_get_from_eui64(const struct ipv6_ctx *ipv6,
     struct ipv6_neigh *neigh;
 
     return SLIST_FIND(neigh, &ipv6->neigh_cache, link,
-                      !memcmp(&neigh->eui64, eui64, 8));
+                      eui64_eq(&neigh->eui64, eui64));
 }
 
 struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
@@ -277,7 +277,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
     }
     neigh = ipv6_neigh_get_from_gua(ipv6, gua);
     if (neigh) {
-        if (!memcmp(&neigh->eui64, eui64, 8))
+        if (eui64_eq(&neigh->eui64, eui64))
             return neigh;
         WARN("neigh-ipv6 overwrite");
         ipv6_neigh_del(ipv6, neigh);

@@ -14,6 +14,9 @@
 #ifndef EUI64_H
 #define EUI64_H
 
+#include <stdbool.h>
+#include <string.h>
+
 #include "common/endian.h"
 
 struct eui64 {
@@ -24,5 +27,15 @@ struct eui64 {
 };
 
 #define EUI64_BC (struct eui64){ .be64 = UINT64_MAX }
+
+static inline bool eui64_eq(const struct eui64 *a, const struct eui64 *b)
+{
+    return a->be64 == b->be64;
+}
+
+static inline bool eui64_is_bc(const struct eui64 *eui64)
+{
+    return eui64->be64 == UINT64_MAX;
+}
 
 #endif

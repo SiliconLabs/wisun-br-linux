@@ -285,7 +285,7 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: unsecured frame", "15.4");
         return;
     }
-    if (!memcmp(&ind->hdr.dst, &EUI64_BC, 8)) {
+    if (eui64_is_bc(&ind->hdr.dst)) {
         TRACE(TR_DROP, "drop %s: unsupported broadcast frame", "15.4");
         return;
     }
@@ -330,7 +330,7 @@ static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
     }
 
     // Authentication started, disable discovery timer
-    if (!memcmp(&ind->neigh->eui64, &dc->cfg.target_eui64, 8))
+    if (eui64_eq(&ind->neigh->eui64, &dc->cfg.target_eui64))
         timer_stop(NULL, &dc->disc_timer);
     auth_recv_eapol(&dc->auth_ctx, kmp_id, &ind->hdr.src, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
 }
@@ -341,7 +341,7 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     struct ws_utt_ie ie_utt;
 
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
-        if (memcmp(&dc->cfg.target_eui64, &ind->neigh->eui64, 8)) {
+        if (!eui64_eq(&dc->cfg.target_eui64, &ind->neigh->eui64)) {
             TRACE(TR_DROP, "drop %-9s: direct connect target eui64 missmatch", "15.4");
             return;
         }

@@ -122,7 +122,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     }
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
-        if (memcmp(&ind.hdr.src, &EUI64_BC, 8))
+        if (!eui64_is_bc(&ind.hdr.src))
             ws->edfe_src = ind.hdr.src;
         else
             ind.hdr.src = ws->edfe_src;
@@ -217,7 +217,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     }
 
     // DCS are async unicast packets to the chosen target
-    if (frame_ctx->type != SL_FT_DCS && memcmp(&frame_ctx->dst, &EUI64_BC, 8)) {
+    if (frame_ctx->type != SL_FT_DCS && !eui64_is_bc(&frame_ctx->dst)) {
         neigh = ws_neigh_get(&ws->neigh_table, &frame_ctx->dst);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
@@ -280,7 +280,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     struct iobuf_write iobuf = { };
     int offset;
 
-    if (memcmp(dst, &EUI64_BC, 8) && !neigh) {
+    if (!eui64_is_bc(dst) && !neigh) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return -ETIMEDOUT;
     }

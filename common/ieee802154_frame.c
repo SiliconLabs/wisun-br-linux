@@ -241,10 +241,10 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
 void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
                                 const struct ieee802154_hdr *hdr)
 {
-    uint8_t dst_addr_mode = !memcmp(&EUI64_BC, &hdr->dst, 8) ?
+    uint8_t dst_addr_mode = eui64_is_bc(&hdr->dst) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
-    uint8_t src_addr_mode = !memcmp(&EUI64_BC, &hdr->src, 8) ?
+    uint8_t src_addr_mode = eui64_is_bc(&hdr->src) ?
                             IEEE802154_ADDR_MODE_NONE :
                             IEEE802154_ADDR_MODE_64_BIT;
     int i;

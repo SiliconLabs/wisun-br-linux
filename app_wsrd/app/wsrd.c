@@ -466,7 +466,7 @@ int wsrd_main(int argc, char *argv[])
     }
     // NOTE: destination address filtering is enabled by default with the
     // native EUI-64.
-    if (memcmp(&wsrd->config.ws_mac_address, &EUI64_BC, 8))
+    if (!eui64_is_bc(&wsrd->config.ws_mac_address))
         rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address.u8);
     wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
 
