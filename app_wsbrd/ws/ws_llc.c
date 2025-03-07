@@ -553,13 +553,12 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     struct ws_neigh *ws_neigh;
     mcps_data_ind_t data_ind = *data;
-    bool has_us, has_bs, has_pom;
+    bool has_us, has_pom;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
     struct ws_pom_ie ie_pom;
     bool duplicated = false;
     struct ws_us_ie ie_us;
-    struct ws_bs_ie ie_bs;
     mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
     bool add_neighbor;
@@ -577,13 +576,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
-    has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
     has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
 
     if (has_us && !ws_ie_validate_us(&base->interface_ptr->ws_info, &ie_us))
-        return;
-    has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
-    if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
     add_neighbor = false;
