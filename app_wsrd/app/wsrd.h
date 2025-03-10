@@ -34,6 +34,7 @@ struct wsrd {
     struct trickle pa_tkl;
     struct timer_entry pan_selection_timer;
     struct trickle pcs_tkl;
+    struct trickle pc_tkl;
     int pcs_nb; // -1 to disable
 
     struct ipv6_ctx ipv6;

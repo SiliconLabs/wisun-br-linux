@@ -34,5 +34,6 @@ void ws_on_pas_interval_done(struct trickle *tkl);
 void ws_on_send_pas(struct trickle *tkl);
 void ws_on_send_pa(struct trickle *tkl);
 void ws_on_send_pcs(struct trickle *tkl);
+void ws_on_send_pc(struct trickle *tkl);
 
 #endif

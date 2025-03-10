@@ -126,6 +126,9 @@ struct wsrd g_wsrd = {
     .pcs_tkl.cfg         = &g_wsrd.config.disc_cfg,
     .pcs_tkl.debug_name  = "pcs",
     .pcs_tkl.on_transmit = ws_on_send_pcs,
+    .pc_tkl.cfg         = &g_wsrd.config.disc_cfg,
+    .pc_tkl.debug_name  = "pc",
+    .pc_tkl.on_transmit = ws_on_send_pc,
     .pan_selection_timer.callback = ws_on_pan_selection_timer_timeout,
 
     // Arbitrary parameters
@@ -424,6 +427,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pa_tkl);
     trickle_init(&wsrd->pcs_tkl);
+    trickle_init(&wsrd->pc_tkl);
     supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, &wsrd->ws.rcp.eui64);
     supp_reset(&wsrd->supp);
     join_state_1_enter(wsrd);

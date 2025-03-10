@@ -85,6 +85,10 @@ void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)
                         parent ? parent->eui64.u8 : ws_neigh->eui64.u8,
                         parent ? parent->frame_counter_min : ws_neigh->frame_counter_min);
     wsrd->fhss_bc_synced_to_target = parent != NULL;
+    wsrd->ws.fhss.bc_interval = ws_neigh->fhss_data_unsecured.ffn.bc_interval_ms;
+    wsrd->ws.fhss.bc_dwell_interval = ws_neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms;
+    wsrd->ws.fhss.bsi = ws_neigh->fhss_data_unsecured.ffn.bsi;
+    memcpy(wsrd->ws.fhss.bc_chan_mask, ws_neigh->fhss_data_unsecured.bc_channel_list, sizeof(wsrd->ws.fhss.bc_chan_mask));
 }
 
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -390,6 +394,22 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     }
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
+    /*
+     *   Wi-SUN FAN 1.1v09 6.3.4.6.3.1 Usage of Trickle Timers
+     * b. A consistent transmission is defined as a PAN Configuration with a
+     *    PAN-ID matching that of the receiving FFN and a PANVER-IE /
+     *    PAN Version equal to the receiving FFN’s current PAN version.
+     * c. An inconsistent transmission is defined as either:
+     * [...]
+     * ii. A PAN Configuration with PAN-ID matching that of the receiving FFN
+     *     and a PANVER-IE / PAN Version that is not equal to the receiving
+     *     FFN’s current PAN version.
+     */
+    if (pan_version != wsrd->ws.pan_version)
+        trickle_inconsistent(&wsrd->pc_tkl);
+    else
+        trickle_consistent(&wsrd->pc_tkl);
+
     pan_version_update = wsrd->ws.pan_version == -1 || seqno_cmp16(pan_version, wsrd->ws.pan_version) > 0;
     if (pan_version_update)
         ws_pan_version_update(wsrd, pan_version, gtkhash, ind, &ie_bs);
@@ -438,6 +458,13 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
      * Name matching that configured on the receiving FFN.
      */
     trickle_consistent(&wsrd->pcs_tkl);
+    /*
+     * c. An inconsistent transmission is defined as either:
+     * i. A PAN Configuration Solicit with a PAN-ID matching that of the
+     *    receiving FFN and a NETNAME-IE / Network Name matching the network
+     *    name configured on the receiving FFN.
+     */
+    trickle_inconsistent(&wsrd->pc_tkl);
 }
 
 void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
@@ -660,4 +687,17 @@ void ws_on_send_pcs(struct trickle *tkl)
     if (wsrd->pcs_nb != -1)
         wsrd->pcs_nb++;
     ws_if_send_pcs(&wsrd->ws);
+}
+
+/*
+ * We may not have our parent's broadcast schedule information yet.
+ * However, since we made it to JS 5, we received a PAN configuration from a
+ * neighbor. Therefore, the information we sent in PC frames should still be
+ * correct.
+ */
+void ws_on_send_pc(struct trickle *tkl)
+{
+    struct wsrd *wsrd = container_of(tkl, struct wsrd, pc_tkl);
+
+    ws_if_send_pc(&wsrd->ws);
 }
