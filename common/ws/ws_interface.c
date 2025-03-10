@@ -71,18 +71,30 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t frame_type,
                          struct wh_ie_list *wh_ies, struct wp_ie_list *wp_ies, uint16_t multiplex_id)
 {
+    struct ws_ie_custom *ie_custom;
+    bool has_ie_custom_wp = false;
     int offset;
 
     BUG_ON(wh_ies->utt && wh_ies->sl_utt);
 
     if (wh_ies->utt)
         ws_wh_utt_write(iobuf, frame_type);
+    if (wh_ies->bt)
+        ws_wh_bt_write(iobuf);
     if (wh_ies->sl_utt)
         ws_wh_sl_utt_write(iobuf, frame_type);
     if (wh_ies->ea)
         ws_wh_ea_write(iobuf, wh_ies->ea);
+    SLIST_FOREACH(ie_custom, &ws->ie_list, link) {
+        if (!(ie_custom->frame_type_mask & BIT(frame_type)))
+            continue;
+        if (ie_custom->ie_type == WS_IE_CUSTOM_TYPE_HEADER)
+            iobuf_push_data(iobuf, ie_custom->buf.data, ie_custom->buf.len);
+        else
+            has_ie_custom_wp = true;
+    }
     // TODO: remaning WH-IEs
-    if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id)
+    if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id && !has_ie_custom_wp)
         return;
 
     ieee802154_ie_push_header(iobuf, IEEE802154_IE_ID_HT1);
@@ -90,13 +102,23 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
     offset = ieee802154_ie_push_payload(iobuf, IEEE802154_IE_ID_WP);
     if (wp_ies->us)
         ws_wp_nested_us_write(iobuf, &ws->fhss);
+    if (wp_ies->bs)
+        ws_wp_nested_bs_write(iobuf, &ws->fhss);
     if (wp_ies->pan)
         ws_wp_nested_pan_write(iobuf, wp_ies->pan->pan_size, wp_ies->pan->routing_cost, wp_ies->pan->use_parent_bs_ie,
                                wp_ies->pan->routing_method, wp_ies->pan->lfn_window_style, wp_ies->pan->fan_tps_version);
+    if (wp_ies->panver)
+        ws_wp_nested_panver_write(iobuf, (uint16_t)ws->pan_version);
+    if (wp_ies->gtkhash)
+        ws_wp_nested_gtkhash_write(iobuf, ws->gtkhash);
     if (wp_ies->netname)
         ws_wp_nested_netname_write(iobuf, ws->netname);
     if (wp_ies->jm)
         ws_wp_nested_jm_write(iobuf, &ws->jm);
+    SLIST_FOREACH(ie_custom, &ws->ie_list, link)
+        if (ie_custom->frame_type_mask & BIT(frame_type) &&
+            ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
+            iobuf_push_data(iobuf, ie_custom->buf.data, ie_custom->buf.len);
     // TODO: remaning WP-IEs
     ieee802154_ie_fill_len_payload(iobuf, offset);
 }
@@ -165,7 +187,7 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
         return NULL;
     }
-    if ((type == WS_FT_PAS || type == WS_FT_PA || type == WS_FT_PCS) &&
+    if ((type == WS_FT_PAS || type == WS_FT_PA || type == WS_FT_PCS || type == WS_FT_PC) &&
         SLIST_FIND(cur, &ws->frame_ctx_list, link, cur->type == type)) {
         WARN("%s tx overlap, consider increasing trickle Imin", tr_ws_frame(type));
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
@@ -513,6 +535,55 @@ void ws_if_send_pcs(struct ws_ctx *ws)
     ws_write_ies(ws, &iobuf, WS_FT_PCS, &wh_ies, &wp_ies, 0);
 
     TRACE(TR_15_4_MNGT, "tx-15.4 %-9s panid:0x%x", tr_ws_frame(WS_FT_PCS), ws->pan_id);
+    rcp_req_data_tx(&ws->rcp,
+                    iobuf.data, iobuf.len,
+                    frame_ctx->handle,
+                    HIF_FHSS_TYPE_ASYNC,
+                    NULL, 0,
+                    NULL, 0);
+    iobuf_free(&iobuf);
+}
+
+void ws_if_send_pc(struct ws_ctx *ws)
+{
+    struct ieee802154_hdr hdr = {
+        .frame_type = IEEE802154_FRAME_TYPE_DATA,
+        .seqno      = -1,
+        .pan_id     = ws->pan_id,
+        .dst        = EUI64_BC,
+        .src        = ws->rcp.eui64,
+        .key_index  = ws->gak_index,
+    };
+    struct wh_ie_list wh_ies = {
+        .utt = true,
+        .bt  = true,
+    };
+    struct wp_ie_list wp_ies = {
+        .us      = true,
+        .bs      = true,
+        .panver  = true,
+        .gtkhash = true,
+    };
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_write iobuf = { };
+    uint8_t frame_type = WS_FT_PC;
+
+    if (!ws->gak_index) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: security not ready", "15.4");
+        return;
+    }
+
+    frame_ctx = ws_if_frame_ctx_new(ws, frame_type);
+    if (!frame_ctx)
+        return;
+    frame_ctx->dst = hdr.dst;
+
+    ieee802154_frame_write_hdr(&iobuf, &hdr);
+
+    ws_write_ies(ws, &iobuf, frame_type, &wh_ies, &wp_ies, 0);
+    iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+
+    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(frame_type));
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
