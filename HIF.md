@@ -527,7 +527,7 @@ Configure the radio parameters.
  - `uint8_t mcs`  
     MCS to be used if `index` points to an OFDM modulation.
 
- - `bool enable_mode_switch` (API > 2.0.1)  
+ - `bool enable_mode_switch` (API >= 2.0.1)  
     Enable mode switch in reception at PHY level (PHR), using all the PHY
     configurations available in the same group as the selected PHY. Note that
     mode switch cannot be disabled at MAC level (MAC command frame).

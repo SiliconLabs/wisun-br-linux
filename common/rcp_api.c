@@ -397,7 +397,7 @@ void rcp_set_fhss_uc(struct rcp *rcp,
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         if (version_older_than(rcp->version_api, 2, 1, 1))
-            FATAL(3, "fixed channel requires RCP API > 2.1.1");
+            FATAL(3, "fixed channel requires RCP API >= 2.1.1");
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);
         break;
@@ -412,8 +412,8 @@ void rcp_set_fhss_uc(struct rcp *rcp,
 
     for (it = ms_chan_mask, ms_chan_mask_len = 0; it && it->chan_spacing; it++, ms_chan_mask_len++)
         ;
-    if (ms_chan_mask_len)
-        FATAL_ON(version_older_than(rcp->version_api, 2, 6, 0), 3, "mode-switch requires RCP API >= 2.6.0");
+    if (ms_chan_mask_len && version_older_than(rcp->version_api, 2, 6, 0))
+        FATAL(3, "mode-switch requires RCP API >= 2.6.0");
     if (!version_older_than(rcp->version_api, 2, 6, 0)) {
         hif_push_u8(&buf, ms_chan_mask_len);
         for (int i = 0; i < ms_chan_mask_len; i++) {
@@ -450,7 +450,7 @@ void rcp_set_fhss_ffn_bc(struct rcp *rcp,
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         if (version_older_than(rcp->version_api, 2, 1, 1))
-            FATAL(3, "fixed channel requires RCP API > 2.1.1");
+            FATAL(3, "fixed channel requires RCP API >= 2.1.1");
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);
         break;
@@ -494,7 +494,7 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp,
     switch (chan_func) {
     case WS_CHAN_FUNC_FIXED:
         if (version_older_than(rcp->version_api, 2, 1, 1))
-            FATAL(3, "fixed channel requires RCP API > 2.1.1");
+            FATAL(3, "fixed channel requires RCP API >= 2.1.1");
         BUG_ON(fixed_channel < 0);
         hif_push_u16(&buf, fixed_channel);
         break;
