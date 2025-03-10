@@ -78,6 +78,10 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
         // FIXME: display a warning if several rail configs match
         if (base_rail_params->phy_mode_group)
             break;
+    if (version_older_than(ctxt->rcp.version_api, 2, 6, 0)) {
+        WARN("\"phy_operating_modes = auto\" with RCP API < 2.6.0");
+        base_rail_params = NULL;
+    }
     if (!base_rail_params) {
         INFO("No PHY operating modes available for your configuration");
         rail_fill_pom_disabled(ctxt);
