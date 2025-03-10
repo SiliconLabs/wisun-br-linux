@@ -109,7 +109,6 @@ extern const struct chan_params chan_params_table[];
 bool ws_regdb_check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params);
 const struct phy_params *ws_regdb_phy_params(int phy_mode_id, int operating_mode);
 const struct chan_params *ws_regdb_chan_params(int reg_domain, int chan_plan_id, int operating_class);
-const struct chan_params *ws_regdb_chan_params_from_rf_settings(int reg_domain, uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count);
 
 int ws_regdb_chan_spacing_id(int val);
 int ws_regdb_chan_spacing_from_id(int id);

@@ -57,6 +57,24 @@
 #include "ws/ws_eapol_relay.h"
 #include "ws/ws_mngt.h"
 
+static const struct chan_params *ms_chan_params(int reg_domain, const struct rcp_rail_config *rail_config)
+{
+    const struct chan_params *ret = NULL;
+
+    for (const struct chan_params *it = chan_params_table; it->chan0_freq; it++) {
+        if (!it->chan_plan_id) // Ignore FAN 1.0 entries
+            continue;
+        if (it->reg_domain   != reg_domain ||
+            it->chan0_freq   != rail_config->chan0_freq ||
+            it->chan_spacing != rail_config->chan_spacing ||
+            it->chan_count   != rail_config->chan_count)
+            continue;
+        BUG_ON(ret, "ambiguous channel parameters");
+        ret = it;
+    }
+    return ret;
+}
+
 static void fill_ms_chan_masks(struct net_if *cur, struct ws_ms_chan_mask *ms_chan_mask)
 {
     struct ws_phy_config *phy_config = &cur->ws_info.phy_config;
@@ -77,10 +95,7 @@ static void fill_ms_chan_masks(struct net_if *cur, struct ws_ms_chan_mask *ms_ch
             FATAL_ON(!phy_params, 1, "unknown phy parameters for phy %d", phy_config->phy_op_modes[i]);
             if (phy_params->rail_phy_mode_id != rail_params->rail_phy_mode_id)
                 continue;
-            chan_params = ws_regdb_chan_params_from_rf_settings(fhss->chan_params->reg_domain,
-                                                                rail_params->chan0_freq,
-                                                                rail_params->chan_spacing,
-                                                                rail_params->chan_count);
+            chan_params = ms_chan_params(fhss->chan_params->reg_domain, rail_params);
             FATAL_ON(!chan_params, 1, "unknown channel parameters for phy %d", phy_config->phy_op_modes[i]);
             // Insert if unique
             for (it = ms_chan_mask; it->chan_spacing; it++)
