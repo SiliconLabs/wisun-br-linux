@@ -184,12 +184,6 @@ void ws_bootstrap_nw_key_set(struct net_if *cur,
 
 void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
-    if (cur->ws_info.lfn_gtk_index != 0 &&
-        cur->ws_info.lfn_gtk_index != index + 1 &&
-        index >= 4 && index < 7)
-        // Notify LFNs that a new LGTK has been activated.
-        ws_mngt_lpc_pae_cb(&cur->ws_info);
-
     /* Deprecated: Unused by the RCP. */
     if (index < 4)
         cur->ws_info.ffn_gtk_index = index + 1;

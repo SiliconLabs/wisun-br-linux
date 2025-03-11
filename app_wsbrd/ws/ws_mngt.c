@@ -627,6 +627,9 @@ void ws_mngt_lfn_version_increase(struct ws_info *ws_info)
     // storage
     ws_info->pan_information.lfn_version++;
 
+    // Inform LFN of LGTK change
+    ws_mngt_lpc_pae_cb(ws_info);
+
     //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
     // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
     // the following occurs:
