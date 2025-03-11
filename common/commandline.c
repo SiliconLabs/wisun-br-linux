@@ -303,7 +303,8 @@ void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const v
               ret < 0 ? strerror(errno) : "Short read");
     dest->iov_len = ret;
     if (strstr(dest_str, "-----BEGIN CERTIFICATE-----") ||
-        strstr(dest_str, "-----BEGIN PRIVATE KEY-----"))
+        strstr(dest_str, "-----BEGIN PRIVATE KEY-----") ||
+        strstr(dest_str, "-----BEGIN EC PRIVATE KEY-----"))
         dest->iov_len++;
     close(fd);
 }
