@@ -294,3 +294,9 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
         iobuf_push_u8(iobuf, hdr->key_index);
     }
 }
+
+void ieee802154_reserve_mic(struct iobuf_write *iobuf, const struct ieee802154_hdr *hdr)
+{
+    if (hdr->key_index)
+        iobuf_push_data_reserved(iobuf, ieee802154_mic_len[hdr->sec_level]);
+}

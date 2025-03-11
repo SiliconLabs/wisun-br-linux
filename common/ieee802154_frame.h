@@ -42,5 +42,7 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
 
 void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
                                 const struct ieee802154_hdr *hdr);
+void ieee802154_reserve_mic(struct iobuf_write *iobuf,
+                            const struct ieee802154_hdr *hdr);
 
 #endif
