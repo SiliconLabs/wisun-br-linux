@@ -275,6 +275,10 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     struct iobuf_write iobuf = { };
     int offset;
 
+    if (!ws->gak_index) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: security not ready", "15.4");
+        return -EAGAIN;
+    }
     if (memcmp(dst, &ieee802154_addr_bc, 8) && !neigh) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return -ETIMEDOUT;
@@ -300,8 +304,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     iobuf_push_data(&iobuf, pkt, pkt_len);
     ieee802154_ie_fill_len_payload(&iobuf, offset);
 
-    if (ws->gak_index)
-        iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+    iobuf_push_data_reserved(&iobuf, 8); // MIC-64
 
     TRACE(TR_15_4_DATA, "tx-15.4 %-9s dst:%s", tr_ws_frame(WS_FT_DATA), tr_eui64(hdr.dst.u8));
     rcp_req_data_tx(&ws->rcp,
