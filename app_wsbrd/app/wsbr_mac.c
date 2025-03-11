@@ -90,6 +90,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     memcpy(&hdr.dst, data->DstAddrMode ? data->DstAddr : EUI64_BC.u8, 8);
     hdr.src        = cur->rcp->eui64;
     hdr.seqno      = data->SeqNumSuppressed ? -1 : 0;
+    hdr.sec_level  = IEEE802154_SEC_LEVEL_ENC_MIC64,
     hdr.key_index  = data->Key.KeyIndex;
     ieee802154_frame_write_hdr(&frame, &hdr);
     iobuf_push_data(&frame, ie_ext->headerIeVectorList[0].iov_base,
@@ -123,9 +124,7 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         ret = ieee802154_frame_parse(cnf->frame, cnf->frame_len, &hdr, &ie_header, &ie_payload);
         WARN_ON(ret < 0, "invalid ack frame");
 
-        mcps_cnf.sec.SecurityLevel = !hdr.key_index
-                                   ? IEEE802154_SEC_LEVEL_NONE
-                                   : IEEE802154_SEC_LEVEL_ENC_MIC64;
+        mcps_cnf.sec.SecurityLevel = hdr.sec_level;
         mcps_cnf.sec.KeyIndex      = hdr.key_index;
         mcps_cnf.sec.frame_counter = hdr.frame_counter;
 
@@ -168,9 +167,7 @@ void wsbr_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
     mcps_ind.SrcPANId = mcps_ind.DstPANId;
     mcps_ind.DSN_suppressed = hdr.seqno < 0;
     mcps_ind.DSN            = hdr.seqno;
-    mcps_ind.Key.SecurityLevel = !hdr.key_index
-                               ? IEEE802154_SEC_LEVEL_NONE
-                               : IEEE802154_SEC_LEVEL_ENC_MIC64;
+    mcps_ind.Key.SecurityLevel = hdr.sec_level;
     mcps_ind.Key.KeyIndex      = hdr.key_index;
     mcps_ind.Key.frame_counter = hdr.frame_counter;
 

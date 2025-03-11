@@ -136,7 +136,10 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
                                  &ind.hdr, &ind.ie_hdr, &ie_payload);
     if (ret < 0)
         return;
-
+    if (ind.hdr.key_index && ind.hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
+        return;
+    }
     if (!ws_wh_sl_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt) &&
         !ws_wh_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt)) {
         TRACE(TR_DROP, "drop %-9s: missing UTT-IE", "15.4");
@@ -295,6 +298,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         .src        = ws->rcp.eui64,
         .pan_id     = neigh ? UINT16_MAX : ws->pan_id,
         .seqno      = ws->seqno++, // TODO: think more about how seqno should be handled
+        .sec_level  = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .key_index  = ws->gak_index,
     };
     struct mpx_ie ie_mpx = {
@@ -512,6 +516,7 @@ void ws_if_send_pcs(struct ws_ctx *ws)
         .pan_id       = ws->pan_id,
         .dst          = EUI64_BC,
         .src          = ws->rcp.eui64,
+        .sec_level    = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .key_index    = ws->gak_index,
     };
     struct wh_ie_list wh_ies = {
@@ -601,6 +606,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
         .seqno        = req->pkt || req->fhss_type == HIF_FHSS_TYPE_FFN_BC ? ws->seqno++ : -1,
         .pan_id       = req->fhss_type != HIF_FHSS_TYPE_FFN_UC ? ws->pan_id : UINT16_MAX,
         .ack_req      = req->fhss_type == HIF_FHSS_TYPE_FFN_UC,
+        .sec_level    = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .key_index    = req->gak_index,
         .src          = ws->rcp.eui64,
         .dst          = *req->dst,

@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <assert.h>
 #include <errno.h>
 #include <endian.h>
 
@@ -68,15 +69,24 @@ static const struct {
 //  { IEEE802154_ADDR_MODE_16_BIT, IEEE802154_ADDR_MODE_16_BIT, true,  false, 1 }, // Unsupported
 };
 
+// IEEE 802.15.4-2024 Table 9-6 Security levels available to the MAC sublayer
+static const size_t ieee802154_mic_len[FIELD_MAX(IEEE802154_MASK_SECHDR_LEVEL) + 1] = {
+    [IEEE802154_SEC_LEVEL_NONE]       = 0,
+    [IEEE802154_SEC_LEVEL_MIC32]      = 4,
+    [IEEE802154_SEC_LEVEL_MIC64]      = 8,
+    [IEEE802154_SEC_LEVEL_MIC128]     = 16,
+    [IEEE802154_SEC_LEVEL_ENC]        = 0,
+    [IEEE802154_SEC_LEVEL_ENC_MIC32]  = 4,
+    [IEEE802154_SEC_LEVEL_ENC_MIC64]  = 8,
+    [IEEE802154_SEC_LEVEL_ENC_MIC128] = 16,
+};
+
 static int ieee802154_frame_parse_sec(struct iobuf_read *iobuf, struct ieee802154_hdr *hdr)
 {
     uint8_t scf;
 
     scf = iobuf_pop_u8(iobuf);
-    if (FIELD_GET(IEEE802154_MASK_SECHDR_LEVEL, scf) != IEEE802154_SEC_LEVEL_ENC_MIC64) {
-        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
-        return -ENOTSUP;
-    }
+    hdr->sec_level = FIELD_GET(IEEE802154_MASK_SECHDR_LEVEL, scf);
     if (FIELD_GET(IEEE802154_MASK_SECHDR_KEY_ID_MODE, scf) != IEEE802154_KEY_ID_MODE_IDX) {
         TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
         return -ENOTSUP;
@@ -91,11 +101,11 @@ static int ieee802154_frame_parse_sec(struct iobuf_read *iobuf, struct ieee80215
     hdr->frame_counter = iobuf_pop_le32(iobuf);
     hdr->key_index     = iobuf_pop_u8(iobuf);
 
-    if (iobuf_remaining_size(iobuf) < 8) {
+    if (iobuf_remaining_size(iobuf) < ieee802154_mic_len[hdr->sec_level]) {
         TRACE(TR_DROP, "drop %-9s: missing MIC-64", "15.4");
         return -EINVAL;
     }
-    iobuf->data_size -= 8;
+    iobuf->data_size -= ieee802154_mic_len[hdr->sec_level];
 
     return 0;
 }
@@ -214,6 +224,7 @@ int ieee802154_frame_parse(const uint8_t *frame, size_t frame_len,
     else
         hdr->src = EUI64_BC;
 
+    hdr->sec_level = IEEE802154_SEC_LEVEL_NONE;
     hdr->key_index = 0;
     if (FIELD_GET(IEEE802154_MASK_FCF_SECURED, fcf)) {
         ret = ieee802154_frame_parse_sec(&iobuf, hdr);
@@ -277,7 +288,7 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
         iobuf_push_le64(iobuf, be64toh(hdr->src.be64));
 
     if (hdr->key_index) {
-        iobuf_push_u8(iobuf, FIELD_PREP(IEEE802154_MASK_SECHDR_LEVEL,       IEEE802154_SEC_LEVEL_ENC_MIC64)
+        iobuf_push_u8(iobuf, FIELD_PREP(IEEE802154_MASK_SECHDR_LEVEL,       hdr->sec_level)
                            | FIELD_PREP(IEEE802154_MASK_SECHDR_KEY_ID_MODE, IEEE802154_KEY_ID_MODE_IDX));
         iobuf_push_data_reserved(iobuf, 4); // Frame Counter
         iobuf_push_u8(iobuf, hdr->key_index);

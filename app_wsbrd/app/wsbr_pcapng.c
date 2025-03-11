@@ -122,7 +122,13 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, uint64_t timestamp_us,
     ret = ieee802154_frame_parse(frame, frame_len, &hdr, &ie_header, &ie_payload);
     if (ret < 0)
         return;
-    hdr.key_index = 0; // Strip the Auxiliary Security Header
+
+    /*
+     *     Wi-SUN TBU API v1.1.13 /subscription/frames
+     * [...] forwarded frames MUST be unencrypted, and MUST have the Auxiliary
+     * Security Header / Security Level field set to None (0).
+     */
+    hdr.sec_level = IEEE802154_SEC_LEVEL_NONE;
 
     ieee802154_frame_write_hdr(&iobuf_frame, &hdr);
     iobuf_push_data(&iobuf_frame, ie_header.data, ie_header.data_size);
