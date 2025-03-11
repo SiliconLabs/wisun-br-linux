@@ -95,6 +95,10 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
     }
     if (activate)
         ws_bootstrap_nw_key_index_set(&ctxt->net_if, slot);
+    if (slot < WS_GTK_COUNT)
+        ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
+    else
+        ws_mngt_lfn_version_increase(&ctxt->net_if.ws_info);
 }
 
 // See warning in wsbrd.h
