@@ -1014,8 +1014,6 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
     } else {
         gtk_struct->gtkhash_set = true;
     }
-    if (is_lgtk)
-        ws_mngt_lpc_pae_cb(&interface_ptr->ws_info);
 }
 
 gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)
