@@ -62,7 +62,7 @@ static void ndp_opt_push(struct pktbuf *pktbuf, uint8_t type,
 
 int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
 {
-    struct nd_neighbor_solicit ns;
+    struct nd_neighbor_solicit *ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
     struct ndp_opt_earo aro;
@@ -82,20 +82,18 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     src = ipv6->dhcp.iaaddr.ipv6;
     dst = neigh->gua;
 
-    memset(&ns, 0, sizeof(ns));
-    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
-    ns.nd_ns_target = dst;
-    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
+    ns = pktbuf_push_tail(&pktbuf, NULL, sizeof(*ns));
+    ns->nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns->nd_ns_target = dst;
 
     memset(&aro, 0, sizeof(aro));
     aro.lifetime_minutes = UINT16_MAX;
     aro.eui64 = ipv6->eui64.be64;
     ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
 
-    ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
-                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
-    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
-           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+    ns = (struct nd_neighbor_solicit *)pktbuf_head(&pktbuf);
+    ns->nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
+                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s lifetime=%ds", "ns(aro)", tr_ipv6(dst.s6_addr), lifetime_minutes * 60);
     handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
@@ -105,7 +103,7 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
 
 static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
-    struct nd_neighbor_solicit ns;
+    struct nd_neighbor_solicit *ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
     int handle;
@@ -121,15 +119,11 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     dst = ipv6_prefix_linklocal;
     ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
 
-    memset(&ns, 0, sizeof(ns));
-    ns.nd_ns_type   = ND_NEIGHBOR_SOLICIT;
-    ns.nd_ns_target = dst;
-    pktbuf_push_tail(&pktbuf, &ns, sizeof(ns));
-
-    ns.nd_ns_cksum = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
-                                pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
-    memcpy(pktbuf_head(&pktbuf) + offsetof(struct nd_neighbor_solicit, nd_ns_cksum),
-           &ns.nd_ns_cksum, sizeof(ns.nd_ns_cksum));
+    ns = pktbuf_push_tail(&pktbuf, NULL, sizeof(*ns));
+    ns->nd_ns_type   = ND_NEIGHBOR_SOLICIT;
+    ns->nd_ns_target = dst;
+    ns->nd_ns_cksum  = ipv6_cksum(&src, &dst, IPPROTO_ICMPV6,
+                                  pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "ns", tr_ipv6(dst.s6_addr));
     handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
