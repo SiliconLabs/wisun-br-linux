@@ -403,6 +403,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     strcpy(wsrd->ipv6.tun.ifname, wsrd->config.tun_dev);
     tun_init(&wsrd->ipv6.tun, wsrd->config.tun_autoconf);
     tun_sysctl_set("/proc/sys/net/ipv6/conf", wsrd->ipv6.tun.ifname, "accept_ra", '0');
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", "all", "forwarding", '1');
 
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, wsrd->ws.rcp.eui64.u8);
     tun_addr_add(&wsrd->ipv6.tun, &addr_linklocal, 64);
