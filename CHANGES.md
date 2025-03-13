@@ -1,3 +1,14 @@
+v2.3.2
+------
+  - Support `EC PRIVATE KEY` format when loading pem files.
+  - Prevent `wsrd` and `silabs-ws-dc` from sending unencrypted data frames
+    before authentication.
+  - Increment PAN/LFN Version on GTK updates with new `wsbrd` authenticator.
+  - Increment LFN version on `wsbrd` reboot.
+  - Fix outdated LFN Version in `wsbrd` LFN PAN Configuration frames.
+  - Fix channel mask for ChanPlanId 4 in Brazil.
+  - Fix errors reported by static analyzers.
+
 v2.3.1
 ------
   - Refresh children IPv6 address registration on reception of inner IPv6
