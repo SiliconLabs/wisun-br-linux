@@ -99,7 +99,7 @@ static void fill_ms_chan_masks(struct net_if *cur, struct ws_ms_chan_mask *ms_ch
             FATAL_ON(!chan_params, 1, "unknown channel parameters for phy %d", phy_config->phy_op_modes[i]);
             // Insert if unique
             for (it = ms_chan_mask; it->chan_spacing; it++)
-                if (it->chan_spacing != chan_params->chan_spacing)
+                if (it->chan_spacing == chan_params->chan_spacing)
                     break;
             ws_chan_mask_calc_reg(chan_mask, chan_params, fhss->regional_regulation);
             if (it->chan_spacing) {
