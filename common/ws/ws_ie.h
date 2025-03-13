@@ -149,7 +149,10 @@ struct ws_pan_ie {
  */
 struct ws_jm {
     uint8_t hdr;
-    uint8_t data[4];
+    union {
+        uint8_t plf;
+        uint8_t data[4];
+    };
 };
 
 struct ws_jm_ie {

@@ -150,7 +150,7 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
     ind->neigh->pan_id   = ind->hdr.pan_id;
     ind->neigh->last_pa_rx_time_s = time_now_s(CLOCK_MONOTONIC);
     if (jm)
-        ind->neigh->plf = *jm->data;
+        ind->neigh->plf = jm->plf;
     else
         ind->neigh->plf = 0xff;
 

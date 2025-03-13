@@ -1105,8 +1105,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
 
     if (jm) {
         plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
-        if (plf != *jm->data) {
-            *jm->data = plf;
+        if (plf != jm->plf) {
+            jm->plf = plf;
             info->pan_information.jm.version++;
         }
     }
