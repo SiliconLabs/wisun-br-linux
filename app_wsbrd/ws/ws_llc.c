@@ -1094,7 +1094,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               const struct wp_ie_list *wp_ies)
 {
     struct ws_info *info = &base->interface_ptr->ws_info;
-    struct ws_jm *jm_plf = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
+    struct ws_jm *jm = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
                          rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
     struct ws_ie_custom *ie_custom;
@@ -1103,10 +1103,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     int ie_offset;
     uint8_t plf;
 
-    if (jm_plf) {
+    if (jm) {
         plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
-        if (plf != *jm_plf->data) {
-            *jm_plf->data = plf;
+        if (plf != *jm->data) {
+            *jm->data = plf;
             info->pan_information.jm.version++;
         }
     }

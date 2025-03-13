@@ -143,14 +143,14 @@ void ws_on_pas_interval_done(struct trickle *tkl)
 
 static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws_pan_ie *ie_pan, struct ws_jm_ie *ie_jm)
 {
-    const struct ws_jm *jm_plf = ws_wp_nested_jm_get_metric(ie_jm, WS_JM_PLF);
+    const struct ws_jm *jm = ws_wp_nested_jm_get_metric(ie_jm, WS_JM_PLF);
     uint32_t pan_cost = ws_neigh_get_pan_cost(ind->neigh);
     bool added = !ind->neigh->last_pa_rx_time_s;
 
     ind->neigh->pan_id   = ind->hdr.pan_id;
     ind->neigh->last_pa_rx_time_s = time_now_s(CLOCK_MONOTONIC);
-    if (jm_plf)
-        ind->neigh->plf = *jm_plf->data;
+    if (jm)
+        ind->neigh->plf = *jm->data;
     else
         ind->neigh->plf = 0xff;
 
