@@ -290,7 +290,7 @@ void ieee802154_frame_write_hdr(struct iobuf_write *iobuf,
     if (hdr->key_index) {
         iobuf_push_u8(iobuf, FIELD_PREP(IEEE802154_MASK_SECHDR_LEVEL,       hdr->sec_level)
                            | FIELD_PREP(IEEE802154_MASK_SECHDR_KEY_ID_MODE, IEEE802154_KEY_ID_MODE_IDX));
-        iobuf_push_data_reserved(iobuf, 4); // Frame Counter
+        iobuf_push_le32(iobuf, hdr->frame_counter);
         iobuf_push_u8(iobuf, hdr->key_index);
     }
 }
