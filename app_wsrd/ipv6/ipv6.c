@@ -93,8 +93,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     const struct ip6_hbh *hbh = NULL;
+    const struct icmpv6_hdr *icmp;
     const struct ip6_rthdr *rthdr;
-    struct icmpv6_hdr icmp;
     struct ip6_hdr hdr;
     ssize_t ret;
 
@@ -186,8 +186,12 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
         break;
     case IPPROTO_ICMPV6:
-        pktbuf_pop_head(pktbuf, &icmp, sizeof(icmp));
-        switch (icmp.type) {
+        if (pktbuf_len(pktbuf) < sizeof(*icmp)) {
+            TRACE(TR_DROP, "drop %-9s: malformed packet", "icmp");
+            return;
+        }
+        icmp = (struct icmpv6_hdr *)pktbuf_head(pktbuf);
+        switch (icmp->type) {
         case ICMP6_DST_UNREACH:
         case ICMP6_PACKET_TOO_BIG:
         case ICMP6_TIME_EXCEEDED:
@@ -198,10 +202,9 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
             break;
         // TODO: NS/NA
         default:
-            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp.type);
+            TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp->type);
             return;
         }
-        pktbuf_push_head(pktbuf, &icmp, sizeof(icmp));
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported next header %u", "ipv6", hdr.ip6_nxt);
