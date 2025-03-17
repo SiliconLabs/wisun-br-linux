@@ -17,6 +17,7 @@
  */
 #include <string.h>
 #include <stdint.h>
+#include "common/ws/ws_ie_custom.h"
 #include "common/ws/ws_regdb.h"
 #include "common/ws/ws_types.h"
 #include "common/log.h"
@@ -784,6 +785,28 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
     return !ie_buf.err;
 }
 
+bool ws_wh_wide_ies_read(struct ws_ie_custom_list *list, const uint8_t *data,
+                         uint16_t length, uint16_t frame_type_mask)
+{
+    const uint8_t *end = data + length;
+    struct iobuf_read wh_content;
+    uint8_t subid;
+
+    do {
+        ieee802154_ie_find_header(data, length, IEEE802154_IE_ID_WH, &wh_content);
+        subid = iobuf_pop_u8(&wh_content);
+        if (wh_content.err)
+            return false;
+        if ((subid >= WS_WHIE_PAN_WIDE_MIN && subid <= WS_WHIE_PAN_WIDE_MAX) ||
+            (subid >= WS_WHIE_FFN_WIDE_MIN && subid <= WS_WHIE_FFN_WIDE_MAX))
+            ws_ie_custom_update(list, WS_IE_CUSTOM_TYPE_HEADER, subid, iobuf_ptr(&wh_content),
+                                iobuf_remaining_size(&wh_content), frame_type_mask);
+        length -= wh_content.data + wh_content.data_size - data;
+        data = wh_content.data + wh_content.data_size;
+    } while (data < end);
+    return true;
+}
+
 static void ws_channel_plan_read(struct iobuf_read *ie_buf, struct ws_generic_channel_info *chan_info)
 {
     switch (chan_info->channel_plan) {
@@ -1050,4 +1073,45 @@ bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie 
     if (iobuf_remaining_size(&ie_buf))
         return false;
     return !ie_buf.err;
+}
+
+bool ws_wp_nested_wide_ies_read(struct ws_ie_custom_list *list, const uint8_t *data,
+                                uint16_t length, uint16_t frame_type_mask)
+{
+    uint16_t len_mask, id_mask, ie_hdr;
+    struct iobuf_read input = {
+        .data_size = length,
+        .data = data,
+    };
+    const uint8_t *ie_content;
+    bool ie_is_long;
+    uint8_t ie_id;
+    int ie_len;
+
+    while (iobuf_remaining_size(&input)) {
+        ie_hdr = iobuf_pop_le16(&input);
+        ie_is_long = FIELD_GET(IEEE802154_IE_TYPE_MASK, ie_hdr) == IEEE802154_IE_TYPE_NESTED_LONG;
+        if (ie_is_long) {
+            len_mask = IEEE802154_IE_NESTED_LONG_LEN_MASK;
+            id_mask  = IEEE802154_IE_NESTED_LONG_ID_MASK;
+        } else {
+            len_mask = IEEE802154_IE_NESTED_SHORT_LEN_MASK;
+            id_mask  = IEEE802154_IE_NESTED_SHORT_ID_MASK;
+        }
+        ie_id  = FIELD_GET(id_mask, ie_hdr);
+        ie_len = FIELD_GET(len_mask, ie_hdr);
+        ie_content = iobuf_pop_data_ptr(&input, ie_len);
+        if (!ie_content)
+            return false;
+        if (ie_is_long) {
+            if ((ie_id >= WS_WPIE_LONG_PAN_WIDE_MIN && ie_id <= WS_WPIE_LONG_PAN_WIDE_MAX) ||
+                (ie_id >= WS_WPIE_LONG_FFN_WIDE_MIN && ie_id <= WS_WPIE_LONG_FFN_WIDE_MAX))
+                ws_ie_custom_update(list, WS_IE_CUSTOM_TYPE_NESTED_LONG, ie_id, ie_content, ie_len, frame_type_mask);
+            continue;
+        }
+        if ((ie_id >= WS_WPIE_SHORT_PAN_WIDE_MIN && ie_id <= WS_WPIE_SHORT_PAN_WIDE_MAX) ||
+            (ie_id >= WS_WPIE_SHORT_FFN_WIDE_MIN && ie_id <= WS_WPIE_SHORT_FFN_WIDE_MAX))
+            ws_ie_custom_update(list, WS_IE_CUSTOM_TYPE_NESTED_SHORT, ie_id, ie_content, ie_len, frame_type_mask);
+    }
+    return true;
 }

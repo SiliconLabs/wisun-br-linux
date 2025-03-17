@@ -332,6 +332,7 @@ if(COMPILE_WSRD)
         common/ws/ws_chan_mask.c
         common/ws/ws_ie_validation.c
         common/ws/ws_ie.c
+        common/ws/ws_ie_custom.c
         common/ws/ws_interface.c
         common/ws/ws_neigh.c
         common/ws/ws_regdb.c
@@ -547,6 +548,7 @@ if(COMPILE_DEVTOOLS)
         common/ipv6/ipv6_addr.c
         common/ws/ws_chan_mask.c
         common/ws/ws_ie.c
+        common/ws/ws_ie_custom.c
         common/ws/ws_ie_validation.c
         common/ws/ws_interface.c
         common/ws/ws_neigh.c

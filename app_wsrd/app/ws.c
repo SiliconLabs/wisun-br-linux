@@ -336,6 +336,14 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
     for (int i = 0; i < WS_GTK_COUNT; i++)
         if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
             supp_start_key_request(&wsrd->supp);
+    /*
+     * d. The FFN MUST store any unknown FFN-Wide or PAN-Wide IEs for inclusion
+     * in subsequent PAN Configuration and LFN Configuration frame transmissions
+     * by the FFN.
+     */
+    ws_ie_custom_clear(&wsrd->ws.ie_list);
+    ws_wh_wide_ies_read(&wsrd->ws.ie_list, ind->ie_hdr.data, ind->ie_hdr.data_size, BIT(WS_FT_PC));
+    ws_wp_nested_wide_ies_read(&wsrd->ws.ie_list, ind->ie_wp.data, ind->ie_wp.data_size, BIT(WS_FT_PC));
     join_state_transition(wsrd, WSRD_EVENT_PC_RX);
     dbus_emit_change("PanVersion");
 }

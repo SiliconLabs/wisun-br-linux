@@ -17,6 +17,7 @@
 
 #include "common/ieee802154_frame.h"
 #include "common/crypto/ws_keys.h"
+#include "common/ws/ws_ie_custom.h"
 #include "common/ws/ws_neigh.h"
 #include "common/ws/ws_types.h"
 #include "common/rcp_api.h"
@@ -101,6 +102,7 @@ struct ws_ctx {
      * It is a copy of the latest GTKHASH-IE.
      */
     uint8_t gtkhash[WS_GTK_COUNT][8];
+    struct ws_ie_custom_list ie_list; // PAN-Wide/FFN-Wide IEs
 
     struct ws_jm_ie jm;
 

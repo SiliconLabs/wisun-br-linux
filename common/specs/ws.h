@@ -61,9 +61,11 @@ enum {
     WS_WHIE_LTO   = 0x11, // LFN Timing Offset
     WS_WHIE_PANID = 0x12, // PAN Identifier
     // 0x13 to 0x7e are reserved for one-hop IEs
-    // 0x80 to 0xbf are reserved for pan-wide IEs
+    WS_WHIE_PAN_WIDE_MIN = 0x80,
+    WS_WHIE_PAN_WIDE_MAX = 0xbf,
+    WS_WHIE_FFN_WIDE_MIN = 0xc0,
     WS_WHIE_LBC   = 0xc0, // LFN Broadcast Configuration
-   // 0xc1 to 0xfe are reserved for ffn-wide IEs
+    WS_WHIE_FFN_WIDE_MAX = 0xfe,
 };
 
 // Wi-SUN Assigned Value Registry 0v25
@@ -79,10 +81,12 @@ enum {
     WS_WPIE_LBATS    = 0x09, // LFN Broadcast Additional Transmit Schedule
     WS_WPIE_JM       = 0x0a, // Join Metrics
     // 0x0b to 0x3f are reserved for one-hop IEs
+    WS_WPIE_SHORT_PAN_WIDE_MIN = 0x40,
     WS_WPIE_LFNVER   = 0x40, // LFN Version
     WS_WPIE_LGTKHASH = 0x41, // LFN GTK Hash
-    // 0x42 to 0x5f are reserved for pan-wide IEs
-    // 0x60 to 0x7e are reserved for ffn-wide IEs
+    WS_WPIE_SHORT_PAN_WIDE_MAX = 0x5f,
+    WS_WPIE_SHORT_FFN_WIDE_MIN = 0x60,
+    WS_WPIE_SHORT_FFN_WIDE_MAX = 0x7e,
 };
 // Long form
 enum {
@@ -92,8 +96,10 @@ enum {
     WS_WPIE_VP       = 0x03, // Vendor Payload
     WS_WPIE_LCP      = 0x04, // LFN Channel Plan
     // 0x05 to 0x07 are reserved for one-hop IEs
-    // 0x08 to 0x0a are reserved for pan-wide IEs
-    // 0x0b to 0x0e are reserved for ffn-wide IEs
+    WS_WPIE_LONG_PAN_WIDE_MIN = 0x08,
+    WS_WPIE_LONG_PAN_WIDE_MAX = 0x0a,
+    WS_WPIE_LONG_FFN_WIDE_MIN = 0x0b,
+    WS_WPIE_LONG_FFN_WIDE_MAX = 0x0e,
 };
 
 // Wi-SUN Assigned Value Registry 0v25
