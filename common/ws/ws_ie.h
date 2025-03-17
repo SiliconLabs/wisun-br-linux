@@ -29,7 +29,7 @@ struct eui64;
 struct iobuf_write;
 struct ws_fhss_config;
 struct ws_phy_config;
-struct ws_ie_custom_list;
+struct ws_ie_list;
 
 struct ws_utt_ie {
     uint8_t message_type;
@@ -283,7 +283,7 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie);
 bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie);
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
-bool ws_wh_wide_ies_read(struct ws_ie_custom_list *list, const uint8_t *data, uint16_t length, uint16_t frame_type_mask);
+bool ws_wh_wide_ies_read(struct ws_ie_list *list, const uint8_t *data, uint16_t length, uint16_t frame_type_mask);
 
 bool ws_wh_sl_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
 
@@ -319,6 +319,6 @@ bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, uint8_t lg
 bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, struct ws_lcp_ie *ws_lcp_ie);
 struct ws_jm *ws_wp_nested_jm_get_metric(struct ws_jm_ie *jm, uint8_t metric_id);
 bool ws_wp_nested_jm_read(const uint8_t *data, uint16_t length, struct ws_jm_ie *jm);
-bool ws_wp_nested_wide_ies_read(struct ws_ie_custom_list *list, const uint8_t *data, uint16_t length, uint16_t frame_type_mask);
+bool ws_wp_nested_wide_ies_read(struct ws_ie_list *list, const uint8_t *data, uint16_t length, uint16_t frame_type_mask);
 
 #endif

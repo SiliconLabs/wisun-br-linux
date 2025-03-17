@@ -19,11 +19,11 @@
 #include "common/sys_queue_extra.h"
 #include "common/specs/ieee802154.h"
 
-#include "ws_ie_custom.h"
+#include "ws_ie_list.h"
 
-void ws_ie_custom_clear(struct ws_ie_custom_list *list)
+void ws_ie_list_clear(struct ws_ie_list *list)
 {
-    struct ws_ie_custom *ie;
+    struct ws_ie *ie;
 
     while ((ie = SLIST_POP(list, link))) {
         iobuf_free(&ie->buf);
@@ -31,23 +31,23 @@ void ws_ie_custom_clear(struct ws_ie_custom_list *list)
     }
 }
 
-int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type type, uint8_t id,
+int ws_ie_list_update(struct ws_ie_list *list, enum ws_ie_type type, uint8_t id,
                          const uint8_t *content, size_t content_len, uint16_t frame_type_mask)
 {
-    struct ws_ie_custom *ie;
+    struct ws_ie *ie;
     int offset;
 
     switch (type) {
-    case WS_IE_CUSTOM_TYPE_HEADER:
+    case WS_IE_TYPE_HEADER:
         if (content_len > FIELD_MAX(IEEE802154_IE_HEADER_LEN_MASK) - 1)
             return -EINVAL;
         break;
-    case WS_IE_CUSTOM_TYPE_NESTED_SHORT:
+    case WS_IE_TYPE_NESTED_SHORT:
         if (content_len > FIELD_MAX(IEEE802154_IE_NESTED_SHORT_LEN_MASK) ||
             id          > FIELD_MAX(IEEE802154_IE_NESTED_SHORT_ID_MASK))
             return -EINVAL;
         break;
-    case WS_IE_CUSTOM_TYPE_NESTED_LONG:
+    case WS_IE_TYPE_NESTED_LONG:
         if (content_len > FIELD_MAX(IEEE802154_IE_NESTED_LONG_LEN_MASK) ||
             id          > FIELD_MAX(IEEE802154_IE_NESTED_LONG_ID_MASK))
             return -EINVAL;
@@ -60,12 +60,12 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
     if (ie) {
         iobuf_free(&ie->buf);
         if (!frame_type_mask) {
-            SLIST_REMOVE(list, ie, ws_ie_custom, link);
+            SLIST_REMOVE(list, ie, ws_ie, link);
             free(ie);
             return 0;
         }
     } else {
-        ie = calloc(1, sizeof(struct ws_ie_custom));
+        ie = calloc(1, sizeof(struct ws_ie));
         if (!ie)
             return -errno;
         SLIST_INSERT_HEAD(list, ie, link);
@@ -75,15 +75,15 @@ int ws_ie_custom_update(struct ws_ie_custom_list *list, enum ws_ie_custom_type t
     ie->ie_type         = type;
     ie->ie_id           = id;
 
-    if (type == WS_IE_CUSTOM_TYPE_HEADER) {
+    if (type == WS_IE_TYPE_HEADER) {
         offset = ieee802154_ie_push_header(&ie->buf, IEEE802154_IE_ID_WH);
         iobuf_push_u8(&ie->buf, id);
         iobuf_push_data(&ie->buf, content, content_len);
         ieee802154_ie_fill_len_header(&ie->buf, offset);
     } else {
-        offset = ieee802154_ie_push_nested(&ie->buf, id, type == WS_IE_CUSTOM_TYPE_NESTED_LONG);
+        offset = ieee802154_ie_push_nested(&ie->buf, id, type == WS_IE_TYPE_NESTED_LONG);
         iobuf_push_data(&ie->buf, content, content_len);
-        ieee802154_ie_fill_len_nested(&ie->buf, offset, type == WS_IE_CUSTOM_TYPE_NESTED_LONG);
+        ieee802154_ie_fill_len_nested(&ie->buf, offset, type == WS_IE_TYPE_NESTED_LONG);
     }
     return 0;
 }

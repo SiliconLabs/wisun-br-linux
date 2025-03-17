@@ -249,7 +249,7 @@ static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error 
 {
     struct wsbr_ctxt *ctxt = userdata;
 
-    ws_ie_custom_clear(&ctxt->net_if.ws_info.ie_custom_list);
+    ws_ie_list_clear(&ctxt->net_if.ws_info.ie_list);
     ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
     sd_bus_reply_method_return(m, NULL);
     return 0;
@@ -285,7 +285,7 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
         }
         frame_type_mask |= BIT(frame_type_list[i]);
     }
-    ret = ws_ie_custom_update(&ctxt->net_if.ws_info.ie_custom_list, ie_type, ie_id,
+    ret = ws_ie_list_update(&ctxt->net_if.ws_info.ie_list, ie_type, ie_id,
                               content, content_len, frame_type_mask);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);

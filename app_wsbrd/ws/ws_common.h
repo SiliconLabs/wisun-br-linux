@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "common/ws/ws_ie_custom.h"
+#include "common/ws/ws_ie_list.h"
 #include "common/ws/ws_neigh.h"
 #include "common/ws/ws_types.h"
 
@@ -58,7 +58,7 @@ struct ws_pan_information {
 typedef struct ws_info {
     char network_name[33];
     struct ws_mngt mngt;
-    struct ws_ie_custom_list ie_custom_list;
+    struct ws_ie_list ie_list;
     bool enable_lfn;
     bool enable_ffn10;
     enum ws_edfe_mode edfe_mode;

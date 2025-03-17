@@ -1097,9 +1097,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     struct ws_jm *jm = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
                          rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
-    struct ws_ie_custom *ie_custom;
-    bool has_ie_custom_wp = false;
+    bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
+    struct ws_ie *ie;
     int ie_offset;
     uint8_t plf;
 
@@ -1141,20 +1141,20 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->lbc)
         ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
                         info->fhss_config.lfn_bc_sync_period);
-    SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
-        if (!(ie_custom->frame_type_mask & BIT(msg->message_type)))
+    SLIST_FOREACH(ie, &info->ie_list, link) {
+        if (!(ie->frame_type_mask & BIT(msg->message_type)))
             continue;
-        if (ie_custom->ie_type == WS_IE_CUSTOM_TYPE_HEADER)
-            iobuf_push_data(&msg->ie_buf_header, ie_custom->buf.data, ie_custom->buf.len);
+        if (ie->ie_type == WS_IE_TYPE_HEADER)
+            iobuf_push_data(&msg->ie_buf_header, ie->buf.data, ie->buf.len);
         else
-            has_ie_custom_wp = true;
+            has_ie_wp = true;
     }
     msg->ie_iov_header.iov_base = msg->ie_buf_header.data;
     msg->ie_iov_header.iov_len = msg->ie_buf_header.len;
     msg->ie_ext.headerIeVectorList = &msg->ie_iov_header;
     msg->ie_ext.headerIovLength = 1;
 
-    if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
+    if (!ws_wp_ie_is_empty(wp_ies) || has_ie_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies->us)
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->fhss_config);
@@ -1185,10 +1185,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         }
         if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
-        SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
-            if (ie_custom->frame_type_mask & BIT(msg->message_type) &&
-                ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
-                iobuf_push_data(&msg->ie_buf_payload, ie_custom->buf.data, ie_custom->buf.len);
+        SLIST_FOREACH(ie, &info->ie_list, link)
+            if (ie->frame_type_mask & BIT(msg->message_type) &&
+                ie->ie_type != WS_IE_TYPE_HEADER)
+                iobuf_push_data(&msg->ie_buf_payload, ie->buf.data, ie->buf.len);
         ieee802154_ie_fill_len_payload(&msg->ie_buf_payload, ie_offset);
     }
     msg->ie_iov_payload[0].iov_len = msg->ie_buf_payload.len;

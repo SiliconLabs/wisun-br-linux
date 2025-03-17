@@ -71,8 +71,8 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
 static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t frame_type,
                          struct wh_ie_list *wh_ies, struct wp_ie_list *wp_ies, uint16_t multiplex_id)
 {
-    struct ws_ie_custom *ie_custom;
-    bool has_ie_custom_wp = false;
+    bool has_ie_wp = false;
+    struct ws_ie *ie;
     int offset;
 
     BUG_ON(wh_ies->utt && wh_ies->sl_utt);
@@ -85,16 +85,16 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
         ws_wh_sl_utt_write(iobuf, frame_type);
     if (wh_ies->ea)
         ws_wh_ea_write(iobuf, wh_ies->ea);
-    SLIST_FOREACH(ie_custom, &ws->ie_list, link) {
-        if (!(ie_custom->frame_type_mask & BIT(frame_type)))
+    SLIST_FOREACH(ie, &ws->ie_list, link) {
+        if (!(ie->frame_type_mask & BIT(frame_type)))
             continue;
-        if (ie_custom->ie_type == WS_IE_CUSTOM_TYPE_HEADER)
-            iobuf_push_data(iobuf, ie_custom->buf.data, ie_custom->buf.len);
+        if (ie->ie_type == WS_IE_TYPE_HEADER)
+            iobuf_push_data(iobuf, ie->buf.data, ie->buf.len);
         else
-            has_ie_custom_wp = true;
+            has_ie_wp = true;
     }
     // TODO: remaning WH-IEs
-    if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id && !has_ie_custom_wp)
+    if (!memzcmp(wp_ies, sizeof(struct wp_ie_list)) && !multiplex_id && !has_ie_wp)
         return;
 
     ieee802154_ie_push_header(iobuf, IEEE802154_IE_ID_HT1);
@@ -115,10 +115,10 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
         ws_wp_nested_netname_write(iobuf, ws->netname);
     if (wp_ies->jm)
         ws_wp_nested_jm_write(iobuf, &ws->jm);
-    SLIST_FOREACH(ie_custom, &ws->ie_list, link)
-        if (ie_custom->frame_type_mask & BIT(frame_type) &&
-            ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
-            iobuf_push_data(iobuf, ie_custom->buf.data, ie_custom->buf.len);
+    SLIST_FOREACH(ie, &ws->ie_list, link)
+        if (ie->frame_type_mask & BIT(frame_type) &&
+            ie->ie_type != WS_IE_TYPE_HEADER)
+            iobuf_push_data(iobuf, ie->buf.data, ie->buf.len);
     // TODO: remaning WP-IEs
     ieee802154_ie_fill_len_payload(iobuf, offset);
 }
