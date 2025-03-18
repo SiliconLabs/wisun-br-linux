@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/endian.h"
+#include "common/eui64.h"
 #include "common/rcp_api.h"
 #include "common/rand.h"
 #include "common/dhcp_server.h"
@@ -548,7 +549,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage,
-                                (struct eui64 *)(buf->dst_sa.address + PAN_ID_LEN));
+                                &EUI64_FROM_BUF(buf->dst_sa.address + PAN_ID_LEN));
 
         //Validate neighbour
         if (!ws_neigh) {
@@ -590,7 +591,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     dataReq->Key.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64;
     if (dataReq->Key.SecurityLevel) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage,
-                                (struct eui64 *)dataReq->DstAddr);
+                                &EUI64_FROM_BUF(dataReq->DstAddr));
         if ((ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
             dataReq->Key.KeyIndex = cur->ws_info.lfn_gtk_index;
         else
@@ -679,7 +680,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
         return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     if (buf->link_specific.ieee802_15_4.requestAck) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage,
-                                (struct eui64 *)(buf->dst_sa.address + PAN_ID_LEN));
+                                &EUI64_FROM_BUF(buf->dst_sa.address + PAN_ID_LEN));
 
         if (!ws_neigh)
             return true;

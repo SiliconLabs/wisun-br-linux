@@ -49,7 +49,7 @@ static int ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t sr
         return -EINVAL;
     }
 
-    return ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), (struct eui64 *)dst);
+    return ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), &EUI64_FROM_BUF(dst));
 }
 
 static int ws_send_ipv6(struct dc *dc, struct pktbuf *pktbuf, uint8_t ipproto, uint8_t hlim,

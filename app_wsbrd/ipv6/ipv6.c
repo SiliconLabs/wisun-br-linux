@@ -1048,7 +1048,7 @@ static void ipv6_refresh_neighbor_lifetime(buffer_t *buf, const sockaddr_t *ll_s
         return;
 
     ws_neigh = ws_neigh_get(&buf->interface->ws_info.neighbor_storage,
-                            (const struct eui64 *)eui64);
+                            &EUI64_FROM_BUF(eui64));
     if (!ws_neigh)
         return;
 

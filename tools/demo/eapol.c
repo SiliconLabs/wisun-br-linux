@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
         if (pfd[2].revents & POLLIN) {
             ret = recv(ctx.auth_fd, buf, sizeof(buf), 0);
             FATAL_ON(ret < 8 + 1, 2, "recv: %m");
-            auth_recv_eapol(&ctx.auth, buf[8], (struct eui64 *)buf,
+            auth_recv_eapol(&ctx.auth, buf[8], &EUI64_FROM_BUF(buf),
                             buf + 8 + 1, ret - 8 - 1);
         }
         if (pfd[3].revents & POLLIN) {

@@ -72,7 +72,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     BUG_ON(data->Key.SecurityLevel && data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64);
 
     neighbor_ws = ws_neigh_get(&cur->ws_info.neighbor_storage,
-                               (const struct eui64 *)data->DstAddr);
+                               &EUI64_FROM_BUF(data->DstAddr));
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
         ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);

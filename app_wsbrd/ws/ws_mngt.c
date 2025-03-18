@@ -75,7 +75,7 @@ static void ws_mngt_ie_pom_handle(struct ws_info *ws_info,
     struct ws_pom_ie ie_pom;
     struct ws_neigh *neigh;
 
-    neigh = ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)data->SrcAddr);
+    neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
     if (!neigh)
         return;
     if (!ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pom))
@@ -87,10 +87,10 @@ static struct ws_neigh *ws_mngt_neigh_fetch(struct ws_info *ws_info, const uint8
 {
     struct ws_neigh *neigh;
 
-    neigh = ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)mac64);
+    neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(mac64));
     if (neigh)
         return neigh;
-    return ws_neigh_add(&ws_info->neighbor_storage, (const struct eui64 *)mac64,
+    return ws_neigh_add(&ws_info->neighbor_storage, &EUI64_FROM_BUF(mac64),
                         role, ws_info->tx_power_dbm, ws_info->key_index_mask);
 }
 
@@ -135,7 +135,7 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
-                       data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                       data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval);
 }
@@ -162,7 +162,7 @@ void ws_mngt_pas_analyze(struct ws_info *ws_info,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
-                       data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                       data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval);
 }
@@ -216,8 +216,8 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
-    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
-    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+    ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
+    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,ie_us.dwell_interval);
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,ie_us.dwell_interval);
 }
@@ -249,7 +249,7 @@ void ws_mngt_pcs_analyze(struct ws_info *ws_info,
     if (!ws_neigh)
         return;
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
-                       data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                       data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
                        ie_us.dwell_interval);
 }
@@ -356,7 +356,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     }
 
     add_neighbor = false;
-    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)data->SrcAddr);
+    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
 
     if (!ws_neigh) {
         add_neighbor = true;
@@ -367,7 +367,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     }
     if (add_neighbor) {
         ws_neigh = ws_neigh_add(&ws_info->neighbor_storage,
-                                (const struct eui64 *)data->SrcAddr, WS_NR_ROLE_LFN,
+                                &EUI64_FROM_BUF(data->SrcAddr), WS_NR_ROLE_LFN,
                                 ws_info->tx_power_dbm, ws_info->key_index_mask);
         if (!ws_neigh) {
             TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
@@ -442,7 +442,7 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
             return;
     }
 
-    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)data->SrcAddr);
+    ws_neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
         return;

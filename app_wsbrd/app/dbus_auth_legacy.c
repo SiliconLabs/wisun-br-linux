@@ -98,12 +98,12 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 
     for (int i = 0; i < len_pae; i++) {
         neighbor_info = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage,
-                                     (struct eui64 *)eui64_pae[i]);
+                                     &EUI64_FROM_BUF(eui64_pae[i]));
         if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
             supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
         else
             supp = NULL;
-        dbus_message_append_node(reply, property, (struct eui64 *)eui64_pae[i],
+        dbus_message_append_node(reply, property, &EUI64_FROM_BUF(eui64_pae[i]),
                                  false, supp, neighbor_info);
         if (supp)
             free(supp);

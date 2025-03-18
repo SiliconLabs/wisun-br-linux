@@ -156,7 +156,7 @@ static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui6
     const struct ws_neigh *neigh;
 
     neigh = ws_neigh_get(&interface->ws_info.neighbor_storage,
-                         (const struct eui64 *)eui64);
+                         &EUI64_FROM_BUF(eui64));
     return neigh ? neigh->node_role : WS_NR_ROLE_UNKNOWN;
 }
 
@@ -276,7 +276,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
     base->temp_entries.active_eapol_session = false;
     ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
-                            (struct eui64 *)msg->dst_address);
+                            &EUI64_FROM_BUF(msg->dst_address));
     WARN_ON(!ws_neigh);
     if (ws_neigh && confirm->hif.status == HIF_STATUS_SUCCESS)
         ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
@@ -449,7 +449,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
 
     if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT)
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage,
-                                (struct eui64 *)msg->dst_address);
+                                &EUI64_FROM_BUF(msg->dst_address));
 
     if (ws_neigh) {
         if (data_cpy.sec.SecurityLevel) {
@@ -583,7 +583,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     add_neighbor = false;
     ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage,
-                            (const struct eui64 *)data->SrcAddr);
+                            &EUI64_FROM_BUF(data->SrcAddr));
 
     if (!ws_neigh) {
         add_neighbor = (data->DstAddrMode == ADDR_802_15_4_LONG && has_us);
@@ -594,7 +594,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     }
     if (add_neighbor) {
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
-                                (const struct eui64 *)data->SrcAddr, WS_NR_ROLE_ROUTER,
+                                &EUI64_FROM_BUF(data->SrcAddr), WS_NR_ROLE_ROUTER,
                                 net_if->ws_info.tx_power_dbm, net_if->ws_info.key_index_mask);
         BUG_ON(!ws_neigh);
     }
@@ -606,9 +606,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
         ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi,
-                           data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                           data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
         ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
-                           data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                           data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
         if (has_us && !duplicated) {
             ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,
                                         ie_us.dwell_interval);
@@ -682,7 +682,7 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     }
 
     ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
-                            (const struct eui64 *)data->SrcAddr);
+                            &EUI64_FROM_BUF(data->SrcAddr));
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_DATA), tr_eui64(data->SrcAddr));
         return;
@@ -738,10 +738,10 @@ static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_dat
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
     struct ws_neigh *neigh;
 
-    neigh = ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)data->SrcAddr);
+    neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
     if (neigh)
         return neigh;
-    return ws_neigh_add(&ws_info->neighbor_storage, (const struct eui64 *)data->SrcAddr,
+    return ws_neigh_add(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr),
                         node_role, ws_info->tx_power_dbm, ws_info->key_index_mask);
 }
 
@@ -765,7 +765,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!base)
         return;
 
-    supp = auth_get_supp(net_if->auth, (const struct eui64 *)data->SrcAddr);
+    supp = auth_get_supp(net_if->auth, &EUI64_FROM_BUF(data->SrcAddr));
     if (supp)
         supp->eapol_target = in6addr_any;
 
@@ -792,7 +792,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
-                       data->hif.timestamp_us, (const struct eui64 *)data->SrcAddr);
+                       data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     if (has_us && !duplicated)
         ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config,
                            &ws_neigh->fhss_data_unsecured,
@@ -820,7 +820,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
     } else {
         auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], (const struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
                         mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
     }
 }
@@ -845,7 +845,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!base)
         return;
 
-    supp = auth_get_supp(net_if->auth, (const struct eui64 *)data->SrcAddr);
+    supp = auth_get_supp(net_if->auth, &EUI64_FROM_BUF(data->SrcAddr));
     if (supp)
         supp->eapol_target = in6addr_any;
 
@@ -908,7 +908,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
     } else {
         auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], (const struct eui64 *)data->SrcAddr,
+                        mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
                         mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
     }
 }
@@ -1050,7 +1050,7 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
         return;
     }
 
-    neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, (const struct eui64 *)data->SrcAddr);
+    neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
     if (neigh && data->Key.SecurityLevel) {
         BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
         if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
@@ -1299,7 +1299,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 {
     struct ws_info *ws_info = &base->interface_ptr->ws_info;
     struct ws_neigh *ws_neigh = data->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT ?
-                                ws_neigh_get(&ws_info->neighbor_storage, (const struct eui64 *)data->DstAddr) :
+                                ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->DstAddr)) :
                                 NULL;
     uint8_t node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
     struct wh_ie_list wh_ies = {
@@ -1835,7 +1835,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
         interface->ws_info.phy_config.ms_mode = mode;
     } else {
         ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage,
-                                (struct eui64 *)neighbor_mac_address);
+                                &EUI64_FROM_BUF(neighbor_mac_address));
         if (!ws_neigh)
             return -EINVAL;
 
@@ -1864,7 +1864,7 @@ int ws_llc_set_edfe(struct net_if *interface, enum ws_edfe_mode mode, uint8_t *n
         interface->ws_info.edfe_mode = mode;
     } else {
         ws_neigh = ws_neigh_get(&interface->ws_info.neighbor_storage,
-                                (struct eui64 *)neighbor_mac_address);
+                                &EUI64_FROM_BUF(neighbor_mac_address));
         if (!ws_neigh)
             return -1;
         ws_neigh->edfe_mode = mode;
