@@ -64,6 +64,28 @@ static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
     return ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->etx;
 }
 
+void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)
+{
+    struct ws_neigh *parent = ws_neigh_get(&wsrd->ws.neigh_table, &wsrd->eapol_target_eui64);
+
+    /*
+     * If we receive a PC with an updated PAN version from a neighbor that is
+     * not our parent, we still update our BS information and indicate the RCP
+     * to follow our parent's timings, if we have one.
+     * This avoids having to synchronize again on RX of a PC from our parent.
+     */
+    rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
+                        ws_neigh->fhss_data_unsecured.ffn.bc_interval_ms,
+                        ws_neigh->fhss_data_unsecured.ffn.bsi,
+                        ws_neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms,
+                        ws_neigh->fhss_data_unsecured.bc_channel_list,
+                        ws_neigh->fhss_data_unsecured.ffn.bt_rx_tstamp_us,
+                        ws_neigh->fhss_data_unsecured.ffn.bc_slot_number,
+                        ws_neigh->fhss_data_unsecured.ffn.bc_interval_offset_ms,
+                        parent ? parent->eui64.u8 : ws_neigh->eui64.u8,
+                        parent ? parent->frame_counter_min : ws_neigh->frame_counter_min);
+}
+
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
@@ -313,7 +335,7 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
 static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
     struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
-    int cur_pan_version = wsrd->ws.pan_version;
+    bool pan_version_update;
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -353,7 +375,8 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     }
     ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
 
-    if (cur_pan_version == -1 || seqno_cmp16(pan_version, cur_pan_version) > 0)
+    pan_version_update = wsrd->ws.pan_version == -1 || seqno_cmp16(pan_version, wsrd->ws.pan_version) > 0;
+    if (pan_version_update)
         ws_pan_version_update(wsrd, pan_version, gtkhash, ind, &ie_bs);
 
     ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
@@ -363,18 +386,9 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_bt_update(&ind->neigh->fhss_data, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
     ws_neigh_bt_update(&ind->neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
 
-    // TODO: only update on BS-IE change, or parent change
-    if (!parent || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
-        rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
-                            ind->neigh->fhss_data_unsecured.ffn.bc_interval_ms,
-                            ind->neigh->fhss_data_unsecured.ffn.bsi,
-                            ind->neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms,
-                            ind->neigh->fhss_data_unsecured.bc_channel_list,
-                            ind->neigh->fhss_data_unsecured.ffn.bt_rx_tstamp_us,
-                            ind->neigh->fhss_data_unsecured.ffn.bc_slot_number,
-                            ind->neigh->fhss_data_unsecured.ffn.bc_interval_offset_ms,
-                            ind->neigh->eui64.u8,
-                            ind->neigh->frame_counter_min);
+    // TODO: update on parent change
+    if (pan_version_update || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
+        ws_sync_fhss_bc(wsrd, ind->neigh);
 }
 
 static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)

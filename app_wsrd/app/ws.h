@@ -18,9 +18,13 @@ struct ws_frame_ctx;
 struct timer_group;
 struct timer_entry;
 struct rcp_tx_cnf;
+struct ws_neigh;
 struct trickle;
 struct ws_ctx;
 struct ws_ind;
+struct wsrd;
+
+void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh);
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
 void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
