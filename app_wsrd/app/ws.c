@@ -84,6 +84,7 @@ void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)
                         ws_neigh->fhss_data_unsecured.ffn.bc_interval_offset_ms,
                         parent ? parent->eui64.u8 : ws_neigh->eui64.u8,
                         parent ? parent->frame_counter_min : ws_neigh->frame_counter_min);
+    wsrd->fhss_bc_synced_to_target = parent != NULL;
 }
 
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -141,6 +142,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
     // TODO: reset PAN ID when transitioning to join state 1
     wsrd->ws.pan_id = selected_pan_id;
+    wsrd->fhss_bc_synced_to_target = false;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
@@ -334,7 +336,6 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
 
 static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
     bool pan_version_update;
     struct ws_bt_ie ie_bt;
     struct ws_us_ie ie_us;
@@ -386,8 +387,14 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     ws_neigh_bt_update(&ind->neigh->fhss_data, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
     ws_neigh_bt_update(&ind->neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number, ie_bt.broadcast_interval_offset, ind->hif->timestamp_us);
 
+    /*
+     * We only sync to the parent if the PAN version number is the latest. This
+     * helps to avoid a case where the parent sends us a PC with an outdated
+     * PAN version.
+     */
     // TODO: update on parent change
-    if (pan_version_update || !memcmp(&parent->eui64, &ind->neigh->eui64, 8))
+    if (pan_version_update || (eui64_eq(&wsrd->eapol_target_eui64, &ind->neigh->eui64) &&
+                               !wsrd->fhss_bc_synced_to_target && seqno_cmp16(pan_version, wsrd->ws.pan_version) >= 0))
         ws_sync_fhss_bc(wsrd, ind->neigh);
 }
 
@@ -548,6 +555,8 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      * not change during a transaction.
      */
     if (eui64_eq(&ind->hdr.src, &wsrd->eapol_target_eui64)) {
+        if (!wsrd->fhss_bc_synced_to_target)
+            ws_sync_fhss_bc(wsrd, ind->neigh);
         supp_recv_eapol(&wsrd->supp, kmp_id,
                         iobuf_ptr(&buf), iobuf_remaining_size(&buf),
                         has_ea_ie ? &auth_eui64 : NULL);

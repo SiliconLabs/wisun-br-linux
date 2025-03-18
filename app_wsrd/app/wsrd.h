@@ -40,6 +40,7 @@ struct wsrd {
 
     struct supp_ctx supp;
     struct eui64 eapol_target_eui64;
+    bool fhss_bc_synced_to_target;
     struct dhcp_relay dhcp_relay;
 };
 
