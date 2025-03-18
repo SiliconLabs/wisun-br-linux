@@ -591,11 +591,6 @@ bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, ui
         return true;
     }
 
-    if (!neigh->unicast_data_rx) {
-        // No unicast info stored always accepted
-        return true;
-    }
-
     rx_timestamp -= neigh->fhss_data.ffn.utt_rx_tstamp_us;
     rx_timestamp /= 1000000; //Convert to s
 

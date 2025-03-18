@@ -609,8 +609,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                            data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
         ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
                            data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
-        if (data->DstAddrMode == ADDR_802_15_4_LONG)
-            ws_neigh->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
         ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm, WS_EWMA_SF);
@@ -706,9 +704,6 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                             has_lcp ? &ie_lcp.chan_plan : NULL,
                             ie_lus.listen_interval, &ws_neigh->lto_info);
     }
-
-    if (data->DstAddrMode == ADDR_802_15_4_LONG)
-        ws_neigh->unicast_data_rx = true;
 
     // Calculate RSL for all UDATA packets heard
     ws_neigh->rsl_in_dbm = ws_neigh_ewma_next(ws_neigh->rsl_in_dbm, data->hif.rx_power_dbm, WS_EWMA_SF);
