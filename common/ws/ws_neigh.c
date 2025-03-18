@@ -591,7 +591,7 @@ bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, ui
         return true;
     }
 
-    rx_timestamp -= neigh->fhss_data.ffn.utt_rx_tstamp_us;
+    rx_timestamp -= neigh->fhss_data_unsecured.ffn.utt_rx_tstamp_us;
     rx_timestamp /= 1000000; //Convert to s
 
     //Compare only when last rx timestamp is less than 5 seconds
