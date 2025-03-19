@@ -116,8 +116,12 @@ class WsbrdDbusInterface(
     def leave_multicast_group(self, addr: bytes) -> None:
         raise NotImplementedError
 
-    @sdbus.dbus_method('ayay')
-    def revoke_group_keys(self, gtk: bytes, lgtk: bytes) -> None:
+    @sdbus.dbus_method('ay')
+    def revoke_gtks(self, gtk: bytes) -> None:
+        raise NotImplementedError
+
+    @sdbus.dbus_method('ay')
+    def revoke_lgtks(self, lgtk: bytes) -> None:
         raise NotImplementedError
 
     @sdbus.dbus_method('ay')
