@@ -609,12 +609,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                            data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
         ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
                            data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
-        if (has_us && !duplicated) {
-            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data, &ie_us.chan_plan,
-                                        ie_us.dwell_interval);
-            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured, &ie_us.chan_plan,
-                                        ie_us.dwell_interval);
-        }
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             ws_neigh->unicast_data_rx = true;
 
@@ -628,12 +622,18 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (data->Key.SecurityLevel)
             ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
-        if (has_pom && !duplicated)
-            ws_neigh->pom_ie = ie_pom;
         if (duplicated) {
             TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
             return;
         }
+        if (has_us) {
+            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data,
+                               &ie_us.chan_plan, ie_us.dwell_interval);
+            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
+                               &ie_us.chan_plan, ie_us.dwell_interval);
+        }
+        if (has_pom)
+            ws_neigh->pom_ie = ie_pom;
     }
 
     if (!ws_neigh)
@@ -793,14 +793,14 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
                        data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
-    if (has_us && !duplicated)
-        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config,
-                           &ws_neigh->fhss_data_unsecured,
-                           &ie_us.chan_plan, ie_us.dwell_interval);
     if (duplicated) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
+    if (has_us)
+        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config,
+                           &ws_neigh->fhss_data_unsecured,
+                           &ie_us.chan_plan, ie_us.dwell_interval);
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
                                IEEE802154_IE_ID_MPX, &ie_mpx);
