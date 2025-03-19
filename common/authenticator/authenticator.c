@@ -564,6 +564,7 @@ void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
         hdr = buf;
         TRACE(TR_SECURITY, "sec: %-8s type=%s length=%u", "tx-eapol",
               val_to_str(hdr->packet_type, eapol_frames, "[UNK]"), be16toh(hdr->packet_body_length));
+        BUG_ON(!auth->sendto_mac);
         auth->sendto_mac(auth, kmp_id, buf, buf_len, &supp->eui64);
     } else {
         eapol_relay_send(auth->eapol_relay_fd, buf, buf_len,
@@ -646,7 +647,6 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     uint8_t activated_mask = 0;
 
     BUG_ON(auth->radius_fd >= 0);
-    BUG_ON(!auth->sendto_mac);
     BUG_ON(!auth->cfg);
 
     if (auth->cfg->radius_addr.ss_family != AF_UNSPEC &&

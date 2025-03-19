@@ -95,6 +95,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCAP               IMPORTED_TARGET libcap>=2.29)
 pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
+pkg_check_modules(LIBMOSQUITTO         IMPORTED_TARGET libmosquitto)
 
 add_compile_definitions(_GNU_SOURCE)
 add_compile_definitions(_DEFAULT_SOURCE)
@@ -587,6 +588,49 @@ if(COMPILE_DEVTOOLS)
     install(FILES misc/com.silabs.Wisun.DirectConnect.conf
         DESTINATION /etc/dbus-1/system.d)
 
+    if(LIBMOSQUITTO_FOUND)
+        add_executable(silabs-ws-auth
+            tools/silabs-ws-auth/main.c
+            tools/silabs-ws-auth/commandline.c
+            common/authenticator/authenticator.c
+            common/authenticator/authenticator_eap.c
+            common/authenticator/authenticator_key.c
+            common/authenticator/authenticator_radius.c
+            common/authenticator/authenticator_storage.c
+            common/crypto/ieee80211.c
+            common/crypto/nist_kw.c
+            common/crypto/tls.c
+            common/crypto/ws_keys.c
+            common/ws/eapol_relay.c
+            common/bits.c
+            common/capture.c
+            common/config.c
+            common/crc.c
+            common/eap.c
+            common/eapol.c
+            common/endian.c
+            common/hif.c
+            common/iobuf.c
+            common/kde.c
+            common/key_value_storage.c
+            common/log.c
+            common/mqtt.c
+            common/named_values.c
+            common/parsers.c
+            common/pktbuf.c
+            common/rand.c
+            common/timer.c
+            common/time_extra.c
+            version.c
+        )
+        target_include_directories(silabs-ws-auth PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        target_compile_definitions(silabs-ws-auth PRIVATE HAVE_MBEDTLS HAVE_MQTT)
+        target_link_libraries(silabs-ws-auth PUBLIC MbedTLS::mbedtls PkgConfig::LIBMOSQUITTO)
+        target_link_options(silabs-ws-auth PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+    else()
+        message(WARNING "silabs-ws-auth needs libmosquitto")
+    endif()
+
     if(ns3_FOUND)
         if (NOT MBEDTLS_COMPILED_WITH_PIC)
             message(FATAL_ERROR "wsbrd-ns3 needs MbedTLS compiled with -fPIC")
@@ -811,4 +855,9 @@ if(COMPILE_WSRD)
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
     install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsrd wisun)")
     install(CODE "execute_process(COMMAND chown -R wisun:wisun /var/lib/wsrd)")
+endif()
+if(COMPILE_DEVTOOLS)
+    install(DIRECTORY DESTINATION /var/lib/silabs-ws-auth
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
+    install(CODE "execute_process(COMMAND chown -R wsbrd:wsbrd /var/lib/silabs-ws-auth)")
 endif()
