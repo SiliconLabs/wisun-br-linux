@@ -156,7 +156,8 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
          * NS(ARO) lifetime 0 has already been sent.
          */
         if (neigh->rpl && neigh->rpl->is_parent)
-            timer_start_rel(&ipv6->timer_group, &neigh->aro_timer, ipv6->aro_lifetime_ms - 5 * 60 * 1000);
+            timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer,
+                            ipv6->aro_lifetime_ms - 5 * 60 * 1000);
         // TODO: do not call for registration refresh
         if (neigh->rpl && neigh->rpl->is_parent)
             rpl_start_dao(ipv6);
@@ -239,9 +240,9 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     }
 }
 
-static void ipv6_on_aro_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+static void ipv6_own_aro_refresh(struct timer_group *group, struct timer_entry *timer)
 {
-    struct ipv6_neigh *neigh = container_of(timer, struct ipv6_neigh, aro_timer);
+    struct ipv6_neigh *neigh = container_of(timer, struct ipv6_neigh, own_aro_timer);
     struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
 
     BUG_ON(!neigh->rpl || !neigh->rpl->is_parent);
@@ -292,7 +293,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
     neigh->gua = *gua;
     neigh->eui64 = *eui64;
     neigh->nud_timer.callback = ipv6_nud_expire;
-    neigh->aro_timer.callback = ipv6_on_aro_timer_timeout;
+    neigh->own_aro_timer.callback = ipv6_own_aro_refresh;
     neigh->ns_handle = -1;
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64.u8));
@@ -303,7 +304,7 @@ struct ipv6_neigh *ipv6_neigh_fetch(struct ipv6_ctx *ipv6,
 void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
-    timer_stop(&ipv6->timer_group, &neigh->aro_timer);
+    timer_stop(&ipv6->timer_group, &neigh->own_aro_timer);
     SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64.u8));
