@@ -95,15 +95,14 @@ with a node as described in the Wi-SUN FAN specification section 6.5.2.5.
 
 - `ay`: 64 bit MAC address of the node to be revoked
 
-### `RevokeGroupKeys` (`ayay`)
+### `RevokeGtks` and `RevokeLgtks` (`ay`)
 
 Destroy all (L)GTKs except the current active one (and potentially the next
 key), reduce the current (or next) key's lifetime, and add a new key, as
 described in the Wi-SUN FAN specification section 6.5.2.5.
 
-- `ay`: Explicit key to add as the new GTK (for testing), or 0 length array to
-  generate a random key
-- `ay`: Idem for LGTKs
+- `ay`: Explicit key to add as the new (L)GTK (for testing), or 0 length array
+  to generate a random key
 
 ### `InstallGtk` and `InstallLgtk` (`ay`)
 

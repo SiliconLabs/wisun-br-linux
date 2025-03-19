@@ -19,7 +19,7 @@
 
 struct net_if;
 
-int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error);
+int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool do_gtk, bool do_lgtk);
 int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk);
 
 void dbus_message_open_info(sd_bus_message *m, const char *property,

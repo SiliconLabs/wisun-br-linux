@@ -295,6 +295,21 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
     return 0;
 }
 
+static int __dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_revoke_group_keys(m, userdata, ret_error, true, true);
+}
+
+static int dbus_revoke_gtks(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_revoke_group_keys(m, userdata, ret_error, true, false);
+}
+
+static int dbus_revoke_lgtks(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_revoke_group_keys(m, userdata, ret_error, false, true);
+}
+
 static int dbus_install_gtk(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     return dbus_install_group_key(m, userdata, ret_error, false);
@@ -601,7 +616,9 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_METHOD("SetLinkModeSwitch",   "ayuy",   NULL, dbus_set_link_mode_switch,  0),
         SD_BUS_METHOD("SetLinkEdfe",         "ayy",    NULL, dbus_set_link_edfe,         0),
         SD_BUS_METHOD("RevokePairwiseKeys",  "ay",     NULL, dbus_revoke_pairwise_keys,  0),
-        SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, dbus_revoke_group_keys,     0),
+        SD_BUS_METHOD("RevokeGroupKeys",     "ayay",   NULL, __dbus_revoke_group_keys,   SD_BUS_VTABLE_DEPRECATED),
+        SD_BUS_METHOD("RevokeGtks",          "ay",     NULL, dbus_revoke_gtks,           0),
+        SD_BUS_METHOD("RevokeLgtks",         "ay",     NULL, dbus_revoke_lgtks,          0),
         SD_BUS_METHOD("InstallGtk",          "ay",     NULL, dbus_install_gtk,           0),
         SD_BUS_METHOD("InstallLgtk",         "ay",     NULL, dbus_install_lgtk,          0),
         SD_BUS_METHOD("IeCustomInsert",      "yyayay", NULL, dbus_ie_custom_insert,      0),

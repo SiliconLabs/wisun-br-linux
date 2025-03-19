@@ -23,30 +23,38 @@
 
 #include "dbus_auth.h"
 
-int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool do_gtk, bool do_lgtk)
 {
     const struct wsbr_ctxt *ctxt = userdata;
     uint8_t *gtk, *lgtk;
     size_t len;
     int ret;
 
-    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (!len)
-        gtk = NULL;
-    else if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
-    if (!len)
-        lgtk = NULL;
-    else if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (do_gtk) {
+        sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
+        if (!len)
+            gtk = NULL;
+        else if (len != GTK_LEN)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
+    if (do_lgtk) {
+        sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
+        if (!len)
+            lgtk = NULL;
+        else if (len != GTK_LEN)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
 
-    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, false, gtk);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (do_gtk) {
+        ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, false, gtk);
+        if (ret < 0)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
+    if (do_lgtk) {
+        ret = ws_pae_controller_node_access_revoke_start(ctxt->net_if.id, true, lgtk);
+        if (ret < 0)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
