@@ -268,18 +268,21 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 }
 
 static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message *msg,
-                                 const struct mcps_data_cnf *confirm)
+                                 const struct mcps_data_cnf *confirm,
+                                 const struct mcps_data_rx_ie_list *confirm_data,
+                                 struct ws_neigh *ws_neigh)
 {
     struct mcps_data_cnf mpx_confirm;
-    struct ws_neigh *ws_neigh;
     struct mpx_user *mpx_usr;
+    struct ws_utt_ie ie_utt;
 
     base->temp_entries.active_eapol_session = false;
-    ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
-                            &EUI64_FROM_BUF(msg->dst_address));
-    WARN_ON(!ws_neigh);
-    if (ws_neigh && confirm->hif.status == HIF_STATUS_SUCCESS)
-        ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
+    if (ws_neigh) {
+        if (confirm->hif.status == HIF_STATUS_SUCCESS)
+            ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
+        if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt))
+            ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
+    }
 
     mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
     if (mpx_usr && mpx_usr->data_confirm) { // HAVE_AUTH_LEGACY path
@@ -447,9 +450,11 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
         ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
-    if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT)
+    if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT) {
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage,
                                 &EUI64_FROM_BUF(msg->dst_address));
+        WARN_ON(!ws_neigh);
+    }
 
     if (ws_neigh) {
         if (data_cpy.sec.SecurityLevel) {
@@ -479,7 +484,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     case WS_FT_EAPOL:
         if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
             WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
-        ws_llc_eapol_confirm(base, msg, &data_cpy);
+        ws_llc_eapol_confirm(base, msg, &data_cpy, conf_data, ws_neigh);
         break;
     case WS_FT_PA:
     case WS_FT_PAS:
