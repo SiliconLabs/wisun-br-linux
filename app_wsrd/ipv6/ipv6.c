@@ -99,7 +99,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     ssize_t ret;
 
     pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
-
+    TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s",
+          tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
     if (FIELD_GET(IPV6_MASK_VERSION, ntohl(hdr.ip6_flow)) != 6) {
         TRACE(TR_DROP, "drop %-9s: invalid IP version", "ipv6");
         return;
@@ -186,6 +187,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
         // Forget outer header, and submit inner packet to Linux.
         // NOTE: IPv6 header is reinserted before writing to TUN.
         pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
+        TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s (tunnelled)",
+              tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
         ipv6_neigh_aro_refresh(ipv6, src_eui64, &hdr.ip6_src);
         break;
     case IPPROTO_ICMPV6:
@@ -221,8 +224,6 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
         TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
         return;
     }
-    TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s",
-          tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
     TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
 
     // Reinsert previously parsed IPv6 header.
