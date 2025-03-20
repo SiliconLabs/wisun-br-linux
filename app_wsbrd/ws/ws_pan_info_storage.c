@@ -27,11 +27,6 @@
 
 #include "ws_pan_info_storage.h"
 
-// If PAN version lifetime would be 10 minutes, 1000 increments is about 7 days
-// i.e. storage must be written at least once a week
-#define PAN_VERSION_STORAGE_READ_INCREMENT    1000
-#define LFN_VERSION_STORAGE_READ_INCREMENT    1000
-
 void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
                               char network_name[33])
 {
@@ -51,9 +46,9 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
         } else if (!fnmatch("pan_id", info->key, 0)) {
             *pan_id = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_version", info->key, 0)) {
-            *pan_version = strtoul(info->value, NULL, 0) + PAN_VERSION_STORAGE_READ_INCREMENT;
+            *pan_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("lfn_version", info->key, 0)) {
-            *lfn_version = strtoul(info->value, NULL, 0) + LFN_VERSION_STORAGE_READ_INCREMENT;
+            *lfn_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("network_name", info->key, 0)) {
             if (parse_escape_sequences(network_name, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
