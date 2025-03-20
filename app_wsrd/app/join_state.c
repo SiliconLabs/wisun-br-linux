@@ -165,8 +165,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     // TODO: make sure DAO refresh timer is running
 
     INFO("Join state 5: Operational");
-    // TODO: enable when full parenting ready
-    // rpl_start_dio(&wsrd->ipv6);
+    rpl_start_dio(&wsrd->ipv6);
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
     trickle_start(&wsrd->pa_tkl);
@@ -181,6 +180,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
     BUG_ON(wsrd->ws.eapol_relay_fd < 0);
 
     // TODO: inform the network that we are leaving
+    trickle_stop(&wsrd->ipv6.rpl.dio_trickle);
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
     dhcp_relay_stop(&wsrd->dhcp_relay);
