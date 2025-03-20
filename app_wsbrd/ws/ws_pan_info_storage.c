@@ -17,6 +17,7 @@
  */
 
 #include <fnmatch.h>
+#include <unistd.h>
 
 #include "common/key_value_storage.h"
 #include "common/memutils.h"
@@ -80,5 +81,7 @@ void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_versi
     fprintf(info->file, "lfn_version = %d\n", lfn_version);
     str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
+    fflush(info->file);
+    fsync(fileno(info->file));
     storage_close(info);
 }
