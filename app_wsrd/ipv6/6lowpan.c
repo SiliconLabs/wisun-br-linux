@@ -48,7 +48,7 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
         goto err;
     }
 
-    ipv6_recvfrom_mac(ipv6, &pktbuf);
+    ipv6_recvfrom_mac(ipv6, &pktbuf, src);
 err:
     pktbuf_free(&pktbuf);
 }

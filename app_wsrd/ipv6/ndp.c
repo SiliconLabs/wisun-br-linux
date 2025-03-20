@@ -318,6 +318,23 @@ static int ipv6_recv_ns_aro(struct ipv6_ctx *ipv6,
     return 0;
 }
 
+void ipv6_neigh_aro_refresh(struct ipv6_ctx *ipv6,
+                            const struct eui64 *src_eui64,
+                            const struct in6_addr *src)
+{
+    struct ipv6_neigh *nce;
+
+    nce = ipv6_neigh_get_from_eui64(ipv6, src_eui64);
+    if (!nce || !IN6_ARE_ADDR_EQUAL(&nce->gua, src))
+        return;
+    if (timer_stopped(&nce->aro_lifetime))
+        return;
+    timer_start_rel(&ipv6->timer_group, &nce->aro_lifetime,
+                    timer_duration_ms(&nce->aro_lifetime));
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%umin (refresh)",
+          tr_ipv6(src->s6_addr), (int)(timer_duration_ms(&nce->aro_lifetime) / 1000 / 60));
+}
+
 void ipv6_recv_ns(struct ipv6_ctx *ipv6,
                   const void *buf, size_t buf_len,
                   const struct in6_addr *src)

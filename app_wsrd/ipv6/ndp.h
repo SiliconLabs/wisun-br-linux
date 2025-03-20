@@ -108,4 +108,16 @@ void ipv6_recv_ns(struct ipv6_ctx *ipv6,
  */
 void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success);
 
+/*
+ *   Wi-SUN FAN 1.1v09 6.2.3.1.4.1 FFN Neighbor Discovery
+ * An FFN that receives unicast IP traffic MUST refresh the lifetime of the
+ * registered address in its Neighbor Cache to the original lifetime requested
+ * by the neighbor when the inner or outer IPv6 header’s source address and MAC
+ * Source Address match their respective fields in the Neighbor Cache entry for
+ * the registered address.
+ */
+void ipv6_neigh_aro_refresh(struct ipv6_ctx *ipv6,
+                            const struct eui64 *src_eui64,
+                            const struct in6_addr *src);
+
 #endif

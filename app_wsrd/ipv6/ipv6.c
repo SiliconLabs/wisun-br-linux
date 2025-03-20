@@ -89,7 +89,7 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct 
     return hbh;
 }
 
-void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *src_eui64)
 {
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
     const struct ip6_hbh *hbh = NULL;
@@ -129,6 +129,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         hdr.ip6_plen = htons(ntohs(hdr.ip6_plen) - (1 + hbh->ip6h_len) * 8);
         hdr.ip6_nxt  = hbh->ip6h_nxt;
     }
+
+    ipv6_neigh_aro_refresh(ipv6, src_eui64, &hdr.ip6_src);
 
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
@@ -184,6 +186,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         // Forget outer header, and submit inner packet to Linux.
         // NOTE: IPv6 header is reinserted before writing to TUN.
         pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
+        ipv6_neigh_aro_refresh(ipv6, src_eui64, &hdr.ip6_src);
         break;
     case IPPROTO_ICMPV6:
         if (pktbuf_len(pktbuf) < sizeof(*icmp)) {
