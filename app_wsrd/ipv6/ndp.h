@@ -45,6 +45,7 @@ enum {
     IPV6_NUD_STALE,
     IPV6_NUD_DELAY,
     IPV6_NUD_PROBE,
+    IPV6_NUD_UNREACHABLE,
 };
 
 /*
@@ -62,6 +63,7 @@ enum {
 struct ipv6_neigh {
     struct eui64 eui64;  // Link-layer address (EUI-64)
     struct in6_addr gua; // Global Unicast Address (IPv6)
+    struct timer_entry aro_lifetime;
 
     int  nud_state;
     int  nud_probe_count;
@@ -91,6 +93,9 @@ void ipv6_neigh_clean(struct ipv6_ctx *ipv6);
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);
 
 int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes);
+void ipv6_recv_ns(struct ipv6_ctx *ipv6,
+                  const void *buf, size_t buf_len,
+                  const struct in6_addr *src);
 
 /*
  *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery

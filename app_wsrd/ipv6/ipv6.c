@@ -200,7 +200,10 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
         case ICMP6_ECHO_REPLY:
         case ICMPV6_TYPE_RPL:
             break;
-        // TODO: NS/NA
+        case ND_NEIGHBOR_SOLICIT:
+            ipv6_recv_ns(ipv6, pktbuf_head(pktbuf), pktbuf_len(pktbuf), &hdr.ip6_src);
+            return;
+        // TODO: NA
         default:
             TRACE(TR_DROP, "drop %-9s: unsupported ICMPv6 type %u", "ipv6", icmp->type);
             return;
