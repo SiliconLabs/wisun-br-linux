@@ -64,6 +64,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *nce;
     float pref_path_cost;
     float path_cost;
+    bool discard;
     float etx;
 
     // Compute min path cost of current parent to reflect changes on ETX/Rank
@@ -71,6 +72,10 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         cur_min_path_cost = rpl_mrhof_path_cost(ipv6, pref_parent_cur);
     else
         cur_min_path_cost = mrhof->max_path_cost;
+
+    TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f",
+          pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
+          cur_min_path_cost, mrhof->max_link_metric);
 
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
@@ -82,7 +87,9 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
             continue;
         // TODO: refuse neighbors with higher rank than self
 
+        discard = false;
         etx = rpl_mrhof_etx(mrhof, nce);
+        path_cost = rpl_mrhof_path_cost(ipv6, nce);
         if (isnan(etx)) {
             /*
              *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
@@ -92,7 +99,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
              * bi-directional RSL for the neighbor).
              */
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
-            continue;
+            discard = true;
         }
 
         /*
@@ -101,31 +108,46 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
          * selection.
          */
         if (etx > mrhof->max_link_metric)
-            continue;
+            discard = true;
 
-        path_cost = rpl_mrhof_path_cost(ipv6, nce);
+        TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-*.0f%s",
+              tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank),
+              discard ? 5 : 0, path_cost, discard ? " (discard etx)" : "");
+
+        if (discard)
+            continue;
         if (path_cost >= pref_path_cost)
             continue;
         pref_path_cost  = path_cost;
         pref_parent_new = nce;
     }
 
-    if (pref_parent_new == pref_parent_cur)
+    if (pref_parent_new == pref_parent_cur) {
+        TRACE(TR_RPL, "rpl: parent select %s (keep)", pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none");
         return;
+    }
 
     /*
      * If the smallest path cost for paths through the candidate neighbors is
      * smaller than cur_min_path_cost by less than PARENT_SWITCH_THRESHOLD, the
      * node MAY continue to use the current preferred parent.
      */
-    if (pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost)
+    if (pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
+        BUG_ON(!pref_parent_cur); // we should always have a current parent here
+        TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
+              pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none", pref_path_cost,
+              mrhof->parent_switch_threshold, cur_min_path_cost);
+        TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(pref_parent_cur->gua.s6_addr));
         return;
+    }
 
     if (pref_parent_cur)
         pref_parent_cur->rpl->is_parent = false;
     if (pref_parent_new) {
         pref_parent_new->rpl->is_parent = true;
         TRACE(TR_RPL, "rpl: parent select %s", tr_ipv6(pref_parent_new->gua.s6_addr));
+    } else {
+        TRACE(TR_RPL, "rpl: parent select none");
     }
     if (pref_parent_new && !pref_parent_cur)
         TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
