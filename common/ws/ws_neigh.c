@@ -235,50 +235,9 @@ size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)
     return SLIST_SIZE(&table->neigh_list, link);
 }
 
-static void ws_neigh_calculate_ufsi_drift(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
-                                          uint64_t timestamp, const struct eui64 *eui64)
-{
-    if (fhss_data->ffn.utt_rx_tstamp_us && fhss_data->ffn.ufsi) {
-        // No UFSI on fixed channel
-        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_FIXED) {
-            return;
-        }
-        double seq_length = 0x10000;
-        double ufsi_prev_tmp = fhss_data->ffn.ufsi;
-        double ufsi_cur_tmp = ufsi;
-        if (fhss_data->uc_chan_func == WS_CHAN_FUNC_DH1CF) {
-            if (ufsi_cur_tmp < ufsi_prev_tmp) {
-                ufsi_cur_tmp += 0xffffff;
-            }
-        }
-        // Convert 24-bit UFSI to real time before drift calculation
-        double time_since_seq_start_prev_ms = (ufsi_prev_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
-        double time_since_seq_start_cur_ms = (ufsi_cur_tmp * seq_length * fhss_data->ffn.uc_dwell_interval_ms) / 0x1000000;
-        uint64_t time_since_last_ufsi_us = timestamp - fhss_data->ffn.utt_rx_tstamp_us;
-
-        double ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
-        if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
-            // add ufsi sequence length
-            ufsi_diff_ms += seq_length * fhss_data->ffn.uc_dwell_interval_ms;
-
-        double ufsi_drift_ms = time_since_last_ufsi_us / 1000.f - ufsi_diff_ms;
-        // Since resolution of the RCP timer is 1µs, a window 10 million times
-        // larger (=10s) allows to get 0.1ppm of precision in the calculus below
-        // FIXME: improve precision by storing ufsi over time and calculate drift
-        // over a bigger window
-        if (time_since_last_ufsi_us >= 10000000)
-            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / %.01lfppm drift (%.0lfus in %"PRId64"s)", tr_eui64(eui64->u8),
-                  1000000000.f * ufsi_drift_ms / time_since_last_ufsi_us, ufsi_drift_ms * 1000, time_since_last_ufsi_us / 1000000);
-        else
-            TRACE(TR_NEIGH_15_4, "15.4 neighbor sync %s / drift measure not available", tr_eui64(eui64->u8));
-    }
-}
-
 void ws_neigh_ut_update(struct ws_neigh_fhss *fhss_data, uint24_t ufsi,
                         uint64_t tstamp_us, const struct eui64 *eui64)
 {
-    ws_neigh_calculate_ufsi_drift(fhss_data, ufsi, tstamp_us, eui64);
-
     if (fhss_data->ffn.utt_rx_tstamp_us == tstamp_us &&
         fhss_data->ffn.ufsi             == ufsi)
         return; // Save an update
