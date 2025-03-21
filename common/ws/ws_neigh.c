@@ -95,7 +95,7 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
      */
     etx = ws_neigh_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
 
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor %s etx update tx=%u / ack=%u => old=%.2f new=%.2f",
+    TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s etx tx=%u / ack=%u => old=%.2f new=%.2f",
           tr_eui64(neigh->eui64.u8), neigh->etx_tx_cnt, neigh->etx_ack_cnt, neigh->etx, etx);
 
     neigh->etx = etx;
@@ -183,7 +183,8 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     if (table->on_add)
         table->on_add(table, neigh);
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor add %s / %ds", tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
+    TRACE(TR_NEIGH_15_4, "neigh-15.4 add %s lifetime=%us",
+          tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
     return neigh;
 }
 
@@ -204,7 +205,7 @@ void ws_neigh_del(struct ws_neigh_table *table, const struct eui64 *eui64)
         timer_stop(&table->timer_group, &neigh->etx_timer_compute);
         timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
-        TRACE(TR_NEIGH_15_4, "15.4 neighbor del %s / %ds", tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
+        TRACE(TR_NEIGH_15_4, "neigh-15.4 del %s", tr_eui64(neigh->eui64.u8));
         if (table->on_del)
             table->on_del(table, neigh);
         free(neigh);
@@ -570,14 +571,16 @@ void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh)
 
     timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     neigh->trusted_device = true;
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor trusted %s / %ds", tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
+    TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s lifetime=%us (trusted)",
+          tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
 }
 
 void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s)
 {
     neigh->lifetime_s = lifetime_s;
     timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
-    TRACE(TR_NEIGH_15_4, "15.4 neighbor refresh %s / %ds", tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
+    TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s lifetime=%us (refresh)",
+          tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
 }
 
 /*
