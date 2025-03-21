@@ -233,7 +233,7 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
     neigh->nud_state = state;
     neigh->nud_probe_count = 0;
-    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 set %s %s",
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 nud %s set state=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_nud_state(neigh->nud_state));
     switch (state) {
     case IPV6_NUD_REACHABLE:

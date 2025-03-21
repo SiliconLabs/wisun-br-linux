@@ -51,8 +51,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 {
     struct rpl_target *target;
 
-    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor refresh %s / %s / %ds",
-          tr_eui64(ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh)),
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
           tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
 
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */

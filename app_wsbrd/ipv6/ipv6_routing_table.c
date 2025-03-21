@@ -162,8 +162,8 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     ipv6_destination_cache_forget_neighbour(entry);
     if (!IN6_IS_ADDR_MULTICAST(entry->ip_address))
         ipv6_route_delete(entry->ip_address, 128, net_if->id, entry->ip_address, ROUTE_ARO);
-    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor del %s / %s",
-        tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
+          tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
     free(entry);
 }
@@ -210,8 +210,8 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     if (cache->recv_addr_reg)
         memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
     ns_list_add_to_start(&cache->list, entry);
-    TRACE(TR_NEIGH_IPV6, "IPv6 neighbor add %s / %s",
-          tr_eui64(ipv6_neighbour_eui64(cache, entry)), tr_ipv6(entry->ip_address));
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
+          tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
 
     return entry;
 }
