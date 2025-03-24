@@ -5,4 +5,7 @@ Documentation=file:///usr/local/share/doc/wsbrd/examples/wsbrd.conf
 [Service]
 BusName=com.silabs.Wisun.BorderRouter
 ExecStart=/usr/local/bin/wsbrd -F /etc/wsbrd.conf -D
+# HACK: Run wsbrd --list-rf-configs just to reset the RCP, to prevent buffered
+# frames from being sent after wsbrd is stopped.
+ExecStopPost=/usr/local/bin/wsbrd -F /etc/wsbrd.conf --list-rf-configs
 TimeoutSec=10
