@@ -146,6 +146,8 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
     };
     ssize_t ret;
 
+    BUG_ON(ipv6->rpl.fd < 0);
+
     TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s", tr_icmp_rpl(code), tr_ipv6(dst->s6_addr));
     ret = sendmsg(ipv6->rpl.fd, &msg, 0);
     if (ret < sizeof(hdr) + buf_len)
@@ -612,6 +614,8 @@ void rpl_recv(struct ipv6_ctx *ipv6)
     struct cmsghdr *cmsg;
     ssize_t size;
 
+    BUG_ON(ipv6->rpl.fd < 0);
+
     size = recvmsg(ipv6->rpl.fd, &msg, 0);
     FATAL_ON(size < 0, 2, "%s: recvmsg: %m", __func__);
     if (msg.msg_namelen != sizeof(src) || src.sin6_family != AF_INET6) {
@@ -628,11 +632,21 @@ void rpl_recv(struct ipv6_ctx *ipv6)
                       &src.sin6_addr, &pktinfo->ipi6_addr);
 }
 
+void rpl_stop(struct ipv6_ctx *ipv6)
+{
+    trickle_stop(&ipv6->rpl.dio_trickle);
+    rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
+    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+    close(ipv6->rpl.fd);
+    ipv6->rpl.fd = -1;
+}
+
 void rpl_start(struct ipv6_ctx *ipv6)
 {
     struct icmp6_filter filter;
     int err;
 
+    BUG_ON(ipv6->rpl.fd >= 0);
     BUG_ON(!ipv6->rpl.mrhof.ws_neigh_table);
     BUG_ON(!ipv6->rpl.mrhof.max_link_metric);
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);

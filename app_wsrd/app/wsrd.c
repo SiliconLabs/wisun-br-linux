@@ -137,6 +137,7 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.dis_txalg.rand_min = -0.1,
     .ipv6.rpl.dis_txalg.rand_max = +0.1,
     .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
+    .ipv6.rpl.fd = -1,
     // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.rpl.dao_txalg.irt_s = 3,
     .ipv6.rpl.dao_txalg.mrc   = 3,
@@ -410,7 +411,6 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->ipv6.timer_group);
 
-    rpl_start(&wsrd->ipv6);
     dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2
@@ -504,7 +504,6 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_TIMER].events = POLLIN;
     pfd[POLLFD_TUN].fd = wsrd->ipv6.tun.fd;
     pfd[POLLFD_TUN].events = POLLIN;
-    pfd[POLLFD_RPL].fd = wsrd->ipv6.rpl.fd;
     pfd[POLLFD_RPL].events = POLLIN;
     pfd[POLLFD_DHCP].fd = wsrd->ipv6.dhcp.fd;
     pfd[POLLFD_DHCP].events = POLLIN;
@@ -513,6 +512,7 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DBUS].events = POLLIN;
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
     while (true) {
+        pfd[POLLFD_RPL].fd = wsrd->ipv6.rpl.fd;
         pfd[POLLFD_DHCP_RELAY].fd  = wsrd->dhcp_relay.fd;
         pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
         ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);

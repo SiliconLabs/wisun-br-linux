@@ -29,6 +29,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     supp_reset(&wsrd->supp);
     wsrd->eapol_target_eui64 = EUI64_BC;
     wsrd->ws.pan_version = -1;
+    rpl_stop(&wsrd->ipv6);
     ipv6_neigh_clean(&wsrd->ipv6);
     ws_neigh_clean(&wsrd->ws.neigh_table);
     INFO("Join state 1: Select PAN");
@@ -61,6 +62,7 @@ static void join_state_3_reconnect_enter(struct wsrd *wsrd)
     INFO("Join state 3: Reconnect");
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb = -1;
+    rpl_stop(&wsrd->ipv6);
 
     trickle_start(&wsrd->pas_tkl);
     trickle_start(&wsrd->pcs_tkl);
@@ -76,6 +78,8 @@ static void join_state_2_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
 
+    rpl_stop(&wsrd->ipv6);
+
     INFO("Join state 2: Authenticate");
     supp_start_key_request(&wsrd->supp);
 }
@@ -87,6 +91,7 @@ static void join_state_3_enter(struct wsrd *wsrd)
 
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb  = 0;
+    rpl_stop(&wsrd->ipv6);
 
     INFO("Join state 3: Acquire PAN Config");
     trickle_start(&wsrd->pcs_tkl);
@@ -117,6 +122,7 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
      */
     SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
         ws_neigh_etx_reset(&wsrd->ws.neigh_table, neigh);
+    rpl_start(&wsrd->ipv6);
     rpl_start_dis(&wsrd->ipv6);
 }
 
