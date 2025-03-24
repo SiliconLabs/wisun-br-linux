@@ -97,7 +97,12 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
      */
     free(nce->rpl);
     nce->rpl = NULL;
-    if (is_parent)
+    /*
+     * When cleaning our ipv6 neigh cache, RPL may not be operational
+     * so we do not want to select a new parent after deleting the
+     * current one.
+     */
+    if (is_parent && ipv6->rpl.fd >= 0)
         rpl_mrhof_select_parent(ipv6);
 }
 
