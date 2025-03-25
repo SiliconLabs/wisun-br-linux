@@ -585,21 +585,11 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
 
 bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)
 {
-    if (neigh->last_dsn != mac_dsn) {
-        // New packet always accepted
-        neigh->last_dsn = mac_dsn;
-        return true;
-    }
-
-    rx_timestamp -= neigh->fhss_data_unsecured.ffn.utt_rx_tstamp_us;
-    rx_timestamp /= 1000000; //Convert to s
-
-    //Compare only when last rx timestamp is less than 5 seconds
-    if (rx_timestamp < 5) {
-        //Packet is sent too fast filter it out
+    // Note: 5s is arbitrary
+    if (neigh->last_dsn == mac_dsn && rx_timestamp - neigh->last_dsn_update_tstamp_us < 5 * 1000 * 1000)
         return false;
-    }
-
+    neigh->last_dsn = mac_dsn;
+    neigh->last_dsn_update_tstamp_us = rx_timestamp;
     return true;
 }
 

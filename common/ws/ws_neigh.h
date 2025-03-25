@@ -109,7 +109,8 @@ struct ws_neigh {
     float rsl_in_dbm;                                          /*!< RSL EWMA heard from neighbour*/
     float rsl_in_dbm_unsecured;                                /*!< RSL EWMA heard from neighbour*/
     float rsl_out_dbm;                                         /*!< RSL EWMA heard by neighbour*/
-    uint8_t last_dsn;
+    uint8_t  last_dsn;
+    uint64_t last_dsn_update_tstamp_us;
     int rx_power_dbm;
     int rx_power_dbm_unsecured;
     int lqi;
