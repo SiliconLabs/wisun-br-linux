@@ -681,11 +681,12 @@ def subscription_frame_forward(family, sockaddr):
 
     sub_fifo = os.open(wsbrd.config['pcap_file'], os.O_RDONLY)
     with socket.socket(family, socket.SOCK_DGRAM) as sck:
+        sck.connect(sockaddr)
         while True:
             data = os.read(sub_fifo, 2000)
             if not data:
                 break
-            sck.sendto(data, sockaddr)
+            sck.send(data)
 
 
 def subscription_frame_restart(family, sockaddr):
