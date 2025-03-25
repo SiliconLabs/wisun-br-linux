@@ -202,7 +202,7 @@ def wsbrd_set_join_metrics(jm_list, jm_version):
 
 @dbus_errcheck
 def run_mode(mode: int):
-    global jm_version, jm_list
+    global jm_version, jm_list, sub_process
 
     if mode == 0:
         wsbrd.service.stop('fail')
@@ -214,6 +214,8 @@ def run_mode(mode: int):
         jm_list = dict()
         jm_version = 0
     elif mode == 1:
+        if sub_process:
+            subscription_frame_restart(*sub_process.args)
         configutils.write('/etc/wsbrd.conf', **wsbrd.config)
         wsbrd.service.start('fail')
         while wsbrd.service.active_state == 'activating':
@@ -686,6 +688,22 @@ def subscription_frame_forward(family, sockaddr):
             sck.sendto(data, sockaddr)
 
 
+def subscription_frame_restart(family, sockaddr):
+    global sub_process
+
+    if sub_process and sub_process.is_alive():
+        sub_process.terminate()
+    args = (family, sockaddr)
+    sub_process = multiprocessing.Process(
+        target=subscription_frame_forward,
+        args=args,
+        daemon=True
+    )
+    # HACK: store args as a custom member to avoid needing another global
+    sub_process.args = args
+    sub_process.start()
+
+
 @json_errcheck('/subscription/frames')
 def subscription_frame():
     global sub_process
@@ -699,17 +717,11 @@ def subscription_frame():
         except socket.gaierror as e:
             return error(500, WSTBU_ERR_UNKNOWN, f'getaddrinfo(address={addr}, port={port}): {e}')
         family, _, _, _, sockaddr = addrinfo[0]
-        if sub_process and sub_process.is_alive():
-            sub_process.terminate()
-        sub_process = multiprocessing.Process(
-            target=subscription_frame_forward,
-            args=(family, sockaddr),
-            daemon=True
-        )
-        sub_process.start()
+        subscription_frame_restart(family, sockaddr)
     elif json['subscriptionMode'] == 'Stop':
         if sub_process and sub_process.is_alive():
             sub_process.terminate()
+            sub_process = None
     else:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid subscription mode')
     return success()
