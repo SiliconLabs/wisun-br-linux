@@ -497,7 +497,8 @@ int wsrd_main(int argc, char *argv[])
 
     // keep privileges to manage interface later
     if (wsrd->config.user[0] && wsrd->config.group[0])
-        drop_privileges(wsrd->config.user, wsrd->config.group, (int[]){ CAP_NET_ADMIN }, 1);
+        drop_privileges(wsrd->config.user, wsrd->config.group,
+                        (int[]){ CAP_NET_BIND_SERVICE, CAP_NET_ADMIN, CAP_NET_RAW }, 3);
 
     INFO("Wi-SUN Router successfully started");
 
