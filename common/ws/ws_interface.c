@@ -557,6 +557,7 @@ void ws_if_send_pc(struct ws_ctx *ws)
         .pan_id     = ws->pan_id,
         .dst        = EUI64_BC,
         .src        = ws->rcp.eui64,
+        .sec_level  = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .key_index  = ws->gak_index,
     };
     struct wh_ie_list wh_ies = {
