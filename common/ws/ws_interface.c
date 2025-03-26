@@ -587,7 +587,8 @@ void ws_if_send_pc(struct ws_ctx *ws)
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
     ws_write_ies(ws, &iobuf, frame_type, &wh_ies, &wp_ies, 0);
-    iobuf_push_data_reserved(&iobuf, 8); // MIC-64
+
+    ieee802154_reserve_mic(&iobuf, &hdr);
 
     TRACE(TR_15_4_MNGT, "tx-15.4 %-9s", tr_ws_frame(frame_type));
     rcp_req_data_tx(&ws->rcp,
