@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #define _GNU_SOURCE
+#include <linux/capability.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
@@ -494,8 +495,9 @@ int wsrd_main(int argc, char *argv[])
                   "com.silabs.Wisun.Router",
                   wsrd_dbus_vtable, wsrd);
 
+    // keep privileges to manage interface later
     if (wsrd->config.user[0] && wsrd->config.group[0])
-        drop_privileges(wsrd->config.user, wsrd->config.group, true); // keep privileges to manage interface later
+        drop_privileges(wsrd->config.user, wsrd->config.group, (int[]){ CAP_NET_ADMIN }, 1);
 
     INFO("Wi-SUN Router successfully started");
 

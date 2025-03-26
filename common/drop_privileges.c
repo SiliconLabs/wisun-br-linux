@@ -15,16 +15,19 @@
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
+#include <assert.h>
 #include <sys/capability.h>
 #include "common/log.h"
 
-void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap)
+static_assert(sizeof(cap_value_t) == sizeof(int), "unsupported cap_value_t");
+
+void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX],
+                     const int caps[], int ncaps)
 {
     int ret;
     struct passwd *user;
     struct group *group;
     cap_t cap_p;
-    cap_value_t cap_value = CAP_NET_ADMIN;
 
     group = getgrnam(groupname);
     FATAL_ON(!group, 1, "group '%s' does not exist", groupname);
@@ -40,10 +43,10 @@ void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[L
     FATAL_ON(!cap_p, 2, "cap_get_proc: %m");
     ret = cap_clear_flag(cap_p, CAP_PERMITTED);
     FATAL_ON(ret, 2, "cap_clear_flag: %m");
-    if (keep_cap) {
-        ret = cap_set_flag(cap_p, CAP_PERMITTED, 1, &cap_value, CAP_SET);
+    if (ncaps) {
+        ret = cap_set_flag(cap_p, CAP_PERMITTED, ncaps, caps, CAP_SET);
         FATAL_ON(ret, 2, "cap_set_flag: %m");
-        ret = cap_set_flag(cap_p, CAP_EFFECTIVE, 1, &cap_value, CAP_SET);
+        ret = cap_set_flag(cap_p, CAP_EFFECTIVE, ncaps, caps, CAP_SET);
         FATAL_ON(ret, 2, "cap_set_flag: %m");
     }
     ret = cap_set_proc(cap_p);

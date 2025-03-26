@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #define _GNU_SOURCE
+#include <linux/capability.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <signal.h>
@@ -595,8 +596,12 @@ int wsbr_main(int argc, char *argv[])
                   "/com/silabs/Wisun/BorderRouter",
                   "com.silabs.Wisun.BorderRouter",
                   wsbrd_dbus_vtable, ctxt);
-    if (ctxt->config.user[0] && ctxt->config.group[0])
-        drop_privileges(ctxt->config.user, ctxt->config.group, ctxt->config.neighbor_proxy[0]);
+    if (ctxt->config.user[0] && ctxt->config.group[0]) {
+        if (ctxt->config.neighbor_proxy[0])
+            drop_privileges(ctxt->config.user, ctxt->config.group, (int[]){ CAP_NET_ADMIN }, 1);
+        else
+            drop_privileges(ctxt->config.user, ctxt->config.group, NULL, 0);
+    }
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,

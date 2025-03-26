@@ -18,13 +18,15 @@
 
 #ifdef HAVE_LIBCAP
 
-void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap);
+void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX],
+                     const int caps[], int ncaps);
 
 #else
 
 #include "common/log.h"
 
-static inline void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX], bool keep_cap)
+static inline void drop_privileges(const char username[LOGIN_NAME_MAX], const char groupname[LOGIN_NAME_MAX],
+                                   const int caps[], int ncaps)
 {
     FATAL(3, "options user and group need support for libcap");
 }

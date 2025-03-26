@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <linux/capability.h>
 #include <poll.h>
 
 #include "common/crypto/ws_keys.h"
@@ -279,8 +280,9 @@ int dc_main(int argc, char *argv[])
     memcpy(supp->eap_tls.tls.pmk.key, dc->cfg.target_pmk, 32);
 
     timer_group_init(&dc->ws.neigh_table.timer_group);
+    // keep privileges to manage route to target later
     if (dc->cfg.user[0] && dc->cfg.group[0])
-        drop_privileges(dc->cfg.user, dc->cfg.group, true); // keep privileges to manage route to target later
+        drop_privileges(dc->cfg.user, dc->cfg.group, (int[]){ CAP_NET_ADMIN }, 1);
 
     dc->disc_timer.period_ms = dc->cfg.disc_period_s * 1000;
     dc_restart_disc_timer(dc);
