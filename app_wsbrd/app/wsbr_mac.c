@@ -123,6 +123,7 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->frame_len) {
         ret = ieee802154_frame_parse(cnf->frame, cnf->frame_len, &hdr, &ie_header, &ie_payload);
         WARN_ON(ret < 0, "invalid ack frame");
+        WARN_ON(hdr.key_index && hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64);
 
         mcps_cnf.sec.SecurityLevel = hdr.sec_level;
         mcps_cnf.sec.KeyIndex      = hdr.key_index;
@@ -151,6 +152,10 @@ void wsbr_rx_ind(struct rcp *rcp, const struct rcp_rx_ind *ind)
     ret = ieee802154_frame_parse(ind->frame, ind->frame_len, &hdr, &ie_header, &ie_payload);
     if (ret < 0)
         return;
+    if (hdr.key_index && hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
+        return;
+    }
 
     mcps_ind.TxAckReq = hdr.ack_req;
     mcps_ind.SrcAddrMode = eui64_is_bc(&hdr.src)

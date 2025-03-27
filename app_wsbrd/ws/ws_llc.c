@@ -447,7 +447,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
         TRACE(TR_TX_ABORT, "tx-abort: tx failure status=%s dst=%s", hif_status_str(data_cpy.hif.status),
               tr_eui64(msg->dst_address));
 
-    if (msg->security.SecurityLevel && data_cpy.hif.frame_counter)
+    if (msg->security.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64 && data_cpy.hif.frame_counter)
         ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
     if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT) {
@@ -457,7 +457,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
     }
 
     if (ws_neigh) {
-        if (data_cpy.sec.SecurityLevel) {
+        if (data_cpy.sec.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64) {
             BUG_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7);
             if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
@@ -568,11 +568,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
     if (!mpx_user)
         return;
-
-    if (data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64) {
-        TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(WS_FT_DATA));
-        return;
-    }
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
@@ -1071,6 +1066,10 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
     if (ws_is_frame_mngt(frame_type)) {
         ws_llc_mngt_ind(net_if, data, ie_ext, frame_type);
     } else if (frame_type == WS_FT_DATA) {
+        if (data->Key.SecurityLevel != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+            TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(frame_type));
+            return;
+        }
         if (has_utt)
             ws_llc_data_ffn_ind(net_if, data, ie_ext);
         else

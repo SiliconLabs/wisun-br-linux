@@ -260,6 +260,10 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             WARN("%s: malformed frame", __func__);
             return;
         }
+        if (hdr.key_index && hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+            TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4-ack");
+            return;
+        }
         // TODO: check frame counter
         ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
         neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(neigh->rsl_in_dbm_unsecured,
