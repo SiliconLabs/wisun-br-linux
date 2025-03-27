@@ -225,8 +225,8 @@ static struct ws_frame_ctx *ws_if_frame_ctx_pop(struct ws_ctx *ws, uint8_t handl
 void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
+    struct ws_frame_ctx frame_ctx, *frame_ctx_ptr;
     struct iobuf_read ie_header, ie_payload;
-    struct ws_frame_ctx *frame_ctx;
     struct ws_neigh *neigh = NULL;
     struct ieee802154_hdr hdr;
     struct ws_utt_ie ie_utt;
@@ -236,19 +236,21 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
 
-    frame_ctx = ws_if_frame_ctx_pop(ws, cnf->handle);
-    if (!frame_ctx) {
+    frame_ctx_ptr = ws_if_frame_ctx_pop(ws, cnf->handle);
+    if (!frame_ctx_ptr) {
         ERROR("unknown frame handle: %u", cnf->handle);
         return;
     }
+    frame_ctx = *frame_ctx_ptr;
+    free(frame_ctx_ptr);
 
     // DCS are async unicast packets to the chosen target
-    if (frame_ctx->type != SL_FT_DCS && !eui64_is_bc(&frame_ctx->dst)) {
-        neigh = ws_neigh_get(&ws->neigh_table, &frame_ctx->dst);
+    if (frame_ctx.type != SL_FT_DCS && !eui64_is_bc(&frame_ctx.dst)) {
+        neigh = ws_neigh_get(&ws->neigh_table, &frame_ctx.dst);
         if (!neigh) {
             WARN("%s: neighbor expired", __func__);
             // TODO: TX power (APC), active key indices
-            neigh = ws_neigh_add(&ws->neigh_table, &frame_ctx->dst, WS_NR_ROLE_ROUTER, 16, BIT(1));
+            neigh = ws_neigh_add(&ws->neigh_table, &frame_ctx.dst, WS_NR_ROLE_ROUTER, 16, BIT(1));
         }
     }
 
@@ -284,8 +286,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
                             cnf->tx_retries + 1,
                             cnf->status == HIF_STATUS_SUCCESS);
     if (ws->on_recv_cnf)
-        ws->on_recv_cnf(ws, frame_ctx, cnf);
-    free(frame_ctx);
+        ws->on_recv_cnf(ws, &frame_ctx, cnf);
 }
 
 int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struct eui64 *dst)
