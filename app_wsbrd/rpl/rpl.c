@@ -226,8 +226,19 @@ static void rpl_opt_push_prefix(struct iobuf_write *buf, struct rpl_root *root)
     int offset;
 
     offset = rpl_opt_push(buf, RPL_OPT_PREFIX);
-    iobuf_push_u8(buf, 64);           // Prefix Length
-    iobuf_push_u8(buf, FIELD_PREP(RPL_MASK_OPT_PREFIX_R, 1));
+    /*
+     * FIXME: Silicon Labs's embedded Wi-SUN stack is buggy and does not handle
+     * the L flag. When the L flag is set in its parent's DIOs, the stack
+     * becomes unable to route packets to its parent. Additionnaly, for some
+     * reason, the stack will always override the prefix length to 64.
+     */
+    if (root->compat) {
+        iobuf_push_u8(buf, 64);       // Prefix Length
+        iobuf_push_u8(buf, FIELD_PREP(RPL_MASK_OPT_PREFIX_R, 1));
+    } else {
+        iobuf_push_u8(buf, 128);
+        iobuf_push_u8(buf, FIELD_PREP(RPL_MASK_OPT_PREFIX_L, 1) | FIELD_PREP(RPL_MASK_OPT_PREFIX_R, 1));
+    }
     iobuf_push_be32(buf, 0xffffffff); // Valid Lifetime
     iobuf_push_be32(buf, 0xffffffff); // Preferred Lifetime
     iobuf_push_be32(buf, 0);          // Reserved
