@@ -39,6 +39,7 @@ struct rpl_neigh {
 
 struct rpl_ctx {
     int fd;
+    bool compat;
 
     struct trickle       dio_trickle;
     struct trickle_cfg   dio_trickle_cfg;

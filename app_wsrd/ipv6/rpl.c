@@ -185,8 +185,19 @@ static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
     rpl_opt_push(&iobuf, RPL_OPT_CONFIG, &parent->rpl->config, sizeof(parent->rpl->config));
 
     memset(&prefix, 0, sizeof(prefix));
-    prefix.prefix_len           = 128;
-    prefix.flags                = RPL_MASK_OPT_PREFIX_L | RPL_MASK_OPT_PREFIX_R;
+    /*
+     * FIXME: Silicon Labs's embedded Wi-SUN stack is buggy and does not handle
+     * the L flag. When the L flag is set in its parent's DIOs, the stack
+     * becomes unable to route packets to its parent. Additionnaly, for some
+     * reason, the stack will always override the prefix length to 64.
+     */
+    if (ipv6->rpl.compat) {
+        prefix.prefix_len       = 64;
+        prefix.flags            = RPL_MASK_OPT_PREFIX_R;
+    } else {
+        prefix.prefix_len       = 128;
+        prefix.flags            = RPL_MASK_OPT_PREFIX_L | RPL_MASK_OPT_PREFIX_R;
+    }
     prefix.lifetime_valid_s     = htonl(dhcp_iaaddr_valid_lifetime_s(&ipv6->dhcp.iaaddr));
     prefix.lifetime_preferred_s = htonl(dhcp_iaaddr_preferred_lifetime_s(&ipv6->dhcp.iaaddr));
     prefix.prefix               = ipv6->dhcp.iaaddr.ipv6;

@@ -105,6 +105,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
         { "mac_address",                   &config->ws_mac_address,                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
+        { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";

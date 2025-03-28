@@ -29,6 +29,7 @@ struct wsrd_conf {
     struct rcp_cfg rcp_cfg;
 
     char ws_netname[WS_NETNAME_LEN];
+    bool rpl_compat;
 
     char tun_dev[IF_NAMESIZE];
     bool tun_autoconf;

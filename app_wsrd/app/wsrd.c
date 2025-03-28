@@ -104,6 +104,7 @@ struct wsrd g_wsrd = {
     .supp.timeout_ms = 60 * 1000, // Arbitrary
 
     // Arbitrary default values
+    .config.rpl_compat = true,
     .config.rcp_cfg.uart_baudrate = 115200,
     .config.tun_autoconf = true,
     .config.ws_domain = REG_DOMAIN_UNDEF,
@@ -413,6 +414,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
 
     timer_group_init(&wsrd->ipv6.timer_group);
 
+    wsrd->ipv6.rpl.compat = wsrd->config.rpl_compat;
     dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2
