@@ -42,6 +42,11 @@
 
 #include "authenticator.h"
 
+void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter)
+{
+    auth->gtks[key_index - 1].frame_counter = frame_counter;
+}
+
 static inline int auth_gtk_slot_next(int slot)
 {
     if (slot < WS_GTK_COUNT)

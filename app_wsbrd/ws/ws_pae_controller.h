@@ -313,10 +313,6 @@ static inline void ws_pae_controller_slow_timer(int ticks)
     // empty
 }
 
-static inline void ws_pae_controller_nw_frame_counter_indication_cb(int8_t net_if_id, unsigned int gtk_index, uint32_t frame_counter)
-{
-    // empty
-}
 #endif
 
 #endif

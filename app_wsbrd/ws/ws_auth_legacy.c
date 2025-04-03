@@ -252,3 +252,8 @@ int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64)
     ret = ws_pae_controller_node_keys_remove(net_if->id, eui64->u8);
     return ret < 0 ? -EINVAL : 0;
 }
+
+void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter)
+{
+    ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, key_index, frame_counter);
+}

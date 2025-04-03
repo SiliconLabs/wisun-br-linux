@@ -448,7 +448,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
               tr_eui64(msg->dst_address));
 
     if (msg->security.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64 && data_cpy.hif.frame_counter)
-        ws_pae_controller_nw_frame_counter_indication_cb(net_if->id, msg->security.KeyIndex, data_cpy.hif.frame_counter);
+        ws_auth_update_frame_counter(net_if, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
     if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT) {
         ws_neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage,
