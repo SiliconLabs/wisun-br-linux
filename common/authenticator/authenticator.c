@@ -39,15 +39,17 @@
 #include "authenticator_eap.h"
 #include "authenticator_key.h"
 #include "authenticator_radius.h"
+#include "authenticator_storage.h"
 
 #include "authenticator.h"
 
 void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter)
 {
     auth->gtks[key_index - 1].frame_counter = frame_counter;
+    auth_storage_store_keys(auth, false);
 }
 
-static inline int auth_gtk_slot_next(int slot)
+int auth_gtk_slot_next(int slot)
 {
     if (slot < WS_GTK_COUNT)
         return slot + 1 < WS_GTK_COUNT ? slot + 1 : 0;
@@ -66,6 +68,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     TRACE(TR_SECURITY, "sec: expired %s", tr_gtkname(slot));
     memset(gtk->key, 0, sizeof(gtk->key));
     gtk->frame_counter = 0;
+    auth_storage_store_keys(auth, true);
 }
 
 /*
@@ -74,7 +77,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
  * next GTK prior to expiration of the currently activated GTK. Expressed as a
  * fraction (1/X) of GTK_EXPIRE_OFFSET.
  */
-static void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
+void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
 {
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
                                       &auth->cfg->ffn : &auth->cfg->lfn;
@@ -86,6 +89,7 @@ static void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group 
                         expire_ms - expire_offset_ms / cfg->gtk_new_activation_time);
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
+    auth_storage_store_keys(auth, true);
 }
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -146,6 +150,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, false);
+    auth_storage_store_keys(auth, true);
     TRACE(TR_SECURITY, "sec: installed %s=%s",
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
 }
@@ -364,6 +369,13 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++)
         auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
 
+    if (auth_storage_load(auth)) {
+        if (memzcmp(auth->cfg->gtk_init, sizeof(auth->cfg->gtk_init)))
+            FATAL(1, "cannot hardcode (l)gtk value while loading previous authenticator context from storage");
+        auth_storage_store_keys(auth, true);
+        return;
+    }
+
     // Install the 1st key
     auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active,
                      auth->cfg->gtk_init[auth->gtk_group.slot_active]);
@@ -373,4 +385,5 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
                          auth->cfg->gtk_init[auth->lgtk_group.slot_active]);
         auth_activate_next_gtk(auth, &auth->lgtk_group);
     }
+    auth_storage_store_keys(auth, true);
 }

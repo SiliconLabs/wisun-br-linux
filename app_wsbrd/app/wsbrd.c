@@ -542,6 +542,7 @@ int wsbr_main(int argc, char *argv[])
         "keys-*:*:*:*:*:*:*:*",
         "network-keys",
         "br-info",
+        "supp-*",
         "rpl-*",
         NULL,
     };

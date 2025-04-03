@@ -37,6 +37,7 @@
 
 #include "authenticator.h"
 #include "authenticator_eap.h"
+#include "authenticator_storage.h"
 
 #include "authenticator_key.h"
 
@@ -129,6 +130,8 @@ static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct eapol
      * EAPOL-Key MIC is checked and is found to be valid.
      */
     supp->eap_tls.tls.pmk.replay_counter++;
+    // Store the replay counter increment
+    auth_storage_store_supplicant(supp, false);
     return true;
 }
 
@@ -137,6 +140,8 @@ void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
     struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(&supp->rt_buffer) + sizeof(struct eapol_hdr));
 
     supp->eap_tls.tls.pmk.replay_counter++;
+    // Store the replay counter increment
+    auth_storage_store_supplicant(supp, false);
     frame->replay_counter = htobe64(supp->eap_tls.tls.pmk.replay_counter);
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
         return;
@@ -311,6 +316,8 @@ static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *
     }
     supp->last_installed_key_slot = -1;
 
+    // We store the installed PTK and the updated GTKL/LGTKL
+    auth_storage_store_supplicant(supp, true);
     next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     if (next_key_slot != -1)
         auth_key_group_message_1_send(auth, supp, next_key_slot);

@@ -14,6 +14,7 @@
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/authenticator/authenticator_key.h"
+#include "common/authenticator/authenticator_storage.h"
 #include "common/specs/eap.h"
 #include "common/specs/eapol.h"
 #include "common/specs/ieee802159.h"
@@ -225,8 +226,11 @@ static void auth_eap_recv_resp_tls(struct auth_ctx *auth, struct auth_supp_ctx *
      * until it receives the EAP-Response before sending another fragment.
      */
     if (!remaining_size) {
-        if (!supp->eap_tls.last_mbedtls_status)
+        if (!supp->eap_tls.last_mbedtls_status) {
             auth_eap_send_success(auth, supp);
+            // Store PMK
+            auth_storage_store_supplicant(supp, true);
+        }
         else if (supp->eap_tls.last_mbedtls_status != MBEDTLS_ERR_SSL_WANT_READ)
             auth_eap_send_failure(auth, supp);
         else

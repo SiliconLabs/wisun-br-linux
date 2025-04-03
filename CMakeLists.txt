@@ -254,6 +254,7 @@ else()
         common/authenticator/authenticator_key.c
         common/authenticator/authenticator_eap.c
         common/authenticator/authenticator_radius.c
+        common/authenticator/authenticator_storage.c
         common/crypto/tls.c
         common/ws/eapol_relay.c
         common/eap.c
@@ -541,6 +542,7 @@ if(COMPILE_DEVTOOLS)
         tools/silabs-ws-dc/ws.c
         common/authenticator/authenticator.c
         common/authenticator/authenticator_key.c
+        common/authenticator/authenticator_storage.c
         common/crypto/ieee80211.c
         common/crypto/hmac_md.c
         common/crypto/nist_kw.c
@@ -730,6 +732,7 @@ if(COMPILE_DEMOS)
         common/authenticator/authenticator_eap.c
         common/authenticator/authenticator_key.c
         common/authenticator/authenticator_radius.c
+        common/authenticator/authenticator_storage.c
         common/crypto/hmac_md.c
         common/crypto/ieee80211.c
         common/crypto/nist_kw.c

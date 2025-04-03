@@ -46,3 +46,13 @@ time_t time_get_storage_offset(void)
     clock_gettime(CLOCK_MONOTONIC, &tp_monotonic);
     return tp_realtime.tv_sec - tp_monotonic.tv_sec;
 }
+
+uint64_t time_get_storage_offset_ms(void)
+{
+    struct timespec tp_realtime, tp_monotonic;
+
+    clock_gettime(CLOCK_REALTIME, &tp_realtime);
+    clock_gettime(CLOCK_MONOTONIC, &tp_monotonic);
+    return (uint64_t)(tp_realtime.tv_sec - tp_monotonic.tv_sec) * 1000 +
+           (tp_realtime.tv_nsec - tp_monotonic.tv_nsec) / 1000000;
+}
