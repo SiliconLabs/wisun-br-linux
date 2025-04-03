@@ -121,7 +121,8 @@ struct auth_ctx {
      * | NULL | false    | Remove                               |
      * |!NULL | true     | Install and activate (boot sequence) |
      */
-    void (*on_gtk_change)(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t index, bool activate);
+    void (*on_gtk_change)(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
+                          uint8_t index, bool activate);
 
     // Called on rx of 4wh msg 4 and gkh msg 2
     void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);

@@ -57,9 +57,10 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     const int slot = (int)(gtk - auth->gtks);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, slot + 1, false);
+        auth->on_gtk_change(auth, NULL, 0, slot + 1, false);
     TRACE(TR_SECURITY, "sec: expired %s", tr_gtkname(slot));
     memset(gtk->key, 0, sizeof(gtk->key));
+    gtk->frame_counter = 0;
 }
 
 /*
@@ -88,7 +89,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_gtk_activation_timer_start(auth, gtk_group);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, gtk_group->slot_active + 1, true);
+        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
     TRACE(TR_SECURITY, "sec: activated %s=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
           tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
@@ -122,6 +123,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
         memcpy(new->key, auth->cfg->gtk_init[slot_install], 16);
     else
         rand_get_n_bytes_random(new->key, sizeof(new->key));
+    new->frame_counter = 0;
 
     /*
      *   Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
@@ -150,7 +152,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
                         start_ms + lifetime_ms * cfg->gtk_new_install_required / 100);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, new->key, slot_install + 1, init);
+        auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, init);
     TRACE(TR_SECURITY, "sec: installed %s=%s",
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
 }

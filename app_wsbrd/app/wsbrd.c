@@ -77,7 +77,8 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target, bool updated_transit);
 
-static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t key_index, bool activate)
+static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
+                               uint8_t key_index, bool activate)
 {
     struct wsbr_ctxt *ctxt = container_of(auth, struct wsbr_ctxt, auth);
     uint8_t slot = key_index - 1;
@@ -89,7 +90,7 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
               slot < WS_GTK_COUNT ? "gak" : "lgak",
               slot < WS_GTK_COUNT ? slot : slot - WS_GTK_COUNT,
               tr_key(gak, sizeof(gak)));
-        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, gak, 0);
+        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, gak, frame_counter);
     } else if (!activate) {
         ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, NULL, 0);
     }

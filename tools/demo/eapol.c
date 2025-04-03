@@ -131,7 +131,8 @@ static void auth_sendto_mac(struct auth_ctx *auth, uint8_t kmp_id,
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
 
-static void auth_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint8_t index, bool activate)
+static void auth_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
+                               uint8_t index, bool activate)
 {
     struct ctx *ctx = container_of(auth, struct ctx, auth);
 

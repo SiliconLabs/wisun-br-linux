@@ -20,6 +20,7 @@
 
 struct ws_gtk {
     uint8_t key[16];
+    uint32_t frame_counter;
     struct timer_entry expiration_timer;
 };
 
