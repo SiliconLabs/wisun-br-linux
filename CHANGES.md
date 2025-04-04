@@ -1,3 +1,30 @@
+v2.4
+------
+  - `wsrd` parenting support:
+    * PAN Advertisement frame transmission for children PAN discovery, including
+      JM-IE forwarding.
+    * EAPoL relay support for children authentication.
+    * PAN Configuration frame transmission for children PAN discovery, including
+      PAN-wide IE forwarding.
+    * RPL DIS reception and DIO transmission for children parent selection.
+    * DHCPv6 Relay Agent support for children IPv6 address assignment.
+    * Children IPv6 address registration support (NS(ARO)) for downward routing.
+    * RPL Packet Information (RPI) hop-by-hop option parsing support for upward
+      routing.
+    * RPL Source Routing Header (SRH) support for downward routing.
+  - Support channel masks during mode switch with `wsbrd`.
+  - Fix `wsbrd` duplicate frame detection for EAPoL and LFN unicast frames.
+  - Ensure that PAN/LFN version is written to `wsbrd` storage on update and
+    only increment by 1 on reboot.
+  - Include Auxiliary Security Header in `pcap_file`.
+  - Introduce D-Bus methods `RevokeGtks` and `RevokeLgtks` and deprecate
+    `RevokeGroupKeys`. These new methods allow to independently revoke GTKs and
+    LGTKs as required by the TBU API.
+  - Do not stop TBU frame subscription when the border router is stopped.
+  - Prevent frame transmissions after TBU is stopped.
+  - Fix potential memleak in `wsrd` and `silabs-ws-dc` in case of malformed ACK
+    frame reception.
+
 v2.3.2
 ------
   - Support `EC PRIVATE KEY` format when loading pem files.
