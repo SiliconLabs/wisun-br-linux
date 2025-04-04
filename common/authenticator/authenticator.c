@@ -237,7 +237,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->eui64 = *eui64;
     supp->radius.id = -1;
     supp->last_installed_key_slot = -1;
-    supp->rt_timer.period_ms = auth->timeout_ms,
+    supp->rt_timer.period_ms = auth->timeout_ms;
     supp->rt_timer.callback = auth_rt_timer_timeout;
     if (auth->radius_fd < 0)
         tls_init_client(&auth->tls, &supp->eap_tls.tls);
