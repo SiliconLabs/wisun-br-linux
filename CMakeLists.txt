@@ -17,6 +17,7 @@ set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Route
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 set(COMPILE_DEMOS    OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 set(AUTH_LEGACY      ON  CACHE BOOL "Keep set if you don't consider to develop new features")
+set(SISDK_PATH "" CACHE STRING "Path to the Simplicity SDK, used to compile the simulation stubs")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
@@ -67,6 +68,10 @@ if(ns3_FOUND)
     check_include_file_cxx(ns3/sl-wisun-linux.hpp ns3_FOUND)
     unset(CMAKE_REQUIRED_QUIET)
     unset(CMAKE_REQUIRED_INCLUDES)
+endif()
+if(ns3_FOUND AND COMPILE_DEVTOOLS AND NOT EXISTS "${SISDK_PATH}/simplicity_sdk.slcs")
+    message(WARNING "simulation needs valid SISDK_PATH")
+    unset(ns3_FOUND)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -683,11 +688,18 @@ if(COMPILE_DEVTOOLS)
                 tools/simulation/rand.cpp
                 tools/simulation/time.cpp
                 tools/simulation/uart.cpp
+                tools/simulation/wsrd_ncp.c
                 tools/simulation/wsrd_ns3.cpp
             )
             # Prevent conflict with bitand()
             target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
-            target_include_directories(wsrd-ns3 PRIVATE ${NS3_INCLUDE_DIRECTORIES})
+            target_include_directories(wsrd-ns3 PRIVATE
+                ${CMAKE_CURRENT_SOURCE_DIR}
+                ${NS3_INCLUDE_DIRECTORIES}
+                ${SISDK_PATH}/platform/common/inc
+                ${SISDK_PATH}/protocol/wisun/stack/inc
+                ${SISDK_PATH}/protocol/wisun/stack/src
+            )
             target_link_libraries(wsrd-ns3 libwsrd)
             target_link_libraries(wsrd-ns3 Threads::Threads)
             target_link_options(wsrd-ns3 PRIVATE
