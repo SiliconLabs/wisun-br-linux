@@ -29,6 +29,7 @@ struct wsrd {
     enum wsrd_state state;
 
     struct ws_ctx ws;
+    uint16_t prev_pan_id; // 0xffff if not set
 
     struct trickle pas_tkl;
     struct trickle pa_tkl;

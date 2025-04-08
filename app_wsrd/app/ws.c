@@ -148,14 +148,17 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     // TODO: reset PAN ID when transitioning to join state 1
     wsrd->ws.pan_id = selected_pan_id;
     wsrd->fhss_bc_synced_to_target = false;
-    rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
+    rcp_set_filter_pan_id(&wsrd->ws.rcp, selected_pan_id);
     dbus_emit_change("PanId");
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
          tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
          ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
-    join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
+    if (wsrd->prev_pan_id != 0xffff && wsrd->prev_pan_id == wsrd->ws.pan_id)
+        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_PREV_PAN);
+    else
+        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
 }
 
 /*
@@ -308,6 +311,11 @@ static void ws_update_gak_index(struct wsrd *wsrd, uint8_t key_index)
 static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, const uint8_t gtkhash[4][8],
                                   const struct ws_ind *ind, const struct ws_bs_ie *ie_bs)
 {
+    // Note: In reconnect state, the PAN ID is not set at this stage.
+    if (wsrd->ws.pan_id == 0xffff) {
+        wsrd->ws.pan_id = ind->hdr.pan_id;
+        rcp_set_filter_pan_id(&wsrd->ws.rcp, ind->hdr.pan_id);
+    }
     /*
      * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
      * Version.
@@ -364,11 +372,11 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     uint8_t gtkhash[4][8];
     uint16_t pan_version;
 
-    if (wsrd->ws.pan_id == 0xffff) {
+    if (wsrd->ws.pan_id == 0xffff && wsrd->prev_pan_id == 0xffff) {
         TRACE(TR_DROP, "drop %s: PAN ID not yet configured", "15.4");
         return;
     }
-    if (ind->hdr.pan_id != wsrd->ws.pan_id) {
+    if (ind->hdr.pan_id != wsrd->ws.pan_id && ind->hdr.pan_id != wsrd->prev_pan_id) {
         TRACE(TR_DROP, "drop %s: PAN ID mismatch", "15.4");
         return;
     }
@@ -658,6 +666,8 @@ void ws_on_send_pcs(struct trickle *tkl)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pcs_tkl);
 
+    BUG_ON(wsrd->ws.pan_id == 0xffff && wsrd->prev_pan_id == 0xffff);
+
     // Wi-SUN FAN 1.1v09 6.3.1 Constants PCS_MAX
     if (wsrd->pcs_nb == 5) {
         join_state_transition(wsrd, WSRD_EVENT_PC_TIMEOUT);
@@ -665,7 +675,10 @@ void ws_on_send_pcs(struct trickle *tkl)
     }
     if (wsrd->pcs_nb != -1)
         wsrd->pcs_nb++;
-    ws_if_send_pcs(&wsrd->ws, wsrd->ws.pan_id);
+    if (wsrd->ws.pan_id == 0xffff)
+        ws_if_send_pcs(&wsrd->ws, wsrd->prev_pan_id);
+    else
+        ws_if_send_pcs(&wsrd->ws, wsrd->ws.pan_id);
 }
 
 /*

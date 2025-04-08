@@ -23,7 +23,9 @@
 #include "app_wsrd/app/join_state.h"
 #include "app_wsrd/app/dbus.h"
 #include "app_wsrd/app/ws.h"
+#include "app_wsrd/app/wsrd_storage.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "app_wsrd/supplicant/supplicant_storage.h"
 #include "common/ws/eapol_relay.h"
 #include "common/ws/ws_regdb.h"
 #include "common/ipv6/ipv6_addr.h"
@@ -81,6 +83,7 @@ struct wsrd g_wsrd = {
     .ws.rcp.on_rx_ind = ws_if_recv_ind,
     .ws.rcp.on_tx_cnf = ws_if_recv_cnf,
 
+    .prev_pan_id = 0xffff,
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
@@ -202,8 +205,8 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
          FIELD_GET(0xFF000000, rcp->version_api),
          FIELD_GET(0x00FFFF00, rcp->version_api),
          FIELD_GET(0x000000FF, rcp->version_api));
-    if (version_older_than(rcp->version_api, 2, 4, 0))
-        FATAL(3, "RCP API < 2.4.0 (too old)");
+    if (version_older_than(rcp->version_api, 2, 8, 0))
+        FATAL(3, "RCP API < 2.8.0 (too old)");
 }
 
 static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh)
@@ -439,7 +442,15 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     trickle_init(&wsrd->pc_tkl);
     supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, &wsrd->ws.rcp.eui64);
     supp_reset(&wsrd->supp);
-    join_state_1_enter(wsrd);
+    if (!wsrd_storage_load(wsrd) || !supp_storage_load(&wsrd->supp) ||
+        !supp_get_gtkl(wsrd->supp.gtks, ARRAY_SIZE(wsrd->supp.gtks))) {
+        join_state_1_enter(wsrd);
+        return;
+    }
+
+    wsrd->state = WSRD_STATE_RECONNECT;
+    wsrd->supp.running = true;
+    join_state_3_reconnect_enter(wsrd);
 }
 
 static void wsrd_eapol_relay_recv(struct wsrd *wsrd)

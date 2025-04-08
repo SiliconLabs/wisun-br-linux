@@ -28,6 +28,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     // Entering join state 1 means we probably want a fresh start
     wsrd_storage_clear();
     wsrd->ws.pan_id = 0xffff;
+    wsrd->prev_pan_id = 0xffff;
     memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
     supp_reset(&wsrd->supp);
     supp_storage_clear();
@@ -57,13 +58,18 @@ static void join_state_1_exit(struct wsrd *wsrd)
  * the opportunity to change PAN if any eligible is found.
  * This is why we start sending both PAS and PCS.
  */
-static void join_state_3_reconnect_enter(struct wsrd *wsrd)
+void join_state_3_reconnect_enter(struct wsrd *wsrd)
 {
-    // TODO: handle RX of PA from new PAN
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     INFO("Join state 3: Reconnect");
+    // Allow RX of PA with new PAN ID
+    wsrd->prev_pan_id = wsrd->ws.pan_id;
+    wsrd->ws.pan_id = 0xffff;
+    rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
+    wsrd->eapol_target_eui64 = EUI64_BC;
+    wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb = -1;
     rpl_stop(&wsrd->ipv6);
@@ -83,6 +89,11 @@ static void join_state_2_enter(struct wsrd *wsrd)
     BUG_ON(wsrd->ws.pan_id == 0xffff);
 
     rpl_stop(&wsrd->ipv6);
+    /*
+     * Reset is needed to ensure we do not send invalid (L)GTKL when
+     * transitionning to a new PAN.
+     */
+    supp_reset(&wsrd->supp);
 
     INFO("Join state 2: Authenticate");
     supp_start_key_request(&wsrd->supp);
