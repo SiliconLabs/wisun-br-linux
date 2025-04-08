@@ -164,7 +164,7 @@ static bool auth_storage_load_keys(struct auth_ctx *auth)
 
 static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *filename)
 {
-    time_t storage_offset_s = time_get_storage_offset();
+    time_t storage_offset_s = time_get_storage_offset_s();
     struct storage_parse_info *info;
     struct auth_supp_ctx *supp;
     struct eui64 eui64;
@@ -247,7 +247,7 @@ bool auth_storage_load(struct auth_ctx *auth)
 
 void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
 {
-    time_t storage_offset_s = time_get_storage_offset();
+    time_t storage_offset_s = time_get_storage_offset_s();
     struct storage_parse_info *info;
     char filename[PATH_MAX];
     char str_buf[256];

@@ -93,11 +93,11 @@ void rpl_storage_store_target(const struct rpl_root *root, const struct rpl_targ
     }
 
     fprintf(nvm->file, "path_seq = %u\n", target->path_seq);
-    tstamp = target->path_seq_tstamp_s + time_get_storage_offset();
+    tstamp = target->path_seq_tstamp_s + time_get_storage_offset_s();
     str_date(tstamp, time_str);
     fprintf(nvm->file, "# %s\n", time_str);
     fprintf(nvm->file, "path_seq_timestamp = %lu\n",
-            target->path_seq_tstamp_s + time_get_storage_offset());
+            target->path_seq_tstamp_s + time_get_storage_offset_s());
     fprintf(nvm->file, "external = %u\n", target->external);
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
@@ -154,7 +154,7 @@ void rpl_storage_load_target(struct rpl_root *root, const char *filename)
         } else if (!fnmatch("path_seq", nvm->key, 0)) {
             target->path_seq = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("path_seq_timestamp", nvm->key, 0)) {
-            target->path_seq_tstamp_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset();
+            target->path_seq_tstamp_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset_s();
         } else if (!fnmatch("external", nvm->key, 0)) {
             target->external = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("parent\\[*].path_lifetime_s", nvm->key, 0) && nvm->key_array_index < root->pcs + 1) {

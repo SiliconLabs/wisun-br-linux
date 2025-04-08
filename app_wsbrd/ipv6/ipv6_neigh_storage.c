@@ -63,7 +63,7 @@ void ipv6_neigh_storage_save(struct ipv6_neighbour_cache *cache, const uint8_t *
             continue;
         if (!cur->lifetime_s || !cur->expiration_s)
             continue;
-        ts = cur->expiration_s + time_get_storage_offset();
+        ts = cur->expiration_s + time_get_storage_offset_s();
         str_date(ts, time_str);
         str_ipv6(cur->ip_address, ipv6_str);
         fprintf(nvm->file, "ipv6[%d] = %s\n", i, ipv6_str);
@@ -134,7 +134,7 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         } else if (!fnmatch("lifetime\\[*]", nvm->key, 0)) {
             ipv6_neighbors[nvm->key_array_index].lifetime_s = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("expiration\\[*]", nvm->key, 0)) {
-            ipv6_neighbors[nvm->key_array_index].expiration_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset();
+            ipv6_neighbors[nvm->key_array_index].expiration_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset_s();
         } else {
             WARN("%s:%d: invalid key: '%s'", nvm->filename, nvm->linenr, nvm->line);
         }

@@ -31,7 +31,7 @@ time_t time_get_elapsed(clockid_t clockid, time_t start);
  * - Add returned value to a monotonic timestamp to get a realtime date
  * - Substract returned value from a realtime date to get a monotonic timestamp
  */
-time_t time_get_storage_offset(void);
+time_t time_get_storage_offset_s(void);
 uint64_t time_get_storage_offset_ms(void);
 
 #endif /* TIME_EXTRA_H */
