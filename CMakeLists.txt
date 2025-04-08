@@ -696,6 +696,7 @@ if(COMPILE_DEVTOOLS)
             target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
             target_include_directories(wsrd-ns3 PRIVATE
                 ${CMAKE_CURRENT_SOURCE_DIR}
+                tools/simulation/include
                 ${NS3_INCLUDE_DIRECTORIES}
                 ${SISDK_PATH}/platform/common/inc
                 ${SISDK_PATH}/protocol/wisun/stack/inc
