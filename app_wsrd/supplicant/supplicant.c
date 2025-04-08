@@ -261,6 +261,14 @@ void supp_reset(struct supp_ctx *supp)
     rfc8415_txalg_stop(&supp->key_request_txalg);
     timer_stop(NULL, &supp->failure_timer);
     supp_eap_tls_reset(supp);
+    for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
+        if (timer_stopped(&supp->gtks[i].expiration_timer))
+            continue;
+        supp->on_gtk_change(supp, NULL, 0, i + 1);
+        timer_stop(&supp->timer_group, &supp->gtks[i].expiration_timer);
+        memset(supp->gtks[i].key, 0, sizeof(supp->gtks[i].key));
+        supp->gtks[i].frame_counter = 0;
+    }
 }
 
 void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
