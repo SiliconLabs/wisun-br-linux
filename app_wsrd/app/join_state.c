@@ -71,7 +71,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->eapol_target_eui64 = EUI64_BC;
     wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
-    wsrd->pcs_nb = -1;
+    wsrd->pcs_nb = 0;
     rpl_stop(&wsrd->ipv6);
 
     trickle_start(&wsrd->pas_tkl);
@@ -217,6 +217,7 @@ static const struct wsrd_state_transition state_discovery_transitions[] = {
 
 static const struct wsrd_state_transition state_reconnect_transitions[] = {
     { WSRD_EVENT_PC_RX,            WSRD_STATE_RPL_PARENT },
+    { WSRD_EVENT_PC_TIMEOUT,       WSRD_STATE_DISCOVERY },
     { WSRD_EVENT_PA_FROM_PREV_PAN, WSRD_STATE_CONFIGURE },
     { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
