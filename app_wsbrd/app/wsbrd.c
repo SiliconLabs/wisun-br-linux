@@ -96,6 +96,14 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
     }
     if (activate)
         ws_bootstrap_nw_key_index_set(&ctxt->net_if, slot);
+    /*
+     * During reboot, the authenticator installs GTKs and LGTKs loaded from
+     * storage.
+     * We do not want to increase the version numbers in this case, so we rely
+     * on the status of the PC trickle that is started in ws_bootstrap_6lbr_init().
+     */
+    if (!trickle_legacy_running(&ctxt->net_if.ws_info.mngt.trickle_pc, &ctxt->net_if.ws_info.mngt.trickle_params))
+        return;
     if (slot < WS_GTK_COUNT)
         ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
     else
@@ -610,6 +618,10 @@ int wsbr_main(int argc, char *argv[])
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
     ws_auth_init(&ctxt->net_if, &ctxt->config, ctxt->tun.ifname);
+    /*
+     * WARNING: do not move this function call before ws_auth_init().
+     * See comment in wsbr_on_gtk_change().
+     */
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);
 
