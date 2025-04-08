@@ -40,6 +40,11 @@
 
 #include "supplicant.h"
 
+void supp_update_frame_counter(struct supp_ctx *supp, int key_index, uint32_t frame_counter)
+{
+    supp->gtks[key_index - 1].frame_counter = frame_counter;
+}
+
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len)
 {
     struct eui64 dst = supp->get_target(supp);

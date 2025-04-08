@@ -195,7 +195,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ws->on_recv_ind(ws, &ind);
 }
 
-static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
+static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type, uint8_t key_index)
 {
     struct ws_frame_ctx *cur, *new;
 
@@ -219,6 +219,7 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type)
     new = zalloc(sizeof(*new));
     new->handle = ws->handle_next++;
     new->type = type;
+    new->key_index = key_index;
     // If next handle is already in use (unlikely), use the next available one.
     while (SLIST_FIND(cur, &ws->frame_ctx_list, link,
                       cur->handle == new->handle))
@@ -347,7 +348,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         return -EINVAL;
     }
 
-    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_DATA);
+    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_DATA, hdr.key_index);
     if (!frame_ctx)
         return -ENOMEM;
     frame_ctx->dst = hdr.dst;
@@ -413,7 +414,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
         return;
     }
 
-    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_EAPOL);
+    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_EAPOL, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
@@ -459,7 +460,7 @@ void ws_if_send_pas(struct ws_ctx *ws)
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
 
-    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PAS);
+    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PAS, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
@@ -509,7 +510,7 @@ void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
     struct iobuf_write iobuf = { };
     uint8_t frame_type = WS_FT_PA;
 
-    frame_ctx = ws_if_frame_ctx_new(ws, frame_type);
+    frame_ctx = ws_if_frame_ctx_new(ws, frame_type, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
@@ -548,7 +549,7 @@ void ws_if_send_pcs(struct ws_ctx *ws)
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
 
-    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PCS);
+    frame_ctx = ws_if_frame_ctx_new(ws, WS_FT_PCS, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
@@ -597,7 +598,7 @@ void ws_if_send_pc(struct ws_ctx *ws)
         return;
     }
 
-    frame_ctx = ws_if_frame_ctx_new(ws, frame_type);
+    frame_ctx = ws_if_frame_ctx_new(ws, frame_type, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
@@ -639,7 +640,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
     struct iobuf_write iobuf = { };
     int offset;
 
-    frame_ctx = ws_if_frame_ctx_new(ws, req->frame_type);
+    frame_ctx = ws_if_frame_ctx_new(ws, req->frame_type, hdr.key_index);
     if (!frame_ctx)
         return;
     frame_ctx->dst =  hdr.dst;

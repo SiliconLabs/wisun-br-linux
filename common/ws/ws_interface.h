@@ -76,6 +76,7 @@ struct ws_frame_ctx {
     uint8_t handle;
     uint8_t type;
     struct eui64 dst;
+    uint8_t key_index;
     SLIST_ENTRY(ws_frame_ctx) link;
 };
 

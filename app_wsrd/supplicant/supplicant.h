@@ -109,4 +109,6 @@ void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, siz
 
 void supp_on_eap_success(struct supp_ctx *supp);
 
+void supp_update_frame_counter(struct supp_ctx *supp, int key_index, uint32_t frame_counter);
+
 #endif
