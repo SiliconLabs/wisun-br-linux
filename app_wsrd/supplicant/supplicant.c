@@ -35,6 +35,7 @@
 #include "common/bits.h"
 #include "common/kde.h"
 
+#include "supplicant_storage.h"
 #include "supplicant_eap.h"
 #include "supplicant_key.h"
 
@@ -43,6 +44,7 @@
 void supp_update_frame_counter(struct supp_ctx *supp, int key_index, uint32_t frame_counter)
 {
     supp->gtks[key_index - 1].frame_counter = frame_counter;
+    supp_storage_store(supp, false);
 }
 
 void supp_send_eapol(struct supp_ctx *supp, uint8_t kmp_id, const void *buf, size_t buf_len)
@@ -118,6 +120,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 
 void supp_on_eap_success(struct supp_ctx *supp)
 {
+    // Store PMK
+    supp_storage_store(supp, true);
     // Wait for 4-Way Handshake message 1
     timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
 }
@@ -218,6 +222,7 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     supp->on_gtk_change(supp, NULL, 0, slot + 1);
     memset(gtk->key, 0, sizeof(gtk->key));
     gtk->frame_counter = 0;
+    supp_storage_store(supp, true);
     for (int i = offset; i < count; i++)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
             return;

@@ -30,6 +30,7 @@
 #include "common/kde.h"
 #include "common/log.h"
 
+#include "supplicant_storage.h"
 #include "supplicant.h"
 
 #include "supplicant_key.h"
@@ -184,6 +185,7 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
         timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, supp->gtks[key_index - 1].key, supp->gtks[key_index - 1].frame_counter, key_index);
+        supp_storage_store(supp, true);
         TRACE(TR_SECURITY, "sec: %s installed lifetime=%us",
               tr_gtkname(key_index - 1), lifetime_kde);
     } else {

@@ -320,6 +320,7 @@ if(COMPILE_WSRD)
         app_wsrd/ipv6/rpl_mrhof.c
         app_wsrd/ipv6/rpl_rpi.c
         app_wsrd/ipv6/rpl_srh.c
+        app_wsrd/supplicant/supplicant_storage.c
         app_wsrd/supplicant/supplicant_eap.c
         app_wsrd/supplicant/supplicant_key.c
         app_wsrd/supplicant/supplicant.c
@@ -728,6 +729,7 @@ if(COMPILE_DEMOS)
         app_wsrd/supplicant/supplicant.c
         app_wsrd/supplicant/supplicant_eap.c
         app_wsrd/supplicant/supplicant_key.c
+        app_wsrd/supplicant/supplicant_storage.c
         common/authenticator/authenticator.c
         common/authenticator/authenticator_eap.c
         common/authenticator/authenticator_key.c
