@@ -215,8 +215,9 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     const int offset = slot >= WS_GTK_COUNT ? WS_GTK_COUNT : 0;
 
     TRACE(TR_SECURITY, "sec: %s expired", tr_gtkname(slot));
-    supp->on_gtk_change(supp, NULL, slot + 1);
+    supp->on_gtk_change(supp, NULL, 0, slot + 1);
     memset(gtk->key, 0, sizeof(gtk->key));
+    gtk->frame_counter = 0;
     for (int i = offset; i < count; i++)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
             return;

@@ -87,7 +87,7 @@ static struct eui64 supp_get_target(struct supp_ctx *supp)
     return ctx->auth.eui64;
 }
 
-static void supp_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
+static void supp_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint32_t frame_counter, uint8_t index)
 {
     if (gtk)
         INFO("supp install  idx=%u key=%s", index, tr_key(gtk, 16));

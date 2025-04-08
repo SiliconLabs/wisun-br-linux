@@ -60,7 +60,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const struct eui64 *dst);
 static struct eui64 wsrd_eapol_get_target(struct supp_ctx *supp);
-static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index);
+static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint32_t frame_counter, uint8_t index);
 static void wsrd_eapol_on_failure(struct supp_ctx *supp);
 static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client);
@@ -238,7 +238,7 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
     return ws_if_send_data(&wsrd->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), dst);
 }
 
-static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint8_t index)
+static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint32_t frame_counter, uint8_t index)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
     uint8_t gak[16];
@@ -248,7 +248,7 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
         return;
     if (gtk) {
         ws_generate_gak(wsrd->ws.netname, gtk, gak);
-        rcp_set_sec_key(&wsrd->ws.rcp, index, gak, 0);
+        rcp_set_sec_key(&wsrd->ws.rcp, index, gak, frame_counter);
         join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
     } else {
         rcp_set_sec_key(&wsrd->ws.rcp, index, NULL, 0);

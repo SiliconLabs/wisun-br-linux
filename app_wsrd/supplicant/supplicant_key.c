@@ -179,9 +179,11 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
 
     // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
     if (memcmp(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
+        BUG_ON(!timer_stopped(&supp->gtks[key_index - 1].expiration_timer));
+        BUG_ON(supp->gtks[key_index - 1].frame_counter);
         memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
         timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
-        supp->on_gtk_change(supp, gtk_kde->gtk, key_index);
+        supp->on_gtk_change(supp, supp->gtks[key_index - 1].key, supp->gtks[key_index - 1].frame_counter, key_index);
         TRACE(TR_SECURITY, "sec: %s installed lifetime=%us",
               tr_gtkname(key_index - 1), lifetime_kde);
     } else {
