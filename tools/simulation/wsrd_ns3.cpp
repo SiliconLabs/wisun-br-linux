@@ -71,6 +71,7 @@ void wsrd_ns3_main(const char *config)
     args.push_back((char *)"-F");
     args.push_back(config_filename);
     args.push_back((char *)"-u/dev/null"); // Provide a UART devive so parse_commandline succeeds
+    args.push_back((char *)"-D");
     args.push_back(NULL);
 
     pthread_cleanup_push(wsrd_ns3_cleanup, config_filename);

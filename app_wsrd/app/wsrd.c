@@ -459,6 +459,10 @@ static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
+    static const char *files[] = {
+        "network-keys",
+        NULL,
+    };
     struct sigaction sigact = { };
     struct wsrd *wsrd = &g_wsrd;
     int ret;
@@ -483,6 +487,10 @@ int wsrd_main(int argc, char *argv[])
     check_mbedtls_features();
 
     g_storage_prefix = wsrd->config.storage_prefix;
+    if (wsrd->config.storage_delete) {
+        INFO("deleting storage");
+        storage_delete(files);
+    }
 
     rcp_init(&wsrd->ws.rcp, &wsrd->config.rcp_cfg);
     if (wsrd->config.list_rf_configs) {

@@ -109,7 +109,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { }
     };
-    static const char *opts_short = "F:o:u:T:lhv";
+    static const char *opts_short = "F:o:u:T:lhvD";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -117,6 +117,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "list-rf-configs", no_argument,   0,  'l' },
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
+        { "delete-storage", no_argument,    0,  'D' },
         { 0,             0,                 0,   0  }
     };
     struct storage_parse_info info = {
@@ -161,6 +162,9 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                 break;
             case 'l':
                 config->list_rf_configs = true;
+                break;
+            case 'D':
+                config->storage_delete = true;
                 break;
             case 'h':
                 print_help(stdout);

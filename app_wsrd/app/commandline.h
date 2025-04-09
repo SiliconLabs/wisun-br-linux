@@ -54,6 +54,7 @@ struct wsrd_conf {
     struct iovec key;
 
     char storage_prefix[PATH_MAX];
+    bool storage_delete;
 
     int  ws_uc_dwell_interval_ms;
 
