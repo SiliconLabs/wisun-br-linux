@@ -34,6 +34,15 @@ static void *ncp_main(void *arg)
     __builtin_unreachable();
 }
 
+__attribute__((destructor))
+static void ncp_exit(void)
+{
+    if (g_has_thread) {
+        pthread_cancel(g_thread);
+        pthread_join(g_thread, NULL);
+    }
+}
+
 static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     static const int phy_config_sizes[] = {
