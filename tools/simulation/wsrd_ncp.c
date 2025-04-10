@@ -134,6 +134,32 @@ static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *c
     g_has_thread = true;
 }
 
+static void ncp_set_txpow(const void *_req, const void *req_data, void *cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_tx_power_req_t *req = _req;
+    struct wsrd *wsrd = &g_wsrd;
+
+    wsrd->config.tx_power = req->body.tx_power;
+}
+
+static void ncp_set_txpow_ddbm(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_tx_power_ddbm_req_t *req = _req;
+    sl_wisun_msg_set_tx_power_ddbm_cnf_t *cnf = _cnf;
+    struct wsrd *wsrd = &g_wsrd;
+    int16_t txpow_ddbm;
+
+    txpow_ddbm = (int16_t)le16toh(req->body.tx_power_ddbm);
+
+    // TODO: support ddBm
+    if (txpow_ddbm % 10) {
+        cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+        return;
+    }
+
+    wsrd->config.tx_power = txpow_ddbm / 10;
+}
+
 static sl_status_t ncp_set_pem(struct iovec *out, const char *buf, size_t buf_len, bool append)
 {
     if (!buf_len || buf[buf_len - 1] != '\0')
@@ -323,7 +349,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_REQ_ID]         = { ncp_set_key,       sizeof(sl_wisun_msg_set_device_private_key_req_t),         SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_CNF_ID,         sizeof(sl_wisun_msg_set_device_private_key_cnf_t) },
         [SL_WISUN_MSG_GET_STATISTICS_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_get_statistics_req_t),                 SL_WISUN_MSG_GET_STATISTICS_CNF_ID,                 sizeof(sl_wisun_msg_get_statistics_cnf_t) },
         [SL_WISUN_MSG_SET_SOCKET_OPTION_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_set_socket_option_req_t),              SL_WISUN_MSG_SET_SOCKET_OPTION_CNF_ID,              sizeof(sl_wisun_msg_set_socket_option_cnf_t) },
-        [SL_WISUN_MSG_SET_TX_POWER_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_set_tx_power_req_t),                   SL_WISUN_MSG_SET_TX_POWER_CNF_ID,                   sizeof(sl_wisun_msg_set_tx_power_cnf_t) },
+        [SL_WISUN_MSG_SET_TX_POWER_REQ_ID]                   = { ncp_set_txpow,     sizeof(sl_wisun_msg_set_tx_power_req_t),                   SL_WISUN_MSG_SET_TX_POWER_CNF_ID,                   sizeof(sl_wisun_msg_set_tx_power_cnf_t) },
         [SL_WISUN_MSG_SET_CHANNEL_MASK_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_channel_mask_req_t),               SL_WISUN_MSG_SET_CHANNEL_MASK_CNF_ID,               sizeof(sl_wisun_msg_set_channel_mask_cnf_t) },
         [SL_WISUN_MSG_ALLOW_MAC_ADDRESS_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_allow_mac_address_req_t),              SL_WISUN_MSG_ALLOW_MAC_ADDRESS_CNF_ID,              sizeof(sl_wisun_msg_allow_mac_address_cnf_t) },
         [SL_WISUN_MSG_DENY_MAC_ADDRESS_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_deny_mac_address_req_t),               SL_WISUN_MSG_DENY_MAC_ADDRESS_CNF_ID,               sizeof(sl_wisun_msg_deny_mac_address_cnf_t) },
@@ -369,7 +395,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_TRIGGER_NEIGHBOR_CACHE_REFRESH_REQ_ID] = { NULL,              sizeof(sl_wisun_msg_trigger_neighbor_cache_refresh_req_t), SL_WISUN_MSG_TRIGGER_NEIGHBOR_CACHE_REFRESH_CNF_ID, sizeof(sl_wisun_msg_trigger_neighbor_cache_refresh_cnf_t) },
         [SL_WISUN_MSG_SET_RATE_ALGORITHM_REQ_ID]             = { NULL,              sizeof(sl_wisun_msg_set_rate_algorithm_req_t),             SL_WISUN_MSG_SET_RATE_ALGORITHM_CNF_ID,             sizeof(sl_wisun_msg_set_rate_algorithm_cnf_t) },
         [SL_WISUN_MSG_GET_RATE_ALGORITHM_STATS_REQ_ID]       = { NULL,              sizeof(sl_wisun_msg_get_rate_algorithm_stats_req_t),       SL_WISUN_MSG_GET_RATE_ALGORITHM_STATS_CNF_ID,       sizeof(sl_wisun_msg_get_rate_algorithm_stats_cnf_t) },
-        [SL_WISUN_MSG_SET_TX_POWER_DDBM_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_set_tx_power_ddbm_req_t),              SL_WISUN_MSG_SET_TX_POWER_DDBM_CNF_ID,              sizeof(sl_wisun_msg_set_tx_power_ddbm_cnf_t) },
+        [SL_WISUN_MSG_SET_TX_POWER_DDBM_REQ_ID]              = { ncp_set_txpow_ddbm, sizeof(sl_wisun_msg_set_tx_power_ddbm_req_t),             SL_WISUN_MSG_SET_TX_POWER_DDBM_CNF_ID,              sizeof(sl_wisun_msg_set_tx_power_ddbm_cnf_t) },
         [SL_WISUN_MSG_SET_LEAF_REQ_ID]                       = { NULL,              sizeof(sl_wisun_msg_set_leaf_req_t),                       SL_WISUN_MSG_SET_LEAF_CNF_ID,                       sizeof(sl_wisun_msg_set_leaf_cnf_t) },
         [SL_WISUN_MSG_SET_DIRECT_CONNECT_STATE_REQ_ID]       = { NULL,              sizeof(sl_wisun_msg_set_direct_connect_state_req_t),       SL_WISUN_MSG_SET_DIRECT_CONNECT_STATE_CNF_ID,       sizeof(sl_wisun_msg_set_direct_connect_state_cnf_t) },
         [SL_WISUN_MSG_ACCEPT_DIRECT_CONNECT_LINK_REQ_ID]     = { NULL,              sizeof(sl_wisun_msg_accept_direct_connect_link_req_t),     SL_WISUN_MSG_ACCEPT_DIRECT_CONNECT_LINK_CNF_ID,     sizeof(sl_wisun_msg_accept_direct_connect_link_cnf_t) },
