@@ -33,6 +33,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     supp_reset(&wsrd->supp);
     supp_storage_clear();
     wsrd->eapol_target_eui64 = EUI64_BC;
+    wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
     rpl_stop(&wsrd->ipv6);
     ipv6_neigh_clean(&wsrd->ipv6);
