@@ -13,9 +13,11 @@
  */
 #ifndef EVENTS_SCHEDULER_H
 #define EVENTS_SCHEDULER_H
+
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "common/log.h"
 #include "common/ns_list.h"
 
 struct event_payload {
@@ -36,6 +38,8 @@ struct events_scheduler {
     NS_LIST_HEAD(struct event_tasklet, link) event_tasklet_list;
     NS_LIST_HEAD(struct event_payload, link) event_queue;
 };
+
+#ifdef HAVE_AUTH_LEGACY
 
 /**
  * \brief Initialise event scheduler.
@@ -88,5 +92,20 @@ int8_t event_send(const struct event_payload *event);
  *
  * */
 int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *));
+
+#else
+
+static inline void event_scheduler_init(struct events_scheduler *ctxt)
+{
+    ctxt->event_fd[0] = -1;
+    ctxt->event_fd[1] = -1;
+}
+
+static inline void event_scheduler_run_until_idle(void)
+{
+    BUG();
+}
+
+#endif /* HAVE_AUTH_LEGACY */
 
 #endif

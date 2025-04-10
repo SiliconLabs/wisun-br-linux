@@ -153,7 +153,6 @@ add_library(libwsbrd STATIC
     common/bus_uart.c
     common/capture.c
     common/commandline.c
-    common/events_scheduler.c
     common/log.c
     common/bits.c
     common/eapol.c
@@ -215,6 +214,7 @@ add_library(libwsbrd STATIC
 )
 if(AUTH_LEGACY)
     target_sources(libwsbrd PRIVATE
+        common/events_scheduler.c
         common/crypto/tls.c
         app_wsbrd/ws/ws_auth_legacy.c
         app_wsbrd/ws/ws_eapol_auth_relay.c
