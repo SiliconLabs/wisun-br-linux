@@ -183,6 +183,38 @@ static void ncp_set_key(const void *_req, const void *req_data, void *_cnf, void
                                            req->body.key_length, false));
 }
 
+static void ncp_get_join_state(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    sl_wisun_msg_get_join_state_cnf_t *cnf = _cnf;
+    struct wsrd *wsrd = &g_wsrd;
+    struct ipv6_neigh *parent;
+
+    if (!g_has_thread) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DISCONNECTED);
+    } else if (wsrd->state == WSRD_STATE_DISCOVERY) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_SELECT_PAN);
+    } else if (wsrd->state == WSRD_STATE_AUTHENTICATE) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_AUTHENTICATE);
+    } else if (wsrd->state == WSRD_STATE_CONFIGURE || wsrd->state == WSRD_STATE_RECONNECT) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_ACQUIRE_PAN_CONFIG);
+    } else if (wsrd->state == WSRD_STATE_RPL_PARENT) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_PARENT_SELECT);
+    } else if (wsrd->state == WSRD_STATE_ROUTING) {
+        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        BUG_ON(!parent || !parent->rpl);
+        if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6))
+            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DHCP);
+        else if (rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dao_txalg))
+            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_EARO);
+        else
+            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DAO);
+    } else if (wsrd->state == WSRD_STATE_OPERATIONAL) {
+        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_OPERATIONAL);
+    } else {
+        BUG();
+    }
+}
+
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     static const struct {
@@ -213,7 +245,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_ALLOW_MAC_ADDRESS_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_allow_mac_address_req_t),              SL_WISUN_MSG_ALLOW_MAC_ADDRESS_CNF_ID,              sizeof(sl_wisun_msg_allow_mac_address_cnf_t) },
         [SL_WISUN_MSG_DENY_MAC_ADDRESS_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_deny_mac_address_req_t),               SL_WISUN_MSG_DENY_MAC_ADDRESS_CNF_ID,               sizeof(sl_wisun_msg_deny_mac_address_cnf_t) },
         [SL_WISUN_MSG_GET_SOCKET_OPTION_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_get_socket_option_req_t),              SL_WISUN_MSG_GET_SOCKET_OPTION_CNF_ID,              sizeof(sl_wisun_msg_get_socket_option_cnf_t) },
-        [SL_WISUN_MSG_GET_JOIN_STATE_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_get_join_state_req_t),                 SL_WISUN_MSG_GET_JOIN_STATE_CNF_ID,                 sizeof(sl_wisun_msg_get_join_state_cnf_t) },
+        [SL_WISUN_MSG_GET_JOIN_STATE_REQ_ID]                 = { ncp_get_join_state, sizeof(sl_wisun_msg_get_join_state_req_t),                SL_WISUN_MSG_GET_JOIN_STATE_CNF_ID,                 sizeof(sl_wisun_msg_get_join_state_cnf_t) },
         [SL_WISUN_MSG_CLEAR_CREDENTIAL_CACHE_REQ_ID]         = { NULL,              sizeof(sl_wisun_msg_clear_credential_cache_req_t),         SL_WISUN_MSG_CLEAR_CREDENTIAL_CACHE_CNF_ID,         sizeof(sl_wisun_msg_clear_credential_cache_cnf_t) },
         [SL_WISUN_MSG_GET_MAC_ADDRESS_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_get_mac_address_req_t),                SL_WISUN_MSG_GET_MAC_ADDRESS_CNF_ID,                sizeof(sl_wisun_msg_get_mac_address_cnf_t) },
         [SL_WISUN_MSG_SET_MAC_ADDRESS_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_mac_address_req_t),                SL_WISUN_MSG_SET_MAC_ADDRESS_CNF_ID,                sizeof(sl_wisun_msg_set_mac_address_cnf_t) },
