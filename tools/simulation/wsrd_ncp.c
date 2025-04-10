@@ -131,6 +131,58 @@ static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *c
     g_has_thread = true;
 }
 
+static sl_status_t ncp_set_pem(struct iovec *out, const char *buf, size_t buf_len, bool append)
+{
+    if (!buf_len || buf[buf_len - 1] != '\0')
+        return SL_STATUS_INVALID_PARAMETER;
+
+    if (append) {
+        ((char *)out->iov_base)[out->iov_len - 1] = '\n';
+        out->iov_base = realloc(out->iov_base, out->iov_len + buf_len);
+        if (!out->iov_base)
+            return SL_STATUS_ALLOCATION_FAILED;
+        FATAL_ON(!out->iov_base, 2);
+        memcpy((char *)out->iov_base + out->iov_len, buf, buf_len);
+        out->iov_len += buf_len;
+    } else {
+        out->iov_base = realloc(out->iov_base, buf_len);
+        if (!out->iov_base)
+            return SL_STATUS_ALLOCATION_FAILED;
+        memcpy(out->iov_base, buf, buf_len);
+        out->iov_len = buf_len;
+    }
+
+    return SL_STATUS_OK;
+}
+
+static void ncp_set_ca(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_trusted_certificate_req_t *req = _req;
+    sl_wisun_msg_set_trusted_certificate_cnf_t *cnf = _cnf;
+
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.ca_cert, req_data,
+                                           req->body.certificate_length,
+                                           req->body.certificate_options & SL_WISUN_CERTIFICATE_OPTION_APPEND));
+}
+
+static void ncp_set_cert(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_device_certificate_req_t *req = _req;
+    sl_wisun_msg_set_device_certificate_cnf_t *cnf = _cnf;
+
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.cert, req_data,
+                                           req->body.certificate_length, false));
+}
+
+static void ncp_set_key(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_device_private_key_req_t *req = _req;
+    sl_wisun_msg_set_device_private_key_cnf_t *cnf = _cnf;
+
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.key, req_data,
+                                           req->body.key_length, false));
+}
+
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     static const struct {
@@ -151,9 +203,9 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SEND_ON_SOCKET_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_send_on_socket_req_t),                 SL_WISUN_MSG_SEND_ON_SOCKET_CNF_ID,                 sizeof(sl_wisun_msg_send_on_socket_cnf_t) },
         [SL_WISUN_MSG_RECEIVE_ON_SOCKET_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_receive_on_socket_req_t),              SL_WISUN_MSG_RECEIVE_ON_SOCKET_CNF_ID,              sizeof(sl_wisun_msg_receive_on_socket_cnf_t) },
         [SL_WISUN_MSG_DISCONNECT_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_disconnect_req_t),                     SL_WISUN_MSG_DISCONNECT_CNF_ID,                     sizeof(sl_wisun_msg_disconnect_cnf_t) },
-        [SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_REQ_ID]        = { NULL,              sizeof(sl_wisun_msg_set_trusted_certificate_req_t),        SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_CNF_ID,        sizeof(sl_wisun_msg_set_trusted_certificate_cnf_t) },
-        [SL_WISUN_MSG_SET_DEVICE_CERTIFICATE_REQ_ID]         = { NULL,              sizeof(sl_wisun_msg_set_device_certificate_req_t),         SL_WISUN_MSG_SET_DEVICE_CERTIFICATE_CNF_ID,         sizeof(sl_wisun_msg_set_device_certificate_cnf_t) },
-        [SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_REQ_ID]         = { NULL,              sizeof(sl_wisun_msg_set_device_private_key_req_t),         SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_CNF_ID,         sizeof(sl_wisun_msg_set_device_private_key_cnf_t) },
+        [SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_REQ_ID]        = { ncp_set_ca,        sizeof(sl_wisun_msg_set_trusted_certificate_req_t),        SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_CNF_ID,        sizeof(sl_wisun_msg_set_trusted_certificate_cnf_t) },
+        [SL_WISUN_MSG_SET_DEVICE_CERTIFICATE_REQ_ID]         = { ncp_set_cert,      sizeof(sl_wisun_msg_set_device_certificate_req_t),         SL_WISUN_MSG_SET_DEVICE_CERTIFICATE_CNF_ID,         sizeof(sl_wisun_msg_set_device_certificate_cnf_t) },
+        [SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_REQ_ID]         = { ncp_set_key,       sizeof(sl_wisun_msg_set_device_private_key_req_t),         SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_CNF_ID,         sizeof(sl_wisun_msg_set_device_private_key_cnf_t) },
         [SL_WISUN_MSG_GET_STATISTICS_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_get_statistics_req_t),                 SL_WISUN_MSG_GET_STATISTICS_CNF_ID,                 sizeof(sl_wisun_msg_get_statistics_cnf_t) },
         [SL_WISUN_MSG_SET_SOCKET_OPTION_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_set_socket_option_req_t),              SL_WISUN_MSG_SET_SOCKET_OPTION_CNF_ID,              sizeof(sl_wisun_msg_set_socket_option_cnf_t) },
         [SL_WISUN_MSG_SET_TX_POWER_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_set_tx_power_req_t),                   SL_WISUN_MSG_SET_TX_POWER_CNF_ID,                   sizeof(sl_wisun_msg_set_tx_power_cnf_t) },
