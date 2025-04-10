@@ -185,6 +185,42 @@ static void ncp_set_key(const void *_req, const void *req_data, void *_cnf, void
                                            req->body.key_length, false));
 }
 
+static void __ncp_set_conparams(const sl_wisun_connection_params_t *params)
+{
+    struct wsrd *wsrd = &g_wsrd;
+
+    wsrd->config.disc_cfg.Imin_ms = le16toh(params->discovery.trickle_pa.imin_s) * 1000;
+    wsrd->config.disc_cfg.Imax_ms = le16toh(params->discovery.trickle_pa.imax_s) * 1000;
+    // TODO: other params
+}
+
+static void ncp_set_conparams(const void *_req, const void *req_data, void *cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_connection_params_req_t *req = _req;
+
+    __ncp_set_conparams(&req->body.parameters);
+}
+
+static void ncp_set_netsize(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    static const sl_wisun_connection_params_t *profiles[] = {
+        [SL_WISUN_NETWORK_SIZE_SMALL]         = &SL_WISUN_PARAMS_PROFILE_SMALL,
+        [SL_WISUN_NETWORK_SIZE_MEDIUM]        = &SL_WISUN_PARAMS_PROFILE_MEDIUM,
+        [SL_WISUN_NETWORK_SIZE_LARGE]         = &SL_WISUN_PARAMS_PROFILE_LARGE,
+        [SL_WISUN_NETWORK_SIZE_TEST]          = &SL_WISUN_PARAMS_PROFILE_TEST,
+        [SL_WISUN_NETWORK_SIZE_CERTIFICATION] = &SL_WISUN_PARAMS_PROFILE_CERTIF,
+    };
+    const sl_wisun_msg_set_network_size_req_t *req = _req;
+    sl_wisun_msg_set_network_size_cnf_t *cnf = _cnf;
+
+    if (req->body.size >= ARRAY_SIZE(profiles) || !profiles[req->body.size]) {
+        cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+        return;
+    }
+
+    __ncp_set_conparams(profiles[req->body.size]);
+}
+
 static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     const sl_wisun_msg_get_ip_address_req_t *req = _req;
@@ -258,7 +294,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         uint8_t  cnf_id;
         uint16_t cnf_len;
     } table[] = {
-        [SL_WISUN_MSG_SET_NETWORK_SIZE_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_network_size_req_t),               SL_WISUN_MSG_SET_NETWORK_SIZE_CNF_ID,               sizeof(sl_wisun_msg_set_network_size_cnf_t) },
+        [SL_WISUN_MSG_SET_NETWORK_SIZE_REQ_ID]               = { ncp_set_netsize,   sizeof(sl_wisun_msg_set_network_size_req_t),               SL_WISUN_MSG_SET_NETWORK_SIZE_CNF_ID,               sizeof(sl_wisun_msg_set_network_size_cnf_t) },
         [SL_WISUN_MSG_GET_IP_ADDRESS_REQ_ID]                 = { ncp_get_ip_addr,   sizeof(sl_wisun_msg_get_ip_address_req_t),                 SL_WISUN_MSG_GET_IP_ADDRESS_CNF_ID,                 sizeof(sl_wisun_msg_get_ip_address_cnf_t) },
         [SL_WISUN_MSG_OPEN_SOCKET_REQ_ID]                    = { NULL,              sizeof(sl_wisun_msg_open_socket_req_t),                    SL_WISUN_MSG_OPEN_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_open_socket_cnf_t) },
         [SL_WISUN_MSG_CLOSE_SOCKET_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_close_socket_req_t),                   SL_WISUN_MSG_CLOSE_SOCKET_CNF_ID,                   sizeof(sl_wisun_msg_close_socket_cnf_t) },
@@ -297,7 +333,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_MODE_SWITCH_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_mode_switch_req_t),                SL_WISUN_MSG_SET_MODE_SWITCH_CNF_ID,                sizeof(sl_wisun_msg_set_mode_switch_cnf_t) },
         [SL_WISUN_MSG_SET_REGULATION_TX_THRESHOLDS_REQ_ID]   = { NULL,              sizeof(sl_wisun_msg_set_regulation_tx_thresholds_req_t),   SL_WISUN_MSG_SET_REGULATION_TX_THRESHOLDS_CNF_ID,   sizeof(sl_wisun_msg_set_regulation_tx_thresholds_cnf_t) },
         [SL_WISUN_MSG_SET_DEVICE_TYPE_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_device_type_req_t),                SL_WISUN_MSG_SET_DEVICE_TYPE_CNF_ID,                sizeof(sl_wisun_msg_set_device_type_cnf_t) },
-        [SL_WISUN_MSG_SET_CONNECTION_PARAMS_REQ_ID]          = { NULL,              sizeof(sl_wisun_msg_set_connection_params_req_t),          SL_WISUN_MSG_SET_CONNECTION_PARAMS_CNF_ID,          sizeof(sl_wisun_msg_set_connection_params_cnf_t) },
+        [SL_WISUN_MSG_SET_CONNECTION_PARAMS_REQ_ID]          = { ncp_set_conparams, sizeof(sl_wisun_msg_set_connection_params_req_t),          SL_WISUN_MSG_SET_CONNECTION_PARAMS_CNF_ID,          sizeof(sl_wisun_msg_set_connection_params_cnf_t) },
         [SL_WISUN_MSG_JOIN_REQ_ID]                           = { ncp_join,          sizeof(sl_wisun_msg_join_req_t) - sizeof(sl_wisun_phy_config_t), SL_WISUN_MSG_JOIN_CNF_ID,                     sizeof(sl_wisun_msg_join_cnf_t) },
         [SL_WISUN_MSG_SET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_set_pom_ie_req_t),                     SL_WISUN_MSG_SET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_set_pom_ie_cnf_t) },
         [SL_WISUN_MSG_GET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_get_pom_ie_req_t),                     SL_WISUN_MSG_GET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_get_pom_ie_cnf_t) },
