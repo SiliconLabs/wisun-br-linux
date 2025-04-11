@@ -87,6 +87,7 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     bool is_parent = nce->rpl->is_parent;
+    struct ipv6_neigh *pref_parent_new;
 
     TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
 
@@ -103,8 +104,18 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
      * so we do not want to select a new parent after deleting the
      * current one.
      */
-    if (is_parent && ipv6->rpl.fd >= 0)
-        rpl_mrhof_select_parent(ipv6);
+    if (!is_parent || ipv6->rpl.fd < 0)
+        return;
+    /*
+     * Considering we are deleting the parent before the parent selection, if
+     * no candidate is fit at the end of the parent selection, mrhof will
+     * consider there was no parent change considering we do not have a parent
+     * from its point of view.
+     * We inform the upper layer here of the parent loss if that's the case.
+     */
+    pref_parent_new = rpl_mrhof_select_parent(ipv6);
+    if (!pref_parent_new && ipv6->rpl.mrhof.on_pref_parent_change)
+        ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, NULL);
 }
 
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)

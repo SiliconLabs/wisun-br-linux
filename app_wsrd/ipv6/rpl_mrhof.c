@@ -55,7 +55,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
-void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
@@ -124,7 +124,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 
     if (pref_parent_new == pref_parent_cur) {
         TRACE(TR_RPL, "rpl: parent select %s (keep)", pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none");
-        return;
+        return pref_parent_cur;
     }
 
     /*
@@ -138,7 +138,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
               pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none", pref_path_cost,
               mrhof->parent_switch_threshold, cur_min_path_cost);
         TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(pref_parent_cur->gua.s6_addr));
-        return;
+        return pref_parent_cur;
     }
 
     if (pref_parent_cur)
@@ -172,6 +172,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     if (mrhof->on_pref_parent_change)
         mrhof->on_pref_parent_change(mrhof, pref_parent_new);
     // TODO: support secondary parents
+    return pref_parent_new;
 }
 
 static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
