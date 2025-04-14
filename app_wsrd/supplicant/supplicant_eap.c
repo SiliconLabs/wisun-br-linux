@@ -118,16 +118,6 @@ static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_h
         return;
     }
 
-    /*
-     *   RFC5216 - 2.1.1. Base Case
-     * Once having received the peer's Identity, the EAP server MUST respond
-     * with an EAP-TLS/Start packet, which is an EAP-Request packet with
-     * EAP-Type=EAP-TLS, the Start (S) bit set, and no data.
-     */
-    if (FIELD_GET(EAP_TLS_FLAGS_START_MASK, flags) && iobuf_remaining_size(iobuf)) {
-        TRACE(TR_DROP, "drop %-9s: \"start\" bit is set but data is also present", "eap-tls");
-        return;
-    }
     if (!FIELD_GET(EAP_TLS_FLAGS_START_MASK, flags) && !supp->eap_tls_start_received) {
         TRACE(TR_DROP, "drop %-9s: \"start\" is not set when it should be", "eap-tls");
         return;
@@ -148,6 +138,17 @@ static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_h
         supp->expected_rx_len = iobuf_pop_be32(iobuf);
     if (FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) && !supp->expected_rx_len) {
         TRACE(TR_DROP, "drop %-9s: \"more-fragments\" set without known length", "eap-tls");
+        return;
+    }
+
+    /*
+     *   RFC5216 - 2.1.1. Base Case
+     * Once having received the peer's Identity, the EAP server MUST respond
+     * with an EAP-TLS/Start packet, which is an EAP-Request packet with
+     * EAP-Type=EAP-TLS, the Start (S) bit set, and no data.
+     */
+    if (FIELD_GET(EAP_TLS_FLAGS_START_MASK, flags) && iobuf_remaining_size(iobuf)) {
+        TRACE(TR_DROP, "drop %-9s: \"start\" bit is set but data is also present", "eap-tls");
         return;
     }
 
