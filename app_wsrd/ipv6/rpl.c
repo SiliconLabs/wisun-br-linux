@@ -309,7 +309,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     dao.instance_id = parent->rpl->dio.instance_id;
     // The K flag MUST be set to 1.
     dao.flags |= RPL_MASK_DAO_K;
-    dao.dao_seq = ipv6->rpl.dao_seq;
+    dao.dao_seq = ipv6->rpl.path_seq;
     iobuf_push_data(&iobuf, &dao, sizeof(dao));
 
     // A RPL Target option MUST be included and populated for each GUA/ULA to
@@ -353,7 +353,6 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
      * transits are always applied.
      */
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
-    ipv6->rpl.dao_seq++;
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
     // TODO: Figure out what to do in case of DAO failure.
 }
@@ -583,7 +582,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         TRACE(TR_DROP, "drop %-9s: unsupported DODAGID present", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
-    if (timer_stopped(&ipv6->rpl.dao_txalg.timer_rt) || dao_ack->dao_seq != ipv6->rpl.dao_seq) {
+    if (timer_stopped(&ipv6->rpl.dao_txalg.timer_rt) || dao_ack->dao_seq != ipv6->rpl.path_seq) {
         TRACE(TR_DROP, "drop %-9s: unexpected DAOSequence", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }

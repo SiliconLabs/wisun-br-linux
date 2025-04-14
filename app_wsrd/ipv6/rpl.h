@@ -45,8 +45,7 @@ struct rpl_ctx {
     struct trickle_cfg   dio_trickle_cfg;
     struct rfc8415_txalg dis_txalg;
     struct rfc8415_txalg dao_txalg;
-    uint8_t dao_seq;
-    uint8_t path_seq;
+    uint8_t path_seq; // Serves as both path seqno and dao seqno
     struct rpl_mrhof mrhof;
 
     void (*on_dao_ack)(struct ipv6_ctx *ipv6);
