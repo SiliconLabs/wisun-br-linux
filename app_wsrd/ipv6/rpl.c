@@ -292,6 +292,7 @@ void rpl_start_dis(struct ipv6_ctx *ipv6)
 static void rpl_send_dao(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
+    const struct rpl_opt_config *config;
     struct iobuf_write iobuf = { };
     struct rpl_opt_transit transit;
     struct rpl_opt_target target;
@@ -301,6 +302,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
 
     parent = rpl_neigh_pref_parent(ipv6);
     BUG_ON(!parent || !parent->rpl);
+    config = &parent->rpl->config;
     // Prevent GCC warning -Waddress-of-packed-member
     dodag_id = parent->rpl->dio.dodag_id;
 
@@ -328,12 +330,15 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     memset(&transit, 0, sizeof(transit));
     transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
     transit.path_seq      = ipv6->rpl.path_seq;
-    transit.path_lifetime = UINT8_MAX; // TODO: use default lifetime and renew DAO
+    transit.path_lifetime = config->lifetime_default;
     transit.parent_addr   = parent->gua;
     rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
-    // TODO: handle renewal after lifetime expiration
+
+    // Note: 90% of the lifetime is arbitrary
+    timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer,
+                    (uint64_t)config->lifetime_default * be16toh(config->lifetime_unit_s) * 90 / 100 * 1000);
     iobuf_free(&iobuf);
 }
 
@@ -355,6 +360,14 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
     // TODO: Figure out what to do in case of DAO failure.
+}
+
+static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
+
+    TRACE(TR_RPL, "rpl: dao refresh triggered");
+    rpl_start_dao(ipv6);
 }
 
 static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
@@ -679,6 +692,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     trickle_stop(&ipv6->rpl.dio_trickle);
     rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+    timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
     close(ipv6->rpl.fd);
     ipv6->rpl.fd = -1;
 }
@@ -701,6 +715,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     rfc8415_txalg_init(&ipv6->rpl.dis_txalg);
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
+    ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(ipv6->rpl.fd < 0, 2, "%s: socket: %m", __func__);
