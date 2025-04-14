@@ -74,7 +74,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
  * next GTK prior to expiration of the currently activated GTK. Expressed as a
  * fraction (1/X) of GTK_EXPIRE_OFFSET.
  */
-static void auth_gtk_activation_timer_start(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
+static void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
 {
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
                                       &auth->cfg->ffn : &auth->cfg->lfn;
@@ -94,7 +94,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
-    auth_gtk_activation_timer_start(auth, gtk_group);
+    auth_activate_next_gtk(auth, gtk_group);
     TRACE(TR_SECURITY, "sec: activated %s=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
           tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
@@ -367,10 +367,10 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     // Install the 1st key
     auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active,
                      auth->cfg->gtk_init[auth->gtk_group.slot_active]);
-    auth_gtk_activation_timer_start(auth, &auth->gtk_group);
+    auth_activate_next_gtk(auth, &auth->gtk_group);
     if (enable_lfn) {
         auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active,
                          auth->cfg->gtk_init[auth->lgtk_group.slot_active]);
-        auth_gtk_activation_timer_start(auth, &auth->lgtk_group);
+        auth_activate_next_gtk(auth, &auth->lgtk_group);
     }
 }
