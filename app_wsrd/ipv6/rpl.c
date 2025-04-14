@@ -344,6 +344,8 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
 
 void rpl_start_dao(struct ipv6_ctx *ipv6)
 {
+    if (!rfc8415_txalg_stopped(&ipv6->rpl.dao_txalg))
+        return;
     /*
      *   RFC 6550 6.7.8 Transit Information
      * Path Sequence: When a RPL Target option is issued by the node that owns
