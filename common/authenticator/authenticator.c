@@ -103,28 +103,17 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
           gtk_group->activation_timer.expire_ms / 1000);
 }
 
-static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, int slot_install, const uint8_t gtk[16])
 {
-    struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);
-    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
                                       &auth->cfg->ffn : &auth->cfg->lfn;
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
+    const struct ws_gtk *cur = &auth->gtks[gtk_group->slot_active];
+    bool init = slot_install == gtk_group->slot_active;
+    struct ws_gtk *new = &auth->gtks[slot_install];
     uint64_t start_ms, lifetime_ms;
-    const struct ws_gtk *cur;
-    struct ws_gtk *new;
-    int slot_install;
-    bool init;
 
-    cur = &auth->gtks[gtk_group->slot_active];
-    init = timer_stopped(&cur->expiration_timer);
-    if (init)
-        slot_install = gtk_group->slot_active;
-    else
-        slot_install = auth_gtk_slot_next(gtk_group->slot_active);
-    new = &auth->gtks[slot_install];
-
-    if (init && memzcmp(auth->cfg->gtk_init[slot_install], 16))
+    if (gtk && memzcmp(gtk, 16))
         memcpy(new->key, auth->cfg->gtk_init[slot_install], 16);
     else
         rand_get_n_bytes_random(new->key, sizeof(new->key));
@@ -160,6 +149,15 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
         auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, init);
     TRACE(TR_SECURITY, "sec: installed %s=%s",
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
+}
+
+static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);
+    uint8_t slot_install = (uint8_t)auth_gtk_slot_next(gtk_group->slot_active);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
+
+    auth_install_gtk(auth, gtk_group, slot_install, NULL);
 }
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
@@ -368,10 +366,12 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
         auth->gtks[i].expiration_timer.callback = auth_gtk_expiration_timer_timeout;
 
     // Install the 1st key
-    auth_gtk_install_timer_timeout(&auth->timer_group, &auth->gtk_group.install_timer);
+    auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active,
+                     auth->cfg->gtk_init[auth->gtk_group.slot_active]);
     auth_gtk_activation_timer_start(auth, &auth->gtk_group);
     if (enable_lfn) {
-        auth_gtk_install_timer_timeout(&auth->timer_group, &auth->lgtk_group.install_timer);
+        auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active,
+                         auth->cfg->gtk_init[auth->lgtk_group.slot_active]);
         auth_gtk_activation_timer_start(auth, &auth->lgtk_group);
     }
 }
