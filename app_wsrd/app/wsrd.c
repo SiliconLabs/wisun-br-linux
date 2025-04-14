@@ -30,6 +30,7 @@
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
 #include "common/drop_privileges.h"
+#include "common/rpl_lollipop.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -141,6 +142,7 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.dio_trickle.debug_name = "dio",
     .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
     .ipv6.rpl.fd = -1,
+    .ipv6.rpl.path_seq = RPL_LOLLIPOP_INIT,
     // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.rpl.dao_txalg.irt_s = 3,
     .ipv6.rpl.dao_txalg.mrc   = 3,

@@ -27,6 +27,7 @@
 #include "common/seqno.h"
 #include "common/string_extra.h"
 #include "common/sys_queue_extra.h"
+#include "common/rpl_lollipop.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -326,7 +327,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     // member of PC2, etc.).
     memset(&transit, 0, sizeof(transit));
     transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
-    transit.path_seq      = 0;         // TODO: handle PathSequence
+    transit.path_seq      = ipv6->rpl.path_seq;
     transit.path_lifetime = UINT8_MAX; // TODO: use default lifetime and renew DAO
     transit.parent_addr   = parent->gua;
     rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
@@ -338,6 +339,20 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
 
 void rpl_start_dao(struct ipv6_ctx *ipv6)
 {
+    /*
+     *   RFC 6550 6.7.8 Transit Information
+     * Path Sequence: When a RPL Target option is issued by the node that owns
+     * the Target prefix (i.e., in a DAO message), that node sets the Path
+     * Sequence and increments the Path Sequence each time it issues a RPL
+     * Target option with updated information.
+     *
+     * Path Lifetime: The period startswhen a new Path Sequence is seen.
+     *
+     * Considering those two statements, we can conclude that the Path Sequence
+     * can be incremented at every DAO transmission sequence in order to ensure
+     * transits are always applied.
+     */
+    ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
     ipv6->rpl.dao_seq++;
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
     // TODO: Figure out what to do in case of DAO failure.
