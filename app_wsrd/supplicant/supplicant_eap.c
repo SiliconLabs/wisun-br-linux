@@ -110,6 +110,7 @@ static void supp_eap_do_handshake(struct supp_ctx *supp, const struct eap_hdr *e
 static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_hdr, struct iobuf_read *iobuf)
 {
     uint8_t flags = iobuf_pop_u8(iobuf);
+    uint32_t expected_rx_len;
     struct pktbuf buf = { };
     int remaining_size;
 
@@ -130,12 +131,14 @@ static void supp_eap_tls_recv(struct supp_ctx *supp, const struct eap_hdr *eap_h
      * fragmented TLS message or set of messages. The M flag is set on all
      * but the last fragment.
      */
-    if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags) && supp->expected_rx_len) {
-        TRACE(TR_DROP, "drop %-9s: \"length-included\" bit is set when it should not be", "eap-tls");
-        return;
+    if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags)) {
+        expected_rx_len = iobuf_pop_be32(iobuf);
+        if (supp->expected_rx_len && expected_rx_len != supp->expected_rx_len) {
+            TRACE(TR_DROP, "drop %-9s: length mismatch with initial fragment", "eap-tls");
+            return;
+        }
+        supp->expected_rx_len = expected_rx_len;
     }
-    if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags))
-        supp->expected_rx_len = iobuf_pop_be32(iobuf);
     if (FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) && !supp->expected_rx_len) {
         TRACE(TR_DROP, "drop %-9s: \"more-fragments\" set without known length", "eap-tls");
         return;
