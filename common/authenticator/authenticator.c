@@ -84,6 +84,8 @@ static void auth_gtk_activation_timer_start(struct auth_ctx *auth, struct auth_g
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer,
                         expire_ms - expire_offset_ms / cfg->gtk_new_activation_time);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
 }
 
 static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -93,8 +95,6 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_gtk_activation_timer_start(auth, gtk_group);
-    if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
     TRACE(TR_SECURITY, "sec: activated %s=%s expiration=%"PRIu64" next_install=%"PRIu64" next_activation=%"PRIu64,
           tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)),
@@ -109,7 +109,6 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
                                       &auth->cfg->ffn : &auth->cfg->lfn;
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
     const struct ws_gtk *cur = &auth->gtks[gtk_group->slot_active];
-    bool init = slot_install == gtk_group->slot_active;
     struct ws_gtk *new = &auth->gtks[slot_install];
     uint64_t start_ms, lifetime_ms;
 
@@ -146,7 +145,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
                         start_ms + lifetime_ms * cfg->gtk_new_install_required / 100);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, init);
+        auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, false);
     TRACE(TR_SECURITY, "sec: installed %s=%s",
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)));
 }
