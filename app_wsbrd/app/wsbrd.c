@@ -32,6 +32,7 @@
 #include "common/version.h"
 #include "common/key_value_storage.h"
 #include "common/drop_privileges.h"
+#include "common/rpl_lollipop.h"
 #include "common/string_extra.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
@@ -57,7 +58,6 @@
 #include "rpl/rpl_glue.h"
 #include "rpl/rpl_storage.h"
 #include "rpl/rpl.h"
-#include "rpl/rpl_lollipop.h"
 #include "security/kmp/kmp_socket_if.h"
 #include "app_wsbrd/mpl/mpl.h"
 

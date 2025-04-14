@@ -28,9 +28,9 @@
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
+#include "common/rpl_lollipop.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
-#include "rpl_lollipop.h"
 #include "rpl.h"
 
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
