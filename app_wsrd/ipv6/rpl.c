@@ -181,7 +181,7 @@ static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 
     parent = rpl_neigh_pref_parent(ipv6);
     if (!parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
-        WARN("%s: not ready", __func__);
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: rpl not ready", "rpl-dio");
         return;
     }
 
