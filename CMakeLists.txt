@@ -809,3 +809,9 @@ install(DIRECTORY DESTINATION /var/lib/wsbrd
     DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
 install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsbrd wsbrd)")
 install(CODE "execute_process(COMMAND chown -R wsbrd:wsbrd /var/lib/wsbrd)")
+if(COMPILE_WSRD)
+    install(DIRECTORY DESTINATION /var/lib/wsrd
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
+    install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsrd wisun)")
+    install(CODE "execute_process(COMMAND chown -R wisun:wisun /var/lib/wsrd)")
+endif()

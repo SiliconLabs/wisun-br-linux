@@ -29,6 +29,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
+#include "common/key_value_storage.h"
 #include "common/drop_privileges.h"
 #include "common/rpl_lollipop.h"
 #include "common/bits.h"
@@ -114,6 +115,7 @@ struct wsrd g_wsrd = {
     .config.tx_power = 14,
     .config.color_output = -1,
     .config.ws_mac_address = EUI64_BC,
+    .config.storage_prefix = "/var/lib/wsrd/",
 
     // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
@@ -479,6 +481,8 @@ int wsrd_main(int argc, char *argv[])
         g_enable_color_traces = wsrd->config.color_output;
 
     check_mbedtls_features();
+
+    g_storage_prefix = wsrd->config.storage_prefix;
 
     rcp_init(&wsrd->ws.rcp, &wsrd->config.rcp_cfg);
     if (wsrd->config.list_rf_configs) {

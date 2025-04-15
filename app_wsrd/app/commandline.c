@@ -106,6 +106,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
         { "mac_address",                   &config->ws_mac_address,                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
+        { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -173,6 +174,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
+    if (storage_check_access(config->storage_prefix))
+        FATAL(1, "%s: %m", config->storage_prefix);
     if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])

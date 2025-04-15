@@ -53,6 +53,8 @@ struct wsrd_conf {
     struct iovec cert;
     struct iovec key;
 
+    char storage_prefix[PATH_MAX];
+
     int  ws_uc_dwell_interval_ms;
 
     struct eui64 ws_mac_address;
