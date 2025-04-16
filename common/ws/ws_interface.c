@@ -529,12 +529,12 @@ void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
     iobuf_free(&iobuf);
 }
 
-void ws_if_send_pcs(struct ws_ctx *ws)
+void ws_if_send_pcs(struct ws_ctx *ws, uint16_t pan_id)
 {
     struct ieee802154_hdr hdr = {
         .frame_type   = IEEE802154_FRAME_TYPE_DATA,
         .seqno        = -1,
-        .pan_id       = ws->pan_id,
+        .pan_id       = pan_id,
         .dst          = EUI64_BC,
         .src          = ws->rcp.eui64,
     };

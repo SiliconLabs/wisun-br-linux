@@ -665,7 +665,7 @@ void ws_on_send_pcs(struct trickle *tkl)
     }
     if (wsrd->pcs_nb != -1)
         wsrd->pcs_nb++;
-    ws_if_send_pcs(&wsrd->ws);
+    ws_if_send_pcs(&wsrd->ws, wsrd->ws.pan_id);
 }
 
 /*
