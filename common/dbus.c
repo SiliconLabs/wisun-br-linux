@@ -66,6 +66,7 @@ void dbus_register(const char *name, const char *path, const char *interface,
     ret = sd_bus_add_object_vtable(dbus_ctx->dbus, NULL, path, interface, vtable, app_ctxt);
     if (ret < 0) {
         WARN("sd_bus_add_object_vtable: %s", strerror(-ret));
+        dbus_ctx->dbus = sd_bus_unref(dbus_ctx->dbus);
         return;
     }
 
@@ -73,6 +74,7 @@ void dbus_register(const char *name, const char *path, const char *interface,
                               SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
     if (ret < 0) {
         WARN("sd_bus_request_name \"%s\": %s", name, strerror(-ret));
+        dbus_ctx->dbus = sd_bus_unref(dbus_ctx->dbus);
         return;
     }
 
