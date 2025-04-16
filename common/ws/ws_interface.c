@@ -558,7 +558,7 @@ void ws_if_send_pcs(struct ws_ctx *ws, uint16_t pan_id)
 
     ws_write_ies(ws, &iobuf, WS_FT_PCS, &wh_ies, &wp_ies, 0);
 
-    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s panid:0x%x", tr_ws_frame(WS_FT_PCS), ws->pan_id);
+    TRACE(TR_15_4_MNGT, "tx-15.4 %-9s panid:0x%x", tr_ws_frame(WS_FT_PCS), hdr.pan_id);
     rcp_req_data_tx(&ws->rcp,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
