@@ -217,6 +217,7 @@ Wi-SUN:
 
 [cca]:    #channel-access-and-retries
 [tx-req]: #0x10-req_data_tx
+[tx-del]: #0x11-req_data_tx_abort
 [tx-cnf]: #0x12-cnf_data_tx
 [rx]:     #0x13-ind_data_rx
 
@@ -360,6 +361,19 @@ Only present if `FRAME_COUNTER_8`:
    Same content as `FRAME_COUNTERS`, but only for key at index 8.
    See ["Security"][sec] for more details.
 
+### `0x11 REQ_DATA_TX_ABORT` (API >= 2.7.0)
+
+Cancel a frame transmission previously initiated with [`REQ_DATA_TX`][tx-req].
+A [`CNF_DATA_TX`][tx-cnf] message will be returned with status 6. Note that
+there is a race condition between successful frame transmission and
+cancellation, so the [`CNF_DATA_TX`][tx-cnf] message associated with the frame
+handle may not be the consequence of this command, in which case the status can
+be different from 6. Because of this race condition, no error is returned on
+providing a invalid handle.
+
+ - `uint8_t handle`  
+    Frame handle, as provided in [`REQ_DATA_TX`][tx-req].
+
 ### `0x12 CNF_DATA_TX`
 
 Status of an earlier data request ([`REQ_DATA_TX`][tx-req]). Also returns the
@@ -420,6 +434,7 @@ Status codes:
 |`0x03` | No ACK received (if ACK bit set in request).
 |`0x04` | Frame spent too long in RCP (10s for unicast, 20s for broadcast, 40s for async, 300s for LFN).
 |`0x05` | RCP internal error (reach out Silicon Labs support).
+|`0x06` | Frame transmission was cancelled (see [`REQ_DATA_TX_ABORT`][tx-del]).
 
 `0x06..0xff` are reserved for future errors. The host must accept these values and
 consider the frame has not been received by the destination.
