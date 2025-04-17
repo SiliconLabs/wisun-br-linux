@@ -17,7 +17,9 @@
 #include <pthread.h>
 
 #include "app_wsrd/app/wsrd.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/log.h"
+#include "common/string_extra.h"
 #include "tools/simulation/ncp_values.h"
 
 static bool g_has_thread;
@@ -183,6 +185,39 @@ static void ncp_set_key(const void *_req, const void *req_data, void *_cnf, void
                                            req->body.key_length, false));
 }
 
+static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_get_ip_address_req_t *req = _req;
+    sl_wisun_msg_get_ip_address_cnf_t *cnf = _cnf;
+    struct wsrd *wsrd = &g_wsrd;
+    struct ipv6_neigh *parent;
+
+    cnf->body.address = in6addr_any;
+
+    switch (le32toh(req->body.address_type)) {
+    case SL_WISUN_IP_ADDRESS_TYPE_LINK_LOCAL:
+        cnf->body.address = ipv6_prefix_linklocal;
+        ipv6_addr_conv_iid_eui64(cnf->body.address.s6_addr + 8, wsrd->ws.rcp.eui64.u8);
+        break;
+    case SL_WISUN_IP_ADDRESS_TYPE_GLOBAL:
+        cnf->body.address = wsrd->ipv6.dhcp.iaaddr.ipv6;
+        break;
+    case SL_WISUN_IP_ADDRESS_TYPE_BORDER_ROUTER:
+        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        if (parent)
+            cnf->body.address = parent->rpl->dio.dodag_id;
+        break;
+    case SL_WISUN_IP_ADDRESS_TYPE_PRIMARY_PARENT:
+        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        if (parent)
+            cnf->body.address = parent->gua;
+        break;
+    }
+
+    if (!memzcmp(cnf->body.address.s6_addr, 16))
+        cnf->body.status = htole32(SL_STATUS_NOT_FOUND);
+}
+
 static void ncp_get_join_state(const void *req, const void *req_data, void *_cnf, void *cnf_data)
 {
     sl_wisun_msg_get_join_state_cnf_t *cnf = _cnf;
@@ -224,7 +259,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         uint16_t cnf_len;
     } table[] = {
         [SL_WISUN_MSG_SET_NETWORK_SIZE_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_network_size_req_t),               SL_WISUN_MSG_SET_NETWORK_SIZE_CNF_ID,               sizeof(sl_wisun_msg_set_network_size_cnf_t) },
-        [SL_WISUN_MSG_GET_IP_ADDRESS_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_get_ip_address_req_t),                 SL_WISUN_MSG_GET_IP_ADDRESS_CNF_ID,                 sizeof(sl_wisun_msg_get_ip_address_cnf_t) },
+        [SL_WISUN_MSG_GET_IP_ADDRESS_REQ_ID]                 = { ncp_get_ip_addr,   sizeof(sl_wisun_msg_get_ip_address_req_t),                 SL_WISUN_MSG_GET_IP_ADDRESS_CNF_ID,                 sizeof(sl_wisun_msg_get_ip_address_cnf_t) },
         [SL_WISUN_MSG_OPEN_SOCKET_REQ_ID]                    = { NULL,              sizeof(sl_wisun_msg_open_socket_req_t),                    SL_WISUN_MSG_OPEN_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_open_socket_cnf_t) },
         [SL_WISUN_MSG_CLOSE_SOCKET_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_close_socket_req_t),                   SL_WISUN_MSG_CLOSE_SOCKET_CNF_ID,                   sizeof(sl_wisun_msg_close_socket_cnf_t) },
         [SL_WISUN_MSG_SENDTO_ON_SOCKET_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_sendto_on_socket_req_t),               SL_WISUN_MSG_SENDTO_ON_SOCKET_CNF_ID,               sizeof(sl_wisun_msg_sendto_on_socket_cnf_t) },
