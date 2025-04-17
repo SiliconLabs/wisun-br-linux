@@ -21,6 +21,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/log.h"
 #include "common/string_extra.h"
+#include "tools/simulation/ncp_socket.h"
 #include "tools/simulation/ncp_values.h"
 
 static bool g_has_thread;
@@ -370,14 +371,14 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
     } table[] = {
         [SL_WISUN_MSG_SET_NETWORK_SIZE_REQ_ID]               = { ncp_set_netsize,   sizeof(sl_wisun_msg_set_network_size_req_t),               SL_WISUN_MSG_SET_NETWORK_SIZE_CNF_ID,               sizeof(sl_wisun_msg_set_network_size_cnf_t) },
         [SL_WISUN_MSG_GET_IP_ADDRESS_REQ_ID]                 = { ncp_get_ip_addr,   sizeof(sl_wisun_msg_get_ip_address_req_t),                 SL_WISUN_MSG_GET_IP_ADDRESS_CNF_ID,                 sizeof(sl_wisun_msg_get_ip_address_cnf_t) },
-        [SL_WISUN_MSG_OPEN_SOCKET_REQ_ID]                    = { NULL,              sizeof(sl_wisun_msg_open_socket_req_t),                    SL_WISUN_MSG_OPEN_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_open_socket_cnf_t) },
-        [SL_WISUN_MSG_CLOSE_SOCKET_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_close_socket_req_t),                   SL_WISUN_MSG_CLOSE_SOCKET_CNF_ID,                   sizeof(sl_wisun_msg_close_socket_cnf_t) },
+        [SL_WISUN_MSG_OPEN_SOCKET_REQ_ID]                    = { ncp_sk_open,       sizeof(sl_wisun_msg_open_socket_req_t),                    SL_WISUN_MSG_OPEN_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_open_socket_cnf_t) },
+        [SL_WISUN_MSG_CLOSE_SOCKET_REQ_ID]                   = { ncp_sk_close,      sizeof(sl_wisun_msg_close_socket_req_t),                   SL_WISUN_MSG_CLOSE_SOCKET_CNF_ID,                   sizeof(sl_wisun_msg_close_socket_cnf_t) },
         [SL_WISUN_MSG_SENDTO_ON_SOCKET_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_sendto_on_socket_req_t),               SL_WISUN_MSG_SENDTO_ON_SOCKET_CNF_ID,               sizeof(sl_wisun_msg_sendto_on_socket_cnf_t) },
         [SL_WISUN_MSG_LISTEN_ON_SOCKET_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_listen_on_socket_req_t),               SL_WISUN_MSG_LISTEN_ON_SOCKET_CNF_ID,               sizeof(sl_wisun_msg_listen_on_socket_cnf_t) },
         [SL_WISUN_MSG_ACCEPT_ON_SOCKET_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_accept_on_socket_req_t),               SL_WISUN_MSG_ACCEPT_ON_SOCKET_CNF_ID,               sizeof(sl_wisun_msg_accept_on_socket_cnf_t) },
         [SL_WISUN_MSG_CONNECT_SOCKET_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_connect_socket_req_t),                 SL_WISUN_MSG_CONNECT_SOCKET_CNF_ID,                 sizeof(sl_wisun_msg_connect_socket_cnf_t) },
-        [SL_WISUN_MSG_BIND_SOCKET_REQ_ID]                    = { NULL,              sizeof(sl_wisun_msg_bind_socket_req_t),                    SL_WISUN_MSG_BIND_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_bind_socket_cnf_t) },
-        [SL_WISUN_MSG_SEND_ON_SOCKET_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_send_on_socket_req_t),                 SL_WISUN_MSG_SEND_ON_SOCKET_CNF_ID,                 sizeof(sl_wisun_msg_send_on_socket_cnf_t) },
+        [SL_WISUN_MSG_BIND_SOCKET_REQ_ID]                    = { ncp_sk_bind,       sizeof(sl_wisun_msg_bind_socket_req_t),                    SL_WISUN_MSG_BIND_SOCKET_CNF_ID,                    sizeof(sl_wisun_msg_bind_socket_cnf_t) },
+        [SL_WISUN_MSG_SEND_ON_SOCKET_REQ_ID]                 = { ncp_sk_send,       sizeof(sl_wisun_msg_send_on_socket_req_t),                 SL_WISUN_MSG_SEND_ON_SOCKET_CNF_ID,                 sizeof(sl_wisun_msg_send_on_socket_cnf_t) },
         [SL_WISUN_MSG_RECEIVE_ON_SOCKET_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_receive_on_socket_req_t),              SL_WISUN_MSG_RECEIVE_ON_SOCKET_CNF_ID,              sizeof(sl_wisun_msg_receive_on_socket_cnf_t) },
         [SL_WISUN_MSG_DISCONNECT_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_disconnect_req_t),                     SL_WISUN_MSG_DISCONNECT_CNF_ID,                     sizeof(sl_wisun_msg_disconnect_cnf_t) },
         [SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_REQ_ID]        = { ncp_set_ca,        sizeof(sl_wisun_msg_set_trusted_certificate_req_t),        SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_CNF_ID,        sizeof(sl_wisun_msg_set_trusted_certificate_cnf_t) },

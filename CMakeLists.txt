@@ -686,6 +686,7 @@ if(COMPILE_DEVTOOLS)
             set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
             add_library(wsrd-ns3 SHARED
                 tools/simulation/ncp_api.c
+                tools/simulation/ncp_socket.c
                 tools/simulation/ncp_values.c
                 tools/simulation/rand.cpp
                 tools/simulation/time.cpp
