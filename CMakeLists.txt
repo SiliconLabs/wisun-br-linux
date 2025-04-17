@@ -686,6 +686,7 @@ if(COMPILE_DEVTOOLS)
             set_property(TARGET libwsrd PROPERTY POSITION_INDEPENDENT_CODE ON)
             add_library(wsrd-ns3 SHARED
                 tools/simulation/ncp_api.c
+                tools/simulation/ncp_ind.cpp
                 tools/simulation/ncp_socket.c
                 tools/simulation/ncp_values.c
                 tools/simulation/rand.cpp
@@ -696,6 +697,7 @@ if(COMPILE_DEVTOOLS)
             )
             # Prevent conflict with bitand()
             target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
+            target_compile_definitions(wsrd-ns3 PRIVATE "__STATIC_INLINE=static inline")
             target_include_directories(wsrd-ns3 PRIVATE
                 ${CMAKE_CURRENT_SOURCE_DIR}
                 tools/simulation/include
