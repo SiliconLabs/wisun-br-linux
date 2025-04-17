@@ -589,7 +589,7 @@ of these commands for a more detailed explanation.
 | RX Broadcast                          | [`SET_FHSS_FFN_BC`][bc]     |
 | TX Unicast to FFN                     | [`REQ_DATA_TX`][tx-req]     |
 | TX Broadcast to FFN                   | [`SET_FHSS_FFN_BC`][bc]     |
-| TX Unicast to LFN                     | [`REQ_DATA_TX`][tx-req]     |
+| TX Unicast to LFN                     | [`REQ_DATA_TX`][tx-req] and [`SET_FHSS_LFN_UC`][uc-lfn]|
 | TX Unicast PAN Advert to LFN          | [`REQ_DATA_TX`][tx-req]     |
 | TX Broadcast to LFN                   | [`SET_FHSS_LFN_BC`][bc-lfn] |
 | TX Asynchronous (MLME-WS-ASYNC-FRAME) | [`SET_FHSS_ASYNC`][async]   |
@@ -645,6 +645,7 @@ Only present if `chan_func == 2`:
 [bc]:       #0x31-set_fhss_ffn_bc
 [bc-lfn]:   #0x32-set_fhss_lfn_bc
 [async]:    #0x33-set_fhss_async
+[uc-lfn]:   #0x34-set_fhss_lfn_uc
 
 ### `0x30 SET_FHSS_UC`
 
@@ -763,6 +764,34 @@ Configure asynchronous transmissions for network discovery.
   - `uint8_t chan_mask[]`  
      Bitmask of channels to use for transmission. See the same field in
      ["Channel Sequence"][chan-seq] for more details.
+
+### `0x34 SET_FHSS_LFN_UC` (API >= 2.9.0)
+
+Update transmission timings of packets queued in the RCP using LFN unicast
+timings. This command is typically issued when a LFN neighbor decides to change
+schedule, to accelerate its authentication or after receiving a LTO-IE.
+Note that initial LFN timings are always passed to [`REQ_DATA_TX`][tx-req].
+This command is provided as an optimization to avoid requiring to cancel
+transmissions with [`REQ_DATA_TX_ABORT`][tx-del] and request again the same
+transmissions with updated timings. This command does not reset the retry
+count for any active transmission, but future retransmissions will use the new
+timings.
+
+  - `uint8_t handle_count`  
+    Number of fields in the following array.
+
+  - `uint8_t handle_list[]`  
+    List of frame handles to update, as provided in [`REQ_DATA_TX`][tx-req]
+    with `FHSS_TYPE_LFN_UC`.
+
+  - `uint64_t lutt_timestamp_us`
+  - `uint16_t slot`
+  - `uint24_t interval_offset_ms`
+  - `uint24_t interval_ms`  
+    See [`REQ_DATA_TX`][tx-req] with `FHSS_TYPE_LFN_UC`.
+
+  - `struct chan_seq`  
+    See ["Channel Sequence"][chan-seq].
 
 ## Security
 
