@@ -77,6 +77,8 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
 
     trickle_start(&wsrd->pas_tkl);
     trickle_start(&wsrd->pcs_tkl);
+    ws_if_send_pas(&wsrd->ws);
+    ws_if_send_pcs(&wsrd->ws, wsrd->prev_pan_id);
 }
 
 static void join_state_3_reconnect_exit(struct wsrd *wsrd)
