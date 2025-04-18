@@ -23,9 +23,9 @@
 #include "common/pktbuf.h"
 
 struct tls_pmk {
-    uint8_t  key[32]; // stored in cleartext in RAM
-    int64_t  replay_counter; // reset when pmk is established
-    uint64_t installation_s; // not used by supplicant
+    uint8_t key[32]; // stored in cleartext in RAM
+    int64_t replay_counter; // reset when pmk is established
+    time_t installation_s; // not used by supplicant
 };
 
 struct tls_ptk {
@@ -40,8 +40,8 @@ struct tls_ptk {
      * KCK = Key Confirmation Key
      * KEK = Key Encryption Key
      */
-    uint8_t  key[48];
-    uint64_t installation_s; // not used by supplicant
+    uint8_t key[48];
+    time_t installation_s; // not used by supplicant
     /*
      *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
      * - TPTK. This variable represents the current PTK until message 3 of the
