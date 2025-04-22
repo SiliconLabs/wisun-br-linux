@@ -267,7 +267,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         TRACE(TR_DROP, "drop %-9s: both GTKL and LGTKL KDE found", "eapol-key");
         goto error;
     }
-    if ((!has_gtkl && !has_lgtkl) || (has_gtk && !has_gtkl) || (has_lgtk && !has_lgtkl)) {
+    if ((has_gtk && !has_gtkl) || (has_lgtk && !has_lgtkl)) {
         TRACE(TR_DROP, "drop %-9s: missing (L)GTKL KDE", "eapol-key");
         goto error;
     }
@@ -276,9 +276,14 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         ret = supp_key_install_gtk(supp, &gtk_kde, lifetime_kde, has_lgtk);
         if (ret < 0)
             goto error;
+    } else {
+        WARN("sec: no (L)GTK KDE found");
     }
 
-    supp_key_update_gtkl(supp, gtkl_kde, has_lgtkl);
+    if (has_gtkl || has_lgtkl)
+        supp_key_update_gtkl(supp, gtkl_kde, has_lgtkl);
+    else
+        WARN("sec: no (L)GTKL KDE found");
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
