@@ -266,6 +266,15 @@ static void ncp_set_netsize(const void *_req, const void *req_data, void *_cnf, 
     __ncp_set_conparams(profiles[req->body.size]);
 }
 
+static void ncp_set_lfn_support(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_lfn_support_req_t *req = _req;
+    sl_wisun_msg_set_lfn_support_cnf_t *cnf = _cnf;
+
+    if (req->body.lfn_limit)
+        cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+}
+
 static void ncp_get_version(const void *req, const void *req_data, void *_cnf, void *cnf_data)
 {
     sl_wisun_msg_get_stack_version_cnf_t *cnf = _cnf;
@@ -394,7 +403,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_set_pom_ie_req_t),                     SL_WISUN_MSG_SET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_set_pom_ie_cnf_t) },
         [SL_WISUN_MSG_GET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_get_pom_ie_req_t),                     SL_WISUN_MSG_GET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_get_pom_ie_cnf_t) },
         [SL_WISUN_MSG_SET_LFN_PARAMS_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_set_lfn_params_req_t),                 SL_WISUN_MSG_SET_LFN_PARAMS_CNF_ID,                 sizeof(sl_wisun_msg_set_lfn_params_cnf_t) },
-        [SL_WISUN_MSG_SET_LFN_SUPPORT_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_lfn_support_req_t),                SL_WISUN_MSG_SET_LFN_SUPPORT_CNF_ID,                sizeof(sl_wisun_msg_set_lfn_support_cnf_t) },
+        [SL_WISUN_MSG_SET_LFN_SUPPORT_REQ_ID]                = { ncp_set_lfn_support, sizeof(sl_wisun_msg_set_lfn_support_req_t),              SL_WISUN_MSG_SET_LFN_SUPPORT_CNF_ID,                sizeof(sl_wisun_msg_set_lfn_support_cnf_t) },
         [SL_WISUN_MSG_SET_PTI_STATE_REQ_ID]                  = { NULL,              sizeof(sl_wisun_msg_set_pti_state_req_t),                  SL_WISUN_MSG_SET_PTI_STATE_CNF_ID,                  sizeof(sl_wisun_msg_set_pti_state_cnf_t) },
         [SL_WISUN_MSG_SET_TBU_SETTINGS_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_tbu_settings_req_t),               SL_WISUN_MSG_SET_TBU_SETTINGS_CNF_ID,               sizeof(sl_wisun_msg_set_tbu_settings_cnf_t) },
         [SL_WISUN_MSG_GET_GTKS_REQ_ID]                       = { NULL,              sizeof(sl_wisun_msg_get_gtks_req_t),                       SL_WISUN_MSG_GET_GTKS_CNF_ID,                       sizeof(sl_wisun_msg_get_gtks_cnf_t) },
