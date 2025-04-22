@@ -13,6 +13,7 @@
  */
 #include <ns3/sl-wisun-linux.h>
 #include <sl_wisun_msg_api.h>
+#include <sl_wisun_version.h>
 #include <endian.h>
 #include <pthread.h>
 
@@ -221,6 +222,17 @@ static void ncp_set_netsize(const void *_req, const void *req_data, void *_cnf, 
     __ncp_set_conparams(profiles[req->body.size]);
 }
 
+static void ncp_get_version(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    sl_wisun_msg_get_stack_version_cnf_t *cnf = _cnf;
+
+    // FIXME: consider wsrd version and RCP version
+    cnf->body.major = SL_WISUN_VERSION_MAJOR;
+    cnf->body.minor = SL_WISUN_VERSION_MINOR;
+    cnf->body.patch = SL_WISUN_VERSION_PATCH;
+    cnf->body.build = htole16(SL_WISUN_VERSION_BUILD);
+}
+
 static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     const sl_wisun_msg_get_ip_address_req_t *req = _req;
@@ -343,7 +355,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_TBU_SETTINGS_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_tbu_settings_req_t),               SL_WISUN_MSG_SET_TBU_SETTINGS_CNF_ID,               sizeof(sl_wisun_msg_set_tbu_settings_cnf_t) },
         [SL_WISUN_MSG_GET_GTKS_REQ_ID]                       = { NULL,              sizeof(sl_wisun_msg_get_gtks_req_t),                       SL_WISUN_MSG_GET_GTKS_CNF_ID,                       sizeof(sl_wisun_msg_get_gtks_cnf_t) },
         [SL_WISUN_MSG_TRIGGER_FRAME_REQ_ID]                  = { NULL,              sizeof(sl_wisun_msg_trigger_frame_req_t),                  SL_WISUN_MSG_TRIGGER_FRAME_CNF_ID,                  sizeof(sl_wisun_msg_trigger_frame_cnf_t) },
-        [SL_WISUN_MSG_GET_STACK_VERSION_REQ_ID]              = { NULL,              sizeof(sl_wisun_msg_get_stack_version_req_t),              SL_WISUN_MSG_GET_STACK_VERSION_CNF_ID,              sizeof(sl_wisun_msg_get_stack_version_cnf_t) },
+        [SL_WISUN_MSG_GET_STACK_VERSION_REQ_ID]              = { ncp_get_version,   sizeof(sl_wisun_msg_get_stack_version_req_t),              SL_WISUN_MSG_GET_STACK_VERSION_CNF_ID,              sizeof(sl_wisun_msg_get_stack_version_cnf_t) },
         [SL_WISUN_MSG_SET_SECURITY_STATE_REQ_ID]             = { NULL,              sizeof(sl_wisun_msg_set_security_state_req_t),             SL_WISUN_MSG_SET_SECURITY_STATE_CNF_ID,             sizeof(sl_wisun_msg_set_security_state_cnf_t) },
         [SL_WISUN_MSG_GET_NETWORK_INFO_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_get_network_info_req_t),               SL_WISUN_MSG_GET_NETWORK_INFO_CNF_ID,               sizeof(sl_wisun_msg_get_network_info_cnf_t) },
         [SL_WISUN_MSG_GET_RPL_INFO_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_get_rpl_info_req_t),                   SL_WISUN_MSG_GET_RPL_INFO_CNF_ID,                   sizeof(sl_wisun_msg_get_rpl_info_cnf_t) },
