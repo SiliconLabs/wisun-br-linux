@@ -134,6 +134,24 @@ static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *c
     g_has_thread = true;
 }
 
+static void ncp_set_regulation(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    static const struct ncp_val regulations[] = {
+        { SL_WISUN_REGULATION_NONE, HIF_REG_NONE },
+        { SL_WISUN_REGULATION_ARIB, HIF_REG_ARIB },
+        { SL_WISUN_REGULATION_WPC,  HIF_REG_WPC },
+    };
+    const sl_wisun_msg_set_regulation_req_t *req = _req;
+    sl_wisun_msg_set_regulation_cnf_t *cnf = _cnf;
+    int regulation;
+
+    regulation = ncp_ntoh(le32toh(req->body.regulation), regulations, ARRAY_SIZE(regulations));
+
+    // FIXME: wsrd does not support regional regulation yet
+    if (regulation != HIF_REG_NONE)
+        cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+}
+
 static void ncp_set_txpow(const void *_req, const void *req_data, void *cnf, void *cnf_data)
 {
     const sl_wisun_msg_set_tx_power_req_t *req = _req;
@@ -365,7 +383,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_UNICAST_SETTINGS_REQ_ID]           = { NULL,              sizeof(sl_wisun_msg_set_unicast_settings_req_t),           SL_WISUN_MSG_SET_UNICAST_SETTINGS_CNF_ID,           sizeof(sl_wisun_msg_set_unicast_settings_cnf_t) },
         [SL_WISUN_MSG_SET_TRACE_LEVEL_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_trace_level_req_t),                SL_WISUN_MSG_SET_TRACE_LEVEL_CNF_ID,                sizeof(sl_wisun_msg_set_trace_level_cnf_t) },
         [SL_WISUN_MSG_SET_TRACE_FILTER_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_set_trace_filter_req_t),               SL_WISUN_MSG_SET_TRACE_FILTER_CNF_ID,               sizeof(sl_wisun_msg_set_trace_filter_cnf_t) },
-        [SL_WISUN_MSG_SET_REGULATION_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_set_regulation_req_t),                 SL_WISUN_MSG_SET_REGULATION_CNF_ID,                 sizeof(sl_wisun_msg_set_regulation_cnf_t) },
+        [SL_WISUN_MSG_SET_REGULATION_REQ_ID]                 = { ncp_set_regulation, sizeof(sl_wisun_msg_set_regulation_req_t),                SL_WISUN_MSG_SET_REGULATION_CNF_ID,                 sizeof(sl_wisun_msg_set_regulation_cnf_t) },
         [SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_ID_REQ_ID]      = { NULL,              sizeof(sl_wisun_msg_set_device_private_key_id_req_t),      SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_ID_CNF_ID,      sizeof(sl_wisun_msg_set_device_private_key_id_cnf_t) },
         [SL_WISUN_MSG_SET_ASYNC_FRAGMENTATION_REQ_ID]        = { NULL,              sizeof(sl_wisun_msg_set_async_fragmentation_req_t),        SL_WISUN_MSG_SET_ASYNC_FRAGMENTATION_CNF_ID,        sizeof(sl_wisun_msg_set_async_fragmentation_cnf_t) },
         [SL_WISUN_MSG_SET_MODE_SWITCH_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_mode_switch_req_t),                SL_WISUN_MSG_SET_MODE_SWITCH_CNF_ID,                sizeof(sl_wisun_msg_set_mode_switch_cnf_t) },
