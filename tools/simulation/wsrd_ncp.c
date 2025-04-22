@@ -14,8 +14,113 @@
 #include <ns3/sl-wisun-linux.h>
 #include <sl_wisun_msg_api.h>
 #include <endian.h>
+#include <pthread.h>
 
+#include "app_wsrd/app/wsrd.h"
 #include "common/log.h"
+#include "tools/simulation/ncp_values.h"
+
+static bool g_has_thread;
+static pthread_t g_thread;
+
+static void *ncp_main(void *arg)
+{
+    struct wsrd_conf *cfg = arg;
+
+    // Provide a UART device so parse_commandline succeeds
+    strcpy(cfg->rcp_cfg.uart_dev, "/dev/null");
+    cfg->storage_delete = true;
+    wsrd_main(1, (char *[]){ "wsrd" });
+    __builtin_unreachable();
+}
+
+static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    static const int phy_config_sizes[] = {
+        [SL_WISUN_PHY_CONFIG_FAN10]    = sizeof(sl_wisun_phy_config_fan10_t),
+        [SL_WISUN_PHY_CONFIG_FAN11]    = sizeof(sl_wisun_phy_config_fan11_t),
+        [SL_WISUN_PHY_CONFIG_EXPLICIT] = sizeof(sl_wisun_phy_config_explicit_t),
+    };
+    static const uint32_t chan_spacings[] = {
+        [SL_WISUN_CHANNEL_SPACING_100KHZ]  =  100000,
+        [SL_WISUN_CHANNEL_SPACING_200KHZ]  =  200000,
+        [SL_WISUN_CHANNEL_SPACING_400KHZ]  =  400000,
+        [SL_WISUN_CHANNEL_SPACING_600KHZ]  =  600000,
+        [SL_WISUN_CHANNEL_SPACING_250KHZ]  =  250000,
+        [SL_WISUN_CHANNEL_SPACING_800KHZ]  =  800000,
+        [SL_WISUN_CHANNEL_SPACING_1200KHZ] = 1200000,
+    };
+    const sl_wisun_msg_join_req_t *req = _req;
+    struct wsrd_conf *cfg = &g_wsrd.config;
+    sl_wisun_msg_join_cnf_t *cnf = _cnf;
+    int ret;
+
+    if (g_has_thread) {
+        cnf->body.status = htole32(SL_STATUS_NETWORK_UP);
+        return;
+    }
+
+    cfg->ws_domain = REG_DOMAIN_UNDEF;
+    cfg->ws_mode = 0;
+    cfg->ws_class = 0;
+    cfg->ws_phy_mode_id = 0;
+    cfg->ws_chan_plan_id = 0;
+    cfg->ws_chan0_freq = 0;
+    cfg->ws_chan_count = 0;
+    cfg->ws_chan_spacing = 0;
+
+    if (le32toh(req->body.phy_config.type) >= ARRAY_SIZE(phy_config_sizes) ||
+        !phy_config_sizes[le32toh(req->body.phy_config.type)]) {
+        WARN("unsupported NCP JOIN phy-type=%u", req->body.phy_config.type);
+        cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+        return;
+    }
+
+    if (le16toh(req->header.length) < sizeof(*req) - sizeof(req->body.phy_config) +
+                                      phy_config_sizes[le32toh(req->body.phy_config.type)])
+        FATAL(3, "malformed NCP JOIN len=%u phy-type=%u", req->header.length, req->body.phy_config.type);
+
+    switch (req->body.phy_config.type) {
+    case SL_WISUN_PHY_CONFIG_FAN10:
+        cfg->ws_domain = req->body.phy_config.config.fan10.reg_domain;
+        cfg->ws_mode   = req->body.phy_config.config.fan10.op_mode;
+        cfg->ws_class  = req->body.phy_config.config.fan10.op_class;
+        if (req->body.phy_config.config.fan10.fec) {
+            WARN("unsupported phy config fan10 fec");
+            cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+            return;
+        }
+        break;
+    case SL_WISUN_PHY_CONFIG_FAN11:
+        cfg->ws_domain       = req->body.phy_config.config.fan11.reg_domain;
+        cfg->ws_phy_mode_id  = req->body.phy_config.config.fan11.phy_mode_id;
+        cfg->ws_chan_plan_id = req->body.phy_config.config.fan11.chan_plan_id;
+        break;
+    case SL_WISUN_PHY_CONFIG_EXPLICIT:
+        cfg->ws_chan0_freq   = le32toh(req->body.phy_config.config.explicit_plan.ch0_frequency_khz) * 1000;
+        cfg->ws_chan_count   = le16toh(req->body.phy_config.config.explicit_plan.number_of_channels);
+        if (req->body.phy_config.config.explicit_plan.channel_spacing >= ARRAY_SIZE(chan_spacings)) {
+            WARN("unsupported phy config explicit spacing=%u",
+                 req->body.phy_config.config.explicit_plan.channel_spacing);
+            cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
+            return;
+        }
+        cfg->ws_chan_spacing = chan_spacings[req->body.phy_config.config.explicit_plan.channel_spacing];
+        cfg->ws_phy_mode_id  = req->body.phy_config.config.fan11.phy_mode_id;
+        break;
+    }
+
+    memcpy(cfg->ws_netname, req->body.name, WS_NETNAME_LEN);
+    cfg->ws_netname[WS_NETNAME_LEN - 1] = '\0';
+
+    ret = pthread_create(&g_thread, NULL, ncp_main, cfg);
+    if (ret) {
+        WARN("pthread_create: %s", strerror(ret));
+        cnf->body.status = htole32(ncp_status(ret));
+        return;
+    }
+    g_has_thread = true;
+}
 
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
@@ -65,7 +170,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_SET_REGULATION_TX_THRESHOLDS_REQ_ID]   = { NULL,              sizeof(sl_wisun_msg_set_regulation_tx_thresholds_req_t),   SL_WISUN_MSG_SET_REGULATION_TX_THRESHOLDS_CNF_ID,   sizeof(sl_wisun_msg_set_regulation_tx_thresholds_cnf_t) },
         [SL_WISUN_MSG_SET_DEVICE_TYPE_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_device_type_req_t),                SL_WISUN_MSG_SET_DEVICE_TYPE_CNF_ID,                sizeof(sl_wisun_msg_set_device_type_cnf_t) },
         [SL_WISUN_MSG_SET_CONNECTION_PARAMS_REQ_ID]          = { NULL,              sizeof(sl_wisun_msg_set_connection_params_req_t),          SL_WISUN_MSG_SET_CONNECTION_PARAMS_CNF_ID,          sizeof(sl_wisun_msg_set_connection_params_cnf_t) },
-        [SL_WISUN_MSG_JOIN_REQ_ID]                           = { NULL,              sizeof(sl_wisun_msg_join_req_t),                           SL_WISUN_MSG_JOIN_CNF_ID,                           sizeof(sl_wisun_msg_join_cnf_t) },
+        [SL_WISUN_MSG_JOIN_REQ_ID]                           = { ncp_join,          sizeof(sl_wisun_msg_join_req_t) - sizeof(sl_wisun_phy_config_t), SL_WISUN_MSG_JOIN_CNF_ID,                     sizeof(sl_wisun_msg_join_cnf_t) },
         [SL_WISUN_MSG_SET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_set_pom_ie_req_t),                     SL_WISUN_MSG_SET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_set_pom_ie_cnf_t) },
         [SL_WISUN_MSG_GET_POM_IE_REQ_ID]                     = { NULL,              sizeof(sl_wisun_msg_get_pom_ie_req_t),                     SL_WISUN_MSG_GET_POM_IE_CNF_ID,                     sizeof(sl_wisun_msg_get_pom_ie_cnf_t) },
         [SL_WISUN_MSG_SET_LFN_PARAMS_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_set_lfn_params_req_t),                 SL_WISUN_MSG_SET_LFN_PARAMS_CNF_ID,                 sizeof(sl_wisun_msg_set_lfn_params_cnf_t) },
