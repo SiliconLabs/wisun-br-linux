@@ -185,6 +185,11 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
                                                    hif_ind->rx_power_dbm, WS_EWMA_SF);
     }
 
+    if (ind.hdr.seqno >= 0 && !ws_neigh_duplicate_packet_check(ind.neigh, ind.hdr.seqno, ind.hif->timestamp_us)) {
+        TRACE(TR_DROP, "drop %-9s: duplicated frame seqno=%d", "15.4", ind.hdr.seqno);
+        return;
+    }
+
     ws_print_ind(&ind, ie_utt.message_type);
     if (ws->on_recv_ind)
         ws->on_recv_ind(ws, &ind);
