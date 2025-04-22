@@ -345,9 +345,6 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
             TRACE(TR_DROP, "drop %-9s: direct connect target eui64 missmatch", "15.4");
             return;
         }
-        ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, &ind->hdr.src);
-        if (ind->hdr.key_index)
-            ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, &ind->hdr.src);
         switch (ie_utt.message_type)
         {
         case SL_FT_DCA:
@@ -361,10 +358,6 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     }
 
     BUG_ON(!ws_wh_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt));
-
-    ws_neigh_ut_update(&ind->neigh->fhss_data_unsecured, ie_utt.ufsi, ind->hif->timestamp_us, &ind->hdr.src);
-    if (ind->hdr.key_index)
-        ws_neigh_ut_update(&ind->neigh->fhss_data, ie_utt.ufsi, ind->hif->timestamp_us, &ind->hdr.src);
 
     switch (ie_utt.message_type) {
     case WS_FT_DATA:
