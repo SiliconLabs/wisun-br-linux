@@ -129,7 +129,9 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     struct ws_ind ind = { .hif = hif_ind };
     struct iobuf_read ie_payload;
     struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
     struct ws_fc_ie ie_fc;
+    bool has_bt_ie;
     int ret;
 
     ret = ieee802154_frame_parse(hif_ind->frame, hif_ind->frame_len,
@@ -145,6 +147,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         TRACE(TR_DROP, "drop %-9s: missing UTT-IE", "15.4");
         return;
     }
+    has_bt_ie = ws_wh_bt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_bt);
     // HACK: In FAN 1.0 the source address is elided in EDFE response frames
     if (ws_wh_fc_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_fc)) {
         if (!eui64_is_bc(&ind.hdr.src))
@@ -166,11 +169,18 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
     ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
                        ind.hif->timestamp_us, &ind.hdr.src);
+    if (has_bt_ie)
+        ws_neigh_bt_update(&ind.neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+                           ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
     ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
                                                          hif_ind->rx_power_dbm, WS_EWMA_SF);
+
     if (ind.hdr.key_index) {
         ws_neigh_ut_update(&ind.neigh->fhss_data, ie_utt.ufsi,
                            ind.hif->timestamp_us, &ind.hdr.src);
+        if (has_bt_ie)
+            ws_neigh_bt_update(&ind.neigh->fhss_data, ie_bt.broadcast_slot_number,
+                               ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
         ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
                                                    hif_ind->rx_power_dbm, WS_EWMA_SF);
     }
