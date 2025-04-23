@@ -196,7 +196,7 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_PH, 0, HIF_REG_NONE,  49,  915400000,  400000,  32, {  5,  6,  8,  21, 22, 24     }, .chan_allowed = "0-6", },
     { REG_DOMAIN_SG, 1, HIF_REG_NONE,  41,  863100000,  100000,  29, {  1, 17                      }, },
     { REG_DOMAIN_SG, 2, HIF_REG_NONE,  42,  863100000,  200000,  15, {  3,  5, 18, 21, 84, 85, 86  }, },
-    { REG_DOMAIN_SG, 3, HIF_REG_NONE,  43,  863500000,  400000,   7, {  6,  8, 22, 24              }, },
+    { REG_DOMAIN_SG, 3, HIF_REG_NONE,  43,  866300000,  400000,   7, {  6,  8, 22, 24              }, },
     { REG_DOMAIN_SG, 4, HIF_REG_NONE,  64,  920200000,  200000,  24, {  2,  3, 18, 19              }, },
     { REG_DOMAIN_SG, 5, HIF_REG_NONE,  65,  920400000,  400000,  12, {  5,  6,  8, 21, 22, 24      }, },
     { REG_DOMAIN_TH, 1, HIF_REG_NONE,  64,  920200000,  200000,  24, {  2,  3, 18, 19              }, },
