@@ -17,6 +17,7 @@
 #include "common/ws/eapol_relay.h"
 
 #include "app_wsrd/supplicant/supplicant_storage.h"
+#include "wsrd_storage.h"
 #include "wsrd.h"
 #include "ws.h"
 
@@ -25,6 +26,7 @@
 void join_state_1_enter(struct wsrd *wsrd)
 {
     // Entering join state 1 means we probably want a fresh start
+    wsrd_storage_clear();
     wsrd->ws.pan_id = 0xffff;
     memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
     supp_reset(&wsrd->supp);

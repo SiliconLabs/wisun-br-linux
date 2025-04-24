@@ -311,6 +311,7 @@ if(COMPILE_WSRD)
         app_wsrd/app/commandline.c
         app_wsrd/app/join_state.c
         app_wsrd/app/wsrd.c
+        app_wsrd/app/wsrd_storage.c
         app_wsrd/app/ws.c
         app_wsrd/ipv6/6lowpan.c
         app_wsrd/ipv6/ipv6.c

@@ -460,6 +460,7 @@ int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
     static const char *files[] = {
+        "network-config",
         "network-keys",
         NULL,
     };

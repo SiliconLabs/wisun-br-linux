@@ -36,6 +36,7 @@
 #include "common/seqno.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
+#include "app_wsrd/app/wsrd_storage.h"
 #include "app_wsrd/app/join_state.h"
 #include "app_wsrd/app/wsrd.h"
 
@@ -287,14 +288,16 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     trickle_inconsistent(&wsrd->pa_tkl);
 }
 
-static void ws_update_gak_index(struct ws_ctx *ws, uint8_t key_index)
+static void ws_update_gak_index(struct wsrd *wsrd, uint8_t key_index)
 {
     // TODO: handle LGTKs
     if (key_index > 4)
         return;
-    if (ws->gak_index != key_index)
-        TRACE(TR_SECURITY, "sec: gak index change old:%u new:%u", ws->gak_index, key_index);
-    ws->gak_index = key_index;
+    if (wsrd->ws.gak_index != key_index) {
+        TRACE(TR_SECURITY, "sec: gak index change old:%u new:%u", wsrd->ws.gak_index, key_index);
+        wsrd_storage_store(wsrd);
+    }
+    wsrd->ws.gak_index = key_index;
 }
 
 /*
@@ -392,7 +395,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %-9s: missing GTKHASH-IE", "15.4");
         return;
     }
-    ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
+    ws_update_gak_index(wsrd, ind->hdr.key_index);
 
     /*
      *   Wi-SUN FAN 1.1v09 6.3.4.6.3.1 Usage of Trickle Timers
@@ -499,7 +502,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
      * We may receive a data frame encrypted with a newly activated GTK prior to
      * receiving a PC.
      */
-    ws_update_gak_index(&wsrd->ws, ind->hdr.key_index);
+    ws_update_gak_index(wsrd, ind->hdr.key_index);
 
     lowpan_recv(&wsrd->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
