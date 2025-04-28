@@ -35,7 +35,7 @@ static void *ncp_main(void *arg)
     // Provide a UART device so parse_commandline succeeds
     strcpy(cfg->rcp_cfg.uart_dev, "/dev/null");
     cfg->storage_delete = true;
-    wsrd_main(1, (char *[]){ "wsrd" });
+    wsrd_main(3, (char *[]){ "wsrd", "-F", g_config_filename, NULL });
     __builtin_unreachable();
 }
 

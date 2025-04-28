@@ -35,6 +35,7 @@ extern "C" {
 #error "Incompatible ns-3 version"
 #endif
 
+char g_config_filename[PATH_MAX] = { };
 int g_simulation_id;
 
 static char last_error[256];
