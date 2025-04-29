@@ -143,9 +143,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
                 strcpy(info.key, "uart_device");
                 conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
                 break;
-            case 't':
-                strlcpy(config->tun_dev, optarg, sizeof(config->tun_dev));
-                break;
             case 'T':
                 strcpy(info.key, "trace");
                 conf_add_flags(&info, &g_enabled_traces, valid_traces);
