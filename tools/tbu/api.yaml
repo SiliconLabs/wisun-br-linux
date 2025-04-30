@@ -1,10 +1,44 @@
 # Downloaded from https://bitbucket.org/wisunalliance/test-bed-unit-api
+# Test Bed Unit API
+# Copyright © Wi-SUN Alliance 2024 - 2025
+#
+# Conventions:
+#
+# This API has grown organically over the course of multiple rounds of FAN
+# development. As such, it doesn't have a perfectly consistent design. To try
+# and consolidate around one design language, the following conventions are
+# proposed for new changes, where those changes don't break backwards
+# compatibility.
+#
+# * /config root for all endpoints affecting a change in device configuration.
+# * /command root for all endpoints affecting an operation on/from a device.
+# * ROOT/ for endpoints valid on all devices (or at least, multiple groups.)
+# * ROOT/ROLE/ for endpoints only valid on devices of some role (LBR, LR, LFN)
+# * ROOT/ROLE/FEATURE/ or /ROOT/FEATURE/ categorises multiple endpoints under
+#   one feature moniker. E.g., all PHY endpoints are found under /config/phy.
+#
+# Response Codes:
+#
+# In general, adhere to the well established web standards.
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+#
+# 200 - Success.
+#
+# 4xx - Error on the part of the client (TBC).
+# 400 - Bad Request. Likely due to invalid parameters supplied.
+#
+# 5xx - Error on the part of the server (TBU).
+# 500 - Internal Server Error. Something went wrong with the TBU, but it cannot
+#       tell the caller what it was. A catch-all for unhandled exceptions.
+# 501 - Not Implemented. This TBU does not implement some feature which is
+#       endemic to the endpoint.
+
 swagger: '2.0'
 info:
-  version: 1.1.13
+  version: 1.1.17
   title: TBU API
-  description: Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Note that optional object properties, when not included in messaging and unless noted otherwise, will assume their default values as specified in the FAN TPS. Copyright © Wi-SUN Alliance 2024.
-basePath: /Wi-SUN/TBU/1.1.13
+  description: Test Bed Unit API. NOTE all IPv6 address strings are formatted per RFC 5952. Note that optional object properties, when not included in messaging and unless noted otherwise, will assume their default values as specified in the FAN TPS. Copyright © Wi-SUN Alliance 2024 - 2025.
+basePath: /Wi-SUN/TBU/1.1.17
 schemes:
   - https
   - http
@@ -23,17 +57,21 @@ paths:
       description: Set the run mode of the TBU's FAN stack
       parameters:
       - name: mode
-        description: 0 = Stop, 1 = Start. NOTE The stop operation MUST be silent, immediate, and fully reset a device. Meaning, a stopping device MUST NOT deregister from the network, or otherwise inform it of disconnection. And the device MUST clear all state and configuration memory, returning to a known, clean, power-on reset base state. All TBU API parameters MUST be configured (again) before run mode start.
+        description: There are three possible run modes, stop (0), start (1), and suspend (2) with five valid transitions between. A stopped device MUST clear all state and configuration memory, returning to power-on reset (POR) state. If the device was running before being stopped, it MUST NOT deregister from the network, instead it should silently and immediately terminate. A started (running) device operates normally. A suspended device MUST maintain its state data (FAN 1.1 TPS section 6.5.6), but MUST clear its TBU configuration as the TBC will reconfigure any suspended devices on their resumption. Identically to a stopped device, a suspended device MUST NOT deregister from the network. When a suspended device resumes (is set to runMode=1), it MUST restore and use its saved state. Only the following transitions are defined and valid. A stopped device can transition into the start mode once configured, but never into suspend mode. A running device may transition into either stop (clearing its state) or suspend (storing its state) modes. A suspended device may transition into either stop (clearing its state) or start modes (restoring its state). A TBU is assumed to be in the stopped state on boot.
         in: path
         required: true
         type: integer
         format: int32
-        enum: [0, 1]
+        enum: [0, 1, 2]
       responses:
         200:
           description: runMode change was executed successfully
         400:
           description: Illegal runMode was specified
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Illegal transition was specified
           schema:
             $ref: '#/definitions/ErrorResponse'
         default:
@@ -76,6 +114,52 @@ paths:
           description: PHY successfully configured.
         default:
           description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/phy/modeSwitch/modeIDs:
+    put:
+      description: Configure the PHY Operating Mode IDs advertised by a given device. The device's base PHY MUST be configured first, before its POM-IE. A device MUST NOT advertise any modes not configured by this endpoint.
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/phyOperatingModeIDs'
+      responses:
+        200:
+          description: PHY Operating Modes successfully configured.
+        501:
+          description: This device does not support one or more of the given POMs!
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        502:
+          description: This device does not support the optional mode switch feature!
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /config/phy/modeSwitch/mdrCommandCapable/{enableMDRCmd}:
+    put:
+      description: Configure a device's ability to accept an MDR MAC Command. Test bed units are expected to support MDR MAC Commands by default!
+      parameters:
+      - name: enableMDRCmd
+        description: True to enable and advertise receipt of the MDR MAC Command, false to disable support.
+        in: path
+        required: true
+        type: boolean
+      responses:
+        200:
+          description: MDR Command Capable flag set or cleared successfully.
+        501:
+          description: This device does not support MDR MAC Commands!
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
           schema:
             $ref: '#/definitions/ErrorResponse'
 
@@ -375,6 +459,27 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /config/borderRouter/revokeNodes:
+    put:
+      description: Destroy the PMK/PTK of the given device EUI(s).
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/MacAddresses'
+      responses:
+        200:
+          description: PMK/PTK of device(s) destroyed.
+        400:
+          description: Device is not a Border Router.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Unknown error occurred.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
   /config/borderRouter/informationElements:
     put:
       description: This method may only be issued to a Border Router. It is used to force addition of one or more Information Elements (beyond those normally populated) into the Border Router's subsequently issued PC frames. This method is primarily intended to test unknown IE handling/content within the mesh. All additions and deletions trigger an increment of PAN Version in the PC and LPC, and reset of its trickle timer.
@@ -568,7 +673,7 @@ paths:
         200:
           description: Channel plan successfully configured.
         400:
-          description: Device is not an LFN.
+          description: Device is not an LBR.
           schema:
             $ref: '#/definitions/ErrorResponse'
         default:
@@ -611,6 +716,21 @@ paths:
       responses:
         200:
           description: Device will send a Neighbor Advertisement.
+        default:
+          description: Unknown error occurred
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /command/nd/sendNS:
+    post:
+      description: Force a router or LFN device to immediately re-register its GUA/ULA using its current lifetime. A router MUST send an NS(ARO), and an LFN MUST send an NS(EARO), to its parent with the lifetime previously configured with its /config/router or /config/lfn endpoint.
+      responses:
+        200:
+          description: Device will send a Neighbour Solicitaion with EARO.
+        400:
+          description: Device is not a Router or LFN.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
         default:
           description: Unknown error occurred
           schema:
@@ -860,6 +980,19 @@ definitions:
         description: The base operating mode which MUST be set to a PhyModeID value defined in
           section 5.2 of [PHYTPS].
         type: integer
+
+  phyOperatingModeIDs:
+    type: object
+    description: A list of PHY Operating Mode IDs to be advertised from a given device in its POM-IE.
+    required:
+      - modes
+    properties:
+      modes:
+        description: Set as specified in section 5.2 of [PHYTPS].
+        type: array
+        items:
+          type: integer
+          example: [5, 38, 54, 70, 86]
 
   chanPlanRegId:
     type: object
@@ -1129,7 +1262,7 @@ definitions:
         description: The 6LoWPAN MTU to be used by this router.
         type: integer
       lfnJoinEnabled:
-        description: True if LFN joins to the PAN are allowed, False otherwise.
+        description: True if LFN joins to the PAN and to this border router are allowed, False otherwise.
         default: false
         type: boolean
       mplSeedLength:
@@ -1188,13 +1321,17 @@ definitions:
         description: Maximum time between a SUP detecting a LGTKHASH mismatch and the SUP initiating Msg1 of the authentication flow (causing the BR to initiate a Group Key handshake with the SUP).
         type: integer
       ndAddressRegistrationLifetime:
-        description: 16-bit unsigned integer. The lifetime, in units of 60 seconds, of the router's address registration. [RFC 8505] and [RFC 9010]
+        description: 16-bit unsigned integer. The lifetime, in minutes, of the router's address registration. [RFC 8505] and [RFC 9010]
         type: integer
         default: 40
       lfnJoinEnabled:
         description: True if LFN joins to this router are enabled, False otherwise.
         default: false
         type: boolean
+      lfnPanTimeout:
+        description: Interval, in minutes, after which an FFN parent must disable LFN broadcast messaging if the FFN parent is unable to communicate with its border router.
+        type: integer
+        default: 30
       mplSeedLength:
         description: The MPL seed-id length (S-field). An unsigned two-bit integer equal to either 0 or 3, where 0 indicates the seed-id is elided and is the IPv6 source address, and 3 indicates the seed-id is the 128-bit ULA/GUA of the source. [RFC7731, FANTPS-1.1v06-d7]
         type: integer
@@ -1224,7 +1361,7 @@ definitions:
         description: Maximum time between a SUP detecting a LGTKHASH mismatch and the SUP initiating Msg1 of the authentication flow (causing the BR to initiate a Group Key handshake with the SUP).
         type: integer
       ndAddressRegistrationLifetime:
-        description: 16-bit unsigned integer. The lifetime, in units of 60 seconds, of the LFN's GUA/ULA and multicast group address registrations. [RFC 6775 Section 4.1]
+        description: 16-bit unsigned integer. The lifetime, in minutes, of the LFN's GUA/ULA registration. [RFC 6775 Section 4.1]
         type: integer
         default: 2160
 
@@ -1466,4 +1603,8 @@ definitions:
       multicastAddress:
         description: The multicast address to be joined or left. IPv6 address strings are formatted per RFC 5952.
         type: string
+      multicastLifetime:
+        description: 16-bit unsigned integer. The lifetime, in minutes, of the device's multicast group address registration. [RFC 6775 Section 4.1]
+        type: integer
+        default: 2160
 
