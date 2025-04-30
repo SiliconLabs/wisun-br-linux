@@ -274,7 +274,16 @@ def config_phy_mode_id():
     if wsbrd.service.active_state == 'active':
         return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
     wsbrd.config['phy_mode_id'] = json['basePhyModeID']
-    wsbrd.config['phy_operating_modes'] = 'auto' # Enable mode switch
+    return success()
+
+
+@dbus_errcheck
+@json_errcheck('/config/phy/modeSwitch/modeIDs')
+def config_phy_mode_switch_mode_ids():
+    json = flask.request.get_json(force=True, silent=True)
+    if wsbrd.service.active_state == 'active':
+        return error(500, WSTBU_ERR_UNKNOWN, 'unsupported runtime operation')
+    wsbrd.config['phy_operating_modes'] = ','.join(map(str, json['modes'])) or 'none'
     return success()
 
 
@@ -920,6 +929,7 @@ def app_build():
     app.add_url_rule('/runMode/<int:mode>',                             view_func=run_mode,                                          methods=['PUT'])
     app.add_url_rule('/config/phy',                                     view_func=config_phy,                                        methods=['PUT'])
     app.add_url_rule('/config/phy/modeID',                              view_func=config_phy_mode_id,                                methods=['PUT'])
+    app.add_url_rule('/config/phy/modeSwitch/modeIDs',                  view_func=config_phy_mode_switch_mode_ids,                   methods=['PUT'])
     app.add_url_rule('/config/chanPlan/regId',                          view_func=config_chan_plan_reg_id,                           methods=['PUT'])
     app.add_url_rule('/config/chanPlan/regOp',                          view_func=config_chan_plan_reg_op,                           methods=['PUT'])
     app.add_url_rule('/config/chanPlan/explicit',                       view_func=config_chan_plan_explicit,                         methods=['PUT'])

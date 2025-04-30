@@ -46,6 +46,7 @@ def config_default(wstbu_config):
         pcap_file      = TMPDIR + '/fifo.pcap',
         join_metrics   = 'none',
         trace          = '15.4,eap,icmp,dhcp,drop',
+        phy_operating_modes = 'none',
     )
     if 'dhcpv6_server' in wstbu_config:
         config['dhcp_server'] = wstbu_config['dhcpv6_server']
