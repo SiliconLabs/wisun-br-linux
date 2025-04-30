@@ -165,8 +165,12 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
             timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer,
                             ipv6->aro_lifetime_ms - 5 * 60 * 1000);
         }
+        /*
+         * NOTE: arbitrarily start a 3s timer before sending DAO to allow for
+         * NA RX.
+         */
         if (neigh->rpl && neigh->rpl->is_parent && timer_stopped(&ipv6->rpl.dao_refresh_timer))
-            rpl_start_dao(ipv6);
+            timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer, 3 * 1000);
     }
 }
 
