@@ -96,6 +96,7 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
 void ipv6_recv_ns(struct ipv6_ctx *ipv6,
                   const void *buf, size_t buf_len,
                   const struct in6_addr *src);
+void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const struct in6_addr *src);
 
 /*
  *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery

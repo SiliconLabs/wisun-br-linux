@@ -391,6 +391,111 @@ void ipv6_recv_ns(struct ipv6_ctx *ipv6,
     }
 }
 
+static void ipv6_recv_na_aro(struct ipv6_ctx *ipv6, const struct nd_neighbor_advert *na,
+                             const void *buf, size_t buf_len, struct ipv6_neigh *nce)
+{
+    const struct ndp_opt_earo *aro;
+    struct eui64 eui64;
+
+    if (buf_len != sizeof(struct ndp_opt_earo)) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "na(aro)");
+        return;
+    }
+    aro = buf;
+
+    eui64.be64 = aro->eui64;
+    TRACE(TR_ICMP, "rx-icmp %-9s status=%u eui64=%s", "na(aro)", aro->status, tr_eui64(eui64.u8));
+
+    /*
+     *   RFC 6775 5.5.2. Processing a Neighbor Advertisement
+     * If the EUI-64 field does not match the EUI-64 of the interface, the
+     * option is silently ignored.
+     */
+    if (!eui64_eq(&ipv6->eui64, &eui64)) {
+        TRACE(TR_DROP, "drop %-9s: own/aro eui64 mismatch", "na(aro)");
+        return;
+    }
+    if (!nce->rpl || !nce->rpl->is_parent) {
+        TRACE(TR_DROP, "drop %-9s: not our parent", "na(aro)");
+        return;
+    }
+    if (aro->status == NDP_ARO_STATUS_SUCCESS)
+        return;
+    // Arbitrary
+    rpl_neigh_deny(ipv6, nce);
+}
+
+void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const struct in6_addr *dst)
+{
+    const struct nd_neighbor_advert *na;
+    const struct nd_opt_hdr *opt;
+    struct iobuf_read iobuf = {
+        .data      = buf,
+        .data_size = buf_len,
+    };
+    struct ipv6_neigh *nce;
+    struct eui64 eui64;
+
+    na = iobuf_pop_data_ptr(&iobuf, sizeof(struct nd_neighbor_advert));
+    if (!na) {
+        TRACE(TR_DROP, "drop %-9s: malformed packet", "na");
+        return;
+    }
+
+    TRACE(TR_ICMP, "rx-icmp %-9s target=%s r=%u s=%u o=%u", "na", tr_ipv6(na->nd_na_target.s6_addr),
+          (bool)(na->nd_na_flags_reserved & ND_NA_FLAG_ROUTER),
+          (bool)(na->nd_na_flags_reserved & ND_NA_FLAG_SOLICITED),
+          (bool)(na->nd_na_flags_reserved & ND_NA_FLAG_OVERRIDE));
+
+    // RFC 4861 7.1.2. Validation of Neighbor Advertisements
+    if (na->nd_na_code != 0) {
+        TRACE(TR_DROP, "drop %-9s: invalid ICMP code %u", "na", na->nd_na_code);
+        return;
+    }
+    if (IN6_IS_ADDR_MULTICAST(&na->nd_na_target)) {
+        TRACE(TR_DROP, "drop %-9s: invalid multicast target address", "na");
+        return;
+    }
+    if (IN6_IS_ADDR_MULTICAST(dst) && na->nd_na_flags_reserved & ND_NA_FLAG_SOLICITED) {
+        TRACE(TR_DROP, "drop %-9s: inconsistent solicited flag and multicast ipv6 destination", "na");
+        return;
+    }
+
+    // RFC 4861 7.2.5. Receipt of Neighbor Advertisements
+    if (IN6_IS_ADDR_LINKLOCAL(na->nd_na_target.s6_addr)) {
+        ipv6_addr_conv_iid_eui64(eui64.u8, na->nd_na_target.s6_addr + 8);
+        nce = ipv6_neigh_get_from_eui64(ipv6, &eui64);
+    } else {
+        nce = ipv6_neigh_get_from_gua(ipv6, &na->nd_na_target);
+    }
+    if (!nce) {
+        TRACE(TR_DROP, "drop %-9s: ipv6 neigh associated to target not found", "na");
+        return;
+    }
+
+    if (na->nd_na_flags_reserved & ND_NA_FLAG_SOLICITED)
+        ipv6_nud_set_state(ipv6, nce, IPV6_NUD_REACHABLE);
+    else
+        ipv6_nud_set_state(ipv6, nce, IPV6_NUD_STALE);
+
+    while (iobuf_remaining_size(&iobuf)) {
+        opt = iobuf_pop_data_ptr(&iobuf, sizeof(struct nd_opt_hdr));
+        if (!opt || !opt->nd_opt_len ||
+            !iobuf_pop_data_ptr(&iobuf, opt->nd_opt_len * 8 - sizeof(struct nd_opt_hdr))) {
+            TRACE(TR_DROP, "drop %-9s: malformed packet", "na");
+            return;
+        }
+        switch (opt->nd_opt_type) {
+        case NDP_OPT_ARO:
+            ipv6_recv_na_aro(ipv6, na, opt + 1, opt->nd_opt_len * 8 - sizeof(struct nd_opt_hdr), nce);
+            break;
+        default:
+            TRACE(TR_IGNORE, "ignore %-9s: unsupported opt=%u", "na", opt->nd_opt_type);
+            continue;
+        }
+    }
+}
+
 struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
                                            const struct in6_addr *gua)
 {

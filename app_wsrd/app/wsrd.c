@@ -323,7 +323,6 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     // TODO: set prefix len to 128, and add default route instead
     tun_addr_add(&wsrd->ipv6.tun, &client->iaaddr.ipv6, 64);
     ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
-    // TODO: NS(ARO) error handling
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
