@@ -43,6 +43,7 @@ enum {
     HIF_CMD_SET_FHSS_FFN_BC          = 0x31,
     HIF_CMD_SET_FHSS_LFN_BC          = 0x32,
     HIF_CMD_SET_FHSS_ASYNC           = 0x33,
+    HIF_CMD_SET_FHSS_LFN_UC          = 0x34,
     HIF_CMD_SET_SEC_KEY              = 0x40,
     HIF_CMD_SET_SEC_FRAME_COUNTER_TX = 0x41,
     HIF_CMD_SET_SEC_FRAME_COUNTER_RX = 0x42,

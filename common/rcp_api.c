@@ -524,6 +524,46 @@ void rcp_set_fhss_async(struct rcp *rcp,
     iobuf_free(&buf);
 }
 
+void rcp_set_fhss_lfn_uc(struct rcp *rcp,
+                         const uint8_t *handle_list, uint8_t handle_count,
+                         const struct ws_neigh_fhss *fhss_data)
+{
+    struct iobuf_write buf = { };
+
+    BUG_ON(!fhss_data);
+    BUG_ON(!fhss_data->lfn.uc_listen_interval_ms);
+    BUG_ON(version_older_than(rcp->version_api, 2, 9, 0));
+
+    hif_push_u8(&buf, HIF_CMD_SET_FHSS_LFN_UC);
+    hif_push_u8(&buf, handle_count);
+    hif_push_fixed_u8_array(&buf, handle_list, handle_count);
+    hif_push_u64(&buf, fhss_data->lfn.lutt_rx_tstamp_us);
+    hif_push_u16(&buf, fhss_data->lfn.uc_slot_number);
+    hif_push_u24(&buf, fhss_data->lfn.uc_interval_offset_ms);
+    hif_push_u24(&buf, fhss_data->lfn.uc_listen_interval_ms);
+    hif_push_u8(&buf,  fhss_data->uc_chan_func);
+    switch (fhss_data->uc_chan_func) {
+    case WS_CHAN_FUNC_FIXED: {
+        int chan_fixed = ws_chan_mask_get_fixed(fhss_data->uc_channel_list);
+
+        BUG_ON(chan_fixed < 0);
+        hif_push_u16(&buf, chan_fixed);
+        break;
+    }
+    case WS_CHAN_FUNC_DH1CF: {
+        uint8_t chan_mask_len = ws_chan_mask_width(fhss_data->uc_channel_list);
+
+        hif_push_u8(&buf, chan_mask_len);
+        hif_push_fixed_u8_array(&buf, fhss_data->uc_channel_list, chan_mask_len);
+        break;
+    }
+    default:
+        BUG();
+    }
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_sec_key(struct rcp *rcp,
                      uint8_t key_index,
                      const uint8_t key[16],

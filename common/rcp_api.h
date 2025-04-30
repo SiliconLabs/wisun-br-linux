@@ -134,6 +134,9 @@ void rcp_set_fhss_lfn_bc(struct rcp *rcp,
 void rcp_set_fhss_async(struct rcp *rcp,
                         uint32_t tx_duration_ms,
                         const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
+void rcp_set_fhss_lfn_uc(struct rcp *rcp,
+                         const uint8_t *handle_list, uint8_t handle_count,
+                         const struct ws_neigh_fhss *fhss_data);
 
 void rcp_set_sec_key(struct rcp *rcp,
                      uint8_t key_index,
