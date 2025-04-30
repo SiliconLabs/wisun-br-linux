@@ -271,6 +271,9 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         TRACE(TR_DROP, "drop %-9s: both GTKL and LGTKL KDE found", "eapol-key");
         goto error;
     }
+    if ((has_gtkl  && !has_gtk  && gtkl_kde == supp_get_gtkl(supp->gtks, WS_GTK_COUNT)) ||
+        (has_lgtkl && !has_lgtk && gtkl_kde == supp_get_gtkl(supp->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)))
+        TRACE(TR_SECURITY, "sec: (L)GTKL already up-to-date with no (L)GTK KDE");
     if ((has_gtk && !has_gtkl) || (has_lgtk && !has_lgtkl)) {
         TRACE(TR_DROP, "drop %-9s: missing (L)GTKL KDE", "eapol-key");
         goto error;
