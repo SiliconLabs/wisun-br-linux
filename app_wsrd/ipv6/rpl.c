@@ -51,6 +51,15 @@ static const char *tr_icmp_rpl(uint8_t code)
     return val_to_str(code, rpl_codes, "unknown");
 }
 
+void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    BUG_ON(!neigh->rpl);
+    timer_start_rel(&ipv6->timer_group, &neigh->rpl->deny_timer, 10 * 60 * 1000);
+    TRACE(TR_NEIGH_IPV6, "rpl: neigh deny %s for %"PRIu64"s", tr_ipv6(neigh->gua.s6_addr),
+          timer_duration_ms(&neigh->rpl->deny_timer) / 1000);
+    rpl_mrhof_select_parent(ipv6);
+}
+
 static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                              const struct rpl_dio *dio,
                              const struct rpl_opt_config *config,
@@ -97,6 +106,7 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
      * old parent that is actually being deleted.
      *
      */
+    timer_stop(&ipv6->timer_group, &nce->rpl->deny_timer);
     free(nce->rpl);
     nce->rpl = NULL;
     /*

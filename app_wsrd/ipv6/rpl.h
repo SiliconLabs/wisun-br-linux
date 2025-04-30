@@ -35,6 +35,7 @@ struct rpl_neigh {
     struct rpl_opt_config config;
     bool is_parent;
     bool dao_ack_received;
+    struct timer_entry deny_timer;
 };
 
 struct rpl_ctx {
@@ -61,5 +62,6 @@ void rpl_start_dao(struct ipv6_ctx *ipv6);
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6);
+void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 #endif

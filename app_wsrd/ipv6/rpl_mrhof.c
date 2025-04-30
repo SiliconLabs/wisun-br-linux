@@ -63,12 +63,12 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     float cur_min_path_cost;
     struct ipv6_neigh *nce;
     float pref_path_cost;
+    const char *discard;
     float path_cost;
-    bool discard;
     float etx;
 
     // Compute min path cost of current parent to reflect changes on ETX/Rank
-    if (pref_parent_cur)
+    if (pref_parent_cur && timer_stopped(&pref_parent_cur->rpl->deny_timer))
         cur_min_path_cost = rpl_mrhof_path_cost(ipv6, pref_parent_cur);
     else
         cur_min_path_cost = mrhof->max_path_cost;
@@ -87,7 +87,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
             continue;
         // TODO: refuse neighbors with higher rank than self
 
-        discard = false;
+        discard = NULL;
         etx = rpl_mrhof_etx(mrhof, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         if (isnan(etx)) {
@@ -99,7 +99,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
              * bi-directional RSL for the neighbor).
              */
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
-            discard = true;
+            discard = "etx";
         }
 
         /*
@@ -108,14 +108,18 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
          * selection.
          */
         if (etx > mrhof->max_link_metric)
-            discard = true;
+            discard = "etx";
 
-        TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-*.0f%s",
-              tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank),
-              discard ? 5 : 0, path_cost, discard ? " (discard etx)" : "");
-
-        if (discard)
+        if (!timer_stopped(&nce->rpl->deny_timer))
+            discard = "denied";
+        if (discard) {
+            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f (discard %s)",
+                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, discard);
             continue;
+        } else {
+            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%.0f",
+                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost);
+        }
         if (path_cost >= pref_path_cost)
             continue;
         pref_path_cost  = path_cost;
