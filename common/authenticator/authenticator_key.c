@@ -490,9 +490,10 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
                                   const struct eapol_key_frame *frame,
                                   const void *data, size_t data_len)
 {
+    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
     uint8_t pmkid[16], ptkid[16];
     int next_key_slot;
-    uint8_t supp_gtkl;
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
 
@@ -511,7 +512,6 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         kde_read_gtkl(data, data_len, &supp->gtkl);
     if (supp->node_role != WS_NR_ROLE_UNKNOWN)
         kde_read_lgtkl(data, data_len, &supp->lgtkl);
-    supp_gtkl = supp->gtkl | (supp->lgtkl << WS_GTK_COUNT);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.5.2.2 Authentication and PMK Installation Flow
@@ -537,7 +537,8 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         return;
     }
 
-    if (supp_gtkl != auth_key_get_gtkl(auth->gtks, ARRAY_SIZE(auth->gtks))) {
+    if ((supp->node_role != WS_NR_ROLE_LFN     && supp->gtkl  != auth_gtkl) ||
+        (supp->node_role != WS_NR_ROLE_UNKNOWN && supp->lgtkl != auth_lgtkl)) {
         TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
         next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
         auth_key_group_message_1_send(auth, supp, next_key_slot);
