@@ -55,7 +55,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
-struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
@@ -122,9 +122,9 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         pref_parent_new = nce;
     }
 
-    if (pref_parent_new == pref_parent_cur) {
+    if (pref_parent_new == pref_parent_cur && cur_min_path_cost < mrhof->max_path_cost) {
         TRACE(TR_RPL, "rpl: parent select %s (keep)", pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none");
-        return pref_parent_cur;
+        return;
     }
 
     /*
@@ -132,13 +132,14 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
      * smaller than cur_min_path_cost by less than PARENT_SWITCH_THRESHOLD, the
      * node MAY continue to use the current preferred parent.
      */
-    if (pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
+    if (cur_min_path_cost < mrhof->max_path_cost &&
+        pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
         BUG_ON(!pref_parent_cur); // we should always have a current parent here
         TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
               pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none", pref_path_cost,
               mrhof->parent_switch_threshold, cur_min_path_cost);
         TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(pref_parent_cur->gua.s6_addr));
-        return pref_parent_cur;
+        return;
     }
 
     if (pref_parent_cur)
@@ -173,7 +174,6 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     if (mrhof->on_pref_parent_change)
         mrhof->on_pref_parent_change(mrhof, pref_parent_new);
     // TODO: support secondary parents
-    return pref_parent_new;
 }
 
 static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
