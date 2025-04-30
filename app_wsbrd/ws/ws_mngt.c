@@ -20,6 +20,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/string_extra.h"
+#include "common/version.h"
 
 #include "net/timers.h"
 #include "ws/ws_pan_info_storage.h"
@@ -388,6 +389,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
                                  data->hif.timestamp_us);
     ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured, &ie_lcp.chan_plan,
                                                              ie_lus.listen_interval, &ws_neigh->lto_info);
+    ws_llc_update_timing_info(ws_neigh);
     ws_neigh_lnd_update(&ws_neigh->fhss_data_unsecured, &ie_lnd, data->hif.timestamp_us);
 
     ws_neigh_nr_update(ws_neigh, &ie_nr);
@@ -463,6 +465,7 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+        ws_llc_update_timing_info(ws_neigh);
     }
 
     ws_mngt_lpc_send(ws_info, data->SrcAddr);

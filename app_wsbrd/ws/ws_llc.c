@@ -698,6 +698,7 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                             has_lcp ? &ie_lcp.chan_plan : NULL,
                             ie_lus.listen_interval, &ws_neigh->lto_info);
+        ws_llc_update_timing_info(ws_neigh);
     }
 
     // Calculate RSL for all UDATA packets heard
@@ -874,6 +875,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
+        ws_llc_update_timing_info(ws_neigh);
     }
     if (duplicated) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
@@ -1615,6 +1617,36 @@ static void ws_llc_clean(llc_data_base_t *base)
     }
     base->temp_entries.llc_eap_pending_list_size = 0;
     base->temp_entries.active_eapol_session = false;
+}
+
+void ws_llc_update_timing_info(const struct ws_neigh *neigh)
+{
+    llc_data_base_t *base = &g_llc_base;
+    struct rcp *rcp = base->interface_ptr->rcp;
+    uint8_t *handle_list = NULL;
+    uint8_t handle_count = 0;
+
+    ns_list_foreach(llc_message_t, msg, &base->llc_message_list) {
+        if (memcmp(&neigh->eui64, msg->dst_address, 8))
+            continue;
+        handle_list = realloc(handle_list, ++handle_count);
+        FATAL_ON(!handle_list, 2, "%s: realloc: %m", __func__);
+        handle_list[handle_count - 1] = msg->msg_handle;
+        /*
+         * NOTE: This value is only used to WARN() on suspicious TX request
+         * duration. Update it since the warning condition depends on the LFN
+         * listen interval, which may have changed.
+         */
+        msg->tx_time = time_now_s(CLOCK_MONOTONIC);
+    }
+    if (handle_count) {
+        if (version_older_than(rcp->version_api, 2, 9, 0))
+            WARN("efficient lfn timing update requires RCP API >= 2.9.0");
+        else
+            rcp_set_fhss_lfn_uc(rcp, handle_list, handle_count,
+                                &neigh->fhss_data_unsecured);
+    }
+    free(handle_list);
 }
 
 #define MS_FALLBACK_MIN_SAMPLE 50

@@ -99,4 +99,6 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
 void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
                             const void *buf, size_t buf_len, const struct eui64 *dst);
 
+void ws_llc_update_timing_info(const struct ws_neigh *neigh);
+
 #endif
