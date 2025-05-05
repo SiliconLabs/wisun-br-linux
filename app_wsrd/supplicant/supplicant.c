@@ -266,9 +266,8 @@ void supp_reset(struct supp_ctx *supp)
     timer_stop(NULL, &supp->failure_timer);
     supp_eap_tls_reset(supp);
     for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
-        if (timer_stopped(&supp->gtks[i].expiration_timer))
-            continue;
-        supp->on_gtk_change(supp, NULL, 0, i + 1);
+        if (!timer_stopped(&supp->gtks[i].expiration_timer))
+            supp->on_gtk_change(supp, NULL, 0, i + 1);
         ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
     }
 }
