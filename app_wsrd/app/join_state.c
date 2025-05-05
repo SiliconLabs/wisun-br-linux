@@ -186,7 +186,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6));
     BUG_ON(timer_stopped(&parent->own_aro_timer));
     BUG_ON(!parent->rpl->dao_ack_received);
-    // TODO: make sure DAO refresh timer is running
+    BUG_ON(timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer));
 
     INFO("Join state 5: Operational");
     rpl_start_dio(&wsrd->ipv6);
