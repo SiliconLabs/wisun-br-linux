@@ -310,16 +310,26 @@ const char *tr_mbedtls_err(int err)
     return out;
 }
 
-const char *tr_gtkname(uint8_t slot)
+static const char *tr_gkname(uint8_t slot, const char *name)
 {
     char *out = trace_buffer + trace_idx;
     int len;
 
-    len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s[%i]",
-                   slot < WS_GTK_COUNT ? "gtk" : "lgtk",
+    len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s%s[%i]",
+                   slot < WS_GTK_COUNT ? "" : "l", name,
                    slot < WS_GTK_COUNT ? slot : slot - WS_GTK_COUNT);
     if (len >= sizeof(trace_buffer) - trace_idx)
         return "[OVERFLOW]";
     trace_idx += len + 1;
     return out;
+}
+
+const char *tr_gtkname(uint8_t slot)
+{
+    return tr_gkname(slot, "gtk");
+}
+
+const char *tr_gakname(uint8_t slot)
+{
+    return tr_gkname(slot, "gak");
 }
