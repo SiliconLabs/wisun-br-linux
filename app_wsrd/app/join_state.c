@@ -85,6 +85,7 @@ static void join_state_3_reconnect_exit(struct wsrd *wsrd)
 {
     trickle_stop(&wsrd->pas_tkl);
     trickle_stop(&wsrd->pcs_tkl);
+    wsrd->prev_pan_id = 0xffff;
 }
 
 static void join_state_2_enter(struct wsrd *wsrd)
