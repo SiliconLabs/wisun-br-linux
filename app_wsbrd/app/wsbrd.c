@@ -86,7 +86,7 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
 
     if (gtk) {
         ws_generate_gak(ctxt->net_if.ws_info.network_name, gtk, gak);
-        TRACE(TR_SECURITY, "sec: installed %s=%s",
+        TRACE(TR_SECURITY, "sec: install %s=%s",
               tr_gakname(slot), tr_key(gak, sizeof(gak)));
         ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, gak, frame_counter);
     } else if (!activate) {

@@ -253,6 +253,8 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
         return;
     if (gtk) {
         ws_generate_gak(wsrd->ws.netname, gtk, gak);
+        TRACE(TR_SECURITY, "sec: install %s=%s",
+              tr_gakname(index - 1), tr_key(gak, sizeof(gak)));
         rcp_set_sec_key(&wsrd->ws.rcp, index, gak, frame_counter);
         join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
     } else {

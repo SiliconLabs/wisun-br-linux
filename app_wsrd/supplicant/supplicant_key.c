@@ -186,8 +186,8 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, supp->gtks[key_index - 1].key, supp->gtks[key_index - 1].frame_counter, key_index);
         supp_storage_store(supp, true);
-        TRACE(TR_SECURITY, "sec: %s installed lifetime=%us",
-              tr_gtkname(key_index - 1), lifetime_kde);
+        TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%us", tr_gtkname(key_index - 1),
+              tr_key(gtk_kde->gtk, sizeof(gtk_kde->gtk)), lifetime_kde);
     } else {
         WARN("sec: ignore reinstallation of %s", tr_gtkname(key_index - 1));
     }
@@ -297,7 +297,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         if (memcmp(supp->tls_client.ptk.key, supp->tls_client.ptk.tkey, sizeof(supp->tls_client.ptk.tkey))) {
             memcpy(supp->tls_client.ptk.key, supp->tls_client.ptk.tkey, sizeof(supp->tls_client.ptk.key));
             // TODO: callback to install TK
-            TRACE(TR_SECURITY, "sec: PTK installed");
+            TRACE(TR_SECURITY, "sec: install ptk=%s",
+                  tr_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)));
         } else {
             WARN("sec: ignore reinstallation of ptk");
         }
