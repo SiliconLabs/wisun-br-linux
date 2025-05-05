@@ -493,7 +493,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
     const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
     uint8_t pmkid[16], ptkid[16];
-    int next_key_slot;
+    int next_key_slot = -1;
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
 
@@ -537,12 +537,18 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         return;
     }
 
+    /*
+     * If all (L)GTKs are installed, we still start a gkh with only the
+     * (L)GTKL in msg1 to ensure the supplicant does not perform retries.
+     */
     if ((supp->node_role != WS_NR_ROLE_LFN     && supp->gtkl  != auth_gtkl) ||
         (supp->node_role != WS_NR_ROLE_UNKNOWN && supp->lgtkl != auth_lgtkl)) {
-        TRACE(TR_SECURITY, "sec: gtkl out-of-date starting 2wh");
+        TRACE(TR_SECURITY, "sec: (l)gtkl out-of-date starting gkh");
         next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
-        auth_key_group_message_1_send(auth, supp, next_key_slot);
+    } else {
+        TRACE(TR_SECURITY, "sec: (l)gtkl up-to-date starting gkh");
     }
+    auth_key_group_message_1_send(auth, supp, next_key_slot);
 }
 
 void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
