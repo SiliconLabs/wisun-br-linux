@@ -55,6 +55,7 @@ void dhcp_client_init(struct dhcp_client *client,
                       const struct tun_ctx *tun,
                       const uint8_t eui64[8]);
 void dhcp_client_start(struct dhcp_client *client);
+void dhcp_client_stop(struct dhcp_client *client);
 void dhcp_client_recv(struct dhcp_client *client);
 
 uint32_t dhcp_iaaddr_valid_lifetime_s(const struct dhcp_iaaddr *iaaddr);

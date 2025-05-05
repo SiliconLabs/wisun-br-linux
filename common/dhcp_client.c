@@ -263,8 +263,10 @@ void dhcp_client_stop(struct dhcp_client *client)
 {
     rfc8415_txalg_stop(&client->solicit_txalg);
     timer_stop(NULL, &client->t1_timer);
-    timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
-    dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
+    if (!IN6_IS_ADDR_UNSPECIFIED(&client->iaaddr.ipv6)) {
+        timer_stop(NULL, &client->iaaddr.valid_lifetime_timer);
+        dhcp_client_addr_expired(NULL, &client->iaaddr.valid_lifetime_timer);
+    }
     client->running = false;
 }
 

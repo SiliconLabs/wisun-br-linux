@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "common/ws/eapol_relay.h"
+#include "common/dhcp_client.h"
 
 #include "app_wsrd/supplicant/supplicant_storage.h"
 #include "wsrd_storage.h"
@@ -35,6 +36,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->eapol_target_eui64 = EUI64_BC;
     wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
+    dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
     ipv6_neigh_clean(&wsrd->ipv6);
     ws_neigh_clean(&wsrd->ws.neigh_table);
@@ -72,6 +74,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb = 0;
+    dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
 
     trickle_start(&wsrd->pas_tkl);
@@ -159,19 +162,10 @@ static void join_state_4_routing_enter(struct wsrd *wsrd)
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
     BUG_ON(!parent);
+    BUG_ON(wsrd->ipv6.dhcp.running);
 
     INFO("Join state 4: Configure Routing - DHCP/NS(ARO)/DAO");
-    if (!wsrd->ipv6.dhcp.running) {
-        dhcp_client_start(&wsrd->ipv6.dhcp);
-        return;
-    }
-    // We are trying to renew our address
-    if (!rfc8415_txalg_stopped(&wsrd->ipv6.dhcp.solicit_txalg)) {
-        rfc8415_txalg_start(&wsrd->ipv6.dhcp.solicit_txalg);
-        return;
-    }
-    // Send NS(ARO) to register our address
-    ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
+    dhcp_client_start(&wsrd->ipv6.dhcp);
 }
 
 static void join_state_5_enter(struct wsrd *wsrd)
