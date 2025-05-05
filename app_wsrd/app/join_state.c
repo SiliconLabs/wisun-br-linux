@@ -40,7 +40,6 @@ void join_state_1_enter(struct wsrd *wsrd)
     ws_neigh_clean(&wsrd->ws.neigh_table);
     INFO("Join state 1: Select PAN");
     trickle_start(&wsrd->pas_tkl);
-    timer_start_rel(NULL, &wsrd->pan_selection_timer, wsrd->config.disc_cfg.Imin_ms);
 }
 
 static void join_state_1_exit(struct wsrd *wsrd)

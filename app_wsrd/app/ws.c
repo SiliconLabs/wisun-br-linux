@@ -188,15 +188,6 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
 
     INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
          tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
-
-    /*
-     *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.1 FFN Join State 1: Select PAN
-     * 2. If no acceptable PA are received with DISC_IMIN of PAS transmission,
-     *    the first acceptable PA received before the end of the current PAS
-     *    interval is the single EAPOL target to be used.
-     */
-    if (timer_stopped(&wsrd->pan_selection_timer))
-        ws_on_pan_selection_timer_timeout(NULL, &wsrd->pan_selection_timer);
 }
 
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
