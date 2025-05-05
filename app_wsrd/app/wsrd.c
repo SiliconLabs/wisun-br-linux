@@ -77,6 +77,18 @@ static void wsrd_on_dao_ack(struct ipv6_ctx *ipv6)
     join_state_transition(wsrd, WSRD_EVENT_ROUTING_SUCCESS);
 }
 
+static void wsrd_on_dhcp_txalg_failure(struct rfc8415_txalg *txalg)
+{
+    struct wsrd *wsrd = container_of(txalg, struct wsrd, ipv6.dhcp.solicit_txalg);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+
+    BUG_ON(!parent);
+    rpl_neigh_deny(&wsrd->ipv6, parent);
+    parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    if (parent)
+        rfc8415_txalg_start(txalg);
+}
+
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
@@ -167,11 +179,13 @@ struct wsrd g_wsrd = {
     .ipv6.dhcp.solicit_txalg.irt_s       = 60,
     .ipv6.dhcp.solicit_txalg.mrt_s       = 3600,
     // RFC 8415 18.2.1. Creation and Transmission of Solicit Messages
-    .ipv6.dhcp.solicit_txalg.mrc         = 0,
     .ipv6.dhcp.solicit_txalg.mrd_s       = 0,
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .ipv6.dhcp.solicit_txalg.rand_min    = -0.1,
     .ipv6.dhcp.solicit_txalg.rand_max    = +0.1,
+    // Arbitrary
+    .ipv6.dhcp.solicit_txalg.mrc         = 3,
+    .ipv6.dhcp.solicit_txalg.fail        = wsrd_on_dhcp_txalg_failure,
     .ipv6.dhcp.fd    = -1,
     .ipv6.dhcp.get_dst     = wsrd_dhcp_get_dst,
     .ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
