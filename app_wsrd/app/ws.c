@@ -118,8 +118,12 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
          * of DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS,
          * a joining node should select the EAPOL candidate with lowest PAN Cost
          * as its EAPOL target node.
+         *
+         *   Wi-SUN FAN 1.1v09 6.3.2.3.2.3 PAN Information Element (PAN-IE)
+         * A node unable to act as an EAPOL target MAY set this field to the
+         * maximum value of 0xFFFF.
          */
-        if (!candidate->last_pa_rx_time_s ||
+        if (!candidate->last_pa_rx_time_s || candidate->ie_pan.routing_cost == 0xffff ||
             candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
             WS_CAND_PARENT_HYSTERESIS_DB)
             continue;
