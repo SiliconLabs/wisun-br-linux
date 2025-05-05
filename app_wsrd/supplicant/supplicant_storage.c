@@ -87,6 +87,7 @@ bool supp_storage_load(struct supp_ctx *supp)
             continue;
         if (storage_offset_ms > gtks_expiration_ts_ms[i] || now_ms > gtks_expiration_ts_ms[i] - storage_offset_ms) {
             WARN("sec: %s expired", tr_gtkname(i));
+            ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
             continue;
         }
         timer_start_abs(&supp->timer_group, &supp->gtks[i].expiration_timer, gtks_expiration_ts_ms[i] - storage_offset_ms);
