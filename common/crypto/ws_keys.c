@@ -17,6 +17,15 @@
 #include "common/mbedtls_extra.h"
 #include "common/log.h"
 
+#include "ws_keys.h"
+
+void ws_gtk_clear(struct timer_group *group, struct ws_gtk *gtk)
+{
+    memset(gtk->key, 0, sizeof(gtk->key));
+    gtk->frame_counter = 0;
+    timer_stop(group, &gtk->expiration_timer);
+}
+
 //   Wi-SUN FAN 1.1v08 6.5.4.1.1 Group AES Key (GAK)
 // GAK = Truncate-128(SHA-256(Network Name || L/GTK[X])
 void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16])

@@ -220,8 +220,7 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     TRACE(TR_SECURITY, "sec: %s expired", tr_gtkname(slot));
     supp->on_gtk_change(supp, NULL, 0, slot + 1);
-    memset(gtk->key, 0, sizeof(gtk->key));
-    gtk->frame_counter = 0;
+    ws_gtk_clear(group, gtk);
     supp_storage_store(supp, true);
     for (int i = offset; i < count; i++)
         if (!timer_stopped(&supp->gtks[i].expiration_timer))
@@ -270,9 +269,7 @@ void supp_reset(struct supp_ctx *supp)
         if (timer_stopped(&supp->gtks[i].expiration_timer))
             continue;
         supp->on_gtk_change(supp, NULL, 0, i + 1);
-        timer_stop(&supp->timer_group, &supp->gtks[i].expiration_timer);
-        memset(supp->gtks[i].key, 0, sizeof(supp->gtks[i].key));
-        supp->gtks[i].frame_counter = 0;
+        ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
     }
 }
 
