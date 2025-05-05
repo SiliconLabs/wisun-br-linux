@@ -242,7 +242,7 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 
     ind->neigh->ie_pan = ie_pan;
 
-    if (eui64_is_bc(&wsrd->eapol_target_eui64))
+    if (wsrd->ws.pan_id == 0xffff)
         ws_eapol_target_add(wsrd, ind, &ie_pan, &ie_jm);
     if (!has_jm)
         return;
