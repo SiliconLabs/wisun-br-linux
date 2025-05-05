@@ -17,6 +17,7 @@
 #include <inttypes.h>
 
 #include "common/key_value_storage.h"
+#include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -115,8 +116,10 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     fprintf(info->file, "pmk = %s\n", str_buf);
     fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->tls_client.pmk.replay_counter);
 
-    str_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), str_buf, sizeof(str_buf));
-    fprintf(info->file, "ptk = %s\n", str_buf);
+    if (memzcmp(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key))) {
+        str_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), str_buf, sizeof(str_buf));
+        fprintf(info->file, "ptk = %s\n", str_buf);
+    }
 
     for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
         if (timer_stopped(&supp->gtks[i].expiration_timer))
