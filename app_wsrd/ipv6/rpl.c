@@ -288,6 +288,17 @@ void rpl_start_dis(struct ipv6_ctx *ipv6)
     rfc8415_txalg_start(&ipv6->rpl.dis_txalg);
 }
 
+static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
+{
+    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+
+    BUG_ON(!parent);
+
+    TRACE(TR_RPL, "rpl: dao-ack timeout");
+    rpl_neigh_deny(ipv6, parent);
+}
+
 static void rpl_send_dao(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
@@ -360,7 +371,6 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
      */
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
-    // TODO: Figure out what to do in case of DAO failure.
 }
 
 static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -723,6 +733,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dis_txalg.tx = rpl_trig_dis;
     rfc8415_txalg_init(&ipv6->rpl.dis_txalg);
     ipv6->rpl.dao_txalg.tx = rpl_send_dao;
+    ipv6->rpl.dao_txalg.fail = rpl_dao_txalg_failure;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
     ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
 
