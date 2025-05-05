@@ -280,8 +280,23 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
 static void wsrd_eapol_on_failure(struct supp_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
+    struct ws_neigh *ws_neigh = ws_neigh_get(&wsrd->ws.neigh_table, &wsrd->eapol_target_eui64);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
 
-    join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
+    BUG_ON(parent && !eui64_eq(&wsrd->eapol_target_eui64, &parent->eui64));
+    BUG_ON(!ws_neigh);
+
+    /*
+     * If we have a RPL parent, we simply deny it and expect the next PC
+     * RX to trigger a new EAPOL Key-Request.
+     * Otherwise, it is expected that by setting the routing_cost to 0xffff and
+     * transitioning to JS1, we will end up selecting another EAPOL Target.
+     */
+    ws_neigh->ie_pan.routing_cost = 0xffff;
+    if (parent)
+        rpl_neigh_deny(&wsrd->ipv6, parent);
+    else
+        join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
 }
 
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
