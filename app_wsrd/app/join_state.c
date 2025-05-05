@@ -184,7 +184,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     BUG_ON(!parent);
     BUG_ON(!wsrd->ipv6.dhcp.running);
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6));
-    // TODO: make sure NS(ARO) refresh timer is running
+    BUG_ON(timer_stopped(&parent->own_aro_timer));
     BUG_ON(!parent->rpl->dao_ack_received);
     // TODO: make sure DAO refresh timer is running
 
