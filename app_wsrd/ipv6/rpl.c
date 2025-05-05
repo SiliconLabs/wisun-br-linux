@@ -104,7 +104,6 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
      * We immediatly remove the RPL ctx from the neighbor.
      * This ensures we do not send any NS(ARO) lifetime 0 to the
      * old parent that is actually being deleted.
-     *
      */
     timer_stop(&ipv6->timer_group, &nce->rpl->deny_timer);
     free(nce->rpl);
