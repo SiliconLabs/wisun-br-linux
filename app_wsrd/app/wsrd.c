@@ -245,7 +245,7 @@ static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *ne
     struct ipv6_neigh *nce;
 
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
-    if (!nce || !nce->rpl)
+    if (!nce || !nce->rpl || wsrd->ipv6.rpl.fd < 0)
         return;
     rpl_mrhof_select_parent(&wsrd->ipv6);
 }
