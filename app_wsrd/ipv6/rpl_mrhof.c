@@ -155,6 +155,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         TRACE(TR_RPL, "rpl: parent select none");
     }
     timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
+    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     if (pref_parent_new && !pref_parent_cur)
         TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
               pref_parent_new->rpl->dio.instance_id,
