@@ -118,7 +118,7 @@ void trickle_inconsistent(struct trickle *tkl)
      * when Trickle hears an "inconsistent" transmission, Trickle does nothing.
      * Trickle can also reset its timer in response to external "events".
      */
-    if (tkl->I_ms <= tkl->cfg->Imin_ms)
+    if (tkl->I_ms <= tkl->cfg->Imin_ms || timer_stopped(&tkl->timer_interval))
         return;
     TRACE(TR_TRICKLE, "tkl %-4s inconsistent", tkl->debug_name);
     tkl->I_ms = tkl->cfg->Imin_ms;
