@@ -257,6 +257,7 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dis_txalg);
     struct in6_addr dst = ipv6_prefix_linklocal;
+    struct ipv6_neigh *nce;
     struct ws_neigh *neigh;
 
     /*
@@ -277,7 +278,9 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
         // network name, PAN ID, PAN-IE routing metric, RSL...).
         if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
             continue;
-
+        nce = ipv6_neigh_get_from_eui64(ipv6, &neigh->eui64);
+        if (nce && nce->rpl && !timer_stopped(&nce->rpl->deny_timer))
+            continue;
         ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
         rpl_send_dis(ipv6, &dst);
     }
