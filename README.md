@@ -427,6 +427,21 @@ After a restart, since `wsbrd` does not have the necessary frequency hopping
 timing information to send such frames, LFN devices will consider that their
 parent is not present anymore and perform a full join procedure.
 
+## Connection Stuck In Join State 4: No RPL/DHCP Response
+
+Packets received by the RCP are submitted to the Linux kernel through a TUN
+interface. RPL, DHCP and some other packets are processed using sockets, so
+they must not be blocked by the kernel firewall. Here is a list of packets
+types that need to be allowed:
+
+| Protocol      | Packet          | Allow on TUN | Allow on backhaul
+|---------------|-----------------|--------------|------------------
+| RPL           | ICMPv6 Type=155 | required     |
+| DHCPv6 Client | UDP Port=546    | required     |
+| DHCPv6 Server | UDP Port=547    | required     | if using external DHCPv6 server
+| RADIUS        | UDP Port=1812   |              | if using external RADIUS server
+| EAPoL Relay   | UDP Port=10253  | required     |
+
 ## I Cannot Communicate Between Wi-SUN and the Backhaul
 
 Make sure that IPv6 forwarding is enabled:
