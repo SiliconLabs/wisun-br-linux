@@ -503,7 +503,7 @@ void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
             .fan_tps_version  = WS_FAN_VERSION_1_1,
         },
         .netname = true,
-        .jm      = memzcmp(ws->jm.metrics, sizeof(ws->jm.metrics)),
+        .jm      = ws->has_jm,
         // TODO: POM-IE
     };
     struct ws_frame_ctx *frame_ctx;

@@ -106,6 +106,7 @@ struct ws_ctx {
     struct ws_ie_list ie_list; // PAN-Wide/FFN-Wide IEs
 
     struct ws_jm_ie jm;
+    bool has_jm;
 
     struct ws_phy_config  phy;
     struct ws_fhss_config fhss;

@@ -31,6 +31,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->ws.pan_id = 0xffff;
     wsrd->prev_pan_id = 0xffff;
     memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
+    wsrd->ws.has_jm = false;
     supp_reset(&wsrd->supp);
     supp_storage_clear();
     wsrd->eapol_target_eui64 = EUI64_BC;

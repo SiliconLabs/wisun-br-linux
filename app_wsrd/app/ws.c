@@ -253,8 +253,8 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
      * from the node’s list of join metrics and not forwarded in transmitted
      * JM-IEs.
      */
-    if (!memzcmp(wsrd->ws.jm.metrics, sizeof(wsrd->ws.jm.metrics)) ||
-        seqno_cmp8(ie_jm.version, wsrd->ws.jm.version) > 0)
+    wsrd->ws.has_jm = true;
+    if (!wsrd->ws.has_jm || seqno_cmp8(ie_jm.version, wsrd->ws.jm.version) > 0)
         wsrd->ws.jm = ie_jm;
 }
 
