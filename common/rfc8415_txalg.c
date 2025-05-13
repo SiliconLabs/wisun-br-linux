@@ -86,6 +86,14 @@ static void rfc8415_txalg_timeout_rt(struct timer_group *group, struct timer_ent
     if (txalg->mrt_s && txalg->rt_s > txalg->mrt_s)
         txalg->rt_s = txalg->mrt_s + rand * txalg->mrt_s;
 
+    /*
+     * NOTE: We do not want to fail immediately after the last transmission,
+     * and we do not want to wait for a long time before failing either. Just
+     * choose to wait for IRT.
+     */
+    if (txalg->mrc && txalg->c + 1 >= txalg->mrc)
+        txalg->rt_s = txalg->irt_s;
+
     timer_start_rel(group, &txalg->timer_rt, 1000 * txalg->rt_s);
 
     txalg->tx(txalg);
