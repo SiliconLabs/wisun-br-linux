@@ -51,6 +51,7 @@
 struct supp_cfg {
     struct eui64 eui64;
     struct tls_cfg tls;
+    int gtk_max_mismatch_s;
     /*
      * Arbitrary timeout between authentication steps:
      *   - TX EAP Response  -> RX EAP Request

@@ -253,6 +253,10 @@ void supp_start_key_request(struct supp_ctx *supp)
 {
     if (!rfc8415_txalg_stopped(&supp->key_request_txalg) || !timer_stopped(&supp->failure_timer))
         return;
+    if (supp_get_gtkl(supp->gtks, ARRAY_SIZE(supp->gtks)))
+        supp->key_request_txalg.max_delay_s = supp->cfg->gtk_max_mismatch_s;
+    else
+        supp->key_request_txalg.max_delay_s = 30; // Unspecified
     rfc8415_txalg_start(&supp->key_request_txalg);
     supp->running = true;
     TRACE(TR_SECURITY, "sec: %-8s tx=%"PRIu64"ms", "eapol-key",

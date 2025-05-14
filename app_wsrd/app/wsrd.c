@@ -109,11 +109,11 @@ struct wsrd g_wsrd = {
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60
     .supp.key_request_txalg.mrt_s       = 3600, // 60 * 60
-    .supp.key_request_txalg.max_delay_s = 30, // Unspecified
     .supp.key_request_txalg.mrc         =  3, // Unspecified
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .supp.key_request_txalg.rand_min    = -0.1,
     .supp.key_request_txalg.rand_max    = +0.1,
+    .config.supp_cfg.gtk_max_mismatch_s = 3840, // 64 * 60
     .config.supp_cfg.timeout_ms = 60 * 1000, // Arbitrary
     .supp.cfg = &g_wsrd.config.supp_cfg,
     .supp.on_gtk_change = wsrd_eapol_on_gtk_change,
