@@ -114,11 +114,12 @@ struct wsrd g_wsrd = {
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .supp.key_request_txalg.rand_min    = -0.1,
     .supp.key_request_txalg.rand_max    = +0.1,
+    .config.supp_cfg.timeout_ms = 60 * 1000, // Arbitrary
+    .supp.cfg = &g_wsrd.config.supp_cfg,
     .supp.on_gtk_change = wsrd_eapol_on_gtk_change,
     .supp.on_failure  = wsrd_eapol_on_failure,
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
     .supp.get_target  = wsrd_eapol_get_target,
-    .supp.timeout_ms = 60 * 1000, // Arbitrary
 
     // Arbitrary default values
     .config.rpl_compat = true,
@@ -470,7 +471,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     trickle_init(&wsrd->pa_tkl);
     trickle_init(&wsrd->pcs_tkl);
     trickle_init(&wsrd->pc_tkl);
-    supp_init(&wsrd->supp, &wsrd->config.ca_cert, &wsrd->config.cert, &wsrd->config.key, &wsrd->ws.rcp.eui64);
+    supp_init(&wsrd->supp);
     supp_reset(&wsrd->supp);
     if (!wsrd_storage_load(wsrd) || !supp_storage_load(&wsrd->supp) ||
         !supp_get_gtkl(wsrd->supp.gtks, ARRAY_SIZE(wsrd->supp.gtks))) {
@@ -550,6 +551,7 @@ int wsrd_main(int argc, char *argv[])
         rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_denied_mac_addresses,
                              wsrd->config.ws_denied_mac_address_count, false);
     wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
+    wsrd->config.supp_cfg.eui64 = wsrd->ws.rcp.eui64;
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);

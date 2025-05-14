@@ -24,6 +24,8 @@
 #include "common/trickle.h"
 #include "common/rcp_api.h"
 
+#include "app_wsrd/supplicant/supplicant.h"
+
 // This struct is filled by parse_commandline() and never modified after.
 struct wsrd_conf {
     struct rcp_cfg rcp_cfg;
@@ -49,9 +51,7 @@ struct wsrd_conf {
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
     int tx_power;
 
-    struct iovec ca_cert;
-    struct iovec cert;
-    struct iovec key;
+    struct supp_cfg supp_cfg;
 
     char storage_prefix[PATH_MAX];
     bool storage_delete;

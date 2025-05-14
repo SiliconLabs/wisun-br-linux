@@ -323,7 +323,7 @@ void supp_eap_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
     switch (eap_hdr->code) {
     case EAP_CODE_REQUEST:
         supp_eap_request_recv(supp, eap_hdr, iobuf);
-        timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
+        timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
         break;
     case EAP_CODE_SUCCESS:
         supp_on_eap_success(supp);

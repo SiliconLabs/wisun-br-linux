@@ -51,7 +51,7 @@ bool supp_storage_load(struct supp_ctx *supp)
         } else if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(eui64.u8, sizeof(eui64.u8), info->value))
                 FATAL(1, "%s:%d: invalid eui64: %s", info->filename, info->linenr, info->value);
-            FATAL_ON(!eui64_eq(&eui64, &supp->eui64), 1, "eui64 mismatch between current and previous state loaded from storage");
+            FATAL_ON(!eui64_eq(&eui64, &supp->cfg->eui64), 1, "eui64 mismatch between current and previous state loaded from storage");
         } else if (!fnmatch("pmk", info->key, 0)) {
             if (parse_byte_array(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), info->value))
                 FATAL(1, "%s:%d: invalid pmk: %s", info->filename, info->linenr, info->value);
@@ -109,7 +109,7 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     if (!info)
         return;
 
-    str_key(supp->eui64.u8, sizeof(supp->eui64.u8), str_buf, sizeof(str_buf));
+    str_key(supp->cfg->eui64.u8, sizeof(supp->cfg->eui64.u8), str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n\n", str_buf);
 
     str_key(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), str_buf, sizeof(str_buf));

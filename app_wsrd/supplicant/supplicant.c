@@ -98,8 +98,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
 
-    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->eui64.u8, pmkid);
-    ws_derive_ptkid(supp->tls_client.ptk.key, supp->auth_eui64.u8, supp->eui64.u8, ptkid);
+    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
+    ws_derive_ptkid(supp->tls_client.ptk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, ptkid);
 
     gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
     lgtkl = supp_get_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
@@ -123,7 +123,7 @@ void supp_on_eap_success(struct supp_ctx *supp)
     // Store PMK
     supp_storage_store(supp, true);
     // Wait for 4-Way Handshake message 1
-    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
+    timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
 }
 
 static void supp_failure_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -272,9 +272,7 @@ void supp_reset(struct supp_ctx *supp)
     }
 }
 
-void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
-               struct iovec *cert, struct iovec *key,
-               const struct eui64 *eui64)
+void supp_init(struct supp_ctx *supp)
 {
     BUG_ON(!supp->sendto_mac);
     BUG_ON(!supp->get_target);
@@ -288,8 +286,7 @@ void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
     for (int i = 0; i < ARRAY_SIZE(supp->gtks); i++)
         supp->gtks[i].expiration_timer.callback = supp_gtk_expiration_timer_timeout;
     rfc8415_txalg_init(&supp->key_request_txalg);
-    supp->eui64 = *eui64;
 
-    tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, ca_cert, cert, key);
+    tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, &supp->cfg->ca_cert, &supp->cfg->cert, &supp->cfg->key);
     tls_init_client(&supp->tls, &supp->tls_client);
 }

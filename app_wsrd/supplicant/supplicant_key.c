@@ -392,7 +392,7 @@ static void supp_key_pairwise_message_3_recv(struct supp_ctx *supp, const struct
     return;
 
 error:
-    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
+    timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
 }
 
 static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
@@ -417,7 +417,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
         goto exit;
     }
 
-    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->eui64.u8, pmkid);
+    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
 
     if (!kde_read_pmkid(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
         TRACE(TR_DROP, "drop %-9s: missing pmkid", "eapol-key");
@@ -438,16 +438,16 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
      * field for message 1 in the 4-way handshake, as it includes no MIC.
      */
 
-    ieee80211_generate_nonce(supp->eui64.u8, supp->snonce);
+    ieee80211_generate_nonce(supp->cfg->eui64.u8, supp->snonce);
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
-    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->eui64.u8,
+    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8,
                             supp->anonce, supp->snonce, supp->tls_client.ptk.tkey);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
 
 exit:
-    timer_start_rel(NULL, &supp->failure_timer, supp->timeout_ms);
+    timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
 }
 
 static void supp_key_pairwise_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,

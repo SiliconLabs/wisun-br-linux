@@ -48,8 +48,23 @@
 #include "common/eui64.h"
 #include "common/timer.h"
 
-struct supp_ctx {
+struct supp_cfg {
     struct eui64 eui64;
+    struct iovec ca_cert;
+    struct iovec cert;
+    struct iovec key;
+    /*
+     * Arbitrary timeout between authentication steps:
+     *   - TX EAP Response  -> RX EAP Request
+     *   - RX EAP Success   -> RX 4WH Message 1
+     *   - TX 4WH Message 2 -> RX 4WH Message 3
+     * supp.on_failure() is called when this timer expires.
+     */
+    uint64_t timeout_ms;
+};
+
+struct supp_ctx {
+    const struct supp_cfg *cfg;
     bool running;
 
     struct tls_client_ctx tls_client;
@@ -77,14 +92,6 @@ struct supp_ctx {
     struct rfc8415_txalg key_request_txalg;
     struct timer_entry   failure_timer;
     struct timer_group   timer_group;
-    /*
-     * Arbitrary timeout between authentication steps:
-     *   - TX EAP Response  -> RX EAP Request
-     *   - RX EAP Success   -> RX 4WH Message 1
-     *   - TX 4WH Message 2 -> RX 4WH Message 3
-     * supp.on_failure() is called when this timer expires.
-     */
-    uint64_t timeout_ms;
 
     void (*sendto_mac)(struct supp_ctx *supp, uint8_t kmp_id,
                        const void *pkt, size_t pkt_len,
@@ -94,9 +101,7 @@ struct supp_ctx {
     void (*on_failure)(struct supp_ctx *supp);
 };
 
-void supp_init(struct supp_ctx *supp, struct iovec *ca_cert,
-               struct iovec *cert, struct iovec *key,
-               const struct eui64 *eui64);
+void supp_init(struct supp_ctx *supp);
 void supp_reset(struct supp_ctx *supp);
 uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len);
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t key_index);

@@ -62,11 +62,11 @@ static void supp_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id,
 {
     struct ctx *ctx = container_of(supp, struct ctx, supp);
     struct iovec iov[] = {
-        { &supp->eui64, sizeof(supp->eui64) },
+        { (void *)&supp->cfg->eui64, sizeof(supp->cfg->eui64) },
         { &kmp_id,      sizeof(kmp_id) },
         { (void *)buf,  buf_len },
     };
-    struct msghdr msg = {
+    const struct msghdr msg = {
         .msg_iov    = iov,
         .msg_iovlen = 3,
     };
@@ -191,15 +191,12 @@ static void help(void)
     INFO("                        default=20%%");
 }
 
-static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *argv[])
+static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *supp_cfg, int argc, char *argv[])
 {
     const struct eui64 auth_eui64 = { .u8 = { [7] = 1 } };
     const struct eui64 supp_eui64 = { .u8 = { [7] = 2 } };
     struct sockaddr_in6 auth_addr = { };
     struct storage_parse_info info;
-    struct iovec supp_cert = { };
-    struct iovec supp_key = { };
-    struct iovec ca_cert = { };
     int ret, opt;
     const char *opts_short = "hpR:r:s:A:C:K:";
     const struct option opts_long[] = {
@@ -232,11 +229,11 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/br_key.pem");
     conf_set_pem(&info, &auth_cfg->key, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
-    conf_set_pem(&info, &ca_cert, NULL);
+    conf_set_pem(&info, &supp_cfg->ca_cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_cert.pem");
-    conf_set_pem(&info, &supp_cert, NULL);
+    conf_set_pem(&info, &supp_cfg->cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_key.pem");
-    conf_set_pem(&info, &supp_key, NULL);
+    conf_set_pem(&info, &supp_cfg->key, NULL);
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         for (const struct option *opt_long = opts_long; opt_long->name; opt_long++)
@@ -265,13 +262,13 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
             conf_set_pem(&info, &auth_cfg->key, NULL);
             break;
         case 'A':
-            conf_set_pem(&info, &ca_cert, NULL);
+            conf_set_pem(&info, &supp_cfg->ca_cert, NULL);
             break;
         case 'C':
-            conf_set_pem(&info, &supp_cert, NULL);
+            conf_set_pem(&info, &supp_cfg->cert, NULL);
             break;
         case 'K':
-            conf_set_pem(&info, &supp_key, NULL);
+            conf_set_pem(&info, &supp_cfg->key, NULL);
             break;
         case 'S':
             conf_set_number(&info, &ret, NULL);
@@ -309,7 +306,8 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, int argc, char *arg
         INFO("Using internal EAP-TLS authentication server");
     }
 
-    supp_init(&ctx->supp, &auth_cfg->ca_cert, &supp_cert, &supp_key, &supp_eui64);
+    supp_cfg->eui64 = supp_eui64;
+    supp_init(&ctx->supp);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
     if (memzcmp(ctx->supp.tls_client.pmk.key, 32))
@@ -362,7 +360,11 @@ int main(int argc, char *argv[])
         .lfn.gtk_new_activation_time  = 720,
         .lfn.gtk_new_install_required = 80,
     };
+    struct supp_cfg supp_cfg = {
+        .timeout_ms           = 1000,
+    };
     struct ctx ctx = {
+        .supp.cfg = &supp_cfg,
         .supp.key_request_txalg.rand_min = -0.1,
         .supp.key_request_txalg.irt_s    = 1,
         .supp.key_request_txalg.mrc      = 2,
@@ -370,7 +372,6 @@ int main(int argc, char *argv[])
         .supp.get_target    = supp_get_target,
         .supp.on_gtk_change = supp_on_gtk_change,
         .supp.on_failure    = supp_on_failure,
-        .supp.timeout_ms = 1000,
 
         .auth.cfg = &auth_cfg,
         .auth.sendto_mac            = auth_sendto_mac,
@@ -381,7 +382,7 @@ int main(int argc, char *argv[])
     };
 
     // auth_cfg is mandatory considering ctx.auth.cfg is a const pointer
-    init(&ctx, &auth_cfg, argc, argv);
+    init(&ctx, &auth_cfg, &supp_cfg, argc, argv);
 
     pfd[0].fd = timer_fd();
     pfd[0].events = POLLIN;
