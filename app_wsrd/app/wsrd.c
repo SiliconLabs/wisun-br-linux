@@ -109,7 +109,7 @@ struct wsrd g_wsrd = {
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60
     .supp.key_request_txalg.mrt_s       = 3600, // 60 * 60
-    .supp.key_request_txalg.max_delay_s = 60, // Unspecified
+    .supp.key_request_txalg.max_delay_s = 30, // Unspecified
     .supp.key_request_txalg.mrc         =  3, // Unspecified
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .supp.key_request_txalg.rand_min    = -0.1,
