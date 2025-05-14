@@ -1,3 +1,43 @@
+v2.5
+------
+  - Implement disconnect and reconnect procedures for `wsrd`:
+    * Perform graceful disconnection procedure on `SIGTERM` (default signal
+      used by `systemd` to stop services).
+    * Store important data on disk and restore on restart: security keys,
+      frame counters, PAN ID...
+    * Perform DIO poisoning to inform children when `wsrd` is no longer able
+      to parent.
+    * Send DAO No-Path to the border router to inform that `wsrd` is purposely
+      leaving the network.
+    * Respond to NA(EARO) for Registration Refresh Request to accelerate parent
+      recovery.
+  - Drop duplicate MAC frames in `wsrd` and `silabs-ws-dc` based on MAC
+    sequence number.
+  - Forward IPv6 packets that are not tunneled in `wsrd`. This issue prevented
+    `wsrd` from parenting other `wsrd` devices due to how IPv6 packets are
+    currently formed.
+  - Improve `wsrd` parent selection using a deny list for neighbors which
+    previously failed.
+  - Delay `wsrd` DIS transmission to avoid overlap with PC sequence.
+  - Reduce failure timeouts when using the RFC 8415 retry algorithm for EAPoL
+    Key Request, DHCP Solicit and DAO in `wsrd`.
+  - Fix `wsrd` PAN Configuration Solicit frame format.
+  - Be more permissive with the L bit in EAP-TLS packets.
+  - Be more permissive with 4-way handshake message 3 as `wsrd`.
+  - Fix starting extra group key handshakes for LFN supplicants in `wsbrd`.
+  - Fix `wsrd` neighbor frame counter check after key rotation.
+  - Dump cryptographic secrets with `--trace security`.
+  - Correct some missing and invalid PHY metadata for Singapore.
+  - Forward JM-IE without any metric in `wsrd`.
+  - Fix lifetime value in `wsrd` NS(ARO) packets.
+  - Do not send IPv6 packets directly to `wsrd` neighbors if they have bad ETX,
+    use preferred parent instead.
+  - Prevent NUD probe reset caused by `wsrd` parent selection: NS packets could be
+    sent indefinitely to some neighbors.
+  - Support `allowed_mac_addresses` and `denied_mac_addresses` with `wsrd`.
+  - Include US-IE in `wsrd` broadcast data frames to enable unicast
+    transmissions from neighbors after reception of multicast DIOs.
+
 v2.4
 ------
   - `wsrd` parenting support:
