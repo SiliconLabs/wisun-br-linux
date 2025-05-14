@@ -139,11 +139,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
         !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &addr_linklocal)) &&
-        !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6))) {
-        TRACE(TR_DROP, "drop %-9s: invalid dst=%s", "ipv6", tr_ipv6(hdr.ip6_dst.s6_addr));
-        pktbuf->err = true;
-        return;
-    }
+        !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6)))
+        goto submit;
 
     if (hdr.ip6_nxt == IPPROTO_ROUTING) {
         if (hbh) {
@@ -235,6 +232,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     }
     TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
 
+submit:
     // Reinsert previously parsed IPv6 header.
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
