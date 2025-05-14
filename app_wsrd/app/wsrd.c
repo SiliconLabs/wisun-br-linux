@@ -543,6 +543,12 @@ int wsrd_main(int argc, char *argv[])
     // native EUI-64.
     if (!eui64_is_bc(&wsrd->config.ws_mac_address))
         rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address.u8);
+    if (wsrd->config.ws_allowed_mac_address_count)
+        rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_allowed_mac_addresses,
+                             wsrd->config.ws_allowed_mac_address_count, true);
+    else
+        rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_denied_mac_addresses,
+                             wsrd->config.ws_denied_mac_address_count, false);
     wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
 
     wsrd_init_radio(wsrd);
