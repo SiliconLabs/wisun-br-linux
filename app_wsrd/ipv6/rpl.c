@@ -292,18 +292,15 @@ static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
     rpl_neigh_deny(ipv6, parent);
 }
 
-static void rpl_send_dao(struct rfc8415_txalg *txalg)
+static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8_t path_lifetime)
 {
-    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
     const struct rpl_opt_config *config;
     struct iobuf_write iobuf = { };
     struct rpl_opt_transit transit;
     struct rpl_opt_target target;
-    struct ipv6_neigh *parent;
     struct in6_addr dodag_id;
     struct rpl_dao dao;
 
-    parent = rpl_neigh_pref_parent(ipv6);
     BUG_ON(!parent || !parent->rpl);
     config = &parent->rpl->config;
     // Prevent GCC warning -Waddress-of-packed-member
@@ -313,7 +310,8 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     memset(&dao, 0, sizeof(dao));
     dao.instance_id = parent->rpl->dio.instance_id;
     // The K flag MUST be set to 1.
-    dao.flags |= RPL_MASK_DAO_K;
+    if (path_lifetime)
+        dao.flags |= RPL_MASK_DAO_K;
     dao.dao_seq = ipv6->rpl.path_seq;
     iobuf_push_data(&iobuf, &dao, sizeof(dao));
 
@@ -333,17 +331,29 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     memset(&transit, 0, sizeof(transit));
     transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
     transit.path_seq      = ipv6->rpl.path_seq;
-    transit.path_lifetime = config->lifetime_default;
+    transit.path_lifetime = path_lifetime;
     transit.parent_addr   = parent->gua;
     rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
 
     // Note: 90% of the lifetime is arbitrary
-    timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer,
-                    (uint64_t)config->lifetime_default * be16toh(config->lifetime_unit_s) * 90 / 100 * 1000);
+    if (path_lifetime)
+        timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer,
+                        (uint64_t)path_lifetime * be16toh(config->lifetime_unit_s) * 90 / 100 * 1000);
+    else
+        timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
     parent->rpl->dao_ack_received = false;
     iobuf_free(&iobuf);
+}
+
+void rpl_dao_txalg_send(struct rfc8415_txalg *txalg)
+{
+    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+
+    BUG_ON(!parent || !parent->rpl);
+    rpl_send_dao(ipv6, parent, parent->rpl->config.lifetime_default);
 }
 
 void rpl_start_dao(struct ipv6_ctx *ipv6)
@@ -622,6 +632,8 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
         if (nce->rpl)
             nce->rpl->dao_ack_received = false;
+    if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
+        return;
     parent->rpl->dao_ack_received = true;
     if (ipv6->rpl.on_dao_ack)
         ipv6->rpl.on_dao_ack(ipv6);
@@ -726,7 +738,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     trickle_init(&ipv6->rpl.dio_trickle);
     ipv6->rpl.dis_txalg.tx = rpl_trig_dis;
     rfc8415_txalg_init(&ipv6->rpl.dis_txalg);
-    ipv6->rpl.dao_txalg.tx = rpl_send_dao;
+    ipv6->rpl.dao_txalg.tx = rpl_dao_txalg_send;
     ipv6->rpl.dao_txalg.fail = rpl_dao_txalg_failure;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
     ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
