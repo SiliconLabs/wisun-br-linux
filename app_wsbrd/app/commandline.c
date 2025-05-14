@@ -195,9 +195,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "dhcp_server",                   &config->dhcp_server,                      conf_set_netaddr,     &valid_ipv6 },
         { "radius_server",                 &config->auth_cfg.radius_addr,             conf_set_netaddr,     &valid_ipv4or6 },
         { "radius_secret",                 config->auth_cfg.radius_secret,            conf_set_string,      (void *)sizeof(config->auth_cfg.radius_secret) },
-        { "key",                           &config->auth_cfg.key,                     conf_set_pem,         NULL },
-        { "certificate",                   &config->auth_cfg.cert,                    conf_set_pem,         NULL },
-        { "authority",                     &config->auth_cfg.ca_cert,                 conf_set_pem,         NULL },
+        { "key",                           &config->auth_cfg.tls.key,                 conf_set_pem,         NULL },
+        { "certificate",                   &config->auth_cfg.tls.cert,                conf_set_pem,         NULL },
+        { "authority",                     &config->auth_cfg.tls.ca_cert,             conf_set_pem,         NULL },
         { "network_name",                  config->ws_name,                           conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          &config->ws_size,                          conf_set_enum,        &valid_ws_size },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
@@ -383,15 +383,15 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_pem(&info, &config->auth_cfg.key, NULL);
+                conf_set_pem(&info, &config->auth_cfg.tls.key, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_pem(&info, &config->auth_cfg.cert, NULL);
+                conf_set_pem(&info, &config->auth_cfg.tls.cert, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_pem(&info, &config->auth_cfg.ca_cert, NULL);
+                conf_set_pem(&info, &config->auth_cfg.tls.ca_cert, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
@@ -483,14 +483,15 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (config->auth_cfg.radius_addr.ss_family == AF_UNSPEC) {
-        if (!config->auth_cfg.key.iov_base)
+        if (!config->auth_cfg.tls.key.iov_base)
             FATAL(1, "missing \"key\" (or \"auth_cfg.radius_addr\") parameter");
-        if (!config->auth_cfg.cert.iov_base)
+        if (!config->auth_cfg.tls.cert.iov_base)
             FATAL(1, "missing \"certificate\" (or \"auth_cfg.radius_addr\") parameter");
-        if (!config->auth_cfg.ca_cert.iov_base)
+        if (!config->auth_cfg.tls.ca_cert.iov_base)
             FATAL(1, "missing \"authority\" (or \"auth_cfg.radius_addr\") parameter");
     } else {
-        if (config->auth_cfg.key.iov_len || config->auth_cfg.cert.iov_len || config->auth_cfg.ca_cert.iov_len)
+        if (config->auth_cfg.tls.key.iov_len || config->auth_cfg.tls.cert.iov_len ||
+            config->auth_cfg.tls.ca_cert.iov_len)
             WARN("ignore certificates and key since an external radius server is in use");
     }
     if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))

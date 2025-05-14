@@ -50,9 +50,7 @@
 
 struct supp_cfg {
     struct eui64 eui64;
-    struct iovec ca_cert;
-    struct iovec cert;
-    struct iovec key;
+    struct tls_cfg tls;
     /*
      * Arbitrary timeout between authentication steps:
      *   - TX EAP Response  -> RX EAP Request

@@ -97,14 +97,14 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         .revocat_lifetime_reduct = conf->ws_lfn_revocation_lifetime_reduction,
     };
     struct arm_certificate_entry tls_br = {
-        .cert     = conf->auth_cfg.cert.iov_base,
-        .cert_len = conf->auth_cfg.cert.iov_len,
-        .key      = conf->auth_cfg.key.iov_base,
-        .key_len  = conf->auth_cfg.key.iov_len,
+        .cert     = conf->auth_cfg.tls.cert.iov_base,
+        .cert_len = conf->auth_cfg.tls.cert.iov_len,
+        .key      = conf->auth_cfg.tls.key.iov_base,
+        .key_len  = conf->auth_cfg.tls.key.iov_len,
     };
     struct arm_certificate_entry tls_ca = {
-        .cert     = conf->auth_cfg.ca_cert.iov_base,
-        .cert_len = conf->auth_cfg.ca_cert.iov_len,
+        .cert     = conf->auth_cfg.tls.ca_cert.iov_base,
+        .cert_len = conf->auth_cfg.tls.ca_cert.iov_len,
     };
     const uint8_t *lgtks[3] = { };
     const uint8_t *gtks[4] = { };

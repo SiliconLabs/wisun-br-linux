@@ -123,9 +123,9 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
-        { "authority",                     &config->supp_cfg.ca_cert,                 conf_set_pem,         NULL },
-        { "certificate",                   &config->supp_cfg.cert,                    conf_set_pem,         NULL },
-        { "key",                           &config->supp_cfg.key,                     conf_set_pem,         NULL },
+        { "authority",                     &config->supp_cfg.tls.ca_cert,             conf_set_pem,         NULL },
+        { "certificate",                   &config->supp_cfg.tls.cert,                conf_set_pem,         NULL },
+        { "key",                           &config->supp_cfg.tls.key,                 conf_set_pem,         NULL },
         { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
@@ -244,11 +244,11 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!config->supp_cfg.key.iov_base)
+    if (!config->supp_cfg.tls.key.iov_base)
         FATAL(1, "missing \"key\" parameter");
-    if (!config->supp_cfg.cert.iov_base)
+    if (!config->supp_cfg.tls.cert.iov_base)
         FATAL(1, "missing \"certificate\" parameter");
-    if (!config->supp_cfg.ca_cert.iov_base)
+    if (!config->supp_cfg.tls.ca_cert.iov_base)
         FATAL(1, "missing \"authority\" parameter");
     if (!config->disc_cfg.Imin_ms)
         FATAL(1, "invalid \"disc_imin\" parameter");

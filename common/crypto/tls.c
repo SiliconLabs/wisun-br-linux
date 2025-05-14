@@ -162,8 +162,7 @@ int tls_load_pem(struct mbedtls_x509_crt *cert, const uint8_t *buf, size_t buf_l
     return loaded_certs;
 }
 
-void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
-              const struct iovec *key)
+void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
 {
     /*
      * Note: mbedtls expects the given configuration variables to always be
@@ -221,11 +220,11 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, co
     mbedtls_x509_crt_init(&tls->ca_cert);
     mbedtls_x509_crt_init(&tls->cert);
     mbedtls_pk_init(&tls->key);
-    ret = tls_load_pem(&tls->ca_cert, ca_cert->iov_base, ca_cert->iov_len);
+    ret = tls_load_pem(&tls->ca_cert, cfg->ca_cert.iov_base, cfg->ca_cert.iov_len);
     FATAL_ON(!ret, 1, "%s: tls_load_pem: CA certificate not found", __func__);
-    ret = tls_load_pem(&tls->cert, cert->iov_base, cert->iov_len);
+    ret = tls_load_pem(&tls->cert, cfg->cert.iov_base, cfg->cert.iov_len);
     FATAL_ON(!ret, 1, "%s: tls_load_pem: own certificate not found", __func__);
-    ret = mbedtls_pk_parse_key(&tls->key, key->iov_base, key->iov_len, NULL, 0,
+    ret = mbedtls_pk_parse_key(&tls->key, cfg->key.iov_base, cfg->key.iov_len, NULL, 0,
                                mbedtls_ctr_drbg_random, &tls->ctr_drbg);
     FATAL_ON(ret, 1, "mbedtls_pk_parse_key: cannot parse private key");
 

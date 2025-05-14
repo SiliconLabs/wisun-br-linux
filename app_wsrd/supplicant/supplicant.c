@@ -287,6 +287,6 @@ void supp_init(struct supp_ctx *supp)
         supp->gtks[i].expiration_timer.callback = supp_gtk_expiration_timer_timeout;
     rfc8415_txalg_init(&supp->key_request_txalg);
 
-    tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, &supp->cfg->ca_cert, &supp->cfg->cert, &supp->cfg->key);
+    tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, &supp->cfg->tls);
     tls_init_client(&supp->tls, &supp->tls_client);
 }

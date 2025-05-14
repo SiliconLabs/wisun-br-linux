@@ -223,17 +223,17 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
 
     strcpy(info.filename, "commandline");
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
-    conf_set_pem(&info, &auth_cfg->ca_cert, NULL);
+    conf_set_pem(&info, &auth_cfg->tls.ca_cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/br_cert.pem");
-    conf_set_pem(&info, &auth_cfg->cert, NULL);
+    conf_set_pem(&info, &auth_cfg->tls.cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/br_key.pem");
-    conf_set_pem(&info, &auth_cfg->key, NULL);
+    conf_set_pem(&info, &auth_cfg->tls.key, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/ca_cert.pem");
-    conf_set_pem(&info, &supp_cfg->ca_cert, NULL);
+    conf_set_pem(&info, &supp_cfg->tls.ca_cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_cert.pem");
-    conf_set_pem(&info, &supp_cfg->cert, NULL);
+    conf_set_pem(&info, &supp_cfg->tls.cert, NULL);
     strcpy(info.value, "/usr/local/share/doc/wsbrd/examples/node_key.pem");
-    conf_set_pem(&info, &supp_cfg->key, NULL);
+    conf_set_pem(&info, &supp_cfg->tls.key, NULL);
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         for (const struct option *opt_long = opts_long; opt_long->name; opt_long++)
@@ -253,22 +253,22 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
             strlcpy(auth_cfg->radius_secret, optarg, sizeof(auth_cfg->radius_secret));
             break;
         case 'a':
-            conf_set_pem(&info, &auth_cfg->ca_cert, NULL);
+            conf_set_pem(&info, &auth_cfg->tls.ca_cert, NULL);
             break;
         case 'c':
-            conf_set_pem(&info, &auth_cfg->cert, NULL);
+            conf_set_pem(&info, &auth_cfg->tls.cert, NULL);
             break;
         case 'k':
-            conf_set_pem(&info, &auth_cfg->key, NULL);
+            conf_set_pem(&info, &auth_cfg->tls.key, NULL);
             break;
         case 'A':
-            conf_set_pem(&info, &supp_cfg->ca_cert, NULL);
+            conf_set_pem(&info, &supp_cfg->tls.ca_cert, NULL);
             break;
         case 'C':
-            conf_set_pem(&info, &supp_cfg->cert, NULL);
+            conf_set_pem(&info, &supp_cfg->tls.cert, NULL);
             break;
         case 'K':
-            conf_set_pem(&info, &supp_cfg->key, NULL);
+            conf_set_pem(&info, &supp_cfg->tls.key, NULL);
             break;
         case 'S':
             conf_set_number(&info, &ret, NULL);
@@ -297,11 +297,11 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
         if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.cfg->radius_secret[0])
             FATAL(1, "missing --radius-server");
     } else {
-        if (!auth_cfg->ca_cert.iov_base)
+        if (!auth_cfg->tls.ca_cert.iov_base)
             FATAL(1, "missing --auth-ca");
-        if (!auth_cfg->cert.iov_base)
+        if (!auth_cfg->tls.cert.iov_base)
             FATAL(1, "missing --auth-cert");
-        if (!auth_cfg->key.iov_base)
+        if (!auth_cfg->tls.key.iov_base)
             FATAL(1, "missing --auth-key");
         INFO("Using internal EAP-TLS authentication server");
     }
