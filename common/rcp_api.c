@@ -589,15 +589,17 @@ void rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id)
     iobuf_free(&buf);
 }
 
-void rcp_set_filter_src64(struct rcp *rcp, const uint8_t eui64[][8], uint8_t count, bool allow)
+void rcp_set_filter_src64(struct rcp *rcp, const struct eui64 *eui64, uint8_t count, bool allow)
 {
     struct iobuf_write buf = { };
 
     hif_push_u8(&buf, HIF_CMD_SET_FILTER_SRC64);
     hif_push_bool(&buf, allow);
     hif_push_u8(&buf, count);
-    while (count--)
-        hif_push_fixed_u8_array(&buf, *eui64++, 8);
+    while (count--) {
+        hif_push_fixed_u8_array(&buf, eui64->u8, 8);
+        eui64++;
+    }
     rcp_tx(rcp, &buf);
     iobuf_free(&buf);
 }

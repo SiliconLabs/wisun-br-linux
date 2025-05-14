@@ -356,7 +356,7 @@ static int dbus_set_filter_src64(sd_bus_message *m, void *userdata, sd_bus_error
     sd_bus_message_close_container(m);
 
     // When given an empty list, 'allow' must be reversed
-    rcp_set_filter_src64(&ctxt->rcp, (uint8_t (*)[8])buf.data, buf.len / 8, buf.len ? allow : !allow);
+    rcp_set_filter_src64(&ctxt->rcp, (struct eui64 *)buf.data, buf.len / 8, buf.len ? allow : !allow);
     iobuf_free(&buf);
     sd_bus_reply_method_return(m, NULL);
     return 0;

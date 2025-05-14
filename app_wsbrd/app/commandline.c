@@ -128,7 +128,7 @@ static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_de
 {
     struct wsbrd_conf *config = raw_dest;
     bool allow = *(bool *)raw_param;
-    uint8_t (*macaddr_list)[8];
+    struct eui64 *macaddr_list;
     uint8_t macaddr_maxcount;
     uint8_t *macaddr_count;
 
@@ -143,7 +143,7 @@ static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_de
     }
     if (*macaddr_count >= macaddr_maxcount)
         FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(macaddr_list[*macaddr_count], 8, info->value))
+    if (parse_byte_array(macaddr_list[*macaddr_count].u8, 8, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
     (*macaddr_count)++;
 }

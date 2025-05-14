@@ -25,6 +25,7 @@
 
 struct bus;
 struct ws_neigh_fhss;
+struct eui64;
 
 struct rcp_rail_config {
     int      index;
@@ -145,7 +146,7 @@ void rcp_set_sec_key(struct rcp *rcp,
 
 void rcp_set_filter_pan_id(struct rcp *rcp, uint16_t pan_id);
 void rcp_set_filter_src64(struct rcp *rcp,
-                          const uint8_t eui64[][8],
+                          const struct eui64 *eui64,
                           uint8_t count,
                           bool allow);
 void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8]);
