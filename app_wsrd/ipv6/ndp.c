@@ -92,7 +92,7 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     ns->nd_ns_target = dst;
 
     memset(&aro, 0, sizeof(aro));
-    aro.lifetime_minutes = UINT16_MAX;
+    aro.lifetime_minutes = htobe16(lifetime_minutes);
     aro.eui64 = ipv6->eui64.be64;
     ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
 
