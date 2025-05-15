@@ -48,6 +48,7 @@ struct trickle {
 };
 
 void trickle_init(struct trickle *tkl);
+bool trickle_stopped(struct trickle *tkl);
 
 void trickle_start(struct trickle *tkl);
 void trickle_stop(struct trickle *tkl);
