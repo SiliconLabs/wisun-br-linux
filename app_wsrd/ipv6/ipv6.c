@@ -167,11 +167,13 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
             }
         }
 
-        // HACK: Linux drops IPv6 packets that include a SRH even with 0
-        // segments left (unless net.ipv6.conf.[ifname].rpl_seg_enabled is
-        // set). According to RFC 8200, routing headers with 0 segments left
-        // should always be accepted and ignored, but since Linux does not do
-        // so, the SRH must be stripped.
+        /*
+         * HACK: Linux drops IPv6 packets that include a SRH even with 0
+         * segments left (unless net.ipv6.conf.[ifname].rpl_seg_enabled is
+         * set). According to RFC 8200, routing headers with 0 segments left
+         * should always be accepted and ignored, but since Linux does not do
+         * so, the SRH must be stripped.
+         */
         pktbuf_pop_head(pktbuf, NULL, 8 * (rthdr->ip6r_len + 1));
         hdr.ip6_nxt  = rthdr->ip6r_nxt;
         hdr.ip6_plen = htons(MAX(0, ntohs(hdr.ip6_plen) - 8 * (rthdr->ip6r_len + 1)));
@@ -263,18 +265,22 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
     struct ipv6_neigh *nce;
     float etx;
 
-    //   RFC 4861 5.2. Conceptual Sending Algorithm
-    // For multicast packets, the next-hop is always the (multicast)
-    // destination address and is considered to be on-link.
+    /*
+     *   RFC 4861 5.2. Conceptual Sending Algorithm
+     * For multicast packets, the next-hop is always the (multicast)
+     * destination address and is considered to be on-link.
+     */
     if (IN6_IS_ADDR_MULTICAST(dst)) {
         *nxthop = dst;
         return 0;
     }
 
-    //   RFC 4861 5.1. Conceptual Data Structures
-    // The link-local prefix is considered to be on the prefix list with an
-    // infinite invalidation timer regardless of whether routers are
-    // advertising a prefix for it.
+    /*
+     *   RFC 4861 5.1. Conceptual Data Structures
+     * The link-local prefix is considered to be on the prefix list with an
+     * infinite invalidation timer regardless of whether routers are
+     * advertising a prefix for it.
+     */
     if (IN6_IS_ADDR_LINKLOCAL(dst)) {
         *nxthop = dst;
         return 0;
@@ -312,17 +318,21 @@ static void ipv6_addr_resolution(struct ipv6_ctx *ipv6,
 {
     struct ipv6_neigh *nce;
 
-    //   RFC 4944 3. Addressing Modes
-    // IPv6 level multicast packets MUST be carried as link-layer broadcast
-    // frames in IEEE 802.15.4 networks.
+    /*
+     *   RFC 4944 3. Addressing Modes
+     * IPv6 level multicast packets MUST be carried as link-layer broadcast
+     * frames in IEEE 802.15.4 networks.
+     */
     if (IN6_IS_ADDR_MULTICAST(nxthop)) {
         *eui64 = EUI64_BC;
         return;
     }
 
-    //   RFC 6778 5.6. Next-Hop Determination
-    // It is assumed that link-local addresses are formed [...] from the
-    // EUI-64, and address resolution is not performed.
+    /*
+     *   RFC 6778 5.6. Next-Hop Determination
+     * It is assumed that link-local addresses are formed [...] from the
+     * EUI-64, and address resolution is not performed.
+     */
     if (IN6_IS_ADDR_LINKLOCAL(nxthop)) {
         ipv6_addr_conv_iid_eui64(eui64->u8, nxthop->s6_addr + 8);
         return;
