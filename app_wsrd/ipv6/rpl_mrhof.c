@@ -21,9 +21,9 @@
 
 #include "rpl_mrhof.h"
 
-static float rpl_mrhof_etx(const struct rpl_mrhof *mrhof, const struct ipv6_neigh *nce)
+float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
 {
-    struct ws_neigh *neigh = ws_neigh_get(mrhof->ws_neigh_table, &nce->eui64);
+    struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
 
     return neigh ? neigh->etx : NAN;
 }
@@ -34,7 +34,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
     const struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
     float etx;
 
-    etx = rpl_mrhof_etx(mrhof, nce);
+    etx = rpl_mrhof_etx(ipv6, nce);
 
     /*
      * If the selected metric is a link metric and the metric of the link
@@ -88,7 +88,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         // TODO: refuse neighbors with higher rank than self
 
         discard = NULL;
-        etx = rpl_mrhof_etx(mrhof, nce);
+        etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         if (isnan(etx)) {
             /*

@@ -42,6 +42,7 @@ struct rpl_mrhof {
     void (*on_pref_parent_change)(struct rpl_mrhof *mrhof, struct ipv6_neigh *neigh);
 };
 
+float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce);
 void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6);
 uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6);
 
