@@ -171,7 +171,7 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
 }
 
-static void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct in6_addr *dst)
+void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct in6_addr *dst)
 {
     struct iobuf_write iobuf = { };
     struct rpl_opt_prefix prefix;

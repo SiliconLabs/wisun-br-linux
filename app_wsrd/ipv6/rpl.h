@@ -56,6 +56,7 @@ struct rpl_ctx {
 void rpl_start(struct ipv6_ctx *ipv6);
 void rpl_stop(struct ipv6_ctx *ipv6);
 void rpl_recv(struct ipv6_ctx *ipv6);
+void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct in6_addr *dst);
 void rpl_start_dio(struct ipv6_ctx *ipv6);
 void rpl_start_dis(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);

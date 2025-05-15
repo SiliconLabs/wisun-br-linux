@@ -15,6 +15,7 @@
 
 #include "app_wsrd/ipv6/ipv6.h"
 #include "app_wsrd/ipv6/rpl.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/ws/ws_neigh.h"
 #include "common/mathutils.h"
 #include "common/log.h"
@@ -170,10 +171,20 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
      * Section 5.5).
      */
     // FIXME: Send NS(ARO) with 0 lifetime on DAO-ACK of new parent
-    if (pref_parent_cur && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6) &&
-        !timer_stopped(&pref_parent_cur->own_aro_timer)) {
-        timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
-        ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
+    if (pref_parent_cur && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
+        /*
+         * NOTE: if we have no new parent, it means our current parent is not
+         * reliable enough to send a DAO No-Path.
+         * We skip the poisoning below if the DIO trickle is stopped.
+         */
+        if (!pref_parent_new && !trickle_stopped(&ipv6->rpl.dio_trickle)) {
+            trickle_stop(&ipv6->rpl.dio_trickle);
+            rpl_send_dio(ipv6, pref_parent_cur, &ipv6_addr_all_rpl_nodes_link);
+        }
+        if (!timer_stopped(&pref_parent_cur->own_aro_timer)) {
+            timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
+            ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
+        }
     }
     // If we do not have a GUA, the NS(ARO) will be sent after receiving one
     if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
