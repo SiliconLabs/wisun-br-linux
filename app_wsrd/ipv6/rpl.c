@@ -96,26 +96,18 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
-    bool is_parent = nce->rpl->is_parent;
-
-    TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
-
     /*
-     * We immediatly remove the RPL ctx from the neighbor.
-     * This ensures we do not send any NS(ARO) lifetime 0 to the
-     * old parent that is actually being deleted.
+     * We deny the parent to trigger a new parent selection. If no new parent is
+     * chosen, RPL will take care of poisoning. Note that when cleaning our ipv6
+     * neigh cache, RPL may not be operational so we do not want to select a new
+     * parent after deleting the current one.
      */
+    if (nce->rpl->is_parent && ipv6->rpl.fd >= 0)
+        rpl_neigh_deny(ipv6, nce);
+    TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
     timer_stop(&ipv6->timer_group, &nce->rpl->deny_timer);
     free(nce->rpl);
     nce->rpl = NULL;
-    /*
-     * When cleaning our ipv6 neigh cache, RPL may not be operational
-     * so we do not want to select a new parent after deleting the
-     * current one.
-     */
-    if (!is_parent || ipv6->rpl.fd < 0)
-        return;
-    rpl_mrhof_select_parent(ipv6);
 }
 
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)

@@ -587,12 +587,16 @@ void ipv6_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
     timer_stop(&ipv6->timer_group, &neigh->aro_lifetime);
+    /*
+     * Stopping this timer will ensure we do not send any NS(ARO) lifetime 0 to
+     * the parent that is being deleted.
+     */
     timer_stop(&ipv6->timer_group, &neigh->own_aro_timer);
-    SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(neigh->gua.s6_addr), tr_eui64(neigh->eui64.u8));
     if (neigh->rpl)
         rpl_neigh_del(ipv6, neigh);
+    SLIST_REMOVE(&ipv6->neigh_cache, neigh, ipv6_neigh, link);
     free(neigh);
 }
 
