@@ -101,7 +101,7 @@ bool supp_storage_load(struct supp_ctx *supp)
 
 void supp_storage_store(struct supp_ctx *supp, bool force_write)
 {
-    time_t storage_offset_ms = time_get_storage_offset_ms();
+    uint64_t storage_offset_ms = time_get_storage_offset_ms();
     struct storage_parse_info *info;
     char str_buf[256];
 
