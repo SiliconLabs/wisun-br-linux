@@ -170,7 +170,8 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
      * Section 5.5).
      */
     // FIXME: Send NS(ARO) with 0 lifetime on DAO-ACK of new parent
-    if (pref_parent_cur && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
+    if (pref_parent_cur && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6) &&
+        !timer_stopped(&pref_parent_cur->own_aro_timer)) {
         timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
         ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
     }
