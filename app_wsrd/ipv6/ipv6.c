@@ -15,6 +15,7 @@
 #include <netinet/icmp6.h>
 #include <netinet/ip6.h>
 #include <errno.h>
+#include <math.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -260,6 +261,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
                        const struct in6_addr **nxthop)
 {
     struct ipv6_neigh *nce;
+    float etx;
 
     //   RFC 4861 5.2. Conceptual Sending Algorithm
     // For multicast packets, the next-hop is always the (multicast)
@@ -278,10 +280,19 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
         return 0;
     }
 
+    /*
+     *   RFC 6550 9. Downward Routes
+     * A node may send a P2P packet destined to a one-hop neighbor directly to
+     * that node.
+     * NOTE: Restrict this behavior to neighbors with good enough metrics.
+     */
     nce = ipv6_neigh_get_from_gua(ipv6, dst);
     if (nce) {
-        *nxthop = &nce->gua;
-        return 0;
+        etx = rpl_mrhof_etx(ipv6, nce);
+        if (etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
+            *nxthop = &nce->gua;
+            return 0;
+        }
     }
 
     // Default to preferred RPL parent.
