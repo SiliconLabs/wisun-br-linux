@@ -352,6 +352,7 @@ static void rpl_send_dao(struct rfc8415_txalg *txalg)
     // Note: 90% of the lifetime is arbitrary
     timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer,
                     (uint64_t)config->lifetime_default * be16toh(config->lifetime_unit_s) * 90 / 100 * 1000);
+    parent->rpl->dao_ack_received = false;
     iobuf_free(&iobuf);
 }
 
