@@ -36,4 +36,7 @@ void ws_on_send_pa(struct trickle *tkl);
 void ws_on_send_pcs(struct trickle *tkl);
 void ws_on_send_pc(struct trickle *tkl);
 
+void ws_on_pan_timeout(struct timer_group *group, struct timer_entry *timer);
+void ws_pan_timeout_update(struct wsrd *wsrd);
+
 #endif

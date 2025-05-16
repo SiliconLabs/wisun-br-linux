@@ -39,6 +39,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->ws.pan_version = -1;
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
+    timer_stop(NULL, &wsrd->pan_timeout_timer);
     ipv6_neigh_clean(&wsrd->ipv6);
     ws_neigh_clean(&wsrd->ws.neigh_table);
     INFO("Join state 1: Select PAN");
@@ -77,6 +78,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->pcs_nb = 0;
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
+    timer_stop(NULL, &wsrd->pan_timeout_timer);
 
     trickle_start(&wsrd->pas_tkl);
     trickle_start(&wsrd->pcs_tkl);

@@ -39,6 +39,7 @@ struct wsrd_conf {
     char group[LOGIN_NAME_MAX];
 
     struct trickle_cfg disc_cfg;
+    int pan_timeout_ms;
 
     int  ws_domain;
     int  ws_phy_mode_id;

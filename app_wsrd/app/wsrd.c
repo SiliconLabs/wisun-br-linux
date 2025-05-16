@@ -105,6 +105,7 @@ struct wsrd g_wsrd = {
     .ws.eapol_relay_fd = -1,
     .ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .eapol_target_eui64 = EUI64_BC,
+    .pan_timeout_timer.callback = ws_on_pan_timeout,
 
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60
@@ -137,6 +138,7 @@ struct wsrd g_wsrd = {
     .config.disc_cfg.Imin_ms = 15 * 1000,
     .config.disc_cfg.Imax_ms = TRICKLE_DOUBLINGS(15, 2) * 1000,
     .config.disc_cfg.k = 1,
+    .config.pan_timeout_ms = 60 * 60 * 1000,
     .pas_tkl.cfg = &g_wsrd.config.disc_cfg,
     .pas_tkl.debug_name  = "pas",
     .pas_tkl.on_transmit = ws_on_send_pas,

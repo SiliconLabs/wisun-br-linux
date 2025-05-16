@@ -286,6 +286,40 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     trickle_inconsistent(&wsrd->pa_tkl);
 }
 
+void ws_on_pan_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct wsrd *wsrd = container_of(timer, struct wsrd, pan_timeout_timer);
+
+    /*
+     * NOTE: a PAN timeout is triggered a first time after 90% of pan_timeout_ms
+     * without hearing the BR. Having not heard the BR at this stage may be
+     * normal if no traffic was initiated. If possible, we start a DAO sequence
+     * to trigger a DAO-ACK from the BR and avoid disconnecting unecessarily.
+     * A PAN timeout will really be triggered once we have reached
+     * pan_timeout_ms without hearing the BR.
+     */
+    if (!wsrd->pan_timeout_pending) {
+        wsrd->pan_timeout_pending = true;
+        /*
+         * A PAN timeout can happen starting join state 4, meaning that we may
+         * not even be able to send a DAO just yet.
+         */
+        if (!timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer))
+            rpl_start_dao(&wsrd->ipv6);
+        timer_start_rel(NULL, &wsrd->pan_timeout_timer, wsrd->config.pan_timeout_ms * 10 / 100);
+        return;
+    }
+    wsrd->pan_timeout_pending = false;
+    INFO("PAN timeout");
+    join_state_transition(wsrd, WSRD_EVENT_PAN_TIMEOUT);
+}
+
+void ws_pan_timeout_update(struct wsrd *wsrd)
+{
+    wsrd->pan_timeout_pending = false;
+    timer_start_rel(NULL, &wsrd->pan_timeout_timer, wsrd->config.pan_timeout_ms * 90 / 100);
+}
+
 static void ws_update_gak_index(struct wsrd *wsrd, uint8_t key_index)
 {
     // TODO: handle LGTKs
@@ -316,6 +350,8 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      * Version.
      */
     wsrd->ws.pan_version = new_pan_version;
+    // NOTE: A PAN version change means the BR is alive.
+    ws_pan_timeout_update(wsrd);
     /*
      *   Wi-SUN FAN 1.1v09 6.3.2.3.2.6 GTK Hash Information Element (GTKHASH-IE)
      * A Router MUST report the GTK Hash values received with the latest

@@ -38,6 +38,9 @@ struct wsrd {
     struct trickle pc_tkl;
     int pcs_nb; // -1 to disable
 
+    struct timer_entry pan_timeout_timer;
+    bool pan_timeout_pending;
+
     struct ipv6_ctx ipv6;
 
     struct supp_ctx supp;
