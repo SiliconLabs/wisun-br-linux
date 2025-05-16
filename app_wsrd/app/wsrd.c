@@ -119,6 +119,13 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
         ws_pan_timeout_update(wsrd);
 }
 
+static void wsrd_on_unregistration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct wsrd *wsrd = container_of(timer, struct wsrd, unregistration_timer);
+
+    join_state_transition(wsrd, wsrd->last_event);
+}
+
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
@@ -137,6 +144,7 @@ struct wsrd g_wsrd = {
     .ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .eapol_target_eui64 = EUI64_BC,
     .pan_timeout_timer.callback = ws_on_pan_timeout,
+    .unregistration_timer.callback = wsrd_on_unregistration_timer_timeout,
 
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60

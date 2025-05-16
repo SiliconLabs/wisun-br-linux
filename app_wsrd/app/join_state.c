@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "common/ws/eapol_relay.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/dhcp_client.h"
 
 #include "app_wsrd/supplicant/supplicant_storage.h"
@@ -198,12 +199,72 @@ static void join_state_5_exit(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.eapol_relay_fd < 0);
 
-    // TODO: inform the network that we are leaving
+    /*
+     * Do not stop RPL or PAN timeout here: timer states are used when
+     * entering the disconnecting state.
+     */
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
     dhcp_relay_stop(&wsrd->dhcp_relay);
     trickle_stop(&wsrd->pa_tkl);
     trickle_stop(&wsrd->pc_tkl);
+}
+
+static void join_state_disconnecting_enter(struct wsrd *wsrd)
+{
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+
+    rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
+    // NOTE: do not stop the DHCP client here since we may need our GUA
+    rfc8415_txalg_stop(&wsrd->ipv6.dhcp.solicit_txalg);
+    /*
+     * NOTES:
+     * - This timer is necessary to ensure we do not transition too early
+     *   in discovery/reconnect state. More precisely, entering those states
+     *   resets the active GAK index, making any secured frame TX impossible.
+     * - We start the timer even if we have no parent considering RPL took
+     *   care of unregistration in that case.
+     * - 2s is an arbitrary waiting time to ensure all unregistration packets
+     *   were TX to the RCP.
+     */
+    timer_start_rel(NULL, &wsrd->unregistration_timer, 2 * 1000);
+
+    /*
+     * - If disconnecting on WSRD_EVENT_RPL_NO_CANDIDATE, RPL already took
+     *   care of NS(ARO) lifetime 0, poisoning, and deleting our parent.
+     *   Nothing to do here.
+     * - If we have a parent, wsrd is stopping or a PAN timeout occurred. A PAN
+     *   timeout can happen in any JS >= 4.
+     */
+    if (!parent) {
+        timer_stop(NULL, &wsrd->pan_timeout_timer);
+        // Stopping RPL to prevent any parent selection
+        rpl_stop(&wsrd->ipv6);
+        return;
+    }
+
+    /*
+     * - On PAN timeout, the BR seems unreachable, we can skip DAO No-Path.
+     * - If called before JS 5 and no DAO was sent, we can skip DAO No-Path.
+     */
+    if (!timer_stopped(&wsrd->pan_timeout_timer) && !timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer))
+        rpl_send_dao_no_path(&wsrd->ipv6);
+    timer_stop(NULL, &wsrd->pan_timeout_timer);
+    // Poisoning: clearing the flag will set the DIO's rank to 0xffff
+    parent->rpl->is_parent = false;
+    // Skip poisoning if called before JS 5
+    if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
+        rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
+    if (!timer_stopped(&parent->own_aro_timer)) {
+        timer_stop(&wsrd->ipv6.timer_group, &parent->own_aro_timer);
+        ipv6_send_ns_aro(&wsrd->ipv6, parent, 0);
+    }
+    rpl_stop(&wsrd->ipv6);
+}
+
+static inline void join_state_disconnecting_exit(struct wsrd *wsrd)
+{
+    // Nothing to do
 }
 
 static const struct wsrd_state_transition state_discovery_transitions[] = {
@@ -243,13 +304,20 @@ static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
 
 static const struct wsrd_state_transition state_routing_transitions[] = {
     { WSRD_EVENT_ROUTING_SUCCESS,  WSRD_STATE_OPERATIONAL },
-    { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
+    { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCONNECTING },
     { },
 };
 
 static const struct wsrd_state_transition state_operational_transitions[] = {
+    { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCONNECTING },
+    { },
+};
+
+static const struct wsrd_state_transition state_disconnecting_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
@@ -299,6 +367,12 @@ static const struct wsrd_state_entry join_states[] = {
         .exit  = join_state_5_exit,
         .transitions = state_operational_transitions,
     },
+    [WSRD_STATE_DISCONNECTING] = {
+        .state = WSRD_STATE_DISCONNECTING,
+        .enter = join_state_disconnecting_enter,
+        .exit  = join_state_disconnecting_exit,
+        .transitions = state_disconnecting_transitions,
+    },
 };
 
 void join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
@@ -308,6 +382,9 @@ void join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
     for (const struct wsrd_state_transition *transition = state->transitions; transition->event; transition++) {
         if (transition->event != event)
             continue;
+
+        wsrd->last_event = event;
+
         if (state->exit)
             state->exit(wsrd);
 

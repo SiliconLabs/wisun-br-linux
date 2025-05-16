@@ -27,6 +27,8 @@ struct wsrd {
     struct wsrd_conf config;
 
     enum wsrd_state state;
+    enum wsrd_event last_event;
+    struct timer_entry unregistration_timer;
 
     struct ws_ctx ws;
     uint16_t prev_pan_id; // 0xffff if not set
