@@ -340,6 +340,9 @@ static void ws_update_gak_index(struct wsrd *wsrd, uint8_t key_index)
 static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, const uint8_t gtkhash[4][8],
                                   const struct ws_ind *ind, const struct ws_bs_ie *ie_bs)
 {
+    bool send_key_request = false;
+    bool gtkhash_mismatch;
+
     // Note: In reconnect state, the PAN ID is not set at this stage.
     if (wsrd->ws.pan_id == 0xffff) {
         wsrd->ws.pan_id = ind->hdr.pan_id;
@@ -379,9 +382,14 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      * is more likely to leak than the PTK, and authenticator packets are
      * secured using the PTK.
      */
-    for (int i = 0; i < WS_GTK_COUNT; i++)
-        if (supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1))
-            supp_start_key_request(&wsrd->supp);
+    for (uint8_t i = 0; i < WS_GTK_COUNT; i++) {
+        gtkhash_mismatch = supp_gtkhash_mismatch(&wsrd->supp, gtkhash[i], i + 1);
+        if (gtkhash_mismatch && !timer_stopped(&wsrd->supp.gtks[i].expiration_timer))
+            supp_revoke_gtk(&wsrd->supp, i);
+        send_key_request |= gtkhash_mismatch;
+    }
+    if (send_key_request)
+        supp_start_key_request(&wsrd->supp);
     /*
      * d. The FFN MUST store any unknown FFN-Wide or PAN-Wide IEs for inclusion
      * in subsequent PAN Configuration and LFN Configuration frame transmissions
