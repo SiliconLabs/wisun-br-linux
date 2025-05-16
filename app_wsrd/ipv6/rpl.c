@@ -347,6 +347,15 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
     iobuf_free(&iobuf);
 }
 
+void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+
+    BUG_ON(!parent);
+    ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
+    rpl_send_dao(ipv6, parent, 0);
+}
+
 void rpl_dao_txalg_send(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
