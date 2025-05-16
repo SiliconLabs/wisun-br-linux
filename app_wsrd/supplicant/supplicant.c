@@ -229,6 +229,15 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     supp->on_failure(supp);
 }
 
+void supp_revoke_gtk(struct supp_ctx *supp, uint8_t slot)
+{
+    BUG_ON(slot >= ARRAY_SIZE(supp->gtks) || timer_stopped(&supp->gtks[slot].expiration_timer));
+    TRACE(TR_SECURITY, "sec: %s revoked", tr_gtkname(slot));
+    timer_stop(&supp->timer_group, &supp->gtks[slot].expiration_timer);
+    if (supp->gtks[slot].expiration_timer.callback)
+        supp->gtks[slot].expiration_timer.callback(&supp->timer_group, &supp->gtks[slot].expiration_timer);
+}
+
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t gtkhash_index)
 {
     uint8_t hash[32] = { };

@@ -103,6 +103,7 @@ struct supp_ctx {
 void supp_init(struct supp_ctx *supp);
 void supp_reset(struct supp_ctx *supp);
 uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len);
+void supp_revoke_gtk(struct supp_ctx *supp, uint8_t slot);
 bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint8_t key_index);
 void supp_start_key_request(struct supp_ctx *supp);
 

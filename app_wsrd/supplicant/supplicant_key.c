@@ -211,14 +211,11 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
      * is no longer valid (via the GTKL KDEs returned by the authenticator) and
      * the FFN will remove it locally (setting its GTK[X] hash to 0).
      */
-    for (int i = 0; i < count; i++) {
+    for (uint8_t i = 0; i < count; i++) {
         gtk = &supp->gtks[i + offset];
         if ((gtkl_kde & BIT(i)) || timer_stopped(&gtk->expiration_timer))
             continue;
-        TRACE(TR_SECURITY, "sec: %s revoked", tr_gtkname(i + offset));
-        timer_stop(&supp->timer_group, &gtk->expiration_timer);
-        if (gtk->expiration_timer.callback)
-            gtk->expiration_timer.callback(&supp->timer_group, &gtk->expiration_timer);
+        supp_revoke_gtk(supp, i + offset);
     }
 }
 
