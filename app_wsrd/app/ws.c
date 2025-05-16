@@ -363,6 +363,14 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      */
     memcpy(wsrd->ws.gtkhash, gtkhash, sizeof(wsrd->ws.gtkhash));
     /*
+     *   Wi-SUN FAN 1.1v09 6.3.4.6.3 FFN Discovery / Join
+     * A Border Router MUST increment PAN Version (PANVER-IE) and reset its PC
+     * Trickle timer when any of the following occurs:
+     * [...]
+     * c. A change in the FFN GTK (derived key) used for FFN-FFN frame security.
+     */
+    ws_update_gak_index(wsrd, ind->hdr.key_index);
+    /*
      * 2. The FFN must examine the content of the PAN Configuration to
      * determine incoming changes and take appropriate action:
      *
@@ -443,7 +451,6 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %-9s: missing GTKHASH-IE", "15.4");
         return;
     }
-    ws_update_gak_index(wsrd, ind->hdr.key_index);
 
     /*
      *   Wi-SUN FAN 1.1v09 6.3.4.6.3.1 Usage of Trickle Timers
@@ -545,12 +552,6 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
-
-    /*
-     * We may receive a data frame encrypted with a newly activated GTK prior to
-     * receiving a PC.
-     */
-    ws_update_gak_index(wsrd, ind->hdr.key_index);
 
     lowpan_recv(&wsrd->ipv6,
                 ie_mpx.frame_ptr, ie_mpx.frame_length,
