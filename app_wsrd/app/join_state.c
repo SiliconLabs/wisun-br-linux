@@ -242,7 +242,6 @@ static const struct wsrd_state_transition state_configure_transitions[] = {
 static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
     { WSRD_EVENT_RPL_NEW_PREF_PARENT, WSRD_STATE_ROUTING },
     { WSRD_EVENT_PAN_TIMEOUT,         WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_RPL_NO_CANDIDATE,    WSRD_STATE_RECONNECT },
     { WSRD_EVENT_PA_FROM_NEW_PAN,     WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,           WSRD_STATE_DISCOVERY },
     { },
