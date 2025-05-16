@@ -98,7 +98,8 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
              * which it has received a RPL DIO (thereby collecting ETX and
              * bi-directional RSL for the neighbor).
              */
-            ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+            if (nce->nud_state != IPV6_NUD_PROBE)
+                ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
             discard = "etx";
         }
 
