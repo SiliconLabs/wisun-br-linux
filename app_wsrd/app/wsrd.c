@@ -89,6 +89,28 @@ static void wsrd_on_dhcp_txalg_failure(struct rfc8415_txalg *txalg)
         rfc8415_txalg_start(txalg);
 }
 
+static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
+{
+    struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *neigh;
+    struct in6_addr dodag_id; // -Waddress-of-packed-member
+    struct eui64 eui64;
+
+    if (!parent)
+        return;
+    dodag_id = parent->rpl->dio.dodag_id;
+    if (IN6_IS_ADDR_LINKLOCAL(src)) {
+        ipv6_addr_conv_iid_eui64(eui64.u8, src->s6_addr + 8);
+        neigh = ipv6_neigh_get_from_eui64(ipv6, &eui64);
+        if (!neigh)
+            return;
+        src = &neigh->gua;
+    }
+    if (IN6_ARE_ADDR_EQUAL(src, &dodag_id))
+        ws_pan_timeout_update(wsrd);
+}
+
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
@@ -209,6 +231,7 @@ struct wsrd g_wsrd = {
      * any sensible default values.
      */
     .ipv6.reach_base_ms  = 30000, // REACHABLE_TIME  30,000 milliseconds
+    .ipv6.on_recv = wsrd_ipv6_on_recv,
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)

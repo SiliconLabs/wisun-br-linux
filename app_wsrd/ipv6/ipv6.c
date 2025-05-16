@@ -133,6 +133,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     }
 
     ipv6_neigh_aro_refresh(ipv6, src_eui64, &hdr.ip6_src);
+    if (ipv6->on_recv)
+        ipv6->on_recv(ipv6, &hdr.ip6_src);
 
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
     if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
@@ -193,6 +195,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
         TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s (tunnelled)",
               tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
         ipv6_neigh_aro_refresh(ipv6, src_eui64, &hdr.ip6_src);
+        if (ipv6->on_recv)
+            ipv6->on_recv(ipv6, &hdr.ip6_src);
         break;
     case IPPROTO_ICMPV6:
         if (pktbuf_len(pktbuf) < sizeof(*icmp)) {

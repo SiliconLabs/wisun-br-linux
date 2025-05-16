@@ -40,6 +40,7 @@ struct ipv6_ctx {
     struct rpl_ctx rpl;
 
     int (*sendto_mac)(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst);
+    void (*on_recv)(struct ipv6_ctx *ipv6, const struct in6_addr *src);
 };
 
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *src_eui64);
