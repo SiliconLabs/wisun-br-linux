@@ -295,11 +295,16 @@ static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, co
 static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16], uint32_t frame_counter, uint8_t index)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
+    struct ws_neigh *neigh;
     uint8_t gak[16];
 
     // TODO: handle LGTK
     if (index > 4)
         return;
+
+    SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
+        neigh->frame_counter_min[index - 1] = gtk ? 0 : UINT32_MAX;
+
     if (gtk) {
         ws_generate_gak(wsrd->ws.netname, gtk, gak);
         TRACE(TR_SECURITY, "sec: install %s=%s",
