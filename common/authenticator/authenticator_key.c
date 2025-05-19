@@ -46,7 +46,7 @@ static uint8_t auth_key_get_gtkl(const struct ws_gtk *gtks, int gtks_size)
     uint8_t gtkl = 0;
 
     for (int i = 0; i < gtks_size; i++)
-        if (!timer_stopped(&gtks[i].expiration_timer))
+        if (ws_gtk_installed(&gtks[i]))
             gtkl |= BIT(i);
     return gtkl;
 }

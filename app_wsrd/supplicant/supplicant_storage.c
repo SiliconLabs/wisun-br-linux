@@ -122,7 +122,7 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     }
 
     for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
-        if (timer_stopped(&supp->gtks[i].expiration_timer))
+        if (!ws_gtk_installed(&supp->gtks[i]))
             continue;
         fprintf(info->file, "\n");
         str_key(supp->gtks[i].key, sizeof(supp->gtks[i].key), str_buf, sizeof(str_buf));

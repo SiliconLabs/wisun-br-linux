@@ -78,7 +78,7 @@ uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len)
     uint8_t gtkl = 0;
 
     for (size_t i = 0; i < gtks_len; i++)
-        if (!timer_stopped(&gtks[i].expiration_timer))
+        if (ws_gtk_installed(&gtks[i]))
             gtkl |= BIT(i);
     return gtkl;
 }
@@ -223,7 +223,7 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     ws_gtk_clear(group, gtk);
     supp_storage_store(supp, true);
     for (int i = offset; i < count; i++)
-        if (!timer_stopped(&supp->gtks[i].expiration_timer))
+        if (ws_gtk_installed(&supp->gtks[i]))
             return;
     TRACE(TR_SECURITY, "sec: no more %s installed", slot >= WS_GTK_COUNT ? "LGTK" : "GTK");
     supp->on_failure(supp);
@@ -279,7 +279,7 @@ void supp_reset(struct supp_ctx *supp)
     timer_stop(NULL, &supp->failure_timer);
     supp_eap_tls_reset(supp);
     for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
-        if (!timer_stopped(&supp->gtks[i].expiration_timer))
+        if (ws_gtk_installed(&supp->gtks[i]))
             supp->on_gtk_change(supp, NULL, 0, i + 1);
         ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
     }

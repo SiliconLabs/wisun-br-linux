@@ -319,7 +319,7 @@ void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write)
     fprintf(info->file, "#lptk.lifetime_s = %d\n", auth->cfg->lfn.ptk_lifetime_s);
 
     for (uint8_t i = 0; i < ARRAY_SIZE(auth->gtks); i++) {
-        if (timer_stopped(&auth->gtks[i].expiration_timer))
+        if (!ws_gtk_installed(&auth->gtks[i]))
             continue;
         fprintf(info->file, "\n");
         str_key(auth->gtks[i].key, sizeof(auth->gtks[i].key), str_buf, sizeof(str_buf));
