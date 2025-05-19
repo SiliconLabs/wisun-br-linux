@@ -24,7 +24,8 @@
  */
 
 struct rfc8415_txalg {
-    int max_delay_s;
+    int min_delay_s; // Minimum delay before 1st transmission (non standard)
+    int max_delay_s; // Maximum delay before 1st transmission
     int irt_s;  // Initial Retransmission Delay (seconds)
     int mrc;    // Maximum Retransmission Count
     int mrt_s;  // Maximum Retransmission Time (seconds)
