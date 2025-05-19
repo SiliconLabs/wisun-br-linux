@@ -197,9 +197,9 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
 {
     uint16_t own_routing_cost = ws_get_own_routing_cost(wsrd);
+    struct ws_jm_ie ie_jm = { };
     struct ws_pan_ie ie_pan;
     struct ws_us_ie ie_us;
-    struct ws_jm_ie ie_jm;
     bool has_jm;
 
     if (ind->hdr.pan_id == 0xffff) {
@@ -253,9 +253,10 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
      * from the node’s list of join metrics and not forwarded in transmitted
      * JM-IEs.
      */
-    wsrd->ws.has_jm = true;
-    if (!wsrd->ws.has_jm || seqno_cmp8(ie_jm.version, wsrd->ws.jm.version) > 0)
+    if (!wsrd->ws.has_jm || seqno_cmp8(ie_jm.version, wsrd->ws.jm.version) > 0) {
+        wsrd->ws.has_jm = true;
         wsrd->ws.jm = ie_jm;
+    }
 }
 
 static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
