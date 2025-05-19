@@ -70,6 +70,14 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client);
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client);
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client);
 
+static void wsrd_on_neigh_add(struct ws_neigh_table *table, struct ws_neigh *neigh)
+{
+    struct wsrd *wsrd = container_of(table, struct wsrd, ws.neigh_table);
+
+    for (int i = 0; i < ARRAY_SIZE(wsrd->supp.gtks); i++)
+        neigh->frame_counter_min[i] = ws_gtk_installed(&wsrd->supp.gtks[i]) ? 0 : UINT32_MAX;
+}
+
 static void wsrd_on_dao_ack(struct ipv6_ctx *ipv6)
 {
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
@@ -120,6 +128,7 @@ struct wsrd g_wsrd = {
     .prev_pan_id = 0xffff,
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
+    .ws.neigh_table.on_add          = wsrd_on_neigh_add,
     .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
     .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
     .ws.on_recv_ind                 = ws_on_recv_ind,
