@@ -130,7 +130,11 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh *ws_neigh)
 {
     struct net_if *net_if = container_of(table, struct net_if, ws_info.neighbor_storage);
+    const uint8_t gtkl = net_if->ws_info.key_index_mask >> 1;
     struct ipv6_neighbour *ipv6_neighbor;
+
+    for (int i = 0; i < WS_GTK_COUNT + WS_LGTK_COUNT; i++)
+        ws_neigh->frame_counter_min[i] = (gtkl & BIT(i)) ? 0 : UINT32_MAX;
 
     if (ws_neigh->node_role == WS_NR_ROLE_LFN && timer_stopped(&net_if->ws_info.mngt.lts_timer))
         timer_start_rel(NULL, &net_if->ws_info.mngt.lts_timer,
