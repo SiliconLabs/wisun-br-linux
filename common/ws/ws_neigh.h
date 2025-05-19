@@ -217,8 +217,7 @@ int ws_neigh_lfn_count(struct ws_neigh_table *table);
 
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                               const struct eui64 *eui64,
-                              uint8_t role, int8_t tx_power_dbm,
-                              unsigned int key_index_mask);
+                              uint8_t role, int8_t tx_power_dbm);
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 

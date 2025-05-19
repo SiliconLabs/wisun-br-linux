@@ -145,15 +145,13 @@ void ws_neigh_etx_update(struct ws_neigh_table *table,
 
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
                               const struct eui64 *eui64,
-                              uint8_t role, int8_t tx_power_dbm,
-                              unsigned int key_index_mask)
+                              uint8_t role, int8_t tx_power_dbm)
 {
     struct ws_neigh *neigh = zalloc(sizeof(struct ws_neigh));
 
     neigh->node_role = role;
-    for (uint8_t key_index = 1; key_index <= HIF_KEY_COUNT; key_index++)
-        if (!(key_index_mask & BIT(key_index)))
-            neigh->frame_counter_min[key_index - 1] = UINT32_MAX;
+    for (int i = 1; i < HIF_KEY_COUNT; i++)
+        neigh->frame_counter_min[i] = UINT32_MAX;
 
     /*
      *  Wi-SUN FAN 1.1v09 6.2.3.1.6.1 Link Metrics

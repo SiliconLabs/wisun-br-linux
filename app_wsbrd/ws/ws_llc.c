@@ -590,7 +590,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (add_neighbor) {
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
                                 &EUI64_FROM_BUF(data->SrcAddr), WS_NR_ROLE_ROUTER,
-                                net_if->ws_info.tx_power_dbm, net_if->ws_info.key_index_mask);
+                                net_if->ws_info.tx_power_dbm);
         BUG_ON(!ws_neigh);
     }
 
@@ -733,7 +733,7 @@ static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_dat
     if (neigh)
         return neigh;
     return ws_neigh_add(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr),
-                        node_role, ws_info->tx_power_dbm, ws_info->key_index_mask);
+                        node_role, ws_info->tx_power_dbm);
 }
 
 static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
