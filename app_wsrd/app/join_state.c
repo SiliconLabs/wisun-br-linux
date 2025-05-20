@@ -97,7 +97,6 @@ static void join_state_2_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
 
-    rpl_stop(&wsrd->ipv6);
     /*
      * Reset is needed to ensure we do not send invalid (L)GTKL when
      * transitionning to a new PAN.
@@ -231,7 +230,6 @@ static const struct wsrd_state_transition state_authenticate_transitions[] = {
 static const struct wsrd_state_transition state_configure_transitions[] = {
     { WSRD_EVENT_PC_RX,           WSRD_STATE_RPL_PARENT },
     { WSRD_EVENT_PC_TIMEOUT,      WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_PA_FROM_NEW_PAN, WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,       WSRD_STATE_DISCOVERY },
     { },
 };
@@ -239,7 +237,6 @@ static const struct wsrd_state_transition state_configure_transitions[] = {
 static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
     { WSRD_EVENT_RPL_NEW_PREF_PARENT, WSRD_STATE_ROUTING },
     { WSRD_EVENT_PAN_TIMEOUT,         WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_PA_FROM_NEW_PAN,     WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,           WSRD_STATE_DISCOVERY },
     { },
 };
@@ -248,7 +245,6 @@ static const struct wsrd_state_transition state_routing_transitions[] = {
     { WSRD_EVENT_ROUTING_SUCCESS,  WSRD_STATE_OPERATIONAL },
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     { },
 };
@@ -256,7 +252,6 @@ static const struct wsrd_state_transition state_routing_transitions[] = {
 static const struct wsrd_state_transition state_operational_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
-    { WSRD_EVENT_PA_FROM_NEW_PAN,  WSRD_STATE_AUTHENTICATE },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     { },
 };
