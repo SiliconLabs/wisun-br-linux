@@ -155,11 +155,11 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     rcp_set_filter_pan_id(&wsrd->ws.rcp, selected_pan_id);
     dbus_emit_change("PanId");
     if (selected_candidate->plf != 0xff)
-        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
+        INFO("eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:%u%%", "select",
              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
              ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
     else
-        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:n/a", "select",
+        INFO("eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:n/a", "select",
              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
              ws_neigh_get_pan_cost(selected_candidate));
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
@@ -196,10 +196,10 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
         ind->neigh->plf = 0xff;
 
     if (ind->neigh->plf != 0xff)
-        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
+        INFO("eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
              tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
     else
-        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:n/a", added ? "add" : "refresh",
+        INFO("eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:n/a", added ? "add" : "refresh",
             tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost);
 }
 
