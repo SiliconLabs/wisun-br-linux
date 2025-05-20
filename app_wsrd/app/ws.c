@@ -342,7 +342,9 @@ void ws_check_gtkhash(struct wsrd *wsrd)
         gtkhash_mismatch = supp_gtkhash_mismatch(&wsrd->supp, wsrd->ws.gtkhash[i], i + 1);
         if (gtkhash_mismatch && !timer_stopped(&wsrd->supp.gtks[i].expiration_timer))
             supp_revoke_gtk(&wsrd->supp, i);
-        send_key_request |= gtkhash_mismatch;
+        // Skip Key-Request if the change is only a revoked/uninstalled key
+        if (gtkhash_mismatch && memzcmp(wsrd->ws.gtkhash[i], sizeof(wsrd->ws.gtkhash[i])))
+            send_key_request = true;
     }
     if (send_key_request)
         supp_start_key_request(&wsrd->supp);
