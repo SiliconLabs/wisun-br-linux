@@ -706,13 +706,18 @@ void ws_on_send_pa(struct trickle *tkl)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pa_tkl);
     const struct ipv6_neigh *ipv6_parent = rpl_neigh_pref_parent(&wsrd->ipv6);
-    uint16_t own_routing_cost = ws_get_own_routing_cost(wsrd);
     const struct ws_neigh *ws_parent;
+    uint16_t own_routing_cost;
 
     BUG_ON(!ipv6_parent);
     ws_parent = ws_neigh_get(&wsrd->ws.neigh_table, &ipv6_parent->eui64);
     BUG_ON(!ws_parent);
 
+    if (!ws_parent->ie_pan.fan_tps_version) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: parent's PAN metrics are not yet available", tr_ws_frame(WS_FT_PA));
+        return;
+    }
+    own_routing_cost = ws_get_own_routing_cost(wsrd);
     ws_if_send_pa(&wsrd->ws, ws_parent->ie_pan.pan_size, own_routing_cost);
 }
 
