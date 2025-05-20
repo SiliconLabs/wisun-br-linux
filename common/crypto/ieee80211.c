@@ -67,7 +67,7 @@ void ieee80211_prf(const uint8_t *key, size_t key_len, const char *label,
 
     mbedtls_md_init(&sha1);
     xmbedtls_md_setup(&sha1, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), 1);
-    for (uint8_t i = 0; i < roundup(result_size, 20) / 20; i++) {
+    for (uint8_t i = 0; i < divup(result_size, 20); i++) {
         xmbedtls_md_hmac_starts(&sha1, key, key_len);
         xmbedtls_md_hmac_update(&sha1, (uint8_t *)label, strlen(label) + 1); // A + Y
         xmbedtls_md_hmac_update(&sha1, data, data_len);                      // B

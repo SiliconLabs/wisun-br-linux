@@ -863,7 +863,7 @@ static void ws_channel_excluded_read(struct iobuf_read *ie_buf, struct ws_generi
         break;
     case WS_EXC_CHAN_CTRL_BITMASK:
         if (chan_info->channel_plan == 1)
-            exc_chan->mask.mask_len_inline = roundup(chan_info->plan.one.number_of_channel, 8) / 8;
+            exc_chan->mask.mask_len_inline = divup(chan_info->plan.one.number_of_channel, 8);
         else
             exc_chan->mask.mask_len_inline = iobuf_remaining_size(ie_buf);
         exc_chan->mask.channel_mask = iobuf_pop_data_ptr(ie_buf, exc_chan->mask.mask_len_inline);

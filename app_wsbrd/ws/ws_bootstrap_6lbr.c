@@ -151,7 +151,7 @@ static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
 
 static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
 {
-    int num_bytes = roundup(num_chans, 8) / 8;
+    int num_bytes = divup(num_chans, 8);
     uint8_t tmp[WS_CHAN_MASK_LEN] = { };
     int i;
 
@@ -163,7 +163,7 @@ static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
 
 static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
 {
-    int num_bytes = roundup(num_chans, 8) / 8;
+    int num_bytes = divup(num_chans, 8);
 
     if (bitcmp0(chan_mask, num_chans))
         return "--";
@@ -214,7 +214,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     INFO("  channel count: %d", fhss_config->chan_params->chan_count);
     INFO("  channel masks:");
 
-    length = -roundup(fhss_config->chan_params->chan_count, 8) / 8 * 3;
+    length = -divup(fhss_config->chan_params->chan_count, 8) * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
     ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);

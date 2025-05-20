@@ -28,6 +28,19 @@
     _x > _y ? _x : _y;  \
 })
 
+/*
+ * Divide x by y and round to the upper integer (ceiling operation). Intended
+ * for positive integer inputs. divdown() is the standard division operator on
+ * integers.
+ *   divup(3, 2) == 2
+ *   divup(3, 3) == 1
+ *   divup(3, 4) == 1
+ */
+#define divup(x, y) ({ \
+    const typeof(y) __y = y; \
+    ((x) + (__y - 1)) / __y; \
+})
+
 #define roundup(x, y) ({ \
     const typeof(y) __y = y;         \
     (((x) + (__y - 1)) / __y) * __y; \
