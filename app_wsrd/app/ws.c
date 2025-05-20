@@ -154,9 +154,14 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     wsrd->fhss_bc_synced_to_target = false;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, selected_pan_id);
     dbus_emit_change("PanId");
-    INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
-         tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
-         ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
+    if (selected_candidate->plf != 0xff)
+        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", "select",
+             tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
+             ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
+    else
+        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:n/a", "select",
+             tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
+             ws_neigh_get_pan_cost(selected_candidate));
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
     if (wsrd->prev_pan_id != 0xffff && wsrd->prev_pan_id == wsrd->ws.pan_id)
@@ -190,8 +195,12 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
     else
         ind->neigh->plf = 0xff;
 
-    INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
-         tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
+    if (ind->neigh->plf != 0xff)
+        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:%u%%", added ? "add" : "refresh",
+             tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost, ind->neigh->plf);
+    else
+        INFO("eapol target candidate %-7s %s pan_id:0x%04x pan_cost:%u plf:n/a", added ? "add" : "refresh",
+            tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost);
 }
 
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
