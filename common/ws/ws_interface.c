@@ -44,7 +44,7 @@ static const struct name_value ws_frames[] = {
     { NULL },
 };
 
-static const char *tr_ws_frame(uint8_t type)
+const char *tr_ws_frame(uint8_t type)
 {
     return val_to_str(type, ws_frames, "unknown");
 }

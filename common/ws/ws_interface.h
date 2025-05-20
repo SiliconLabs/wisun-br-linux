@@ -139,4 +139,6 @@ void ws_if_send_pcs(struct ws_ctx *ws, uint16_t pan_id);
 void ws_if_send_pc(struct ws_ctx *ws);
 void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req);
 
+const char *tr_ws_frame(uint8_t type);
+
 #endif
