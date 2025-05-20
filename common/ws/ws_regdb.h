@@ -13,6 +13,7 @@
  */
 #ifndef WS_REGDB_H
 #define WS_REGDB_H
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -114,5 +115,7 @@ int ws_regdb_chan_spacing_id(int val);
 int ws_regdb_chan_spacing_from_id(int id);
 
 bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id);
+
+int ws_regdb_frame_duration_ms(const struct phy_params *phy, size_t len);
 
 #endif

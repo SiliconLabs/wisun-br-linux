@@ -15,6 +15,7 @@
 #include <limits.h>
 
 #include "common/hif.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "ws_regdb.h"
 
@@ -333,4 +334,43 @@ bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id)
         }
     }
     return false;
+}
+
+// IEEE 802.15.4 21. SUN OFDM PHY
+#define OFDM_SYMBOL_DURATION_US 120
+
+int ws_regdb_frame_duration_ms(const struct phy_params *phy, size_t len)
+{
+    // Wi-SUN PHY 2v03 6.1.1 Preamble Length
+    static const uint8_t fsk_preamble_len[] = { 8, 8, 8, 8, 12, 12, 12, 24 };
+    // IEEE 802.15.4-2024 Table 21-9 PHR Symbols for SUN OFDM PHY options
+    static const uint8_t ofdm_phr_symbols[][8] = {
+        {  3,  3, 3, 3, 3, 3, 3, 3 }, // Option 1
+        {  6,  6, 6, 6, 6, 6, 6, 6 }, // Option 2
+        { 12,  6, 6, 6, 6, 6, 6, 6 }, // Option 3
+        { 24, 24, 6, 6, 6, 6, 6, 6 }, // Option 4
+    };
+    size_t symbols = 0;
+    size_t bits;
+
+    len += 4; // FCS
+    switch (phy->modulation) {
+    case MODULATION_2FSK:
+        len += 2; // PHR
+        if (phy->fec)
+            len *= 2;
+        len += fsk_preamble_len[(phy->phy_mode_id & 0x0f) - 1];
+        len += 2; // SFD
+        return divup(len * 8 * 1000, phy->datarate);
+    case MODULATION_OFDM:
+        symbols += 4; // STF
+        symbols += 2; // LTF
+        symbols += ofdm_phr_symbols[phy->ofdm_option - 1][phy->ofdm_mcs];
+        bits = len * 8;
+        bits += 6; // PPDU Tail
+        symbols += divup(bits * 1000000 / phy->datarate, OFDM_SYMBOL_DURATION_US);
+        return divup(symbols * OFDM_SYMBOL_DURATION_US, 1000);
+    default:
+        return divup(len * 8 * 1000, phy->datarate);
+    }
 }
