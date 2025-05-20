@@ -16,6 +16,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/*
+ * Simple extra math operators. As for C operators, they return the same type
+ * than their arguments (this is the reason why they are implemented with
+ * macros). Names are usually self-describing.
+ */
+
 #define MIN(x, y) ({ \
     typeof(x) _x = (x); \
     typeof(y) _y = (y); \
