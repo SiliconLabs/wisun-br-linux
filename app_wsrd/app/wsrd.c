@@ -381,7 +381,6 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         ws_sync_fhss_bc(wsrd, ws_neigh);
     } else {
         wsrd->eapol_target_eui64 = EUI64_BC;
-        // TODO: handle parent loss
         join_state_transition(wsrd, WSRD_EVENT_RPL_NO_CANDIDATE);
     }
 }

@@ -149,7 +149,6 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     }
 
     memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
-    // TODO: reset PAN ID when transitioning to join state 1
     wsrd->ws.pan_id = selected_pan_id;
     wsrd->fhss_bc_synced_to_target = false;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, selected_pan_id);
