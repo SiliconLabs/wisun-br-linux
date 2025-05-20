@@ -115,7 +115,6 @@ static void join_state_3_enter(struct wsrd *wsrd)
 
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb  = 0;
-    rpl_stop(&wsrd->ipv6);
 
     INFO("Join state 3: Acquire PAN Config");
     trickle_start(&wsrd->pcs_tkl);
