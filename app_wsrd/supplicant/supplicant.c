@@ -253,7 +253,7 @@ bool supp_gtkhash_mismatch(struct supp_ctx *supp, const uint8_t gtkhash[8], uint
         mismatch = memcmp(hash + 24, gtkhash, 8);
     }
     if (mismatch)
-        TRACE(TR_SECURITY, "sec: gtkhash[%u] mismatch got:%s expected:%s", gtkhash_index,
+        TRACE(TR_SECURITY, "sec: gtkhash[%u] mismatch got:%s expected:%s", gtkhash_index - 1,
               tr_key(hash + 24, 8), tr_key(gtkhash, 8));
     return mismatch;
 }
