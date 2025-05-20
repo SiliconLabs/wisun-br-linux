@@ -506,7 +506,23 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
 
 static void wsrd_init_ws(struct wsrd *wsrd)
 {
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    uint64_t pc_duration_ms;
+    uint16_t chan_count;
+
     strcpy(wsrd->ws.netname, wsrd->config.ws_netname);
+
+    // Average PC frame length with LFN IEs: 130 bytes
+    pc_duration_ms = ws_regdb_frame_duration_ms(wsrd->ws.phy.params, 130);
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
+    chan_count = ws_chan_mask_count(chan_mask);
+    /*
+     * NOTE: DIS transmission is typically started right after receiving a PC
+     * frame. Delay at least until the PC async transmission sequence has ended
+     * to avoid collisions.
+     */
+    wsrd->ipv6.rpl.dis_txalg.min_delay_s = divup(pc_duration_ms * chan_count, 1000);
+    wsrd->ipv6.rpl.dis_txalg.max_delay_s = wsrd->ipv6.rpl.dis_txalg.min_delay_s + 5; // Arbitrary
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
     trickle_init(&wsrd->pas_tkl);
