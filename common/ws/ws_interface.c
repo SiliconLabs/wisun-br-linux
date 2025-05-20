@@ -49,7 +49,7 @@ const char *tr_ws_frame(uint8_t type)
     return val_to_str(type, ws_frames, "unknown");
 }
 
-static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
+static void ws_print_ind(const struct ws_ind *ind, uint8_t type, uint16_t pan_version)
 {
     unsigned int tr_domain;
 
@@ -58,14 +58,20 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type)
     else
         tr_domain = TR_15_4_MNGT;
 
-    if (ind->hdr.pan_id != UINT16_MAX)
-        TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)",
-              tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
-              ind->hdr.pan_id, ind->hif->rx_power_dbm);
-    else
+    if (ind->hdr.pan_id != UINT16_MAX) {
+        if (type == WS_FT_PC)
+            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x panver:%u (%ddBm)",
+                  tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
+                  ind->hdr.pan_id, pan_version, ind->hif->rx_power_dbm);
+        else
+            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)",
+                  tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
+                  ind->hdr.pan_id, ind->hif->rx_power_dbm);
+    } else {
         TRACE(tr_domain, "rx-15.4 %-9s src:%s (%ddBm)",
               tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
               ind->hif->rx_power_dbm);
+    }
 }
 
 static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t frame_type,
@@ -131,6 +137,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     struct ws_utt_ie ie_utt;
     struct ws_bt_ie ie_bt;
     struct ws_fc_ie ie_fc;
+    uint16_t pan_version;
     bool has_bt_ie;
     int ret;
 
@@ -190,7 +197,8 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         return;
     }
 
-    ws_print_ind(&ind, ie_utt.message_type);
+    ws_wp_nested_panver_read(ind.ie_wp.data, ind.ie_wp.data_size, &pan_version);
+    ws_print_ind(&ind, ie_utt.message_type, pan_version);
     if (ws->on_recv_ind)
         ws->on_recv_ind(ws, &ind);
 }
