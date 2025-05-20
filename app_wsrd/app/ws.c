@@ -402,8 +402,14 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      * deleting the key based on a GTKHASH change is dangerous because the GTK
      * is more likely to leak than the PTK, and authenticator packets are
      * secured using the PTK.
+     *
+     * NOTE: In "reconnect" state, on PC RX, a GTKHASH mismatch may occur.
+     * However, in that state, we do not have any EAPOL target. Therefore,
+     * we delay the processing of the GTKHASH-IE to the next successful
+     * parent selection.
      */
-    ws_check_gtkhash(wsrd);
+    if (!eui64_is_bc(&wsrd->eapol_target_eui64))
+        ws_check_gtkhash(wsrd);
     /*
      * d. The FFN MUST store any unknown FFN-Wide or PAN-Wide IEs for inclusion
      * in subsequent PAN Configuration and LFN Configuration frame transmissions
