@@ -103,7 +103,7 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
     }
 
     size_no_pad = 8 + (16 - cmpri) * (srh->seg_count - 1) + (16 - cmpre);
-    pad = roundup(size_no_pad, 8) - size_no_pad;
+    pad = divup(size_no_pad, 8) * 8 - size_no_pad;
 
     iobuf_push_u8(buf, nxthdr);
     iobuf_push_u8(buf, (size_no_pad + pad) / 8 - 1);

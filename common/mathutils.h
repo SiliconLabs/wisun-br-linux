@@ -41,16 +41,6 @@
     ((x) + (__y - 1)) / __y; \
 })
 
-#define roundup(x, y) ({ \
-    const typeof(y) __y = y;         \
-    (((x) + (__y - 1)) / __y) * __y; \
-})
-
-#define rounddown(x, y) ({ \
-    typeof(x) __x = (x); \
-    __x - (__x % (y));   \
-})
-
 #define POW2(n) (1ul << (n))
 
 // 32bit addition with saturation

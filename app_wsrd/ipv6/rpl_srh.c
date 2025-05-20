@@ -64,7 +64,7 @@ static int rpl_srh_push(struct pktbuf *pktbuf,
             cmpre = i;
 
     len = sizeof(struct ipv6_rpl_sr_hdr) + (n - 1) * (16 - cmpri) + (16 - cmpre);
-    pad = roundup(len, 8) - len;
+    pad = divup(len, 8) * 8 - len;
 
     srh = pktbuf_push_head(pktbuf, NULL, len + pad);
     srh->nexthdr       = nxthdr;
