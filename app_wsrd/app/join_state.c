@@ -183,10 +183,10 @@ static void join_state_5_enter(struct wsrd *wsrd)
     BUG_ON(timer_stopped(&parent->own_aro_timer));
     BUG_ON(!parent->rpl->dao_ack_received);
     BUG_ON(timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer));
+    BUG_ON(wsrd->ws.eapol_relay_fd >= 0);
 
     INFO("Join state 5: Operational");
     rpl_start_dio(&wsrd->ipv6);
-    close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
     trickle_start(&wsrd->pa_tkl);
     trickle_start(&wsrd->pc_tkl);
