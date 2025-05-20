@@ -60,11 +60,11 @@ static void ws_print_ind(const struct ws_ind *ind, uint8_t type, uint16_t pan_ve
 
     if (ind->hdr.pan_id != UINT16_MAX) {
         if (type == WS_FT_PC)
-            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x panver:%u (%ddBm)",
+            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:0x%04x panver:%u (%ddBm)",
                   tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
                   ind->hdr.pan_id, pan_version, ind->hif->rx_power_dbm);
         else
-            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)",
+            TRACE(tr_domain, "rx-15.4 %-9s src:%s panid:0x%04x (%ddBm)",
                   tr_ws_frame(type), tr_eui64(ind->hdr.src.u8),
                   ind->hdr.pan_id, ind->hif->rx_power_dbm);
     } else {
