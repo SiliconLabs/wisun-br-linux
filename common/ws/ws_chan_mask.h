@@ -22,6 +22,9 @@ struct chan_params;
 // channels, but this is currently not supported (eg. the 2.4GHz PHY).
 #define WS_CHAN_MASK_LEN 32
 
+// Get the number of valid channels.
+int ws_chan_mask_count(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
+
 // Get the channel number from a channel mask containing extactly 1 channel.
 int ws_chan_mask_get_fixed(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 

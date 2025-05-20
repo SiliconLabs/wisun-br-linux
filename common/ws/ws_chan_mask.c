@@ -21,6 +21,15 @@
 
 #include "ws_chan_mask.h"
 
+int ws_chan_mask_count(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+{
+    int cnt = 0;
+
+    for (int i = 0; i < WS_CHAN_MASK_LEN; i++)
+        cnt += __builtin_popcount(chan_mask[i]);
+    return cnt;
+}
+
 int ws_chan_mask_get_fixed(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
 {
     int val = -EINVAL;
