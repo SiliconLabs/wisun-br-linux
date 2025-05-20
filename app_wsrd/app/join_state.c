@@ -201,11 +201,9 @@ static void join_state_5_exit(struct wsrd *wsrd)
     BUG_ON(wsrd->ws.eapol_relay_fd < 0);
 
     // TODO: inform the network that we are leaving
-    trickle_stop(&wsrd->ipv6.rpl.dio_trickle);
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
     dhcp_relay_stop(&wsrd->dhcp_relay);
-    // TODO: stop DIO
     trickle_stop(&wsrd->pa_tkl);
     trickle_stop(&wsrd->pc_tkl);
 }
