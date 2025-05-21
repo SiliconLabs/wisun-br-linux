@@ -564,6 +564,34 @@ static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
     ws_if_send_eapol(&wsrd->ws, kmp_id, buf, buf_len, &supp_eui64, &wsrd->supp.auth_eui64);
 }
 
+static void wsrd_poll(struct wsrd *wsrd, struct pollfd *pfd)
+{
+    int ret;
+
+    pfd[POLLFD_RPL].fd = wsrd->ipv6.rpl.fd;
+    pfd[POLLFD_DHCP_RELAY].fd  = wsrd->dhcp_relay.fd;
+    pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
+    ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
+    FATAL_ON(ret < 0, 2, "poll: %m");
+    if (wsrd->ws.rcp.bus.uart.data_ready ||
+        pfd[POLLFD_RCP].revents & POLLIN)
+        rcp_rx(&wsrd->ws.rcp);
+    if (pfd[POLLFD_TIMER].revents & POLLIN)
+        timer_process();
+    if (pfd[POLLFD_TUN].revents & POLLIN)
+        ipv6_recvfrom_tun(&wsrd->ipv6);
+    if (pfd[POLLFD_RPL].revents & POLLIN)
+        rpl_recv(&wsrd->ipv6);
+    if (pfd[POLLFD_DHCP].revents & POLLIN)
+        dhcp_client_recv(&wsrd->ipv6.dhcp);
+    if (pfd[POLLFD_DHCP_RELAY].revents & POLLIN)
+        dhcp_relay_recv(&wsrd->dhcp_relay);
+    if (pfd[POLLFD_EAPOL_RELAY].revents & POLLIN)
+        wsrd_eapol_relay_recv(wsrd);
+    if (pfd[POLLFD_DBUS].revents & POLLIN)
+        dbus_process();
+}
+
 int wsrd_main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
@@ -574,7 +602,6 @@ int wsrd_main(int argc, char *argv[])
     };
     struct sigaction sigact = { };
     struct wsrd *wsrd = &g_wsrd;
-    int ret;
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     sigact.sa_flags = SA_RESETHAND;
@@ -647,28 +674,6 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
-    while (true) {
-        pfd[POLLFD_RPL].fd = wsrd->ipv6.rpl.fd;
-        pfd[POLLFD_DHCP_RELAY].fd  = wsrd->dhcp_relay.fd;
-        pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
-        ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
-        FATAL_ON(ret < 0, 2, "poll: %m");
-        if (wsrd->ws.rcp.bus.uart.data_ready ||
-            pfd[POLLFD_RCP].revents & POLLIN)
-            rcp_rx(&wsrd->ws.rcp);
-        if (pfd[POLLFD_TIMER].revents & POLLIN)
-            timer_process();
-        if (pfd[POLLFD_TUN].revents & POLLIN)
-            ipv6_recvfrom_tun(&wsrd->ipv6);
-        if (pfd[POLLFD_RPL].revents & POLLIN)
-            rpl_recv(&wsrd->ipv6);
-        if (pfd[POLLFD_DHCP].revents & POLLIN)
-            dhcp_client_recv(&wsrd->ipv6.dhcp);
-        if (pfd[POLLFD_DHCP_RELAY].revents & POLLIN)
-            dhcp_relay_recv(&wsrd->dhcp_relay);
-        if (pfd[POLLFD_EAPOL_RELAY].revents & POLLIN)
-            wsrd_eapol_relay_recv(wsrd);
-        if (pfd[POLLFD_DBUS].revents & POLLIN)
-            dbus_process();
-    }
+    while (true)
+        wsrd_poll(wsrd, pfd);
 }
