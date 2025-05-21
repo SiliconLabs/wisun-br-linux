@@ -140,7 +140,8 @@ void ws_neigh_etx_update(struct ws_neigh_table *table,
      * FIXME: ETX computation is scheduled to ensure the confirmed frame is
      * properly processed by higher layers.
      */
-    timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 0);
+    if (timer_stopped(&neigh->etx_timer_compute))
+        timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 0);
 }
 
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
