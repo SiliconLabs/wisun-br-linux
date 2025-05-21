@@ -69,6 +69,7 @@ struct ipv6_neigh {
     int  nud_probe_count;
     struct timer_entry nud_timer;
     struct timer_entry own_aro_timer;
+    uint64_t ncr_timestamp_ms;
 
     int ns_handle;
 

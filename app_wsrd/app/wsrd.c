@@ -231,6 +231,8 @@ struct wsrd g_wsrd = {
 
     // Arbitrary, same lifetime as MAC neighbors
     .ipv6.aro_lifetime_ms = WS_NEIGHBOR_LINK_TIMEOUT * 1000,
+    // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
+    .ipv6.ncr_resp_window_ms = 10000,
     // Arbitrary (default RETRANS_TIMER of 1s is not suited for Wi-SUN)
     .ipv6.probe_delay_ms =  5000,
     /*

@@ -407,20 +407,50 @@ static void ipv6_recv_na_aro(struct ipv6_ctx *ipv6, const struct nd_neighbor_adv
     TRACE(TR_ICMP, "rx-icmp %-9s status=%u eui64=%s", "na(aro)", aro->status, tr_eui64(eui64.u8));
 
     /*
-     *   RFC 6775 5.5.2. Processing a Neighbor Advertisement
-     * If the EUI-64 field does not match the EUI-64 of the interface, the
-     * option is silently ignored.
+     * NOTE: RFC 9685 does not specify the content of the ROVR field in case of
+     * a "Registration Refresh Request". Formal discussions on this topic are
+     * ongoing [1] [2]. The current decision for Wi-SUN is to ignore the field
+     * on reception of multicast NA(EARO) packets. The SOLICITED flag is used to
+     * identify these packets.
+     *
+     * [1]: https://mailarchive.ietf.org/arch/browse/6lo/?gbt=1&index=qSOcJcVOxr7R15aoY_CGeIFhSeg
+     * [2]: https://ws.wi-sun.org/wg/FAN_WG/mail/thread/2019
      */
-    if (!eui64_eq(&ipv6->eui64, &eui64)) {
-        TRACE(TR_DROP, "drop %-9s: own/aro eui64 mismatch", "na(aro)");
-        return;
+    if (na->nd_na_flags_reserved & ND_NA_FLAG_SOLICITED) {
+        /*
+         *   RFC 6775 5.5.2. Processing a Neighbor Advertisement
+         * If the EUI-64 field does not match the EUI-64 of the interface, the
+         * option is silently ignored.
+         */
+        if (!eui64_eq(&ipv6->eui64, &eui64)) {
+            TRACE(TR_DROP, "drop %-9s: own/aro eui64 mismatch", "na(aro)");
+            return;
+        }
     }
+
     if (!nce->rpl || !nce->rpl->is_parent) {
         TRACE(TR_DROP, "drop %-9s: not our parent", "na(aro)");
         return;
     }
     switch (aro->status) {
     case NDP_ARO_STATUS_SUCCESS:
+        break;
+    case NDP_ARO_STATUS_REFRESH:
+        /*
+         *   Wi-SUN FAN 1.1v09 6.2.3.1.4.1 FFN Neighbor Discovery
+         * Upon receipt of a Registration Refresh Request, child nodes whose
+         * routing parent (preferred or alternate) is the issuing FFN MUST
+         * ignore the TID value and re-register their IP addresses with the FFN
+         * parent by sending an NS(ARO) once and only once within an
+         * NCR_RESP_WINDOW.
+         */
+        if (time_now_ms(CLOCK_MONOTONIC) > nce->ncr_timestamp_ms + ipv6->ncr_resp_window_ms) {
+            nce->ncr_timestamp_ms = time_now_ms(CLOCK_MONOTONIC);
+            timer_start_rel(&ipv6->timer_group, &nce->own_aro_timer,
+                            randf_range(0, ipv6->ncr_resp_window_ms));
+        } else {
+            TRACE(TR_DROP, "drop %-9s: ncr already in progress", "na(aro)");
+        }
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported aro status=%u", "na(aro)", aro->status);
