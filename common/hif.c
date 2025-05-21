@@ -44,6 +44,7 @@ static const struct name_value hif_cmd_names[] = {
     ENTRY(SET_FHSS_FFN_BC),
     ENTRY(SET_FHSS_LFN_BC),
     ENTRY(SET_FHSS_ASYNC),
+    ENTRY(SET_FHSS_LFN_UC),
     ENTRY(SET_SEC_KEY),
     ENTRY(SET_SEC_FRAME_COUNTER_TX),
     ENTRY(SET_SEC_FRAME_COUNTER_RX),
