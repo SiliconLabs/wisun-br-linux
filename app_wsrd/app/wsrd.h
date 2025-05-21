@@ -26,6 +26,7 @@
 struct wsrd {
     struct wsrd_conf config;
 
+    bool running;
     enum wsrd_state state;
     enum wsrd_event last_event;
     struct timer_entry unregistration_timer;

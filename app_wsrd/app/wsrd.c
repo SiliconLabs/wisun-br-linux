@@ -571,8 +571,7 @@ static void wsrd_handle_signal(struct wsrd *wsrd, int signal_fd)
         case SIGINT:
         case SIGHUP:
         case SIGTERM:
-            // Exit cleanly to dump coverage.
-            exit(EXIT_SUCCESS);
+            join_state_transition(wsrd, WSRD_EVENT_DISCONNECT);
             break;
         default:
             break;
@@ -703,6 +702,8 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
-    while (true)
+    wsrd->running = true;
+    while (wsrd->running)
         wsrd_poll(wsrd, pfd, &sig_mask);
+    return EXIT_SUCCESS;
 }

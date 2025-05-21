@@ -29,6 +29,7 @@ enum wsrd_event {
     WSRD_EVENT_ROUTING_SUCCESS,
     WSRD_EVENT_RPL_NO_CANDIDATE,
     WSRD_EVENT_PAN_TIMEOUT,
+    WSRD_EVENT_DISCONNECT,
     WSRD_EVENT_COUNT,
 };
 
@@ -55,8 +56,6 @@ struct wsrd_state_entry {
     void (*enter)(struct wsrd *wsrd);
     void (*exit)(struct wsrd *wsrd);
 };
-
-struct wsrd;
 
 void join_state_1_enter(struct wsrd *wsrd);
 void join_state_3_reconnect_enter(struct wsrd *wsrd);
