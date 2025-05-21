@@ -419,10 +419,14 @@ static void ipv6_recv_na_aro(struct ipv6_ctx *ipv6, const struct nd_neighbor_adv
         TRACE(TR_DROP, "drop %-9s: not our parent", "na(aro)");
         return;
     }
-    if (aro->status == NDP_ARO_STATUS_SUCCESS)
-        return;
-    // Arbitrary
-    rpl_neigh_deny(ipv6, nce);
+    switch (aro->status) {
+    case NDP_ARO_STATUS_SUCCESS:
+        break;
+    default:
+        TRACE(TR_DROP, "drop %-9s: unsupported aro status=%u", "na(aro)", aro->status);
+        rpl_neigh_deny(ipv6, nce); // Arbitrary
+        break;
+    }
 }
 
 void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const struct in6_addr *dst)
