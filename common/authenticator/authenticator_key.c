@@ -359,6 +359,8 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
     }
     memcpy(supp->eap_tls.tls.ptk.key, supp->eap_tls.tls.ptk.tkey, sizeof(supp->eap_tls.tls.ptk.key));
     supp->eap_tls.tls.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
+    TRACE(TR_SECURITY, "sec: install ptk=%s",
+          tr_key(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key)));
     return auth_key_handshake_done(auth, supp);
 }
 
