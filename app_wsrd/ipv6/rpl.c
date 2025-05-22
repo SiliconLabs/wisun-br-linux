@@ -171,18 +171,14 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
 }
 
-static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
+static void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct in6_addr *dst)
 {
     struct iobuf_write iobuf = { };
     struct rpl_opt_prefix prefix;
-    struct ipv6_neigh *parent;
     struct rpl_dio dio;
 
-    parent = rpl_neigh_pref_parent(ipv6);
-    if (!parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
-        TRACE(TR_TX_ABORT, "tx-abort %-9s: rpl not ready", "rpl-dio");
-        return;
-    }
+    BUG_ON(!parent || !parent->rpl);
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr));
 
     memset(&dio, 0, sizeof(dio));
     dio.instance_id = parent->rpl->dio.instance_id;
@@ -221,8 +217,10 @@ static void rpl_send_dio(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 static void rpl_send_dio_mc(struct trickle *tkl)
 {
     struct ipv6_ctx *ipv6 = container_of(tkl, struct ipv6_ctx, rpl.dio_trickle);
+    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
 
-    rpl_send_dio(ipv6, &ipv6_addr_all_rpl_nodes_link);
+    BUG_ON(!parent);
+    rpl_send_dio(ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
 }
 
 void rpl_start_dio(struct ipv6_ctx *ipv6)
@@ -582,7 +580,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     if (IN6_IS_ADDR_MULTICAST(dst))
         trickle_inconsistent(&ipv6->rpl.dio_trickle);
     else
-        rpl_send_dio(ipv6, src);
+        rpl_send_dio(ipv6, parent, src);
     return;
 
 malformed:
