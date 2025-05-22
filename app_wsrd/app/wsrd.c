@@ -568,11 +568,13 @@ static void wsrd_handle_signal(struct wsrd *wsrd, int signal_fd)
     read_size = read(signal_fd, &fdsi, sizeof(fdsi));
     FATAL_ON(read_size != sizeof(fdsi), 2);
     switch (fdsi.ssi_signo) {
-        case SIGINT:
-        case SIGHUP:
         case SIGTERM:
             join_state_transition(wsrd, WSRD_EVENT_DISCONNECT);
             break;
+        case SIGINT:
+        case SIGHUP:
+            // Exit cleanly to dump coverage.
+            exit(EXIT_SUCCESS);
         default:
             break;
     }
