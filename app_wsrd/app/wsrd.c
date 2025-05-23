@@ -13,6 +13,7 @@
  */
 #define _GNU_SOURCE
 #include <linux/capability.h>
+#include <sys/signalfd.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,6 +54,7 @@ enum {
     POLLFD_DHCP_RELAY,
     POLLFD_EAPOL_RELAY,
     POLLFD_DBUS,
+    POLLFD_SIGNAL,
     POLLFD_COUNT,
 };
 
@@ -426,12 +428,6 @@ static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
     return parent_ll;
 }
 
-void kill_handler(int signal)
-{
-    // Exit cleanly to dump coverage.
-    exit(EXIT_SUCCESS);
-}
-
 void sig_error_handler(int signal)
 {
     __PRINT(91, "bug: %s", strsignal(signal));
@@ -564,7 +560,26 @@ static void wsrd_eapol_relay_recv(struct wsrd *wsrd)
     ws_if_send_eapol(&wsrd->ws, kmp_id, buf, buf_len, &supp_eui64, &wsrd->supp.auth_eui64);
 }
 
-static void wsrd_poll(struct wsrd *wsrd, struct pollfd *pfd)
+static void wsrd_handle_signal(struct wsrd *wsrd, int signal_fd)
+{
+    struct signalfd_siginfo fdsi;
+    ssize_t read_size;
+
+    read_size = read(signal_fd, &fdsi, sizeof(fdsi));
+    FATAL_ON(read_size != sizeof(fdsi), 2);
+    switch (fdsi.ssi_signo) {
+        case SIGINT:
+        case SIGHUP:
+        case SIGTERM:
+            // Exit cleanly to dump coverage.
+            exit(EXIT_SUCCESS);
+            break;
+        default:
+            break;
+    }
+}
+
+static void wsrd_poll(struct wsrd *wsrd, struct pollfd *pfd, const sigset_t *sig_mask)
 {
     int ret;
 
@@ -590,6 +605,13 @@ static void wsrd_poll(struct wsrd *wsrd, struct pollfd *pfd)
         wsrd_eapol_relay_recv(wsrd);
     if (pfd[POLLFD_DBUS].revents & POLLIN)
         dbus_process();
+    if (pfd[POLLFD_SIGNAL].revents & POLLIN) {
+        wsrd_handle_signal(wsrd, pfd[POLLFD_SIGNAL].fd);
+        // Unblock signals so they are delivered normally if needed
+        sigprocmask(SIG_UNBLOCK, sig_mask, NULL);
+        close(pfd[POLLFD_SIGNAL].fd);
+        pfd[POLLFD_SIGNAL].fd = -1;
+    }
 }
 
 int wsrd_main(int argc, char *argv[])
@@ -602,13 +624,10 @@ int wsrd_main(int argc, char *argv[])
     };
     struct sigaction sigact = { };
     struct wsrd *wsrd = &g_wsrd;
+    sigset_t sig_mask;
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     sigact.sa_flags = SA_RESETHAND;
-    sigact.sa_handler = kill_handler;
-    sigaction(SIGINT, &sigact, NULL);
-    sigaction(SIGHUP, &sigact, NULL);
-    sigaction(SIGTERM, &sigact, NULL);
     sigact.sa_handler = sig_error_handler;
     sigaction(SIGILL, &sigact, NULL);
     sigaction(SIGSEGV, &sigact, NULL);
@@ -661,6 +680,16 @@ int wsrd_main(int argc, char *argv[])
 
     INFO("Wi-SUN Router successfully started");
 
+    sigemptyset(&sig_mask);
+    sigaddset(&sig_mask, SIGINT);
+    sigaddset(&sig_mask, SIGHUP);
+    sigaddset(&sig_mask, SIGTERM);
+    // Block signals so they are delivered via signalfd, not asynchronously
+    sigprocmask(SIG_BLOCK, &sig_mask, NULL);
+    pfd[POLLFD_SIGNAL].events = POLLIN;
+    pfd[POLLFD_SIGNAL].fd = signalfd(-1, &sig_mask, 0);
+    FATAL_ON(pfd[POLLFD_SIGNAL].fd < 0, 2, "signalfd: %m");
+
     pfd[POLLFD_RCP].fd = wsrd->ws.rcp.bus.fd;
     pfd[POLLFD_RCP].events = POLLIN;
     pfd[POLLFD_TIMER].fd = timer_fd();
@@ -675,5 +704,5 @@ int wsrd_main(int argc, char *argv[])
     pfd[POLLFD_DBUS].events = POLLIN;
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
     while (true)
-        wsrd_poll(wsrd, pfd);
+        wsrd_poll(wsrd, pfd, &sig_mask);
 }
