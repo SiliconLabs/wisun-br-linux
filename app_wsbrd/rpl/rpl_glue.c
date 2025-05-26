@@ -134,6 +134,12 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         if (rpl_dst != buf->dst_sa.address)
             memcpy(buf->dst_sa.address, rpl_dst, 16);
         *res = IPV6_EXTHDR_MODIFY_TUNNEL;
+        /*
+         *   RFC 6554 4.1. Generating Source Routing Headers
+         * After generating the SRH, the RPL router decrements the original
+         * datagram's IPv6 Hop Limit value by the SRH Segments Left value.
+         */
+        buf->options.hop_limit -= buf->srh.seg_left;
         buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
         return buf;
     default:

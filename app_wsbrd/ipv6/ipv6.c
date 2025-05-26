@@ -595,11 +595,12 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         /* DSCP copied from inner packet */
         buf->options.type = IPV6_NH_IPV6;
         /* Compute new flow label from inner src, dst, flow (RFC 6438) */
-        const uint8_t *iphdr = buffer_data_pointer(buf);
+        uint8_t *iphdr = buffer_data_pointer(buf);
         uint24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
         buf->options.flow_label = ipv6_flow_label_tunnel(iphdr + IPV6_HDROFF_SRC_ADDR,
                                                          iphdr + IPV6_HDROFF_DST_ADDR,
                                                          flow);
+        iphdr[IPV6_HDROFF_HOP_LIMIT] = buf->options.hop_limit;
         buf->options.hop_limit = buf->interface->cur_hop_limit;
         buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6);
         return buf;
