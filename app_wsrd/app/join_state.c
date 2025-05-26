@@ -74,6 +74,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->ws.pan_id = 0xffff;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
     wsrd->eapol_target_eui64 = EUI64_BC;
+    rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
     wsrd->ws.gak_index = 0;
     wsrd->ws.pan_version = -1;
     wsrd->pcs_nb = 0;
