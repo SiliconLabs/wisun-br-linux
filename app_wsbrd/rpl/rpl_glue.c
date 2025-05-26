@@ -76,7 +76,6 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
     const uint8_t *rpl_dst = buf->dst_sa.address;
     struct rpl_transit *transit;
     struct rpl_target *target;
-    const uint8_t *nxthop;
 
     *res = 0;
 
@@ -108,13 +107,13 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         }
     }
 
-    if (!buf->srh.seg_count && rpl_srh_build(root, rpl_dst, &buf->srh, &nxthop) < 0) {
+    if (!buf->srh.seg_count && rpl_srh_build(root, rpl_dst, &buf->srh, &buf->route->ip_dest) < 0) {
         *res = -1;
         return buf;
     }
     if (!buf->srh.seg_count)
         return buf; // TODO: add hop-by-hop option
-    rpl_srh_push(&srh_buf, &buf->srh, nxthop, buf->options.type, root->compat);
+    rpl_srh_push(&srh_buf, &buf->srh, buf->route->ip_dest, buf->options.type, root->compat);
 
     switch (stage) {
     case IPV6_EXTHDR_SIZE:
@@ -125,7 +124,6 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         if (!buf)
             return NULL;
         memcpy(buffer_data_reserve_header(buf, srh_buf.len), srh_buf.data, srh_buf.len);
-        buf->route->ip_dest = nxthop;
         buf->options.type = IPV6_NH_ROUTING;
         buf->options.ip_extflags |= IPEXT_SRH_RPL;
         return buf;
@@ -134,7 +132,6 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
             return buf;
         if (rpl_dst != buf->dst_sa.address)
             memcpy(buf->dst_sa.address, rpl_dst, 16);
-        buf->route->ip_dest = nxthop;
         *res = IPV6_EXTHDR_MODIFY_TUNNEL;
         buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
         return buf;
