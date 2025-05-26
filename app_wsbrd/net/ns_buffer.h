@@ -37,6 +37,7 @@
 
 #include "net/netaddr_types.h"
 #include "ipv6/ipv6_routing_table.h"
+#include "rpl/rpl_srh.h"
 
 #ifndef BUFFERS_MAX
 #define BUFFERS_MAX 10
@@ -178,6 +179,7 @@ typedef struct buffer {
     uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
     buffer_link_info_t  link_specific;
     uint16_t            mpl_option_data_offset;
+    struct rpl_srh_decmpr srh;
     buffer_options_t    options;                /*!< Additional signal info etc */
     buffer_routing_info_t *route;               /* A pointer last to try to get neat alignment for data */
     uint8_t             buf[];                  /*!< Trailing buffer data */
