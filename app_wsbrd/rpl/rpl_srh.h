@@ -32,7 +32,7 @@ struct rpl_srh_decmpr {
     uint8_t seg_list[WS_RPL_SRH_MAXSEG][16];
 };
 
-int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16],
+int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop);
 void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
                   const uint8_t dst[16], uint8_t nxthdr, bool cmpri_eq_cmpre);

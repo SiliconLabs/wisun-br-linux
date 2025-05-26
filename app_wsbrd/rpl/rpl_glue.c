@@ -107,7 +107,8 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         }
     }
 
-    if (!buf->srh.seg_count && rpl_srh_build(root, rpl_dst, &buf->srh, &buf->route->ip_dest) < 0) {
+    if (!buf->srh.seg_count && rpl_srh_build(root, rpl_dst, buf->options.hop_limit,
+                                             &buf->srh, &buf->route->ip_dest) < 0) {
         *res = -1;
         return buf;
     }
@@ -158,7 +159,7 @@ static bool rpl_glue_nxthop(const uint8_t dst[16], ipv6_route_info_t *route)
         rpl_dst = transit->parent;
     }
 
-    if (rpl_srh_build(root, rpl_dst, NULL, &nxthop) < 0)
+    if (rpl_srh_build(root, rpl_dst, 0, NULL, &nxthop) < 0)
         return false;
 
     memcpy(route->next_hop_addr, nxthop, 16);

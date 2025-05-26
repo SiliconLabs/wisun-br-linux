@@ -22,7 +22,7 @@
 #include "rpl_srh.h"
 #include "rpl.h"
 
-int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16],
+int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop_ret)
 {
     const uint8_t *seg_list[WS_RPL_SRH_MAXSEG];
@@ -67,6 +67,19 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16],
     if (nxthop_ret)
         *nxthop_ret = nxthop;
     if (srh) {
+        /*
+         *   RFC 6554 4.1. Generating Source Routing Headers
+         * In the case that the source route is longer than the original
+         * datagram's IPv6 Hop Limit, only the initial hops (determined by the
+         * original datagram's IPv6 Hop Limit) should be included in the SRH.
+         */
+        BUG_ON(!hlim);
+        if (hlim - 1 < seg_count) { // NOTE: nxthop is not included in seg_count
+            TRACE(TR_RPL, "rpl-srh: clamp from %u to %u segments", seg_count, hlim - 1);
+            memmove(seg_list, seg_list + seg_count - (hlim - 1),
+                    (hlim - 1) * sizeof(struct in6_addr *));
+            seg_count = hlim - 1;
+        }
         srh->seg_count = seg_count;
         srh->seg_left  = seg_count;
         for (uint8_t i = 0; i < seg_count; i++)
