@@ -24,6 +24,9 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
                         const uint8_t src_iid[8],
                         const uint8_t dst_iid[8]);
 
+// Fill IPv6 Payload Length, UDP Length and compute UDP Checksum
+int lowpan_iphc_decmpr_finish(void *buf, size_t buf_len);
+
 void lowpan_iphc_cmpr(struct pktbuf *pktbuf,
                       const uint8_t src_iid[8],
                       const uint8_t dst_iid[8]);

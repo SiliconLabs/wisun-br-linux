@@ -30,6 +30,7 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
     uint8_t src_iid[8], dst_iid[8];
     struct pktbuf pktbuf = { };
     uint8_t dispatch;
+    int ret;
 
     ipv6_addr_conv_iid_eui64(src_iid, src->u8);
     ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
@@ -43,6 +44,10 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
     // TODO: support FRAG1 and FRAGN
     if (LOWPAN_DISPATCH_IS_IPHC(dispatch)) {
         lowpan_iphc_decmpr(&pktbuf, src_iid, dst_iid);
+        if (!pktbuf.err) {
+            ret = lowpan_iphc_decmpr_finish(pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+            BUG_ON(ret < 0);
+        }
     } else {
         TRACE(TR_DROP, "drop %-9s: unsupported dispatch type 0x%02x", "6lowpan", dispatch);
         goto err;

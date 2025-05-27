@@ -14,6 +14,7 @@
 #define _GNU_SOURCE
 #include <netinet/ip6.h>
 #include <netinet/udp.h>
+#include <errno.h>
 #include <string.h>
 
 #include "common/specs/6lowpan.h"
@@ -305,19 +306,16 @@ static void lowpan_nhc_decmpr_udp(struct pktbuf *pktbuf, uint8_t nhc,
         break;
     }
 
-    if (!FIELD_GET(LOWPAN_MASK_NHC_UDP_C, nhc))
+    if (!FIELD_GET(LOWPAN_MASK_NHC_UDP_C, nhc)) {
         pktbuf_pop_head(pktbuf, &hdr.uh_sum, sizeof(hdr.uh_sum));
-    else
+        hdr.uh_ulen = 0;
+    } else {
+        // NOTE: filled by lowpan_iphc_decmpr_finish()
         hdr.uh_sum = 0;
-
-    hdr.uh_ulen = htons(pktbuf_len(pktbuf) + sizeof(hdr));
-    pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
-
-    if (FIELD_GET(LOWPAN_MASK_NHC_UDP_C, nhc) && !pktbuf->err) {
-        hdr.uh_sum = ipv6_cksum(src, dst, IPPROTO_UDP, pktbuf_head(pktbuf), pktbuf_len(pktbuf));
-        memcpy(pktbuf_head(pktbuf) + offsetof(struct udphdr, uh_sum),
-               &hdr.uh_sum, sizeof(hdr.uh_sum));
+        hdr.uh_ulen = UINT16_MAX;
     }
+
+    pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 }
 
 static void lowpan_nhc_decmpr(struct pktbuf *pktbuf, const struct in6_addr *src, const struct in6_addr *dst)
@@ -358,7 +356,6 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
         hdr.ip6_nxt = lowpan_nhc_nxthdr(pktbuf);
         lowpan_nhc_decmpr(pktbuf, &hdr.ip6_src, &hdr.ip6_dst);
     }
-    hdr.ip6_plen = htons(pktbuf_len(pktbuf));
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
@@ -366,6 +363,54 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
         TRACE(TR_DROP, "drop %-9s: unsupported or malformed packet", "6lowpan");
         return;
     }
+}
+
+int lowpan_iphc_decmpr_finish(void *buf, size_t buf_len)
+{
+    const struct ip6_ext *ext;
+    uint8_t *buf_ptr = buf;
+    struct ip6_hdr *hdr;
+    struct udphdr *udp;
+    bool do_cksum;
+    uint8_t nxt;
+
+    nxt = IPPROTO_IPV6;
+    while (buf_len) {
+        switch (nxt) {
+        case IPPROTO_IPV6:
+            if (buf_len < sizeof(struct ip6_hdr))
+                return -EINVAL;
+            hdr = (struct ip6_hdr *)buf_ptr;
+            buf_ptr += sizeof(struct ip6_hdr);
+            buf_len -= sizeof(struct ip6_hdr);
+            hdr->ip6_plen = htons(buf_len);
+            nxt = hdr->ip6_nxt;
+            continue;
+        case IPPROTO_HOPOPTS:
+        case IPPROTO_DSTOPTS:
+        case IPPROTO_ROUTING:
+        case IPPROTO_MH:
+            ext = (struct ip6_ext *)buf_ptr;
+            if (buf_len < sizeof(struct ip6_ext) || buf_len < (ext->ip6e_len + 1) * 8)
+                return -EINVAL;
+            buf_ptr += (ext->ip6e_len + 1) * 8;
+            buf_len -= (ext->ip6e_len + 1) * 8;
+            nxt = ext->ip6e_nxt;
+            continue;
+        case IPPROTO_UDP:
+            if (buf_len < sizeof(struct udphdr))
+                return -EINVAL;
+            udp = (struct udphdr *)buf_ptr;
+            do_cksum = udp->uh_ulen == UINT16_MAX; // See lowpan_iphc_decmpr_udp()
+            udp->uh_ulen = htons(buf_len);
+            if (do_cksum)
+                udp->uh_sum = ipv6_cksum(&hdr->ip6_src, &hdr->ip6_dst, nxt, buf_ptr, buf_len);
+            return 0;
+        default:
+            return 0;
+        }
+    }
+    return 0;
 }
 
 // RFC 6282 - 3.2.1. Traffic Class and Flow Label Compression
