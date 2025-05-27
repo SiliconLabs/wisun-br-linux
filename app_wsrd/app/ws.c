@@ -698,7 +698,7 @@ void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const str
 {
     struct wsrd *wsrd = container_of(ws, struct wsrd, ws);
 
-    if (frame_ctx->key_index)
+    if (frame_ctx->key_index && cnf->status == HIF_STATUS_SUCCESS)
         supp_update_frame_counter(&wsrd->supp, frame_ctx->key_index, cnf->frame_counter);
     if (frame_ctx->type == WS_FT_DATA)
         ipv6_nud_confirm_ns(&wsrd->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
