@@ -345,7 +345,8 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
      * transitioning to JS1, we will end up selecting another EAPOL Target.
      */
     ws_neigh->ie_pan.routing_cost = 0xffff;
-    if (parent)
+    // TODO: check LGTKL once LFN are supported
+    if (parent && supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
         rpl_neigh_deny(&wsrd->ipv6, parent);
     else
         join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
