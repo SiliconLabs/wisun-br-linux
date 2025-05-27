@@ -228,6 +228,9 @@ static void supp_gtk_expiration_timer_timeout(struct timer_group *group, struct 
         if (ws_gtk_installed(&supp->gtks[i]))
             return;
     TRACE(TR_SECURITY, "sec: no more %s installed", slot >= WS_GTK_COUNT ? "LGTK" : "GTK");
+    // TODO: remove when LFNs are supported
+    if (slot >= WS_GTK_COUNT)
+        return;
     supp->on_failure(supp);
 }
 
