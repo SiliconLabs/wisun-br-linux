@@ -447,7 +447,7 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
         TRACE(TR_TX_ABORT, "tx-abort: tx failure status=%s dst=%s", hif_status_str(data_cpy.hif.status),
               tr_eui64(msg->dst_address));
 
-    if (msg->security.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64 && data_cpy.hif.frame_counter)
+    if (msg->security.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64 && data_cpy.hif.status == HIF_STATUS_SUCCESS)
         ws_auth_update_frame_counter(net_if, msg->security.KeyIndex, data_cpy.hif.frame_counter);
 
     if (msg->dst_address_type == IEEE802154_ADDR_MODE_64_BIT) {
