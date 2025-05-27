@@ -14,6 +14,7 @@
 #define _DEFAULT_SOURCE
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <inttypes.h>
 #include <net/if.h>
 #include <errno.h>
 
@@ -274,6 +275,8 @@ void dhcp_client_start(struct dhcp_client *client)
 {
     BUG_ON(client->running);
     rfc8415_txalg_start(&client->solicit_txalg);
+    TRACE(TR_DHCP, "dhcp: solicit tx=%"PRIu64"ms",
+          timer_duration_ms(&client->solicit_txalg.timer_delay));
     client->running = true;
 }
 
