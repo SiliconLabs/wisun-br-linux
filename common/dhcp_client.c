@@ -76,7 +76,7 @@ static void dhcp_client_addr_expired(struct timer_group *group, struct timer_ent
 {
     struct dhcp_client *client = container_of(timer, struct dhcp_client, iaaddr.valid_lifetime_timer);
 
-    TRACE(TR_DHCP, "dhcp del %s", tr_ipv6(client->iaaddr.ipv6.s6_addr));
+    TRACE(TR_DHCP, "dhcp: del %s", tr_ipv6(client->iaaddr.ipv6.s6_addr));
 
     if (client->on_addr_del)
         client->on_addr_del(client);
@@ -150,12 +150,12 @@ static int dhcp_client_handle_iaaddr(struct dhcp_client *client, const uint8_t *
     client->iaaddr.valid_lifetime_timer.callback = dhcp_client_addr_expired;
 
     if (valid_lifetime_s != DHCPV6_LIFETIME_INFINITE) {
-        TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:%ds",
+        TRACE(TR_DHCP, "dhcp: iaaddr add %s lifetime:%ds",
               tr_ipv6(client->iaaddr.ipv6.s6_addr), valid_lifetime_s);
         timer_start_rel(NULL, &client->iaaddr.valid_lifetime_timer,
                         valid_lifetime_s * 1000);
     } else {
-        TRACE(TR_DHCP, "dhcp iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
+        TRACE(TR_DHCP, "dhcp: iaaddr add %s lifetime:infinite", tr_ipv6(client->iaaddr.ipv6.s6_addr));
     }
     if (client->on_addr_add && is_new)
         client->on_addr_add(client);
@@ -207,10 +207,10 @@ static void dhcp_client_handle_ia_na(struct dhcp_client *client, const uint8_t *
      * The IA_NA’s value of T2 is not used.
      */
     if (t1_s != DHCPV6_LIFETIME_INFINITE) {
-        TRACE(TR_DHCP, "dhcp ia_na t1:%ds", t1_s);
+        TRACE(TR_DHCP, "dhcp: ia_na t1:%ds", t1_s);
         timer_start_rel(NULL, &client->t1_timer, t1_s * 1000);
     } else {
-        TRACE(TR_DHCP, "dhcp ia_na t1:infinite");
+        TRACE(TR_DHCP, "dhcp: ia_na t1:infinite");
     }
 }
 

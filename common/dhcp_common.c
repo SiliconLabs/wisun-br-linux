@@ -59,14 +59,14 @@ static const char *tr_dhcp_type(uint8_t type)
 
 void dhcp_trace_rx(const void *buf, size_t buf_len, const struct in6_addr *src)
 {
-    TRACE(TR_DHCP, "rx-dhcp %-9s src=%s",
+    TRACE(TR_DHCP, "dhcp: rx %-9s src=%s",
           tr_dhcp_type(buf_len >= 1 ? *(const uint8_t *)buf : 0),
           tr_ipv6(src->s6_addr));
 }
 
 void dhcp_trace_tx(const void *buf, size_t buf_len, const struct in6_addr *dst)
 {
-    TRACE(TR_DHCP, "tx-dhcp %-9s dst=%s",
+    TRACE(TR_DHCP, "dhcp: tx %-9s dst=%s",
           tr_dhcp_type(buf_len >= 1 ? *(const uint8_t *)buf : 0),
           tr_ipv6(dst->s6_addr));
 }
