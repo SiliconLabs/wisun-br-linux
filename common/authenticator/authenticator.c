@@ -45,6 +45,8 @@
 
 void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter)
 {
+    if (!ws_gtk_installed(&auth->gtks[key_index - 1]))
+        return;
     auth->gtks[key_index - 1].frame_counter = frame_counter;
     auth_storage_store_keys(auth, false);
 }
