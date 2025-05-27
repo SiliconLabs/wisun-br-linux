@@ -43,6 +43,8 @@
 
 void supp_update_frame_counter(struct supp_ctx *supp, int key_index, uint32_t frame_counter)
 {
+    if (!ws_gtk_installed(&supp->gtks[key_index - 1]))
+        return;
     supp->gtks[key_index - 1].frame_counter = frame_counter;
     supp_storage_store(supp, false);
 }
