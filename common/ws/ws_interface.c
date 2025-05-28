@@ -336,7 +336,8 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     };
     struct wh_ie_list wh_ies = {
         .utt = true,
-        // TODO: BT-IE, LBT-IE
+        .bt  = true,
+        // TODO: LBT-IE
     };
     struct wp_ie_list wp_ies = {
         .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
