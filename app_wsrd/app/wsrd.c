@@ -235,6 +235,9 @@ struct wsrd g_wsrd = {
     .ipv6.dhcp.on_addr_add = wsrd_on_dhcp_addr_add,
     .ipv6.dhcp.on_addr_del = wsrd_on_dhcp_addr_del,
 
+    // RFC 4944 5.3. Fragmentation Type and Header
+    .ipv6.lowpan_frag.reasm_timeout_ms = 60 * 1000,
+
     .dhcp_relay.fd = -1,
     // RFC 8415 7.6. Transmission and Retransmission Parameters
     .dhcp_relay.hop_limit = 8,
@@ -498,6 +501,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     tun_addr_add(&wsrd->ipv6.tun, &addr_linklocal, 64);
 
     timer_group_init(&wsrd->ipv6.timer_group);
+    lowpan_frag_init(&wsrd->ipv6.lowpan_frag);
 
     wsrd->ipv6.rpl.compat = wsrd->config.rpl_compat;
     wsrd->ipv6.rpl.mrhof.device_min_sens_dbm =

@@ -335,6 +335,7 @@ if(COMPILE_WSRD)
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
         common/crypto/tls.c
+        common/ipv6/6lowpan_frag.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
         common/ws/eapol_relay.c
