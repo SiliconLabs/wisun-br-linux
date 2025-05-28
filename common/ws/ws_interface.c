@@ -338,7 +338,10 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         .utt = true,
         // TODO: BT-IE, LBT-IE
     };
-    struct wp_ie_list wp_ies = { }; // TODO: JM-IE
+    struct wp_ie_list wp_ies = {
+        .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+        // TODO: JM-IE
+    };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
     int offset;
@@ -363,8 +366,6 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
-    if (neigh) // TODO: only include US-IE if 1st unicast frame to neighbor
-        wp_ies.us = true;
     ws_write_ies(ws, &iobuf, WS_FT_DATA, &wh_ies, &wp_ies, ie_mpx.multiplex_id);
 
     offset = ieee802154_ie_push_payload(&iobuf, IEEE802154_IE_ID_MPX);
