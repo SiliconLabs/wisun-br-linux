@@ -30,20 +30,25 @@ Features:
   - Process NS(ARO) from children nodes to setup downward routing.
   - Process RPL Packet Information (RPI) hop-by-hop option for upward routing.
   - Process RPL Source Routing Header (SRH) for downward routing.
+  - Store important data on disk and restore on restart to accelerate
+    reconnection: security keys, frame counters, PAN ID...
+  - Perform DIO poisoning to inform children when `wsrd` is no longer able to
+    parent.
+  - Send NS(ARO) with lifetime 0 to the parent before leaving the network.
+  - Send DAO No-Path to the border router to inform that `wsrd` is purposely
+    leaving the network.
+  - Respond to NA(EARO) for Registration Refresh Request to accelerate parent
+    recovery.
 
 Limitations:
 
-  - Disconnection procedures are not performed:
-    * No DIO poisoning: children are not made aware that connection has been
-      lost through wsrd.
-    * No NS(ARO) with lifetime 0: parent is not made aware its child is
-      leaving. The parent will hold outdated information until timeout.
-    * DAO no-path: the border router is not made aware that wsrd has left the
-      network. The border router may keep outdated routing information until
-      timeout.
-  - No reboot support. No data is stored on disk so wsrd needs to perform all
-    the initial connection steps again. Frame counters are also not stored so
-    neighboring nodes may refuse wsrd frames after the 2nd connection.
+  - No secondary parent selection and registration.
+  - No RPL hop-by-hop option inserted in IPv6 packet: no IPv6-in-IPv6 tunnel is
+    created and no loop detection is possible for local repair.
+  - No filtering of RPL candidates based on the RSL.
+  - No handling of RPL DODAG Version Number and DTSN normally used to
+    accelerate global network recovery.
   - No MPL support for multicast forwarding.
   - No LFN parenting support.
   - No 6LoWPAN fragmentation/reassembly support.
+  - No mode switch transmission and advertisement support.
