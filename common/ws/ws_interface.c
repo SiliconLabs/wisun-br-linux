@@ -389,9 +389,9 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
 }
 
 void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
-                   const void *pkt, size_t pkt_len,
-                   const struct eui64 *dst,
-                   const struct eui64 *ea)
+                      const void *pkt, size_t pkt_len,
+                      const struct eui64 *dst,
+                      const struct eui64 *ea)
 {
     struct ieee802154_hdr hdr = {
         .frame_type = IEEE802154_FRAME_TYPE_DATA,
