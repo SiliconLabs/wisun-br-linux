@@ -570,7 +570,9 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     }
 
-    if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us)) {
+    if (ws_wp_nested_us_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_us)) {
+        if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
+            return;
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
     }
