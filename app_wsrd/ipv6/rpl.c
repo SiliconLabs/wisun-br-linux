@@ -551,7 +551,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     };
 
     parent = rpl_neigh_pref_parent(ipv6);
-    if (!parent) {
+    if (!parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
         TRACE(TR_DROP, "drop %-9s: routing not ready", tr_icmp_rpl(RPL_CODE_DIS));
         return;
     }
