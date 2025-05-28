@@ -407,8 +407,9 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     };
     struct wh_ie_list wh_ies = {
         .utt = true,
+        .bt  = ws->pan_version != -1,
         .ea  = ea,
-        // TODO: BT-IE, LBT-IE
+        // TODO: LBT-IE
     };
     struct wp_ie_list wp_ies = {
         .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
