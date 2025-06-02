@@ -32,6 +32,7 @@ int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_
 void dbus_message_append_supp(sd_bus_message *m, const char *property, const void *_supp)
 {
     const struct auth_supp_ctx *supp = _supp;
+    struct in6_addr dodagid;
 
     if (memzcmp(supp->eap_tls.tls.pmk.key, 32)) {
         dbus_message_open_info(m, property, "is_authenticated", "b");
@@ -43,6 +44,14 @@ void dbus_message_append_supp(sd_bus_message *m, const char *property, const voi
         sd_bus_message_append(m, "y", supp->node_role);
         dbus_message_close_info(m, property);
     }
+    dbus_message_open_info(m, property, "eapol_target", "y");
+    if (!IN6_IS_ADDR_UNSPECIFIED(&supp->eapol_target)) {
+        sd_bus_message_append_array(m, 'y', &supp->eapol_target, 16);
+    } else {
+        tun_addr_get_uc_global(&g_ctxt.tun, &dodagid);
+        sd_bus_message_append_array(m, 'y', &dodagid, 16);
+    }
+    dbus_message_close_info(m, property);
 }
 
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
