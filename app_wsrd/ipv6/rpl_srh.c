@@ -166,7 +166,7 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
      * message with ICMPv6 Code set to 7 to the packet's Source Address.
      */
     nce = ipv6_neigh_get_from_gua(ipv6, &hdr->ip6_dst);
-    if (!nce) {
+    if (!nce || timer_stopped(&nce->aro_lifetime)) {
         TRACE(TR_DROP, "drop %-9s: dst=%s not on-link",
               "rpl-srh", tr_ipv6(hdr->ip6_dst.s6_addr));
         // TODO: send ICMP Destination Unreachable, Code 7
