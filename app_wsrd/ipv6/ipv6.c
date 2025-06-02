@@ -292,12 +292,13 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
      *   RFC 6550 9. Downward Routes
      * A node may send a P2P packet destined to a one-hop neighbor directly to
      * that node.
-     * NOTE: Restrict this behavior to neighbors with good enough metrics.
+     * NOTE: Prevent this behavior for non-child neighbors with bad metrics.
      */
     nce = ipv6_neigh_get_from_gua(ipv6, dst);
     if (nce) {
         etx = rpl_mrhof_etx(ipv6, nce);
-        if (etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
+        if (!timer_stopped(&nce->aro_lifetime) ||
+            etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
             *nxthop = &nce->gua;
             return 0;
         }
