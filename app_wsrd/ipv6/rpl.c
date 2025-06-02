@@ -790,6 +790,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     BUG_ON(!ipv6->rpl.mrhof.ws_neigh_table);
     BUG_ON(!ipv6->rpl.mrhof.max_link_metric);
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
+    BUG_ON(!ipv6->rpl.mrhof.device_min_sens_dbm);
 
     strcpy(ipv6->rpl.dio_trickle.debug_name, "dio");
     ipv6->rpl.dio_trickle.cfg = &ipv6->rpl.dio_trickle_cfg;

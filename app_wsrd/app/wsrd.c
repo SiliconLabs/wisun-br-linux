@@ -500,6 +500,8 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     timer_group_init(&wsrd->ipv6.timer_group);
 
     wsrd->ipv6.rpl.compat = wsrd->config.rpl_compat;
+    wsrd->ipv6.rpl.mrhof.device_min_sens_dbm =
+        wsrd->ws.rcp.rail_config_list[wsrd->ws.phy.rcp_rail_config_index].sensitivity_dbm;
     dhcp_client_init(&wsrd->ipv6.dhcp, &wsrd->ipv6.tun, wsrd->ws.rcp.eui64.u8);
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_link);     // ff02::1
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_link);   // ff02::2

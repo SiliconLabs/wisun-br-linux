@@ -32,6 +32,7 @@ struct rpl_mrhof {
     float max_link_metric;
     float max_path_cost;
     float parent_switch_threshold;
+    int device_min_sens_dbm;
 
     float cand_parent_threshold;
     float cand_parent_hysteresis;

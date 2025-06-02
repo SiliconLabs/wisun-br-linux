@@ -36,6 +36,7 @@ struct rpl_neigh {
     bool is_parent;
     bool dao_ack_received;
     struct timer_entry deny_timer;
+    bool rsl_valid;
 };
 
 struct rpl_ctx {

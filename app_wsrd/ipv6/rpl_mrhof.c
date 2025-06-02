@@ -56,6 +56,35 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
     return etx + ntohs(nce->rpl->dio.rank);
 }
 
+static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+{
+    struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
+    int device_min_sens_dbm = ipv6->rpl.mrhof.device_min_sens_dbm;
+    int threshold;
+
+    if (!neigh || isnan(neigh->rsl_out_dbm))
+        return false;
+
+    BUG_ON(isnan(neigh->rsl_in_dbm_unsecured));
+
+    /*
+     *   Wi-SUN FAN 1.1v09 6.2.3.1.6.3 Upward Route Formation
+     * a. For an FFN to be admitted to the candidate parent set, both its
+     *    node-to-neighbor and neighbor-to-node RSL EWMA values should exceed
+     *    (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS).
+     * b. For an FFN to be removed from the candidate parent set, both its
+     *    node-to-neighbor and neighbor-to node RSL EWMA values should fall
+     *    below (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERESIS).
+     */
+    if (!nce->rpl->rsl_valid) {
+        threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB + WS_CAND_PARENT_HYSTERESIS_DB;
+        return neigh->rsl_in_dbm_unsecured > threshold && neigh->rsl_out_dbm > threshold;
+    } else {
+        threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB - WS_CAND_PARENT_HYSTERESIS_DB;
+        return !(neigh->rsl_in_dbm_unsecured < threshold && neigh->rsl_out_dbm < threshold);
+    }
+}
+
 // RFC 6719 3.2.2. Parent Selection Algorithm
 struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
@@ -104,6 +133,10 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
                 ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
             discard = "etx";
         }
+
+        nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
+        if (!nce->rpl->rsl_valid)
+            discard = "rsl";
 
         /*
          * If the selected metric for a link is greater than MAX_LINK_METRIC,
