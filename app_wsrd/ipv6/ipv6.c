@@ -302,6 +302,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
             *nxthop = &nce->gua;
             return 0;
         }
+        TRACE(TR_IPV6, "ipv6: use pref parent instead of direct link with bad etx");
     }
 
     // Default to preferred RPL parent.
