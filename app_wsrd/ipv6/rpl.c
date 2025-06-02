@@ -57,7 +57,7 @@ void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     timer_start_rel(&ipv6->timer_group, &neigh->rpl->deny_timer, 10 * 60 * 1000);
     TRACE(TR_NEIGH_IPV6, "rpl: neigh deny %s for %"PRIu64"s", tr_ipv6(neigh->gua.s6_addr),
           timer_duration_ms(&neigh->rpl->deny_timer) / 1000);
-    rpl_mrhof_select_parent(ipv6);
+    rpl_mrhof_update_parent(ipv6);
 }
 
 static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
@@ -77,7 +77,7 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
           tr_ipv6(nce->gua.s6_addr), ntohs(dio->rank));
     if (update)
-        rpl_mrhof_select_parent(ipv6);
+        rpl_mrhof_update_parent(ipv6);
 }
 
 static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
@@ -91,7 +91,7 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     nce->rpl->config = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
     rpl_neigh_update(ipv6, nce, dio, config, prefix);
-    rpl_mrhof_select_parent(ipv6);
+    rpl_mrhof_update_parent(ipv6);
 }
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)

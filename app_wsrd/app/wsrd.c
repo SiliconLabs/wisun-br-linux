@@ -294,7 +294,7 @@ static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *ne
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce || !nce->rpl || wsrd->ipv6.rpl.fd < 0)
         return;
-    rpl_mrhof_select_parent(&wsrd->ipv6);
+    rpl_mrhof_update_parent(&wsrd->ipv6);
 }
 
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst)

@@ -57,7 +57,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
-void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+static struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
@@ -131,7 +131,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 
     if (pref_parent_new == pref_parent_cur && cur_min_path_cost < mrhof->max_path_cost) {
         TRACE(TR_RPL, "rpl: parent select %s (keep)", pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none");
-        return;
+        return pref_parent_cur;
     }
 
     /*
@@ -146,7 +146,7 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
               pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none", pref_path_cost,
               mrhof->parent_switch_threshold, cur_min_path_cost);
         TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(pref_parent_cur->gua.s6_addr));
-        return;
+        return pref_parent_cur;
     }
 
     if (pref_parent_cur)
@@ -157,15 +157,27 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     } else {
         TRACE(TR_RPL, "rpl: parent select none");
     }
-    if (pref_parent_cur != pref_parent_new)
-        dbus_emit_change("PrimaryParent");
-    timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
-    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+    return pref_parent_new;
+}
+
+void rpl_mrhof_update_parent(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *pref_parent_new;
+
+    pref_parent_new = rpl_mrhof_select_parent(ipv6);
+    if (pref_parent_cur == pref_parent_new)
+        return;
     if (pref_parent_new && !pref_parent_cur)
         TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
               pref_parent_new->rpl->dio.instance_id,
               pref_parent_new->rpl->dio.dodag_verno,
               tr_ipv6(pref_parent_new->rpl->dio.dodag_id.s6_addr));
+
+    dbus_emit_change("PrimaryParent");
+    timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
+    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+
     /*
      *   Wi-SUN FAN 1.1v09 - 6.2.3.1.4.1 FFN Neighbor Discovery
      * If an FFN decides to change its parent or leave the network, it is
@@ -194,8 +206,8 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     // If we do not have a GUA, the NS(ARO) will be sent after receiving one
     if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         ipv6_nud_set_state(ipv6, pref_parent_new, IPV6_NUD_PROBE);
-    if (mrhof->on_pref_parent_change)
-        mrhof->on_pref_parent_change(mrhof, pref_parent_new);
+    if (ipv6->rpl.mrhof.on_pref_parent_change)
+        ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, pref_parent_new);
     // TODO: support secondary parents
 }
 
