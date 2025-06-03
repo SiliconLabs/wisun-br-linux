@@ -13,14 +13,61 @@
  */
 #include <sl_wisun_msg_api.h>
 #include <netinet/in.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <endian.h>
 #include <errno.h>
+#include <pthread.h>
 #include <unistd.h>
 
+#include "tools/simulation/ncp_ind.h"
 #include "tools/simulation/ncp_values.h"
+#include "common/log.h"
 
 #include "ncp_socket.h"
+
+// Thread used to simulate an application doing socket reads.
+pthread_t g_sk_thread;
+int g_sk_epfd = -1;
+
+static void *ncp_sk_thread(void *arg)
+{
+    struct sockaddr_in6 sin6;
+    struct epoll_event event;
+    uint8_t buf[1500];
+    int ret;
+
+    g_sk_epfd = epoll_create1(0);
+    FATAL_ON(g_sk_epfd < 0, 2, "epoll_create: %m");
+
+    while (1) {
+        ret = epoll_wait(g_sk_epfd, &event, 1, -1);
+        if (ret < 0 && errno == EINTR)
+            continue;
+        FATAL_ON(ret < 0, 2, "epoll_wait: %m");
+
+        ret = recvfrom(event.data.fd, buf, sizeof(buf), 0,
+                       (struct sockaddr *)&sin6, (socklen_t[]){ sizeof(sin6) });
+        FATAL_ON(ret < 0, 2, "recvfrom: %m");
+        ncp_send_sk_data(event.data.fd, buf, ret, &sin6);
+    }
+}
+
+__attribute__((constructor))
+static void ncp_sk_init(void)
+{
+    int ret;
+
+    ret = pthread_create(&g_sk_thread, NULL, ncp_sk_thread, NULL);
+    FATAL_ON(ret, 2, "pthread_create: %s", strerror(ret));
+}
+
+__attribute__((destructor))
+static void ncp_sk_exit(void)
+{
+    pthread_cancel(g_sk_thread);
+    pthread_join(g_sk_thread, NULL);
+}
 
 void ncp_sk_open(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
@@ -86,4 +133,59 @@ void ncp_sk_send(const void *_req, const void *req_data, void *_cnf, void *cnf_d
 
     ret = send(req->body.socket_id, req_data, req->body.data_length, 0);
     cnf->body.status = htole32(ret < 0 ? ncp_status(errno) : SL_STATUS_OK);
+}
+
+static void ncp_sk_setopt_evtmode(const sl_wisun_msg_set_socket_option_req_t *req,
+                                  const uint32_t *mode,
+                                  sl_wisun_msg_set_socket_option_cnf_t *cnf)
+{
+    struct epoll_event event = { };
+    int ret;
+
+    if (req->body.option_length != sizeof(*mode)) {
+        cnf->body.status = SL_STATUS_INVALID_PARAMETER;
+        return;
+    }
+
+    ret = epoll_ctl(g_sk_epfd, EPOLL_CTL_DEL, req->body.socket_id, NULL);
+    if (ret < 0 && errno != ENOENT)
+        FATAL(2, "epoll_ctl DEL %i: %m", req->body.socket_id);
+
+    switch (*mode) {
+    case 0: // SL_WISUN_SOCKET_EVENT_MODE_INDICATION
+        event.events = EPOLLIN;
+        event.data.fd = req->body.socket_id;
+        ret = epoll_ctl(g_sk_epfd, EPOLL_CTL_ADD, req->body.socket_id, &event);
+        FATAL_ON(ret < 0, 2, "epoll_ctl ADD %i: %m", req->body.socket_id);
+        break;
+    case 1: // SL_WISUN_SOCKET_EVENT_MODE_POLLING
+    default:
+        cnf->body.status = SL_STATUS_NOT_SUPPORTED;
+        break;
+    }
+}
+
+void ncp_sk_setopt(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_set_socket_option_req_t *req = _req;
+    sl_wisun_msg_set_socket_option_cnf_t *cnf = _cnf;
+    int ret, level, optname;
+
+    level = optname = -1;
+    switch (req->body.level) {
+    case 1: // SOL_APPLICATION
+        switch (req->body.option_name) {
+        case 10: // SO_EVENT_MODE
+            ncp_sk_setopt_evtmode(req, req_data, cnf);
+            return;
+        }
+        break;
+    }
+
+    if (level < 0 || optname < 0) {
+        cnf->body.status = SL_STATUS_NOT_SUPPORTED;
+    } else {
+        ret = setsockopt(req->body.socket_id, level, optname, req_data, req->body.option_length);
+        cnf->body.status = ret < 0 ? ncp_status(errno) : SL_STATUS_OK;
+    }
 }

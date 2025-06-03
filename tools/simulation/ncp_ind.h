@@ -16,7 +16,13 @@
 
 #include <sl_wisun_events.h>
 
+struct sockaddr_in6;
+
 // Pass a NCP indication from the Linux stub to the simulation core.
 void ncp_send(const sl_wisun_evt_t *ind);
+
+// Send a SOCKET_DATA_IND packet.
+void ncp_send_sk_data(int fd, const void *buf, size_t buf_len,
+                      const struct sockaddr_in6 *sin6);
 
 #endif

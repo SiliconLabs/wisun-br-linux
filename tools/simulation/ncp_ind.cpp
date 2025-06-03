@@ -43,3 +43,20 @@ void ncp_send(const sl_wisun_evt_t *ind)
     ns3::Simulator::ScheduleWithContext(g_simulation_id, ns3::Seconds(0),
                                         __ncp_send, ind_cpy);
 }
+
+void ncp_send_sk_data(int fd, const void *buf, size_t buf_len, const struct sockaddr_in6 *sin6)
+{
+    sl_wisun_evt_t *ind = (sl_wisun_evt_t *)xalloc(sizeof(sl_wisun_msg_socket_data_ind_t) + buf_len);
+
+    ind->header.id     = SL_WISUN_MSG_SOCKET_DATA_IND_ID;
+    ind->header.info   = 0;
+    ind->header.length = htole16(sizeof(sl_wisun_msg_socket_data_ind_t) + buf_len);
+    ind->evt.socket_data.socket_id      = fd;
+    ind->evt.socket_data.status         = htole32(SL_STATUS_OK);
+    ind->evt.socket_data.remote_address = sin6->sin6_addr;
+    ind->evt.socket_data.remote_port    = sin6->sin6_port;
+    ind->evt.socket_data.data_length    = htole16(buf_len);
+    memcpy(ind->evt.socket_data.data, buf, buf_len);
+    ns3::Simulator::ScheduleWithContext(g_simulation_id, ns3::Seconds(0),
+                                        __ncp_send, ind);
+}
