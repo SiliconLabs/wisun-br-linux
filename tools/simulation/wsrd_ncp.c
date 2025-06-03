@@ -21,6 +21,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/log.h"
 #include "common/string_extra.h"
+#include "tools/simulation/ncp_ind.h"
 #include "tools/simulation/ncp_socket.h"
 #include "tools/simulation/ncp_values.h"
 
@@ -458,4 +459,26 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
     cnf->body.status   = htole32(SL_STATUS_OK);
 
     table[req->id].func(req, req_data, cnf, cnf_data);
+}
+
+void __real_join_state_transition(struct wsrd *wsrd, enum wsrd_event event);
+void __wrap_join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
+{
+    sl_wisun_evt_t ind = { };
+    enum wsrd_state prev;
+
+    prev = wsrd->state;
+    __real_join_state_transition(wsrd, event);
+
+    if (prev != WSRD_STATE_OPERATIONAL && wsrd->state == WSRD_STATE_OPERATIONAL) {
+        ind.header.id = SL_WISUN_MSG_CONNECTED_IND_ID;
+        ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.connected));
+        ind.evt.connected.status = htole32(SL_STATUS_OK);
+        ncp_send(&ind);
+    } else if (prev == WSRD_STATE_OPERATIONAL && wsrd->state != WSRD_STATE_OPERATIONAL) {
+        ind.header.id = SL_WISUN_MSG_DISCONNECTED_IND_ID;
+        ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.disconnected));
+        ind.evt.disconnected.status = htole32(SL_STATUS_OK);
+        ncp_send(&ind);
+    }
 }
