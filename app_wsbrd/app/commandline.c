@@ -153,7 +153,7 @@ static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, 
     uintptr_t gtk_count = (uintptr_t)raw_param;
     uint8_t (*gtks)[16] = raw_dest;
 
-    if (info->key_array_index < 0 || info->key_array_index >= gtk_count)
+    if (info->key_array_index >= gtk_count)
         FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
     if (parse_byte_array(gtks[info->key_array_index], 16, info->value) ||
         !memzcmp(gtks[info->key_array_index], 16))
