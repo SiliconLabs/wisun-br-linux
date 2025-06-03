@@ -58,7 +58,7 @@ find_package(ns3 QUIET)
 mark_as_advanced(ns3_DIR)
 if(ns3_FOUND)
     # The wsbrd simulation library only works with a ns-3 fork private to
-    # Silicon Labs. See app_wsbrd_ns3/README.md.
+    # Silicon Labs. See tools/simulation/README.md.
     include(CheckIncludeFileCXX)
     get_target_property(NS3_INCLUDE_DIRECTORIES ns3::libcore INTERFACE_INCLUDE_DIRECTORIES)
     set(CMAKE_REQUIRED_INCLUDES ${NS3_INCLUDE_DIRECTORIES})
