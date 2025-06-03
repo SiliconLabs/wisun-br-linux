@@ -1019,10 +1019,7 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
     case IPV6_NH_IPV6:
         return false;
     case IPV6_NH_ICMPV6:
-        if (data_ptr[0] == ICMPV6_TYPE_NS)
-            return false;
-        if (data_ptr[0] == ICMPV6_TYPE_NA)
-            return false;
+        return data_ptr[0] != ICMPV6_TYPE_NS && data_ptr[0] != ICMPV6_TYPE_NA;
     default:
         return true;
     }
