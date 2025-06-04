@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <systemd/sd-bus.h>
+#include <netinet/in.h>
 #include <errno.h>
 
 #include "common/crypto/ws_keys.h"
@@ -122,9 +123,9 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
 
     parent = rpl_neigh_pref_parent(ipv6);
     if (!parent)
-        return sd_bus_error_set_errno(ret_error, EAGAIN);
-    sd_bus_message_append_array(reply, 'y', parent->gua.s6_addr,
-                                sizeof(parent->gua.s6_addr));
+        sd_bus_message_append_array(reply, 'y', in6addr_any.s6_addr, sizeof(in6addr_any.s6_addr));
+    else
+        sd_bus_message_append_array(reply, 'y', parent->gua.s6_addr, sizeof(parent->gua.s6_addr));
     return 0;
 }
 
