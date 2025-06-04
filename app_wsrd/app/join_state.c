@@ -38,7 +38,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     supp_storage_clear();
     wsrd->eapol_target_eui64 = EUI64_BC;
     wsrd->ws.gak_index = 0;
-    wsrd->ws.pan_version = -1;
+    ws_set_pan_version(wsrd, -1);
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
     timer_stop(NULL, &wsrd->pan_timeout_timer);
@@ -77,7 +77,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->eapol_target_eui64 = EUI64_BC;
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
     wsrd->ws.gak_index = 0;
-    wsrd->ws.pan_version = -1;
+    ws_set_pan_version(wsrd, -1);
     wsrd->pcs_nb = 0;
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
@@ -115,7 +115,7 @@ static void join_state_3_enter(struct wsrd *wsrd)
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
-    wsrd->ws.pan_version = -1;
+    ws_set_pan_version(wsrd, -1);
     wsrd->pcs_nb  = 0;
 
     INFO("Join state 3: Acquire PAN Config");

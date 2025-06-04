@@ -359,6 +359,14 @@ void ws_check_gtkhash(struct wsrd *wsrd)
         supp_start_key_request(&wsrd->supp);
 }
 
+void ws_set_pan_version(struct wsrd *wsrd, int pan_version)
+{
+    if (pan_version == wsrd->ws.pan_version)
+        return;
+    wsrd->ws.pan_version = pan_version;
+    dbus_emit_change("PanVersion");
+}
+
 /*
  *   Wi-SUN FAN 1.1v09 6.3.4.6.3.2.5 FFN Join State 5: Operational
  * If an FFN receives a PAN Configuration indicating a PAN version number
@@ -376,7 +384,7 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
      * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
      * Version.
      */
-    wsrd->ws.pan_version = new_pan_version;
+    ws_set_pan_version(wsrd, new_pan_version);
     // NOTE: A PAN version change means the BR is alive.
     ws_pan_timeout_update(wsrd);
     /*
@@ -430,7 +438,6 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
     ws_wh_wide_ies_read(&wsrd->ws.ie_list, ind->ie_hdr.data, ind->ie_hdr.data_size, BIT(WS_FT_PC));
     ws_wp_nested_wide_ies_read(&wsrd->ws.ie_list, ind->ie_wp.data, ind->ie_wp.data_size, BIT(WS_FT_PC));
     join_state_transition(wsrd, WSRD_EVENT_PC_RX);
-    dbus_emit_change("PanVersion");
 }
 
 static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
