@@ -34,9 +34,6 @@ struct rpl_mrhof {
     float parent_switch_threshold;
     int device_min_sens_dbm;
 
-    float cand_parent_threshold;
-    float cand_parent_hysteresis;
-
     // Required for retrieving link metrics.
     const struct ws_neigh_table *ws_neigh_table;
 
