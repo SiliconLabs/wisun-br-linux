@@ -52,60 +52,58 @@ static void rail_fill_pom_disabled(const struct rcp *rcp, const struct ws_fhss_c
     phy->rcp_rail_config_index = config->index;
 }
 
-static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
+static void rail_fill_pom_auto(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy)
 {
-    struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
-    struct ws_fhss_config *fhss = &ctxt->net_if.ws_info.fhss_config;
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
     const uint8_t *phy_mode;
     int i;
 
-    for (base_rail_params = rail_get_next_config(ctxt->rcp.rail_config_list, fhss->chan_params, phy_config->params);
+    for (base_rail_params = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
          base_rail_params;
-         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy_config->params))
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy->params))
         // FIXME: if base PHY is OFDM, the rail config may not be associated to
         // any group
         // FIXME: display a warning if several rail configs match
         if (base_rail_params->phy_mode_group)
             break;
-    if (version_older_than(ctxt->rcp.version_api, 2, 6, 0)) {
+    if (version_older_than(rcp->version_api, 2, 6, 0)) {
         WARN("\"phy_operating_modes = auto\" with RCP API < 2.6.0");
         base_rail_params = NULL;
     }
     if (!base_rail_params) {
         INFO("No PHY operating modes available for your configuration");
-        rail_fill_pom_disabled(&ctxt->rcp, fhss, phy_config);
+        rail_fill_pom_disabled(rcp, fhss, phy);
         return;
     }
     i = 0;
-    phy_config->rcp_rail_config_index = base_rail_params->index;
-    for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+    phy->rcp_rail_config_index = base_rail_params->index;
+    for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
             for (phy_mode = chan_params->valid_phy_modes; *phy_mode; phy_mode++) {
                 phy_params = ws_regdb_phy_params(*phy_mode, 0);
-                if (i >= ARRAY_SIZE(phy_config->phy_op_modes) - 1)
+                if (i >= ARRAY_SIZE(phy->phy_op_modes) - 1)
                     continue;
                 // Ignore FAN1.0
                 if (!chan_params->chan_plan_id)
                     continue;
-                if (strchr((char *)phy_config->phy_op_modes, *phy_mode))
+                if (strchr((char *)phy->phy_op_modes, *phy_mode))
                     continue;
-                if (chan_params->reg_domain != ctxt->config.ws_domain)
+                if (chan_params->reg_domain != fhss->chan_params->reg_domain)
                     continue;
                 if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
                     continue;
                 // If base PHY is OFDM, we can only switch to another MCS
-                if (phy_config->params->modulation == MODULATION_OFDM &&
-                    phy_config->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                if (phy->params->modulation == MODULATION_OFDM &&
+                    phy->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                     continue;
                 if (rail_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                     continue;
                 // Ignore base mode
-                if (phy_config->params->phy_mode_id == phy_params->phy_mode_id)
+                if (phy->params->phy_mode_id == phy_params->phy_mode_id)
                     continue;
-                phy_config->phy_op_modes[i++] = *phy_mode;
+                phy->phy_op_modes[i++] = *phy_mode;
             }
         }
     }
@@ -164,7 +162,7 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
 void rail_fill_pom(struct wsbr_ctxt *ctxt)
 {
     if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
-        rail_fill_pom_auto(ctxt);
+        rail_fill_pom_auto(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
     else if (ctxt->config.ws_phy_op_modes[0])
         rail_fill_pom_manual(ctxt);
     else
