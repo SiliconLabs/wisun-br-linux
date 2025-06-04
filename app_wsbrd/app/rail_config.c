@@ -43,15 +43,13 @@ static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_
     return NULL;
 }
 
-static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
+static void rail_fill_pom_disabled(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy)
 {
-    const struct rcp_rail_config *config = rail_get_next_config(ctxt->rcp.rail_config_list,
-                                                                ctxt->net_if.ws_info.fhss_config.chan_params,
-                                                                ctxt->net_if.ws_info.phy_config.params);
+    const struct rcp_rail_config *config = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
 
     if (!config)
         FATAL(1, "can't match any RAIL configuration");
-    ctxt->net_if.ws_info.phy_config.rcp_rail_config_index = config->index;
+    phy->rcp_rail_config_index = config->index;
 }
 
 static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
@@ -78,7 +76,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
     }
     if (!base_rail_params) {
         INFO("No PHY operating modes available for your configuration");
-        rail_fill_pom_disabled(ctxt);
+        rail_fill_pom_disabled(&ctxt->rcp, fhss, phy_config);
         return;
     }
     i = 0;
@@ -170,5 +168,5 @@ void rail_fill_pom(struct wsbr_ctxt *ctxt)
     else if (ctxt->config.ws_phy_op_modes[0])
         rail_fill_pom_manual(ctxt);
     else
-        rail_fill_pom_disabled(ctxt);
+        rail_fill_pom_disabled(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
 }
