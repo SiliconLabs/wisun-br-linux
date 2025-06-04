@@ -18,6 +18,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/ws/ws_neigh.h"
 #include "common/mathutils.h"
+#include "common/dbus.h"
 #include "common/log.h"
 
 #include "rpl_mrhof.h"
@@ -156,6 +157,8 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     } else {
         TRACE(TR_RPL, "rpl: parent select none");
     }
+    if (pref_parent_cur != pref_parent_new)
+        dbus_emit_change("PrimaryParent");
     timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     if (pref_parent_new && !pref_parent_cur)

@@ -121,7 +121,7 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
     struct ipv6_neigh *parent;
 
     parent = rpl_neigh_pref_parent(ipv6);
-    if (!parent || !parent->rpl || !parent->rpl->dao_ack_received)
+    if (!parent)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
     sd_bus_message_append_array(reply, 'y', parent->gua.s6_addr,
                                 sizeof(parent->gua.s6_addr));
