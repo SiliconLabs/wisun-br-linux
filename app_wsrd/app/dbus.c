@@ -61,6 +61,41 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     return 0;
 }
 
+static int dbus_get_join_state(sd_bus *bus, const char *path, const char *interface,
+                               const char *property, sd_bus_message *reply,
+                               void *userdata, sd_bus_error *ret_error)
+{
+    enum wsrd_state state = *(enum wsrd_state *)userdata;
+    uint32_t join_state;
+
+    switch (state) {
+        case WSRD_STATE_DISCOVERY:
+            join_state = 1;
+            break;
+        case WSRD_STATE_AUTHENTICATE:
+            join_state = 2;
+            break;
+        case WSRD_STATE_CONFIGURE:
+        case WSRD_STATE_RECONNECT:
+            join_state = 3;
+            break;
+        case WSRD_STATE_RPL_PARENT:
+        case WSRD_STATE_ROUTING:
+            join_state = 4;
+            break;
+        case WSRD_STATE_OPERATIONAL:
+            join_state = 5;
+            break;
+        case WSRD_STATE_DISCONNECTING:
+            join_state = 6;
+            break;
+        default:
+            BUG();
+    }
+    sd_bus_message_append_basic(reply, 'u', &join_state);
+    return 0;
+}
+
 static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interface,
                              const char *property, sd_bus_message *reply,
                              void *userdata, sd_bus_error *ret_error)
@@ -148,6 +183,7 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanVersion",    "q",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ipv6),           SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("JoinState",     "u",   dbus_get_join_state,     offsetof(struct wsrd, state),          SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("DodagId",       "ay",  dbus_get_dodag_id,       offsetof(struct wsrd, ipv6),           0),
     SD_BUS_VTABLE_END,
 };

@@ -17,6 +17,7 @@
 #include "common/ws/eapol_relay.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/dhcp_client.h"
+#include "common/dbus.h"
 
 #include "app_wsrd/supplicant/supplicant_storage.h"
 #include "wsrd_storage.h"
@@ -407,6 +408,7 @@ void join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
 
         if (state->enter)
             state->enter(wsrd);
+        dbus_emit_change("JoinState");
         break;
     }
 }
