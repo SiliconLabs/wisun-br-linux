@@ -25,27 +25,18 @@
 #include "wsbrd.h"
 #include "rail_config.h"
 
-static const struct rcp_rail_config *rail_get_next_config(struct wsbr_ctxt *ctxt,
-                                                          const struct rcp_rail_config *iterator)
+static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_config *iterator,
+                                                          const struct chan_params *chan_params,
+                                                          const struct phy_params *phy_params)
 {
-    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
-    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
-    uint32_t chan0_freq   = chan_params ? chan_params->chan0_freq   : ctxt->config.ws_chan0_freq;
-    uint32_t chan_spacing = chan_params ? chan_params->chan_spacing : ctxt->config.ws_chan_spacing;
-    uint16_t chan_count   = chan_params ? chan_params->chan_count   : ctxt->config.ws_chan_count;
-
-    WARN_ON(!ctxt->rcp.rail_config_list);
-    if (!ctxt->rcp.rail_config_list)
-        return NULL;
+    WARN_ON(!iterator);
     if (!iterator)
-        iterator = ctxt->rcp.rail_config_list;
-    else
-        iterator++;
+        return NULL;
     while (iterator->chan0_freq) {
         if (iterator->rail_phy_mode_id == phy_params->rail_phy_mode_id &&
-            iterator->chan0_freq       == chan0_freq &&
-            iterator->chan_count       == chan_count &&
-            iterator->chan_spacing     == chan_spacing)
+            iterator->chan0_freq       == chan_params->chan0_freq &&
+            iterator->chan_count       == chan_params->chan_count &&
+            iterator->chan_spacing     == chan_params->chan_spacing)
             return iterator;
         iterator++;
     }
@@ -54,7 +45,9 @@ static const struct rcp_rail_config *rail_get_next_config(struct wsbr_ctxt *ctxt
 
 static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
 {
-    const struct rcp_rail_config *config = rail_get_next_config(ctxt, NULL);
+    const struct rcp_rail_config *config = rail_get_next_config(ctxt->rcp.rail_config_list,
+                                                                ctxt->net_if.ws_info.fhss_config.chan_params,
+                                                                ctxt->net_if.ws_info.phy_config.params);
 
     if (!config)
         FATAL(1, "can't match any RAIL configuration");
@@ -64,15 +57,16 @@ static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
 static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 {
     struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
+    struct ws_fhss_config *fhss = &ctxt->net_if.ws_info.fhss_config;
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
     const uint8_t *phy_mode;
     int i;
 
-    for (base_rail_params = rail_get_next_config(ctxt, NULL);
+    for (base_rail_params = rail_get_next_config(ctxt->rcp.rail_config_list, fhss->chan_params, phy_config->params);
          base_rail_params;
-         base_rail_params = rail_get_next_config(ctxt, base_rail_params))
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy_config->params))
         // FIXME: if base PHY is OFDM, the rail config may not be associated to
         // any group
         // FIXME: display a warning if several rail configs match
@@ -122,6 +116,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
 {
     struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
+    struct ws_fhss_config *fhss = &ctxt->net_if.ws_info.fhss_config;
     const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct phy_params *phy_params;
@@ -129,9 +124,9 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
     int found;
     int i;
 
-    for (base_rail_params = rail_get_next_config(ctxt, NULL);
+    for (base_rail_params = rail_get_next_config(ctxt->rcp.rail_config_list, fhss->chan_params, phy_config->params);
          base_rail_params;
-         base_rail_params = rail_get_next_config(ctxt, base_rail_params)) {
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy_config->params)) {
         // FIXME: if base PHY is OFDM, the rail config may not be associated to
         // any group
         if (!base_rail_params->phy_mode_group)
