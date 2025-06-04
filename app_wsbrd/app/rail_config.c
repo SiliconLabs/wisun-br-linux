@@ -109,36 +109,34 @@ static void rail_fill_pom_auto(const struct rcp *rcp, const struct ws_fhss_confi
     }
 }
 
-static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
+static void rail_fill_pom_manual(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
+                                 const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1])
 {
-    struct ws_phy_config *phy_config = &ctxt->net_if.ws_info.phy_config;
-    struct ws_fhss_config *fhss = &ctxt->net_if.ws_info.fhss_config;
-    const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     const struct rcp_rail_config *base_rail_params, *rail_params;
     const struct phy_params *phy_params;
     const uint8_t *phy_mode;
     int found;
     int i;
 
-    for (base_rail_params = rail_get_next_config(ctxt->rcp.rail_config_list, fhss->chan_params, phy_config->params);
+    for (base_rail_params = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
          base_rail_params;
-         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy_config->params)) {
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy->params)) {
         // FIXME: if base PHY is OFDM, the rail config may not be associated to
         // any group
         if (!base_rail_params->phy_mode_group)
             continue;
         i = 0;
-        phy_config->rcp_rail_config_index = base_rail_params->index;
-        for (phy_mode = ctxt->config.ws_phy_op_modes; *phy_mode; phy_mode++) {
+        phy->rcp_rail_config_index = base_rail_params->index;
+        for (phy_mode = ws_phy_op_modes; *phy_mode; phy_mode++) {
             phy_params = ws_regdb_phy_params(*phy_mode, 0);
-            if (phy_params->phy_mode_id == ctxt->config.ws_phy_mode_id)
+            if (phy_params->phy_mode_id == phy->params->phy_mode_id)
                 WARN("base \"phy_mode_id\" should not be present in \"phy_operating_modes\"");
             found = 0;
-            if (base_phy_params->modulation == MODULATION_OFDM &&
-                base_phy_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+            if (phy->params->modulation == MODULATION_OFDM &&
+                phy->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
                 FATAL(1, "unsupported phy_operating_mode %d with phy_mode %d",
-                      phy_params->rail_phy_mode_id, base_phy_params->rail_phy_mode_id);
-            for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++)
+                      phy_params->rail_phy_mode_id, phy->params->rail_phy_mode_id);
+            for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++)
                 if (rail_params->phy_mode_group   == base_rail_params->phy_mode_group &&
                     rail_params->rail_phy_mode_id == phy_params->rail_phy_mode_id)
                     found++;
@@ -146,13 +144,13 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
                 break;
             if (found > 1)
                 ERROR("ambiguous RAIL configuration");
-            BUG_ON(i >= ARRAY_SIZE(phy_config->phy_op_modes) - 1);
-            phy_config->phy_op_modes[i++] = *phy_mode;
+            BUG_ON(i >= ARRAY_SIZE(phy->phy_op_modes) - 1);
+            phy->phy_op_modes[i++] = *phy_mode;
         }
         // It may exist other possible configurations (eg. user may define NA
         // and BZ with the same parameters set). We stop on the first found.
         if (!*phy_mode) {
-            BUG_ON(phy_config->phy_op_modes[i] != 0);
+            BUG_ON(phy->phy_op_modes[i] != 0);
             return;
         }
     }
@@ -164,7 +162,8 @@ void rail_fill_pom(struct wsbr_ctxt *ctxt)
     if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
         rail_fill_pom_auto(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
     else if (ctxt->config.ws_phy_op_modes[0])
-        rail_fill_pom_manual(ctxt);
+        rail_fill_pom_manual(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config,
+                             ctxt->config.ws_phy_op_modes);
     else
         rail_fill_pom_disabled(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
 }
