@@ -30,7 +30,7 @@ void join_state_1_enter(struct wsrd *wsrd)
 {
     // Entering join state 1 means we probably want a fresh start
     wsrd_storage_clear();
-    wsrd->ws.pan_id = 0xffff;
+    ws_set_pan_id(wsrd, 0xffff);
     wsrd->prev_pan_id = 0xffff;
     memset(&wsrd->ws.jm, 0, sizeof(wsrd->ws.jm));
     wsrd->ws.has_jm = false;
@@ -70,10 +70,11 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     INFO("Join state 3: Reconnect");
-    // Allow RX of PA with new PAN ID
-    wsrd->prev_pan_id = wsrd->ws.pan_id;
-    wsrd->ws.pan_id = 0xffff;
-    rcp_set_filter_pan_id(&wsrd->ws.rcp, wsrd->ws.pan_id);
+    /*
+     * - sets prev_pan_id for PCS TX/PA from prev PAN RX
+     * - sets pan_id to 0xffff for PA RX from new PAN
+     */
+    ws_set_pan_id(wsrd, 0xffff);
     wsrd->eapol_target_eui64 = EUI64_BC;
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
     wsrd->ws.gak_index = 0;
@@ -93,7 +94,6 @@ static void join_state_3_reconnect_exit(struct wsrd *wsrd)
 {
     trickle_stop(&wsrd->pas_tkl);
     trickle_stop(&wsrd->pcs_tkl);
-    wsrd->prev_pan_id = 0xffff;
 }
 
 static void join_state_2_enter(struct wsrd *wsrd)

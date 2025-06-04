@@ -92,6 +92,16 @@ void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)
     memcpy(wsrd->ws.fhss.bc_chan_mask, ws_neigh->fhss_data_unsecured.bc_channel_list, sizeof(wsrd->ws.fhss.bc_chan_mask));
 }
 
+void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id)
+{
+    if (wsrd->ws.pan_id == pan_id)
+        return;
+    wsrd->prev_pan_id = wsrd->ws.pan_id;
+    wsrd->ws.pan_id = pan_id;
+    rcp_set_filter_pan_id(&wsrd->ws.rcp, pan_id);
+    dbus_emit_change("PanId");
+}
+
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
@@ -149,10 +159,8 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     }
 
     memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
-    wsrd->ws.pan_id = selected_pan_id;
+    ws_set_pan_id(wsrd, selected_pan_id);
     wsrd->fhss_bc_synced_to_target = false;
-    rcp_set_filter_pan_id(&wsrd->ws.rcp, selected_pan_id);
-    dbus_emit_change("PanId");
     if (selected_candidate->plf != 0xff)
         TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:%u%%", "select",
               tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
@@ -376,10 +384,8 @@ static void ws_pan_version_update(struct wsrd *wsrd, uint16_t new_pan_version, c
                                   const struct ws_ind *ind, const struct ws_bs_ie *ie_bs)
 {
     // Note: In reconnect state, the PAN ID is not set at this stage.
-    if (wsrd->ws.pan_id == 0xffff) {
-        wsrd->ws.pan_id = ind->hdr.pan_id;
-        rcp_set_filter_pan_id(&wsrd->ws.rcp, ind->hdr.pan_id);
-    }
+    if (wsrd->ws.pan_id == 0xffff)
+        ws_set_pan_id(wsrd, ind->hdr.pan_id);
     /*
      * 1. The FFN MUST record the new incoming PAN Version as the FFN’s new PAN
      * Version.
