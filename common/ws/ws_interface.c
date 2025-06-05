@@ -85,8 +85,10 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
 
     if (wh_ies->utt)
         ws_wh_utt_write(iobuf, frame_type);
-    if (wh_ies->bt)
+    if (wh_ies->bt) {
+        BUG_ON(!ws->fhss.bc_interval);
         ws_wh_bt_write(iobuf);
+    }
     if (wh_ies->sl_utt)
         ws_wh_sl_utt_write(iobuf, frame_type);
     if (wh_ies->ea)
@@ -336,7 +338,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     };
     struct wh_ie_list wh_ies = {
         .utt = true,
-        .bt  = true,
+        .bt  = ws->fhss.bc_interval != 0,
         // TODO: LBT-IE
     };
     struct wp_ie_list wp_ies = {
@@ -407,7 +409,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     };
     struct wh_ie_list wh_ies = {
         .utt = true,
-        .bt  = ws->pan_version != -1,
+        .bt  = ws->fhss.bc_interval != 0,
         .ea  = ea,
         // TODO: LBT-IE
     };
