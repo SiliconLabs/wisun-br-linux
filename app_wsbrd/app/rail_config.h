@@ -22,6 +22,8 @@ struct wsbr_ctxt;
 
 #include "common/rail_config.h"
 
+void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config *fhss, const struct ws_phy_config *phy,
+                             struct ws_ms_chan_mask *ms_chan_mask);
 void rail_fill_pom(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
                    const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1]);
 #endif

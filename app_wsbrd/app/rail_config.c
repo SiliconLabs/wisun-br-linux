@@ -43,6 +43,60 @@ static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_
     return NULL;
 }
 
+static const struct chan_params *rail_get_ms_chan_params(int reg_domain, const struct rcp_rail_config *rail_config)
+{
+    const struct chan_params *ret = NULL;
+
+    for (const struct chan_params *it = chan_params_table; it->chan0_freq; it++) {
+        if (!it->chan_plan_id) // Ignore FAN 1.0 entries
+            continue;
+        if (it->reg_domain   != reg_domain ||
+            it->chan0_freq   != rail_config->chan0_freq ||
+            it->chan_spacing != rail_config->chan_spacing ||
+            it->chan_count   != rail_config->chan_count)
+            continue;
+        BUG_ON(ret, "ambiguous channel parameters");
+        ret = it;
+    }
+    return ret;
+}
+
+void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config *fhss, const struct ws_phy_config *phy,
+                             struct ws_ms_chan_mask *ms_chan_mask)
+{
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    struct ws_ms_chan_mask *it;
+    int i;
+
+    base_rail_params = rcp->rail_config_list + phy->rcp_rail_config_index;
+    for (i = 0; phy->phy_op_modes[i]; i++) {
+        for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
+            if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
+                continue;
+            phy_params = ws_regdb_phy_params(phy->phy_op_modes[i], 0);
+            FATAL_ON(!phy_params, 1, "unknown phy parameters for phy %d", phy->phy_op_modes[i]);
+            if (phy_params->rail_phy_mode_id != rail_params->rail_phy_mode_id)
+                continue;
+            chan_params = rail_get_ms_chan_params(fhss->chan_params->reg_domain, rail_params);
+            FATAL_ON(!chan_params, 1, "unknown channel parameters for phy %d", phy->phy_op_modes[i]);
+            // Insert if unique
+            for (it = ms_chan_mask; it->chan_spacing; it++)
+                if (it->chan_spacing == chan_params->chan_spacing)
+                    break;
+            ws_chan_mask_calc_reg(chan_mask, chan_params, fhss->regional_regulation);
+            if (it->chan_spacing) {
+                WARN_ON(memcmp(it->chan_mask, chan_mask, sizeof(chan_mask)), "ambiguous channel masks for spacing %u", chan_params->chan_spacing);
+                continue;
+            }
+            it->chan_spacing = chan_params->chan_spacing;
+            memcpy(it->chan_mask, chan_mask, sizeof(chan_mask));
+        }
+    }
+}
+
 static void rail_fill_pom_disabled(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy)
 {
     const struct rcp_rail_config *config = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
