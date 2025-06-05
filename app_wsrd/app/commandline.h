@@ -51,6 +51,8 @@ struct wsrd_conf {
     int  ws_chan_count;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
     int tx_power;
+    // -1 for base mode +1 for sentinel
+    uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1];
 
     struct supp_cfg supp_cfg;
 

@@ -113,6 +113,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
+        { "phy_operating_modes",           &config->ws_phy_op_modes,                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
@@ -152,6 +153,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         .filename = "command line",
     };
     int opt;
+
+    config->ws_phy_op_modes[0] = -1;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -259,4 +262,11 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "inconsistent disc_imin and disc_imax values (disc_imin >= disc_imax)");
     if (config->ws_allowed_mac_address_count && config->ws_denied_mac_address_count)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
+    if (config->ws_mode && config->ws_phy_op_modes[0])
+        WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
+    for (int i = 0; config->ws_phy_op_modes[i]; i++)
+        if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&
+            !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
+            WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
+                 val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
 }

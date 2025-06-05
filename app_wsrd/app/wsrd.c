@@ -444,6 +444,7 @@ void sig_error_handler(int signal)
 
 static void wsrd_init_radio(struct wsrd *wsrd)
 {
+    struct ws_ms_chan_mask ms_chan_mask[FIELD_MAX(WS_MASK_POM_COUNT) + 1] = { 0 };
     const struct rcp_rail_config *rail_config;
     uint8_t chan_mask[WS_CHAN_MASK_LEN];
     struct chan_params *chan_params;
@@ -477,6 +478,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
+    rail_fill_pom(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, wsrd->config.ws_phy_op_modes);
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
@@ -484,7 +486,8 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, NULL);
+    rail_fill_ms_chan_masks(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, ms_chan_mask);
+    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, ms_chan_mask);
     rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
 
     rcp_req_radio_enable(&wsrd->ws.rcp);
