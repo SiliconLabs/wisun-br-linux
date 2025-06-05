@@ -317,7 +317,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (!memzcmp(fhss->uc_chan_mask, sizeof(fhss->uc_chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
 
-    rail_fill_pom(ctxt);
+    rail_fill_pom(&ctxt->rcp, &ws_info->fhss_config, &ws_info->phy_config, ctxt->config.ws_phy_op_modes);
 
     ws_info->mngt.lts_timer.callback = ws_mngt_lts_timeout;
     ws_info->mngt.lts_timer.period_ms = ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period;

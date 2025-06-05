@@ -157,13 +157,13 @@ static void rail_fill_pom_manual(const struct rcp *rcp, const struct ws_fhss_con
     FATAL(1, "phy_operating_modes: can't match any RAIL configuration");
 }
 
-void rail_fill_pom(struct wsbr_ctxt *ctxt)
+void rail_fill_pom(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
+                   const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1])
 {
-    if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
-        rail_fill_pom_auto(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
-    else if (ctxt->config.ws_phy_op_modes[0])
-        rail_fill_pom_manual(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config,
-                             ctxt->config.ws_phy_op_modes);
+    if (ws_phy_op_modes[0] == (uint8_t)-1)
+        rail_fill_pom_auto(rcp, fhss, phy);
+    else if (ws_phy_op_modes[0])
+        rail_fill_pom_manual(rcp, fhss, phy, ws_phy_op_modes);
     else
-        rail_fill_pom_disabled(&ctxt->rcp, &ctxt->net_if.ws_info.fhss_config, &ctxt->net_if.ws_info.phy_config);
+        rail_fill_pom_disabled(rcp, fhss, phy);
 }
