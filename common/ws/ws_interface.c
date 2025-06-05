@@ -123,6 +123,8 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
         ws_wp_nested_netname_write(iobuf, ws->netname);
     if (wp_ies->jm)
         ws_wp_nested_jm_write(iobuf, &ws->jm);
+    if (wp_ies->pom)
+        ws_wp_nested_pom_write(iobuf, ws->phy.phy_op_modes, true);
     SLIST_FOREACH(ie, &ws->ie_list, link)
         if (ie->frame_type_mask & BIT(frame_type) &&
             ie->ie_type != WS_IE_TYPE_HEADER)
@@ -342,7 +344,8 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         // TODO: LBT-IE
     };
     struct wp_ie_list wp_ies = {
-        .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+        .us  = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+        .pom = ws->phy.phy_op_modes[0] != 0,
         // TODO: JM-IE
     };
     struct ws_frame_ctx *frame_ctx;
@@ -414,7 +417,8 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
         // TODO: LBT-IE
     };
     struct wp_ie_list wp_ies = {
-        .us = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+        .us  = true, // TODO: only include US-IE if 1st unicast frame to neighbor
+        .pom = ws->phy.phy_op_modes[0] != 0,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -468,7 +472,7 @@ void ws_if_send_pas(struct ws_ctx *ws)
     struct wp_ie_list wp_ies = {
         .us      = true,
         .netname = true,
-        // TODO: POM-IE
+        .pom     = ws->phy.phy_op_modes[0] != 0,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -517,7 +521,7 @@ void ws_if_send_pa(struct ws_ctx *ws, uint16_t pan_size, uint16_t routing_cost)
         },
         .netname = true,
         .jm      = ws->has_jm,
-        // TODO: POM-IE
+        .pom     = ws->phy.phy_op_modes[0] != 0,
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
@@ -557,7 +561,6 @@ void ws_if_send_pcs(struct ws_ctx *ws, uint16_t pan_id)
     struct wp_ie_list wp_ies = {
         .us      = true,
         .netname = true,
-        // TODO: POM-IE
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
