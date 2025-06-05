@@ -477,7 +477,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
-    rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, false);
+    rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
     ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
