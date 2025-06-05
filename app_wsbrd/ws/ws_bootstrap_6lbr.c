@@ -35,10 +35,10 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
+#include "common/rail_config.h"
 
 #include "app/rcp_api_legacy.h"
 #include "app/commandline_values.h"
-#include "app/rail_config.h"
 #include "net/protocol.h"
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"

@@ -17,6 +17,8 @@
 #include "common/commandline.h"
 #include "common/log.h"
 #include "common/rcp_api.h"
+#include "common/version.h"
+#include "common/memutils.h"
 #include "rail_config.h"
 
 static void rail_print_config(const struct phy_params *phy_params, const struct chan_params *chan_params,
@@ -176,4 +178,201 @@ void rail_print_config_list(struct rcp *rcp)
         if (!entry_found)
             rail_print_config(NULL, NULL, rail_params, rail_params->rail_phy_mode_id);
     }
+}
+
+static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_config *iterator,
+                                                          const struct chan_params *chan_params,
+                                                          const struct phy_params *phy_params)
+{
+    WARN_ON(!iterator);
+    if (!iterator)
+        return NULL;
+    while (iterator->chan0_freq) {
+        if (iterator->rail_phy_mode_id == phy_params->rail_phy_mode_id &&
+            iterator->chan0_freq       == chan_params->chan0_freq &&
+            iterator->chan_count       == chan_params->chan_count &&
+            iterator->chan_spacing     == chan_params->chan_spacing)
+            return iterator;
+        iterator++;
+    }
+    return NULL;
+}
+
+static const struct chan_params *rail_get_ms_chan_params(int reg_domain, const struct rcp_rail_config *rail_config)
+{
+    const struct chan_params *ret = NULL;
+
+    for (const struct chan_params *it = chan_params_table; it->chan0_freq; it++) {
+        if (!it->chan_plan_id) // Ignore FAN 1.0 entries
+            continue;
+        if (it->reg_domain   != reg_domain ||
+            it->chan0_freq   != rail_config->chan0_freq ||
+            it->chan_spacing != rail_config->chan_spacing ||
+            it->chan_count   != rail_config->chan_count)
+            continue;
+        BUG_ON(ret, "ambiguous channel parameters");
+        ret = it;
+    }
+    return ret;
+}
+
+void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config *fhss, const struct ws_phy_config *phy,
+                             struct ws_ms_chan_mask *ms_chan_mask)
+{
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    struct ws_ms_chan_mask *it;
+    int i;
+
+    base_rail_params = rcp->rail_config_list + phy->rcp_rail_config_index;
+    for (i = 0; phy->phy_op_modes[i]; i++) {
+        for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
+            if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
+                continue;
+            phy_params = ws_regdb_phy_params(phy->phy_op_modes[i], 0);
+            FATAL_ON(!phy_params, 1, "unknown phy parameters for phy %d", phy->phy_op_modes[i]);
+            if (phy_params->rail_phy_mode_id != rail_params->rail_phy_mode_id)
+                continue;
+            chan_params = rail_get_ms_chan_params(fhss->chan_params->reg_domain, rail_params);
+            FATAL_ON(!chan_params, 1, "unknown channel parameters for phy %d", phy->phy_op_modes[i]);
+            // Insert if unique
+            for (it = ms_chan_mask; it->chan_spacing; it++)
+                if (it->chan_spacing == chan_params->chan_spacing)
+                    break;
+            ws_chan_mask_calc_reg(chan_mask, chan_params, fhss->regional_regulation);
+            if (it->chan_spacing) {
+                WARN_ON(memcmp(it->chan_mask, chan_mask, sizeof(chan_mask)), "ambiguous channel masks for spacing %u", chan_params->chan_spacing);
+                continue;
+            }
+            it->chan_spacing = chan_params->chan_spacing;
+            memcpy(it->chan_mask, chan_mask, sizeof(chan_mask));
+        }
+    }
+}
+
+static void rail_fill_pom_disabled(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy)
+{
+    const struct rcp_rail_config *config = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
+
+    if (!config)
+        FATAL(1, "can't match any RAIL configuration");
+    phy->rcp_rail_config_index = config->index;
+}
+
+static void rail_fill_pom_auto(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy)
+{
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    const uint8_t *phy_mode;
+    int i;
+
+    for (base_rail_params = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
+         base_rail_params;
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy->params))
+        // FIXME: if base PHY is OFDM, the rail config may not be associated to
+        // any group
+        // FIXME: display a warning if several rail configs match
+        if (base_rail_params->phy_mode_group)
+            break;
+    if (version_older_than(rcp->version_api, 2, 6, 0)) {
+        WARN("\"phy_operating_modes = auto\" with RCP API < 2.6.0");
+        base_rail_params = NULL;
+    }
+    if (!base_rail_params) {
+        INFO("No PHY operating modes available for your configuration");
+        rail_fill_pom_disabled(rcp, fhss, phy);
+        return;
+    }
+    i = 0;
+    phy->rcp_rail_config_index = base_rail_params->index;
+    for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++) {
+        for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
+            for (phy_mode = chan_params->valid_phy_modes; *phy_mode; phy_mode++) {
+                phy_params = ws_regdb_phy_params(*phy_mode, 0);
+                if (i >= ARRAY_SIZE(phy->phy_op_modes) - 1)
+                    continue;
+                // Ignore FAN1.0
+                if (!chan_params->chan_plan_id)
+                    continue;
+                if (strchr((char *)phy->phy_op_modes, *phy_mode))
+                    continue;
+                if (chan_params->reg_domain != fhss->chan_params->reg_domain)
+                    continue;
+                if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
+                    continue;
+                // If base PHY is OFDM, we can only switch to another MCS
+                if (phy->params->modulation == MODULATION_OFDM &&
+                    phy->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                    continue;
+                if (rail_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                    continue;
+                // Ignore base mode
+                if (phy->params->phy_mode_id == phy_params->phy_mode_id)
+                    continue;
+                phy->phy_op_modes[i++] = *phy_mode;
+            }
+        }
+    }
+}
+
+static void rail_fill_pom_manual(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
+                                 const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1])
+{
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct phy_params *phy_params;
+    const uint8_t *phy_mode;
+    int found;
+    int i;
+
+    for (base_rail_params = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
+         base_rail_params;
+         base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy->params)) {
+        // FIXME: if base PHY is OFDM, the rail config may not be associated to
+        // any group
+        if (!base_rail_params->phy_mode_group)
+            continue;
+        i = 0;
+        phy->rcp_rail_config_index = base_rail_params->index;
+        for (phy_mode = ws_phy_op_modes; *phy_mode; phy_mode++) {
+            phy_params = ws_regdb_phy_params(*phy_mode, 0);
+            if (phy_params->phy_mode_id == phy->params->phy_mode_id)
+                WARN("base \"phy_mode_id\" should not be present in \"phy_operating_modes\"");
+            found = 0;
+            if (phy->params->modulation == MODULATION_OFDM &&
+                phy->params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                FATAL(1, "unsupported phy_operating_mode %d with phy_mode %d",
+                      phy_params->rail_phy_mode_id, phy->params->rail_phy_mode_id);
+            for (rail_params = rcp->rail_config_list; rail_params->chan0_freq; rail_params++)
+                if (rail_params->phy_mode_group   == base_rail_params->phy_mode_group &&
+                    rail_params->rail_phy_mode_id == phy_params->rail_phy_mode_id)
+                    found++;
+            if (!found)
+                break;
+            if (found > 1)
+                ERROR("ambiguous RAIL configuration");
+            BUG_ON(i >= ARRAY_SIZE(phy->phy_op_modes) - 1);
+            phy->phy_op_modes[i++] = *phy_mode;
+        }
+        // It may exist other possible configurations (eg. user may define NA
+        // and BZ with the same parameters set). We stop on the first found.
+        if (!*phy_mode) {
+            BUG_ON(phy->phy_op_modes[i] != 0);
+            return;
+        }
+    }
+    FATAL(1, "phy_operating_modes: can't match any RAIL configuration");
+}
+
+void rail_fill_pom(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
+                   const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1])
+{
+    if (ws_phy_op_modes[0] == (uint8_t)-1)
+        rail_fill_pom_auto(rcp, fhss, phy);
+    else if (ws_phy_op_modes[0])
+        rail_fill_pom_manual(rcp, fhss, phy, ws_phy_op_modes);
+    else
+        rail_fill_pom_disabled(rcp, fhss, phy);
 }

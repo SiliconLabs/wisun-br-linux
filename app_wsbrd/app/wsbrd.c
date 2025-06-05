@@ -34,6 +34,7 @@
 #include "common/drop_privileges.h"
 #include "common/rpl_lollipop.h"
 #include "common/string_extra.h"
+#include "common/rail_config.h"
 #include "common/specs/ws.h"
 #include "common/rand.h"
 #include "common/rcp_api.h"
@@ -68,7 +69,6 @@
 #include "wsbr_pcapng.h"
 #include "libwsbrd.h"
 #include "wsbrd.h"
-#include "rail_config.h"
 #include "dbus.h"
 #include "tun.h"
 

@@ -139,7 +139,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/wsbr_cfg.c
     app_wsbrd/app/wsbr_mac.c
     app_wsbrd/app/wsbr_pcapng.c
-    app_wsbrd/app/rail_config.c
     app_wsbrd/app/tun.c
     app_wsbrd/app/commandline.c
     app_wsbrd/app/commandline_values.c
