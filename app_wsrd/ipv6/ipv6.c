@@ -230,12 +230,12 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
         TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6");
         return;
     }
-    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
 
 submit:
     // Reinsert previously parsed IPv6 header.
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 
+    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
     ret = write(ipv6->tun.fd, pktbuf->buf + pktbuf->offset_head, pktbuf_len(pktbuf));
     if (ret < 0)
         WARN("write tun : %m");
