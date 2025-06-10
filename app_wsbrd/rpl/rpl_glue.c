@@ -60,7 +60,7 @@ bool rpl_glue_process_rpi(struct rpl_root *root, struct buffer *buf,
             TRACE(TR_DROP, "drop %-9s: invalid down direction", "rpl-ipv6");
             return false;
         }
-        if (rank <= rpl_dag_rank(root, rpl_root_rank(root))) {
+        if (rank <= rpl_dag_rank(root->min_hop_rank_inc, rpl_root_rank(root))) {
             TRACE(TR_DROP, "drop %-9s: invalid rank", "rpl-ipv6");
             return false;
         }

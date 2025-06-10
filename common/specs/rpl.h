@@ -187,4 +187,14 @@ struct rpl_rpi {
 #define RPL_INSTANCE_ID_TYPE_GLOBAL 0
 #define RPL_INSTANCE_ID_TYPE_LOCAL  1
 
+static inline uint16_t rpl_dag_rank(uint16_t min_hop_rank_inc, uint16_t rank)
+{
+    //   RFC 6550 - 3.5.1.  Rank Comparison (DAGRank())
+    // The integer portion of the Rank is computed by the DAGRank() macro as
+    // follows, where floor(x) is the function that evaluates to the greatest
+    // integer less than or equal to x:
+    //   DAGRank(rank) = floor(rank/MinHopRankIncrease)
+    return rank / min_hop_rank_inc;
+}
+
 #endif
