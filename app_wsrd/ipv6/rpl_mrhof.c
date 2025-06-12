@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <arpa/inet.h>
 #include <math.h>
 
 #include "app_wsrd/ipv6/ipv6.h"
@@ -22,6 +23,8 @@
 #include "common/log.h"
 
 #include "rpl_mrhof.h"
+
+static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 
 float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
 {
@@ -85,16 +88,29 @@ static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_
     }
 }
 
+/*
+ *   RFC 6550 8.2.2.4.  Rank and Movement within a DODAG Version
+ * Let L be the lowest Rank within a DODAG Version that a given node has
+ * advertised. Within the same DODAG Version, that node MUST NOT advertise
+ * an effective Rank higher than L + DAGMaxRankIncrease.
+ */
+static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc)
+{
+    return add16sat(mrhof->lowest_advertised_rank, max_rank_inc);
+}
+
 // RFC 6719 3.2.2. Parent Selection Algorithm
 struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
     struct ipv6_neigh *pref_parent_new = NULL;
+    uint16_t rank_limit = RPL_RANK_INFINITE;
     float cur_min_path_cost;
     struct ipv6_neigh *nce;
     float pref_path_cost;
     const char *discard;
+    uint16_t new_rank;
     float path_cost;
     float etx;
 
@@ -104,9 +120,12 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     else
         cur_min_path_cost = mrhof->max_path_cost;
 
-    TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f",
+    if (pref_parent_cur)
+        rank_limit = rpl_mrhof_get_rank_limit(&ipv6->rpl.mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc));
+
+    TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
           pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
-          cur_min_path_cost, mrhof->max_link_metric);
+          cur_min_path_cost, mrhof->max_link_metric, rank_limit);
 
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
@@ -116,7 +135,6 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl)
             continue;
-        // TODO: refuse neighbors with higher rank than self
 
         discard = NULL;
         etx = rpl_mrhof_etx(ipv6, nce);
@@ -148,13 +166,18 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 
         if (!timer_stopped(&nce->rpl->deny_timer))
             discard = "denied";
+
+        new_rank = rpl_mrhof_rank(ipv6, nce);
+        if (new_rank > rank_limit)
+            discard = "new-rank > rank-limit";
+
         if (discard) {
-            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f (discard %s)",
-                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, discard);
+            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
+                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank, discard);
             continue;
         } else {
-            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%.0f",
-                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost);
+            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%u",
+                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank);
         }
         if (path_cost >= pref_path_cost)
             continue;
