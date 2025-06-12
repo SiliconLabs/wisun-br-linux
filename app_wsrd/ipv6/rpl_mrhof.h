@@ -34,6 +34,8 @@ struct rpl_mrhof {
     float parent_switch_threshold;
     int device_min_sens_dbm;
 
+    uint16_t lowest_advertised_rank;
+
     // Required for retrieving link metrics.
     const struct ws_neigh_table *ws_neigh_table;
 
