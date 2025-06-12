@@ -93,10 +93,19 @@ static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_
  * Let L be the lowest Rank within a DODAG Version that a given node has
  * advertised. Within the same DODAG Version, that node MUST NOT advertise
  * an effective Rank higher than L + DAGMaxRankIncrease.
+ * NOTE: to avoid discarding all candidates with a higher rank when
+ * MaxRankIncrease is set to 0, the rank limit is set to the upper DAGRank.
  */
-static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc)
+static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc, uint16_t min_hop_rank_inc)
 {
-    return add16sat(mrhof->lowest_advertised_rank, max_rank_inc);
+    uint16_t max_dag_rank;
+    uint32_t rank_limit;
+
+    max_dag_rank = rpl_dag_rank(min_hop_rank_inc, add16sat(mrhof->lowest_advertised_rank, max_rank_inc));
+    rank_limit = (max_dag_rank + 1) * min_hop_rank_inc;
+    if (rank_limit >= UINT16_MAX)
+        return RPL_RANK_INFINITE;
+    return rank_limit - 1;
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
@@ -121,7 +130,8 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         cur_min_path_cost = mrhof->max_path_cost;
 
     if (pref_parent_cur)
-        rank_limit = rpl_mrhof_get_rank_limit(&ipv6->rpl.mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc));
+        rank_limit = rpl_mrhof_get_rank_limit(&ipv6->rpl.mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc),
+                                              ntohs(pref_parent_cur->rpl->config.min_hop_rank_inc));
 
     TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
           pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
