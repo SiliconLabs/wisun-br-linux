@@ -339,6 +339,7 @@ if(COMPILE_WSRD)
         common/ipv6/6lowpan_frag.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
+        common/ipv6/mpl.c
         common/ws/eapol_relay.c
         common/ws/ws_chan_mask.c
         common/ws/ws_ie_validation.c
