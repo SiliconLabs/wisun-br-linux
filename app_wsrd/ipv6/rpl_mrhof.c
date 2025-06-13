@@ -146,6 +146,25 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
     return NULL;
 }
 
+/*
+ * NOTE: Since we restrict ourselves from advancing to the next DAGRank, we may
+ * still want to know if candidates that would make us increase our rank as
+ * such exist around us. This allows us to detect situations where no suitable
+ * parent exists within the allowed rank range, and take appropriate action.
+ */
+bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *nce;
+
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl)
+            continue;
+        if (!rpl_mrhof_check_candidate(ipv6, nce, RPL_RANK_INFINITE))
+            return true;
+    }
+    return false;
+}
+
 // RFC 6719 3.2.2. Parent Selection Algorithm
 struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
