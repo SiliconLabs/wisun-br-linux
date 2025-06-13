@@ -150,7 +150,8 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!success)
         return;
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
-    if (!neigh->rpl || !neigh->rpl->is_parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
+    if (!neigh->ns_has_aro || !neigh->rpl || !neigh->rpl->is_parent ||
+        IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         return;
     /*
      *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
@@ -199,10 +200,13 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
          * host sends as part of NUD to determine that it can still reach
          * a default router.
          */
-        if (neigh->rpl && neigh->rpl->is_parent && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
+        if (neigh->rpl && neigh->rpl->is_parent && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
             neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
-        else
+            neigh->ns_has_aro = true;
+        } else {
             neigh->ns_handle = ipv6_send_ns(ipv6, neigh);
+            neigh->ns_has_aro = false;
+        }
         neigh->nud_probe_count++;
         timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, ipv6->probe_delay_ms);
     }

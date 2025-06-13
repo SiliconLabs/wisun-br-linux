@@ -71,7 +71,8 @@ struct ipv6_neigh {
     struct timer_entry own_aro_timer;
     uint64_t ncr_timestamp_ms;
 
-    int ns_handle;
+    int  ns_handle;
+    bool ns_has_aro;
 
     struct rpl_neigh *rpl;
 
