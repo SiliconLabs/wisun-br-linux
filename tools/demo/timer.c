@@ -25,6 +25,7 @@
 struct module {
     uint64_t delay_ms;
     int      ticks;
+    struct timer_entry *timer_tmp;
     struct timer_group timer_group;
 };
 
@@ -51,8 +52,13 @@ void timer_cb_rand(struct timer_group *group, struct timer_entry *timer)
 
 void timer_cb_del(struct timer_group *group, struct timer_entry *timer)
 {
+    struct module *mod = container_of(group, struct module, timer_group);
+
     printf("%s()\n", __func__);
     free(timer);
+
+    timer_stop(&mod->timer_group, mod->timer_tmp);
+    free(mod->timer_tmp);
 }
 
 void timer_cb_del_ticks(struct timer_group *group, struct timer_entry *timer)
@@ -107,7 +113,12 @@ int main()
 
     timer_del = zalloc(sizeof(struct timer_entry));
     timer_del->callback = timer_cb_del;
-    timer_start_rel(NULL, timer_del, 500);
+    timer_start_rel(&mod.timer_group, timer_del, 500);
+
+    mod.timer_tmp = zalloc(sizeof(struct timer_entry));
+    mod.timer_tmp->period_ms = 100;
+    mod.timer_tmp->callback = timer_cb;
+    timer_start_rel(&mod.timer_group, mod.timer_tmp, mod.timer_tmp->period_ms);
 
     timer_del_ticks = zalloc(sizeof(struct timer_entry));
     timer_del_ticks->period_ms = 200;
