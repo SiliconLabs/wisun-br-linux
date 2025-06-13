@@ -256,10 +256,12 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
     // Skip poisoning if called before JS 5
     if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
         rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
-    if (!timer_stopped(&parent->own_aro_timer)) {
-        timer_stop(&wsrd->ipv6.timer_group, &parent->own_aro_timer);
-        ipv6_send_ns_aro(&wsrd->ipv6, parent, 0);
-    }
+    /*
+     * Always send NS(ARO) lifetime 0 in case NS(ARO) ACK was not received
+     * before changing parent.
+     */
+    timer_stop(&wsrd->ipv6.timer_group, &parent->own_aro_timer);
+    ipv6_send_ns_aro(&wsrd->ipv6, parent, 0);
     rpl_stop(&wsrd->ipv6);
 }
 

@@ -181,10 +181,12 @@ void rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
             trickle_stop(&ipv6->rpl.dio_trickle);
             rpl_send_dio(ipv6, pref_parent_cur, &ipv6_addr_all_rpl_nodes_link);
         }
-        if (!timer_stopped(&pref_parent_cur->own_aro_timer)) {
-            timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
-            ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
-        }
+        /*
+         * Always send NS(ARO) lifetime 0 in case NS(ARO) ACK was not received
+         * before changing parent.
+         */
+        timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
+        ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
     }
     // If we do not have a GUA, the NS(ARO) will be sent after receiving one
     if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
