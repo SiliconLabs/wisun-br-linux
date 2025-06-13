@@ -121,6 +121,16 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
         ws_pan_timeout_update(wsrd);
 }
 
+static void wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
+{
+    struct ipv6_ctx *ipv6 = container_of(mpl, struct ipv6_ctx, mpl);
+    struct pktbuf pktbuf = { };
+
+    pktbuf_init(&pktbuf, buf, buf_len);
+    ipv6_sendto_mac(ipv6, &pktbuf);
+    pktbuf_free(&pktbuf);
+}
+
 static void wsrd_on_unregistration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, unregistration_timer);
@@ -229,6 +239,15 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.mrhof.parent_switch_threshold =   192, // 128 * 1.5
     .ipv6.rpl.mrhof.ws_neigh_table = &g_wsrd.ws.neigh_table,
     .ipv6.rpl.mrhof.on_pref_parent_change = wsrd_on_pref_parent_change,
+
+    .ipv6.mpl.send = wsrd_mpl_send,
+    // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
+    .ipv6.mpl.tkl_data_cfg.Imin_ms = 10 * 1000,
+    .ipv6.mpl.tkl_data_cfg.Imax_ms = TRICKLE_DOUBLINGS(10, 3) * 1000,
+    .ipv6.mpl.tkl_data_cfg.k = 3, // Arbitrary (default DATA_MESSAGE_K of 1 not suited)
+    // RFC 7731 5.4. MPL Parameters
+    .ipv6.mpl.seed_lifetime_ms = 30 * 60 * 1000,
+    .ipv6.mpl.tkl_data_e_max = 3,
 
     // Wi-SUN FAN 1.1v08 - 6.2.3.1.2.1.2 Global and Unique Local Addresses
     .ipv6.dhcp.solicit_txalg.max_delay_s = 60,
@@ -548,6 +567,8 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_nodes_realm);    // ff03::1
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_routers_realm);  // ff03::2
     ipv6_addr_add_mc(&wsrd->ipv6, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
+
+    mpl_init(&wsrd->ipv6.mpl);
 }
 
 static void wsrd_init_ws(struct wsrd *wsrd)

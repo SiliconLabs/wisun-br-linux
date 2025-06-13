@@ -40,10 +40,12 @@
 static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
 {
     struct iobuf_read iobuf = { };
+    const struct ip6_hdr *hdr;
     const struct ip6_hbh *hbh;
     struct ip6_opt *opt;
     int ret;
 
+    hdr = (struct ip6_hdr *)(pktbuf_head(pktbuf) - sizeof(struct ip6_hdr));
     hbh = (struct ip6_hbh *)pktbuf_head(pktbuf);
     if (pktbuf_len(pktbuf) < sizeof(struct ip6_hbh) ||
         pktbuf_len(pktbuf) < (hbh->ip6h_len + 1) * 8) {
@@ -70,6 +72,11 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct 
         case IPV6_OPTION_RPI:
         case IPV6_OPTION_RPI_DEPRECATED:
             ret = rpl_rpi_process(ipv6, opt);
+            if (ret < 0)
+                return NULL;
+            break;
+        case IPV6_OPTION_MPL:
+            ret = mpl_opt_process(&ipv6->mpl, hdr, opt);
             if (ret < 0)
                 return NULL;
             break;
