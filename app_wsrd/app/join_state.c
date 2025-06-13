@@ -237,7 +237,7 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
      * - If we have a parent, wsrd is stopping or a PAN timeout occurred. A PAN
      *   timeout can happen in any JS >= 4.
      */
-    if (!parent) {
+    if (!parent || IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6)) {
         timer_stop(NULL, &wsrd->pan_timeout_timer);
         // Stopping RPL to prevent any parent selection
         rpl_stop(&wsrd->ipv6);
