@@ -150,7 +150,7 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!success)
         return;
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
-    if (!neigh->rpl || !neigh->rpl->is_parent)
+    if (!neigh->rpl || !neigh->rpl->is_parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         return;
     /*
      *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
