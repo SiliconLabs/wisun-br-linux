@@ -37,6 +37,22 @@
     var;                                              \
 })
 
+// SLIST_REMOVE() segfaults if the element does not exist in the list.
+#define SLIST_REMOVE_SAFE(head, elm, field) do {      \
+    typeof(SLIST_FIRST(head)) _prev, _it;             \
+                                                      \
+    for (_prev = NULL, _it = SLIST_FIRST(head); _it;  \
+         _prev = _it, _it = SLIST_NEXT(_it, field))   \
+        if (_it == (elm))                             \
+            break;                                    \
+    if (_it) {                                        \
+        if (_prev)                                    \
+            SLIST_NEXT(_prev, field) = SLIST_NEXT(_it, field); \
+        else                                          \
+            SLIST_REMOVE_HEAD(head, field);           \
+    }                                                 \
+} while (0)
+
 #define SLIST_SIZE(head, field) ({                    \
     typeof(SLIST_FIRST(head)) _e;                     \
     size_t _c = 0;                                    \
