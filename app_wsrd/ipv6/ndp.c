@@ -147,31 +147,30 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!neigh)
         return;
     neigh->ns_handle = -1;
-    if (success) {
-        ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
-        /*
-         *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
-         * Even if the host doesn't have data to send, but is expecting others
-         * to try to send packets to the host, the host needs to maintain its
-         * NCEs in the routers. This is done by sending NS messages with an ARO
-         * to the router well in advance of the Registration Lifetime expiring.
-         *
-         * Note: we give a 5 minute window for retries.
-         * We assume that if the neighbor is not our parent anymore that a
-         * NS(ARO) lifetime 0 has already been sent.
-         */
-        if (neigh->rpl && neigh->rpl->is_parent) {
-            WARN_ON(!timer_stopped(&neigh->aro_lifetime));
-            timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer,
-                            ipv6->aro_lifetime_ms - 5 * 60 * 1000);
-        }
-        /*
-         * NOTE: arbitrarily start a 3s timer before sending DAO to allow for
-         * NA RX.
-         */
-        if (neigh->rpl && neigh->rpl->is_parent && timer_stopped(&ipv6->rpl.dao_refresh_timer))
-            timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer, 3 * 1000);
-    }
+    if (!success)
+        return;
+    ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
+    if (!neigh->rpl || !neigh->rpl->is_parent)
+        return;
+    /*
+     *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
+     * Even if the host doesn't have data to send, but is expecting others
+     * to try to send packets to the host, the host needs to maintain its
+     * NCEs in the routers. This is done by sending NS messages with an ARO
+     * to the router well in advance of the Registration Lifetime expiring.
+     *
+     * Note: we give a 5 minute window for retries.
+     * We assume that if the neighbor is not our parent anymore that a
+     * NS(ARO) lifetime 0 has already been sent.
+     */
+    WARN_ON(!timer_stopped(&neigh->aro_lifetime));
+    timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer, ipv6->aro_lifetime_ms - 5 * 60 * 1000);
+    /*
+     * NOTE: arbitrarily start a 3s timer before sending DAO to allow for
+     * NA RX.
+     */
+    if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
+        timer_start_rel(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer, 3 * 1000);
 }
 
 static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
