@@ -145,6 +145,7 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
      * We reset the ETX of all neighbors to avoid this side effect during
      * parent selection.
      */
+    dhcp_client_stop(&wsrd->ipv6.dhcp);
     SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
         ws_neigh_etx_reset(&wsrd->ws.neigh_table, neigh);
     rpl_start(&wsrd->ipv6);
@@ -316,6 +317,7 @@ static const struct wsrd_state_transition state_rpl_parent_transitions[] = {
 static const struct wsrd_state_transition state_routing_transitions[] = {
     { WSRD_EVENT_ROUTING_SUCCESS,  WSRD_STATE_OPERATIONAL },
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_RPL_PREF_LOST,    WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_DISCONNECT,       WSRD_STATE_DISCONNECTING },
@@ -324,6 +326,7 @@ static const struct wsrd_state_transition state_routing_transitions[] = {
 
 static const struct wsrd_state_transition state_operational_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_DISCONNECTING },
+    { WSRD_EVENT_RPL_PREF_LOST,    WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCONNECTING },
     { WSRD_EVENT_DISCONNECT,       WSRD_STATE_DISCONNECTING },
@@ -332,6 +335,7 @@ static const struct wsrd_state_transition state_operational_transitions[] = {
 
 static const struct wsrd_state_transition state_disconnecting_transitions[] = {
     { WSRD_EVENT_PAN_TIMEOUT,      WSRD_STATE_RECONNECT },
+    { WSRD_EVENT_RPL_PREF_LOST,    WSRD_STATE_RPL_PARENT },
     { WSRD_EVENT_RPL_NO_CANDIDATE, WSRD_STATE_RECONNECT },
     { WSRD_EVENT_AUTH_FAIL,        WSRD_STATE_DISCOVERY },
     // Needed to trigger join_state_disconnecting_exit()
