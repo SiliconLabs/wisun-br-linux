@@ -517,13 +517,13 @@ static uint8_t lowpan_iphc_cmpr_maddr_stless(struct pktbuf *pktbuf,
         return 0x00;
     } else if (memzcmp(addr->s6_addr + 9, 2)) {
         // 01: 48 bits. The address takes the form ffXX::00XX:XXXX:XXXX.
-        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
         pktbuf_push_head(pktbuf, addr->s6_addr + 11, 5);
+        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
         return 0x01;
     } else if (addr->s6_addr[1] != 0x02 || memzcmp(addr->s6_addr + 11, 2)) {
         // 10: 32 bits. The address takes the form ffXX::00XX:XXXX.
-        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
         pktbuf_push_head(pktbuf, addr->s6_addr + 13, 3);
+        pktbuf_push_head_u8(pktbuf, addr->s6_addr[1]);
         return 0x02;
     } else {
         // 11: 8 bits. The address takes the form ff02::00XX.
