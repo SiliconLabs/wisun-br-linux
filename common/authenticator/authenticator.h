@@ -73,6 +73,7 @@ struct auth_node_cfg {
     int gtk_new_activation_time;  // Fraction of GTK_EXPIRE_OFFSET
     int pmk_lifetime_s; // 0 for infinite
     int ptk_lifetime_s; // 0 for infinite
+    int revocation_lifetime_reduction;
 };
 
 struct auth_gtk_group {

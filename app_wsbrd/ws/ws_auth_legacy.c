@@ -86,7 +86,7 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         .expire_offset           = conf->auth_cfg.ffn.gtk_expire_offset_s,
         .new_act_time            = conf->auth_cfg.ffn.gtk_new_activation_time,
         .new_install_req         = conf->auth_cfg.ffn.gtk_new_install_required,
-        .revocat_lifetime_reduct = conf->ws_ffn_revocation_lifetime_reduction,
+        .revocat_lifetime_reduct = conf->auth_cfg.ffn.revocation_lifetime_reduction,
     };
     struct sec_timing timing_lfn = {
         .pmk_lifetime_s          = conf->auth_cfg.lfn.pmk_lifetime_s,
@@ -94,7 +94,7 @@ void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const ch
         .expire_offset           = conf->auth_cfg.lfn.gtk_expire_offset_s,
         .new_act_time            = conf->auth_cfg.lfn.gtk_new_activation_time,
         .new_install_req         = conf->auth_cfg.lfn.gtk_new_install_required,
-        .revocat_lifetime_reduct = conf->ws_lfn_revocation_lifetime_reduction,
+        .revocat_lifetime_reduct = conf->auth_cfg.lfn.revocation_lifetime_reduction,
     };
     struct arm_certificate_entry tls_br = {
         .cert     = conf->auth_cfg.tls.cert.iov_base,

@@ -71,8 +71,6 @@ struct wsbrd_conf {
     int  ws_pan_id;
     int  ws_fan_version;
     struct auth_cfg auth_cfg;
-    int  ws_ffn_revocation_lifetime_reduction;
-    int  ws_lfn_revocation_lifetime_reduction;
     int  ws_async_frag_duration;
     int  uc_dwell_interval;
     int  bc_dwell_interval;

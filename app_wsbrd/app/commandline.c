@@ -230,13 +230,13 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "gtk_expire_offset",             &config->auth_cfg.ffn.gtk_expire_offset_s, conf_set_seconds_from_minutes, &valid_unsigned },
         { "gtk_new_activation_time",       &config->auth_cfg.ffn.gtk_new_activation_time, conf_set_number,  &valid_positive },
         { "gtk_new_install_required",      &config->auth_cfg.ffn.gtk_new_install_required, conf_set_number, &valid_gtk_new_install_required },
-        { "ffn_revocation_lifetime_reduction", &config->ws_ffn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
+        { "ffn_revocation_lifetime_reduction", &config->auth_cfg.ffn.revocation_lifetime_reduction, conf_set_number, &valid_unsigned },
         { "lpmk_lifetime",                 &config->auth_cfg.lfn.pmk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
         { "lptk_lifetime",                 &config->auth_cfg.lfn.ptk_lifetime_s,      conf_set_seconds_from_minutes, &valid_unsigned },
         { "lgtk_expire_offset",            &config->auth_cfg.lfn.gtk_expire_offset_s, conf_set_seconds_from_minutes, &valid_unsigned },
         { "lgtk_new_activation_time",      &config->auth_cfg.lfn.gtk_new_activation_time, conf_set_number,  &valid_positive },
         { "lgtk_new_install_required",     &config->auth_cfg.lfn.gtk_new_install_required, conf_set_number, &valid_gtk_new_install_required },
-        { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
+        { "lfn_revocation_lifetime_reduction", &config->auth_cfg.lfn.revocation_lifetime_reduction, conf_set_number, &valid_unsigned },
         { "mac_address",                   config->ws_mac_address,                    conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "allowed_mac64",                 config,                                    conf_set_macaddr,     (bool[1]){ true } },
         { "denied_mac64",                  config,                                    conf_set_macaddr,     (bool[1]){ false } },
@@ -301,13 +301,13 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->auth_cfg.ffn.gtk_expire_offset_s = 43200 * 60;
     config->auth_cfg.ffn.gtk_new_activation_time = 720;
     config->auth_cfg.ffn.gtk_new_install_required = 80;
-    config->ws_ffn_revocation_lifetime_reduction = 30;
+    config->auth_cfg.ffn.revocation_lifetime_reduction = 30;
     config->auth_cfg.lfn.pmk_lifetime_s = 172800 * 60;
     config->auth_cfg.lfn.ptk_lifetime_s = 525600 * 60;
     config->auth_cfg.lfn.gtk_expire_offset_s = 129600 * 60;
     config->auth_cfg.lfn.gtk_new_activation_time = 180;
     config->auth_cfg.lfn.gtk_new_install_required = 90;
-    config->ws_lfn_revocation_lifetime_reduction = 30;
+    config->auth_cfg.lfn.revocation_lifetime_reduction = 30;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
@@ -496,9 +496,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
     if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
         FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
-    if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
+    if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->auth_cfg.ffn.revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
-    if (config->auth_cfg.lfn.gtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
+    if (config->auth_cfg.lfn.gtk_new_install_required >= (100 - 100 / config->auth_cfg.lfn.revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
     if (IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
