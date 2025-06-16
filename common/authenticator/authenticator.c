@@ -174,6 +174,69 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
           gtk_group->install_timer.expire_ms / 1000);
 }
 
+void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16])
+{
+    struct auth_gtk_group *gtk_group = is_lgtk ? &auth->lgtk_group : &auth->gtk_group;
+    const struct auth_node_cfg *cfg = is_lgtk ? &auth->cfg->lfn : &auth->cfg->ffn;
+    uint8_t slot_count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
+    uint8_t slot_offset = is_lgtk ? WS_GTK_COUNT : 0;
+    uint64_t reduced_lifetime_ms;
+    uint64_t active_remaining_ms;
+    uint8_t slot_latest;
+    uint8_t next_slot;
+
+    reduced_lifetime_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->revocation_lifetime_reduction;
+    active_remaining_ms = timer_remaining_ms(&auth->gtks[gtk_group->slot_active].expiration_timer);
+
+    /*
+     *   Wi-SUN FAN 1.1v09 6.5.2.5	Revocation of Node Access
+     * a. If the remaining lifetime of the currently active L/GTK is greater than
+     * (lifetime / LIFETIME_REDUCTION), the Border Router, atomically and in
+     * specific order, MUST destroy all L/GTKs except the currently active
+     * L/GTK, modify the lifetime of the currently active L/GTK to be
+     * (lifetime / LIFETIME_REDUCTION), and add a new L/GTK (with normal lifetime).
+     *
+     * b. If the remaining lifetime of the currently active L/GTK is less than or
+     * equal to (lifetime / LIFETIME_REDUCTION), the Border Router, atomically
+     * and in specific order, MUST destroy all L/GTKs except the currently active
+     * L/GTK and the next available L/GTK, modify the lifetime of the next available
+     * L/GTK to be (lifetime / LIFETIME_REDUCTION), and add a new L/GTK (with normal lifetime).
+     */
+    if (active_remaining_ms > reduced_lifetime_ms) {
+        for (uint8_t i = 0; i < slot_count; i++) {
+            if (slot_offset + i == gtk_group->slot_active ||
+                timer_stopped(&auth->gtks[slot_offset + i].expiration_timer)) {
+                continue;
+            }
+            timer_stop(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+            auth_gtk_expiration_timer_timeout(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+        }
+        active_remaining_ms = reduced_lifetime_ms;
+        slot_latest = gtk_group->slot_active;
+    } else {
+        next_slot = auth_gtk_slot_next(gtk_group->slot_active);
+        for (uint8_t i = 0; i < slot_count; i++) {
+            if (slot_offset + i == gtk_group->slot_active ||
+                slot_offset + i == next_slot ||
+                timer_stopped(&auth->gtks[slot_offset + i].expiration_timer)) {
+                continue;
+            }
+            timer_stop(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+            auth_gtk_expiration_timer_timeout(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+        }
+        slot_latest = next_slot;
+    }
+
+    timer_start_rel(&auth->timer_group, &auth->gtks[slot_latest].expiration_timer, reduced_lifetime_ms);
+    TRACE(TR_SECURITY, "sec: %s reduced expiration=%"PRIu64,
+          tr_gtkname(slot_latest), auth->gtks[slot_latest].expiration_timer.expire_ms / 1000);
+    auth_install_gtk(auth, gtk_group, auth_gtk_slot_next(slot_latest), gtk);
+    timer_start_rel(&auth->timer_group, &gtk_group->activation_timer,
+                    active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
+    TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "GTK" : "LGTK",
+          gtk_group->activation_timer.expire_ms / 1000);
+}
+
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_gtk_group *gtk_group = container_of(timer, struct auth_gtk_group, install_timer);

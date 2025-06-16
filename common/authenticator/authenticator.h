@@ -133,6 +133,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
 
 int auth_gtk_slot_next(int slot);
 void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, int slot_install, const uint8_t gtk[16]);
+void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16]);
 void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group);
 int auth_revoke_pmk(struct auth_ctx *auth, const struct eui64 *eui64);
 bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t tk[16]);
