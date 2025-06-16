@@ -14,14 +14,39 @@
 #include <errno.h>
 
 #include "app_wsbrd/app/wsbrd.h"
-#include "common/authenticator/authenticator.h"
+#include "app_wsbrd/ws/ws_auth.h"
 #include "common/string_extra.h"
 
 #include "dbus_auth.h"
 
 int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool do_gtk, bool do_lgtk)
 {
-    return sd_bus_error_set_errno(ret_error, ENOTSUP); // TODO
+    struct wsbr_ctxt *ctxt = userdata;
+    uint8_t *gtk, *lgtk;
+    size_t len;
+
+    if (do_gtk) {
+        sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
+        if (!len)
+            gtk = NULL;
+        else if (len != 16)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
+    if (do_lgtk) {
+        sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
+        if (!len)
+            lgtk = NULL;
+        else if (len != 16)
+            return sd_bus_error_set_errno(ret_error, EINVAL);
+    }
+
+    if (do_gtk)
+        ws_auth_revoke_gtks(&ctxt->net_if, false, gtk);
+    if (do_lgtk)
+        ws_auth_revoke_gtks(&ctxt->net_if, true, lgtk);
+
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
 }
 
 int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk)
