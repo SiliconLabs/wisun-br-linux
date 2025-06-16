@@ -57,7 +57,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
 }
 
 // RFC 6719 3.2.2. Parent Selection Algorithm
-static struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
@@ -158,57 +158,6 @@ static struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         TRACE(TR_RPL, "rpl: parent select none");
     }
     return pref_parent_new;
-}
-
-void rpl_mrhof_update_parent(struct ipv6_ctx *ipv6)
-{
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
-    struct ipv6_neigh *pref_parent_new;
-
-    pref_parent_new = rpl_mrhof_select_parent(ipv6);
-    if (pref_parent_cur == pref_parent_new)
-        return;
-    if (pref_parent_new && !pref_parent_cur)
-        TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s",
-              pref_parent_new->rpl->dio.instance_id,
-              pref_parent_new->rpl->dio.dodag_verno,
-              tr_ipv6(pref_parent_new->rpl->dio.dodag_id.s6_addr));
-
-    dbus_emit_change("PrimaryParent");
-    timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
-    rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
-
-    /*
-     *   Wi-SUN FAN 1.1v09 - 6.2.3.1.4.1 FFN Neighbor Discovery
-     * If an FFN decides to change its parent or leave the network, it is
-     * RECOMMENDED that the FFN attempt to de-register with its current
-     * parent by sending an NS(ARO) with zero lifetime (see also [RFC6775]
-     * Section 5.5).
-     */
-    // FIXME: Send NS(ARO) with 0 lifetime on DAO-ACK of new parent
-    if (pref_parent_cur && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
-        /*
-         * NOTE: if we have no new parent, it means our current parent is not
-         * reliable enough to send a DAO No-Path.
-         * We skip the poisoning below if the DIO trickle is stopped.
-         */
-        if (!pref_parent_new && !trickle_stopped(&ipv6->rpl.dio_trickle)) {
-            trickle_stop(&ipv6->rpl.dio_trickle);
-            rpl_send_dio(ipv6, pref_parent_cur, &ipv6_addr_all_rpl_nodes_link);
-        }
-        /*
-         * Always send NS(ARO) lifetime 0 in case NS(ARO) ACK was not received
-         * before changing parent.
-         */
-        timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
-        ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
-    }
-    // If we do not have a GUA, the NS(ARO) will be sent after receiving one
-    if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
-        ipv6_nud_set_state(ipv6, pref_parent_new, IPV6_NUD_PROBE);
-    if (ipv6->rpl.mrhof.on_pref_parent_change)
-        ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, pref_parent_new);
-    // TODO: support secondary parents
 }
 
 static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
