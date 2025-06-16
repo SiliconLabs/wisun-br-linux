@@ -214,6 +214,21 @@ static uint8_t lowpan_nhc_nxthdr(struct pktbuf *pktbuf)
 
 static void lowpan_nhc_decmpr(struct pktbuf *pktbuf, const struct in6_addr *src, const struct in6_addr *dst);
 
+static void lowpan_nhc_decmpr_pad(struct pktbuf *pktbuf, uint8_t len)
+{
+    struct ip6_opt padn = {
+        .ip6o_type = IP6OPT_PADN,
+        .ip6o_len  = len - sizeof(struct ip6_opt),
+    };
+
+    if (len == 1) {
+        pktbuf_push_head_u8(pktbuf, IP6OPT_PAD1);
+    } else if (len > 1) {
+        pktbuf_push_head(pktbuf, NULL, padn.ip6o_len);
+        pktbuf_push_head(pktbuf, &padn, sizeof(struct ip6_opt));
+    }
+}
+
 // RFC 6282 - 4.2. IPv6 Extension Header Compression
 static void lowpan_nhc_decmpr_exthdr(struct pktbuf *pktbuf, uint8_t nhc,
                                      const struct in6_addr *src, const struct in6_addr *dst)
@@ -257,12 +272,9 @@ static void lowpan_nhc_decmpr_exthdr(struct pktbuf *pktbuf, uint8_t nhc,
         pad = (8 - ((2 + hdr.ip6e_len) % 8)) % 8;
         break;
     }
-    if (pad) {
-        TRACE(TR_DROP, "drop %s: unsupported unaligned options", "6lowpan");
-        pktbuf->err = true;
-    }
+    if (pad)
+        lowpan_nhc_decmpr_pad(pktbuf, pad);
 
-    // ipv6_opt_push_pad(pktbuf, pad);
     pktbuf_push_head(pktbuf, buf, hdr.ip6e_len);
     free(buf);
     hdr.ip6e_len = (2 + hdr.ip6e_len + pad) / 8 - 1;
