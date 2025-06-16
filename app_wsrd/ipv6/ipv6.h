@@ -50,8 +50,10 @@ struct ipv6_ctx {
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *src_eui64);
 void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6);
 
-int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
-                    uint8_t ipproto, uint8_t hlim,
-                    const struct in6_addr *src, const struct in6_addr *dst);
+void ipv6_push_hdr(struct pktbuf *pktbuf,
+                   uint8_t ipproto, uint8_t hlim,
+                   const struct in6_addr *src,
+                   const struct in6_addr *dst);
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
 
 #endif

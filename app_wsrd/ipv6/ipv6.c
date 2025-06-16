@@ -158,7 +158,8 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
                 ret = rpl_srh_process(ipv6, pktbuf, &hdr);
                 if (ret < 0)
                     return;
-                ipv6_sendto_mac(ipv6, pktbuf, hdr.ip6_nxt, hdr.ip6_hlim, &hdr.ip6_src, &hdr.ip6_dst);
+                pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
+                ipv6_sendto_mac(ipv6, pktbuf);
                 return;
             default:
                 TRACE(TR_DROP, "drop %-9s: unsupported routing header", "ipv6");
@@ -469,12 +470,11 @@ err:
     pktbuf_free(&pktbuf);
 }
 
-int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
-                     uint8_t ipproto, uint8_t hlim,
-                     const struct in6_addr *src, const struct in6_addr *dst)
+void ipv6_push_hdr(struct pktbuf *pktbuf,
+                   uint8_t ipproto, uint8_t hlim,
+                   const struct in6_addr *src,
+                   const struct in6_addr *dst)
 {
-    const struct in6_addr *nxthop;
-    struct eui64 dst_eui64;
     struct ip6_hdr hdr = {
         .ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6)),
         .ip6_plen = htons(pktbuf_len(pktbuf)),
@@ -483,14 +483,24 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
         .ip6_src  = *src,
         .ip6_dst  = *dst,
     };
-    int ret;
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
+}
+
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+{
+    const struct in6_addr *nxthop;
+    struct eui64 dst_eui64;
+    struct ip6_hdr *hdr;
+    int ret;
+
+    BUG_ON(pktbuf_len(pktbuf) < sizeof(struct ip6_hdr));
+    hdr = (struct ip6_hdr *)pktbuf_head(pktbuf);
 
     TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
-          tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
+          tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
 
-    ret = ipv6_nxthop(ipv6, dst, &nxthop, false);
+    ret = ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, false);
     if (ret < 0)
         return ret;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);

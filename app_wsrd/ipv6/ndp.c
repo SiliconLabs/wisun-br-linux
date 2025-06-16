@@ -101,7 +101,8 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
                                  pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s lifetime=%ds", "ns(aro)", tr_ipv6(dst.s6_addr), lifetime_minutes * 60);
-    handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    handle = ipv6_sendto_mac(ipv6, &pktbuf);
     pktbuf_free(&pktbuf);
     return handle;
 }
@@ -131,7 +132,8 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
                                   pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "ns", tr_ipv6(dst.s6_addr));
-    handle = ipv6_sendto_mac(ipv6, &pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, &src, &dst);
+    handle = ipv6_sendto_mac(ipv6, &pktbuf);
     pktbuf_free(&pktbuf);
     return handle;
 }
