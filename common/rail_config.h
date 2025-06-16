@@ -25,6 +25,13 @@ struct rcp;
 void rail_print_config_list(struct rcp *rcp);
 void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config *fhss, const struct ws_phy_config *phy,
                              struct ws_ms_chan_mask *ms_chan_mask);
+
+/*
+ * - Fills phy->rcp_rail_config_index based on fhss->chan_params and
+ *   phy->params. FATAL() if no matching RCP radio configuration is found.
+ * - Fills phy_config->phy_op_modes based on the available RCP radio
+ *   configurations, the selected base PHY, and optional user override.
+ */
 void rail_fill_pom(const struct rcp *rcp, const struct ws_fhss_config *fhss, struct ws_phy_config *phy,
                    const uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1]);
 
