@@ -106,12 +106,30 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     auth_activate_next_gtk(auth, gtk_group);
 }
 
+static int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_gtk_group *gtk_group)
+{
+    int slot_count = (gtk_group == &auth->gtk_group) ? WS_GTK_COUNT : WS_LGTK_COUNT;
+    int slot_offset = (gtk_group == &auth->gtk_group) ? 0 : WS_GTK_COUNT;
+    int slot_latest = slot_offset;
+    uint64_t max_expire_ms = 0;
+    uint64_t expire_ms;
+
+    for (int i = 0; i < slot_count; i++) {
+        expire_ms = auth->gtks[slot_offset + i].expiration_timer.expire_ms;
+        if (expire_ms >= max_expire_ms) {
+            max_expire_ms = expire_ms;
+            slot_latest = slot_offset + i;
+        }
+    }
+    return slot_latest;
+}
+
 void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, int slot_install, const uint8_t gtk[16])
 {
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
                                       &auth->cfg->ffn : &auth->cfg->lfn;
+    const struct ws_gtk *latest = &auth->gtks[auth_gtk_slot_latest(auth, gtk_group)];
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
-    const struct ws_gtk *cur = &auth->gtks[gtk_group->slot_active];
     struct ws_gtk *new = &auth->gtks[slot_install];
     uint64_t start_ms, lifetime_ms;
 
@@ -127,7 +145,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
      * expiration time of the GTK most recently installed at the Border Router
      * plus GTK_EXPIRE_OFFSET.
      */
-    start_ms = cur->expiration_timer.expire_ms ? : time_now_ms(CLOCK_MONOTONIC);
+    start_ms = latest->expiration_timer.expire_ms ? : time_now_ms(CLOCK_MONOTONIC);
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &new->expiration_timer, start_ms + expire_offset_ms);
     else
