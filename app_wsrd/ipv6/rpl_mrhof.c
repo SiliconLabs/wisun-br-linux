@@ -231,7 +231,7 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
      * smaller than cur_min_path_cost by less than PARENT_SWITCH_THRESHOLD, the
      * node MAY continue to use the current preferred parent.
      */
-    if (cur_min_path_cost < mrhof->max_path_cost &&
+    if (cur_min_path_cost < mrhof->max_path_cost && pref_path_cost < mrhof->max_path_cost &&
         pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
         BUG_ON(!pref_parent_cur); // we should always have a current parent here
         TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
