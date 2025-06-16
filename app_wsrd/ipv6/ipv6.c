@@ -262,7 +262,8 @@ submit:
  */
 static int ipv6_nxthop(struct ipv6_ctx *ipv6,
                        const struct in6_addr *dst,
-                       const struct in6_addr **nxthop)
+                       const struct in6_addr **nxthop,
+                       bool routing)
 {
     struct ipv6_neigh *nce;
     float etx;
@@ -288,13 +289,23 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
         return 0;
     }
 
+    nce = ipv6_neigh_get_from_gua(ipv6, dst);
+    if (!routing) {
+        if (nce) {
+            *nxthop = &nce->gua;
+            return 0;
+        } else {
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: no next hop available", "ipv6");
+            return -ENETUNREACH;
+        }
+    }
+
     /*
      *   RFC 6550 9. Downward Routes
      * A node may send a P2P packet destined to a one-hop neighbor directly to
      * that node.
      * NOTE: Prevent this behavior for non-child neighbors with bad metrics.
      */
-    nce = ipv6_neigh_get_from_gua(ipv6, dst);
     if (nce) {
         etx = rpl_mrhof_etx(ipv6, nce);
         if (!timer_stopped(&nce->aro_lifetime) ||
@@ -447,7 +458,7 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         goto err;
     hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
 
-    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop))
+    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, true))
         return;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
 
@@ -480,7 +491,7 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
     TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
           tr_ipv6(hdr.ip6_src.s6_addr), tr_ipv6(hdr.ip6_dst.s6_addr));
 
-    ret = ipv6_nxthop(ipv6, dst, &nxthop);
+    ret = ipv6_nxthop(ipv6, dst, &nxthop, false);
     if (ret < 0)
         return ret;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
