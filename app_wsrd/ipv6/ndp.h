@@ -123,4 +123,9 @@ void ipv6_neigh_aro_refresh(struct ipv6_ctx *ipv6,
                             const struct eui64 *src_eui64,
                             const struct in6_addr *src);
 
+static inline bool ipv6_neigh_is_child(const struct ipv6_neigh *nce)
+{
+    return !timer_stopped(&nce->aro_lifetime);
+}
+
 #endif

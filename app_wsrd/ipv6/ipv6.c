@@ -308,8 +308,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
      */
     if (nce) {
         etx = rpl_mrhof_etx(ipv6, nce);
-        if (!timer_stopped(&nce->aro_lifetime) ||
-            etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
+        if (ipv6_neigh_is_child(nce) || etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
             *nxthop = &nce->gua;
             return 0;
         }
