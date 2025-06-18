@@ -93,7 +93,7 @@ void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_gr
     auth_storage_store_keys(auth, true);
     TRACE(TR_SECURITY, "sec: activated %s=%s", tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)));
-    TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "GTK" : "LGTK",
+    TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->activation_timer.expire_ms / 1000);
 }
 
@@ -170,7 +170,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
     auth_storage_store_keys(auth, true);
     TRACE(TR_SECURITY, "sec: installed %s=%s expiration=%"PRIu64,
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)), new->expiration_timer.expire_ms / 1000);
-    TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, gtk_group == &auth->gtk_group ? "GTK" : "LGTK",
+    TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->install_timer.expire_ms / 1000);
 }
 
@@ -233,7 +233,7 @@ void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16]
     auth_install_gtk(auth, gtk_group, auth_gtk_slot_next(slot_latest), gtk);
     timer_start_rel(&auth->timer_group, &gtk_group->activation_timer,
                     active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
-    TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "GTK" : "LGTK",
+    TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->activation_timer.expire_ms / 1000);
 }
 
