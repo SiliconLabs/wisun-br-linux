@@ -63,8 +63,7 @@ static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *
      * At node start up, 1 transmission attempts will trigger the ETX
      * calculation epoch (to speed boot time).
      */
-    if (!((neigh->etx_tx_cnt >= 4 && timer_stopped(&neigh->etx_timer_compute)) ||
-          isnan(neigh->etx))) {
+    if (!(neigh->etx_tx_cnt >= 4 || isnan(neigh->etx))) {
         // Probe right now until we reach the 4 necessary measurements
         if (timer_stopped(&neigh->etx_timer_outdated) && table->on_etx_outdated)
             table->on_etx_outdated(table, neigh);
