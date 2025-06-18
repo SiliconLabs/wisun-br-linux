@@ -44,6 +44,7 @@ void join_state_1_enter(struct wsrd *wsrd)
     timer_stop(NULL, &wsrd->pan_timeout_timer);
     ipv6_neigh_clean(&wsrd->ipv6);
     ws_neigh_clean(&wsrd->ws.neigh_table);
+    wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
     INFO("Join state 1: Select PAN");
     trickle_start(&wsrd->pas_tkl);
 }
@@ -83,6 +84,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     rpl_stop(&wsrd->ipv6);
     timer_stop(NULL, &wsrd->pan_timeout_timer);
+    wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
 
     trickle_start(&wsrd->pas_tkl);
     trickle_start(&wsrd->pcs_tkl);

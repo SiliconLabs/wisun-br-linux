@@ -50,9 +50,11 @@ static void ws_etx_timeout_compute(struct timer_group *group, struct timer_entry
      *
      * At node start up, 1 transmission attempts will trigger the ETX
      * calculation epoch (to speed boot time).
+     * NOTE: The required number of transmission attempts for other
+     * computations is defined by update_min_tx_req_cnt.
      */
-    if (!(ws_etx->tx_req_cnt >= 4 || isnan(ws_etx->etx))) {
-        // Probe right now until we reach the 4 necessary measurements
+    if (!(ws_etx->tx_req_cnt >= ws_etx_ctx->update_min_tx_req_cnt || isnan(ws_etx->etx))) {
+        // Probe right now until we reach the N necessary measurements
         if (timer_stopped(&ws_etx->timer_outdated) && ws_etx_ctx->on_etx_outdated)
             ws_etx_ctx->on_etx_outdated(ws_etx_ctx, ws_etx);
         return;

@@ -41,6 +41,9 @@ struct ws_etx_ctx {
 
     // Called when ETX has changed, in order to update RPL parents.
     void (*on_etx_update)(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx);
+
+    // Minimum number of TX requests to trigger ETX update
+    int update_min_tx_req_cnt;
 };
 
 void ws_etx_init(struct ws_etx *ws_etx);
