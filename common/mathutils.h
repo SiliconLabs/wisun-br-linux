@@ -57,4 +57,12 @@ static inline uint32_t add32sat(uint32_t a, uint32_t b)
     return sum < a ? UINT32_MAX : sum;
 }
 
+// 16bit addition with saturation
+static inline uint16_t add16sat(uint16_t a, uint16_t b)
+{
+    uint16_t sum = a + b;
+
+    return sum < a ? UINT16_MAX : sum;
+}
+
 #endif
