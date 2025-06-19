@@ -84,6 +84,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     ws_set_pan_version(wsrd, -1);
     wsrd->pcs_nb = 0;
     dhcp_client_stop(&wsrd->ipv6.dhcp);
+    ipv6_neigh_clean(&wsrd->ipv6);
     rpl_stop(&wsrd->ipv6);
     timer_stop(NULL, &wsrd->pan_timeout_timer);
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
