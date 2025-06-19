@@ -155,9 +155,9 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
      * some of the ETX parameters. See IPV6_NUD_DELAY state for more details.
      */
     dhcp_client_stop(&wsrd->ipv6.dhcp);
-    SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
-        ws_etx_reset(&wsrd->ws.neigh_table.ws_etx_ctx, &neigh->ws_etx);
     if (wsrd->last_event == WSRD_EVENT_PC_RX) {
+        SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
+            ws_etx_reset(&wsrd->ws.neigh_table.ws_etx_ctx, &neigh->ws_etx);
         wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = 1;
         wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = 0;
         wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = 0;
