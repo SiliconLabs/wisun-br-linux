@@ -51,7 +51,10 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
     eapol_write_hdr_head(&buf, EAPOL_PACKET_TYPE_KEY);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
-        ptk = supp->tls_client.ptk.tkey;
+        if (FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(response->information)))
+            ptk = supp->tls_client.ptk.key;
+        else
+            ptk = supp->tls_client.ptk.tkey;
         kmp_id = IEEE802159_KMP_ID_80211_4WH;
     } else {
         ptk = supp->tls_client.ptk.key;
