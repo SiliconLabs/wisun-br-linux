@@ -721,6 +721,7 @@ if(COMPILE_DEVTOOLS)
                 -Wl,--wrap=exit
                 -Wl,--wrap=__tr_printf
                 -Wl,--wrap=join_state_transition
+                -Wl,--wrap=dbus_emit_change
             )
             install(TARGETS wsrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
         endif()

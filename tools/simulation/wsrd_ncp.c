@@ -471,6 +471,24 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
     table[req->id].func(req, req_data, cnf, cnf_data);
 }
 
+static void ncp_ind_primary_parent_changed(void)
+{
+    sl_wisun_evt_t ind = { };
+
+    ind.header.id = SL_WISUN_MSG_NETWORK_UPDATE_IND_ID;
+    ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.network_update));
+    ind.evt.network_update.flags = htole32(1 << SL_WISUN_NETWORK_UPDATE_FLAGS_PRIMARY_PARENT);
+    ind.evt.network_update.status = htole32(SL_STATUS_OK);
+    ncp_send(&ind);
+}
+
+void __real_dbus_emit_change(const char *property_name);
+void __wrap_dbus_emit_change(const char *property_name)
+{
+    if (!strcmp(property_name, "PrimaryParent"))
+        ncp_ind_primary_parent_changed();
+}
+
 void __real_join_state_transition(struct wsrd *wsrd, enum wsrd_event event);
 void __wrap_join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
 {
