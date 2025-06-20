@@ -330,36 +330,46 @@ static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, 
         cnf->body.status = htole32(SL_STATUS_NOT_FOUND);
 }
 
-static void ncp_get_join_state(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+static uint32_t ncp_join_state(void)
 {
-    sl_wisun_msg_get_join_state_cnf_t *cnf = _cnf;
     struct wsrd *wsrd = &g_wsrd;
     struct ipv6_neigh *parent;
 
-    if (!g_has_thread) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DISCONNECTED);
-    } else if (wsrd->state == WSRD_STATE_DISCOVERY) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_SELECT_PAN);
-    } else if (wsrd->state == WSRD_STATE_AUTHENTICATE) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_AUTHENTICATE);
-    } else if (wsrd->state == WSRD_STATE_CONFIGURE || wsrd->state == WSRD_STATE_RECONNECT) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_ACQUIRE_PAN_CONFIG);
-    } else if (wsrd->state == WSRD_STATE_RPL_PARENT) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_PARENT_SELECT);
-    } else if (wsrd->state == WSRD_STATE_ROUTING) {
+    if (!g_has_thread)
+        return SL_WISUN_JOIN_STATE_DISCONNECTED;
+    switch (wsrd->state) {
+    case WSRD_STATE_DISCOVERY:
+        return SL_WISUN_JOIN_STATE_SELECT_PAN;
+    case WSRD_STATE_AUTHENTICATE:
+        return SL_WISUN_JOIN_STATE_AUTHENTICATE;
+    case WSRD_STATE_CONFIGURE:
+    case WSRD_STATE_RECONNECT:
+        return SL_WISUN_JOIN_STATE_ACQUIRE_PAN_CONFIG;
+    case WSRD_STATE_RPL_PARENT:
+        return SL_WISUN_JOIN_STATE_PARENT_SELECT;
+    case WSRD_STATE_ROUTING:
         parent = rpl_neigh_pref_parent(&wsrd->ipv6);
         BUG_ON(!parent || !parent->rpl);
         if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6))
-            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DHCP);
+            return SL_WISUN_JOIN_STATE_DHCP;
         else if (rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dao_txalg))
-            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_EARO);
+            return SL_WISUN_JOIN_STATE_EARO;
         else
-            cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_DAO);
-    } else if (wsrd->state == WSRD_STATE_OPERATIONAL) {
-        cnf->body.join_state = htole32(SL_WISUN_JOIN_STATE_OPERATIONAL);
-    } else {
+            return SL_WISUN_JOIN_STATE_DAO;
+    case WSRD_STATE_OPERATIONAL:
+        return SL_WISUN_JOIN_STATE_OPERATIONAL;
+    case WSRD_STATE_DISCONNECTING:
+        return SL_WISUN_JOIN_STATE_DISCONNECTING;
+    default:
         BUG();
     }
+}
+
+static void ncp_get_join_state(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    sl_wisun_msg_get_join_state_cnf_t *cnf = _cnf;
+
+    cnf->body.join_state = htole32(ncp_join_state());
 }
 
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
@@ -469,6 +479,14 @@ void __wrap_join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
 
     prev = wsrd->state;
     __real_join_state_transition(wsrd, event);
+
+    if (prev != wsrd->state) {
+        ind.header.id = SL_WISUN_MSG_JOIN_STATE_IND_ID;
+        ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.join_state));
+        ind.evt.join_state.join_state = htole32(ncp_join_state());
+        ind.evt.join_state.status = htole32(SL_STATUS_OK);
+        ncp_send(&ind);
+    }
 
     if (prev != WSRD_STATE_OPERATIONAL && wsrd->state == WSRD_STATE_OPERATIONAL) {
         ind.header.id = SL_WISUN_MSG_CONNECTED_IND_ID;
