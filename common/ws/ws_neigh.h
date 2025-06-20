@@ -139,6 +139,7 @@ struct ws_neigh {
     float etx;
     int etx_tx_cnt;
     int etx_ack_cnt;
+    int etx_tx_req_cnt;
     int etx_compute_cnt;
     struct timer_entry etx_timer_compute;
     struct timer_entry etx_timer_outdated;

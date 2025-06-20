@@ -65,7 +65,7 @@ static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer
      * At node start up, 1 transmission attempts will trigger the ETX
      * calculation epoch (to speed boot time).
      */
-    if (!(neigh->etx_tx_cnt >= 4 || isnan(neigh->etx))) {
+    if (!(neigh->etx_tx_req_cnt >= 4 || isnan(neigh->etx))) {
         // Probe right now until we reach the 4 necessary measurements
         if (timer_stopped(&neigh->etx_timer_outdated) && table->on_etx_outdated)
             table->on_etx_outdated(table, neigh);
@@ -102,6 +102,7 @@ static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer
     neigh->etx = etx;
     neigh->etx_tx_cnt  = 0;
     neigh->etx_ack_cnt = 0;
+    neigh->etx_tx_req_cnt = 0;
     timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 60 * 1000);
 
     /*
@@ -127,6 +128,7 @@ void ws_neigh_etx_update(struct ws_neigh_table *table,
                          struct ws_neigh *neigh,
                          int tx_count, bool ack)
 {
+    neigh->etx_tx_req_cnt++;
     neigh->etx_tx_cnt  += tx_count;
     neigh->etx_ack_cnt += ack;
     /*
@@ -170,6 +172,7 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     neigh->apc_txpow_dbm = tx_power_dbm;
     neigh->apc_txpow_dbm_ofdm = tx_power_dbm;
     neigh->etx = NAN;
+    neigh->etx_tx_req_cnt = 0;
     neigh->etx_timer_compute.callback  = ws_neigh_etx_timeout_compute;
     neigh->etx_timer_outdated.callback = ws_neigh_etx_timeout_outdated;
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
@@ -219,6 +222,7 @@ void ws_neigh_etx_reset(struct ws_neigh_table *table, struct ws_neigh *neigh)
     neigh->etx_tx_cnt = 0;
     neigh->etx_ack_cnt = 0;
     neigh->etx_compute_cnt = 0;
+    neigh->etx_tx_req_cnt = 0;
     timer_stop(&table->timer_group, &neigh->etx_timer_compute);
     timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
 }
