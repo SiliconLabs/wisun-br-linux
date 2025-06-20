@@ -59,7 +59,7 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
     return etx + ntohs(nce->rpl->dio.rank);
 }
 
-static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *neigh)
+bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *neigh)
 {
     int device_min_sens_dbm = ipv6->rpl.mrhof.device_min_sens_dbm;
     int threshold;

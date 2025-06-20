@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
+#include <math.h>
 
 #include "common/ws/ws_neigh.h"
 #include "common/bits.h"
@@ -324,7 +325,9 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
         if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
             continue;
         nce = ipv6_neigh_get_from_eui64(ipv6, &neigh->eui64);
-        if (nce && nce->rpl && !timer_stopped(&nce->rpl->deny_timer))
+        if ((!nce || !nce->rpl) && !rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh) && !isnan(neigh->rsl_out_dbm))
+            continue;
+        if (nce && nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, WS_ETX_MAX))
             continue;
         ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
         rpl_send_dis(ipv6, &dst);
