@@ -78,6 +78,7 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     neigh->lqi_unsecured = INT_MAX;
     neigh->apc_txpow_dbm = tx_power_dbm;
     neigh->apc_txpow_dbm_ofdm = tx_power_dbm;
+    neigh->pan_id = 0xffff;
     ws_etx_init(&neigh->ws_etx);
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     if (table->on_add)
