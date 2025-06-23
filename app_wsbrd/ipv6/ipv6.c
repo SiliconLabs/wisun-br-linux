@@ -692,6 +692,7 @@ static buffer_t *ipv6_tunnel_exit(buffer_t *buf, uint8_t *payload)
         /* Write the outgoing traffic-class field */
         payload[0] = (payload[0] & 0xf0) | (outgoing_tclass >> 4);
         payload[1] = (outgoing_tclass << 4) | (payload[1] & 0x0f);
+        buf->options.hop_limit = payload[IPV6_HDROFF_HOP_LIMIT];
     }
 
 
@@ -991,6 +992,8 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool
         return;
     if (!ws_neigh_lfn_count(&buf->interface->ws_info.neighbor_storage))
         return;
+    if (buf->options.hop_limit <= 1)
+        return;
 
     clone = buffer_clone(buf);
     if (!clone)
@@ -998,6 +1001,7 @@ static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool
 
     clone->route = ipv6_buffer_route(clone);
     clone->options.lfn_multicast = true;
+    buffer_data_pointer(clone)[IPV6_HDROFF_HOP_LIMIT] = --clone->options.hop_limit;
     clone->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
     protocol_push(clone);
     buf->options.lfn_multicast = false;
