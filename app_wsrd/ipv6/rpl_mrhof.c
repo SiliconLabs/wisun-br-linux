@@ -108,6 +108,44 @@ static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_r
     return rank_limit - 1;
 }
 
+const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
+{
+    uint16_t new_rank;
+    float etx;
+
+    BUG_ON(!nce->rpl);
+
+    new_rank = rpl_mrhof_rank(ipv6, nce);
+    etx = rpl_mrhof_etx(ipv6, nce);
+    if (isnan(etx)) {
+        /*
+         *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
+         * The FFN MUST perform unicast Neighbor Discovery (Neighbor
+         * Solicit using its link local IPv6 address) with all FFNs from
+         * which it has received a RPL DIO (thereby collecting ETX and
+         * bi-directional RSL for the neighbor).
+         */
+        if (nce->nud_state != IPV6_NUD_PROBE)
+            ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+        return "etx";
+    }
+    nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
+    if (!nce->rpl->rsl_valid)
+        return "rsl";
+    /*
+     * If the selected metric for a link is greater than MAX_LINK_METRIC,
+     * the node SHOULD exclude that link from consideration during parent
+     * selection.
+     */
+    if (etx > ipv6->rpl.mrhof.max_link_metric)
+        return "etx";
+    if (!timer_stopped(&nce->rpl->deny_timer))
+        return "denied";
+    if (new_rank > rank_limit)
+        return "rank";
+    return NULL;
+}
+
 // RFC 6719 3.2.2. Parent Selection Algorithm
 struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
@@ -146,41 +184,10 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         if (!nce->rpl)
             continue;
 
-        discard = NULL;
         etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
-        if (isnan(etx)) {
-            /*
-             *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
-             * The FFN MUST perform unicast Neighbor Discovery (Neighbor
-             * Solicit using its link local IPv6 address) with all FFNs from
-             * which it has received a RPL DIO (thereby collecting ETX and
-             * bi-directional RSL for the neighbor).
-             */
-            if (nce->nud_state != IPV6_NUD_PROBE)
-                ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
-            discard = "etx";
-        }
-
-        nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
-        if (!nce->rpl->rsl_valid)
-            discard = "rsl";
-
-        /*
-         * If the selected metric for a link is greater than MAX_LINK_METRIC,
-         * the node SHOULD exclude that link from consideration during parent
-         * selection.
-         */
-        if (etx > mrhof->max_link_metric)
-            discard = "etx";
-
-        if (!timer_stopped(&nce->rpl->deny_timer))
-            discard = "denied";
-
         new_rank = rpl_mrhof_rank(ipv6, nce);
-        if (new_rank > rank_limit)
-            discard = "new-rank > rank-limit";
-
+        discard = rpl_mrhof_check_candidate(ipv6, nce, rank_limit);
         if (discard) {
             TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
                   tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank, discard);
