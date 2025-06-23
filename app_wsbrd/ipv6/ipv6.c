@@ -692,16 +692,6 @@ static buffer_t *ipv6_tunnel_exit(buffer_t *buf, uint8_t *payload)
         /* Write the outgoing traffic-class field */
         payload[0] = (payload[0] & 0xf0) | (outgoing_tclass >> 4);
         payload[1] = (outgoing_tclass << 4) | (payload[1] & 0x0f);
-
-        /* We would like RFC 3443-style "uniform model" Hop Limit handling. As
-         * tunnel entry, we transfer the Hop Limit from the inner to the outer
-         * packet. On exit we transfer from outer back to inner (and outer must
-         * be lower than inner). Just in case another entry implementation didn't do
-         * this and set a big outer, we take the minimum of inner and outer.
-         */
-        if (payload[IPV6_HDROFF_HOP_LIMIT] > buf->options.hop_limit) {
-            payload[IPV6_HDROFF_HOP_LIMIT] = buf->options.hop_limit;
-        }
     }
 
 
