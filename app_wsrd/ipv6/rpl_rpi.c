@@ -56,7 +56,7 @@ int rpl_rpi_process(struct ipv6_ctx *ipv6, struct ip6_opt *opt)
      * not set, then the Rank-Error bit is set. If it was set the packet MUST
      * be discarded and the Trickle timer MUST be reset.
      */
-    dag_rank = rpl_dag_rank(ntohs(parent->rpl->config.min_hop_rank_inc), rpl_mrhof_rank(ipv6));
+    dag_rank = rpl_dag_rank(ntohs(parent->rpl->config.min_hop_rank_inc), rpl_mrhof_rank(ipv6, NULL));
     if (( (rpi->flags & RPL_MASK_RPI_O) && ntohs(rpi->sender_rank) > dag_rank) ||
         (!(rpi->flags & RPL_MASK_RPI_O) && ntohs(rpi->sender_rank) < dag_rank)) {
         if (rpi->flags & RPL_MASK_RPI_R) {
