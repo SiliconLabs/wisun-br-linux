@@ -281,6 +281,7 @@ int dc_main(int argc, char *argv[])
     // Add supplicant entry to authenticator
     supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);
     memcpy(supp->eap_tls.tls.pmk.key, dc->cfg.target_pmk, 32);
+    supp->eap_tls.tls.pmk.installation_s = INT32_MAX;
 
     timer_group_init(&dc->ws.neigh_table.timer_group);
     // keep privileges to manage route to target later

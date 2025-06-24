@@ -245,6 +245,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
         case 'p':
             ret = getrandom(ctx->supp.tls_client.pmk.key, 32, 0);
             FATAL_ON(ret < 32, 2, "getrandom: %m");
+            ctx->supp.tls_client.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
             break;
         case 'r':
             conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
@@ -320,6 +321,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
         memcpy(supp->eap_tls.tls.pmk.key, ctx->supp.tls_client.pmk.key, 32);
+        supp->eap_tls.tls.pmk.installation_s = ctx->supp.tls_client.pmk.installation_s;
         auth_cfg->ffn.pmk_lifetime_s = 0; // Infinite
     }
 
