@@ -126,7 +126,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.auth = &g_ctxt.auth,
     .auth.cfg = &g_ctxt.config.auth_cfg,
     .auth.radius_fd = -1,
-    .auth.timeout_ms = 60 * 1000, // Arbitrary
+    .auth.timeout_ms = 30 * 1000, // Arbitrary
     .auth.sendto_mac    = ws_llc_auth_sendto_mac,
     .auth.on_gtk_change = wsbr_on_gtk_change,
 
