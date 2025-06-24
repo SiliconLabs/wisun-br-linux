@@ -486,6 +486,8 @@ static bool auth_is_supp_ptk_valid(const struct auth_ctx *auth, const struct aut
     const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_ptk *ptk = &supp->eap_tls.tls.ptk;
 
+    if (!ptk->installation_s)
+        return false;
     if (!cfg->ptk_lifetime_s) // Infinite lifetime
         return true;
     return time_now_s(CLOCK_MONOTONIC) < ptk->installation_s + cfg->ptk_lifetime_s;
