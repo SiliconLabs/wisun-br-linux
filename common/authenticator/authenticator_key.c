@@ -641,6 +641,15 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
         return;
     }
 
+    /*
+     * Note the PMK is initialized with random data in tls_init_client(), which
+     * should already be enough to prevent an attacker from getting the GTKs.
+     */
+    if (!auth_is_supp_pmk_valid(auth, supp)) {
+        TRACE(TR_DROP, "drop %-9s: no PMK installed", "eapol-key");
+        return;
+    }
+
     timer_stop(&auth->timer_group, &supp->rt_timer);
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
