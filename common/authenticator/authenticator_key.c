@@ -275,7 +275,7 @@ static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_sup
     pktbuf_free(&enc_key_data);
 }
 
-static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+static void auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
     const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
@@ -322,11 +322,9 @@ static int auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *
     if (next_key_slot != -1)
         auth_key_group_message_1_send(auth, supp, next_key_slot);
     // TODO: LGTK
-
-    return 0;
 }
 
-static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static void auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                          const struct eapol_key_frame *frame,
                                          const void *data, size_t data_len)
 {
@@ -334,16 +332,16 @@ static int auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_supp
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
-        return -EINVAL;
+        return;
     }
     if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
-        return -EINVAL;
+        return;
     }
-    return auth_key_handshake_done(auth, supp);
+    auth_key_handshake_done(auth, supp);
 }
 
-static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static void auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
@@ -351,17 +349,17 @@ static int auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_s
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
-        return -EINVAL;
+        return;
     }
     if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
-        return -EINVAL;
+        return;
     }
     memcpy(supp->eap_tls.tls.ptk.key, supp->eap_tls.tls.ptk.tkey, sizeof(supp->eap_tls.tls.ptk.key));
     supp->eap_tls.tls.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     TRACE(TR_SECURITY, "sec: install ptk=%s",
           tr_key(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key)));
-    return auth_key_handshake_done(auth, supp);
+    auth_key_handshake_done(auth, supp);
 }
 
 static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, int key_slot)
@@ -390,7 +388,7 @@ static void auth_key_pairwise_message_3_send(struct auth_ctx *auth, struct auth_
     pktbuf_free(&enc_key_data);
 }
 
-static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
@@ -400,18 +398,17 @@ static int auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_s
 
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information))) {
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
-        return -EINVAL;
+        return;
     }
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->eap_tls.tls.ptk.tkey);
     if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
-        return -EINVAL;
+        return;
     }
     next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
-    return 0;
 }
 
 void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ctx *supp)
@@ -437,23 +434,20 @@ void auth_key_pairwise_message_1_send(struct auth_ctx *auth, struct auth_supp_ct
     pktbuf_free(&key_data);
 }
 
-static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
+static void auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   const struct eapol_key_frame *frame,
                                   const void *data, size_t data_len)
 {
-    int ret = 0;
-
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(frame->information))) {
     case 0:
-        ret = auth_key_pairwise_message_2_recv(auth, supp, frame, data, data_len);
+        auth_key_pairwise_message_2_recv(auth, supp, frame, data, data_len);
         break;
     case 1:
-        ret = auth_key_pairwise_message_4_recv(auth, supp, frame, data, data_len);
+        auth_key_pairwise_message_4_recv(auth, supp, frame, data, data_len);
         break;
     default:
         break;
     }
-    return ret;
 }
 
 static bool auth_is_supp_pmk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
@@ -580,7 +574,6 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
         .data_size = buf_len,
     };
     const void *data;
-    int ret = 0;
 
     frame = (const struct eapol_key_frame *)iobuf_pop_data_ptr(&iobuf, sizeof(struct eapol_key_frame));
     data = frame ? iobuf_pop_data_ptr(&iobuf, be16toh(frame->data_length)) : NULL;
@@ -650,17 +643,18 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
         return;
     }
 
+    /*
+     * We can safely stop the retry timer here considering any validation error
+     * means the supplicant is not behaving as expected.
+     */
     timer_stop(&auth->timer_group, &supp->rt_timer);
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
     case IEEE80211_KEY_TYPE_GROUP:
-        ret = auth_key_group_message_2_recv(auth, supp, frame, data, be16toh(frame->data_length));
+        auth_key_group_message_2_recv(auth, supp, frame, data, be16toh(frame->data_length));
         break;
     case IEEE80211_KEY_TYPE_PAIRWISE:
-        ret = auth_key_pairwise_recv(auth, supp, frame, data, be16toh(frame->data_length));
+        auth_key_pairwise_recv(auth, supp, frame, data, be16toh(frame->data_length));
         break;
     }
-    // If there was an error during parsing of the message, restart retry timer
-    if (ret)
-        timer_start_rel(&auth->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
