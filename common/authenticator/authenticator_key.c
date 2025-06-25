@@ -456,20 +456,27 @@ static int auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     return ret;
 }
 
+static bool auth_is_supp_pmk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
+{
+    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
+    const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;
+
+    if (!cfg->pmk_lifetime_s) // Infinite lifetime
+        return true;
+    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + cfg->pmk_lifetime_s;
+}
+
 static bool auth_is_pmkid_valid(const struct auth_ctx *auth,
                                 const struct auth_supp_ctx *supp,
                                 const uint8_t pmkid_kde[16])
 {
-    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;
     uint8_t pmkid[16];
 
     ieee80211_derive_pmkid(pmk->key, auth->eui64.u8, supp->eui64.u8, pmkid);
     if (memcmp(pmkid_kde, pmkid, 16))
         return false;
-    if (!cfg->pmk_lifetime_s) // Infinite lifetime
-        return true;
-    return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + cfg->pmk_lifetime_s;
+    return auth_is_supp_pmk_valid(auth, supp);
 }
 
 static bool auth_is_supp_ptk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
