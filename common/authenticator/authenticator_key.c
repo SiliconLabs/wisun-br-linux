@@ -472,20 +472,27 @@ static bool auth_is_pmkid_valid(const struct auth_ctx *auth,
     return time_now_s(CLOCK_MONOTONIC) < pmk->installation_s + cfg->pmk_lifetime_s;
 }
 
+static bool auth_is_supp_ptk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
+{
+    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
+    const struct tls_ptk *ptk = &supp->eap_tls.tls.ptk;
+
+    if (!cfg->ptk_lifetime_s) // Infinite lifetime
+        return true;
+    return time_now_s(CLOCK_MONOTONIC) < ptk->installation_s + cfg->ptk_lifetime_s;
+}
+
 static bool auth_is_ptkid_valid(const struct auth_ctx *auth,
                                 const struct auth_supp_ctx *supp,
                                 const uint8_t ptkid_kde[16])
 {
-    const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_ptk *ptk = &supp->eap_tls.tls.ptk;
     uint8_t ptkid[16];
 
     ws_derive_ptkid(ptk->key, auth->eui64.u8, supp->eui64.u8, ptkid);
     if (memcmp(ptkid_kde, ptkid, 16))
         return false;
-    if (!cfg->ptk_lifetime_s) // Infinite lifetime
-        return true;
-    return time_now_s(CLOCK_MONOTONIC) < ptk->installation_s + cfg->ptk_lifetime_s;
+    return auth_is_supp_ptk_valid(auth, supp);
 }
 
 static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
