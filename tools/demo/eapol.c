@@ -291,7 +291,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
         }
     }
     if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC) {
-        if (memzcmp(ctx->supp.tls_client.pmk.key, 32))
+        if (ctx->supp.tls_client.pmk.installation_s)
             FATAL(1, "incompatible --radius-server and --pmk");
         if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
             FATAL(1, "missing --radius-secret");
@@ -311,12 +311,12 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
     supp_init(&ctx->supp);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
-    if (memzcmp(ctx->supp.tls_client.pmk.key, 32))
+    if (ctx->supp.tls_client.pmk.installation_s)
         ctx->supp.auth_eui64 = auth_eui64;
 
     auth_start(&ctx->auth, &auth_eui64, true);
     // NOTE: Must be done after calling auth_start()
-    if (memzcmp(ctx->supp.tls_client.pmk.key, 32)) {
+    if (ctx->supp.tls_client.pmk.installation_s) {
         struct auth_supp_ctx *supp;
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);

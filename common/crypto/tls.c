@@ -16,6 +16,7 @@
 #include <mbedtls/debug.h>
 #include <mbedtls/oid.h>
 
+#include "common/rand.h"
 #include "common/mbedtls_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
@@ -120,6 +121,9 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
 
     mbedtls_ssl_set_bio(&tls_client->ssl_ctx, &tls_client->io, tls_send, tls_recv, NULL);
     mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, tls_export_keys, tls_client);
+    rand_get_n_bytes_random(tls_client->pmk.key, sizeof(tls_client->pmk.key));
+    rand_get_n_bytes_random(tls_client->ptk.key, sizeof(tls_client->ptk.key));
+    rand_get_n_bytes_random(tls_client->ptk.tkey, sizeof(tls_client->ptk.tkey));
 }
 
 void tls_debug(void *ctx, int level, const char *file, int line, const char *string)

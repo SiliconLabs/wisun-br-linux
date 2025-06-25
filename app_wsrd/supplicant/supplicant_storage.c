@@ -116,7 +116,7 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     fprintf(info->file, "pmk = %s\n", str_buf);
     fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->tls_client.pmk.replay_counter);
 
-    if (memzcmp(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key))) {
+    if (supp->tls_client.ptk.installation_s) {
         str_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), str_buf, sizeof(str_buf));
         fprintf(info->file, "ptk = %s\n", str_buf);
     }
