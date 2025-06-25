@@ -59,6 +59,11 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
     // empty
 }
 
+void tls_free_client(struct tls_client_ctx *tls_client)
+{
+    // empty
+}
+
 void eapol_relay_send(int fd, const void *buf, size_t buf_len,
                       const struct in6_addr *dst,
                       const struct eui64 *supp_eui64, uint8_t kmp_id)

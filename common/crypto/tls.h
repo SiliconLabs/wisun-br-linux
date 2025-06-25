@@ -85,6 +85,7 @@ struct tls_cfg {
 int tls_send(void *ctx, const unsigned char *buf, size_t len);
 int tls_recv(void *ctx, unsigned char *buf, size_t len);
 void tls_install_pmk(struct tls_client_ctx *tls_client, const uint8_t key[32]);
+void tls_free_client(struct tls_client_ctx *tls_client);
 void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client);
 int tls_load_pem(struct mbedtls_x509_crt *cert, const uint8_t *buf, size_t buf_len);
 void tls_debug(void *ctx, int level, const char *file, int line, const char *string);

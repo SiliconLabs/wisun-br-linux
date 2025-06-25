@@ -102,6 +102,14 @@ static void tls_export_keys(void *ctx, mbedtls_ssl_key_export_type type,
     tls_install_pmk(tls_client, derived_key);
 }
 
+void tls_free_client(struct tls_client_ctx *tls_client)
+{
+    mbedtls_ssl_free(&tls_client->ssl_ctx);
+    pktbuf_free(&tls_client->io.rx);
+    pktbuf_free(&tls_client->io.tx);
+    memset(tls_client, 0, sizeof(struct tls_client_ctx));
+}
+
 void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
 {
     int ret;
