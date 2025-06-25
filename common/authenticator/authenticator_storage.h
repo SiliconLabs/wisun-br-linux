@@ -18,6 +18,7 @@ struct auth_supp_ctx;
 struct auth_ctx;
 
 bool auth_storage_load(struct auth_ctx *auth);
+void auth_storage_clear_supplicant(struct auth_supp_ctx *supp);
 void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write);
 void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write);
 

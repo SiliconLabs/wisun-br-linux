@@ -245,6 +245,22 @@ bool auth_storage_load(struct auth_ctx *auth)
     return true;
 }
 
+static void auth_storage_get_supp_filename(const struct auth_supp_ctx *supp, char *filename, size_t size)
+{
+    char str_buf[PATH_MAX];
+
+    str_key(supp->eui64.u8, sizeof(supp->eui64.u8), str_buf, sizeof(str_buf));
+    snprintf(filename, size, "%ssupp-%s", g_storage_prefix, str_buf);
+}
+
+void auth_storage_clear_supplicant(struct auth_supp_ctx *supp)
+{
+    char filename[PATH_MAX];
+
+    auth_storage_get_supp_filename(supp, filename, sizeof(filename));
+    storage_delete((const char *[]){ filename, NULL });
+}
+
 void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
 {
     time_t storage_offset_s = time_get_storage_offset_s();
@@ -252,8 +268,7 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
     char filename[PATH_MAX];
     char str_buf[256];
 
-    str_key(supp->eui64.u8, sizeof(supp->eui64.u8), str_buf, sizeof(str_buf));
-    snprintf(filename, sizeof(filename), "%ssupp-%s", g_storage_prefix, str_buf);
+    auth_storage_get_supp_filename(supp, filename, sizeof(filename));
     info = storage_open(filename, "w");
     if (!info) {
         WARN("%s: unable to open file: %s", __func__, filename);
