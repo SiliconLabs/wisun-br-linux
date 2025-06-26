@@ -40,8 +40,7 @@ struct auth_supp_ctx {
     int     last_installed_key_slot;
     uint8_t gtkl;
     uint8_t lgtkl;
-    uint8_t  anonce[32];
-    uint8_t  snonce[32];
+    uint8_t anonce[32];
 
     uint8_t eap_id;
 

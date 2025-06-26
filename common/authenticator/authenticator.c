@@ -354,7 +354,6 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     if (auth->radius_fd < 0)
         tls_init_client(&auth->tls, &supp->eap_tls.tls);
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
-    rand_get_n_bytes_random(supp->snonce, sizeof(supp->snonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
     return supp;

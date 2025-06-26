@@ -416,7 +416,6 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
     }
     memcpy(&supp->eap_tls.tls.tptk, &tptk, sizeof(supp->eap_tls.tls.tptk));
     TRACE(TR_SECURITY, "sec: install tptk=%s", tr_key(supp->eap_tls.tls.tptk.key, sizeof(supp->eap_tls.tls.tptk.key)));
-    memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
 }
