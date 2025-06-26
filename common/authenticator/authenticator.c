@@ -246,6 +246,13 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     auth_install_gtk(auth, gtk_group, slot_install, NULL);
 }
 
+void auth_rt_timer_stop(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    timer_stop(&auth->timer_group, &supp->rt_timer);
+    pktbuf_free(&supp->rt_buffer);
+    supp->rt_count = 0;
+}
+
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                          uint8_t kmp_id, const void *buf, size_t buf_len)
 {
@@ -264,7 +271,7 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * we must artificially manage retransmission timers to the same server,
      * although they don't require the same attention to timing provided by TCP.
      */
-    pktbuf_free(&supp->rt_buffer);
+    auth_rt_timer_stop(auth, supp);
     pktbuf_init(&supp->rt_buffer, buf, buf_len);
     supp->rt_kmp_id = kmp_id;
     supp->rt_count  = 0;
@@ -289,7 +296,7 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
               supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
         if (!supp->rt_kmp_id)
             supp->radius.id = -1; // Cancel transaction
-        timer_stop(group, timer);
+        auth_rt_timer_stop(auth, supp);
         return;
     }
     TRACE(TR_SECURITY, "sec: %s frame retry eui64=%s",

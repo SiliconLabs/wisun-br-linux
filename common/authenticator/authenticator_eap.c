@@ -334,7 +334,7 @@ void auth_eap_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void
         return;
     }
 
-    timer_stop(&auth->timer_group, &supp->rt_timer);
+    auth_rt_timer_stop(auth, supp);
 
     if (auth->radius_fd >= 0)
         return radius_send_eap(auth, supp, buf, buf_len);

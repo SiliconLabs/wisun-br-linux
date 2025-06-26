@@ -428,7 +428,7 @@ void radius_recv(struct auth_ctx *auth)
         return;
     }
     supp->radius.id = -1; // Transaction finished
-    timer_stop(&auth->timer_group, &supp->rt_timer);
+    auth_rt_timer_stop(auth, supp);
 
     TRACE(TR_SECURITY, "sec: rx-radius code=%-16s id=%u",
           tr_radius_code(hdr->code), hdr->id);

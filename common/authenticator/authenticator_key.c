@@ -647,7 +647,7 @@ void auth_key_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * We can safely stop the retry timer here considering any validation error
      * means the supplicant is not behaving as expected.
      */
-    timer_stop(&auth->timer_group, &supp->rt_timer);
+    auth_rt_timer_stop(auth, supp);
 
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information))) {
     case IEEE80211_KEY_TYPE_GROUP:

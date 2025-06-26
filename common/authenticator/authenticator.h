@@ -140,6 +140,7 @@ bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t 
 
 void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter);
 
+void auth_rt_timer_stop(struct auth_ctx *auth, struct auth_supp_ctx *supp);
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                          uint8_t kmp_id, const void *buf, size_t buf_len);
 void auth_send_eapol(struct auth_ctx *auth, struct auth_supp_ctx *supp,
