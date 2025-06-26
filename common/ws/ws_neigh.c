@@ -47,8 +47,10 @@ static void ws_neigh_timer_cb(struct timer_group *group, struct timer_entry *tim
 }
 
 // Wi-SUN FAN 1v33 6.2.3.1.6.1 Link Metrics
-static void ws_neigh_etx_compute(struct ws_neigh_table *table, struct ws_neigh *neigh)
+static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer_entry *timer)
 {
+    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
+    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
     float etx;
 
     /*
@@ -119,14 +121,6 @@ static void ws_neigh_etx_timeout_outdated(struct timer_group *group, struct time
 
     if (table->on_etx_outdated)
         table->on_etx_outdated(table, neigh);
-}
-
-static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer_entry *timer)
-{
-    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
-    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
-
-    ws_neigh_etx_compute(table, neigh);
 }
 
 void ws_neigh_etx_update(struct ws_neigh_table *table,
