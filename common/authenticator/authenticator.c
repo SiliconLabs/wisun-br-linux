@@ -293,6 +293,7 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
     struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, rt_timer);
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
+    BUG_ON(supp->rt_kmp_id == -1);
     supp->rt_count++;
 
     /*
@@ -431,16 +432,26 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
 
     supp = auth_fetch_supp(auth, eui64);
 
-    switch (eapol_hdr->packet_type) {
-    case EAPOL_PACKET_TYPE_EAP:
-        auth_eap_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
-        break;
-    case EAPOL_PACKET_TYPE_KEY:
-        auth_key_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
-        break;
-    default:
-        TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
-        break;
+    /*
+     * Since we are the initiator of all messages following a Key-Request, we
+     * can easily determine the expected KMP ID. Note a Key-Request will always
+     * be accepted.
+     */
+    if (supp->rt_kmp_id == kmp_id ||
+        (kmp_id == IEEE802159_KMP_ID_8021X && eapol_hdr->packet_type == EAPOL_PACKET_TYPE_KEY)) {
+        switch (eapol_hdr->packet_type) {
+        case EAPOL_PACKET_TYPE_EAP:
+            auth_eap_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+            break;
+        case EAPOL_PACKET_TYPE_KEY:
+            auth_key_recv(auth, supp, iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf));
+            break;
+        default:
+            TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
+            break;
+        }
+    } else {
+        TRACE(TR_DROP, "drop %-9s: invalid KMP ID expected=%d actual=%d", "eapol", supp->rt_kmp_id, kmp_id);
     }
 
     /*
