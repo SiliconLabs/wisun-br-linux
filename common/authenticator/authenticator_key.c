@@ -394,6 +394,7 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
                                             const struct eapol_key_frame *frame,
                                             const void *data, size_t data_len)
 {
+    struct tls_ptk tptk;
     int next_key_slot;
 
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "rx-4wh");
@@ -403,13 +404,18 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
         return;
     }
 
-    memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
-    ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->eap_tls.tls.tptk.key);
-    supp->eap_tls.tls.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
-    if (!auth_key_accept_frame(supp, &supp->eap_tls.tls.tptk, frame, data, data_len)) {
+    /*
+     * Ensure an attacker cannot change the TPTK during a 4wh by sending a
+     * 4wh-msg2 with a different snonce.
+     */
+    ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, frame->nonce, tptk.key);
+    tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
+    if (!auth_key_accept_frame(supp, &tptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
     }
+    memcpy(&supp->eap_tls.tls.tptk, &tptk, sizeof(supp->eap_tls.tls.tptk));
+    memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
     auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
 }
