@@ -34,7 +34,7 @@ struct auth_supp_ctx {
     struct timer_entry rt_timer;
     uint8_t rt_count;
     struct pktbuf rt_buffer;
-    uint8_t rt_kmp_id; // 0 is used for RADIUS retransmissions
+    int rt_kmp_id; // 0 is used for RADIUS retransmissions, -1 if not set
 
     // 4WH and 2WH
     int     last_installed_key_slot;
