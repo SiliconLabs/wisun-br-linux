@@ -25,7 +25,7 @@
 struct tls_pmk {
     uint8_t key[32]; // stored in cleartext in RAM
     int64_t replay_counter; // reset when pmk is established
-    time_t installation_s; // not used by supplicant
+    time_t installation_s;
 };
 
 struct tls_ptk {

@@ -55,6 +55,7 @@ bool supp_storage_load(struct supp_ctx *supp)
         } else if (!fnmatch("pmk", info->key, 0)) {
             if (parse_byte_array(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), info->value))
                 FATAL(1, "%s:%d: invalid pmk: %s", info->filename, info->linenr, info->value);
+            supp->tls_client.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
         } else if (!fnmatch("pmk.replay_counter", info->key, 0)) {
             supp->tls_client.pmk.replay_counter = strtoll(info->value, NULL, 0);
         } else if (!fnmatch("ptk", info->key, 0)) {

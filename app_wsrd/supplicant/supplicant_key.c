@@ -135,11 +135,9 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
         ptk = &supp->tls_client.ptk;
 
     /*
-     * We only check if the (T)PTK is installed at this point, there's no need
-     * to check if it expired considering the MIC check will fail if the (T)PTK
-     * used is wrong. Note at this stage, the (T)PTK was derived from the PMK
-     * which is initialized with random data in tls_init_client(), which should
-     * already be enough to prevent an attacker from making us use any GTKs.
+     * Note at this stage, the (T)PTK was derived from the PMK which is
+     * initialized with random data in tls_init_client(), which should already
+     * be enough to prevent an attacker from making us install any GTKs.
      */
     if (!ptk->installation_s)
         return false;
@@ -516,6 +514,16 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
      */
     if (supp->tls_client.pmk.replay_counter && be64toh(frame->replay_counter) <= supp->tls_client.pmk.replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
+        return;
+    }
+
+    /*
+     * Note the PMK is initialized with random data in tls_init_client(), which
+     * should already be enough to prevent an attacker from making us install
+     * any GTKs.
+     */
+    if (!supp->tls_client.pmk.installation_s) {
+        TRACE(TR_DROP, "drop %-9s: no PMK installed", "eapol-key");
         return;
     }
 
