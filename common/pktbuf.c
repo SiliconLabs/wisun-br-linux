@@ -156,8 +156,8 @@ PKTBUF_PUSH_DEFINE(tail, le, 64)
     }
 
 #define u8toh(x)   (x)
-#define be24toh(x) be32toh((x) >> 8)
-#define le24toh(x) le32toh((x) & 0xffffff)
+#define be24toh(x) (be32toh(x) >> 8)
+#define le24toh(x) (le32toh(x) & 0xffffff)
 
 PKTBUF_POP_DEFINE(head, u,   8)
 PKTBUF_POP_DEFINE(head, be, 16)
