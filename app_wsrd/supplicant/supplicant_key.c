@@ -127,14 +127,23 @@ static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct
 static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                   struct iobuf_read *iobuf)
 {
-    const uint8_t *ptk;
+    const struct tls_ptk *ptk;
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->tls_client.tptk.key;
+        ptk = &supp->tls_client.tptk;
     else
-        ptk = supp->tls_client.ptk.key;
+        ptk = &supp->tls_client.ptk;
 
-    if (!ieee80211_is_mic_valid(ptk, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
+    /*
+     * We only check if the (T)PTK is installed at this point, there's no need
+     * to check if it expired considering the MIC check will fail if the (T)PTK
+     * used is wrong. Note at this stage, the (T)PTK was derived from the PMK
+     * which is initialized with random data in tls_init_client(), which should
+     * already be enough to prevent an attacker from making us use any GTKs.
+     */
+    if (!ptk->installation_s)
+        return false;
+    if (!ieee80211_is_mic_valid(ptk->key, frame, iobuf_ptr(iobuf), iobuf_remaining_size(iobuf)))
         return false;
 
     /*
@@ -296,6 +305,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
         if (memcmp(supp->tls_client.ptk.key, supp->tls_client.tptk.key, sizeof(supp->tls_client.tptk.key))) {
             memcpy(supp->tls_client.ptk.key, supp->tls_client.tptk.key, sizeof(supp->tls_client.ptk.key));
+            supp->tls_client.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
             // TODO: callback to install TK
             TRACE(TR_SECURITY, "sec: install ptk=%s",
                   tr_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)));
@@ -442,6 +452,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
     ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8,
                             supp->anonce, supp->snonce, supp->tls_client.tptk.key);
+    supp->tls_client.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
