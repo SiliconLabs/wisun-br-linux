@@ -114,9 +114,11 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     str_key(supp->cfg->eui64.u8, sizeof(supp->cfg->eui64.u8), str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n\n", str_buf);
 
-    str_key(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), str_buf, sizeof(str_buf));
-    fprintf(info->file, "pmk = %s\n", str_buf);
-    fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->tls_client.pmk.replay_counter);
+    if (supp->tls_client.pmk.installation_s) {
+        str_key(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), str_buf, sizeof(str_buf));
+        fprintf(info->file, "pmk = %s\n", str_buf);
+        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->tls_client.pmk.replay_counter);
+    }
 
     if (supp->tls_client.ptk.installation_s) {
         str_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), str_buf, sizeof(str_buf));
