@@ -421,7 +421,8 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
     }
 
     if ((kmp_id == IEEE802159_KMP_ID_80211_4WH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY) ||
-        (kmp_id == IEEE802159_KMP_ID_80211_GKH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY)) {
+        (kmp_id == IEEE802159_KMP_ID_80211_GKH && eapol_hdr->packet_type != EAPOL_PACKET_TYPE_KEY) ||
+        (kmp_id != IEEE802159_KMP_ID_8021X     && eapol_hdr->packet_type == EAPOL_PACKET_TYPE_EAP)) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol packet type %s for KMP ID %d", "eapol",
               val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), kmp_id);
         return;
