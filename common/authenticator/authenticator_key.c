@@ -109,28 +109,17 @@ static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *messa
     memcpy(frame->mic, mic, sizeof(mic));
 }
 
-static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct eapol_key_frame *frame,
-                                  const void *data, size_t data_len)
+static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct tls_ptk *ptk,
+                                  const struct eapol_key_frame *frame, const void *data, size_t data_len)
 {
-    time_t installation_s;
-    const uint8_t *ptk;
-
-    if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
-        ptk = supp->eap_tls.tls.tptk.key;
-        installation_s = supp->eap_tls.tls.tptk.installation_s;
-    } else {
-        ptk = supp->eap_tls.tls.ptk.key;
-        installation_s = supp->eap_tls.tls.ptk.installation_s;
-    }
-
     /*
      * Note at this stage, the (T)PTK was derived from the PMK
      * which is initialized with random data in tls_init_client(), which should
      * already be enough to prevent an attacker from getting the GTKs.
      */
-    if (!installation_s)
+    if (!ptk->installation_s)
         return false;
-    if (!ieee80211_is_mic_valid(ptk, frame, data, data_len))
+    if (!ieee80211_is_mic_valid(ptk->key, frame, data, data_len))
         return false;
 
     /*
@@ -345,7 +334,7 @@ static void auth_key_group_message_2_recv(struct auth_ctx *auth, struct auth_sup
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return;
     }
-    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, &supp->eap_tls.tls.ptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
     }
@@ -362,7 +351,7 @@ static void auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_
         TRACE(TR_DROP, "drop %-9s: \"mic\" bit not set when it should be", "eapol-key");
         return;
     }
-    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, &supp->eap_tls.tls.tptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
     }
@@ -417,7 +406,7 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
     ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->eap_tls.tls.tptk.key);
     supp->eap_tls.tls.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
-    if (!auth_key_accept_frame(supp, frame, data, data_len)) {
+    if (!auth_key_accept_frame(supp, &supp->eap_tls.tls.tptk, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
     }
