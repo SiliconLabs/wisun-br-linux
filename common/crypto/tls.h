@@ -41,18 +41,7 @@ struct tls_ptk {
      * KEK = Key Encryption Key
      */
     uint8_t key[48];
-    time_t installation_s; // not used by supplicant
-    /*
-     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
-     * - TPTK. This variable represents the current PTK until message 3 of the
-     *         4-way handshake arrives and is verified.
-     *
-     * [...]
-     *
-     * NOTE 1 — TPTK is used to stop attackers changing the PTK on the Supplicant
-     * by sending the first message of the 4-way handshake.
-     */
-    uint8_t tkey[48];
+    time_t installation_s;
 };
 
 struct tls_io {
@@ -64,6 +53,17 @@ struct tls_client_ctx {
     struct mbedtls_ssl_context ssl_ctx;
     struct tls_pmk pmk;
     struct tls_ptk ptk;
+    /*
+     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
+     * - TPTK. This variable represents the current PTK until message 3 of the
+     *         4-way handshake arrives and is verified.
+     *
+     * [...]
+     *
+     * NOTE 1 — TPTK is used to stop attackers changing the PTK on the Supplicant
+     * by sending the first message of the 4-way handshake.
+     */
+    struct tls_ptk tptk;
     struct tls_io io;
 };
 

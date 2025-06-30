@@ -115,7 +115,7 @@ static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct eapol
     const uint8_t *ptk;
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->eap_tls.tls.ptk.tkey;
+        ptk = supp->eap_tls.tls.tptk.key;
     else
         ptk = supp->eap_tls.tls.ptk.key;
 
@@ -146,7 +146,7 @@ void auth_key_refresh_rt_buffer(struct auth_supp_ctx *supp)
     if (!FIELD_GET(IEEE80211_MASK_KEY_INFO_MIC, be16toh(frame->information)))
         return;
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        auth_key_message_set_mic(supp->eap_tls.tls.ptk.tkey, &supp->rt_buffer);
+        auth_key_message_set_mic(supp->eap_tls.tls.tptk.key, &supp->rt_buffer);
     else
         auth_key_message_set_mic(supp->eap_tls.tls.ptk.key, &supp->rt_buffer);
 }
@@ -166,7 +166,7 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
     eapol_write_hdr_head(&message, EAPOL_PACKET_TYPE_KEY);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
-        ptk = supp->eap_tls.tls.ptk.tkey;
+        ptk = supp->eap_tls.tls.tptk.key;
         kmp_id = IEEE802159_KMP_ID_80211_4WH;
     } else {
         ptk = supp->eap_tls.tls.ptk.key;
@@ -231,7 +231,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, const struct auth_sup
     auth_key_add_kde_padding(&key_data);
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->eap_tls.tls.ptk.tkey;
+        ptk = supp->eap_tls.tls.tptk.key;
     else
         ptk = supp->eap_tls.tls.ptk.key;
 
@@ -355,7 +355,7 @@ static void auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
     }
-    memcpy(supp->eap_tls.tls.ptk.key, supp->eap_tls.tls.ptk.tkey, sizeof(supp->eap_tls.tls.ptk.key));
+    memcpy(supp->eap_tls.tls.ptk.key, supp->eap_tls.tls.tptk.key, sizeof(supp->eap_tls.tls.ptk.key));
     supp->eap_tls.tls.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     TRACE(TR_SECURITY, "sec: install ptk=%s",
           tr_key(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key)));
@@ -402,7 +402,7 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
     }
 
     memcpy(supp->snonce, frame->nonce, sizeof(supp->snonce));
-    ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->eap_tls.tls.ptk.tkey);
+    ieee80211_derive_ptk384(supp->eap_tls.tls.pmk.key, auth->eui64.u8, supp->eui64.u8, supp->anonce, supp->snonce, supp->eap_tls.tls.tptk.key);
     if (!auth_key_accept_frame(supp, frame, data, data_len)) {
         TRACE(TR_DROP, "drop %-9s: invalid MIC", "eapol-key");
         return;
