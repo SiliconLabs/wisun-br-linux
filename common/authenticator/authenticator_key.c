@@ -450,7 +450,7 @@ static void auth_key_pairwise_recv(struct auth_ctx *auth, struct auth_supp_ctx *
     }
 }
 
-static bool auth_is_supp_pmk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
+bool auth_is_supp_pmk_valid(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
 {
     const struct auth_node_cfg *cfg = supp->node_role == WS_NR_ROLE_LFN ? &auth->cfg->lfn : &auth->cfg->ffn;
     const struct tls_pmk *pmk = &supp->eap_tls.tls.pmk;

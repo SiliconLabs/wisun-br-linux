@@ -306,6 +306,8 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
         if (!supp->rt_kmp_id)
             supp->radius.id = -1; // Cancel transaction
         auth_rt_timer_stop(auth, supp);
+        if (!auth_is_supp_pmk_valid(auth, supp))
+            auth_remove_supp(auth, supp);
         return;
     }
     TRACE(TR_SECURITY, "sec: %s frame retry eui64=%s",
@@ -356,17 +358,11 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
 int auth_revoke_pmk(struct auth_ctx *auth, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
-    struct tls_pmk *pmk;
-    struct tls_ptk *ptk;
 
     supp = auth_get_supp(auth, eui64);
     if (!supp)
         return -ENODEV;
-    pmk = &supp->eap_tls.tls.pmk;
-    ptk = &supp->eap_tls.tls.ptk;
-    memset(pmk->key, 0, sizeof(pmk->key));
-    pmk->installation_s = 0;
-    memset(ptk, 0, sizeof(*ptk));
+    auth_remove_supp(auth, supp);
     return 0;
 }
 
@@ -442,6 +438,16 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
         TRACE(TR_DROP, "drop %-9s: unsupported eapol packet type %d", "eapol", eapol_hdr->packet_type);
         break;
     }
+
+    /*
+     * If the supplicant's retry timer is not running and has no PMK installed,
+     * it means the supplicant either sent us a garbage packet, or has failed
+     * the EAP-TLS handshake. In this case, we remove the supplicant from the
+     * list of supplicants. This prevents an attacker from allocating a heinous
+     * amount of supplicants to exhaust the authenticator's memory.
+     */
+    if (timer_stopped(&supp->rt_timer) && !auth_is_supp_pmk_valid(auth, supp))
+        auth_remove_supp(auth, supp);
 }
 
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn)
