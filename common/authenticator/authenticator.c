@@ -278,6 +278,15 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     timer_start_rel(&auth->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
 
+static void auth_remove_supp(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    auth_rt_timer_stop(auth, supp);
+    tls_free_client(&supp->eap_tls.tls);
+    auth_storage_clear_supplicant(supp);
+    SLIST_REMOVE(&auth->supplicants, supp, auth_supp_ctx, link);
+    free(supp);
+}
+
 static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, rt_timer);
