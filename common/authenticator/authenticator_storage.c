@@ -30,6 +30,7 @@
 #include "common/log.h"
 
 #include "authenticator_storage.h"
+#include "authenticator_key.h"
 #include "authenticator.h"
 
 // Arbitrary
@@ -216,6 +217,8 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }
     }
+    if (!auth_is_supp_pmk_valid(auth, supp))
+        auth_revoke_pmk(auth, &eui64);
     return true;
 }
 
