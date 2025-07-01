@@ -15,6 +15,7 @@
 #define DC_H
 #include <netinet/in.h>
 
+#include "common/ipv6/6lowpan_frag.h"
 #include "common/ws/ws_interface.h"
 #include "common/tun.h"
 
@@ -31,6 +32,7 @@ struct dc {
     int probe_handle;
 
     struct tun_ctx tun;
+    struct lowpan_frag_ctx lowpan_frag;
     struct in6_addr addr_linklocal;
 };
 

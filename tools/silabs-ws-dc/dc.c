@@ -189,6 +189,8 @@ struct dc g_dc = {
     .probe_timer.period_ms = DIRECT_CONNECT_SYNC_PERIOD_S * 1000,
 
     .tun.fd = -1,
+    // RFC 4944 5.3. Fragmentation Type and Header
+    .lowpan_frag.reasm_timeout_ms = 60 * 1000,
 };
 
 static void dc_init_tun(struct dc *dc)
@@ -273,6 +275,7 @@ int dc_main(int argc, char *argv[])
 
     dc_init_radio(dc);
     dc_init_tun(dc);
+    lowpan_frag_init(&dc->lowpan_frag);
     auth_start(&dc->auth_ctx, &dc->ws.rcp.eui64, false);
 
     // Add supplicant entry to authenticator

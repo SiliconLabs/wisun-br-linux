@@ -243,8 +243,12 @@ static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len,
         return;
     dispatch = pktbuf.buf[pktbuf.offset_head];
 
-    // TODO: support FRAG1 and FRAGN
-    if (LOWPAN_DISPATCH_IS_IPHC(dispatch)) {
+    if (LOWPAN_DISPATCH_IS_FRAG1(dispatch) ||
+        LOWPAN_DISPATCH_IS_FRAGN(dispatch)) {
+        ret = lowpan_frag_recv(&dc->lowpan_frag, &pktbuf, src, dst);
+        if (ret < 0)
+            goto err;
+    } else if (LOWPAN_DISPATCH_IS_IPHC(dispatch)) {
         lowpan_iphc_decmpr(&pktbuf, src_iid, dst_iid);
         if (!pktbuf.err) {
             ret = lowpan_iphc_decmpr_finish(pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));

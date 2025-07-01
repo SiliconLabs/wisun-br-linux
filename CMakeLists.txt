@@ -555,6 +555,7 @@ if(COMPILE_DEVTOOLS)
         common/crypto/hmac_md.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
+        common/ipv6/6lowpan_frag.c
         common/ipv6/6lowpan_iphc.c
         common/ipv6/ipv6_addr.c
         common/ws/ws_chan_mask.c
