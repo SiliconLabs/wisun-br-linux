@@ -47,11 +47,11 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
         if (ret < 0)
             goto err;
     } else if (LOWPAN_DISPATCH_IS_IPHC(dispatch)) {
-        lowpan_iphc_decmpr(&pktbuf, src_iid, dst_iid);
-        if (!pktbuf.err) {
-            ret = lowpan_iphc_decmpr_finish(pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
-            BUG_ON(ret < 0);
-        }
+        ret = lowpan_iphc_decmpr(&pktbuf, src_iid, dst_iid);
+        if (ret < 0)
+            goto err;
+        ret = lowpan_iphc_decmpr_finish(pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+        BUG_ON(ret < 0);
     } else {
         TRACE(TR_DROP, "drop %-9s: unsupported dispatch type 0x%02x", "6lowpan", dispatch);
         goto err;

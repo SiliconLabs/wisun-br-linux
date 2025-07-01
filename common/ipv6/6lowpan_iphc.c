@@ -333,9 +333,9 @@ static void lowpan_nhc_decmpr(struct pktbuf *pktbuf, const struct in6_addr *src,
     }
 }
 
-void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
-                        const uint8_t src_iid[8],
-                        const uint8_t dst_iid[8])
+int lowpan_iphc_decmpr(struct pktbuf *pktbuf,
+                       const uint8_t src_iid[8],
+                       const uint8_t dst_iid[8])
 {
     struct ip6_hdr hdr;
     uint16_t base;
@@ -344,7 +344,7 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
     if (FIELD_GET(LOWPAN_MASK_IPHC_CID, base)) {
         TRACE(TR_DROP, "drop %-9s: unsupported stateful compression", "6lowpan");
         pktbuf->err = true;
-        return;
+        return -ENOTSUP;
     }
     hdr.ip6_flow = htonl(lowpan_iphc_decmpr_vtcflow(pktbuf, base));
     if (!FIELD_GET(LOWPAN_MASK_IPHC_NH, base))
@@ -358,11 +358,7 @@ void lowpan_iphc_decmpr(struct pktbuf *pktbuf,
     }
 
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
-
-    if (pktbuf->err) {
-        TRACE(TR_DROP, "drop %-9s: unsupported or malformed packet", "6lowpan");
-        return;
-    }
+    return pktbuf->err ? -EINVAL : 0;
 }
 
 int lowpan_iphc_decmpr_finish(void *buf, size_t buf_len)
