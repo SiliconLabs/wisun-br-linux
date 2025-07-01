@@ -225,8 +225,8 @@ static bool ws_is_pkt_allowed(struct pktbuf *pktbuf)
     return true;
 }
 
-static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len, const uint8_t src[8],
-                            const uint8_t dst[8])
+static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len,
+                            const struct eui64 *src, const struct eui64 *dst)
 {
     uint8_t src_iid[8], dst_iid[8];
     struct pktbuf pktbuf = { };
@@ -234,8 +234,8 @@ static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len, c
     uint8_t dispatch;
     ssize_t ret;
 
-    ipv6_addr_conv_iid_eui64(src_iid, src);
-    ipv6_addr_conv_iid_eui64(dst_iid, dst);
+    ipv6_addr_conv_iid_eui64(src_iid, src->u8);
+    ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
     pktbuf_init(&pktbuf, buf, buf_len);
 
@@ -303,7 +303,8 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
         ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
         ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
     }
-    ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length, ind->hdr.src.u8, ind->hdr.dst.u8);
+    ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length,
+                    &ind->hdr.src, &ind->hdr.dst);
 }
 
 static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
