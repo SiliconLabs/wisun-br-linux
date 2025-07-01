@@ -275,11 +275,13 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
         return;
     }
 
-    str_key(supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key), str_buf, sizeof(str_buf));
-    fprintf(info->file, "pmk = %s\n", str_buf);
-    fprintf(info->file, "pmk.installation_timestamp_s = %"PRIu64"\n",
-            (uint64_t)supp->eap_tls.tls.pmk.installation_s + storage_offset_s);
-    fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->eap_tls.tls.pmk.replay_counter);
+    if (supp->eap_tls.tls.pmk.installation_s) {
+        str_key(supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key), str_buf, sizeof(str_buf));
+        fprintf(info->file, "pmk = %s\n", str_buf);
+        fprintf(info->file, "pmk.installation_timestamp_s = %"PRIu64"\n",
+                (uint64_t)supp->eap_tls.tls.pmk.installation_s + storage_offset_s);
+        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->eap_tls.tls.pmk.replay_counter);
+    }
 
     str_key(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key), str_buf, sizeof(str_buf));
     fprintf(info->file, "ptk = %s\n", str_buf);
