@@ -30,7 +30,7 @@ float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
 
-    return neigh ? neigh->etx : NAN;
+    return neigh ? neigh->ws_etx.etx : NAN;
 }
 
 // RFC 6719 3.1. Computing the Path Cost

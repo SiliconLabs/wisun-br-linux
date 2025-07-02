@@ -25,6 +25,7 @@
 
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
+#include "common/ws/ws_etx.h"
 #include "common/eui64.h"
 #include "common/int24.h"
 #include "common/timer.h"
@@ -136,13 +137,7 @@ struct ws_neigh {
     int8_t apc_txpow_dbm_ofdm;
 
     // TODO: Support ETX computation with mode switch as per FAN 1.1
-    float etx;
-    int etx_tx_cnt;
-    int etx_ack_cnt;
-    int etx_tx_req_cnt;
-    int etx_compute_cnt;
-    struct timer_entry etx_timer_compute;
-    struct timer_entry etx_timer_outdated;
+    struct ws_etx ws_etx;
 
     uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */
@@ -159,13 +154,7 @@ struct ws_neigh_table {
     struct ws_neigh_list neigh_list;
     void (*on_add)(struct ws_neigh_table *table, struct ws_neigh *neigh);
     void (*on_del)(struct ws_neigh_table *table, struct ws_neigh *neigh);
-
-    // Called when ETX is out-of-date. This should initiate some traffic in
-    // order to measure ETX.
-    void (*on_etx_outdated)(struct ws_neigh_table *table, struct ws_neigh *neigh);
-
-    // Called when ETX has changed, in order to update RPL parents.
-    void (*on_etx_update)(struct ws_neigh_table *table, struct ws_neigh *neigh);
+    struct ws_etx_ctx ws_etx_ctx;
 };
 
 struct ws_neigh *ws_neigh_get(const struct ws_neigh_table *table, const struct eui64 *eui64);
@@ -225,13 +214,6 @@ size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table);
 void ws_neigh_trust(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
 void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint32_t lifetime_s);
-
-// Must be called when a data transmission request is finished.
-void ws_neigh_etx_update(struct ws_neigh_table *table,
-                         struct ws_neigh *neigh,
-                         int tx_count, bool ack);
-
-void ws_neigh_etx_reset(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
 uint32_t ws_neigh_get_pan_cost(struct ws_neigh *neigh);
 

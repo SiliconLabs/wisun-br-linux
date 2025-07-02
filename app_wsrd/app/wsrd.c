@@ -59,8 +59,8 @@ enum {
 };
 
 static void wsrd_on_rcp_reset(struct rcp *rcp);
-static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh);
-static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh);
+static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx);
+static void wsrd_on_etx_update(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx);
 static int wsrd_ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *dst);
 static void wsrd_eapol_sendto_mac(struct supp_ctx *supp, uint8_t kmp_id, const void *pkt,
                                   size_t pkt_len, const struct eui64 *dst);
@@ -138,8 +138,8 @@ struct wsrd g_wsrd = {
     .ws.pan_id = 0xffff,
     .ws.pan_version = -1,
     .ws.neigh_table.on_add          = wsrd_on_neigh_add,
-    .ws.neigh_table.on_etx_outdated = wsrd_on_etx_outdated,
-    .ws.neigh_table.on_etx_update   = wsrd_on_etx_update,
+    .ws.neigh_table.ws_etx_ctx.on_etx_outdated = wsrd_on_etx_outdated,
+    .ws.neigh_table.ws_etx_ctx.on_etx_update   = wsrd_on_etx_update,
     .ws.on_recv_ind                 = ws_on_recv_ind,
     .ws.on_recv_cnf                 = ws_on_recv_cnf,
     .ws.eapol_relay_fd = -1,
@@ -275,9 +275,10 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
         FATAL(3, "RCP API < 2.8.0 (too old)");
 }
 
-static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *neigh)
+static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
 {
-    struct wsrd *wsrd = container_of(table, struct wsrd, ws.neigh_table);
+    struct wsrd *wsrd = container_of(ws_etx_ctx, struct wsrd, ws.neigh_table.ws_etx_ctx);
+    struct ws_neigh *neigh = container_of(ws_etx, struct ws_neigh, ws_etx);
     struct ipv6_neigh *nce;
 
     /*
@@ -291,9 +292,10 @@ static void wsrd_on_etx_outdated(struct ws_neigh_table *table, struct ws_neigh *
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
 }
 
-static void wsrd_on_etx_update(struct ws_neigh_table *table, struct ws_neigh *neigh)
+static void wsrd_on_etx_update(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
 {
-    struct wsrd *wsrd = container_of(table, struct wsrd, ws.neigh_table);
+    struct wsrd *wsrd = container_of(ws_etx_ctx, struct wsrd, ws.neigh_table.ws_etx_ctx);
+    struct ws_neigh *neigh = container_of(ws_etx, struct ws_neigh, ws_etx);
     struct ipv6_neigh *nce;
 
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
@@ -544,6 +546,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     wsrd->ipv6.rpl.dis_txalg.max_delay_s = wsrd->ipv6.rpl.dis_txalg.min_delay_s + 5; // Arbitrary
 
     timer_group_init(&wsrd->ws.neigh_table.timer_group);
+    timer_group_init(&wsrd->ws.neigh_table.ws_etx_ctx.timer_group);
     trickle_init(&wsrd->pas_tkl);
     trickle_init(&wsrd->pa_tkl);
     trickle_init(&wsrd->pcs_tkl);

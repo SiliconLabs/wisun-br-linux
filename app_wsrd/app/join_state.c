@@ -148,7 +148,7 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
      */
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
-        ws_neigh_etx_reset(&wsrd->ws.neigh_table, neigh);
+        ws_etx_reset(&wsrd->ws.neigh_table.ws_etx_ctx, &neigh->ws_etx);
     rpl_start(&wsrd->ipv6);
     rpl_start_dis(&wsrd->ipv6);
 }

@@ -315,9 +315,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         }
     }
     if (neigh)
-        ws_neigh_etx_update(&ws->neigh_table, neigh,
-                            cnf->tx_retries + 1,
-                            cnf->status == HIF_STATUS_SUCCESS);
+        ws_etx_update(&ws->neigh_table.ws_etx_ctx, &neigh->ws_etx, cnf->tx_retries + 1, cnf->status == HIF_STATUS_SUCCESS);
     if (ws->on_recv_cnf)
         ws->on_recv_cnf(ws, &frame_ctx, cnf);
 }

@@ -22,7 +22,6 @@
 #include <limits.h>
 #include "common/ws/ws_regdb.h"
 #include "common/ws/ws_types.h"
-#include "common/ws/ws_ewma.h"
 #include "common/sys_queue_extra.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
@@ -45,99 +44,6 @@ static void ws_neigh_timer_cb(struct timer_group *group, struct timer_entry *tim
     struct ws_neigh *neigh = container_of(timer, struct ws_neigh, timer);
 
     ws_neigh_del(table, &neigh->eui64);
-}
-
-// Wi-SUN FAN 1v33 6.2.3.1.6.1 Link Metrics
-static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer_entry *timer)
-{
-    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
-    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_compute);
-    float etx;
-
-    /*
-     * The ETX calculation epoch is triggered when both the following
-     * conditions are satisfied:
-     *   1. At least 4 transmissions have occurred since the last ETX
-     *      calculation.
-     *   2. At least 1 minute has expired since the last ETX calculation.
-     *
-     * [...]
-     *
-     * At node start up, 1 transmission attempts will trigger the ETX
-     * calculation epoch (to speed boot time).
-     */
-    if (!(neigh->etx_tx_req_cnt >= 4 || isnan(neigh->etx))) {
-        // Probe right now until we reach the 4 necessary measurements
-        if (timer_stopped(&neigh->etx_timer_outdated) && table->on_etx_outdated)
-            table->on_etx_outdated(table, neigh);
-        return;
-    }
-
-    /*
-     * ETX MUST be calculated as
-     *   (frame transmission attempts)/(received frame acknowledgements) * 128
-     * with a maximum value of 1024, where 0 received frame acknowledgments
-     * sets ETX to the maximum value.
-     */
-    if (neigh->etx_ack_cnt)
-        etx = MIN((float)neigh->etx_tx_cnt / neigh->etx_ack_cnt * 128, WS_ETX_MAX);
-    else
-        etx = WS_ETX_MAX;
-
-    /*
-     * Arbitrary: we give less weight to the first few ETX calculations.
-     * This allows to converge to a more accurate ETX value faster.
-     */
-    if (neigh->etx_compute_cnt < 8)
-        neigh->etx_compute_cnt++;
-
-    /*
-     * The ETX calculation is performed at a defined epoch, with the ETX result
-     * fed into an EWMA using smoothing factor of 1/8.
-     */
-    etx = ws_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
-
-    TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s etx tx=%u / ack=%u => old=%.2f new=%.2f",
-          tr_eui64(neigh->eui64.u8), neigh->etx_tx_cnt, neigh->etx_ack_cnt, neigh->etx, etx);
-
-    neigh->etx = etx;
-    neigh->etx_tx_cnt  = 0;
-    neigh->etx_ack_cnt = 0;
-    neigh->etx_tx_req_cnt = 0;
-    timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 60 * 1000);
-
-    /*
-     * A Router SHOULD refresh its neighbor link metrics at least every 30
-     * minutes.
-     */
-    timer_start_rel(&table->timer_group, &neigh->etx_timer_outdated, 30 * 60 * 1000);
-
-    if (table->on_etx_update)
-        table->on_etx_update(table, neigh);
-}
-
-static void ws_neigh_etx_timeout_outdated(struct timer_group *group, struct timer_entry *timer)
-{
-    struct ws_neigh_table *table = container_of(group, struct ws_neigh_table, timer_group);
-    struct ws_neigh *neigh = container_of(timer, struct ws_neigh, etx_timer_outdated);
-
-    if (table->on_etx_outdated)
-        table->on_etx_outdated(table, neigh);
-}
-
-void ws_neigh_etx_update(struct ws_neigh_table *table,
-                         struct ws_neigh *neigh,
-                         int tx_count, bool ack)
-{
-    neigh->etx_tx_req_cnt++;
-    neigh->etx_tx_cnt  += tx_count;
-    neigh->etx_ack_cnt += ack;
-    /*
-     * FIXME: ETX computation is scheduled to ensure the confirmed frame is
-     * properly processed by higher layers.
-     */
-    if (timer_stopped(&neigh->etx_timer_compute))
-        timer_start_rel(&table->timer_group, &neigh->etx_timer_compute, 0);
 }
 
 struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
@@ -172,10 +78,7 @@ struct ws_neigh *ws_neigh_add(struct ws_neigh_table *table,
     neigh->lqi_unsecured = INT_MAX;
     neigh->apc_txpow_dbm = tx_power_dbm;
     neigh->apc_txpow_dbm_ofdm = tx_power_dbm;
-    neigh->etx = NAN;
-    neigh->etx_tx_req_cnt = 0;
-    neigh->etx_timer_compute.callback  = ws_neigh_etx_timeout_compute;
-    neigh->etx_timer_outdated.callback = ws_neigh_etx_timeout_outdated;
+    ws_etx_init(&neigh->ws_etx);
     SLIST_INSERT_HEAD(&table->neigh_list, neigh, link);
     if (table->on_add)
         table->on_add(table, neigh);
@@ -198,8 +101,7 @@ void ws_neigh_del(struct ws_neigh_table *table, const struct eui64 *eui64)
 
     if (neigh) {
         timer_stop(&table->timer_group, &neigh->timer);
-        timer_stop(&table->timer_group, &neigh->etx_timer_compute);
-        timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
+        ws_etx_reset(&table->ws_etx_ctx, &neigh->ws_etx);
         SLIST_REMOVE(&table->neigh_list, neigh, ws_neigh, link);
         TRACE(TR_NEIGH_15_4, "neigh-15.4 del %s", tr_eui64(neigh->eui64.u8));
         if (table->on_del)
@@ -215,17 +117,6 @@ void ws_neigh_clean(struct ws_neigh_table *table)
 
     SLIST_FOREACH_SAFE(neigh, &table->neigh_list, link, tmp)
         ws_neigh_del(table, &neigh->eui64);
-}
-
-void ws_neigh_etx_reset(struct ws_neigh_table *table, struct ws_neigh *neigh)
-{
-    neigh->etx = NAN;
-    neigh->etx_tx_cnt = 0;
-    neigh->etx_ack_cnt = 0;
-    neigh->etx_compute_cnt = 0;
-    neigh->etx_tx_req_cnt = 0;
-    timer_stop(&table->timer_group, &neigh->etx_timer_compute);
-    timer_stop(&table->timer_group, &neigh->etx_timer_outdated);
 }
 
 size_t ws_neigh_get_neigh_count(struct ws_neigh_table *table)

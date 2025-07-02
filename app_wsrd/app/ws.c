@@ -60,9 +60,9 @@ static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
     BUG_ON(!ws_parent);
 
     // Note: overflow during float to int conversion is undefined behavior
-    if (ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->etx > 0xffff)
+    if (ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->ws_etx.etx > 0xffff)
         return 0xffff;
-    return ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->etx;
+    return ws_parent->ie_pan.routing_cost + (uint16_t)ws_parent->ws_etx.etx;
 }
 
 void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)

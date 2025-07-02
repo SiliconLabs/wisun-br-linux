@@ -152,6 +152,7 @@ add_library(libwsbrd STATIC
     common/ws/ws_ie.c
     common/ws/ws_ie_list.c
     common/ws/ws_neigh.c
+    common/ws/ws_etx.c
     common/ws/ws_regdb.c
     common/crc.c
     common/bus_uart.c
@@ -344,6 +345,7 @@ if(COMPILE_WSRD)
         common/ws/ws_ie_list.c
         common/ws/ws_interface.c
         common/ws/ws_neigh.c
+        common/ws/ws_etx.c
         common/ws/ws_regdb.c
         common/bits.c
         common/bus_uart.c
@@ -563,6 +565,7 @@ if(COMPILE_DEVTOOLS)
         common/ws/ws_ie_validation.c
         common/ws/ws_interface.c
         common/ws/ws_neigh.c
+        common/ws/ws_etx.c
         common/ws/ws_regdb.c
         common/bits.c
         common/bus_uart.c
