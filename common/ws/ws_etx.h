@@ -45,6 +45,9 @@ struct ws_etx_ctx {
     // Minimum number of TX requests to trigger ETX update
     int update_min_tx_req_cnt;
 
+    // Minimum delay between ETX updates in milliseconds
+    uint64_t update_min_delay_ms;
+
     // ETX refresh period in milliseconds
     uint64_t refresh_period_ms;
 };

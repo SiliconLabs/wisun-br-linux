@@ -193,6 +193,7 @@ enum {
 // Wi-SUN FAN 1.1v08 6.2.3.1.6.1 Link Metrics
 #define WS_ETX_MAX 1024
 #define WS_ETX_UPDATE_MIN_TX_REQ_CNT 4
+#define WS_ETX_UPDATE_MIN_DELAY_MS (60 * 1000) // 1 minute
 #define WS_ETX_REFRESH_PERIOD_MS (30 * 60 * 1000) // 30 minutes
 
 // Wi-SUN FAN 1.1v08 6.2.3 Operation

@@ -90,7 +90,12 @@ static void ws_etx_timeout_compute(struct timer_group *group, struct timer_entry
     ws_etx->tx_cnt  = 0;
     ws_etx->ack_cnt = 0;
     ws_etx->tx_req_cnt = 0;
-    timer_start_rel(&ws_etx_ctx->timer_group, &ws_etx->timer_compute, 60 * 1000);
+
+    /*
+     * NOTE: Per the rule 2 above, the minimum delay should be set to 1 minute.
+     * We allow this delay to be changed.
+     */
+    timer_start_rel(&ws_etx_ctx->timer_group, &ws_etx->timer_compute, ws_etx_ctx->update_min_delay_ms);
 
     /*
      * A Router SHOULD refresh its neighbor link metrics at least every 30
