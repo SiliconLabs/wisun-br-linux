@@ -234,7 +234,7 @@ static void ipv6_nud_expire(struct timer_group *group, struct timer_entry *timer
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state)
 {
-    uint64_t reach_ms;
+    uint64_t delay_ms;
 
     timer_stop(&ipv6->timer_group, &neigh->nud_timer);
     neigh->nud_state = state;
@@ -244,16 +244,16 @@ void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int sta
     switch (state) {
     case IPV6_NUD_REACHABLE:
         // MIN_RANDOM_FACTOR = 0.5, MAX_RANDOM_FACTOR = 1.5
-        reach_ms = randf_range(0.5 * ipv6->reach_base_ms,
+        delay_ms = randf_range(0.5 * ipv6->reach_base_ms,
                                1.5 * ipv6->reach_base_ms);
-        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, reach_ms);
+        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, delay_ms);
         break;
     case IPV6_NUD_STALE:
     case IPV6_NUD_UNREACHABLE:
         break;
     case IPV6_NUD_DELAY:
-        // DELAY_FIRST_PROBE_TIME = 5s
-        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, 5 * 1000);
+        delay_ms = randf_range(0, ipv6->probe_delay_ms);
+        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, delay_ms);
         break;
     case IPV6_NUD_PROBE:
         ipv6_nud_probe(ipv6, neigh);
