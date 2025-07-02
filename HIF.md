@@ -298,6 +298,8 @@ in case of transmission failure or abort.
        - `1`: MAC mode switch (MAC command frame)
      - `0x4000 FRAME_COUNTER_8` (API >= 2.5.0): Frame includes frame counter for
        key at index 8.
+     - `0x8000 TX_DURATION` (API >= 2.11.0): Report the current cumulated TX
+       duration in [`CNF_DATA_TX`][tx-cnf].
 
 Only present if `FHSS_TYPE_FFN_UC`:
 
@@ -422,7 +424,9 @@ request bit set in the header.
  - `uint8_t tx_failures`  
     Number of transmission failures (does not account for CCA failures).
 
- - `uint8_t reserved`
+ - `uint32_t tx_duration_ms` (API >= 2.11.0, optional)  
+   Cumulated TX duration over the last hour, in milliseconds. Only present if
+   `TX_DURATION` is set in the associated [`REQ_DATA_TX`][tx-req] command.
 
 Status codes:
 
