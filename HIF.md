@@ -426,7 +426,8 @@ request bit set in the header.
 
  - `uint32_t tx_duration_ms` (API >= 2.11.0, optional)  
    Cumulated TX duration over the last hour, in milliseconds. Only present if
-   `TX_DURATION` is set in the associated [`REQ_DATA_TX`][tx-req] command.
+   `TX_DURATION` is set in the associated [`REQ_DATA_TX`][tx-req] command. See
+   [`REQ_RADIO_TX_DURATION_RESET`][tx-duration].
 
 Status codes:
 
@@ -575,6 +576,18 @@ specific channel configurations.
     Maximum transmission power in dBm. The RCP may use a lower value based on
     internal decision making or hardware limitations but will never exceed the
     given value. The default value is 14dBm.
+
+### `0x26 REQ_RADIO_TX_DURATION_RESET` (API >= 2.11.0)
+
+The RCP maintains a counter for the cumulated time spent transmitting packets
+over the air during the last hour. This value is reported in
+[`CNF_DATA_TX`][tx-cnf] frames if requested, and can be used to implement
+duty cycle restrictions as imposed by regulation standards. This command resets
+the counter to 0 and clears records of previous transmission durations.
+
+Body of this command is empty.
+
+[tx-duration]: #0x26-req_radio_tx_duration_reset-api--2110
 
 ## Frequency Hopping (FHSS) configuration
 
