@@ -151,10 +151,17 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
      * This would results in retries and therefore increase ETX of neighbors.
      * We reset the ETX of all neighbors to avoid this side effect during
      * parent selection.
+     * To allow faster ETX computation during the initial connection, we lower
+     * some of the ETX parameters. See IPV6_NUD_DELAY state for more details.
      */
     dhcp_client_stop(&wsrd->ipv6.dhcp);
     SLIST_FOREACH(neigh, &wsrd->ws.neigh_table.neigh_list, link)
         ws_etx_reset(&wsrd->ws.neigh_table.ws_etx_ctx, &neigh->ws_etx);
+    if (wsrd->last_event == WSRD_EVENT_PC_RX) {
+        wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = 1;
+        wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = 0;
+        wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = 0;
+    }
     rpl_start(&wsrd->ipv6);
     rpl_start_dis(&wsrd->ipv6);
 }
@@ -164,6 +171,9 @@ static void join_state_4_choose_parent_exit(struct wsrd *wsrd)
     BUG_ON(rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dis_txalg));
 
     rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
+    wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
+    wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = WS_ETX_UPDATE_MIN_DELAY_MS;
+    wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = WS_ETX_REFRESH_PERIOD_MS;
 }
 
 static void join_state_4_routing_enter(struct wsrd *wsrd)
