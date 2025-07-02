@@ -95,8 +95,9 @@ static void ws_etx_timeout_compute(struct timer_group *group, struct timer_entry
     /*
      * A Router SHOULD refresh its neighbor link metrics at least every 30
      * minutes.
+     * NOTE: This period can be changed.
      */
-    timer_start_rel(&ws_etx_ctx->timer_group, &ws_etx->timer_outdated, 30 * 60 * 1000);
+    timer_start_rel(&ws_etx_ctx->timer_group, &ws_etx->timer_outdated, ws_etx_ctx->refresh_period_ms);
 
     if (ws_etx_ctx->on_etx_update)
         ws_etx_ctx->on_etx_update(ws_etx_ctx, ws_etx);
