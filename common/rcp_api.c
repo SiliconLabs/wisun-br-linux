@@ -118,6 +118,7 @@ void rcp_set_host_api(struct rcp *rcp, uint32_t host_api_version)
 #define HIF_MASK_FRAME_COUNTERS 0x1fc0
 #define HIF_MASK_MODE_SWITCH_TYPE 0x2000
 #define HIF_MASK_FRAME_COUNTER_8 0x4000
+#define HIF_MASK_TX_DURATION    0x8000
 
 void rcp_req_data_tx(struct rcp *rcp,
                      const uint8_t *frame, int frame_len,
@@ -137,6 +138,9 @@ void rcp_req_data_tx(struct rcp *rcp,
     bitfield = 0;
     bitfield_offset = buf.len;
     hif_push_u16(&buf, 0);
+
+    if (!version_older_than(rcp->version_api, 2, 11, 0))
+        bitfield |= HIF_MASK_TX_DURATION;
 
     bitfield |= FIELD_PREP(HIF_MASK_FHSS_TYPE, fhss_type);
     switch (fhss_type) {
@@ -250,6 +254,9 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
     cnf.cca_retries   = hif_pop_u8(buf);
     cnf.tx_retries    = hif_pop_u8(buf);
     hif_pop_u8(buf);  // TODO: mode switch stats
+    // NOTE: rcp_req_data_tx() always sets TX_DURATION if API >= 2.11.0
+    if (!version_older_than(rcp->version_api, 2, 11, 0))
+        cnf.tx_duration_ms = hif_pop_u32(buf);
     BUG_ON(buf->err);
     WARN_ON(cnf.status >= HIF_STATUS_COUNT, "unsupported HIF status 0x%02x", cnf.status);
     rcp->on_tx_cnf(rcp, &cnf);

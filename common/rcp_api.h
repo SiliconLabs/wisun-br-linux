@@ -55,6 +55,7 @@ struct rcp_tx_cnf {
     uint8_t  cca_retries;
     uint8_t  tx_retries;
     uint32_t frame_counter;
+    uint32_t tx_duration_ms;
 };
 
 struct rcp_rx_ind {
