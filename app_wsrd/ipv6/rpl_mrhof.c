@@ -112,13 +112,22 @@ static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_r
 
 const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
 {
+    struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
     uint16_t new_rank;
     float etx;
 
     BUG_ON(!nce->rpl);
-
-    new_rank = rpl_mrhof_rank(ipv6, nce);
+    if (!neigh)
+        return "15.4-neigh";
     etx = rpl_mrhof_etx(ipv6, nce);
+    nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
+    // If the RSL out is NaN, the ETX is NaN as well, we will probe later
+    BUG_ON(isnan(neigh->rsl_out_dbm) && !isnan(etx));
+    if (!nce->rpl->rsl_valid && !isnan(neigh->rsl_out_dbm))
+        return "rsl";
+    if (!timer_stopped(&nce->rpl->deny_timer))
+        return "denied";
+    new_rank = rpl_mrhof_rank(ipv6, nce);
     if (isnan(etx)) {
         /*
          *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
@@ -131,9 +140,6 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
         return "etx";
     }
-    nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
-    if (!nce->rpl->rsl_valid)
-        return "rsl";
     /*
      * If the selected metric for a link is greater than MAX_LINK_METRIC,
      * the node SHOULD exclude that link from consideration during parent
@@ -141,8 +147,6 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
      */
     if (etx > ipv6->rpl.mrhof.max_link_metric)
         return "etx";
-    if (!timer_stopped(&nce->rpl->deny_timer))
-        return "denied";
     if (new_rank > rank_limit)
         return "rank";
     return NULL;
