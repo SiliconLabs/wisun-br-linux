@@ -107,6 +107,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
     const struct rcp_rail_config *rail_config = &wsrd->ws.rcp.rail_config_list[wsrd->ws.phy.rcp_rail_config_index];
     struct ws_neigh *selected_candidate = NULL;
+    uint16_t prev_pan_id = wsrd->prev_pan_id;
     struct ws_neigh *candidate = NULL;
     uint16_t selected_pan_id;
 
@@ -171,7 +172,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
               ws_neigh_get_pan_cost(selected_candidate));
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
         candidate->last_pa_rx_time_s = 0;
-    if (wsrd->prev_pan_id != 0xffff && wsrd->prev_pan_id == wsrd->ws.pan_id)
+    if (prev_pan_id != 0xffff && prev_pan_id == wsrd->ws.pan_id)
         join_state_transition(wsrd, WSRD_EVENT_PA_FROM_PREV_PAN);
     else
         join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
