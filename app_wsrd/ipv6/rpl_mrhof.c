@@ -78,14 +78,16 @@ static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_
      * b. For an FFN to be removed from the candidate parent set, both its
      *    node-to-neighbor and neighbor-to node RSL EWMA values should fall
      *    below (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERESIS).
+     *
+     * NOTE: our implementation only follows a. and not b., meaning that once a
+     * neighbor has a valid RSL, it will never be considered as invalid despite
+     * variations. We expect ETX variations to discard the candidate instead.
      */
     if (!nce->rpl->rsl_valid) {
         threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB + WS_CAND_PARENT_HYSTERESIS_DB;
         return neigh->rsl_in_dbm_unsecured > threshold && neigh->rsl_out_dbm > threshold;
-    } else {
-        threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB - WS_CAND_PARENT_HYSTERESIS_DB;
-        return !(neigh->rsl_in_dbm_unsecured < threshold && neigh->rsl_out_dbm < threshold);
     }
+    return true;
 }
 
 /*
