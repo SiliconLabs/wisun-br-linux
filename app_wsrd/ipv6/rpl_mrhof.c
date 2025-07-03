@@ -98,7 +98,7 @@ static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_
  * NOTE: to avoid discarding all candidates with a higher rank when
  * MaxRankIncrease is set to 0, the rank limit is set to the upper DAGRank.
  */
-static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc, uint16_t min_hop_rank_inc)
+uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc, uint16_t min_hop_rank_inc)
 {
     uint16_t max_dag_rank;
     uint32_t rank_limit;
