@@ -136,6 +136,7 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
+    BUG_ON(timer_stopped(&wsrd->pan_timeout_timer));
 
     INFO("Join state 4: Configure Routing - Choose Parent");
     /*
@@ -233,14 +234,18 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
     timer_start_rel(NULL, &wsrd->unregistration_timer, 2 * 1000);
 
     /*
-     * - If disconnecting on WSRD_EVENT_RPL_NO_CANDIDATE, RPL already took
-     *   care of NS(ARO) lifetime 0, poisoning, and deleting our parent.
-     *   Nothing to do here.
+     * - If disconnecting on WSRD_EVENT_RPL_NO_CANDIDATE, RPL already took care
+     *   of NS(ARO) lifetime 0, poisoning, and deleting our parent. Nothing to
+     *   do here.
+     * - On WSRD_EVENT_RPL_PREF_LOST we are going back to JS 4, so we do not
+     *   stop the PAN timeout timer to ensure PAN loss and parent selection
+     *   timeout detection.
      * - If we have a parent, wsrd is stopping or a PAN timeout occurred. A PAN
      *   timeout can happen in any JS >= 4.
      */
     if (!parent || IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6)) {
-        timer_stop(NULL, &wsrd->pan_timeout_timer);
+        if (wsrd->last_event != WSRD_EVENT_RPL_PREF_LOST)
+            timer_stop(NULL, &wsrd->pan_timeout_timer);
         // Stopping RPL to prevent any parent selection
         rpl_stop(&wsrd->ipv6);
         return;
