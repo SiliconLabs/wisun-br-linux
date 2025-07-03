@@ -246,6 +246,25 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     auth_install_gtk(auth, gtk_group, slot_install, NULL);
 }
 
+static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
+{
+    const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
+    const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
+    bool gap = false;
+
+    for (int i = 0; i < slot_count; i++) {
+        if (!memzcmp(auth->cfg->gtk_init[slot_offset + i], 16)) {
+            gap = true;
+        } else {
+            FATAL_ON(gap, 1, "%s requires %s",
+                     tr_gtkname(slot_offset + i),
+                     tr_gtkname(slot_offset + i - 1));
+            auth_install_gtk(auth, gtk_group, slot_offset + i,
+                             auth->cfg->gtk_init[slot_offset + i]);
+        }
+    }
+}
+
 void auth_rt_timer_stop(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     timer_stop(&auth->timer_group, &supp->rt_timer);
@@ -495,13 +514,17 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
         return;
     }
 
-    // Install the 1st key
-    auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active,
-                     auth->cfg->gtk_init[auth->gtk_group.slot_active]);
+    if (memzcmp(auth->cfg->gtk_init, sizeof(*auth->cfg->gtk_init) * WS_GTK_COUNT))
+        auth_install_from_gtk_init(auth, &auth->gtk_group);
+    else
+        auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active, NULL);
     auth_activate_next_gtk(auth, &auth->gtk_group);
+
     if (enable_lfn) {
-        auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active,
-                         auth->cfg->gtk_init[auth->lgtk_group.slot_active]);
+        if (memzcmp(&auth->cfg->gtk_init[WS_GTK_COUNT], sizeof(*auth->cfg->gtk_init) * WS_LGTK_COUNT))
+            auth_install_from_gtk_init(auth, &auth->lgtk_group);
+        else
+            auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active, NULL);
         auth_activate_next_gtk(auth, &auth->lgtk_group);
     }
     auth_storage_store_keys(auth, true);
