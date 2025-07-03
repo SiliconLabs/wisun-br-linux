@@ -27,7 +27,7 @@
 // Declare struct timer_group_list
 SLIST_HEAD(timer_group_list, timer_group);
 
-struct timer_ctxt {
+static struct timer_ctxt {
     int fd;
     struct timer_group_list groups;
     struct timer_group group_default;
