@@ -127,6 +127,8 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
         return "rsl";
     if (!timer_stopped(&nce->rpl->deny_timer))
         return "denied";
+    if (ipv6_neigh_is_child(nce))
+        return "child";
     new_rank = rpl_mrhof_rank(ipv6, nce);
     if (isnan(etx)) {
         /*
