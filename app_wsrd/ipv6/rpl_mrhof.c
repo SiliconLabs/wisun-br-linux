@@ -169,7 +169,7 @@ const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neig
      */
     if (etx > etx_max)
         return "etx";
-    if (new_rank > rank_limit)
+    if (new_rank > rank_limit || new_rank == RPL_RANK_INFINITE)
         return "rank";
     return NULL;
 }
