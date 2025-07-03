@@ -134,7 +134,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
     uint64_t start_ms, lifetime_ms;
 
     if (gtk && memzcmp(gtk, 16))
-        memcpy(new->key, auth->cfg->gtk_init[slot_install], 16);
+        memcpy(new->key, gtk, 16);
     else
         rand_get_n_bytes_random(new->key, sizeof(new->key));
     new->frame_counter = 0;
