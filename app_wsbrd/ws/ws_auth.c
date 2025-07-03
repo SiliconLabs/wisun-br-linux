@@ -25,13 +25,6 @@
 
 void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const char ifname[IF_NAMESIZE])
 {
-    // TODO: only gtk[0] and lgtk[0] are supported
-    for (int i = 1; i < WS_GTK_COUNT; i++)
-        if (memzcmp(conf->auth_cfg.gtk_init[i], 16))
-            FATAL(2, "unsupported \"gtk[%d]\"", i);
-    for (int i = 1; i < WS_LGTK_COUNT; i++)
-        if (memzcmp(conf->auth_cfg.gtk_init[i + WS_GTK_COUNT], 16))
-            FATAL(2, "unsupported \"lgtk[%d]\"", i);
     net_if->auth->eapol_relay_fd = eapol_relay_start(ifname);
     auth_start(net_if->auth, &net_if->rcp->eui64, conf->enable_lfn);
 }
