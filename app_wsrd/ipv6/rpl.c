@@ -39,6 +39,11 @@
 #include "app_wsrd/ipv6/ipv6.h"
 #include "rpl.h"
 
+/*
+ * Maximum number of candidates to send unicast DIS.
+ */
+#define RPL_DIS_UC_CAND_MAX 5
+
 static const struct name_value rpl_codes[] = {
     { "dis",     RPL_CODE_DIS },
     { "dio",     RPL_CODE_DIO },
@@ -299,9 +304,28 @@ static void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
     rpl_send(ipv6, RPL_CODE_DIS, &dis, sizeof(dis), dst);
 }
 
+static void rpl_trig_dis_insert_neigh(const struct ws_neigh *neighs[RPL_DIS_UC_CAND_MAX],
+                                      const struct ws_neigh *neigh)
+{
+    int worst_slot = 0;
+
+    BUG_ON(isnan(neigh->rsl_in_dbm_unsecured));
+    for (int i = 0; i < RPL_DIS_UC_CAND_MAX; i++) {
+        if (!neighs[i]) {
+            neighs[i] = neigh;
+            return;
+        }
+        if (neighs[i]->rsl_in_dbm_unsecured < neighs[worst_slot]->rsl_in_dbm_unsecured)
+            worst_slot = i;
+    }
+    if (neigh->rsl_in_dbm_unsecured > neighs[worst_slot]->rsl_in_dbm_unsecured)
+        neighs[worst_slot] = neigh;
+}
+
 static void rpl_trig_dis(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dis_txalg);
+    const struct ws_neigh *best_rsl_neighs[RPL_DIS_UC_CAND_MAX] = { };
     struct in6_addr dst = ipv6_prefix_linklocal;
     struct ipv6_neigh *nce;
     struct ws_neigh *neigh;
@@ -329,9 +353,14 @@ static void rpl_trig_dis(struct rfc8415_txalg *txalg)
             continue;
         if (nce && nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, WS_ETX_MAX))
             continue;
-        ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
-        rpl_send_dis(ipv6, &dst);
+        rpl_trig_dis_insert_neigh(best_rsl_neighs, neigh);
     }
+
+    for (int i = 0; i < ARRAY_SIZE(best_rsl_neighs); i++)
+        if (best_rsl_neighs[i]) {
+            ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, best_rsl_neighs[i]->eui64.u8);
+            rpl_send_dis(ipv6, &dst);
+        }
 }
 
 void rpl_start_dis(struct ipv6_ctx *ipv6)
