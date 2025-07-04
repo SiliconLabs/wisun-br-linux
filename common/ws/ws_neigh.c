@@ -330,7 +330,7 @@ static void ws_neigh_set_chan_list(const struct ws_fhss_config *fhss_config,
         BUG("unsupported channel plan: %d", chan_info->channel_plan);
     }
 
-    ws_chan_mask_calc_reg(chan_mask, params, fhss_config->regional_regulation);
+    ws_chan_mask_calc_reg(chan_mask, params);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE)
         ws_neigh_excluded_mask_by_range(chan_mask, &chan_info->excluded_channels.range, params->chan_count);
     if (chan_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK)

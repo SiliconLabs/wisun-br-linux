@@ -53,25 +53,11 @@ int ws_chan_mask_width(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
 }
 
 void ws_chan_mask_calc_reg(uint8_t  chan_mask[WS_CHAN_MASK_LEN],
-                           const struct chan_params *chan_params,
-                           uint8_t  regional_regulation)
+                           const struct chan_params *chan_params)
 {
     memset(chan_mask, 0xFF, 32);
     if (chan_params->chan_allowed)
         parse_bitmask(chan_mask, 32, chan_params->chan_allowed);
-    if (regional_regulation == HIF_REG_ARIB) {
-        // For now, ARIB is not supported for custom channel plans
-        BUG_ON(!chan_params->valid_phy_modes[0]);
-        // For now, ARIB is not supported outside of Japan
-        BUG_ON(chan_params->reg_domain != REG_DOMAIN_JP);
-        // Note: ChanPlanIds for JP already include these masks
-        if (chan_params->op_class == 1)
-            bitfill(chan_mask, false, 0, 8); // Allowed channels: "9-255"
-        if (chan_params->op_class == 2)
-            bitfill(chan_mask, false, 0, 3); // Allowed channels: "4-255"
-        if (chan_params->op_class == 3)
-            bitfill(chan_mask, false, 0, 2); // Allowed channels: "3-255"
-    }
     bitfill(chan_mask, false, chan_params->chan_count, 255);
 }
 

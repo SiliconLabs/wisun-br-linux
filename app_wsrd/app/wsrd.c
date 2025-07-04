@@ -482,7 +482,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
-    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
@@ -531,7 +531,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
 
     // Average PC frame length with LFN IEs: 130 bytes
     pc_duration_ms = ws_regdb_frame_duration_ms(wsrd->ws.phy.params, 130);
-    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params, HIF_REG_NONE);
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
     chan_count = ws_chan_mask_count(chan_mask);
     /*
      * NOTE: DIS transmission is typically started right after receiving a PC

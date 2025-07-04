@@ -241,7 +241,7 @@ void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config 
             for (it = ms_chan_mask; it->chan_spacing; it++)
                 if (it->chan_spacing == chan_params->chan_spacing)
                     break;
-            ws_chan_mask_calc_reg(chan_mask, chan_params, fhss->regional_regulation);
+            ws_chan_mask_calc_reg(chan_mask, chan_params);
             if (it->chan_spacing) {
                 WARN_ON(memcmp(it->chan_mask, chan_mask, sizeof(chan_mask)), "ambiguous channel masks for spacing %u", chan_params->chan_spacing);
                 continue;

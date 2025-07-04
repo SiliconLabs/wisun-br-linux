@@ -82,7 +82,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                         fhss->bc_chan_mask);
 
     BUG_ON(!fhss->chan_params);
-    ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params, fhss->regional_regulation);
+    ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params);
     rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
     return 0;
@@ -163,7 +163,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     length = -divup(fhss_config->chan_params->chan_count, 8) * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
 
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params, fhss_config->regional_regulation);
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params);
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;

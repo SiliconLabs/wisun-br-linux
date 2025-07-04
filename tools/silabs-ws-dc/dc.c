@@ -241,7 +241,7 @@ static void dc_init_radio(struct dc *dc)
     rcp_set_radio(&dc->ws.rcp, rail_config->index, dc->ws.phy.params->ofdm_mcs, false);
     dc->ws.phy.rcp_rail_config_index = rail_config->index;
 
-    ws_chan_mask_calc_reg(chan_mask, dc->ws.fhss.chan_params, HIF_REG_NONE);
+    ws_chan_mask_calc_reg(chan_mask, dc->ws.fhss.chan_params);
     bitand(chan_mask, dc->cfg.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
