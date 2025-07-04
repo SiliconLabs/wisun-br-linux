@@ -198,7 +198,7 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     return 0;
 }
 
-void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16])
+int auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16])
 {
     struct auth_gtk_group *gtk_group = is_lgtk ? &auth->lgtk_group : &auth->gtk_group;
     const struct auth_node_cfg *cfg = is_lgtk ? &auth->cfg->lfn : &auth->cfg->ffn;
@@ -208,6 +208,9 @@ void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16]
     uint64_t active_remaining_ms;
     uint8_t slot_latest;
     uint8_t next_slot;
+
+    if (gtk && !auth_is_gtk_valid(auth, gtk_group, gtk))
+        return -EINVAL;
 
     reduced_lifetime_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->revocation_lifetime_reduction;
     active_remaining_ms = timer_remaining_ms(&auth->gtks[gtk_group->slot_active].expiration_timer);
@@ -259,6 +262,7 @@ void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16]
                     active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
     TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->activation_timer.expire_ms / 1000);
+    return 0;
 }
 
 static void auth_gtk_install_timer_timeout(struct timer_group *group, struct timer_entry *timer)
