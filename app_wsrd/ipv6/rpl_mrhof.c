@@ -59,13 +59,13 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
     return etx + ntohs(nce->rpl->dio.rank);
 }
 
-static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *neigh)
 {
-    struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
     int device_min_sens_dbm = ipv6->rpl.mrhof.device_min_sens_dbm;
     int threshold;
 
-    if (!neigh || isnan(neigh->rsl_out_dbm))
+    BUG_ON(!neigh);
+    if (isnan(neigh->rsl_out_dbm))
         return false;
 
     BUG_ON(isnan(neigh->rsl_in_dbm_unsecured));
@@ -83,11 +83,8 @@ static bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ipv6_
      * neighbor has a valid RSL, it will never be considered as invalid despite
      * variations. We expect ETX variations to discard the candidate instead.
      */
-    if (!nce->rpl->rsl_valid) {
-        threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB + WS_CAND_PARENT_HYSTERESIS_DB;
-        return neigh->rsl_in_dbm_unsecured > threshold && neigh->rsl_out_dbm > threshold;
-    }
-    return true;
+    threshold = device_min_sens_dbm + WS_CAND_PARENT_THRESHOLD_DB + WS_CAND_PARENT_HYSTERESIS_DB;
+    return neigh->rsl_in_dbm_unsecured > threshold && neigh->rsl_out_dbm > threshold;
 }
 
 /*
@@ -119,7 +116,8 @@ static const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_nei
     if (!neigh)
         return "15.4-neigh";
     etx = rpl_mrhof_etx(ipv6, nce);
-    nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, nce);
+    if (!nce->rpl->rsl_valid)
+        nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh);
     // If the RSL out is NaN, the ETX is NaN as well, we will probe later
     BUG_ON(isnan(neigh->rsl_out_dbm) && !isnan(etx));
     if (!nce->rpl->rsl_valid && !isnan(neigh->rsl_out_dbm))
