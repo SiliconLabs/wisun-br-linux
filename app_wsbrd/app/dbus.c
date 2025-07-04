@@ -350,6 +350,26 @@ static int dbus_revoke_lgtks(sd_bus_message *m, void *userdata, sd_bus_error *re
     return dbus_revoke_group_keys(m, userdata, ret_error, false, true);
 }
 
+static int dbus_install_group_key(sd_bus_message *m, void *userdata,
+                                  sd_bus_error *ret_error, bool is_lgtk)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    const uint8_t *gtk;
+    size_t len;
+    int ret;
+
+    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
+    if (len != 16)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ret = ws_auth_install_gtk(&ctxt->net_if, is_lgtk, gtk);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
 static int dbus_install_gtk(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     return dbus_install_group_key(m, userdata, ret_error, false);

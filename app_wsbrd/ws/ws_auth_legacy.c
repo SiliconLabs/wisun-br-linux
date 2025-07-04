@@ -24,6 +24,7 @@
 #include "app_wsbrd/ws/ws_eapol_auth_relay.h"
 #include "app_wsbrd/ws/ws_eapol_relay.h"
 #include "app_wsbrd/ws/ws_llc.h"
+#include "app_wsbrd/ws/ws_pae_auth.h"
 #include "app_wsbrd/ws/ws_pae_controller.h"
 #include "common/specs/ieee802159.h"
 #include "common/log_legacy.h"
@@ -259,6 +260,12 @@ int ws_auth_revoke_gtks(struct net_if *net_if, bool is_lgtk, const uint8_t new_g
 
     ret = ws_pae_controller_node_access_revoke_start(net_if->id, is_lgtk, (uint8_t *)new_gtk);
     return ret < 0 ? -EINVAL : 0;
+}
+
+int ws_auth_install_gtk(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16])
+{
+    ws_pae_auth_gtk_install(net_if->id, new_gtk, is_lgtk);
+    return 0;
 }
 
 void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter)

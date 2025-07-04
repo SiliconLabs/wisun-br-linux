@@ -19,11 +19,6 @@
 
 #include "dbus_auth.h"
 
-int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk)
-{
-    return sd_bus_error_set_errno(ret_error, ENOTSUP); // TODO
-}
-
 void dbus_message_append_supp(sd_bus_message *m, const char *property, const void *_supp)
 {
     const struct auth_supp_ctx *supp = _supp;

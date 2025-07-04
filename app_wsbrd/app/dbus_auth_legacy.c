@@ -23,21 +23,6 @@
 
 #include "dbus_auth.h"
 
-int dbus_install_group_key(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool is_lgtk)
-{
-    const struct wsbr_ctxt *ctxt = userdata;
-    const uint8_t *gtk;
-    size_t len;
-
-    sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
-    if (len != GTK_LEN)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    ws_pae_auth_gtk_install(ctxt->net_if.id, gtk, is_lgtk);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
 void dbus_message_append_supp(sd_bus_message *m, const char *property, const void *_supp)
 {
     const supp_entry_t *supp = _supp;
