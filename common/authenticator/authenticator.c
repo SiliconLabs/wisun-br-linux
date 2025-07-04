@@ -124,7 +124,8 @@ static int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_g
     return slot_latest;
 }
 
-void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, int slot_install, const uint8_t gtk[16])
+int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
+                     int slot_install, const uint8_t gtk[16])
 {
     const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
@@ -138,7 +139,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
     if (gtk && memzcmp(gtk, 16)) {
         for (int i = 0; i < slot_count; i++)
             if (!memcmp(auth->gtks[slot_offset + i].key, gtk, 16))
-                FATAL(1, "%s is a duplicate of %s", tr_gtkname(slot_install), tr_gtkname(slot_offset + i));
+                return -EEXIST;
         memcpy(new->key, gtk, 16);
     } else {
         rand_get_n_bytes_random(new->key, sizeof(new->key));
@@ -178,6 +179,7 @@ void auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group, i
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)), new->expiration_timer.expire_ms / 1000);
     TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->install_timer.expire_ms / 1000);
+    return 0;
 }
 
 void auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16])
@@ -257,6 +259,7 @@ static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_gr
     const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
     const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
     bool gap = false;
+    int ret;
 
     for (int i = 0; i < slot_count; i++) {
         if (!memzcmp(auth->cfg->gtk_init[slot_offset + i], 16)) {
@@ -265,8 +268,11 @@ static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_gr
             FATAL_ON(gap, 1, "%s requires %s",
                      tr_gtkname(slot_offset + i),
                      tr_gtkname(slot_offset + i - 1));
-            auth_install_gtk(auth, gtk_group, slot_offset + i,
-                             auth->cfg->gtk_init[slot_offset + i]);
+            ret = auth_install_gtk(auth, gtk_group, slot_offset + i,
+                                   auth->cfg->gtk_init[slot_offset + i]);
+            FATAL_ON(ret < 0, 1, "duplicate %s=%s",
+                     tr_gtkname(slot_offset + i),
+                     tr_key(auth->cfg->gtk_init[slot_offset + i], 16));
         }
     }
 }
