@@ -148,13 +148,17 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
     struct ws_gtk *new = &auth->gtks[slot_install];
     uint64_t start_ms, lifetime_ms;
+    uint8_t gtk_rand[16];
 
     if (gtk) {
         if (!auth_is_gtk_valid(auth, gtk_group, gtk))
             return -EINVAL;
         memcpy(new->key, gtk, 16);
     } else {
-        rand_get_n_bytes_random(new->key, sizeof(new->key));
+        do {
+            rand_get_n_bytes_random(gtk_rand, sizeof(gtk_rand));
+        } while (!auth_is_gtk_valid(auth, gtk_group, gtk_rand));
+        memcpy(new->key, gtk_rand, sizeof(gtk_rand));
     }
     new->frame_counter = 0;
 
