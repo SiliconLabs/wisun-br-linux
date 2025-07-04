@@ -108,7 +108,9 @@ int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64)
 
 int ws_auth_revoke_gtks(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16])
 {
-    return auth_revoke_gtks(net_if->auth, is_lgtk, new_gtk);
+    return auth_revoke_gtks(net_if->auth,
+                            is_lgtk ? &net_if->auth->lgtk_group : &net_if->auth->gtk_group,
+                            new_gtk);
 }
 
 void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter)

@@ -198,12 +198,13 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     return 0;
 }
 
-int auth_revoke_gtks(struct auth_ctx *auth, bool is_lgtk, const uint8_t gtk[16])
+int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
+                     const uint8_t gtk[16])
 {
-    struct auth_gtk_group *gtk_group = is_lgtk ? &auth->lgtk_group : &auth->gtk_group;
-    const struct auth_node_cfg *cfg = is_lgtk ? &auth->cfg->lfn : &auth->cfg->ffn;
-    uint8_t slot_count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
-    uint8_t slot_offset = is_lgtk ? WS_GTK_COUNT : 0;
+    const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
+                                      &auth->cfg->ffn : &auth->cfg->lfn;
+    const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
+    const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
     uint64_t reduced_lifetime_ms;
     uint64_t active_remaining_ms;
     uint8_t slot_latest;
