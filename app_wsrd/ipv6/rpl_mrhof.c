@@ -145,7 +145,8 @@ static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *
     return false;
 }
 
-const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
+const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
+                                         uint16_t rank_limit, float etx_max)
 {
     const char *discard;
     uint16_t new_rank;
@@ -156,14 +157,17 @@ const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neig
         return discard;
     new_rank = rpl_mrhof_rank(ipv6, nce);
     etx = rpl_mrhof_etx(ipv6, nce);
-    if (isnan(etx))
+    if (isnan(etx)) {
+        if (etx_max == WS_ETX_MAX)
+            return NULL;
         return "etx";
+    }
     /*
      * If the selected metric for a link is greater than MAX_LINK_METRIC,
      * the node SHOULD exclude that link from consideration during parent
      * selection.
      */
-    if (etx > ipv6->rpl.mrhof.max_link_metric)
+    if (etx > etx_max)
         return "etx";
     if (new_rank > rank_limit)
         return "rank";
@@ -183,7 +187,7 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl)
             continue;
-        if (!rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE))
+        if (!rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, ipv6->rpl.mrhof.max_link_metric))
             return true;
     }
     return false;
@@ -230,7 +234,7 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         new_rank = rpl_mrhof_rank(ipv6, nce);
-        discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit);
+        discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric);
         if (discard && rpl_mrhof_is_probe_needed(ipv6, nce)) {
             /*
              *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
