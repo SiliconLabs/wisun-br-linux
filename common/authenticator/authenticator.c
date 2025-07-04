@@ -124,22 +124,34 @@ static int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_g
     return slot_latest;
 }
 
+static bool auth_is_gtk_valid(const struct auth_ctx *auth,
+                              const struct auth_gtk_group *gtk_group,
+                              const uint8_t gtk[16])
+{
+    const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
+    const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
+
+    if (!memzcmp(gtk, 16))
+        return false;
+    for (int i = 0; i < slot_count; i++)
+        if (!memcmp(auth->gtks[slot_offset + i].key, gtk, 16))
+            return false;
+    return true;
+}
+
 int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
                      int slot_install, const uint8_t gtk[16])
 {
-    const int slot_count = gtk_group == &auth->gtk_group ? WS_GTK_COUNT : WS_LGTK_COUNT;
     const struct auth_node_cfg *cfg = gtk_group == &auth->gtk_group ?
                                       &auth->cfg->ffn : &auth->cfg->lfn;
     const struct ws_gtk *latest = &auth->gtks[auth_gtk_slot_latest(auth, gtk_group)];
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
-    const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
     struct ws_gtk *new = &auth->gtks[slot_install];
     uint64_t start_ms, lifetime_ms;
 
-    if (gtk && memzcmp(gtk, 16)) {
-        for (int i = 0; i < slot_count; i++)
-            if (!memcmp(auth->gtks[slot_offset + i].key, gtk, 16))
-                return -EEXIST;
+    if (gtk) {
+        if (!auth_is_gtk_valid(auth, gtk_group, gtk))
+            return -EINVAL;
         memcpy(new->key, gtk, 16);
     } else {
         rand_get_n_bytes_random(new->key, sizeof(new->key));
