@@ -18,6 +18,7 @@
 #include "app_wsbrd/app/commandline_values.h"
 #include "app_wsbrd/ws/ws_auth.h"
 #include "app_wsbrd/ws/ws_llc.h"
+#include "common/dbus.h"
 #include "common/log.h"
 #include "common/string_extra.h"
 #include "common/tun.h"
@@ -432,6 +433,18 @@ int dbus_deny_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
     return dbus_set_filter_src64(m, userdata, ret_error, false);
 }
 
+static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *wsbrd = userdata;
+
+    if (version_older_than(wsbrd->rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    wsbrd->net_if.ws_info.tx_duration_ms = 0;
+    rcp_req_radio_tx_duration_reset(&wsbrd->rcp);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
 void dbus_message_open_info(sd_bus_message *m, const char *property,
                             const char *name, const char *type)
 {
@@ -699,6 +712,7 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_METHOD("IncrementRplDodagVersionNumber", NULL, NULL, dbus_increment_rpl_dodag_version_number, 0),
         SD_BUS_METHOD("AllowMac64",          "aay",    NULL, dbus_allow_mac64, 0),
         SD_BUS_METHOD("DenyMac64",           "aay",    NULL, dbus_deny_mac64, 0),
+        SD_BUS_METHOD("TxDurationReset",     NULL,     NULL, dbus_tx_duration_reset, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

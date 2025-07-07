@@ -190,6 +190,11 @@ For more details about these lists, see `wsbrd.conf`.
 
 - `aay`: list of mac64 to 'deny'
 
+### `TxDurationReset`
+
+Reset [`TxDuration`][#txduration-u] counter to 0 and clear records of previous
+transmission durations. Requires RCP API >= 2.11.0.
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)

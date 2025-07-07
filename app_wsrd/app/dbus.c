@@ -15,6 +15,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+#include "common/dbus.h"
 #include "common/crypto/ws_keys.h"
 #include "common/memutils.h"
 #include "common/version.h"
@@ -59,6 +60,18 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
         WARN("%s: %s", __func__, strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
     }
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct ws_ctx *ws = userdata;
+
+    if (version_older_than(ws->rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    ws->tx_duration_ms = 0;
+    rcp_req_radio_tx_duration_reset(&ws->rcp);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -188,6 +201,7 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
     SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ipv6), 0),
     SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ipv6), 0),
+    SD_BUS_METHOD_WITH_OFFSET("TxDurationReset",     NULL, NULL, dbus_tx_duration_reset,     offsetof(struct wsrd, ws), 0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
     SD_BUS_PROPERTY("TxDuration",    "u",   dbus_get_tx_duration,    0, 0),
     SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

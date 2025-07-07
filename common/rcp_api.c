@@ -387,6 +387,16 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
+void rcp_req_radio_tx_duration_reset(struct rcp *rcp)
+{
+    struct iobuf_write buf = { };
+
+    BUG_ON(version_older_than(rcp->version_api, 2, 11, 0));
+    hif_push_u8(&buf, HIF_CMD_REQ_RADIO_TX_DURATION_RESET);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_uc(struct rcp *rcp,
                      uint8_t dwell_interval_ms,
                      const uint8_t chan_mask[WS_CHAN_MASK_LEN],

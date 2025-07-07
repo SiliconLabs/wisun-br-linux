@@ -12,8 +12,11 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <systemd/sd-bus.h>
+#include <errno.h>
 
 #include "common/log.h"
+#include "common/rcp_api.h"
+#include "common/version.h"
 
 #include "dbus.h"
 
