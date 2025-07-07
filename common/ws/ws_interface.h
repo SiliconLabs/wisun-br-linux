@@ -119,6 +119,8 @@ struct ws_ctx {
     int     eapol_relay_fd;
     uint8_t gak_index;
 
+    uint32_t tx_duration_ms; // Time spent in TX during the last hour
+
     void (*on_recv_ind)(struct ws_ctx *ws, struct ws_ind *ind);
     void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
 };

@@ -68,6 +68,7 @@ typedef struct ws_info {
     struct ws_neigh_table neighbor_storage;
     struct ws_fhss_config fhss_config;
     int tx_power_dbm;
+    uint32_t tx_duration_ms; // Time spent in TX during the last hour
     uint8_t ffn_gtk_index;
     uint8_t lfn_gtk_index;
     uint8_t edfe_src[8];

@@ -658,6 +658,18 @@ int wsbrd_get_ws_size(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
+static int dbus_get_tx_duration(sd_bus *bus, const char *path, const char *interface,
+                                const char *property, sd_bus_message *reply,
+                                void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *wsbrd = userdata;
+
+    if (version_older_than(wsbrd->rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    sd_bus_message_append_basic(reply, 'u', &wsbrd->net_if.ws_info.tx_duration_ms);
+    return 0;
+}
+
 int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
                const char *property, sd_bus_message *reply,
                void *userdata, sd_bus_error *ret_error)
@@ -706,6 +718,7 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, rcp.eui64),
                         0),
+        SD_BUS_PROPERTY("TxDuration", "u", dbus_get_tx_duration, 0, 0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, config.ws_name),
                         SD_BUS_VTABLE_PROPERTY_CONST),

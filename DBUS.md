@@ -249,6 +249,11 @@ the Wi-SUN FAN and IEEE 802.11 specifications for more details.
 
 EUI64 (MAC address) of the RCP
 
+### `TxDuration` (`u`)
+
+Time spent transmitting over-the-air during the last hour, in milliseconds.
+Requires RCP API >= 2.11.0.
+
 ### Wi-SUN configuration
 
 The following properties return the corresponding value set during configuration

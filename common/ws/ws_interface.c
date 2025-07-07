@@ -265,6 +265,8 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
 
+    ws->tx_duration_ms = cnf->tx_duration_ms;
+
     frame_ctx_ptr = ws_if_frame_ctx_pop(ws, cnf->handle);
     if (!frame_ctx_ptr) {
         ERROR("unknown frame handle: %u", cnf->handle);

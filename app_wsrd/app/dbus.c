@@ -17,6 +17,7 @@
 
 #include "common/crypto/ws_keys.h"
 #include "common/memutils.h"
+#include "common/version.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd.h"
 
@@ -171,11 +172,24 @@ static int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interf
     return 0;
 }
 
+static int dbus_get_tx_duration(sd_bus *bus, const char *path, const char *interface,
+                                const char *property, sd_bus_message *reply,
+                                void *userdata, sd_bus_error *ret_error)
+{
+    struct wsrd *wsrd = userdata;
+
+    if (version_older_than(wsrd->ws.rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    sd_bus_message_append_basic(reply, 'u', &wsrd->ws.tx_duration_ms);
+    return 0;
+}
+
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
     SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ipv6), 0),
     SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ipv6), 0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
+    SD_BUS_PROPERTY("TxDuration",    "u",   dbus_get_tx_duration,    0, 0),
     SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanVersion",    "i",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
