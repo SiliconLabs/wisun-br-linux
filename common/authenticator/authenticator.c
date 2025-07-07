@@ -147,8 +147,8 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     const struct ws_gtk *latest = &auth->gtks[auth_gtk_slot_latest(auth, gtk_group)];
     const uint64_t expire_offset_ms = (uint64_t)cfg->gtk_expire_offset_s * 1000;
     struct ws_gtk *new = &auth->gtks[slot_install];
-    uint64_t start_ms, lifetime_ms;
     uint8_t gtk_rand[16];
+    uint64_t start_ms;
 
     if (gtk) {
         if (!auth_is_gtk_valid(auth, gtk_group, gtk))
@@ -181,12 +181,13 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
      * lifetime (as a percentage of lifetime provided in Lifetime KDE) at which
      * a new GTK must be installed on the Border Router (supporting overlapping
      * lifespans).
+     * NOTE: GTK_NEW_INSTALL_REQUIRED is calculated as a percentage of
+     * GTK_EXPIRE_OFFSET instead of the full lifetime of the GTK to ensure
+     * consistent timings throughout the BR lifetime.
      */
-    start_ms = new->expiration_timer.start_ms;
-    lifetime_ms = timer_duration_ms(&new->expiration_timer);
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer,
-                        start_ms + lifetime_ms * cfg->gtk_new_install_required / 100);
+                        start_ms + cfg->gtk_new_install_required * expire_offset_ms / 100);
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, false);
