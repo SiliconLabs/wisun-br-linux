@@ -115,6 +115,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
         { "phy_operating_modes",           &config->ws_phy_op_modes,                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
+        { "duty_cycle_budget",             &config->duty_cycle.budget_ms,             conf_set_number,      &valid_budget },
+        { "duty_cycle_threshold\\[*]",     &config->duty_cycle.threshold,             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
+        { "duty_chan_cycle_budget",        &config->duty_cycle.chan_budget_ms,        conf_set_number,      &valid_budget },
+        { "duty_cycle_chan_threshold\\[*]", &config->duty_cycle.chan_threshold,       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
@@ -270,4 +274,5 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
             WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
                  val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
+    duty_cycle_cfg_check(&config->duty_cycle);
 }

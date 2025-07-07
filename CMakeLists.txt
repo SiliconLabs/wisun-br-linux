@@ -158,6 +158,7 @@ add_library(libwsbrd STATIC
     common/bus_uart.c
     common/capture.c
     common/commandline.c
+    common/duty_cycle.c
     common/log.c
     common/bits.c
     common/eapol.c
@@ -355,6 +356,7 @@ if(COMPILE_WSRD)
         common/dhcp_client.c
         common/dhcp_common.c
         common/dhcp_relay.c
+        common/duty_cycle.c
         common/eap.c
         common/eapol.c
         common/endian.c
@@ -572,6 +574,7 @@ if(COMPILE_DEVTOOLS)
         common/capture.c
         common/commandline.c
         common/crc.c
+        common/duty_cycle.c
         common/eapol.c
         common/endian.c
         common/hif.c

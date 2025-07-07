@@ -207,6 +207,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "regional_regulation",           &config->ws_regional_regulation,           conf_set_enum,        &valid_ws_regional_regulations },
+        { "duty_cycle_budget",             &config->duty_cycle.budget_ms,             conf_set_number,      &valid_budget },
+        { "duty_cycle_threshold\\[*]",     &config->duty_cycle.threshold,             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
+        { "duty_chan_cycle_budget",        &config->duty_cycle.chan_budget_ms,        conf_set_number,      &valid_budget },
+        { "duty_cycle_chan_threshold\\[*]", &config->duty_cycle.chan_threshold,       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
@@ -516,4 +520,5 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("--capture used without --delete-storage");
     if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
         WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
+    duty_cycle_cfg_check(&config->duty_cycle);
 }

@@ -120,6 +120,7 @@ struct ws_ctx {
     uint8_t gak_index;
 
     uint32_t tx_duration_ms; // Time spent in TX during the last hour
+    const struct duty_cycle_cfg *duty_cycle_cfg;
 
     void (*on_recv_ind)(struct ws_ctx *ws, struct ws_ind *ind);
     void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);

@@ -26,6 +26,7 @@
 #include "common/authenticator/authenticator.h"
 #include "common/specs/ws.h"
 #include "common/ws/ws_chan_mask.h"
+#include "common/duty_cycle.h"
 #include "common/rcp_api.h"
 #include "common/bits.h"
 
@@ -47,6 +48,7 @@ struct wsbrd_conf {
     int  ws_mode;
     int  ws_class;
     int  ws_regional_regulation;
+    struct duty_cycle_cfg duty_cycle;
     int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;

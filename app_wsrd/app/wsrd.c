@@ -143,6 +143,7 @@ struct wsrd g_wsrd = {
     .ws.on_recv_ind                 = ws_on_recv_ind,
     .ws.on_recv_cnf                 = ws_on_recv_cnf,
     .ws.eapol_relay_fd = -1,
+    .ws.duty_cycle_cfg = &g_wsrd.config.duty_cycle,
     .ipv6.sendto_mac = wsrd_ipv6_sendto_mac,
     .eapol_target_eui64 = EUI64_BC,
     .pan_timeout_timer.callback = ws_on_pan_timeout,
@@ -262,6 +263,8 @@ struct wsrd g_wsrd = {
 
 static void wsrd_on_rcp_reset(struct rcp *rcp)
 {
+    struct wsrd *wsrd = container_of(rcp, struct wsrd, ws.rcp);
+
     if (rcp->has_rf_list)
         FATAL(3, "unsupported RCP reset");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", rcp->version_label,
@@ -273,6 +276,12 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
          FIELD_GET(0x000000FF, rcp->version_api));
     if (version_older_than(rcp->version_api, 2, 8, 0))
         FATAL(3, "RCP API < 2.8.0 (too old)");
+    if (version_older_than(rcp->version_api, 2, 11, 0) &&
+        wsrd->config.duty_cycle.budget_ms)
+        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11.0");
+    if (version_older_than(rcp->version_api, 2, 11, 0) &&
+        wsrd->config.duty_cycle.chan_budget_ms)
+        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11.0");
 }
 
 static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)

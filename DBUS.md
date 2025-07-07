@@ -259,6 +259,14 @@ EUI64 (MAC address) of the RCP
 Time spent transmitting over-the-air during the last hour, in milliseconds.
 Requires RCP API >= 2.11.0.
 
+### `DutyCycleLevel` (`i`)
+
+Indicator of radio usage for transmission. This property provides a simplified
+view of radio usage based on the underlying `TxDuration` metric and configured
+with `duty_cycle_*` parameters documented in the reference
+[wsbrd.conf](/examples/wsbrd.conf). Users can watch for D-Bus update signals
+on this property to avoid processing every `TxDuration` update.
+
 ### Wi-SUN configuration
 
 The following properties return the corresponding value set during configuration

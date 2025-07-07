@@ -21,6 +21,7 @@
 
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
+#include "common/duty_cycle.h"
 #include "common/trickle.h"
 #include "common/rcp_api.h"
 
@@ -46,6 +47,7 @@ struct wsrd_conf {
     int  ws_chan_plan_id;
     int  ws_mode;
     int  ws_class;
+    struct duty_cycle_cfg duty_cycle;
     int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;

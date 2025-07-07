@@ -21,8 +21,11 @@
 #include "common/sys_queue_extra.h"
 #include "common/ieee802154_ie.h"
 #include "common/string_extra.h"
+#include "common/duty_cycle.h"
 #include "common/memutils.h"
+#include "common/version.h"
 #include "common/sl_ws.h"
+#include "common/dbus.h"
 #include "common/mpx.h"
 
 #include "ws_interface.h"
@@ -251,6 +254,20 @@ static struct ws_frame_ctx *ws_if_frame_ctx_pop(struct ws_ctx *ws, uint8_t handl
     return cur;
 }
 
+static void ws_if_update_duty_cycle(struct ws_ctx *ws, uint32_t tx_duration_ms)
+{
+    int old_level, new_level, chan_count;
+
+    if (ws->duty_cycle_cfg) {
+        chan_count = ws_chan_mask_count(ws->fhss.uc_chan_mask);
+        old_level = duty_cycle_level(ws->duty_cycle_cfg, ws->tx_duration_ms, chan_count);
+        new_level = duty_cycle_level(ws->duty_cycle_cfg, tx_duration_ms, chan_count);
+        if (new_level != old_level)
+            dbus_emit_change("DutyCycleLevel");
+    }
+    ws->tx_duration_ms = tx_duration_ms;
+}
+
 void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
@@ -265,7 +282,8 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     if (cnf->status != HIF_STATUS_SUCCESS)
         TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
 
-    ws->tx_duration_ms = cnf->tx_duration_ms;
+    if (!version_older_than(ws->rcp.version_api, 2, 11, 0))
+        ws_if_update_duty_cycle(ws, cnf->tx_duration_ms);
 
     frame_ctx_ptr = ws_if_frame_ctx_pop(ws, cnf->handle);
     if (!frame_ctx_ptr) {

@@ -19,6 +19,7 @@
 #include "app_wsbrd/ws/ws_auth.h"
 #include "app_wsbrd/ws/ws_llc.h"
 #include "common/dbus.h"
+#include "common/duty_cycle.h"
 #include "common/log.h"
 #include "common/string_extra.h"
 #include "common/tun.h"
@@ -651,6 +652,23 @@ int dbus_get_fan_version(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
+int dbus_get_duty_cycle_level(sd_bus *bus, const char *path, const char *interface,
+                         const char *property, sd_bus_message *reply,
+                         void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *wsbrd = userdata;
+    int level, chan_count;
+
+    if (version_older_than(wsbrd->rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    chan_count = ws_chan_mask_count(wsbrd->net_if.ws_info.fhss_config.uc_chan_mask);
+    level = duty_cycle_level(&wsbrd->config.duty_cycle,
+                             wsbrd->net_if.ws_info.tx_duration_ms,
+                             chan_count);
+    sd_bus_message_append_basic(reply, 'i', &level);
+    return 0;
+}
+
 int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
                         const char *property, sd_bus_message *reply,
                         void *userdata, sd_bus_error *ret_error)
@@ -760,5 +778,7 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_PROPERTY("WisunFanVersion", "y", dbus_get_fan_version,
                         offsetof(struct wsbr_ctxt, net_if.id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
+        SD_BUS_PROPERTY("DutyCycleLevel", "i", dbus_get_duty_cycle_level,
+                        0, SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_VTABLE_END
 };

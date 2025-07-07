@@ -21,6 +21,8 @@
 #include "common/ws/ws_regdb.h"
 #include "common/log.h"
 #include "common/bus.h"
+#include "common/dbus.h"
+#include "common/duty_cycle.h"
 #include "common/named_values.h"
 #include "common/rcp_api.h"
 #include "common/parsers.h"
@@ -111,6 +113,21 @@ void wsbr_data_req_ext(struct net_if *cur,
     iobuf_free(&frame);
 }
 
+static void wsbr_update_duty_cycle(struct wsbr_ctxt *wsbrd, uint32_t tx_duration_ms)
+{
+    struct ws_info *ws_info = &wsbrd->net_if.ws_info;
+    int old_level, new_level, chan_count;
+
+    chan_count = ws_chan_mask_count(ws_info->fhss_config.uc_chan_mask);
+    old_level = duty_cycle_level(&wsbrd->config.duty_cycle,
+                                 ws_info->tx_duration_ms, chan_count);
+    new_level = duty_cycle_level(&wsbrd->config.duty_cycle,
+                                 tx_duration_ms, chan_count);
+    if (new_level != old_level)
+        dbus_emit_change("DutyCycleLevel");
+    ws_info->tx_duration_ms = tx_duration_ms;
+}
+
 void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
 {
     struct wsbr_ctxt *ctxt = container_of(rcp, struct wsbr_ctxt, rcp);
@@ -137,7 +154,8 @@ void wsbr_tx_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         if (!ret && ctxt->config.pcap_file[0])
             wsbr_pcapng_write_frame(ctxt, cnf->timestamp_us, cnf->frame, cnf->frame_len);
     }
-    ctxt->net_if.ws_info.tx_duration_ms = cnf->tx_duration_ms;
+    if (!version_older_than(ctxt->rcp.version_api, 2, 11, 0))
+        wsbr_update_duty_cycle(ctxt, cnf->tx_duration_ms);
     ws_llc_mac_confirm_cb(&ctxt->net_if, &mcps_cnf, &mcps_ie);
 }
 

@@ -197,6 +197,23 @@ static int dbus_get_tx_duration(sd_bus *bus, const char *path, const char *inter
     return 0;
 }
 
+int dbus_get_duty_cycle_level(sd_bus *bus, const char *path, const char *interface,
+                         const char *property, sd_bus_message *reply,
+                         void *userdata, sd_bus_error *ret_error)
+{
+    struct wsrd *wsrd = userdata;
+    int level, chan_count;
+
+    if (version_older_than(wsrd->ws.rcp.version_api, 2, 11, 0))
+        return sd_bus_error_set_errno(ret_error, ENOTSUP);
+    chan_count = ws_chan_mask_count(wsrd->ws.fhss.uc_chan_mask);
+    level = duty_cycle_level(&wsrd->config.duty_cycle,
+                             wsrd->ws.tx_duration_ms,
+                             chan_count);
+    sd_bus_message_append_basic(reply, 'i', &level);
+    return 0;
+}
+
 const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_VTABLE_START(0),
     SD_BUS_METHOD_WITH_OFFSET("JoinMulticastGroup",  "ay", NULL, dbus_join_multicast_group,  offsetof(struct wsrd, ipv6), 0),
@@ -204,6 +221,7 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_METHOD_WITH_OFFSET("TxDurationReset",     NULL, NULL, dbus_tx_duration_reset,     offsetof(struct wsrd, ws), 0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
     SD_BUS_PROPERTY("TxDuration",    "u",   dbus_get_tx_duration,    0, 0),
+    SD_BUS_PROPERTY("DutyCycleLevel", "i",  dbus_get_duty_cycle_level, 0,                                   SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanVersion",    "i",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

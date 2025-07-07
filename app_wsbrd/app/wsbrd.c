@@ -444,6 +444,12 @@ static void wsbr_handle_reset(struct rcp *rcp)
           FIELD_GET(0x000000FF, ctxt->rcp.version_api));
     if (version_older_than(ctxt->rcp.version_api, 2, 0, 0))
         FATAL(3, "RCP API < 2.0.0 (too old)");
+    if (version_older_than(rcp->version_api, 2, 11, 0) &&
+        ctxt->config.duty_cycle.budget_ms)
+        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11.0");
+    if (version_older_than(rcp->version_api, 2, 11, 0) &&
+        ctxt->config.duty_cycle.chan_budget_ms)
+        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11.0");
 }
 
 void kill_handler(int signal)
