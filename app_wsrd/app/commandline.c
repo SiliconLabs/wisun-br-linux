@@ -127,6 +127,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "authority",                     &config->supp_cfg.tls.ca_cert,             conf_set_pem,         NULL },
         { "certificate",                   &config->supp_cfg.tls.cert,                conf_set_pem,         NULL },
         { "key",                           &config->supp_cfg.tls.key,                 conf_set_pem,         NULL },
+        { "eap_identity",                  &config->supp_cfg.eap_identity,            conf_set_string,      (void *)sizeof(config->supp_cfg.eap_identity) },
         { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },

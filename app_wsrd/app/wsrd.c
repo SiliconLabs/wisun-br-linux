@@ -157,6 +157,8 @@ struct wsrd g_wsrd = {
     .supp.key_request_txalg.rand_max    = +0.1,
     .config.supp_cfg.gtk_max_mismatch_s = 3840, // 64 * 60
     .config.supp_cfg.timeout_ms = 60 * 1000, // Arbitrary
+    // FreeRADIUS refuses an empty identity, so an arbitrary value is used.
+    .config.supp_cfg.eap_identity = "Anonymous",
     .supp.cfg = &g_wsrd.config.supp_cfg,
     .supp.on_gtk_change = wsrd_eapol_on_gtk_change,
     .supp.on_failure  = wsrd_eapol_on_failure,

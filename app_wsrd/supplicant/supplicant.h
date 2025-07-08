@@ -60,6 +60,7 @@ struct supp_cfg {
      * supp.on_failure() is called when this timer expires.
      */
     uint64_t timeout_ms;
+    char eap_identity[32];
 };
 
 struct supp_ctx {

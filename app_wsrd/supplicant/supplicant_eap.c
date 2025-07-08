@@ -262,9 +262,11 @@ static void supp_eap_request_recv(struct supp_ctx *supp, const struct eap_hdr *e
             rfc8415_txalg_stop(&supp->key_request_txalg);
         // We are starting a new tls session so we reset eap-tls
         supp_eap_tls_reset(supp);
-        // Wi-SUN does not specify to use any identity.
-        // FreeRADIUS refuses an empty identity, so an aritrary value is used.
-        pktbuf_push_tail(&buf, "Anonymous", strlen("Anonymous"));
+        /*
+         *   RFC 3748 5.1. Identity
+         * The Identity Response field MUST NOT be null terminated.
+         */
+        pktbuf_push_tail(&buf, supp->cfg->eap_identity, strlen(supp->cfg->eap_identity));
         supp_eap_send_response(supp, eap_hdr->identifier, EAP_TYPE_IDENTITY, &buf);
         break;
     case EAP_TYPE_NOTIFICATION:
