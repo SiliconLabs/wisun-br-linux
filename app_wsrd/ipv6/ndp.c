@@ -176,6 +176,8 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
 
 static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
+    uint64_t delay_ms;
+
     // MAX_UNICAST_SOLICIT = 3
     if (neigh->nud_probe_count >= 3) {
         /*
@@ -208,7 +210,8 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
             neigh->ns_has_aro = false;
         }
         neigh->nud_probe_count++;
-        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, ipv6->probe_delay_ms);
+        delay_ms = randf_range(0.5 * ipv6->probe_delay_ms, 1.5 * ipv6->probe_delay_ms);
+        timer_start_rel(&ipv6->timer_group, &neigh->nud_timer, delay_ms);
     }
 }
 
