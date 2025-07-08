@@ -22,6 +22,7 @@
 #include <limits.h>
 #include "common/ws/ws_regdb.h"
 #include "common/ws/ws_types.h"
+#include "common/ws/ws_ewma.h"
 #include "common/sys_queue_extra.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
@@ -94,7 +95,7 @@ static void ws_neigh_etx_timeout_compute(struct timer_group *group, struct timer
      * The ETX calculation is performed at a defined epoch, with the ETX result
      * fed into an EWMA using smoothing factor of 1/8.
      */
-    etx = ws_neigh_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
+    etx = ws_ewma_next(neigh->etx, etx, 1.f / (float)neigh->etx_compute_cnt);
 
     TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s etx tx=%u / ack=%u => old=%.2f new=%.2f",
           tr_eui64(neigh->eui64.u8), neigh->etx_tx_cnt, neigh->etx_ack_cnt, neigh->etx, etx);
@@ -577,23 +578,6 @@ void ws_neigh_refresh(struct ws_neigh_table *table, struct ws_neigh *neigh, uint
     timer_start_rel(&table->timer_group, &neigh->timer, neigh->lifetime_s * 1000);
     TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s lifetime=%us (refresh)",
           tr_eui64(neigh->eui64.u8), neigh->lifetime_s);
-}
-
-/*
- *   Wi-SUN FAN 1.1v08 3.1 Definitions
- * Exponentially Weighted Moving Average
- *
- *   Wi-SUN FAN 1.1v08 6.2.1 Constants
- * ETX_EWMA_SF    ETX EWMA Smoothing Factor   1/8
- * RSL_EWMA_SF    RSL EWMA Smoothing Factor   1/8
- */
-float ws_neigh_ewma_next(float cur, float val, float smoothing_factor)
-{
-    // EWMA(0) = X(0)
-    if (isnan(cur))
-        return val;
-    // EWMA(t) = S(X(t)) + (1-S)(EWMA(t-1))
-    return smoothing_factor * (val - cur) + cur;
 }
 
 /*

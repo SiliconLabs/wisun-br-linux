@@ -17,6 +17,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
 #include "common/specs/ws.h"
+#include "common/ws/ws_ewma.h"
 #include "common/sys_queue_extra.h"
 #include "common/ieee802154_ie.h"
 #include "common/string_extra.h"
@@ -183,7 +184,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
     if (has_bt_ie)
         ws_neigh_bt_update(&ind.neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
                            ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
-    ind.neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
+    ind.neigh->rsl_in_dbm_unsecured = ws_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
                                                          hif_ind->rx_power_dbm, WS_EWMA_SF);
 
     if (ind.hdr.key_index) {
@@ -192,7 +193,7 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         if (has_bt_ie)
             ws_neigh_bt_update(&ind.neigh->fhss_data, ie_bt.broadcast_slot_number,
                                ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
-        ind.neigh->rsl_in_dbm = ws_neigh_ewma_next(ind.neigh->rsl_in_dbm,
+        ind.neigh->rsl_in_dbm = ws_ewma_next(ind.neigh->rsl_in_dbm,
                                                    hif_ind->rx_power_dbm, WS_EWMA_SF);
     }
 
@@ -294,12 +295,12 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
         }
         // TODO: check frame counter
         ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
-        neigh->rsl_in_dbm_unsecured = ws_neigh_ewma_next(neigh->rsl_in_dbm_unsecured,
+        neigh->rsl_in_dbm_unsecured = ws_ewma_next(neigh->rsl_in_dbm_unsecured,
                                                          cnf->rx_power_dbm, WS_EWMA_SF);
         if (hdr.key_index)
-            neigh->rsl_in_dbm = ws_neigh_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
+            neigh->rsl_in_dbm = ws_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
-            neigh->rsl_out_dbm = ws_neigh_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
+            neigh->rsl_out_dbm = ws_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
         if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
             ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
             if (hdr.key_index)

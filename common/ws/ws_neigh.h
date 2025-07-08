@@ -233,8 +233,6 @@ void ws_neigh_etx_update(struct ws_neigh_table *table,
 
 void ws_neigh_etx_reset(struct ws_neigh_table *table, struct ws_neigh *neigh);
 
-float ws_neigh_ewma_next(float cur, float val, float smoothing_factor);
-
 uint32_t ws_neigh_get_pan_cost(struct ws_neigh *neigh);
 
 #endif
