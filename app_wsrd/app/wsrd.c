@@ -249,7 +249,7 @@ struct wsrd g_wsrd = {
     // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.ncr_resp_window_ms = 10000,
     // Arbitrary (default RETRANS_TIMER of 1s is not suited for Wi-SUN)
-    .ipv6.probe_delay_ms =  5000,
+    .ipv6.probe_delay_ms =  60000,
     /*
      * RFC 4861 10. Protocol Constants
      * FIXME: BaseReachableTime and RetransTimer can be overritten by Router
