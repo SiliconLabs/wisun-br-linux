@@ -289,7 +289,7 @@ static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *w
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce)
         return;
-    ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
+    ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_DELAY);
 }
 
 static void wsrd_on_etx_update(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
