@@ -143,14 +143,6 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
     return 0;
 }
 
-static int dbus_get_pan_version(sd_bus *bus, const char *path, const char *interface,
-                                const char *property, sd_bus_message *reply,
-                                void *userdata, sd_bus_error *ret_error)
-{
-    sd_bus_message_append_basic(reply, 'i', userdata);
-    return 0;
-}
-
 static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
@@ -164,14 +156,6 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
         sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);
-    return 0;
-}
-
-static int dbus_get_pan_id(sd_bus *bus, const char *path, const char *interface,
-                           const char *property, sd_bus_message *reply,
-                           void *userdata, sd_bus_error *ret_error)
-{
-    sd_bus_message_append_basic(reply, 'q', userdata);
     return 0;
 }
 
@@ -222,9 +206,9 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
     SD_BUS_PROPERTY("TxDuration",    "u",   dbus_get_tx_duration,    0, 0),
     SD_BUS_PROPERTY("DutyCycleLevel", "i",  dbus_get_duty_cycle_level, 0,                                   SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-    SD_BUS_PROPERTY("PanId",         "q",   dbus_get_pan_id,         offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("PanId",         "q",   NULL,                    offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("Gaks",          "aay", dbus_get_gaks,           0,                                     SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-    SD_BUS_PROPERTY("PanVersion",    "i",   dbus_get_pan_version,    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+    SD_BUS_PROPERTY("PanVersion",    "i",   NULL,                    offsetof(struct wsrd, ws.pan_version), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PrimaryParent", "ay",  dbus_get_primary_parent, offsetof(struct wsrd, ipv6),           SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("JoinState",     "u",   dbus_get_join_state,     offsetof(struct wsrd, state),          SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("DodagId",       "ay",  dbus_get_dodag_id,       offsetof(struct wsrd, ipv6),           0),
