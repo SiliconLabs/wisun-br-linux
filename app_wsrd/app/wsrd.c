@@ -287,7 +287,7 @@ static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *w
      * messaging to refresh the ETX value for that neighbor.
      */
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
-    if (!nce)
+    if (!nce || nce->nud_state == IPV6_NUD_DELAY || nce->nud_state == IPV6_NUD_PROBE)
         return;
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_DELAY);
 }
