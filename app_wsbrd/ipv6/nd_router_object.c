@@ -49,8 +49,6 @@ static void nd_add_ipv6_neigh_route(struct net_if *net_if, struct ipv6_neighbour
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro,
                             struct ws_neigh *ws_neigh)
 {
-    struct rpl_target *target;
-
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
           tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
 
@@ -70,11 +68,6 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         // ipv6_neighbor entry will be released by garbage collector
         neigh->lifetime_s = 0;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-        if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            target = rpl_target_get(&cur_interface->rpl_root, neigh->ip_address);
-            if (target)
-                rpl_target_del(&cur_interface->rpl_root, target);
-        }
     }
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
 }
