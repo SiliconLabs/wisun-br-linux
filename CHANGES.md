@@ -1,3 +1,35 @@
+v2.6
+------
+  - New authenticator implementation for `wsbrd`:
+    * Support hardcoding more than 1 key from the config file.
+    * Support GTK revocation with accelerated rotation.
+    * Refuse 4-way handshake message 2 if PMK is not installed.
+    * Initialize keys with random data to prevent key guessing attacks.
+    * Fix memory leak with EAPoL-Key packet allocation.
+    * Fix memory leak with storage load at reboot.
+    * Fix RADIUS support for packets bigger than 1024 bytes.
+    * Set as default implementation. Use `AUTH_LEGACY=ON` in CMake to revert to
+      the legacy implementation.
+  - Track and expose time spent transmitting over the air, in order to
+    support duty cycle aware applications. New D-Bus properties `TxDuration`
+    and `DutyCycleLevel` are provided (see [DBUS.md](/DBUS.md)).
+  - Implement partial RPL Source Routing Header generation in `wsbrd`, thus
+    fixing `traceroute` support.
+  - Do not delete DAO routes on receipt of NS(ARO) with lifetime 0 from a
+    previous `wsbrd` child.
+  - Decrement IPv6 hop limit when forwarding multicast packets to LFN children
+    in `wsbrd`.
+  - Update FAN 1.0 Japanese PHY configuration to always use the channel masks
+    defined for the corresponding ChanPlanId. Users of the legacy config
+    without any mask are now expected to use a custom channel plan.
+  - Support 6LoWPAN fragment reassembly in `wsrd`.
+  - Refuse to increase `wsrd` RPL rank within a reasonable margin to improve
+    overall network stability.
+  - Accelerate `wsrd` ETX computation algorithm during initial connection.
+  - Filter `wsrd` RPL candidates by RSL.
+  - Support mode switch reception in `wsrd`.
+  - Expose `wsrd` join state on D-Bus.
+
 v2.5
 ------
   - Implement disconnect and reconnect procedures for `wsrd`:
