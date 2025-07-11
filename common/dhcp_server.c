@@ -52,6 +52,8 @@ static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
     hopcount = iobuf_pop_u8(req);
     linkaddr = iobuf_pop_data_ptr(req, 16);
     peeraddr = iobuf_pop_data_ptr(req, 16);
+    if (!linkaddr || !peeraddr)
+        return -EINVAL;
     iobuf_push_u8(reply, DHCPV6_MSG_RELAY_REPLY);
     iobuf_push_u8(reply, hopcount);
     iobuf_push_data(reply, linkaddr, 16);
