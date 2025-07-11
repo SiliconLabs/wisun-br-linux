@@ -106,7 +106,7 @@ static bool capture_try_netfd(struct capture_ctxt *ctxt, int fd,
     for (int i = 0; i < ctxt->netfd_cnt; i++) {
         if (ctxt->netfd_list[i] == fd) {
             capture_record_timers(ctxt);
-            capture_record_netfd(ctxt, i, src_addr, dst_addr, 0, buf, buf_len);
+            capture_record_netfd(ctxt, i, src_addr, dst_addr, src_port, buf, buf_len);
             return true;
         }
     }
