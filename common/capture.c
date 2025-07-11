@@ -28,6 +28,7 @@
 #include "common/hif.h"
 #include "common/iobuf.h"
 #include "common/log.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/time_extra.h"
 
@@ -82,8 +83,11 @@ static void capture_record_timers(struct capture_ctxt *ctxt)
 }
 
 static void capture_record_netfd(struct capture_ctxt *ctxt, int iface_index,
-                                 const struct in6_addr *src_addr, const struct in6_addr *dst_addr,
-                                 uint16_t src_port, const void *buf, size_t buf_len)
+                                 const struct in6_addr *src_addr,
+                                 const struct in6_addr *dst_addr,
+                                 uint16_t src_port,
+                                 const struct iovec *iov,
+                                 size_t iov_cnt, ssize_t len)
 {
     struct iobuf_write iobuf = { };
 
@@ -92,7 +96,11 @@ static void capture_record_netfd(struct capture_ctxt *ctxt, int iface_index,
     hif_push_fixed_u8_array(&iobuf, src_addr->s6_addr, 16);
     hif_push_fixed_u8_array(&iobuf, dst_addr->s6_addr, 16);
     hif_push_u16(&iobuf, src_port);
-    hif_push_data(&iobuf, buf, buf_len);
+    hif_push_u16(&iobuf, len);
+    for (int i = 0; i < iov_cnt; i++) {
+        hif_push_raw(&iobuf, iov[i].iov_base, MIN(iov[i].iov_len, len));
+        len -= MIN(iov[i].iov_len, len);
+    }
     capture_record(ctxt, iobuf.data, iobuf.len);
     iobuf_free(&iobuf);
 }
@@ -101,12 +109,14 @@ static bool capture_try_netfd(struct capture_ctxt *ctxt, int fd,
                               const struct in6_addr *src_addr,
                               const struct in6_addr *dst_addr,
                               uint16_t src_port,
-                              const void *buf, size_t buf_len)
+                              const struct iovec *iov,
+                              size_t iov_cnt, ssize_t len)
 {
     for (int i = 0; i < ctxt->netfd_cnt; i++) {
         if (ctxt->netfd_list[i] == fd) {
             capture_record_timers(ctxt);
-            capture_record_netfd(ctxt, i, src_addr, dst_addr, src_port, buf, buf_len);
+            capture_record_netfd(ctxt, i, src_addr, dst_addr, src_port,
+                                 iov, iov_cnt, len);
             return true;
         }
     }
@@ -116,26 +126,30 @@ static bool capture_try_netfd(struct capture_ctxt *ctxt, int fd,
 ssize_t xread(int fd, void *buf, size_t buf_len)
 {
     struct capture_ctxt *ctxt = &g_capture_ctxt;
+    const struct iovec iov = { buf, buf_len };
     ssize_t out_len;
 
     out_len = read(fd, buf, buf_len);
     if (out_len < 0 || ctxt->recfd < 0)
         return out_len;
 
-    capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any, 0, buf, out_len);
+    capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any,
+                      0, &iov, 1, out_len);
     return out_len;
 }
 
 ssize_t xrecv(int fd, void *buf, size_t buf_len, int flags)
 {
     struct capture_ctxt *ctxt = &g_capture_ctxt;
+    const struct iovec iov = { buf, buf_len };
     ssize_t out_len;
 
     out_len = recv(fd, buf, buf_len, flags);
     if (out_len < 0 || ctxt->recfd < 0)
         return out_len;
 
-    capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any, 0, buf, out_len);
+    capture_try_netfd(ctxt, fd, &in6addr_any, &in6addr_any,
+                      0, &iov, 1, out_len);
     return out_len;
 }
 
@@ -143,6 +157,7 @@ ssize_t xrecvfrom(int fd, void *buf, size_t buf_len, int flags, struct sockaddr 
 {
     const struct in6_addr *src_addr = &in6addr_any;
     struct capture_ctxt *ctxt = &g_capture_ctxt;
+    const struct iovec iov = { buf, buf_len };
     const struct sockaddr_in6 *src_in6;
     uint16_t src_port = 0;
     ssize_t out_len;
@@ -158,7 +173,8 @@ ssize_t xrecvfrom(int fd, void *buf, size_t buf_len, int flags, struct sockaddr 
         src_addr = &src_in6->sin6_addr;
         src_port = ntohs(src_in6->sin6_port);
     }
-    capture_try_netfd(ctxt, fd, src_addr, &in6addr_any, src_port, buf, out_len);
+    capture_try_netfd(ctxt, fd, src_addr, &in6addr_any,
+                      src_port, &iov, 1, out_len);
     return out_len;
 }
 
@@ -177,7 +193,7 @@ ssize_t xrecvmsg(int fd, struct msghdr *msg, int flags)
     if (out_len < 0 || ctxt->recfd < 0)
         return out_len;
 
-    BUG_ON(!msg || msg->msg_iovlen != 1);
+    BUG_ON(!msg);
     if (msg->msg_name) {
         src_in6 = (struct sockaddr_in6 *)msg->msg_name;
         BUG_ON(msg->msg_namelen < sizeof(struct sockaddr_in6));
@@ -195,7 +211,7 @@ ssize_t xrecvmsg(int fd, struct msghdr *msg, int flags)
         dst_addr = &pktinfo->ipi6_addr;
     }
     capture_try_netfd(ctxt, fd, src_addr, dst_addr, src_port,
-                      msg->msg_iov[0].iov_base, out_len);
+                      msg->msg_iov, msg->msg_iovlen, out_len);
     return out_len;
 }
 
