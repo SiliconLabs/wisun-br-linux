@@ -231,6 +231,15 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
 
     gtkl = supp_get_gtkl(supp->gtks + offset, count);
     TRACE(TR_SECURITY, "sec: %s local=0x%02x auth=0x%02x", is_lgtk ? "lgtkl" : "gtkl", gtkl, gtkl_kde);
+    if (is_lgtk)
+        return;
+    // Waiting for other GTKs
+    if (gtkl != gtkl_kde) {
+        timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
+        return;
+    }
+    if (supp->on_all_keys_installed)
+        supp->on_all_keys_installed(supp);
 }
 
 static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_key_frame *frame,
