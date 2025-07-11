@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "common/capture.h"
 #include "common/ws/ws_interface.h"
 #include "common/ieee802154_frame.h"
 #include "common/iobuf.h"
@@ -43,6 +44,7 @@ int eapol_relay_start(const char ifname[IF_NAMESIZE])
     ret = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, IF_NAMESIZE);
     FATAL_ON(ret < 0, 2, "%s: setsockopt SO_BINDTODEVICE: %m", __func__);
 
+    capture_register_netfd(fd);
     return fd;
 }
 
@@ -64,7 +66,7 @@ ssize_t eapol_relay_recv(int fd, void *buf, size_t buf_len, struct in6_addr *src
     };
     ssize_t ret;
 
-    ret = recvmsg(fd, &msg, 0);
+    ret = xrecvmsg(fd, &msg, 0);
     if (ret < 0) {
         WARN("%s: recv: %m", __func__);
         return -errno;
@@ -104,7 +106,7 @@ void eapol_relay_send(int fd, const void *buf, size_t buf_len,
     ssize_t ret;
 
     TRACE(TR_SECURITY, "sec: %-8s supp=%s", "tx-eapol-rel", tr_eui64(supp_eui64->u8));
-    ret = sendmsg(fd, &msg, 0);
+    ret = xsendmsg(fd, &msg, 0);
     if (ret < 0)
         TRACE(TR_TX_ABORT, "tx-abort %-9s: %m", "eapol-rel");
 }
