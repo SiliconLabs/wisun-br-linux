@@ -85,6 +85,10 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
 
 bool ws_ie_validate_us(const struct ws_info *ws_info, const struct ws_us_ie *ie_us)
 {
+    if (ie_us->chan_plan.channel_function != WS_CHAN_FUNC_FIXED && !ie_us->dwell_interval) {
+        TRACE(TR_DROP, "drop %-9s: invalid dwell interval", "15.4");
+        return false;
+    }
     return ws_ie_validate_schedule(ws_info, &ie_us->chan_plan, "US-IE");
 }
 
