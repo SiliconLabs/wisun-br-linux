@@ -55,7 +55,6 @@ bool ws_ie_validate_schedule(struct ws_fhss_config *fhss, const struct ws_generi
             return false;
         }
         break;
-    case WS_CHAN_FUNC_TR51CF:
     case WS_CHAN_FUNC_DH1CF:
         break;
     default:

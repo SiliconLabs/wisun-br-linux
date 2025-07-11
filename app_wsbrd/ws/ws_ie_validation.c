@@ -63,7 +63,6 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
             return false;
         }
         break;
-    case WS_CHAN_FUNC_TR51CF:
     case WS_CHAN_FUNC_DH1CF:
         break;
     default:
