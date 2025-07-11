@@ -415,8 +415,9 @@ void radius_recv(struct auth_ctx *auth)
         return;
     }
 
-    hdr = iobuf_pop_data_ptr(&iobuf, sizeof(*hdr));
-    if (!hdr || ntohs(hdr->len) > iobuf.data_size) {
+    hdr = iobuf_pop_data_ptr(&iobuf, sizeof(struct radius_hdr));
+    if (!hdr || ntohs(hdr->len) > iobuf.data_size ||
+        ntohs(hdr->len) < sizeof(struct radius_hdr)) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "radius");
         return;
     }
