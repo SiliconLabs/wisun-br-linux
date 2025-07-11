@@ -517,6 +517,8 @@ if(COMPILE_DEVTOOLS)
         -Wl,--wrap=socket
         -Wl,--wrap=setsockopt
         -Wl,--wrap=bind
+        -Wl,--wrap=connect
+        -Wl,--wrap=send
         -Wl,--wrap=sendto
         -Wl,--wrap=sendmsg
         -Wl,--wrap=xgetrandom

@@ -229,6 +229,26 @@ int __wrap_bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
         return __real_bind(sockfd, addr, addrlen);
 }
 
+int __real_connect(int fd, const struct sockaddr *addr, socklen_t len);
+int __wrap_connect(int fd, const struct sockaddr *addr, socklen_t len)
+{
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
+    if (ctxt->replay_count)
+        return 0;
+    else
+        return __real_connect(fd, addr, len);
+}
+
+ssize_t __real_send(int sockfd, const void *buf, size_t len, int flags);
+ssize_t __wrap_send(int sockfd, const void *buf, size_t len, int flags)
+{
+    if (g_fuzz_ctxt.replay_count)
+        return len;
+    else
+        return __real_send(sockfd, buf, len, flags);
+}
+
 ssize_t __real_sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
 ssize_t __wrap_sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
 {
