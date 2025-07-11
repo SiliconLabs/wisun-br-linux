@@ -174,6 +174,13 @@ int tls_load_pem(struct mbedtls_x509_crt *cert, const uint8_t *buf, size_t buf_l
     return loaded_certs;
 }
 
+static int tls_rand(void *ctx, unsigned char *output, size_t len, size_t *olen)
+{
+    rand_get_n_bytes_random(output, len);
+    *olen = len;
+    return 0;
+}
+
 void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
 {
     /*
@@ -245,6 +252,14 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     BUG_ON(ret);
 
     mbedtls_entropy_init(&tls->entropy);
+    /*
+     * The default MbedTLS entropy source uses syscall(SYS_getrandom, ...),
+     * which is difficult to stub for fuzzing or simulation. Replace with
+     * xgetrandom().
+     */
+    tls->entropy.MBEDTLS_PRIVATE(source_count) = 0;
+    xmbedtls_entropy_add_source(&tls->entropy, tls_rand, NULL, 0,
+                                MBEDTLS_ENTROPY_SOURCE_STRONG);
     mbedtls_ctr_drbg_init(&tls->ctr_drbg);
     ret = mbedtls_ctr_drbg_seed(&tls->ctr_drbg , mbedtls_entropy_func, &tls->entropy, NULL, 0);
     BUG_ON(ret);

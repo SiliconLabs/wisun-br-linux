@@ -65,6 +65,7 @@ static inline const unsigned char *mbedtls_pem_get_buffer(mbedtls_pem_context *c
 #define xmbedtls_sha256_update(ctx, input, ilen)                    XMBEDTLS(sha256_update, ctx, input, ilen)
 #define xmbedtls_sha256_finish(ctx, output)                         XMBEDTLS(sha256_finish, ctx, output)
 #define xmbedtls_sha256(input, ilen, output, is224)                 XMBEDTLS(sha256, input, ilen, output, is224)
+#define xmbedtls_entropy_add_source(ctx, f, p, threshold, strong)   XMBEDTLS(entropy_add_source, ctx, f, p, threshold, strong)
 
 #endif
 
