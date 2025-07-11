@@ -22,6 +22,7 @@
 #include "common/specs/eap.h"
 #include "common/specs/eapol.h"
 #include "common/specs/ieee802159.h"
+#include "common/capture.h"
 #include "common/eap.h"
 #include "common/eapol.h"
 #include "common/endian.h"
@@ -127,6 +128,7 @@ void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
     FATAL_ON(auth->radius_fd < 0, 2, "%s: socket: %m", __func__);
     ret = connect(auth->radius_fd, &u.sa, sizeof(u));
     FATAL_ON(ret < 0, 2, "%s: connect: %m", __func__);
+    capture_register_netfd(auth->radius_fd);
 }
 
 // RFC 2865 5. Attributes
@@ -409,7 +411,7 @@ void radius_recv(struct auth_ctx *auth)
     int ret;
 
     iobuf.data = buf;
-    iobuf.data_size = recv(auth->radius_fd, buf, sizeof(buf), 0);
+    iobuf.data_size = xrecv(auth->radius_fd, buf, sizeof(buf), 0);
     if (iobuf.data_size < 0) {
         WARN("%s: recv: %m", __func__);
         return;
@@ -517,7 +519,7 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     BUG_ON(buf_len < sizeof(*hdr));
     TRACE(TR_SECURITY, "sec: tx-radius code=%-16s id=%u",
           tr_radius_code(hdr->code), hdr->id);
-    ret = send(auth->radius_fd, buf, buf_len, 0);
+    ret = xsend(auth->radius_fd, buf, buf_len, 0);
     WARN_ON(ret < 0, "%s: send: %m", __func__);
 }
 
