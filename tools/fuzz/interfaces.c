@@ -177,7 +177,6 @@ ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
     if (!ctxt->replay_count)
         return __real_recvmsg(sockfd, msg, flags);
 
-    BUG_ON(msg->msg_iovlen != 1);
     iface = fuzz_iface_get(ctxt, sockfd);
     if (msg->msg_namelen) {
         BUG_ON(msg->msg_namelen < sizeof(struct sockaddr_in6));
@@ -196,7 +195,7 @@ ssize_t __wrap_recvmsg(int sockfd, struct msghdr *msg, int flags)
         pktinfo.ipi6_addr = iface->dst_addr;
         memcpy(CMSG_DATA(cmsg), &pktinfo, sizeof(pktinfo));
     }
-    return read(sockfd, msg->msg_iov[0].iov_base, msg->msg_iov[0].iov_len);
+    return readv(sockfd, msg->msg_iov, msg->msg_iovlen);
 }
 
 int __real_socket(int domain, int type, int protocol);
