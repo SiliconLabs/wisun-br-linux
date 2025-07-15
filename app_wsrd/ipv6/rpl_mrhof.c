@@ -131,6 +131,20 @@ static const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_nei
     return NULL;
 }
 
+static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+{
+    const char *discard;
+    float etx;
+
+    discard = rpl_mrhof_is_candidate(ipv6, nce);
+    if (discard)
+        return false;
+    etx = rpl_mrhof_etx(ipv6, nce);
+    if (isnan(etx))
+        return true;
+    return false;
+}
+
 const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
 {
     const char *discard;
@@ -142,18 +156,8 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
         return discard;
     new_rank = rpl_mrhof_rank(ipv6, nce);
     etx = rpl_mrhof_etx(ipv6, nce);
-    if (isnan(etx)) {
-        /*
-         *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
-         * The FFN MUST perform unicast Neighbor Discovery (Neighbor
-         * Solicit using its link local IPv6 address) with all FFNs from
-         * which it has received a RPL DIO (thereby collecting ETX and
-         * bi-directional RSL for the neighbor).
-         */
-        if (nce->nud_state != IPV6_NUD_PROBE)
-            ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+    if (isnan(etx))
         return "etx";
-    }
     /*
      * If the selected metric for a link is greater than MAX_LINK_METRIC,
      * the node SHOULD exclude that link from consideration during parent
@@ -227,6 +231,17 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         new_rank = rpl_mrhof_rank(ipv6, nce);
         discard = rpl_mrhof_check_candidate(ipv6, nce, rank_limit);
+        if (discard && rpl_mrhof_is_probe_needed(ipv6, nce)) {
+            /*
+             *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
+             * The FFN MUST perform unicast Neighbor Discovery (Neighbor
+             * Solicit using its link local IPv6 address) with all FFNs from
+             * which it has received a RPL DIO (thereby collecting ETX and
+             * bi-directional RSL for the neighbor).
+             */
+            if (nce->nud_state != IPV6_NUD_PROBE)
+                ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+        }
         if (discard) {
             TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
                   tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank, discard);
