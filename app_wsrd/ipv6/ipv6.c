@@ -458,8 +458,8 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         goto err;
     hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
 
-    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, true))
-        return;
+    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, true) < 0)
+        goto err;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
 
     TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
