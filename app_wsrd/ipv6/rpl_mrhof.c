@@ -110,10 +110,9 @@ static uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_r
     return rank_limit - 1;
 }
 
-const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
+static const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
-    uint16_t new_rank;
     float etx;
 
     BUG_ON(!nce->rpl);
@@ -129,7 +128,20 @@ const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *
         return "denied";
     if (ipv6_neigh_is_child(nce))
         return "child";
+    return NULL;
+}
+
+const char *rpl_mrhof_check_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce, uint16_t rank_limit)
+{
+    const char *discard;
+    uint16_t new_rank;
+    float etx;
+
+    discard = rpl_mrhof_is_candidate(ipv6, nce);
+    if (discard)
+        return discard;
     new_rank = rpl_mrhof_rank(ipv6, nce);
+    etx = rpl_mrhof_etx(ipv6, nce);
     if (isnan(etx)) {
         /*
          *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
