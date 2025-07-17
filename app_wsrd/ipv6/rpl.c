@@ -184,6 +184,7 @@ static void rpl_parent_update_timer_cb(struct timer_group *group, struct timer_e
 
     BUG_ON(rfc8415_txalg_stopped(&ipv6->rpl.dis_txalg));
     rpl_update_parent(ipv6);
+    TRACE(TR_RPL, "rpl: next parent selection in %"PRIu64"ms", timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt));
 }
 
 static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,

@@ -856,6 +856,10 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
         }
     if (!nb_candidates || nb_candidates > ARRAY_SIZE(best_rsl_neighs))
         rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
-    if (timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt) > RPL_PARENT_UPDATE_DELAY_MS)
+    if (timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt) > RPL_PARENT_UPDATE_DELAY_MS) {
         timer_start_rel(&ipv6->timer_group, &ipv6->rpl.parent_update_timer, RPL_PARENT_UPDATE_DELAY_MS);
+        TRACE(TR_RPL, "rpl: next parent selection in %"PRIu64"ms", timer_remaining_ms(&ipv6->rpl.parent_update_timer));
+    } else {
+        TRACE(TR_RPL, "rpl: next parent selection in %"PRIu64"ms", timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt));
+    }
 }
