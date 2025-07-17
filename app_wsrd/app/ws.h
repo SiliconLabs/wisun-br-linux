@@ -35,6 +35,7 @@ void ws_on_send_pas(struct trickle *tkl);
 void ws_on_send_pa(struct trickle *tkl);
 void ws_on_send_pcs(struct trickle *tkl);
 void ws_on_send_pc(struct trickle *tkl);
+void ws_on_send_dis(struct rfc8415_txalg *txalg);
 
 void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id);
 void ws_set_pan_version(struct wsrd *wsrd, int pan_version);

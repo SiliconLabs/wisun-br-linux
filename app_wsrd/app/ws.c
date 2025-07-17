@@ -13,6 +13,7 @@
  */
 #define _GNU_SOURCE
 #include <errno.h>
+#include <math.h>
 
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
@@ -22,6 +23,7 @@
 #include "common/ws/ws_interface.h"
 #include "common/ws/ws_regdb.h"
 #include "common/ws/ws_types.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/hif.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
@@ -41,6 +43,13 @@
 #include "app_wsrd/app/wsrd.h"
 
 #include "ws.h"
+
+/*
+ * Maximum number of candidates to send unicast DIS.
+ * If we have more than this number of candidates, a multicast DIS is also sent.
+ * If we have no candidates, we send a multicast DIS.
+ */
+#define WS_RPL_DIS_UC_CAND_MAX 5
 
 /*
  *   Wi-SUN FAN1.1v09 6.3.2.3.2.3 PAN Information Element (PAN-IE)
@@ -776,4 +785,63 @@ void ws_on_send_pc(struct trickle *tkl)
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pc_tkl);
 
     ws_if_send_pc(&wsrd->ws);
+}
+
+static void ws_on_send_dis_insert_neigh(const struct ws_neigh *neighs[WS_RPL_DIS_UC_CAND_MAX],
+                                        const struct ws_neigh *neigh)
+{
+    int worst_slot = 0;
+
+    BUG_ON(isnan(neigh->rsl_in_dbm_unsecured));
+    for (int i = 0; i < WS_RPL_DIS_UC_CAND_MAX; i++) {
+        if (!neighs[i]) {
+            neighs[i] = neigh;
+            return;
+        }
+        if (neighs[i]->rsl_in_dbm_unsecured < neighs[worst_slot]->rsl_in_dbm_unsecured)
+            worst_slot = i;
+    }
+    if (neigh->rsl_in_dbm_unsecured > neighs[worst_slot]->rsl_in_dbm_unsecured)
+        neighs[worst_slot] = neigh;
+}
+
+void ws_on_send_dis(struct rfc8415_txalg *txalg)
+{
+    struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dis_txalg);
+    const struct ws_neigh *best_rsl_neighs[WS_RPL_DIS_UC_CAND_MAX] = { };
+    struct in6_addr dst = ipv6_prefix_linklocal;
+    struct ipv6_neigh *nce;
+    struct ws_neigh *neigh;
+    int nb_candidates = 0;
+
+    /*
+     *   Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
+     * A Router MAY wait for DIO messages, MAY solicit a DIO by issuing a
+     * unicast DIS to a likely neighbor, or MAY solicit a DIO by issuing a
+     * multicast DIS (as described in [RFC6550]).
+     *
+     * NOTE: This implementation sends unicast DIS packets to a limited
+     * number of neighboring nodes.
+     */
+    SLIST_FOREACH(neigh, &ipv6->rpl.mrhof.ws_neigh_table->neigh_list, link) {
+        // TODO: Determine better creterias to filter out bad candidates (eg.
+        // network name, PAN ID, PAN-IE routing metric, RSL...).
+        if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
+            continue;
+        nce = ipv6_neigh_get_from_eui64(ipv6, &neigh->eui64);
+        if ((!nce || !nce->rpl) && !rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh) && !isnan(neigh->rsl_out_dbm))
+            continue;
+        if (nce && nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, WS_ETX_MAX))
+            continue;
+        ws_on_send_dis_insert_neigh(best_rsl_neighs, neigh);
+        nb_candidates++;
+    }
+
+    for (int i = 0; i < ARRAY_SIZE(best_rsl_neighs); i++)
+        if (best_rsl_neighs[i]) {
+            ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, best_rsl_neighs[i]->eui64.u8);
+            rpl_send_dis(ipv6, &dst);
+        }
+    if (!nb_candidates || nb_candidates > ARRAY_SIZE(best_rsl_neighs))
+        rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
 }

@@ -211,6 +211,7 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.dis_txalg.mrt_s = 180,
     .ipv6.rpl.dis_txalg.rand_min = -0.1,
     .ipv6.rpl.dis_txalg.rand_max = +0.1,
+    .ipv6.rpl.dis_txalg.tx = ws_on_send_dis,
     .ipv6.rpl.dio_trickle.debug_name = "dio",
     .ipv6.rpl.on_dao_ack = wsrd_on_dao_ack,
     .ipv6.rpl.fd = -1,

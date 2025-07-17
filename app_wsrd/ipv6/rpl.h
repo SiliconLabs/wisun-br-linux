@@ -45,6 +45,10 @@ struct rpl_ctx {
 
     struct trickle       dio_trickle;
     struct trickle_cfg   dio_trickle_cfg;
+    /*
+     * Integrator is responsible for implementing dis_txalg.tx, which should
+     * call rpl_send_dis() a limited number of times.
+     */
     struct rfc8415_txalg dis_txalg;
     struct rfc8415_txalg dao_txalg;
     struct timer_entry   dao_refresh_timer;
@@ -60,6 +64,7 @@ void rpl_recv(struct ipv6_ctx *ipv6);
 void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct in6_addr *dst);
 void rpl_start_dio(struct ipv6_ctx *ipv6);
 void rpl_start_dis(struct ipv6_ctx *ipv6);
+void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst);
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 
