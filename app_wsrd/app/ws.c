@@ -815,6 +815,14 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
     struct ws_neigh *neigh;
     int nb_candidates = 0;
 
+    BUG_ON(!timer_stopped(&ipv6->rpl.parent_update_timer));
+    // Ensure we have sent at least one DIS wave before selecting a parent
+    if (txalg->c > 0) {
+        rpl_update_parent(ipv6);
+        nce = rpl_neigh_pref_parent(ipv6);
+        if (nce)
+            return;
+    }
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     /*
      *   Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
@@ -848,4 +856,6 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
         }
     if (!nb_candidates || nb_candidates > ARRAY_SIZE(best_rsl_neighs))
         rpl_send_dis(ipv6, &ipv6_addr_all_rpl_nodes_link);
+    if (timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt) > RPL_PARENT_UPDATE_DELAY_MS)
+        timer_start_rel(&ipv6->timer_group, &ipv6->rpl.parent_update_timer, RPL_PARENT_UPDATE_DELAY_MS);
 }

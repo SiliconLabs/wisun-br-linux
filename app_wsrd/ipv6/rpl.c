@@ -52,13 +52,20 @@ static const char *tr_icmp_rpl(uint8_t code)
     return val_to_str(code, rpl_codes, "unknown");
 }
 
+bool rpl_can_update_parent(struct ipv6_ctx *ipv6)
+{
+    return timer_stopped(&ipv6->rpl.parent_update_timer) &&
+           rfc8415_txalg_stopped(&ipv6->rpl.dis_txalg);
+}
+
 void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     BUG_ON(!neigh->rpl);
     timer_start_rel(&ipv6->timer_group, &neigh->rpl->deny_timer, 10 * 60 * 1000);
     TRACE(TR_NEIGH_IPV6, "rpl: neigh deny %s for %"PRIu64"s", tr_ipv6(neigh->gua.s6_addr),
           timer_duration_ms(&neigh->rpl->deny_timer) / 1000);
-    rpl_update_parent(ipv6);
+    if (rpl_can_update_parent(ipv6))
+        rpl_update_parent(ipv6);
 }
 
 static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
@@ -77,7 +84,7 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     // TODO: timer for prefix lifetime
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
           tr_ipv6(nce->gua.s6_addr), ntohs(dio->rank));
-    if (update)
+    if (update && rpl_can_update_parent(ipv6))
         rpl_update_parent(ipv6);
 }
 
@@ -92,7 +99,8 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     nce->rpl->config = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
     rpl_neigh_update(ipv6, nce, dio, config, prefix);
-    rpl_update_parent(ipv6);
+    if (rpl_can_update_parent(ipv6))
+        rpl_update_parent(ipv6);
 }
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
@@ -168,6 +176,14 @@ void rpl_update_parent(struct ipv6_ctx *ipv6)
     if (ipv6->rpl.mrhof.on_pref_parent_change)
         ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, pref_parent_new);
     // TODO: support secondary parents
+}
+
+static void rpl_parent_update_timer_cb(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
+
+    BUG_ON(rfc8415_txalg_stopped(&ipv6->rpl.dis_txalg));
+    rpl_update_parent(ipv6);
 }
 
 static void rpl_opt_push(struct iobuf_write *iobuf, uint8_t type,
@@ -301,12 +317,14 @@ void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
 
 void rpl_start_dis(struct ipv6_ctx *ipv6)
 {
+    BUG_ON(!timer_stopped(&ipv6->rpl.parent_update_timer));
     rfc8415_txalg_start(&ipv6->rpl.dis_txalg);
 }
 
 void rpl_stop_dis(struct ipv6_ctx *ipv6)
 {
     rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
+    timer_stop(&ipv6->timer_group, &ipv6->rpl.parent_update_timer);
 }
 
 static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
@@ -780,6 +798,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dao_txalg.fail = rpl_dao_txalg_failure;
     rfc8415_txalg_init(&ipv6->rpl.dao_txalg);
     ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
+    ipv6->rpl.parent_update_timer.callback = rpl_parent_update_timer_cb;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);

@@ -29,6 +29,7 @@ struct ipv6_neigh;
 struct timer_ctxt;
 
 #define RPL_RANK_INFINITE UINT16_MAX
+#define RPL_PARENT_UPDATE_DELAY_MS (10 * 1000) // 10s
 
 struct rpl_neigh {
     struct rpl_dio dio;
@@ -52,6 +53,7 @@ struct rpl_ctx {
     struct rfc8415_txalg dis_txalg;
     struct rfc8415_txalg dao_txalg;
     struct timer_entry   dao_refresh_timer;
+    struct timer_entry parent_update_timer;
     uint8_t path_seq; // Serves as both path seqno and dao seqno
     struct rpl_mrhof mrhof;
 
@@ -71,6 +73,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6);
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6);
+bool rpl_can_update_parent(struct ipv6_ctx *ipv6);
 void rpl_update_parent(struct ipv6_ctx *ipv6);
 void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
