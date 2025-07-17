@@ -40,6 +40,26 @@ struct rpl_neigh {
     bool rsl_valid;
 };
 
+/*
+ * Parent selection logic when dis_txalg is not running:
+ * 1. On DIO RX from a new sender
+ * 2. On DIO RX from a known sender with updated values
+ * 3. When a neighbor is denied (most likely, our current parent)
+ * 4. On ETX update
+ *
+ * Parent selection timing when dis_txalg is running:
+ * 1. Before sending DIS: when dis_txalg.tx() is called.
+ * 2. RPL_PARENT_UPDATE_DELAY_MS after the last DIS transmission.
+ *
+ * This enables:
+ * - Fast parent selection if any is eligible after sending unicast DIS.
+ * - Time to receive and process multicast DIO responses.
+ *
+ * Notes:
+ * - The dis_txalg timing parameters directly control how frequently
+ *   parent selection can occur when dis_txalg is running.
+ * - No parent selection is done without sending at least one DIS wave.
+ */
 struct rpl_ctx {
     int fd;
     bool compat;
