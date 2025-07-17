@@ -465,6 +465,17 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         goto err;
     hdr = (const struct ip6_hdr *)pktbuf_head(&pktbuf);
 
+    if (IN6_IS_ADDR_MULTICAST(&hdr->ip6_dst) &&
+        IN6_ADDR_MC_SCOPE(&hdr->ip6_dst) > IN6_ADDR_MC_SCOPE_LINK) {
+        if (IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: routing not ready", "ipv6");
+            goto err;
+        }
+        mpl_msg_gen(&ipv6->mpl, &ipv6->dhcp.iaaddr.ipv6, &pktbuf);
+        pktbuf_free(&pktbuf);
+        return;
+    }
+
     if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, true) < 0)
         goto err;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);

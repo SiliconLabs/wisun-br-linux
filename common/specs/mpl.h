@@ -13,6 +13,8 @@
  */
 #ifndef SPECS_MPL_H
 #define SPECS_MPL_H
+#include <netinet/ip6.h>
+#include <assert.h>
 #include <stdint.h>
 
 // RFC 7731 6.1. MPL Option
@@ -31,5 +33,22 @@ enum {
     MPL_S_64  = 2,
     MPL_S_128 = 3,
 };
+
+struct mpl_tunhdr {
+    struct ip6_hdr hdr;
+    struct {
+        struct ip6_hbh hdr;
+        struct {
+            struct ip6_opt hdr;
+            struct mpl_opt data;
+        } opt_mpl;
+        struct {
+            struct ip6_opt hdr;
+        } opt_pad;
+    } hbh;
+};
+
+static_assert(sizeof(((struct mpl_tunhdr *)0)->hbh) % 8 == 0,
+              "invalid hop-by-hop header size");
 
 #endif

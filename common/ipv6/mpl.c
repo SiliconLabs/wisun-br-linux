@@ -16,11 +16,13 @@
 #include <sys/queue.h>
 #include <errno.h>
 
+#include "common/specs/ipv6.h"
 #include "common/specs/mpl.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
+#include "common/pktbuf.h"
 #include "common/seqno.h"
 #include "common/sys_queue_extra.h"
 #include "common/trickle.h"
@@ -288,6 +290,51 @@ static void mpl_msg_del(struct mpl_ctx *mpl, struct mpl_seed *seed, struct mpl_m
     SLIST_REMOVE(&seed->msg_set, msg, mpl_msg, link);
     trickle_stop(&msg->tkl, &mpl->timer_group);
     free(msg);
+}
+
+// RFC 7731 9.1. MPL Data Message Generation
+int mpl_msg_gen(struct mpl_ctx *mpl,
+                const struct in6_addr *src,
+                struct pktbuf *pktbuf)
+{
+    struct mpl_tunhdr *tunhdr;
+    struct mpl_seed *seed;
+    struct mpl_msg *msg;
+
+    tunhdr = pktbuf_push_head(pktbuf, NULL, sizeof(struct mpl_tunhdr));
+    tunhdr->hdr.ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6));
+    tunhdr->hdr.ip6_plen = htons(sizeof(struct mpl_tunhdr) - sizeof(struct ip6_hdr) + pktbuf_len(pktbuf));
+    tunhdr->hdr.ip6_nxt  = IPPROTO_HOPOPTS;
+    tunhdr->hdr.ip6_hlim = 24; // Arbitrary
+    tunhdr->hdr.ip6_src  = *src;
+    tunhdr->hdr.ip6_dst  = ipv6_addr_all_mpl_fwd_realm;
+    tunhdr->hbh.hdr.ip6h_nxt = IPPROTO_IPV6;
+    tunhdr->hbh.hdr.ip6h_len = sizeof(tunhdr->hbh) / 8 - 1;
+    tunhdr->hbh.opt_mpl.hdr.ip6o_type = IPV6_OPTION_MPL;
+    tunhdr->hbh.opt_mpl.hdr.ip6o_len  = sizeof(struct mpl_opt);
+    tunhdr->hbh.opt_mpl.data.flags    = FIELD_PREP(MPL_MASK_S, MPL_S_SRC);
+    tunhdr->hbh.opt_pad.hdr.ip6o_type = IP6OPT_PADN;
+    tunhdr->hbh.opt_pad.hdr.ip6o_len  = 0;
+
+    seed = mpl_seed_get(mpl, src, &tunhdr->hbh.opt_mpl.data);
+    if (!seed)
+        seed = mpl_seed_new(mpl, src, &tunhdr->hbh.opt_mpl.data);
+
+    if (SLIST_EMPTY(&seed->msg_set)) {
+        tunhdr->hbh.opt_mpl.data.seq = seed->min_seq;
+    } else {
+        // Get highest seq
+        SLIST_FOREACH(msg, &seed->msg_set, link)
+            tunhdr->hbh.opt_mpl.data.seq = mpl_msg_seq(msg);
+        tunhdr->hbh.opt_mpl.data.seq++;
+        if (seqno_cmp8(tunhdr->hbh.opt_mpl.data.seq, seed->min_seq) < 0) {
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: too many packets queued", "mpl");
+            return -EBUSY;
+        }
+    }
+
+    mpl_msg_new(mpl, seed, &tunhdr->hdr, &tunhdr->hbh.opt_mpl.data);
+    return 0;
 }
 
 // RFC 7731 9.3. MPL Data Message Processing

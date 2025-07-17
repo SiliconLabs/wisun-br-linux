@@ -18,8 +18,10 @@
 
 #include "common/trickle.h"
 
+struct in6_addr;
 struct ip6_hdr;
 struct ip6_opt;
+struct pktbuf;
 
 // Declare mpl_seed_set
 SLIST_HEAD(mpl_seed_set, mpl_seed);
@@ -36,6 +38,9 @@ struct mpl_ctx {
     void (*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
 };
 
+int mpl_msg_gen(struct mpl_ctx *mpl,
+                const struct in6_addr *src,
+                struct pktbuf *pktbuf);
 int mpl_opt_process(struct mpl_ctx *mpl,
                     const struct ip6_hdr *hdr,
                     const struct ip6_opt *opt);
