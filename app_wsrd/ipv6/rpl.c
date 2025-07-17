@@ -304,6 +304,11 @@ void rpl_start_dis(struct ipv6_ctx *ipv6)
     rfc8415_txalg_start(&ipv6->rpl.dis_txalg);
 }
 
+void rpl_stop_dis(struct ipv6_ctx *ipv6)
+{
+    rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
+}
+
 static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);

@@ -171,7 +171,7 @@ static void join_state_4_choose_parent_exit(struct wsrd *wsrd)
 {
     BUG_ON(rfc8415_txalg_stopped(&wsrd->ipv6.rpl.dis_txalg));
 
-    rfc8415_txalg_stop(&wsrd->ipv6.rpl.dis_txalg);
+    rpl_stop_dis(&wsrd->ipv6);
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = WS_ETX_UPDATE_MIN_DELAY_MS;
     wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = WS_ETX_REFRESH_PERIOD_MS;
