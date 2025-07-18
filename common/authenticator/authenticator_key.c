@@ -178,6 +178,7 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
 
     auth_send_eapol(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
     auth_rt_timer_start(auth, supp, kmp_id, pktbuf_head(&message), pktbuf_len(&message));
+    pktbuf_free(&message);
 }
 
 static void auth_key_write_key_data(struct auth_ctx *auth, const struct auth_supp_ctx *supp,
