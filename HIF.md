@@ -524,7 +524,7 @@ OFDM configurations, all MCS are defined in the same entry.
  - `struct rf_config[]`  
     - `uint16_t flags`  
         - `0x0001`: If set, this entry is in same group than the previous.
-        - `0x01FE`: Bitfield of supported OFDM MCS (from MCS0 to MCS11).
+        - `0x01fe`: Bitfield of supported OFDM MCS (from MCS0 to MCS7).
     - `uint8_t rail_phy_mode_id`  
        Wi-SUN _PhyModeId_. For OFDM, only the _PhyType_ is set, and MCS support
        is indicated in the `flags` field.
