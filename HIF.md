@@ -351,10 +351,14 @@ Only present if `MODE_SWITCH`:
     is successful, or all rates have been tried.
      - `uint8_t phy_mode_id`: Wi-SUN _PhyModeId_, must be in the group selected
         with [`SET_RADIO`][rf-set].
-     - `uint8_t tx_attempts`: The maximum number of attempts allowed for this
-        rate. Once this limit is exceeded, the next entry will be tried. Note
-        that this valude overrides `macMaxFrameRetries` described in
-        ["Channel Access and Retries"][cca].
+     - `uint8_t bitfield`  
+        - `0x1f tx_attempts`: The maximum number of attempts allowed for this
+          rate. Once this limit is exceeded, the next entry will be tried. Note
+          that this valude overrides `macMaxFrameRetries` described in
+          ["Channel Access and Retries"][cca].
+        - `0x80 alt_phy` (API >= 2.10.0): Transmit using alternate PHY and skip
+          mode switch PHR or MAC command. See the Silicon Labs [concurrent mode
+          documentation][an1410] for more information.
      - `int8_t tx_power_dbm`: The TX power to use with this entry, saturates to
         the value configured with [`SET_RADIO_TX_POWER`][rf-pow].
 
