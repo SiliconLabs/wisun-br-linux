@@ -503,7 +503,10 @@ issued by the host during a startup sequence before selecting a PHY
 configuration. The RCP will answer with a series of [`CNF_RADIO_LIST`][rf-list]
 commands.
 
-Body of this command is empty.
+ - `bool include_alt_phy` (API >= 2.10)  
+    If set, alternate PHYs are included in the response command, which lets the
+    host know which PHYs it can use for concurrent mode TX with
+    [`REQ_DATA_TX`][tx-req].
 
 ### `0x22 CNF_RADIO_LIST`
 
@@ -525,6 +528,17 @@ OFDM configurations, all MCS are defined in the same entry.
     - `uint16_t flags`  
         - `0x0001`: If set, this entry is in same group than the previous.
         - `0x01fe`: Bitfield of supported OFDM MCS (from MCS0 to MCS7).
+        - `0x0200`: If set, this entry is an alternate PHY associated with the
+           previous entry. Alternate PHY entries have the same content as
+           regular entries but they must be handled a bit differently:
+             - The "group" bit must be ignored, and the entry must not be
+               considered part of any mode switch group. The following regular
+               entry follows normal rules for mode switch groups, based on the
+               previous regular entry.
+             - The `index` passed to [`SET_RADIO`][rf-set] does not count the
+               alternate PHY entries. Only the base PHY can be selected.
+           See the RAIL [concurrent mode documentation][an1410] for more
+           information.
     - `uint8_t rail_phy_mode_id`  
        Wi-SUN _PhyModeId_. For OFDM, only the _PhyType_ is set, and MCS support
        is indicated in the `flags` field.
@@ -537,12 +551,16 @@ OFDM configurations, all MCS are defined in the same entry.
     - `uint16_t sensitivity` (API >= 2.4.0)  
        Minimum RX sensitivity in dBm for this PHY.
 
+[an1410]: https://www.silabs.com/documents/public/application-notes/an1410-concurrent-mode-with-railtest.pdf
+
 ### `0x23 SET_RADIO`
 
 Configure the radio parameters.
 
  - `uint8_t index`  
-    Index in the `rf_config` list.
+    Index in the `rf_config` list. If the entry has an associated alternate
+    PHY, it will be used for concurrent detection when receiving packets.
+    See the RAIL [concurrent mode documentation][an1410] for more information.
 
  - `uint8_t mcs`  
     MCS to be used if `index` points to an OFDM modulation.
