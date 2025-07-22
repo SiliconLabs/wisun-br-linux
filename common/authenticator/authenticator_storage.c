@@ -236,6 +236,7 @@ static void auth_storage_load_supplicants(struct auth_ctx *auth)
         return;
     for (int i = 0; globbuf.gl_pathv[i]; i++)
         auth_storage_load_supplicant(auth, globbuf.gl_pathv[i]);
+    globfree(&globbuf);
 }
 
 bool auth_storage_load(struct auth_ctx *auth)
