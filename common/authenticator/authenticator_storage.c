@@ -219,6 +219,7 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
     }
     if (!auth_is_supp_pmk_valid(auth, supp))
         auth_revoke_pmk(auth, &eui64);
+    storage_close(info);
     return true;
 }
 
