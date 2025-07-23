@@ -407,7 +407,7 @@ void radius_recv(struct auth_ctx *auth)
     struct iobuf_read iobuf = { };
     const struct radius_hdr *hdr;
     struct auth_supp_ctx *supp;
-    uint8_t buf[1024];
+    uint8_t buf[1500];
     int ret;
 
     iobuf.data = buf;
