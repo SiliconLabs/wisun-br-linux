@@ -28,5 +28,18 @@
     !IN6_IS_ADDR_MULTICAST(a)   && \
     !IN6_IS_ADDR_LINKLOCAL(a)      \
 )
+// RFC 4291 2.7. Multicast Addresses
+#define IN6_ADDR_MC_SCOPE(a) ((a)->s6_addr[1] & 0x0f)
+
+// RFC 7346 2. Definition of IPv6 Multicast Address Scopes
+enum {
+    IN6_ADDR_MC_SCOPE_IFACE  = 0x01,
+    IN6_ADDR_MC_SCOPE_LINK   = 0x02,
+    IN6_ADDR_MC_SCOPE_REALM  = 0x03,
+    IN6_ADDR_MC_SCOPE_ADMIN  = 0x04,
+    IN6_ADDR_MC_SCOPE_SITE   = 0x05,
+    IN6_ADDR_MC_SCOPE_ORG    = 0x08,
+    IN6_ADDR_MC_SCOPE_GLOBAL = 0x0e,
+};
 
 #endif
