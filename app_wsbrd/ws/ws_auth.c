@@ -116,11 +116,11 @@ int ws_auth_revoke_gtks(struct net_if *net_if, bool is_lgtk, const uint8_t new_g
 int ws_auth_install_gtk(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16])
 {
     struct auth_gtk_group *gtk_group;
+    int slot;
 
     gtk_group = is_lgtk ? &net_if->auth->lgtk_group : &net_if->auth->gtk_group;
-    return auth_install_gtk(net_if->auth, gtk_group,
-                            auth_gtk_slot_next(gtk_group->slot_active),
-                            new_gtk);
+    slot = auth_gtk_slot_next(auth_gtk_slot_latest(net_if->auth, gtk_group));
+    return auth_install_gtk(net_if->auth, gtk_group, slot, new_gtk);
 }
 
 void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter)

@@ -106,7 +106,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     auth_activate_next_gtk(auth, gtk_group);
 }
 
-static int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_gtk_group *gtk_group)
+int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_gtk_group *gtk_group)
 {
     int slot_count = (gtk_group == &auth->gtk_group) ? WS_GTK_COUNT : WS_LGTK_COUNT;
     int slot_offset = (gtk_group == &auth->gtk_group) ? 0 : WS_GTK_COUNT;
