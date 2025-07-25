@@ -33,6 +33,15 @@
 #include <mbedtls/sha256.h>
 #include <mbedtls/ssl.h>
 
+static inline const mbedtls_pk_context *mbedtls_x509_crt_pk(const mbedtls_x509_crt *crt)
+{
+#if MBEDTLS_VERSION_NUMBER >= 0x03010000
+    return &crt->pk;
+#else
+    return &crt->MBEDTLS_PRIVATE(pk);
+#endif
+}
+
 #if MBEDTLS_VERSION_NUMBER < 0x03020000
 static inline bool mbedtls_ssl_is_handshake_over(struct mbedtls_ssl_context *ssl_ctx) {
     return ssl_ctx->private_state == MBEDTLS_SSL_HANDSHAKE_OVER;

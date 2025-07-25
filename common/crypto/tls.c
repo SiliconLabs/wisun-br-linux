@@ -260,6 +260,9 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     ret = mbedtls_pk_parse_key(&tls->key, cfg->key.iov_base, cfg->key.iov_len, NULL, 0,
                                mbedtls_ctr_drbg_random, &tls->ctr_drbg);
     FATAL_ON(ret, 1, "mbedtls_pk_parse_key: cannot parse private key");
+    ret = mbedtls_pk_check_pair(mbedtls_x509_crt_pk(&tls->cert), &tls->key,
+                                mbedtls_ctr_drbg_random, &tls->ctr_drbg);
+    FATAL_ON(ret < 0, 1, "certificate/key mismatch");
 
     mbedtls_ssl_config_init(&tls->ssl_config);
     ret = mbedtls_ssl_config_defaults(&tls->ssl_config, endpoint, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
