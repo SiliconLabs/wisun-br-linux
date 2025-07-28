@@ -237,6 +237,19 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
 #endif
     int ret;
 
+    mbedtls_entropy_init(&tls->entropy);
+    /*
+     * The default MbedTLS entropy source uses syscall(SYS_getrandom, ...),
+     * which is difficult to stub for fuzzing or simulation. Replace with
+     * xgetrandom().
+     */
+    tls->entropy.MBEDTLS_PRIVATE(source_count) = 0;
+    xmbedtls_entropy_add_source(&tls->entropy, tls_rand, NULL, 0,
+                                MBEDTLS_ENTROPY_SOURCE_STRONG);
+    mbedtls_ctr_drbg_init(&tls->ctr_drbg);
+    ret = mbedtls_ctr_drbg_seed(&tls->ctr_drbg , mbedtls_entropy_func, &tls->entropy, NULL, 0);
+    BUG_ON(ret);
+
     mbedtls_x509_crt_init(&tls->ca_cert);
     mbedtls_x509_crt_init(&tls->cert);
     mbedtls_pk_init(&tls->key);
@@ -251,21 +264,7 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     mbedtls_ssl_config_init(&tls->ssl_config);
     ret = mbedtls_ssl_config_defaults(&tls->ssl_config, endpoint, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
     BUG_ON(ret);
-
-    mbedtls_entropy_init(&tls->entropy);
-    /*
-     * The default MbedTLS entropy source uses syscall(SYS_getrandom, ...),
-     * which is difficult to stub for fuzzing or simulation. Replace with
-     * xgetrandom().
-     */
-    tls->entropy.MBEDTLS_PRIVATE(source_count) = 0;
-    xmbedtls_entropy_add_source(&tls->entropy, tls_rand, NULL, 0,
-                                MBEDTLS_ENTROPY_SOURCE_STRONG);
-    mbedtls_ctr_drbg_init(&tls->ctr_drbg);
-    ret = mbedtls_ctr_drbg_seed(&tls->ctr_drbg , mbedtls_entropy_func, &tls->entropy, NULL, 0);
-    BUG_ON(ret);
     mbedtls_ssl_conf_rng(&tls->ssl_config, mbedtls_ctr_drbg_random, &tls->ctr_drbg);
-
     ret = mbedtls_ssl_conf_own_cert(&tls->ssl_config, &tls->cert, &tls->key);
     BUG_ON(ret);
     mbedtls_ssl_conf_cert_profile(&tls->ssl_config, &certificate_profile);
