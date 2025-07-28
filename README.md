@@ -341,6 +341,29 @@ Under the hood, when `neighbor_proxy` is in use:
 
 # Bugs and Limitations
 
+## I See "congestion detected: frame spent X sec in RCP" Warnings
+
+`wsbrd` generates warnings when frames spend an unusually long time in the RCP.
+These warnings appear in the logs as:
+
+    congestion detected: frame spent 5 sec in RCP
+
+**This may not be critical and is most likely indicative of a busy radio
+environment.**
+
+These delays typically occur due to radio congestion in busy networks. When
+many devices are transmitting simultaneously and hear each other, the RCP may
+need to retransmit frames multiple times due to interference or channel
+conflicts before successful transmission. This increases the time frames spend
+in the RCP and can trigger the warning. This is an expected behavior in dense
+Wi-SUN deployments.
+
+If you experience frequent warnings or performance issues, this may indicate
+excessive application traffic or misconfigured network parameters relative to
+your network topology. Please verify that the `size` parameter in `wsbrd.conf`
+and the connection parameters on the FFN/LFN side are appropriately configured
+to match your network environment.
+
 ## Should I Use CPC or Plain UART?
 
 CPC protocol relies on an external service (CPCd). Therefore, plain UART allows
