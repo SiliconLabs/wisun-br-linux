@@ -478,13 +478,13 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
 
     switch (msg->message_type) {
     case WS_FT_DATA:
-        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
-            WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
+        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration) && data_cpy.hif.status == HIF_STATUS_SUCCESS)
+            WARN("congestion detected: frame spent %"PRIu64" sec in RCP", (uint64_t)tx_confirm_duration);
         ws_llc_data_confirm(base, msg, &data_cpy, conf_data, ws_neigh);
         break;
     case WS_FT_EAPOL:
-        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration))
-            WARN("frame spent %"PRIu64" sec in MAC", (uint64_t)tx_confirm_duration);
+        if (tx_confirm_extensive(ws_neigh, tx_confirm_duration) && data_cpy.hif.status == HIF_STATUS_SUCCESS)
+            WARN("congestion detected: frame spent %"PRIu64" sec in RCP", (uint64_t)tx_confirm_duration);
         ws_llc_eapol_confirm(base, msg, &data_cpy, conf_data, ws_neigh);
         break;
     case WS_FT_PA:
