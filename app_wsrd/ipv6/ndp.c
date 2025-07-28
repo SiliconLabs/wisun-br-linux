@@ -136,6 +136,13 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     return handle;
 }
 
+static bool ipv6_has_pending_ns_aro(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *neigh;
+
+    return SLIST_FIND(neigh, &ipv6->neigh_cache, link, neigh->ns_handle >= 0 && neigh->ns_has_aro) != NULL;
+}
+
 void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
 {
     struct ipv6_neigh *neigh;
@@ -166,6 +173,9 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
      */
     WARN_ON(!timer_stopped(&neigh->aro_lifetime));
     timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer, ipv6->aro_lifetime_ms - 5 * 60 * 1000);
+
+    if (ipv6_has_pending_ns_aro(ipv6))
+        return;
     /*
      * NOTE: arbitrarily start a 3s timer before sending DAO to allow for
      * NA RX.
