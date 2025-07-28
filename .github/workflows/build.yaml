@@ -53,6 +53,14 @@ jobs:
           sudo ninja -C build install
       - name: Run --version
         run: wsbrd --version
+      - name: Compile against MbedTLS 3.0
+        run: |
+          sudo rm $(cat mbedtls/build/install_manifest.txt)
+          git -C mbedtls fetch --depth=1 origin tag v3.0.0
+          git -C mbedtls checkout v3.0.0
+          ninja -C mbedtls/build
+          sudo ninja -C mbedtls/build install
+          ninja -C build
       - name: Compile legacy authenticator
         run: |
           cmake -S . \
