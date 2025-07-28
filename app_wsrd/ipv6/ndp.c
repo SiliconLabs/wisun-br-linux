@@ -150,7 +150,7 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!success)
         return;
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
-    if (!neigh->ns_has_aro || !neigh->rpl || !neigh->rpl->is_parent ||
+    if (!neigh->ns_has_aro || !neigh->rpl || !neigh->rpl->path_ctl ||
         IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         return;
     /*
@@ -202,7 +202,7 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
          * host sends as part of NUD to determine that it can still reach
          * a default router.
          */
-        if (neigh->rpl && neigh->rpl->is_parent && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
+        if (neigh->rpl && neigh->rpl->path_ctl && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
             neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
             neigh->ns_has_aro = true;
         } else {
@@ -282,7 +282,7 @@ static void ipv6_own_aro_refresh(struct timer_group *group, struct timer_entry *
     struct ipv6_neigh *neigh = container_of(timer, struct ipv6_neigh, own_aro_timer);
     struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
 
-    BUG_ON(!neigh->rpl || !neigh->rpl->is_parent);
+    BUG_ON(!neigh->rpl || !neigh->rpl->path_ctl);
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_PROBE);
 }
 
@@ -434,7 +434,7 @@ static void ipv6_recv_na_aro(struct ipv6_ctx *ipv6, const struct nd_neighbor_adv
         }
     }
 
-    if (!nce->rpl || !nce->rpl->is_parent) {
+    if (!nce->rpl || !nce->rpl->path_ctl) {
         TRACE(TR_DROP, "drop %-9s: not our parent", "na(aro)");
         return;
     }

@@ -111,7 +111,7 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
      * neigh cache, RPL may not be operational so we do not want to select a new
      * parent after deleting the current one.
      */
-    if (nce->rpl->is_parent && ipv6->rpl.fd >= 0)
+    if (nce->rpl->path_ctl && ipv6->rpl.fd >= 0)
         rpl_neigh_deny(ipv6, nce);
     TRACE(TR_RPL, "rpl: neigh del %s", tr_ipv6(nce->gua.s6_addr));
     timer_stop(&ipv6->timer_group, &nce->rpl->deny_timer);
@@ -124,7 +124,7 @@ struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *nce;
 
     return SLIST_FIND(nce, &ipv6->neigh_cache, link,
-                      nce->rpl && nce->rpl->is_parent);
+                      nce->rpl && nce->rpl->path_ctl == RPL_PATH_CTL_PREFERRED);
 }
 
 void rpl_update_parent(struct ipv6_ctx *ipv6)
@@ -386,7 +386,7 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
     // single member of PC1, the first alternate parent set as the single
     // member of PC2, etc.).
     memset(&transit, 0, sizeof(transit));
-    transit.path_ctl      = BIT(7);    // TODO: handle more than 1 parent
+    transit.path_ctl      = parent->rpl->path_ctl;
     transit.path_seq      = ipv6->rpl.path_seq;
     transit.path_lifetime = path_lifetime;
     transit.parent_addr   = parent->gua;

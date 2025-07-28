@@ -275,8 +275,8 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
     if (!timer_stopped(&wsrd->pan_timeout_timer) && !timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer))
         rpl_send_dao_no_path(&wsrd->ipv6);
     timer_stop(NULL, &wsrd->pan_timeout_timer);
-    // Poisoning: clearing the flag will set the DIO's rank to 0xffff
-    parent->rpl->is_parent = false;
+    // Poisoning: clearing the path control will set the DIO's rank to 0xffff
+    parent->rpl->path_ctl = 0;
     // Skip poisoning if called before JS 5
     if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
         rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);

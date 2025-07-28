@@ -274,9 +274,9 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     }
 
     if (pref_parent_cur)
-        pref_parent_cur->rpl->is_parent = false;
+        pref_parent_cur->rpl->path_ctl = 0;
     if (pref_parent_new) {
-        pref_parent_new->rpl->is_parent = true;
+        pref_parent_new->rpl->path_ctl = RPL_PATH_CTL_PREFERRED;
         TRACE(TR_RPL, "rpl: parent select %s", tr_ipv6(pref_parent_new->gua.s6_addr));
     } else {
         TRACE(TR_RPL, "rpl: parent select none");
@@ -345,7 +345,7 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6)
      *    MinHopRankIncrease * (1 + floor(Rank/MinHopRankIncrease)).
      */
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-        if (!nce->rpl || !nce->rpl->is_parent)
+        if (!nce->rpl || !nce->rpl->path_ctl)
             continue;
         if (worst_rank >= ntohs(nce->rpl->dio.rank))
             continue;
@@ -360,7 +360,7 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6)
      */
     worst_rank = 0;
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-        if (!nce->rpl || !nce->rpl->is_parent)
+        if (!nce->rpl || !nce->rpl->path_ctl)
             continue;
         worst_rank = MAX(worst_rank, rpl_mrhof_path_rank(ipv6, nce));
     }

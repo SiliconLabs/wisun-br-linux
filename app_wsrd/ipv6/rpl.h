@@ -31,10 +31,19 @@ struct timer_ctxt;
 #define RPL_RANK_INFINITE UINT16_MAX
 #define RPL_PARENT_UPDATE_DELAY_MS (10 * 1000) // 10s
 
+/*
+ *   Wi-SUN FAN 1.1v10 6.2.3.1.6.4 Downward Route Formation
+ * The Path Control field MUST be populated to correctly rank the priority of
+ * each Transit Information Option (i.e., the preferred parent is indicated as
+ * the single member of PC1, the first alternate parent set as the single
+ * member of PC2, etc.).
+ */
+#define RPL_PATH_CTL_PREFERRED FIELD_PREP(RPL_MASK_PATH_CTL_PC1, 1)
+
 struct rpl_neigh {
     struct rpl_dio dio;
     struct rpl_opt_config config;
-    bool is_parent;
+    uint8_t path_ctl;
     bool dao_ack_received;
     struct timer_entry deny_timer;
     bool rsl_valid;
