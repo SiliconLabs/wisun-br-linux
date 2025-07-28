@@ -441,12 +441,26 @@ Status codes:
 |`0x01` | Not enough memory available.
 |`0x02` | Channel access failure (CCA failure or busy RX).
 |`0x03` | No ACK received (if ACK bit set in request).
-|`0x04` | Frame spent too long in RCP (10s for unicast, 20s for broadcast, 40s for async, 300s for LFN).
+|`0x04` | [`REQ_DATA_TX`][tx-req] timed out in RCP (see timeout table below).
 |`0x05` | RCP internal error (reach out Silicon Labs support).
 |`0x06` | Frame transmission was cancelled (see [`REQ_DATA_TX_ABORT`][tx-del]).
 
 `0x06..0xff` are reserved for future errors. The host must accept these values and
 consider the frame has not been received by the destination.
+
+#### Timeouts for Status `0x04`
+
+This status indicates that a [`REQ_DATA_TX`][tx-req] was not processed by the
+RCP within the expected time window:
+
+| FHSS type                             | Timeout                     |
+|---------------------------------------|-----------------------------|
+| TX Unicast to FFN                     | 10s                         |
+| TX Broadcast to FFN                   | 20s                         |
+| TX Unicast to LFN                     | 9 × Unicast Listen Interval |
+| TX Unicast PAN Advert to LFN          | 300s                        |
+| TX Broadcast to LFN                   | 3 × Broadcast Interval      |
+| TX Asynchronous (MLME-WS-ASYNC-FRAME) | 40s                         |
 
 [lqi]:  https://docs.silabs.com/rail/latest/rail-api/rail-rx-packet-details-t#lqi
 [rssi]: https://docs.silabs.com/rail/latest/rail-api/rail-rx-packet-details-t#rssi
