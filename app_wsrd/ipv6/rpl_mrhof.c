@@ -202,7 +202,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * its preferred parent [...]
      */
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-        if (!nce->rpl)
+        if (!nce->rpl || nce->rpl->path_ctl)
             continue;
 
         etx = rpl_mrhof_etx(ipv6, nce);
@@ -286,9 +286,9 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
           pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
           cur_min_path_cost, mrhof->max_link_metric, rank_limit);
-    pref_parent_new = rpl_mrhof_select_best_candidate(ipv6, pref_parent_cur, cur_min_path_cost, rank_limit);
     if (pref_parent_cur)
         pref_parent_cur->rpl->path_ctl = 0;
+    pref_parent_new = rpl_mrhof_select_best_candidate(ipv6, pref_parent_cur, cur_min_path_cost, rank_limit);
     if (pref_parent_new)
         pref_parent_new->rpl->path_ctl = RPL_PATH_CTL_PREFERRED;
     return pref_parent_new;
