@@ -68,7 +68,7 @@
 #define MPX_USER_SIZE 2
 
 #define TX_CONFIRM_EXTENSIVE_FFN_SEC 5
-#define TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER 3
+#define TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER 5
 
 typedef struct mpx_user {
     uint16_t                user_id;        /**< User ID for identify MPX User */
