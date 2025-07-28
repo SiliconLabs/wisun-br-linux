@@ -185,40 +185,22 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
     return false;
 }
 
-// RFC 6719 3.2.2. Parent Selection Algorithm
-struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent_cur,
+                                                          float cur_min_path_cost, uint16_t rank_limit)
 {
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
-    struct ipv6_neigh *pref_parent_new = NULL;
-    uint16_t rank_limit = RPL_RANK_INFINITE;
-    float cur_min_path_cost;
+    float pref_path_cost = mrhof->max_path_cost;
+    struct ipv6_neigh *parent_new = NULL;
     struct ipv6_neigh *nce;
-    float pref_path_cost;
     const char *discard;
     uint16_t new_rank;
     float path_cost;
     float etx;
 
-    // Compute min path cost of current parent to reflect changes on ETX/Rank
-    if (pref_parent_cur && timer_stopped(&pref_parent_cur->rpl->deny_timer))
-        cur_min_path_cost = rpl_mrhof_path_cost(ipv6, pref_parent_cur);
-    else
-        cur_min_path_cost = mrhof->max_path_cost;
-
-    if (pref_parent_cur)
-        rank_limit = rpl_mrhof_get_rank_limit(&ipv6->rpl.mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc),
-                                              ntohs(pref_parent_cur->rpl->config.min_hop_rank_inc));
-
-    TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
-          pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
-          cur_min_path_cost, mrhof->max_link_metric, rank_limit);
-
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
      * its preferred parent [...]
      */
-    pref_path_cost = mrhof->max_path_cost;
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl)
             continue;
@@ -249,13 +231,13 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         }
         if (path_cost >= pref_path_cost)
             continue;
-        pref_path_cost  = path_cost;
-        pref_parent_new = nce;
+        pref_path_cost = path_cost;
+        parent_new = nce;
     }
 
-    if (pref_parent_new == pref_parent_cur && cur_min_path_cost < mrhof->max_path_cost) {
-        TRACE(TR_RPL, "rpl: parent select %s (keep)", pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none");
-        return pref_parent_cur;
+    if (parent_new == parent_cur && cur_min_path_cost < mrhof->max_path_cost) {
+        TRACE(TR_RPL, "rpl: parent select %s (keep)", parent_new ? tr_ipv6(parent_new->gua.s6_addr) : "none");
+        return parent_cur;
     }
 
     /*
@@ -265,22 +247,50 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
      */
     if (cur_min_path_cost < mrhof->max_path_cost && pref_path_cost < mrhof->max_path_cost &&
         pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
-        BUG_ON(!pref_parent_cur); // we should always have a current parent here
+        BUG_ON(!parent_cur); // we should always have a current parent here
         TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
-              pref_parent_new ? tr_ipv6(pref_parent_new->gua.s6_addr) : "none", pref_path_cost,
+              parent_new ? tr_ipv6(parent_new->gua.s6_addr) : "none", pref_path_cost,
               mrhof->parent_switch_threshold, cur_min_path_cost);
-        TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(pref_parent_cur->gua.s6_addr));
-        return pref_parent_cur;
+        TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(parent_cur->gua.s6_addr));
+        return parent_cur;
     }
 
+    if (parent_new)
+        TRACE(TR_RPL, "rpl: parent select %s", tr_ipv6(parent_new->gua.s6_addr));
+    else
+        TRACE(TR_RPL, "rpl: parent select none");
+    return parent_new;
+}
+
+// RFC 6719 3.2.2. Parent Selection Algorithm
+struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
+    struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
+    struct ipv6_neigh *pref_parent_new;
+    float cur_min_path_cost;
+    uint16_t rank_limit;
+
+    // Compute min path cost of current parent to reflect changes on ETX/Rank
+    if (pref_parent_cur && timer_stopped(&pref_parent_cur->rpl->deny_timer))
+        cur_min_path_cost = rpl_mrhof_path_cost(ipv6, pref_parent_cur);
+    else
+        cur_min_path_cost = mrhof->max_path_cost;
+
+    if (pref_parent_cur)
+        rank_limit = rpl_mrhof_get_rank_limit(mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc),
+                                              ntohs(pref_parent_cur->rpl->config.min_hop_rank_inc));
+    else
+        rank_limit = RPL_RANK_INFINITE;
+
+    TRACE(TR_RPL, "rpl: selecting parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
+          pref_parent_cur ? tr_ipv6(pref_parent_cur->gua.s6_addr) : "none",
+          cur_min_path_cost, mrhof->max_link_metric, rank_limit);
+    pref_parent_new = rpl_mrhof_select_best_candidate(ipv6, pref_parent_cur, cur_min_path_cost, rank_limit);
     if (pref_parent_cur)
         pref_parent_cur->rpl->path_ctl = 0;
-    if (pref_parent_new) {
+    if (pref_parent_new)
         pref_parent_new->rpl->path_ctl = RPL_PATH_CTL_PREFERRED;
-        TRACE(TR_RPL, "rpl: parent select %s", tr_ipv6(pref_parent_new->gua.s6_addr));
-    } else {
-        TRACE(TR_RPL, "rpl: parent select none");
-    }
     return pref_parent_new;
 }
 
