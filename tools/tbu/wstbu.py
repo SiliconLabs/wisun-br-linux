@@ -14,7 +14,6 @@
 import functools
 import ipaddress
 import multiprocessing
-import operator
 import os
 import shutil
 import socket
@@ -487,7 +486,7 @@ def config_border_router_gtks():
         if wsbrd.service.active_state == 'active':
             keys_installed = getattr(wsbrd.dbus(), f'{key_name}s')
             keys_installed = tuple(map(lambda key: key if key != bytes(16) else None, keys_installed))
-            assert functools.reduce(operator.__or__, map(bool, keys_installed)) # At least 1 key is installed
+            assert any(keys_installed) # At least 1 key is installed
 
             for i in range(key_count):
                 if keys[i] and keys_installed[i]:
@@ -500,7 +499,7 @@ def config_border_router_gtks():
                 key_index_next = (key_index_next + 1) % key_count
 
             key_queue = [] # Only insert keys once all indices are sanitized
-            while functools.reduce(operator.__or__, map(bool, keys)):
+            while any(keys):
                 if not keys[key_index_next]:
                     return error(500, WSTBU_ERR_UNKNOWN, f'unsupported runtime operation: key index out of order (expected {key_name}{key_index_next})')
                 key_queue.append(keys[key_index_next])
