@@ -65,9 +65,12 @@ uint32_t cpc_secondary_app_version(struct bus *bus)
 
     str = cpc_get_secondary_app_version(bus->cpc.handle);
     BUG_ON(!str);
-    if (!strcmp(str, "UNDEFINED"))
-        return VERSION(0, 0, 0);
-    ret = sscanf(str, "%hhu.%hu.%hhu", &major, &minor, &patch);
-    BUG_ON(ret == EOF);
+    if (!strcmp(str, "UNDEFINED")) {
+        major = minor = patch = 0;
+    } else {
+        ret = sscanf(str, "%hhu.%hu.%hhu", &major, &minor, &patch);
+        BUG_ON(ret == EOF);
+    }
+    cpc_free_secondary_app_version((char *)str);
     return VERSION(major, minor, patch);
 }
