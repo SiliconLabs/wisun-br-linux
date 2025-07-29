@@ -319,8 +319,9 @@ void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write)
     fprintf(info->file, "eui64 = %s\n\n", str_buf);
 
     fprintf(info->file, "gtk.active_slot = %u\n", auth->gtk_group.slot_active);
-    fprintf(info->file, "gtk.next_installation_timestamp_ms = %"PRIu64"\n",
-            auth->gtk_group.install_timer.expire_ms + storage_offset_ms);
+    if (!timer_stopped(&auth->gtk_group.install_timer))
+        fprintf(info->file, "gtk.next_installation_timestamp_ms = %"PRIu64"\n",
+                auth->gtk_group.install_timer.expire_ms + storage_offset_ms);
     fprintf(info->file, "gtk.next_activation_timestamp_ms = %"PRIu64"\n",
             auth->gtk_group.activation_timer.expire_ms + storage_offset_ms);
     fprintf(info->file, "# For information:\n");
@@ -331,8 +332,9 @@ void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write)
     fprintf(info->file, "#ptk.lifetime_s = %d\n\n", auth->cfg->ffn.ptk_lifetime_s);
 
     fprintf(info->file, "lgtk.active_slot = %u\n", auth->lgtk_group.slot_active - WS_GTK_COUNT);
-    fprintf(info->file, "lgtk.next_installation_timestamp_ms = %"PRIu64"\n",
-            auth->lgtk_group.install_timer.expire_ms + storage_offset_ms);
+    if (!timer_stopped(&auth->lgtk_group.install_timer))
+        fprintf(info->file, "lgtk.next_installation_timestamp_ms = %"PRIu64"\n",
+                auth->lgtk_group.install_timer.expire_ms + storage_offset_ms);
     fprintf(info->file, "lgtk.next_activation_timestamp_ms = %"PRIu64"\n",
             auth->lgtk_group.activation_timer.expire_ms + storage_offset_ms);
     fprintf(info->file, "# For information:\n");

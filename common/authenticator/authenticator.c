@@ -185,7 +185,7 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
      * GTK_EXPIRE_OFFSET instead of the full lifetime of the GTK to ensure
      * consistent timings throughout the BR lifetime.
      */
-    if (expire_offset_ms)
+    if (expire_offset_ms && cfg->gtk_new_install_required)
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer,
                         start_ms + cfg->gtk_new_install_required * expire_offset_ms / 100);
 
