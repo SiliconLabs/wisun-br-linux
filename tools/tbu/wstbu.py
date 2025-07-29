@@ -487,7 +487,7 @@ def config_border_router_gtks():
             return # No key to install
         if wsbrd.service.active_state == 'active':
             keys_installed = getattr(wsbrd.dbus(), f'{key_name}s')
-            keys_installed = tuple(map(lambda key: key if key != bytes(16) else None, keys_installed))
+            keys_installed = [key if key != bytes(16) else None for key in keys_installed]
             assert any(keys_installed) # At least 1 key is installed
 
             for i in range(key_count):
@@ -659,7 +659,7 @@ def command_border_router_rpl_increment_dodag_version():
 @json_errcheck('/config/whitelist')
 def config_whitelist():
     json = flask.request.get_json(force=True, silent=True)
-    eui64_list_bytes = list(map(utils.parse_eui64, json['macAddressList']))
+    eui64_list_bytes = [utils.parse_eui64(addr) for addr in json['macAddressList']]
     if None in eui64_list_bytes:
         return error(400, WSTBU_ERR_UNKNOWN, 'invalid macAddressList')
     if wsbrd.service.active_state == 'active':
