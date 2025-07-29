@@ -483,6 +483,8 @@ def config_border_router_gtks():
                 keys[i] = utils.parse_key(json[f'{key_name}{i}'])
                 if not keys[i] or keys[i] == bytes(16):
                     return error(400, WSTBU_ERR_UNKNOWN, 'invalid key')
+        if not any(keys):
+            return # No key to install
         if wsbrd.service.active_state == 'active':
             keys_installed = getattr(wsbrd.dbus(), f'{key_name}s')
             keys_installed = tuple(map(lambda key: key if key != bytes(16) else None, keys_installed))
