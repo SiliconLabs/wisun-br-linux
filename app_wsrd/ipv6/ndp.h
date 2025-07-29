@@ -110,6 +110,7 @@ void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const 
  * frame for a previously sent NS packet.
  */
 void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success);
+bool ipv6_has_pending_ns_aro(struct ipv6_ctx *ipv6);
 
 /*
  *   Wi-SUN FAN 1.1v09 6.2.3.1.4.1 FFN Neighbor Discovery

@@ -435,13 +435,14 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
 static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
 {
     struct wsrd *wsrd = container_of(client, struct wsrd, ipv6.dhcp);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
-
-    BUG_ON(!parent);
+    struct ipv6_neigh *nce;
 
     // TODO: set prefix len to 128, and add default route instead
     tun_addr_add(&wsrd->ipv6.tun, &client->iaaddr.ipv6, 64);
-    ipv6_nud_set_state(&wsrd->ipv6, parent, IPV6_NUD_PROBE);
+    SLIST_FOREACH(nce, &wsrd->ipv6.neigh_cache, link)
+        if (nce->rpl && nce->rpl->path_ctl)
+            ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
+    BUG_ON(!ipv6_has_pending_ns_aro(&wsrd->ipv6));
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)

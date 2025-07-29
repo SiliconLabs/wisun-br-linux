@@ -136,7 +136,7 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     return handle;
 }
 
-static bool ipv6_has_pending_ns_aro(struct ipv6_ctx *ipv6)
+bool ipv6_has_pending_ns_aro(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *neigh;
 
