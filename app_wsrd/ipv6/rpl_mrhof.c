@@ -291,6 +291,7 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 
 static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
+    uint16_t path_rank;
     float path_cost;
 
     /*
@@ -308,7 +309,16 @@ static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nc
      */
     path_cost = rpl_mrhof_path_cost(ipv6, nce);
     // NOTE: Overflow during float to int conversion is undefined behavior.
-    return MIN(path_cost, (float)UINT16_MAX);
+    path_rank = MIN(path_cost, (float)UINT16_MAX);
+
+    /*
+     * The Rank associated with a path through a member of the parent set is
+     * the maximum of two values. The first is the corresponding Rank value
+     * calculated with the table above, the second is that nodes' advertised
+     * Rank plus MinHopRankIncrease.
+     */
+    return MAX(path_rank, add16sat(ntohs(nce->rpl->dio.rank),
+                                   ntohs(nce->rpl->config.min_hop_rank_inc)));
 }
 
 /*
