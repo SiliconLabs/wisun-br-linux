@@ -242,7 +242,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
     BUG_ON(!parent || !parent->rpl);
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr));
 
-    rank = rpl_mrhof_rank(ipv6, NULL);
+    rank = rpl_mrhof_rank(ipv6);
     if (rank < ipv6->rpl.mrhof.lowest_advertised_rank)
         ipv6->rpl.mrhof.lowest_advertised_rank = rank;
     memset(&dio, 0, sizeof(dio));

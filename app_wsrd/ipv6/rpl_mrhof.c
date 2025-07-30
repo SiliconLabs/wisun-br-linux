@@ -24,8 +24,6 @@
 
 #include "rpl_mrhof.h"
 
-static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
-
 float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
@@ -153,7 +151,7 @@ const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neig
     discard = rpl_mrhof_is_candidate(ipv6, nce);
     if (discard)
         return discard;
-    new_rank = rpl_mrhof_rank(ipv6, nce);
+    new_rank = rpl_mrhof_path_rank(ipv6, nce);
     etx = rpl_mrhof_etx(ipv6, nce);
     if (isnan(etx)) {
         if (etx_max == WS_ETX_MAX)
@@ -231,7 +229,7 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 
         etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
-        new_rank = rpl_mrhof_rank(ipv6, nce);
+        new_rank = rpl_mrhof_path_rank(ipv6, nce);
         discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric);
         if (discard && rpl_mrhof_is_probe_needed(ipv6, nce)) {
             /*
@@ -289,7 +287,8 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
     return pref_parent_new;
 }
 
-static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+uint16_t rpl_mrhof_path_rank(const struct ipv6_ctx *ipv6,
+                             const struct ipv6_neigh *nce)
 {
     uint16_t path_rank;
     float path_cost;
@@ -321,12 +320,8 @@ static uint16_t rpl_mrhof_path_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *nc
                                    ntohs(nce->rpl->config.min_hop_rank_inc)));
 }
 
-/*
- * RFC 6719 3.3. Computing Rank
- * If single_parent is not NULL, computes the rank as if the neighbor was the
- * only parent.
- */
-uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *single_parent)
+// RFC 6719 3.3. Computing Rank
+uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6)
 {
     uint16_t min_hop_rank_inc, max_rank_inc;
     uint16_t rank = RPL_RANK_INFINITE;
@@ -339,7 +334,7 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *single_parent)
      *
      * 1. The Rank calculated for the path through the preferred parent.
      */
-    nce = single_parent ? : rpl_neigh_pref_parent(ipv6);
+    nce = rpl_neigh_pref_parent(ipv6);
     if (!nce)
         return RPL_RANK_INFINITE;
     rank = rpl_mrhof_path_rank(ipv6, nce);
@@ -352,17 +347,13 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *single_parent)
      *    Rank, rounded to the next higher integral Rank, i.e., to
      *    MinHopRankIncrease * (1 + floor(Rank/MinHopRankIncrease)).
      */
-    if (!single_parent) {
-        SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-            if (!nce->rpl || !nce->rpl->is_parent)
-                continue;
-            if (worst_rank >= ntohs(nce->rpl->dio.rank))
-                continue;
-            worst_neigh = nce;
-            worst_rank  = ntohs(worst_neigh->rpl->dio.rank);
-        }
-    } else {
-        worst_rank = ntohs(single_parent->rpl->dio.rank);
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl || !nce->rpl->is_parent)
+            continue;
+        if (worst_rank >= ntohs(nce->rpl->dio.rank))
+            continue;
+        worst_neigh = nce;
+        worst_rank  = ntohs(worst_neigh->rpl->dio.rank);
     }
     rank = MAX(rank, min_hop_rank_inc * (worst_rank / min_hop_rank_inc + 1));
 
@@ -370,15 +361,11 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6, struct ipv6_neigh *single_parent)
      * 3. The largest calculated Rank among paths through the parent set, minus
      *    MaxRankIncrease.
      */
-    if (!single_parent) {
-        worst_rank = 0;
-        SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-            if (!nce->rpl || !nce->rpl->is_parent)
-                continue;
-            worst_rank = MAX(worst_rank, rpl_mrhof_path_rank(ipv6, nce));
-        }
-    } else {
-        worst_rank = rpl_mrhof_path_rank(ipv6, single_parent);
+    worst_rank = 0;
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl || !nce->rpl->is_parent)
+            continue;
+        worst_rank = MAX(worst_rank, rpl_mrhof_path_rank(ipv6, nce));
     }
     rank = MAX(rank, worst_rank - max_rank_inc);
 
