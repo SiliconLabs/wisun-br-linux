@@ -234,6 +234,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
 static void join_state_disconnecting_enter(struct wsrd *wsrd)
 {
     struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *nce;
 
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
     // NOTE: do not stop the DHCP client here since we may need our GUA
@@ -286,6 +287,12 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
      */
     timer_stop(&wsrd->ipv6.timer_group, &parent->own_aro_timer);
     ipv6_send_ns_aro(&wsrd->ipv6, parent, 0);
+    SLIST_FOREACH(nce, &wsrd->ipv6.neigh_cache, link) {
+        if (nce->rpl && nce->rpl->path_ctl) {
+            timer_stop(&wsrd->ipv6.timer_group, &nce->own_aro_timer);
+            ipv6_send_ns_aro(&wsrd->ipv6, nce, 0);
+        }
+    }
     rpl_stop(&wsrd->ipv6);
 }
 
