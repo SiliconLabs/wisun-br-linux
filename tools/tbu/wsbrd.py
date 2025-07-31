@@ -45,7 +45,7 @@ def config_default(wstbu_config):
         lgtk_new_install_required = 0,
         pcap_file      = TMPDIR + '/fifo.pcap',
         join_metrics   = 'none',
-        trace          = '15.4,eap,icmp,dhcp,drop',
+        trace          = 'hif,trickle,15.4,security,icmp,dhcp,rpl,drop,queue',
         phy_operating_modes = 'none',
     )
     if 'dhcpv6_server' in wstbu_config:
