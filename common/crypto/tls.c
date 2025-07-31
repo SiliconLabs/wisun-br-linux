@@ -129,7 +129,10 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
 
 void tls_debug(void *ctx, int level, const char *file, int line, const char *string)
 {
-    TRACE(TR_MBEDTLS, "%i %s %i %s", level, file, line, string);
+    if (string[0] == '\0')
+        return;
+    // Strip trailing \n
+    TRACE(TR_MBEDTLS, "mbedtls: %.*s", (int)strlen(string) - 1, string);
 }
 
 static int tls_validate_cert_ext(void *ctx, mbedtls_x509_crt const *crt, mbedtls_x509_buf const *oid,
