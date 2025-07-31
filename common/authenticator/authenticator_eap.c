@@ -145,8 +145,10 @@ static void auth_eap_handshake(struct auth_ctx *auth, struct auth_supp_ctx *supp
     supp->eap_tls.frag_id = 0;
     supp->eap_tls.last_mbedtls_status = mbedtls_ssl_handshake(&supp->eap_tls.tls.ssl_ctx);
 
-    if (supp->eap_tls.last_mbedtls_status && supp->eap_tls.last_mbedtls_status != MBEDTLS_ERR_SSL_WANT_READ) {
-        WARN("%s: mbedtls_ssl_handshake: %d", __func__, supp->eap_tls.last_mbedtls_status);
+    if (supp->eap_tls.last_mbedtls_status &&
+        supp->eap_tls.last_mbedtls_status != MBEDTLS_ERR_SSL_WANT_READ) {
+        WARN("%s: mbedtls_ssl_handshake: %s", __func__,
+             tr_mbedtls_err(supp->eap_tls.last_mbedtls_status));
         /*
          * If there's an error but no TLS alert message to send, we directly
          * send an EAP-Failure.
