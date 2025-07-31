@@ -20,16 +20,11 @@
 
 #include "bus_cpc.h"
 
-static void cpc_reset_callback(void)
-{
-    FATAL(3, "RCP reset");
-}
-
 int cpc_open(struct bus *bus, const char *cpc_instance, bool verbose)
 {
     int ret, fd;
 
-    ret = cpc_init(&bus->cpc.handle, cpc_instance, verbose, cpc_reset_callback);
+    ret = cpc_init(&bus->cpc.handle, cpc_instance, verbose, NULL);
     FATAL_ON(ret, 2, "cpc_init: %s", strerror(-ret));
     fd = cpc_open_endpoint(bus->cpc.handle, &bus->cpc.endpoint, SL_CPC_ENDPOINT_WISUN, 1);
     FATAL_ON(fd < 0, 2, "cpc_open_endpoint: %s", strerror(-fd));
