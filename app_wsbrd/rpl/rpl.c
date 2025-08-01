@@ -391,7 +391,8 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     }
 }
 
-static void rpl_transit_update(struct rpl_root *root,
+// Returns true if the target's transits were updated
+static bool rpl_transit_update(struct rpl_root *root,
                                const struct rpl_opt_target *opt_target,
                                const struct rpl_opt_transit *opt_transit)
 {
@@ -430,7 +431,7 @@ static void rpl_transit_update(struct rpl_root *root,
             TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
                   tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
                   path_ctl_desync ? "desync" : "old");
-            return;
+            return false;
         }
         if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
             memset(target->transits, 0, sizeof(target->transits));
@@ -459,12 +460,10 @@ static void rpl_transit_update(struct rpl_root *root,
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if (updated_lifetime || updated_transit) {
+    if (updated_lifetime || updated_transit)
         rpl_storage_store_target(root, target);
-        if (root->on_target_update && updated_transit)
-            root->on_target_update(root, target);
-    }
     rpl_transit_update_timer(root, target);
+    return updated_transit;
 }
 
 static bool rpl_apply_transits(struct rpl_root *root,
@@ -472,7 +471,9 @@ static bool rpl_apply_transits(struct rpl_root *root,
                                const uint8_t *opts, size_t opts_len)
 {
     const struct rpl_opt_transit *opt_transit = NULL;
+    bool updated_transits = false;
     struct iobuf_read opt_buf;
+    struct rpl_target *target;
     struct iobuf_read buf = {
         .data_size = opts_len,
         .data = opts,
@@ -495,8 +496,13 @@ static bool rpl_apply_transits(struct rpl_root *root,
             break; // No more transits for the current target
         opt_transit = iobuf_pop_data_ptr(&opt_buf, sizeof(*opt_transit));
         if (opt_transit)
-            rpl_transit_update(root, opt_target, opt_transit);
+            updated_transits |= rpl_transit_update(root, opt_target, opt_transit);
         buf.err |= opt_buf.err;
+    }
+    if (updated_transits && root->on_target_update) {
+        target = rpl_target_get(root, opt_target->prefix.s6_addr);
+        if (target)
+            root->on_target_update(root, target);
     }
     return !buf.err;
 }
