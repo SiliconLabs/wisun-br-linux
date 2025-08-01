@@ -131,7 +131,7 @@ static void rpl_transit_expire(struct timer_group *group, struct timer_entry *ti
         rpl_transit_update_timer(root, target);
         rpl_storage_store_target(root, target);
         if (root->on_target_update)
-            root->on_target_update(root, target, true);
+            root->on_target_update(root, target);
     }
 }
 
@@ -461,8 +461,8 @@ static void rpl_transit_update(struct rpl_root *root,
     }
     if (updated_lifetime || updated_transit) {
         rpl_storage_store_target(root, target);
-        if (root->on_target_update)
-            root->on_target_update(root, target, updated_transit);
+        if (root->on_target_update && updated_transit)
+            root->on_target_update(root, target);
     }
     rpl_transit_update_timer(root, target);
 }
@@ -621,7 +621,7 @@ void rpl_recv_srh_err(struct rpl_root *root,
     if (updated) {
         rpl_storage_store_target(root, target);
         if (root->on_target_update)
-            root->on_target_update(root, target, true);
+            root->on_target_update(root, target);
     }
 }
 

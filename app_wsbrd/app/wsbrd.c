@@ -75,7 +75,7 @@
 static void wsbr_handle_reset(struct rcp *rcp);
 static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target);
-static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target, bool updated_transit);
+static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target);
 
 static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
                                uint8_t key_index, bool activate)
@@ -203,14 +203,11 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
     dbus_emit_change("RoutingGraph");
 }
 
-static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target, bool updated_transit)
+static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
 {
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
     struct ipv6_neighbour *neigh;
     bool is_neigh = false;
-
-    if (!updated_transit)
-        return;
 
     dbus_emit_change("Nodes");
     dbus_emit_change("RoutingGraph");
