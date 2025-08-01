@@ -81,10 +81,10 @@ static void timer_schedule(void)
     int ret;
 
     timer = timer_next();
-    if (!timer)
-        return;
-    itp.it_value.tv_sec = timer->expire_ms / 1000;
-    itp.it_value.tv_nsec = (timer->expire_ms % 1000) * 1000000;
+    if (timer) {
+        itp.it_value.tv_sec = timer->expire_ms / 1000;
+        itp.it_value.tv_nsec = (timer->expire_ms % 1000) * 1000000;
+    }
     ret = timerfd_settime(timer_fd(), TFD_TIMER_ABSTIME, &itp, NULL);
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
