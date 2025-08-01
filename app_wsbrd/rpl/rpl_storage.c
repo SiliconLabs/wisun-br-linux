@@ -63,7 +63,7 @@ void rpl_storage_load_config(struct rpl_root *root, const char *filename)
         } else if (!fnmatch("instance_id", nvm->key, 0)) {
             root->instance_id = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("dodag_id", nvm->key, 0)) {
-            ret = inet_pton(AF_INET6, nvm->value, nvm->key);
+            ret = inet_pton(AF_INET6, nvm->value, root->dodag_id);
             WARN_ON(ret != 1, "%s:%d: invalid value: %s", nvm->filename, nvm->linenr, nvm->value);
         } else if (!fnmatch("dodag_version_number", nvm->key, 0)) {
             root->dodag_version_number = strtoul(nvm->value, NULL, 0);
