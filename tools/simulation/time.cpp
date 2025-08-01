@@ -103,5 +103,11 @@ extern "C" int __wrap_clock_gettime(clock_t clockid, struct timespec *tp)
     ns3::Time now = ns3::Now();
     tp->tv_sec  = now.GetSeconds();
     tp->tv_nsec = now.GetNanoSeconds() % 1000000000;
+    /*
+     * HACK: A monotonic time of 0 is basically impossible to get outside of
+     * simulation, and causes issues with the timer service.
+     */
+    if (!tp->tv_sec && !tp->tv_nsec)
+        tp->tv_nsec = 1000000;
     return 0;
 }
