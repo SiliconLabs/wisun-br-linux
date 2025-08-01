@@ -166,6 +166,7 @@ void timer_group_init(struct timer_group *group)
 
 void timer_start_abs(struct timer_group *group, struct timer_entry *timer, uint64_t expire_ms)
 {
+    BUG_ON(!expire_ms);
     timer_stop(group, timer);
     if (timer_start(group, timer, expire_ms))
         timer_schedule();
