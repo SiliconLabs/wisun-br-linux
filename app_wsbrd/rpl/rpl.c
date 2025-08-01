@@ -31,6 +31,7 @@
 #include "common/rpl_lollipop.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
+#include "rpl_storage.h"
 #include "rpl.h"
 
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
@@ -75,6 +76,7 @@ void rpl_target_del(struct rpl_root *root, struct rpl_target *target)
 {
     TRACE(TR_RPL, "rpl: target  remove prefix=%s", tr_ipv6_prefix(target->prefix, 128));
     SLIST_REMOVE(&root->targets, target, rpl_target, link);
+    rpl_storage_del_target(root, target);
     if (root->on_target_del)
         root->on_target_del(root, target);
     timer_stop(&root->timer_group, &target->timer);
@@ -127,6 +129,7 @@ static void rpl_transit_expire(struct timer_group *group, struct timer_entry *ti
         rpl_target_del(root, target);
     } else {
         rpl_transit_update_timer(root, target);
+        rpl_storage_store_target(root, target);
         if (root->on_target_update)
             root->on_target_update(root, target, true);
     }
@@ -456,8 +459,11 @@ static void rpl_transit_update(struct rpl_root *root,
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if ((updated_lifetime || updated_transit) && root->on_target_update)
-        root->on_target_update(root, target, updated_transit);
+    if (updated_lifetime || updated_transit) {
+        rpl_storage_store_target(root, target);
+        if (root->on_target_update)
+            root->on_target_update(root, target, updated_transit);
+    }
     rpl_transit_update_timer(root, target);
 }
 
@@ -612,8 +618,11 @@ void rpl_recv_srh_err(struct rpl_root *root,
                   tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
-    if (updated && root->on_target_update)
-        root->on_target_update(root, target, true);
+    if (updated) {
+        rpl_storage_store_target(root, target);
+        if (root->on_target_update)
+            root->on_target_update(root, target, true);
+    }
 }
 
 static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t size,
@@ -697,12 +706,18 @@ void rpl_recv(struct rpl_root *root)
 }
 
 void rpl_start(struct rpl_root *root,
-               const char ifname[IF_NAMESIZE])
+               const char ifname[IF_NAMESIZE],
+               const struct in6_addr *dodag_id)
 {
     struct trickle_legacy_params dio_trickle_params;
     struct icmp6_filter filter;
     struct rpl_target *target;
     int err;
+
+    memcpy(root->dodag_id, dodag_id->s6_addr, 16);
+    rpl_storage_load(root);
+    if (root->instance_id || memcmp(root->dodag_id, dodag_id->s6_addr, 16))
+        FATAL(1, "RPL storage out-of-date (see -D)");
 
     BUG_ON(!root->min_hop_rank_inc);
     BUG_ON(!memzcmp(root->dodag_id, 16));
@@ -735,6 +750,7 @@ void rpl_start(struct rpl_root *root,
     SLIST_FOREACH(target, &root->targets, link)
         rpl_transit_update_timer(root, target);
     ws_timer_start(WS_TIMER_RPL);
+    rpl_storage_store_config(root);
 }
 
 void rpl_timer(int ticks)

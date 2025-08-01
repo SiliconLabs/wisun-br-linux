@@ -199,7 +199,6 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
                                 ROUTE_RPL_DAO_SR,    // source
                                 (void *)root,        // info
                                 0);                  // source id
-    rpl_storage_del_target(root, target);
     dbus_emit_change("Nodes");
     dbus_emit_change("RoutingGraph");
 }
@@ -209,8 +208,6 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
     struct ipv6_neighbour *neigh;
     bool is_neigh = false;
-
-    rpl_storage_store_target(root, target);
 
     if (!updated_transit)
         return;
@@ -413,20 +410,15 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         dhcp_relay_start(&ctxt->dhcp_relay);
     }
 
-    memcpy(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16);
-    rpl_storage_load(&ctxt->net_if.rpl_root);
     ctxt->net_if.rpl_root.compat = ctxt->config.rpl_compat;
     ctxt->net_if.rpl_root.rpi_ignorable = ctxt->config.rpl_rpi_ignorable;
-    if (ctxt->net_if.rpl_root.instance_id || memcmp(ctxt->net_if.rpl_root.dodag_id, gua.s6_addr, 16))
-        FATAL(1, "RPL storage out-of-date (see -D)");
     if (ctxt->config.ws_size == WS_NETWORK_SIZE_SMALL ||
         ctxt->config.ws_size == WS_NETWORK_SIZE_CERTIFICATION) {
         ctxt->net_if.rpl_root.dio_i_min       = 15; // min interval 32s
         ctxt->net_if.rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(&ctxt->net_if);
-    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname);
-    rpl_storage_store_config(&ctxt->net_if.rpl_root);
+    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname, &gua);
 }
 
 static void wsbr_handle_reset(struct rcp *rcp)

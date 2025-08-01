@@ -128,8 +128,11 @@ struct rpl_root {
     struct rpl_target_list targets;
 };
 
+struct in6_addr;
+
 void rpl_start(struct rpl_root *root,
-               const char ifname[IF_NAMESIZE]);
+               const char ifname[IF_NAMESIZE],
+               const struct in6_addr *dodag_id);
 void rpl_recv(struct rpl_root *root);
 void rpl_timer(int ticks);
 
