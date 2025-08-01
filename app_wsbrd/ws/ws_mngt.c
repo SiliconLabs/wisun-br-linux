@@ -622,9 +622,9 @@ void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer)
 
 void ws_mngt_pan_version_increase(struct ws_info *ws_info)
 {
-    INFO("PAN version number update");
     // Version number is not periodically increased forcing nodes to check Border router availability using DAO
     ws_info->pan_information.pan_version++;
+    INFO("PAN version number update: %u", ws_info->pan_information.pan_version);
     // Inconsistent for border router to make information distribute faster
     ws_mngt_async_trickle_reset_pc(ws_info);
     ws_pan_info_storage_write(ws_info->fhss_config.bsi, ws_info->pan_information.pan_id,
@@ -634,10 +634,10 @@ void ws_mngt_pan_version_increase(struct ws_info *ws_info)
 
 void ws_mngt_lfn_version_increase(struct ws_info *ws_info)
 {
-    INFO("LFN version number update");
     // ws_mngt_pan_version_increase() will reset the PC trickle and update the
     // storage
     ws_info->pan_information.lfn_version++;
+    INFO("LFN version number update: %u", ws_info->pan_information.lfn_version);
 
     // Inform LFN of LGTK change
     ws_mngt_lpc_pae_cb(ws_info);
