@@ -685,7 +685,7 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
         if (!ws_neigh)
             return true;
         if (ws_neigh->node_role == WS_NR_ROLE_LFN) {
-            lfn_uc_l_interval_s = ws_neigh->fhss_data.lfn.uc_listen_interval_ms / 1000;
+            lfn_uc_l_interval_s = ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms / 1000;
             return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_uc_l_interval_s;
         }
     }

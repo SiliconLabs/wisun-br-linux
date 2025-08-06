@@ -423,8 +423,8 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
         return false;
 
     if (ws_neigh->node_role == WS_NR_ROLE_LFN) {
-        if (ws_neigh->fhss_data.lfn.uc_listen_interval_ms)
-            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+        if (ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms)
+            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
         else
             return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
     }
@@ -1406,12 +1406,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // be applied based on the target's current broadcast schedule offset.
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_config.lfn_bc_interval,
-                                                                                   ws_neigh->fhss_data.lfn.uc_listen_interval_ms,
+                                                                                   ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->lto_info.uc_interval_min_ms,
                                                                                    ws_neigh->lto_info.uc_interval_max_ms);
         adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
                                                    base->interface_ptr->ws_info.fhss_config.lfn_bc_interval);
-        if ((adjusted_listening_interval != ws_neigh->fhss_data.lfn.uc_listen_interval_ms ||
+        if ((adjusted_listening_interval != ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms ||
             !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             // FIXME: insert LTO-IE in ws_llc_prepare_ie()
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
