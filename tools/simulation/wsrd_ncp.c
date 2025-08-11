@@ -315,12 +315,12 @@ static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, 
         cnf->body.address = wsrd->ipv6.dhcp.iaaddr.ipv6;
         break;
     case SL_WISUN_IP_ADDRESS_TYPE_BORDER_ROUTER:
-        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
         if (parent)
             cnf->body.address = parent->rpl->dio.dodag_id;
         break;
     case SL_WISUN_IP_ADDRESS_TYPE_PRIMARY_PARENT:
-        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
         if (parent)
             cnf->body.address = parent->gua;
         break;
@@ -348,7 +348,7 @@ static uint32_t ncp_join_state(void)
     case WSRD_STATE_RPL_PARENT:
         return SL_WISUN_JOIN_STATE_PARENT_SELECT;
     case WSRD_STATE_ROUTING:
-        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
         BUG_ON(!parent || !parent->rpl);
         if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6))
             return SL_WISUN_JOIN_STATE_DHCP;

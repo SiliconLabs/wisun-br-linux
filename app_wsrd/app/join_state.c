@@ -179,7 +179,7 @@ static void join_state_4_choose_parent_exit(struct wsrd *wsrd)
 
 static void join_state_4_routing_enter(struct wsrd *wsrd)
 {
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
@@ -193,7 +193,7 @@ static void join_state_4_routing_enter(struct wsrd *wsrd)
 
 static void join_state_5_enter(struct wsrd *wsrd)
 {
-    const struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    const struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
@@ -233,7 +233,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
 
 static void join_state_disconnecting_enter(struct wsrd *wsrd)
 {
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     struct ipv6_neigh *nce;
 
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);

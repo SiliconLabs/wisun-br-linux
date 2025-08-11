@@ -40,7 +40,7 @@ int rpl_rpi_process(struct ipv6_ctx *ipv6, struct ip6_opt *opt)
      * RPLInstanceID, then the node SHOULD discard the packet and send an ICMP
      * error message.
      */
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent || parent->rpl->dio.instance_id != rpi->instance_id) {
         TRACE(TR_DROP, "drop %-9s: InstanceID mismatch", "rpl-rpi");
         // TODO: ICMP error

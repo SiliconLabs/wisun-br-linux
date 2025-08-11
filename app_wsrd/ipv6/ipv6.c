@@ -316,7 +316,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
     }
 
     // Default to preferred RPL parent.
-    nce = rpl_neigh_pref_parent(ipv6);
+    nce = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (nce) {
         *nxthop = &nce->gua;
         return 0;

@@ -60,7 +60,7 @@
  */
 static uint16_t ws_get_own_routing_cost(struct wsrd *wsrd)
 {
-    const struct ipv6_neigh *ipv6_parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    const struct ipv6_neigh *ipv6_parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     const struct ws_neigh *ws_parent;
 
     if (!ipv6_parent)
@@ -678,7 +678,7 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
             TRACE(TR_TX_ABORT, "drop %s: eapol-relay not started", "15.4");
             return;
         }
-        parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+        parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
         BUG_ON(!parent || !parent->rpl);
         dodag_id = parent->rpl->dio.dodag_id; // -Waddress-of-packed-member
         eapol_relay_send(wsrd->ws.eapol_relay_fd,
@@ -739,7 +739,7 @@ void ws_on_send_pas(struct trickle *tkl)
 void ws_on_send_pa(struct trickle *tkl)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pa_tkl);
-    const struct ipv6_neigh *ipv6_parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    const struct ipv6_neigh *ipv6_parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     const struct ws_neigh *ws_parent;
     uint16_t own_routing_cost;
 
@@ -819,7 +819,7 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
     // Ensure we have sent at least one DIS wave before selecting a parent
     if (txalg->c > 0) {
         rpl_update_parent(ipv6);
-        nce = rpl_neigh_pref_parent(ipv6);
+        nce = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
         if (nce)
             return;
     }

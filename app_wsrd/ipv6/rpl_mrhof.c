@@ -265,7 +265,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
 // RFC 6719 3.2.2. Parent Selection Algorithm
 struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
 {
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
     struct ipv6_neigh *pref_parent_new;
     float cur_min_path_cost;
@@ -341,7 +341,7 @@ uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6)
      *
      * 1. The Rank calculated for the path through the preferred parent.
      */
-    nce = rpl_neigh_pref_parent(ipv6);
+    nce = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!nce)
         return RPL_RANK_INFINITE;
     rank = rpl_mrhof_path_rank(ipv6, nce);

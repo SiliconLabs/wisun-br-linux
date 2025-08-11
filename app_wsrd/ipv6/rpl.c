@@ -119,17 +119,17 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
     nce->rpl = NULL;
 }
 
-struct ipv6_neigh *rpl_neigh_pref_parent(struct ipv6_ctx *ipv6)
+struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl)
 {
     struct ipv6_neigh *nce;
 
     return SLIST_FIND(nce, &ipv6->neigh_cache, link,
-                      nce->rpl && nce->rpl->path_ctl == RPL_PATH_CTL_PREFERRED);
+                      nce->rpl && nce->rpl->path_ctl == path_ctl);
 }
 
 void rpl_update_parent(struct ipv6_ctx *ipv6)
 {
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct ipv6_neigh *pref_parent_new;
 
     pref_parent_new = rpl_mrhof_select_parent(ipv6);
@@ -292,7 +292,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
 static void rpl_send_dio_mc(struct trickle *tkl)
 {
     struct ipv6_ctx *ipv6 = container_of(tkl, struct ipv6_ctx, rpl.dio_trickle);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent);
     rpl_send_dio(ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
@@ -303,7 +303,7 @@ void rpl_start_dio(struct ipv6_ctx *ipv6)
     struct trickle_cfg *cfg = &ipv6->rpl.dio_trickle_cfg;
     struct ipv6_neigh *parent;
 
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent) {
         WARN("%s: not ready", __func__);
         return;
@@ -341,7 +341,7 @@ void rpl_stop_dis(struct ipv6_ctx *ipv6)
 static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent);
 
@@ -406,7 +406,7 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
 
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
 {
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent);
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
@@ -416,7 +416,7 @@ void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
 void rpl_dao_txalg_send(struct rfc8415_txalg *txalg)
 {
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent || !parent->rpl);
     rpl_send_dao(ipv6, parent, parent->rpl->config.lifetime_default);
@@ -446,7 +446,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
 static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent);
 
@@ -607,7 +607,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         .data = buf,
     };
 
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
         TRACE(TR_DROP, "drop %-9s: routing not ready", tr_icmp_rpl(RPL_CODE_DIS));
         return;
@@ -665,7 +665,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         .data = buf,
     };
 
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent) {
         TRACE(TR_DROP, "drop %-9s: no preferred parent", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;

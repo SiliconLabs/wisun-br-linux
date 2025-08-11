@@ -90,19 +90,19 @@ static void wsrd_on_dao_ack(struct ipv6_ctx *ipv6)
 static void wsrd_on_dhcp_txalg_failure(struct rfc8415_txalg *txalg)
 {
     struct wsrd *wsrd = container_of(txalg, struct wsrd, ipv6.dhcp.solicit_txalg);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(!parent);
     rpl_neigh_deny(&wsrd->ipv6, parent);
-    parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     if (parent)
         rfc8415_txalg_start(txalg);
 }
 
 static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
 {
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(ipv6);
     struct ipv6_neigh *neigh;
     struct in6_addr dodag_id; // -Waddress-of-packed-member
     struct eui64 eui64;
@@ -296,7 +296,7 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
 static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
 {
     struct wsrd *wsrd = container_of(ws_etx_ctx, struct wsrd, ws.neigh_table.ws_etx_ctx);
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     struct ws_neigh *neigh = container_of(ws_etx, struct ws_neigh, ws_etx);
     uint16_t rank_limit = RPL_RANK_INFINITE;
     struct ipv6_neigh *nce;
@@ -364,7 +364,7 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
 {
     struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
     struct ws_neigh *ws_neigh = ws_neigh_get(&wsrd->ws.neigh_table, &wsrd->eapol_target_eui64);
-    struct ipv6_neigh *parent = rpl_neigh_pref_parent(&wsrd->ipv6);
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(parent && !eui64_eq(&wsrd->eapol_target_eui64, &parent->eui64));
     BUG_ON(!ws_neigh);
@@ -456,7 +456,7 @@ static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
 static struct in6_addr wsrd_dhcp_get_dst(struct dhcp_client *client)
 {
     struct ipv6_ctx *ipv6 = container_of(client, struct ipv6_ctx, dhcp);
-    struct ipv6_neigh *pref_parent = rpl_neigh_pref_parent(ipv6);
+    struct ipv6_neigh *pref_parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct in6_addr parent_ll = ipv6_prefix_linklocal;
 
     BUG_ON(!pref_parent);

@@ -118,7 +118,7 @@ static int dbus_get_dodag_id(sd_bus *bus, const char *path, const char *interfac
     struct ipv6_ctx *ipv6 = userdata;
     struct ipv6_neigh *parent;
 
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
     sd_bus_message_append_array(reply, 'y', parent->rpl->dio.dodag_id.s6_addr,
@@ -135,7 +135,7 @@ static int dbus_get_primary_parent(sd_bus *bus, const char *path, const char *in
     struct ipv6_ctx *ipv6 = userdata;
     struct ipv6_neigh *parent;
 
-    parent = rpl_neigh_pref_parent(ipv6);
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (!parent)
         sd_bus_message_append_array(reply, 'y', in6addr_any.s6_addr, sizeof(in6addr_any.s6_addr));
     else
