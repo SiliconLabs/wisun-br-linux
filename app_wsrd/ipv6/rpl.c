@@ -47,6 +47,10 @@ static const struct name_value rpl_codes[] = {
     { 0 }
 };
 
+static const uint8_t rpl_path_ctl_table[RPL_PARENTS_MAX] = {
+    RPL_PATH_CTL_PREFERRED,
+};
+
 static const char *tr_icmp_rpl(uint8_t code)
 {
     return val_to_str(code, rpl_codes, "unknown");
@@ -125,6 +129,16 @@ struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl)
 
     return SLIST_FIND(nce, &ipv6->neigh_cache, link,
                       nce->rpl && nce->rpl->path_ctl == path_ctl);
+}
+
+static void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PARENTS_MAX])
+{
+    memset(parents, 0, sizeof(struct ipv6_neigh *) * RPL_PARENTS_MAX);
+    for (int i = 0; i < RPL_PARENTS_MAX; i++) {
+        parents[i] = rpl_neigh_get_parent(ipv6, rpl_path_ctl_table[i]);
+        if (!parents[i])
+            break;
+    }
 }
 
 void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)

@@ -39,6 +39,7 @@ struct timer_ctxt;
  * member of PC2, etc.).
  */
 #define RPL_PATH_CTL_PREFERRED FIELD_PREP(RPL_MASK_PATH_CTL_PC1, 1)
+#define RPL_PARENTS_MAX 1
 
 struct rpl_neigh {
     struct rpl_dio dio;
