@@ -376,8 +376,9 @@ static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
     rpl_neigh_deny(ipv6, parent);
 }
 
-static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8_t path_lifetime)
+static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
 {
+    struct ipv6_neigh *parents[RPL_PARENTS_MAX] = { };
     const struct rpl_opt_config *config;
     struct iobuf_write iobuf = { };
     struct rpl_opt_transit transit;
@@ -385,14 +386,15 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
     struct in6_addr dodag_id;
     struct rpl_dao dao;
 
-    BUG_ON(!parent || !parent->rpl);
-    config = &parent->rpl->config;
+    rpl_get_parents(ipv6, parents);
+    BUG_ON(!parents[0]);
+    config = &parents[0]->rpl->config;
     // Prevent GCC warning -Waddress-of-packed-member
-    dodag_id = parent->rpl->dio.dodag_id;
+    dodag_id = parents[0]->rpl->dio.dodag_id;
 
     //   Wi-SUN FAN 1.1v08 6.2.3.1.6.4 Downward Route Formation
     memset(&dao, 0, sizeof(dao));
-    dao.instance_id = parent->rpl->dio.instance_id;
+    dao.instance_id = parents[0]->rpl->dio.instance_id;
     // The K flag MUST be set to 1.
     if (path_lifetime)
         dao.flags |= RPL_MASK_DAO_K;
@@ -412,12 +414,17 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
     // Information Option (i.e., the preferred parent is indicated as the
     // single member of PC1, the first alternate parent set as the single
     // member of PC2, etc.).
-    memset(&transit, 0, sizeof(transit));
-    transit.path_ctl      = parent->rpl->path_ctl;
-    transit.path_seq      = ipv6->rpl.path_seq;
-    transit.path_lifetime = path_lifetime;
-    transit.parent_addr   = parent->gua;
-    rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
+    for (int i = 0; i < ARRAY_SIZE(parents); i++) {
+        if (!parents[i])
+            break;
+        memset(&transit, 0, sizeof(transit));
+        transit.path_ctl      = parents[i]->rpl->path_ctl;
+        transit.path_seq      = ipv6->rpl.path_seq;
+        transit.path_lifetime = path_lifetime;
+        transit.parent_addr   = parents[i]->gua;
+        rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
+        parents[i]->rpl->dao_ack_received = false;
+    }
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
 
@@ -427,17 +434,13 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, uint8
                         (uint64_t)path_lifetime * be16toh(config->lifetime_unit_s) * 90 / 100 * 1000);
     else
         timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
-    parent->rpl->dao_ack_received = false;
     iobuf_free(&iobuf);
 }
 
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
 {
-    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
-
-    BUG_ON(!parent);
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
-    rpl_send_dao(ipv6, parent, 0);
+    rpl_send_dao(ipv6, 0);
 }
 
 void rpl_dao_txalg_send(struct rfc8415_txalg *txalg)
@@ -445,8 +448,8 @@ void rpl_dao_txalg_send(struct rfc8415_txalg *txalg)
     struct ipv6_ctx *ipv6 = container_of(txalg, struct ipv6_ctx, rpl.dao_txalg);
     struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
 
-    BUG_ON(!parent || !parent->rpl);
-    rpl_send_dao(ipv6, parent, parent->rpl->config.lifetime_default);
+    BUG_ON(!parent);
+    rpl_send_dao(ipv6, parent->rpl->config.lifetime_default);
 }
 
 void rpl_start_dao(struct ipv6_ctx *ipv6)
@@ -727,7 +730,9 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
             nce->rpl->dao_ack_received = false;
     if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
         return;
-    parent->rpl->dao_ack_received = true;
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
+        if (nce->rpl && nce->rpl->path_ctl)
+            nce->rpl->dao_ack_received = true;
     if (ipv6->rpl.on_dao_ack)
         ipv6->rpl.on_dao_ack(ipv6);
 }
