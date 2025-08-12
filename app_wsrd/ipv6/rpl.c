@@ -138,6 +138,12 @@ void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
     ipv6_send_ns_aro(ipv6, nce, 0);
 }
 
+static void rpl_register_to_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+{
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
+    ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+}
+
 void rpl_update_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
@@ -178,7 +184,7 @@ void rpl_update_parent(struct ipv6_ctx *ipv6)
     }
     // If we do not have a GUA, the NS(ARO) will be sent after receiving one
     if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
-        ipv6_nud_set_state(ipv6, pref_parent_new, IPV6_NUD_PROBE);
+        rpl_register_to_parent(ipv6, pref_parent_new);
     if (ipv6->rpl.mrhof.on_pref_parent_change)
         ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, pref_parent_new);
     // TODO: support secondary parents
