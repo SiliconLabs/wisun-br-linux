@@ -109,7 +109,7 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PARENTS_MAX]);
 struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl);
 bool rpl_can_update_parent(struct ipv6_ctx *ipv6);
-void rpl_update_parent(struct ipv6_ctx *ipv6);
+void rpl_update_parents(struct ipv6_ctx *ipv6);
 void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 
 #endif

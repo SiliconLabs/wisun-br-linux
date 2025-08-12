@@ -818,7 +818,7 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
     BUG_ON(!timer_stopped(&ipv6->rpl.parent_update_timer));
     // Ensure we have sent at least one DIS wave before selecting a parent
     if (txalg->c > 0) {
-        rpl_update_parent(ipv6);
+        rpl_update_parents(ipv6);
         nce = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
         if (nce)
             return;
