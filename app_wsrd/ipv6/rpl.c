@@ -49,6 +49,7 @@ static const struct name_value rpl_codes[] = {
 
 const uint8_t rpl_path_ctl_table[RPL_PARENTS_MAX] = {
     RPL_PATH_CTL_PREFERRED,
+    RPL_PATH_CTL_SECONDARY,
 };
 
 static const char *tr_icmp_rpl(uint8_t code)
