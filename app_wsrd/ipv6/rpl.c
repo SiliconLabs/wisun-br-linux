@@ -127,6 +127,17 @@ struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl)
                       nce->rpl && nce->rpl->path_ctl == path_ctl);
 }
 
+void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+{
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
+    /*
+     * Always send NS(ARO) lifetime 0 in case NS(ARO) ACK was not received
+     * before changing parent.
+     */
+    timer_stop(&ipv6->timer_group, &nce->own_aro_timer);
+    ipv6_send_ns_aro(ipv6, nce, 0);
+}
+
 void rpl_update_parent(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
@@ -163,12 +174,7 @@ void rpl_update_parent(struct ipv6_ctx *ipv6)
             trickle_stop(&ipv6->rpl.dio_trickle);
             rpl_send_dio(ipv6, pref_parent_cur, &ipv6_addr_all_rpl_nodes_link);
         }
-        /*
-         * Always send NS(ARO) lifetime 0 in case NS(ARO) ACK was not received
-         * before changing parent.
-         */
-        timer_stop(&ipv6->timer_group, &pref_parent_cur->own_aro_timer);
-        ipv6_send_ns_aro(ipv6, pref_parent_cur, 0);
+        rpl_unregister_from_parent(ipv6, pref_parent_cur);
     }
     // If we do not have a GUA, the NS(ARO) will be sent after receiving one
     if (pref_parent_new && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))

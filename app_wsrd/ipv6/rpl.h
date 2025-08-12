@@ -100,6 +100,8 @@ void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst);
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6);
 void rpl_start_dao(struct ipv6_ctx *ipv6);
 
+void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
+
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl);
 bool rpl_can_update_parent(struct ipv6_ctx *ipv6);
