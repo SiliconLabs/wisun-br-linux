@@ -47,7 +47,7 @@ static const struct name_value rpl_codes[] = {
     { 0 }
 };
 
-static const uint8_t rpl_path_ctl_table[RPL_PARENTS_MAX] = {
+const uint8_t rpl_path_ctl_table[RPL_PARENTS_MAX] = {
     RPL_PATH_CTL_PREFERRED,
 };
 
@@ -131,7 +131,7 @@ struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl)
                       nce->rpl && nce->rpl->path_ctl == path_ctl);
 }
 
-static void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PARENTS_MAX])
+void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PARENTS_MAX])
 {
     memset(parents, 0, sizeof(struct ipv6_neigh *) * RPL_PARENTS_MAX);
     for (int i = 0; i < RPL_PARENTS_MAX; i++) {
@@ -163,7 +163,8 @@ void rpl_update_parent(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct ipv6_neigh *pref_parent_new;
 
-    pref_parent_new = rpl_mrhof_select_parent(ipv6);
+    rpl_mrhof_select_parents(ipv6);
+    pref_parent_new = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (pref_parent_cur == pref_parent_new)
         return;
     if (pref_parent_new && !pref_parent_cur)

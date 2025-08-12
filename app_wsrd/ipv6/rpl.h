@@ -41,6 +41,8 @@ struct timer_ctxt;
 #define RPL_PATH_CTL_PREFERRED FIELD_PREP(RPL_MASK_PATH_CTL_PC1, 1)
 #define RPL_PARENTS_MAX 1
 
+extern const uint8_t rpl_path_ctl_table[RPL_PARENTS_MAX];
+
 struct rpl_neigh {
     struct rpl_dio dio;
     struct rpl_opt_config config;
@@ -104,6 +106,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6);
 void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 
 void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
+void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PARENTS_MAX]);
 struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl);
 bool rpl_can_update_parent(struct ipv6_ctx *ipv6);
 void rpl_update_parent(struct ipv6_ctx *ipv6);

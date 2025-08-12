@@ -49,7 +49,7 @@ bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *ne
 const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                                          uint16_t rank_limit, float etx_max);
 bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6);
-struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6);
+void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6);
 uint16_t rpl_mrhof_path_rank(const struct ipv6_ctx *ipv6,
                              const struct ipv6_neigh *nce);
 uint16_t rpl_mrhof_rank(struct ipv6_ctx *ipv6);
