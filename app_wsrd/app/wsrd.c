@@ -511,12 +511,12 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;
 
     ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
+    rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))
         FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
     rail_fill_ms_chan_masks(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, ms_chan_mask);
     rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, ms_chan_mask);
-    rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
 
     rcp_req_radio_enable(&wsrd->ws.rcp);
 }
