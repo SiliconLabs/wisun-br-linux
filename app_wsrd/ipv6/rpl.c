@@ -222,11 +222,21 @@ static void rpl_send(struct ipv6_ctx *ipv6, uint8_t code,
         .msg_iov     = iov,
         .msg_iovlen  = ARRAY_SIZE(iov),
     };
+    const struct rpl_dio *dio;
     ssize_t ret;
 
     BUG_ON(ipv6->rpl.fd < 0);
 
-    TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s", tr_icmp_rpl(code), tr_ipv6(dst->s6_addr));
+    if (code == RPL_CODE_DIO) {
+        BUG_ON(buf_len < sizeof(struct rpl_dio));
+        dio = buf;
+        TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s rank=%u",
+              tr_icmp_rpl(code), tr_ipv6(dst->s6_addr), ntohs(dio->rank));
+    } else {
+        TRACE(TR_ICMP, "tx-icmp rpl-%-9s dst=%s",
+              tr_icmp_rpl(code), tr_ipv6(dst->s6_addr));
+    }
+
     ret = sendmsg(ipv6->rpl.fd, &msg, 0);
     if (ret < sizeof(hdr) + buf_len)
         WARN("%s: sendto %s: %m", __func__, tr_ipv6(dst->s6_addr));
