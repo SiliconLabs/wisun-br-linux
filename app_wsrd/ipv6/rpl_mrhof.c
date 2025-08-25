@@ -108,16 +108,12 @@ uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc
 static const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
-    float etx;
 
     BUG_ON(!nce->rpl);
     if (!neigh)
         return "15.4-neigh";
-    etx = rpl_mrhof_etx(ipv6, nce);
     if (!nce->rpl->rsl_valid)
         nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh);
-    // If the RSL out is NaN, the ETX is NaN as well, we will probe later
-    BUG_ON(isnan(neigh->rsl_out_dbm) && !isnan(etx));
     if (!nce->rpl->rsl_valid && !isnan(neigh->rsl_out_dbm))
         return "rsl";
     if (!timer_stopped(&nce->rpl->deny_timer))
