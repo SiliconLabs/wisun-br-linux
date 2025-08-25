@@ -196,8 +196,6 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer,
                         start_ms + cfg->gtk_new_install_required * expire_offset_ms / 100);
 
-    if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, new->key, new->frame_counter, slot_install + 1, false);
     auth_storage_store_keys(auth, true);
     TRACE(TR_SECURITY, "sec: installed %s=%s expiration=%"PRIu64,
           tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)), new->expiration_timer.expire_ms / 1000);
@@ -215,8 +213,10 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
     uint64_t reduced_lifetime_ms;
     uint64_t active_remaining_ms;
+    uint8_t slot_install;
     uint8_t slot_latest;
     uint8_t next_slot;
+    int ret;
 
     if (gtk && !auth_is_gtk_valid(auth, gtk_group, gtk))
         return -EINVAL;
@@ -266,7 +266,12 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     timer_start_rel(&auth->timer_group, &auth->gtks[slot_latest].expiration_timer, reduced_lifetime_ms);
     TRACE(TR_SECURITY, "sec: %s reduced expiration=%"PRIu64,
           tr_gtkname(slot_latest), auth->gtks[slot_latest].expiration_timer.expire_ms / 1000);
-    auth_install_gtk(auth, gtk_group, auth_gtk_slot_next(slot_latest), gtk);
+    slot_install = auth_gtk_slot_next(slot_latest);
+    ret = auth_install_gtk(auth, gtk_group, slot_install, gtk);
+    BUG_ON(ret);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, auth->gtks[slot_install].key, auth->gtks[slot_install].frame_counter,
+                            slot_install + 1, false);
     timer_start_rel(&auth->timer_group, &gtk_group->activation_timer,
                     active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
     TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
@@ -281,6 +286,9 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
     auth_install_gtk(auth, gtk_group, slot_install, NULL);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, auth->gtks[slot_install].key, auth->gtks[slot_install].frame_counter,
+                            slot_install + 1, false);
 }
 
 static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
@@ -299,6 +307,9 @@ static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_gr
                      tr_gtkname(slot_offset + i - 1));
             ret = auth_install_gtk(auth, gtk_group, slot_offset + i,
                                    auth->cfg->gtk_init[slot_offset + i]);
+            if (auth->on_gtk_change)
+                auth->on_gtk_change(auth, auth->gtks[slot_offset + i].key, auth->gtks[slot_offset + i].frame_counter,
+                                    slot_offset + i + 1, false);
             FATAL_ON(ret < 0, 1, "duplicate %s=%s",
                      tr_gtkname(slot_offset + i),
                      tr_key(auth->cfg->gtk_init[slot_offset + i], 16));
@@ -556,17 +567,27 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
         return;
     }
 
-    if (memzcmp(auth->cfg->gtk_init, sizeof(*auth->cfg->gtk_init) * WS_GTK_COUNT))
+    if (memzcmp(auth->cfg->gtk_init, sizeof(*auth->cfg->gtk_init) * WS_GTK_COUNT)) {
         auth_install_from_gtk_init(auth, &auth->gtk_group);
-    else
+    } else {
         auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active, NULL);
+        if (auth->on_gtk_change)
+            auth->on_gtk_change(auth, auth->gtks[auth->gtk_group.slot_active].key,
+                                auth->gtks[auth->gtk_group.slot_active].frame_counter,
+                                auth->gtk_group.slot_active + 1, false);
+    }
     auth_activate_next_gtk(auth, &auth->gtk_group);
 
     if (enable_lfn) {
-        if (memzcmp(&auth->cfg->gtk_init[WS_GTK_COUNT], sizeof(*auth->cfg->gtk_init) * WS_LGTK_COUNT))
+        if (memzcmp(&auth->cfg->gtk_init[WS_GTK_COUNT], sizeof(*auth->cfg->gtk_init) * WS_LGTK_COUNT)) {
             auth_install_from_gtk_init(auth, &auth->lgtk_group);
-        else
+        } else {
             auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active, NULL);
+            if (auth->on_gtk_change)
+                auth->on_gtk_change(auth, auth->gtks[auth->lgtk_group.slot_active].key,
+                                    auth->gtks[auth->lgtk_group.slot_active].frame_counter,
+                                    auth->lgtk_group.slot_active + 1, false);
+        }
         auth_activate_next_gtk(auth, &auth->lgtk_group);
     }
     auth_storage_store_keys(auth, true);

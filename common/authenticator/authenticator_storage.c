@@ -53,6 +53,9 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
         else
             slot_next = auth_gtk_slot_next(gtk_group->slot_active);
         auth_install_gtk(auth, gtk_group, slot_next, NULL);
+        if (auth->on_gtk_change)
+            auth->on_gtk_change(auth, auth->gtks[slot_next].key,
+                                auth->gtks[slot_next].frame_counter, slot_next + 1, true);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer, next_installation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
