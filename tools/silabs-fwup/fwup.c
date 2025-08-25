@@ -161,7 +161,8 @@ static void handle_btl_update(struct bus *bus)
     if (!memmem(btl_rx_buf, ret, btl_str, strlen(btl_str)))
         FATAL(1, "cannot get bootloader banner");
     // option '1' to upload gbl
-    write(bus->fd, &btl_upload_gbl, sizeof(uint8_t));
+    ret = write(bus->fd, &btl_upload_gbl, sizeof(uint8_t));
+    FATAL_ON(ret < 1, 2, "write '1': %m");
 }
 
 static void handle_btl_run(struct bus *bus)
@@ -174,7 +175,8 @@ static void handle_btl_run(struct bus *bus)
     ret = tcflush(bus->fd, TCIFLUSH);
     FATAL_ON(ret < 0, 2, "tcflush: %m");
     // option '2' to run
-    write(bus->fd, &btl_run, sizeof(uint8_t));
+    ret = write(bus->fd, &btl_run, sizeof(uint8_t));
+    FATAL_ON(ret < 1, 2, "write '2': %m");
 }
 
 static void handle_rcp_reset(struct bus *bus)
