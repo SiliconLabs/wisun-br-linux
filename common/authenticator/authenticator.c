@@ -95,8 +95,6 @@ void auth_activate_next_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_gr
     if (expire_offset_ms)
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer,
                         expire_ms - expire_offset_ms / cfg->gtk_new_activation_time);
-    if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
     auth_storage_store_keys(auth, true);
     TRACE(TR_SECURITY, "sec: activated %s=%s", tr_gtkname(gtk_group->slot_active),
           tr_key(auth->gtks[gtk_group->slot_active].key, sizeof(auth->gtks[gtk_group->slot_active].key)));
@@ -111,6 +109,8 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_activate_next_gtk(auth, gtk_group);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
 }
 
 int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_gtk_group *gtk_group)
@@ -577,6 +577,8 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
                                 auth->gtk_group.slot_active + 1, false);
     }
     auth_activate_next_gtk(auth, &auth->gtk_group);
+    if (auth->on_gtk_change)
+        auth->on_gtk_change(auth, NULL, 0, auth->gtk_group.slot_active + 1, true);
 
     if (enable_lfn) {
         if (memzcmp(&auth->cfg->gtk_init[WS_GTK_COUNT], sizeof(*auth->cfg->gtk_init) * WS_LGTK_COUNT)) {
@@ -589,6 +591,8 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
                                     auth->lgtk_group.slot_active + 1, false);
         }
         auth_activate_next_gtk(auth, &auth->lgtk_group);
+        if (auth->on_gtk_change)
+            auth->on_gtk_change(auth, NULL, 0, auth->lgtk_group.slot_active + 1, true);
     }
     auth_storage_store_keys(auth, true);
 }

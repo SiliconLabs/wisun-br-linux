@@ -65,6 +65,8 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
         WARN("sec: next %s activation missed, activating new key", is_gtk_group ? "GTK" : "LGTK");
         gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
         auth_activate_next_gtk(auth, gtk_group);
+        if (auth->on_gtk_change)
+            auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer, next_activation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
