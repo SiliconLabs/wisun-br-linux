@@ -213,6 +213,7 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     const int slot_offset = gtk_group == &auth->gtk_group ? 0 : WS_GTK_COUNT;
     uint64_t reduced_lifetime_ms;
     uint64_t active_remaining_ms;
+    uint8_t removed_mask = 0;
     uint8_t slot_install;
     uint8_t slot_latest;
     uint8_t next_slot;
@@ -245,7 +246,8 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
                 continue;
             }
             timer_stop(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
-            auth_gtk_expiration_timer_timeout(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+            auth_gtk_expire(auth, &auth->gtks[slot_offset + i]);
+            removed_mask |= BIT(slot_offset + i);
         }
         active_remaining_ms = reduced_lifetime_ms;
         slot_latest = gtk_group->slot_active;
@@ -258,7 +260,8 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
                 continue;
             }
             timer_stop(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
-            auth_gtk_expiration_timer_timeout(&auth->timer_group, &auth->gtks[slot_offset + i].expiration_timer);
+            auth_gtk_expire(auth, &auth->gtks[slot_offset + i]);
+            removed_mask |= BIT(slot_offset + i);
         }
         slot_latest = next_slot;
     }
@@ -270,7 +273,7 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     ret = auth_install_gtk(auth, gtk_group, slot_install, gtk);
     BUG_ON(ret);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, 0, BIT(slot_install), 0);
+        auth->on_gtk_change(auth, removed_mask, BIT(slot_install), 0);
     timer_start_rel(&auth->timer_group, &gtk_group->activation_timer,
                     active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
     TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
