@@ -75,7 +75,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
     const int slot = (int)(gtk - auth->gtks);
 
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, 0, slot + 1, false);
+        auth->on_gtk_change(auth, BIT(slot), 0, 0);
     auth_gtk_expire(auth, gtk);
 }
 
@@ -110,7 +110,7 @@ static void auth_gtk_activation_timer_timeout(struct timer_group *group, struct 
     gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
     auth_activate_next_gtk(auth, gtk_group);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
+        auth->on_gtk_change(auth, 0, 0, BIT(gtk_group->slot_active));
 }
 
 int auth_gtk_slot_latest(const struct auth_ctx *auth, const struct auth_gtk_group *gtk_group)
@@ -270,8 +270,7 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
     ret = auth_install_gtk(auth, gtk_group, slot_install, gtk);
     BUG_ON(ret);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, auth->gtks[slot_install].key, auth->gtks[slot_install].frame_counter,
-                            slot_install + 1, false);
+        auth->on_gtk_change(auth, 0, BIT(slot_install), 0);
     timer_start_rel(&auth->timer_group, &gtk_group->activation_timer,
                     active_remaining_ms - (uint64_t)cfg->gtk_expire_offset_s * 1000 / cfg->gtk_new_activation_time);
     TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
@@ -287,8 +286,7 @@ static void auth_gtk_install_timer_timeout(struct timer_group *group, struct tim
 
     auth_install_gtk(auth, gtk_group, slot_install, NULL);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, auth->gtks[slot_install].key, auth->gtks[slot_install].frame_counter,
-                            slot_install + 1, false);
+        auth->on_gtk_change(auth, 0, BIT(slot_install), 0);
 }
 
 static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_group *gtk_group)
@@ -308,8 +306,7 @@ static void auth_install_from_gtk_init(struct auth_ctx *auth, struct auth_gtk_gr
             ret = auth_install_gtk(auth, gtk_group, slot_offset + i,
                                    auth->cfg->gtk_init[slot_offset + i]);
             if (auth->on_gtk_change)
-                auth->on_gtk_change(auth, auth->gtks[slot_offset + i].key, auth->gtks[slot_offset + i].frame_counter,
-                                    slot_offset + i + 1, false);
+                auth->on_gtk_change(auth, 0, BIT(slot_offset + i), 0);
             FATAL_ON(ret < 0, 1, "duplicate %s=%s",
                      tr_gtkname(slot_offset + i),
                      tr_key(auth->cfg->gtk_init[slot_offset + i], 16));
@@ -572,13 +569,11 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     } else {
         auth_install_gtk(auth, &auth->gtk_group, auth->gtk_group.slot_active, NULL);
         if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, auth->gtks[auth->gtk_group.slot_active].key,
-                                auth->gtks[auth->gtk_group.slot_active].frame_counter,
-                                auth->gtk_group.slot_active + 1, false);
+            auth->on_gtk_change(auth, 0, BIT(auth->gtk_group.slot_active), 0);
     }
     auth_activate_next_gtk(auth, &auth->gtk_group);
     if (auth->on_gtk_change)
-        auth->on_gtk_change(auth, NULL, 0, auth->gtk_group.slot_active + 1, true);
+        auth->on_gtk_change(auth, 0, 0, BIT(auth->gtk_group.slot_active));
 
     if (enable_lfn) {
         if (memzcmp(&auth->cfg->gtk_init[WS_GTK_COUNT], sizeof(*auth->cfg->gtk_init) * WS_LGTK_COUNT)) {
@@ -586,13 +581,11 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
         } else {
             auth_install_gtk(auth, &auth->lgtk_group, auth->lgtk_group.slot_active, NULL);
             if (auth->on_gtk_change)
-                auth->on_gtk_change(auth, auth->gtks[auth->lgtk_group.slot_active].key,
-                                    auth->gtks[auth->lgtk_group.slot_active].frame_counter,
-                                    auth->lgtk_group.slot_active + 1, false);
+                auth->on_gtk_change(auth, 0, BIT(auth->lgtk_group.slot_active), 0);
         }
         auth_activate_next_gtk(auth, &auth->lgtk_group);
         if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, NULL, 0, auth->lgtk_group.slot_active + 1, true);
+            auth->on_gtk_change(auth, 0, 0, BIT(auth->lgtk_group.slot_active));
     }
     auth_storage_store_keys(auth, true);
 }

@@ -123,8 +123,7 @@ int ws_auth_install_gtk(struct net_if *net_if, bool is_lgtk, const uint8_t new_g
     slot = auth_gtk_slot_next(auth_gtk_slot_latest(net_if->auth, gtk_group));
     ret = auth_install_gtk(net_if->auth, gtk_group, slot, new_gtk);
     if (!ret && net_if->auth->on_gtk_change)
-        net_if->auth->on_gtk_change(net_if->auth, net_if->auth->gtks[slot].key,
-                                    net_if->auth->gtks[slot].frame_counter, slot + 1, false);
+        net_if->auth->on_gtk_change(net_if->auth, 0, BIT(slot), 0);
     return ret;
 }
 

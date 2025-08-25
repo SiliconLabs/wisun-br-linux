@@ -27,6 +27,7 @@
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/string_extra.h"
+#include "common/bits.h"
 
 struct ctx {
     struct supp_ctx supp;
@@ -131,19 +132,22 @@ static void auth_sendto_mac(struct auth_ctx *auth, uint8_t kmp_id,
     FATAL_ON(ret < 8 + 1 + buf_len, 2, "sendmsg: %m");
 }
 
-static void auth_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
-                               uint8_t index, bool activate)
+static void auth_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint8_t installed_mask, uint8_t activated_mask)
 {
     struct ctx *ctx = container_of(auth, struct ctx, auth);
 
-    if (gtk) {
-        INFO("auth install  idx=%u key=%s", index, tr_key(gtk, 16));
-        supp_start_key_request(&ctx->supp); // supp received a new GTKHASH-IE
-    } else {
-        INFO("auth remove   idx=%u", index);
+    for (int slot = 0; slot < ARRAY_SIZE(auth->gtks); slot++) {
+        if (!((removed_mask | installed_mask | activated_mask) & BIT(slot)))
+            continue;
+        if (removed_mask & BIT(slot))
+            INFO("auth remove   %s", tr_gtkname(slot));
+        if (installed_mask & BIT(slot)) {
+            INFO("auth install  %s=%s", tr_gtkname(slot), tr_key(auth->gtks[slot].key, 16));
+            supp_start_key_request(&ctx->supp); // supp received a new GTKHASH-IE
+        }
+        if (activated_mask & BIT(slot))
+            INFO("auth activate %s", tr_gtkname(slot));
     }
-    if (activate)
-        INFO("auth activate idx=%u", index);
 }
 
 static void auth_on_supp_gtk_installed(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index)

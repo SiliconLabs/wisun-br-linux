@@ -77,23 +77,30 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target);
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target);
 
-static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
-                               uint8_t key_index, bool activate)
+static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint8_t installed_mask,
+                               uint8_t activated_mask)
 {
     struct wsbr_ctxt *ctxt = container_of(auth, struct wsbr_ctxt, auth);
-    uint8_t slot = key_index - 1;
+    bool increase_pan_version = false;
+    bool increase_lfn_version = false;
     uint8_t gak[16];
 
-    if (gtk) {
-        ws_generate_gak(ctxt->net_if.ws_info.network_name, gtk, gak);
-        TRACE(TR_SECURITY, "sec: install %s=%s",
-              tr_gakname(slot), tr_key(gak, sizeof(gak)));
-        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, gak, frame_counter);
-    } else if (!activate) {
-        ws_bootstrap_nw_key_set(&ctxt->net_if, key_index, NULL, 0);
+    for (int slot = 0; slot < ARRAY_SIZE(auth->gtks); slot++) {
+        if (!((removed_mask | installed_mask | activated_mask) & BIT(slot)))
+            continue;
+        if (removed_mask & BIT(slot))
+            ws_bootstrap_nw_key_set(&ctxt->net_if, slot + 1, NULL, 0);
+        if (installed_mask & BIT(slot)) {
+            ws_generate_gak(ctxt->net_if.ws_info.network_name, auth->gtks[slot].key, gak);
+            TRACE(TR_SECURITY, "sec: install %s=%s",
+                  tr_gakname(slot), tr_key(gak, sizeof(gak)));
+            ws_bootstrap_nw_key_set(&ctxt->net_if, slot + 1, gak, auth->gtks[slot].frame_counter);
+        }
+        if (activated_mask & BIT(slot))
+            ws_bootstrap_nw_key_index_set(&ctxt->net_if, slot);
+        increase_pan_version |= slot < WS_GTK_COUNT;
+        increase_lfn_version |= slot >= WS_GTK_COUNT;
     }
-    if (activate)
-        ws_bootstrap_nw_key_index_set(&ctxt->net_if, slot);
     /*
      * During reboot, the authenticator installs GTKs and LGTKs loaded from
      * storage.
@@ -102,9 +109,10 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, const uint8_t gtk[16], uin
      */
     if (!trickle_legacy_running(&ctxt->net_if.ws_info.mngt.trickle_pc, &ctxt->net_if.ws_info.mngt.trickle_params))
         return;
-    if (slot < WS_GTK_COUNT)
+    // LFN version increase already increases PAN version
+    if (increase_pan_version && !increase_lfn_version)
         ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
-    else
+    if (increase_lfn_version)
         ws_mngt_lfn_version_increase(&ctxt->net_if.ws_info);
 }
 

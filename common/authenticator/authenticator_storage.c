@@ -27,6 +27,7 @@
 #include "common/memutils.h"
 #include "common/parsers.h"
 #include "common/eui64.h"
+#include "common/bits.h"
 #include "common/log.h"
 
 #include "authenticator_storage.h"
@@ -54,8 +55,7 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
             slot_next = auth_gtk_slot_next(gtk_group->slot_active);
         auth_install_gtk(auth, gtk_group, slot_next, NULL);
         if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, auth->gtks[slot_next].key,
-                                auth->gtks[slot_next].frame_counter, slot_next + 1, true);
+            auth->on_gtk_change(auth, 0, BIT(slot_next), 0);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer, next_installation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
@@ -66,7 +66,7 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
         gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
         auth_activate_next_gtk(auth, gtk_group);
         if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, NULL, 0, gtk_group->slot_active + 1, true);
+            auth->on_gtk_change(auth, 0, 0, BIT(gtk_group->slot_active));
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer, next_activation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
@@ -100,7 +100,7 @@ static void auth_storage_load_gtks(struct auth_ctx *auth, const uint64_t gtks_ex
         if (activate)
             TRACE(TR_SECURITY, "sec: activated %s=%s", tr_gtkname(i),
                   tr_key(gtks[i].key, sizeof(gtks[i].key)));
-        auth->on_gtk_change(auth, gtks[i].key, gtks[i].frame_counter, i + 1, activate);
+        auth->on_gtk_change(auth, 0, BIT(i), activate ? BIT(i) : 0);
     }
 }
 

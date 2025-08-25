@@ -112,15 +112,13 @@ struct auth_ctx {
     void (*sendto_mac)(struct auth_ctx *auth, uint8_t kmp_id, const void *pkt,
                        size_t pkt_len, const struct eui64 *dst);
     /*
-     * | gtk  | activate | action                               |
-     * |------|----------|--------------------------------------|
-     * |!NULL | false    | Install                              |
-     * | NULL | true     | Activate                             |
-     * | NULL | false    | Remove                               |
-     * |!NULL | true     | Install and activate (boot sequence) |
+     * - removed_mask: bits set for GTKs that were removed
+     * - installed_mask: bits set for GTKs that were installed
+     * - activated_mask: bits set for GTKs that were activated
+     * The callback should read auth->gtks[] to apply the various key changes.
+     * Each bit represents a slot in the auth->gtks[] array.
      */
-    void (*on_gtk_change)(struct auth_ctx *auth, const uint8_t gtk[16], uint32_t frame_counter,
-                          uint8_t index, bool activate);
+    void (*on_gtk_change)(struct auth_ctx *auth, uint8_t removed_mask, uint8_t installed_mask, uint8_t activated_mask);
 
     // Called on rx of 4wh msg 4 and gkh msg 2
     void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);
