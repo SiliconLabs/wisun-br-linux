@@ -54,8 +54,6 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
         else
             slot_next = auth_gtk_slot_next(gtk_group->slot_active);
         auth_install_gtk(auth, gtk_group, slot_next, NULL);
-        if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, 0, BIT(slot_next), 0);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer, next_installation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
@@ -65,8 +63,6 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
         WARN("sec: next %s activation missed, activating new key", is_gtk_group ? "GTK" : "LGTK");
         gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
         auth_activate_next_gtk(auth, gtk_group);
-        if (auth->on_gtk_change)
-            auth->on_gtk_change(auth, 0, 0, BIT(gtk_group->slot_active));
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer, next_activation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s activation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
@@ -100,7 +96,6 @@ static void auth_storage_load_gtks(struct auth_ctx *auth, const uint64_t gtks_ex
         if (activate)
             TRACE(TR_SECURITY, "sec: activated %s=%s", tr_gtkname(i),
                   tr_key(gtks[i].key, sizeof(gtks[i].key)));
-        auth->on_gtk_change(auth, 0, BIT(i), activate ? BIT(i) : 0);
     }
 }
 
@@ -115,6 +110,8 @@ static bool auth_storage_load_keys(struct auth_ctx *auth)
     uint64_t next_gtk_activation_ts_ms = 0;
     struct ws_gtk *gtks = auth->gtks;
     struct storage_parse_info *info;
+    uint8_t installed_mask = 0;
+    uint8_t activated_mask = 0;
     struct eui64 eui64;
     int ret;
 
@@ -171,6 +168,13 @@ static bool auth_storage_load_keys(struct auth_ctx *auth)
     auth_storage_load_group(auth, gtk_group, next_gtk_installation_ts_ms, next_gtk_activation_ts_ms);
     auth_storage_load_group(auth, lgtk_group, next_lgtk_installation_ts_ms, next_lgtk_activation_ts_ms);
 
+    for (int i = 0; i < ARRAY_SIZE(auth->gtks); i++)
+        if (!timer_stopped(&gtks[i].expiration_timer))
+            installed_mask |= BIT(i);
+    activated_mask |= BIT(gtk_group->slot_active);
+    activated_mask |= BIT(lgtk_group->slot_active);
+    if (auth->on_gtk_change && (installed_mask || activated_mask))
+        auth->on_gtk_change(auth, 0, installed_mask, activated_mask);
     return true;
 }
 
