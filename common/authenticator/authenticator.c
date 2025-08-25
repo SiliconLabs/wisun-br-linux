@@ -59,6 +59,15 @@ int auth_gtk_slot_next(int slot)
         return slot + 1 < WS_GTK_COUNT + WS_LGTK_COUNT ? slot + 1 : WS_GTK_COUNT;
 }
 
+static void auth_gtk_expire(struct auth_ctx *auth, struct ws_gtk *gtk)
+{
+    const int slot = (int)(gtk - auth->gtks);
+
+    TRACE(TR_SECURITY, "sec: expired %s", tr_gtkname(slot));
+    ws_gtk_clear(&auth->timer_group, gtk);
+    auth_storage_store_keys(auth, true);
+}
+
 static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
@@ -67,9 +76,7 @@ static void auth_gtk_expiration_timer_timeout(struct timer_group *group, struct 
 
     if (auth->on_gtk_change)
         auth->on_gtk_change(auth, NULL, 0, slot + 1, false);
-    TRACE(TR_SECURITY, "sec: expired %s", tr_gtkname(slot));
-    ws_gtk_clear(group, gtk);
-    auth_storage_store_keys(auth, true);
+    auth_gtk_expire(auth, gtk);
 }
 
 /*
