@@ -422,13 +422,10 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
     if (!ws_neigh)
         return false;
 
-    if (ws_neigh->node_role == WS_NR_ROLE_LFN) {
-        if (ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms)
-            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
-        else
-            return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
-    }
-    return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN)
+        return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+    else
+        return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
 
 void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
