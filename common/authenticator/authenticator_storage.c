@@ -267,7 +267,7 @@ bool auth_storage_load(struct auth_ctx *auth)
 
 static void auth_storage_get_supp_filename(const struct auth_supp_ctx *supp, char *filename, size_t size)
 {
-    char str_buf[PATH_MAX];
+    char str_buf[STR_MAX_LEN_EUI64];
 
     str_key(supp->eui64.u8, sizeof(supp->eui64.u8), str_buf, sizeof(str_buf));
     snprintf(filename, size, "%ssupp-%s", g_storage_prefix, str_buf);
