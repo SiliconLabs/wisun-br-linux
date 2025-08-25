@@ -40,14 +40,19 @@
 static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
                                     uint64_t next_installation_ts_ms, uint64_t next_activation_ts_ms)
 {
+    uint8_t slot_latest = auth_gtk_slot_latest(auth, gtk_group);
     uint64_t storage_offset_ms = time_get_storage_offset_ms();
     bool is_gtk_group = gtk_group == &auth->gtk_group;
     uint64_t now_ms = time_now_ms(CLOCK_MONOTONIC);
+    uint8_t slot_next;
 
     if (storage_offset_ms > next_installation_ts_ms || now_ms > next_installation_ts_ms - storage_offset_ms) {
         WARN("sec: next %s installation missed, installing new key", is_gtk_group ? "GTK" : "LGTK");
-        gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
-        auth_install_gtk(auth, gtk_group, gtk_group->slot_active, NULL);
+        if (ws_gtk_installed(&auth->gtks[slot_latest]))
+            slot_next = auth_gtk_slot_next(slot_latest);
+        else
+            slot_next = auth_gtk_slot_next(gtk_group->slot_active);
+        auth_install_gtk(auth, gtk_group, slot_next, NULL);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->install_timer, next_installation_ts_ms - storage_offset_ms);
         TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, is_gtk_group ? "GTK" : "LGTK",
@@ -55,6 +60,7 @@ static void auth_storage_load_group(struct auth_ctx *auth, struct auth_gtk_group
     }
     if (storage_offset_ms > next_activation_ts_ms || now_ms > next_activation_ts_ms - storage_offset_ms) {
         WARN("sec: next %s activation missed, activating new key", is_gtk_group ? "GTK" : "LGTK");
+        gtk_group->slot_active = auth_gtk_slot_next(gtk_group->slot_active);
         auth_activate_next_gtk(auth, gtk_group);
     } else {
         timer_start_abs(&auth->timer_group, &gtk_group->activation_timer, next_activation_ts_ms - storage_offset_ms);
