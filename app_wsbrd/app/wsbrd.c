@@ -529,7 +529,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (ctxt->fds[POLLFD_EVENT].revents & POLLIN) {
-        read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
+        ret = read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
+        FATAL_ON(ret < sizeof(val), 2, "read eventfd: %m");
         WARN_ON(val != 'W');
         event_scheduler_run_until_idle();
     }
