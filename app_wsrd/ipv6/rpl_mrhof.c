@@ -227,17 +227,18 @@ struct ipv6_neigh *rpl_mrhof_select_parent(struct ipv6_ctx *ipv6)
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         new_rank = rpl_mrhof_path_rank(ipv6, nce);
         discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric);
-        if (discard && rpl_mrhof_is_probe_needed(ipv6, nce)) {
-            /*
-             *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
-             * The FFN MUST perform unicast Neighbor Discovery (Neighbor
-             * Solicit using its link local IPv6 address) with all FFNs from
-             * which it has received a RPL DIO (thereby collecting ETX and
-             * bi-directional RSL for the neighbor).
-             */
-            if (nce->nud_state != IPV6_NUD_PROBE)
-                ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
-        }
+
+        /*
+         *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
+         * The FFN MUST perform unicast Neighbor Discovery (Neighbor Solicit
+         * using its link local IPv6 address) with all FFNs from which it has
+         * received a RPL DIO (thereby collecting ETX and bi-directional RSL
+         * for the neighbor).
+         */
+        if (discard && nce->nud_state != IPV6_NUD_PROBE &&
+            rpl_mrhof_is_probe_needed(ipv6, nce))
+            ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
+
         if (discard) {
             TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
                   tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank, discard);
