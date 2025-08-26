@@ -110,9 +110,9 @@ Don't forget to refresh the services:
 
 ## Device tree configuration for the expansion board
 
-These steps are described in more detail in [AN1332][1].
+These steps are described in more detail in the [Silabs Linux BR guide][1].
 
-[1]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
+[1]: https://docs.silabs.com/wisun/2.7.0/wisun-network-configuration/03-wisun-linux-border-router#raspberry-pi-boot-configuration
 
     sudo tee -a /boot/config.txt <<- EOF
     	[all]

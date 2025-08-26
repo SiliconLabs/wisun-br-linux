@@ -22,7 +22,7 @@ currently supported are EFR32FG12, EFR32MG12, EFR32FG25, EFR32FG28, and
 EFR32ZG28.
 
 The RCP needs to be flashed with a specific firmware to communicate with the
-daemon. This firmware is provided in binary format. [Application Note 1332][an1332]
+daemon. This firmware is provided in binary format. The [online documentation][rcp]
 explains how to build RCP firmware and flash it.
 
 The communication between the Linux host and the RCP is supported through a
@@ -31,7 +31,7 @@ over USB. The `/dev/ttyACMx` device should appear when you connect the
 mainboard.
 
 [docker]: https://github.com/SiliconLabs/wisun-br-linux-docker
-[an1332]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
+[rcp]: https://docs.silabs.com/wisun/latest/wisun-network-configuration/03-wisun-linux-border-router#flashing-the-wi-sun-rcp
 
 ## Cloning wisun-br-linux
 
