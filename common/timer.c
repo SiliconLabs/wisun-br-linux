@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/sys_queue_extra.h"
 
 #include "timer.h"
@@ -196,4 +197,28 @@ void timer_stop(struct timer_group *group, struct timer_entry *timer)
     timer_reset(timer);
     if (reschedule)
         timer_schedule();
+}
+
+struct timer_call {
+    struct timer_entry timer;
+    void (*func)(void *arg);
+    uint8_t arg[];
+};
+
+static void timer_call_cb(struct timer_group *group, struct timer_entry *timer)
+{
+    struct timer_call *call = container_of(timer, struct timer_call, timer);
+
+    call->func(call->arg);
+    free(call);
+}
+
+void timer_call_later(void (*func)(void *arg), const void *arg, size_t arg_size)
+{
+    struct timer_call *call = zalloc(sizeof(struct timer_call) + arg_size);
+
+    call->timer.callback = timer_call_cb;
+    call->func = func;
+    memcpy(call->arg, arg, arg_size);
+    timer_start_rel(NULL, &call->timer, 0);
 }

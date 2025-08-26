@@ -16,6 +16,7 @@
 
 #include <sys/queue.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "common/time_extra.h"
@@ -88,6 +89,10 @@ void timer_start_rel(struct timer_group *group, struct timer_entry *timer, uint6
 
 // Stop a timer.
 void timer_stop(struct timer_group *group, struct timer_entry *timer);
+
+// Call a function after finishing executing the current call stack up to the
+// main polling loop. Useful to break recursivity and complex call chains.
+void timer_call_later(void (*func)(void *arg), const void *arg, size_t arg_size);
 
 static inline bool timer_stopped(const struct timer_entry *timer)
 {
