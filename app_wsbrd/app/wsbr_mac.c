@@ -50,15 +50,34 @@
 #include "dbus.h"
 #include "commandline_values.h"
 
+struct wsbr_cnf_fail {
+    struct net_if *net_if;
+    uint8_t handle;
+    uint8_t status;
+};
+
+// HACK: mac_confirm_cb() may send frames. Avoid possible recursive call.
+static void wsbr_cnf_fail(void *arg)
+{
+    struct mcps_data_rx_ie_list cnf_ie = { };
+    const struct wsbr_cnf_fail *ctx = arg;
+    struct mcps_data_cnf cnf = {
+        .hif.handle = ctx->handle,
+        .hif.status = ctx->status,
+    };
+
+    ws_llc_mac_confirm_cb(ctx->net_if, &cnf, &cnf_ie);
+}
+
 void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
     struct ws_neigh *neighbor_ws;
-    struct mcps_data_rx_ie_list cnf_fail_ie = { };
-    struct mcps_data_cnf cnf_fail = {
-        .hif.handle = data->msduHandle,
-        .hif.status = HIF_STATUS_TIMEDOUT,
+    struct wsbr_cnf_fail cnf_fail = {
+        .net_if = cur,
+        .handle = data->msduHandle,
+        .status = HIF_STATUS_TIMEDOUT,
     };
     struct ieee802154_hdr hdr = { };
     struct iobuf_write frame = { };
@@ -77,12 +96,12 @@ void wsbr_data_req_ext(struct net_if *cur,
                                &EUI64_FROM_BUF(data->DstAddr));
     if (data->DstAddrMode && !neighbor_ws) {
         WARN("%s: neighbor timeout before packet send", __func__);
-        ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
+        timer_call_later(wsbr_cnf_fail, &cnf_fail, sizeof(cnf_fail));
         return;
     }
     if (neighbor_ws && !ws_neigh_has_us(&neighbor_ws->fhss_data_unsecured)) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown unicast schedule for %s", "15.4", tr_eui64(data->DstAddr));
-        ws_llc_mac_confirm_cb(cur, &cnf_fail, &cnf_fail_ie);
+        timer_call_later(wsbr_cnf_fail, &cnf_fail, sizeof(cnf_fail));
         return;
     }
 
