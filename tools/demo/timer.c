@@ -29,6 +29,26 @@ struct module {
     struct timer_group timer_group;
 };
 
+static void timer_recursive(void *arg)
+{
+    /*
+     * Linux typically has 8Mio of stack per process so a couple recusive calls
+     * would normally create a stack overflow.
+     */
+    uint8_t buf[1024 * 1024];
+    int *i = arg;
+
+    if (*i < 0)
+        return;
+
+    buf[*i] = *i; // Use buf to prevent optimization
+    printf("%s() %i\n", __func__, buf[*i]);
+
+    *i = *i - 1;
+    //timer_call(i);
+    timer_call_later(timer_recursive, i, sizeof(int));
+}
+
 void timer_cb(struct timer_group *group, struct timer_entry *timer)
 {
     printf("%s() %"PRIu64"ms\n", __func__, timer->period_ms);
@@ -105,6 +125,8 @@ int main()
     pfd.events = POLLIN;
 
     timer_group_init(&mod.timer_group);
+
+    timer_call_later(timer_recursive, (int[]){ 10 }, sizeof(int));
 
     timer_start_rel(NULL, &timer_500ms, timer_500ms.period_ms);
     timer_start_rel(NULL, &timer_666ms, timer_666ms.period_ms);
