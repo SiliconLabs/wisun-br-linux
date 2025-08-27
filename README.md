@@ -48,34 +48,23 @@ also install Rust/Cargo.
 
 We also encourage the use of Ninja as the `cmake` back-end.
 
-On Debian and its derivatives, install the necessary dependencies (except for
-mbedTLS) with:
+On Debian and its derivatives, install the necessary dependencies with:
 
     sudo apt-get install libnl-3-dev libnl-route-3-dev libcap-dev \
-        libsystemd-dev cmake ninja-build pkg-config lrzsz
+        libsystemd-dev libmbedtls-dev cmake ninja-build pkg-config lrzsz
+
+> [!NOTE]
+> MbedTLS version 3 is required, which is packaged by Debian stable since
+> [version 13][trixie] (released on Aug 9th 2025). If your distribution does
+> not provide a compatible package, consider building from [source][mbedtls].
+
+[trixie]: https://www.debian.org/releases/trixie/
+[mbedtls]: https://github.com/Mbed-TLS/mbedtls
 
 To additionally compile `wsbrd_cli`:
 
     sudo apt-get install cargo libdbus-1-dev
     cargo fetch --manifest-path=tools/wsbrd_cli/Cargo.toml
-
-Debian does not (yet) package MbedTLS >= 3.0 so you must build it from
-sources. This project does not support versions < 3.0.
-
-    git clone --branch=v3.6.2 --recurse-submodules https://github.com/ARMmbed/mbedtls
-    cd mbedtls
-    cmake -B build -G Ninja .
-    ninja -C build
-    sudo ninja -C build install
-
-`MbedTLS` is highly customizable. The default configuration is sane. However, if
-you want a stripped-down version, you can configure it with the configuration
-file provided in `examples/mbedtls-config.h`:
-
-    CFLAGS="-I$FULL_PATH_TO_WSBRD_SRC/examples -DMBEDTLS_CONFIG_FILE='<mbedtls-config.h>'" cmake -G Ninja .
-
-> This configuration file has been written for `mbedtls` 3.0. Adapt it if
-> necessary.
 
 Optionally, `wsbrd` can be compiled with support for [Silabs
 CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC library:
@@ -535,5 +524,18 @@ Read [RFC 8900][rfc8900] for more insights on the question.
 
 [rfc8200-5]: https://www.rfc-editor.org/rfc/rfc8200.html#section-5
 [rfc8900]: https://www.rfc-editor.org/rfc/rfc8900.html
+
+## What are the required options for MBedTLS?
+
+`MbedTLS` is highly customizable. The default configuration provided with the
+source is sane.
+
+If you want a stripped-down version, you can configure it with the configuration
+file provided in `examples/mbedtls-config.h`:
+
+    CFLAGS="-I$FULL_PATH_TO_WSBRD_SRC/examples -DMBEDTLS_CONFIG_FILE='<mbedtls-config.h>'" cmake -G Ninja .
+
+> This configuration file has been written for `mbedtls` 3.0. Adapt it if
+> necessary.
 
 <br clear="right"/><!-- Right align the Wi-SUN Logo -->
