@@ -22,6 +22,7 @@
 #include "common/ieee802154_ie.h"
 #include "common/string_extra.h"
 #include "common/duty_cycle.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/sl_ws.h"
@@ -153,10 +154,6 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
                                  &ind.hdr, &ind.ie_hdr, &ie_payload);
     if (ret < 0)
         return;
-    if (ind.hdr.key_index && ind.hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
-        TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
-        return;
-    }
     if (!ws_wh_sl_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt) &&
         !ws_wh_utt_read(ind.ie_hdr.data, ind.ie_hdr.data_size, &ie_utt)) {
         TRACE(TR_DROP, "drop %-9s: missing UTT-IE", "15.4");
@@ -182,6 +179,23 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ind.neigh = ws_neigh_add(&ws->neigh_table, &ind.hdr.src, WS_NR_ROLE_ROUTER, 16);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
+
+    if (ind.hdr.key_index) {
+        if (ind.hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+            TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4");
+            return;
+        }
+        FATAL_ON(ind.hdr.key_index < 1 || ind.hdr.key_index > HIF_KEY_COUNT, 3);
+        if (ind.neigh->frame_counter_min[ind.hdr.key_index - 1] > ind.hdr.frame_counter ||
+            ind.neigh->frame_counter_min[ind.hdr.key_index - 1] == UINT32_MAX) {
+            TRACE(TR_DROP, "drop %-9s: frame cnt=%u cnt-min=%u for key-idx=%u",
+                    "15.4", ind.hdr.key_index, ind.hdr.frame_counter,
+                    ind.neigh->frame_counter_min[ind.hdr.key_index - 1]);
+            return;
+        }
+        ind.neigh->frame_counter_min[ind.hdr.key_index - 1] = add32sat(ind.hdr.frame_counter, 1);
+    }
+
     ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
                        ind.hif->timestamp_us, &ind.hdr.src);
     if (has_bt_ie)
