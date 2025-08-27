@@ -52,7 +52,25 @@ static inline const unsigned char *mbedtls_pem_get_buffer(mbedtls_pem_context *c
     *buflen = ctx->MBEDTLS_PRIVATE(buflen);
     return ctx->MBEDTLS_PRIVATE(buf);
 }
-#endif
+
+typedef enum {
+    MBEDTLS_SSL_VERSION_UNKNOWN,
+    MBEDTLS_SSL_VERSION_TLS1_2 = 0x0303,
+    MBEDTLS_SSL_VERSION_TLS1_3 = 0x0304,
+} mbedtls_ssl_protocol_version;
+
+static inline void mbedtls_ssl_conf_min_tls_version(mbedtls_ssl_config *conf,
+                                                    mbedtls_ssl_protocol_version tls_version)
+{
+    mbedtls_ssl_conf_min_version(conf, tls_version >> 8, tls_version & 0xff);
+}
+
+static inline void mbedtls_ssl_conf_max_tls_version(mbedtls_ssl_config *conf,
+                                                    mbedtls_ssl_protocol_version tls_version)
+{
+    mbedtls_ssl_conf_max_version(conf, tls_version >> 8, tls_version & 0xff);
+}
+#endif // MBEDTLS_VERSION_NUMBER < 0x03020000
 
 #define XMBEDTLS(func, ...) do {                     \
     int ret;                                         \

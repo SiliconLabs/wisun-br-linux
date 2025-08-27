@@ -295,6 +295,6 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     }
 
     // TLS v1.2 only
-    mbedtls_ssl_conf_min_version(&tls->ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
-    mbedtls_ssl_conf_max_version(&tls->ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+    mbedtls_ssl_conf_min_tls_version(&tls->ssl_config, MBEDTLS_SSL_VERSION_TLS1_2);
+    mbedtls_ssl_conf_max_tls_version(&tls->ssl_config, MBEDTLS_SSL_VERSION_TLS1_2);
 }
