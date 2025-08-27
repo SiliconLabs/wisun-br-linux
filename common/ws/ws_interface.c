@@ -323,11 +323,22 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             WARN("%s: malformed frame", __func__);
             return;
         }
-        if (hdr.key_index && hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
-            TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4-ack");
-            return;
+        if (hdr.key_index) {
+            if (hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+                TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4-ack");
+                return;
+            }
+            FATAL_ON(hdr.key_index < 1 || hdr.key_index > HIF_KEY_COUNT, 3);
+            if (neigh->frame_counter_min[hdr.key_index - 1] > hdr.frame_counter ||
+                neigh->frame_counter_min[hdr.key_index - 1] == UINT32_MAX) {
+                TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u",
+                      "15.4", hdr.key_index, hdr.frame_counter,
+                      neigh->frame_counter_min[hdr.key_index - 1]);
+                return;
+            } else {
+                neigh->frame_counter_min[hdr.key_index - 1] = add32sat(hdr.frame_counter, 1);
+            }
         }
-        // TODO: check frame counter
         ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
         neigh->rsl_in_dbm_unsecured = ws_ewma_next(neigh->rsl_in_dbm_unsecured,
                                                          cnf->rx_power_dbm, WS_EWMA_SF);
