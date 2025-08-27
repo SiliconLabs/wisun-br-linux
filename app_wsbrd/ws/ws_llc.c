@@ -456,11 +456,11 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
 
     if (ws_neigh) {
         if (data_cpy.sec.SecurityLevel == IEEE802154_SEC_LEVEL_ENC_MIC64) {
-            BUG_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7);
+            FATAL_ON(data->sec.KeyIndex < 1 || data->sec.KeyIndex > 7, 3);
             if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
                 data_cpy.hif.status = HIF_STATUS_NOACK;
-                TRACE(TR_TX_ABORT, "tx-abort %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
+                TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u cnt-min=%u for key-idx=%u",
                       "15.4", data_cpy.sec.KeyIndex, data_cpy.sec.frame_counter,
                       ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1]);
             } else {
@@ -1042,10 +1042,10 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
 
     neigh = ws_neigh_get(&net_if->ws_info.neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
     if (neigh && data->Key.SecurityLevel) {
-        BUG_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7);
+        FATAL_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7, 3);
         if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
             neigh->frame_counter_min[data->Key.KeyIndex - 1] == UINT32_MAX) {
-            TRACE(TR_DROP, "drop %-9s: invalid frame counter key-idx=%u cnt=%"PRIu32" cnt-min=%"PRIu32,
+            TRACE(TR_DROP, "drop %-9s: frame cnt=%u cnt-min=%u for key-idx=%u",
                   "15.4", data->Key.KeyIndex, data->Key.frame_counter,
                   neigh->frame_counter_min[data->Key.KeyIndex - 1]);
             return;
