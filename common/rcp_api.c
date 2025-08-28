@@ -387,6 +387,28 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
+const struct rcp_csma_cfg rcp_csma_default = {
+    .min_be = 3,
+    .max_be = 5,
+    .cca_retries = 8,
+    .frame_retries = 19,
+};
+
+void rcp_set_radio_csma(struct rcp *rcp, const struct rcp_csma_cfg *cfg)
+{
+    struct iobuf_write buf = { };
+
+    BUG_ON(version_older_than(rcp->version_api, 2, 12, 0));
+    hif_push_u8(&buf, HIF_CMD_SET_RADIO_CSMA);
+    hif_push_u16(&buf, cfg->backoff_unit_us);
+    hif_push_u8(&buf, cfg->min_be);
+    hif_push_u8(&buf, cfg->max_be);
+    hif_push_u8(&buf, cfg->cca_retries);
+    hif_push_u8(&buf, cfg->frame_retries);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_req_radio_tx_duration_reset(struct rcp *rcp)
 {
     struct iobuf_write buf = { };

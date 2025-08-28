@@ -294,6 +294,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
     config->tx_power = 14;
+    config->csma = rcp_csma_default;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->lfn_bc_interval = 60000;

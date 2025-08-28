@@ -75,6 +75,16 @@ struct rcp_cfg {
     bool uart_rtscts;
 };
 
+struct rcp_csma_cfg {
+    uint16_t backoff_unit_us;
+    uint8_t min_be;
+    uint8_t max_be;
+    uint8_t cca_retries;
+    uint8_t frame_retries;
+};
+
+extern const struct rcp_csma_cfg rcp_csma_default;
+
 struct rcp {
     struct bus bus;
 
@@ -115,6 +125,7 @@ void rcp_set_radio(struct rcp *rcp, uint8_t radioconf_index, uint8_t ofdm_mcs, b
 void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
 void rcp_req_radio_tx_duration_reset(struct rcp *rcp);
+void rcp_set_radio_csma(struct rcp *rcp, const struct rcp_csma_cfg *cfg);
 
 void rcp_set_fhss_uc(struct rcp *rcp,
                      uint8_t dwell_interval_ms,
