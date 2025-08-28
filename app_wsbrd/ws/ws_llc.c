@@ -1430,6 +1430,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
         data_conf.hif.status = HIF_STATUS_NOMEM;
         if (user_cb) // HAVE_AUTH_LEGACY path
             user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
+        else
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
+                  tr_ws_frame(WS_FT_EAPOL), tr_eui64(data->DstAddr));
         return;
     }
     message->mpx_user_handle = data->msduHandle;
@@ -1645,6 +1648,8 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     //Allocate LLC message pointer
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message",
+              tr_ws_frame(request->frame_type));
         if (base->mngt_cnf) {
             base->mngt_cnf(ws_info, request->frame_type);
         }
@@ -1694,7 +1699,12 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
 
     msg = llc_message_allocate(base);
     if (!msg) {
-        WARN("%s: tx abort", __func__);
+        if (dst)
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
+                  tr_ws_frame(req->frame_type), tr_eui64(dst));
+        else
+            TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message",
+                  tr_ws_frame(req->frame_type));
         // FIXME: No confirmation callback
         return 0;
     }
