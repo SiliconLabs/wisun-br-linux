@@ -199,14 +199,7 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         return NULL;
     }
 
-    llc_message_t *message = calloc(1, sizeof(llc_message_t));
-    if (!message) {
-        return NULL;
-    }
-    message->ack_requested = false;
-    memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
-    memset(&message->ie_buf_payload, 0, sizeof(struct iobuf_write));
-    return message;
+    return zalloc(sizeof(llc_message_t));
 }
 
 static inline bool ws_wp_ie_is_empty(const struct wp_ie_list *wp_ies)
