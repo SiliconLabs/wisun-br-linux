@@ -228,14 +228,7 @@ but the way attempts are performed differs depending on the [FHSS type][fhss]
 used.
 
 Unicast and broadcast ***to FFNs*** use the IEEE 802.15.4 CSMA-CA algorithm
-with the following parameters:
-
-| IEEE 802.15.4 MAC PIB | Value | Description |
-|-----------------------|-------|-------------|
-| `macMinBe`            | `3`   | Minimum Backoff Exponent (BE) for CSMA-CA.
-| `macMaxBe`            | `5`   | Maximum Backoff Exponent (BE) for CSMA-CA.
-| `macMaxCsmaBackoffs`  | `8`   | Number of CSMA-CA backoffs to attempt before declaring failure.
-| `macMaxFrameRetries`  | `19`  | Number of retries allowed after a transmission failure.
+with the parameters described in [`SET_RADIO_CSMA`][csma]:
 
 Unicast and broadcast transmissions ***to LFNs*** can be conceived as if they
 use the CSMA-CA algorithm, where the backoff is not randomized but instead
@@ -593,6 +586,8 @@ Configure the radio parameters.
 > POM-IE. There may be more PHY supported in the RCP than advertised since the
 > IE format restricts to 16 entries.
 
+[phy]: #0x23-set_radio
+
 ### `0x24 SET_RADIO_REGULATION`
 
 Enable specific radio regulation rules. Most regulations only make sense with
@@ -624,6 +619,34 @@ the counter to 0 and clears records of previous transmission durations.
 Body of this command is empty.
 
 [tx-duration]: #0x26-req_radio_tx_duration_reset-api--2110
+
+### `0x27 SET_RADIO_CSMA` (API >= 2.12.0)
+
+Configure channel access and retry parameters. The CSMA-CA algorithm is
+described in the IEEE 802.15.4 specification.
+
+ - `uint16_t backoff_unit_us`  
+   Base unit (in microseconds) used when computing the backoff duration in the
+   CSMA algorithm (see _macUnitBackoffPeriod_). Set to 0 to use a default value
+   based on the PHY selected by [`SET_RADIO`][phy].
+
+ - `uint8_t min_be`  
+   Minimum backoff exponent (see _macMinBe_). Defaults to 3.
+
+ - `uint8_t max_be`  
+   Maximum backoff exponent (see _macMaxBe_). Defaults to 5.
+
+ - `uint8_t cca_retries`  
+   Number of CCA retries to perform before declaring channel access failure
+   (see _macMaxCsmaBackoffs_). Up to 1 + _macMaxCsmaBackoffs_ CCA are attempted.
+   Defaults to 8.
+
+ - `uint8_t frame_retries`  
+   Number of frame transmission retries to perform before declaring TX failure,
+   only for acknowledged unicast frames (see _macMaxFrameRetries_). Up to
+   1 + _macMaxFrameRetries_ frame transmissions are attempted. Defaults to 19.
+
+[csma]: #0x27-set_radio_csma-api--2120
 
 ## Frequency Hopping (FHSS) configuration
 
