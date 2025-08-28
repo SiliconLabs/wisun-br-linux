@@ -34,7 +34,7 @@ void dbus_message_append_supp(sd_bus_message *m, const char *property, const voi
         sd_bus_message_append(m, "y", supp->node_role);
         dbus_message_close_info(m, property);
     }
-    dbus_message_open_info(m, property, "eapol_target", "y");
+    dbus_message_open_info(m, property, "eapol_target", "ay");
     if (!IN6_IS_ADDR_UNSPECIFIED(&supp->eapol_target)) {
         sd_bus_message_append_array(m, 'y', &supp->eapol_target, 16);
     } else {
