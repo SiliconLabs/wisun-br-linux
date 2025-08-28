@@ -112,7 +112,7 @@ typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 typedef struct llc_data_base {
     ns_list_link_t                  link;                           /**< List link entry */
 
-    uint8_t                         mac_handle_base;                /**< Mac handle id base this will be updated by 1 after use */
+    uint8_t                         handle_next;                /**< Mac handle id base this will be updated by 1 after use */
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
 
     llc_message_list_t              llc_message_list;               /**< Active Message list */
@@ -179,9 +179,9 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         return NULL;
 
     message = zalloc(sizeof(llc_message_t));
-    while (llc_message_discover_by_mac_handle(llc_base->mac_handle_base, &llc_base->llc_message_list))
-        llc_base->mac_handle_base++;
-    message->msg_handle = llc_base->mac_handle_base++;
+    while (llc_message_discover_by_mac_handle(llc_base->handle_next, &llc_base->llc_message_list))
+        llc_base->handle_next++;
+    message->msg_handle = llc_base->handle_next++;
     ns_list_add_to_end(&llc_base->llc_message_list, message);
     red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
     return message;
