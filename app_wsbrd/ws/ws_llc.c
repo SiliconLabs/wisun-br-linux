@@ -118,7 +118,6 @@ typedef struct llc_data_base {
     ns_list_link_t                  link;                           /**< List link entry */
 
     uint8_t                         mac_handle_base;                /**< Mac handle id base this will be updated by 1 after use */
-    uint8_t                         llc_message_list_size;          /**< llc_message_list list size */
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
 
     llc_message_list_t              llc_message_list;               /**< Active Message list */
@@ -176,8 +175,7 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     iobuf_free(&message->ie_buf_header);
     iobuf_free(&message->ie_buf_payload);
     free(message);
-    llc_base->llc_message_list_size--;
-    red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
+    red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
 }
 
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base)
@@ -197,7 +195,7 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
 
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
 {
-    if (llc_base->llc_message_list_size >= LLC_MESSAGE_QUEUE_LIST_SIZE_MAX) {
+    if (ns_list_count(&llc_base->llc_message_list) >= LLC_MESSAGE_QUEUE_LIST_SIZE_MAX) {
         return NULL;
     }
 
@@ -1298,11 +1296,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         return;
     }
 
-    //Add To active list
     llc_message_id_allocate(message, base);
-    base->llc_message_list_size++;
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
+    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
 
     mcps_data_req_t data_req;
     message->mpx_user_handle = data->msduHandle;
@@ -1435,9 +1431,8 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 
     //Allocate message ID
     llc_message_id_allocate(message, base);
-    base->llc_message_list_size++;
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
+    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries.active_eapol_session = true;
     BUG_ON(data_req.DstAddrMode != IEEE802154_ADDR_MODE_64_BIT); // EAPOL frames are unicast
@@ -1714,11 +1709,9 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
         return 0;
     }
 
-    //Add To active list
     llc_message_id_allocate(message, base);
-    base->llc_message_list_size++;
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
+    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     message->message_type = request->frame_type;
     message->security = request->security;
     memset(message->dst_address, 0xff, sizeof(message->dst_address));
@@ -1767,11 +1760,9 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
         return 0;
     }
 
-    // Add To active list
     llc_message_id_allocate(msg, base);
-    base->llc_message_list_size++;
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, msg);
+    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     msg->message_type = req->frame_type;
     msg->security     = req->security;
 
