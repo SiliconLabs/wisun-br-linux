@@ -80,7 +80,6 @@ typedef struct mpx_user {
 typedef struct mpx_class {
     mpx_api_t   mpx_api;                        /**< API for MPX user like Stack and EAPOL */
     mpx_user_t  mpx_user_table[MPX_USER_SIZE];  /**< MPX user list include registered call back pointers and user id's */
-    unsigned    mpx_id: 4;                      /**< MPX class sequence number */
 } mpx_class_t;
 
 // FIXME: This contains many redundant information with mcps_data_req_t.
@@ -88,7 +87,6 @@ typedef struct llc_message {
     uint8_t dst_address[8];             /**< Destination address */
     uint16_t pan_id;                    /**< Destination Pan-Id */
     unsigned        message_type: 4;   /**< Frame type to UTT */
-    unsigned        mpx_id: 5;          /**< MPX sequence */
     bool            ack_requested: 1;   /**< ACK requested */
     unsigned        dst_address_type: 2; /**<  Destination address type */
     unsigned        src_address_type: 2; /**<  Source address type */
@@ -135,9 +133,8 @@ static llc_data_base_t g_llc_base;
 
 /** LLC message local functions */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list);
-static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message_list_t *list);
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base);
-static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user);
+static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base);
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
@@ -172,16 +169,6 @@ static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_mes
     return NULL;
 }
 
-static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message_list_t *list)
-{
-    ns_list_foreach(llc_message_t, message, list) {
-        if ((message->message_type == WS_FT_DATA || message->message_type == WS_FT_EAPOL) && message->mpx_id == handle) {
-            return message;
-        }
-    }
-    return NULL;
-}
-
 //Free message and delete from list
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
 {
@@ -193,7 +180,7 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
 }
 
-static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user)
+static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base)
 {
     //Guarantee
     while (1) {
@@ -203,21 +190,9 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
             break;
         }
     }
-    if (mpx_user) {
-        while (1) {
-            if (llc_message_discover_by_mpx_id(llc_base->mpx_data_base.mpx_id, &llc_base->llc_message_list)) {
-                llc_base->mpx_data_base.mpx_id++;
-            } else {
-                break;
-            }
-        }
-    }
 
     //Storage handle and update base
     message->msg_handle = llc_base->mac_handle_base++;
-    if (mpx_user) {
-        message->mpx_id = llc_base->mpx_data_base.mpx_id++;
-    }
 }
 
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
@@ -1324,7 +1299,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     }
 
     //Add To active list
-    llc_message_id_allocate(message, base, true);
+    llc_message_id_allocate(message, base);
     base->llc_message_list_size++;
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
@@ -1459,7 +1434,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     mcps_data_req_t data_req;
 
     //Allocate message ID
-    llc_message_id_allocate(message, base, true);
+    llc_message_id_allocate(message, base);
     base->llc_message_list_size++;
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
@@ -1740,7 +1715,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     }
 
     //Add To active list
-    llc_message_id_allocate(message, base, false);
+    llc_message_id_allocate(message, base);
     base->llc_message_list_size++;
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
@@ -1793,7 +1768,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     }
 
     // Add To active list
-    llc_message_id_allocate(msg, base, false);
+    llc_message_id_allocate(msg, base);
     base->llc_message_list_size++;
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, msg);
