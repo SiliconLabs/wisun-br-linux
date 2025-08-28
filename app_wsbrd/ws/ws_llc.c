@@ -179,15 +179,8 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         return NULL;
 
     message = zalloc(sizeof(llc_message_t));
-    //Guarantee
-    while (1) {
-        if (llc_message_discover_by_mac_handle(llc_base->mac_handle_base, &llc_base->llc_message_list)) {
-            llc_base->mac_handle_base++;
-        } else {
-            break;
-        }
-    }
-    //Storage handle and update base
+    while (llc_message_discover_by_mac_handle(llc_base->mac_handle_base, &llc_base->llc_message_list))
+        llc_base->mac_handle_base++;
     message->msg_handle = llc_base->mac_handle_base++;
     ns_list_add_to_end(&llc_base->llc_message_list, message);
     red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
