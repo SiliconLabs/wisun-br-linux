@@ -106,11 +106,6 @@ typedef struct llc_message {
 
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
-typedef struct temp_entriest {
-    llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
-    uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
-    bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
-} temp_entriest_t;
 
 /** EDFE response and Enhanced ACK data length */
 
@@ -121,7 +116,6 @@ typedef struct llc_data_base {
     mpx_class_t                     mpx_data_base;                  /**< MPX data be including USER API Class and user call backs */
 
     llc_message_list_t              llc_message_list;               /**< Active Message list */
-    temp_entriest_t                 temp_entries;
 
     ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
     ws_llc_mngt_cnf_cb              *mngt_cnf;                      /* Called when RCP confirms transmission of a Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) */
@@ -227,12 +221,6 @@ static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t use
     return NULL;
 }
 
-static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
-{
-    //Clear active EAPOL Session
-    if (base->temp_entries.active_eapol_session)
-        base->temp_entries.active_eapol_session = false;
-}
 
 static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message *msg,
                                  const struct mcps_data_cnf *confirm,
@@ -243,7 +231,6 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     struct mpx_user *mpx_usr;
     struct ws_utt_ie ie_utt;
 
-    base->temp_entries.active_eapol_session = false;
     if (ws_neigh) {
         if (confirm->hif.status == HIF_STATUS_SUCCESS)
             ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
@@ -259,15 +246,6 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
     } else {
         free(msg->ie_iov_payload[1].iov_base);
         msg->ie_iov_payload[1].iov_base = NULL;
-    }
-
-    msg = ns_list_get_first(&base->temp_entries.llc_eap_pending_list);
-    if (msg) {
-        ns_list_remove(&base->temp_entries.llc_eap_pending_list, msg);
-        base->temp_entries.llc_eap_pending_list_size--;
-        red_aq_calc(&base->interface_ptr->llc_eapol_random_early_detection,
-                    base->temp_entries.llc_eap_pending_list_size);
-        ws_llc_mpx_eapol_send(base, msg);
     }
 }
 
@@ -1427,7 +1405,6 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ns_list_add_to_end(&base->llc_message_list, message);
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     ws_llc_eapol_data_req_init(&data_req, message);
-    base->temp_entries.active_eapol_session = true;
     BUG_ON(data_req.DstAddrMode != IEEE802154_ADDR_MODE_64_BIT); // EAPOL frames are unicast
     if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
@@ -1486,14 +1463,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     message->ie_iov_payload[1].iov_len = data->msduLength;
     message->ie_ext.payloadIovLength = 2;
 
-    if (base->temp_entries.active_eapol_session) {
-        //Move to pending list
-        ns_list_add_to_end(&base->temp_entries.llc_eap_pending_list, message);
-        base->temp_entries.llc_eap_pending_list_size++;
-        red_aq_calc(&base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries.llc_eap_pending_list_size);
-    } else {
-        ws_llc_mpx_eapol_send(base, message);
-    }
+    ws_llc_mpx_eapol_send(base, message);
 }
 
 void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
@@ -1564,19 +1534,9 @@ static void ws_llc_clean(llc_data_base_t *base)
 {
     //Clean Message queue's
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
-        if (message->message_type == WS_FT_EAPOL) {
-            ws_llc_mac_eapol_clear(base);
-        }
         rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
         llc_message_free(message, base);
     }
-
-    ns_list_foreach_safe(llc_message_t, message, &base->temp_entries.llc_eap_pending_list) {
-        ns_list_remove(&base->temp_entries.llc_eap_pending_list, message);
-        free(message);
-    }
-    base->temp_entries.llc_eap_pending_list_size = 0;
-    base->temp_entries.active_eapol_session = false;
 }
 
 void ws_llc_update_timing_info(const struct ws_neigh *neigh)
@@ -1654,7 +1614,6 @@ int8_t ws_llc_create(struct net_if *interface,
 {
     struct llc_data_base *base = &g_llc_base;
 
-    ns_list_init(&base->temp_entries.llc_eap_pending_list);
     ns_list_init(&base->llc_message_list);
     base->interface_ptr = interface;
     base->mngt_ind = mngt_ind;
