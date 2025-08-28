@@ -189,6 +189,8 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     }
     //Storage handle and update base
     message->msg_handle = llc_base->mac_handle_base++;
+    ns_list_add_to_end(&llc_base->llc_message_list, message);
+    red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
     return message;
 }
 
@@ -1263,9 +1265,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         return;
     }
 
-    ns_list_add_to_end(&base->llc_message_list, message);
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
-
     mcps_data_req_t data_req;
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
@@ -1395,8 +1394,6 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 {
     mcps_data_req_t data_req;
 
-    ns_list_add_to_end(&base->llc_message_list, message);
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     ws_llc_eapol_data_req_init(&data_req, message);
     BUG_ON(data_req.DstAddrMode != IEEE802154_ADDR_MODE_64_BIT); // EAPOL frames are unicast
     if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
@@ -1654,8 +1651,6 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
         return 0;
     }
 
-    ns_list_add_to_end(&base->llc_message_list, message);
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     message->message_type = request->frame_type;
     message->security = request->security;
     memset(message->dst_address, 0xff, sizeof(message->dst_address));
@@ -1704,8 +1699,6 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
         return 0;
     }
 
-    ns_list_add_to_end(&base->llc_message_list, msg);
-    red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     msg->message_type = req->frame_type;
     msg->security     = req->security;
 
