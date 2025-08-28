@@ -526,6 +526,10 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
+    if (!version_older_than(wsrd->ws.rcp.version_api, 2, 12, 0))
+        rcp_set_radio_csma(&wsrd->ws.rcp, &wsrd->config.csma);
+    else if (memcmp(&wsrd->config.csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
+        WARN("csma_* parameters require RCP API >= 2.12.0");
     rail_fill_pom(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, wsrd->config.ws_phy_op_modes);
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;

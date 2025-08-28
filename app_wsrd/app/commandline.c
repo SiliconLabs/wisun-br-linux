@@ -127,6 +127,11 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
+        { "csma_backoff_unit",             &config->csma.backoff_unit_us,             conf_set_u16,         NULL },
+        { "csma_min_be",                   &config->csma.min_be,                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
+        { "csma_max_be",                   &config->csma.max_be,                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
+        { "csma_cca_retries",              &config->csma.cca_retries,                 conf_set_u8,          NULL },
+        { "csma_frame_retries",            &config->csma.frame_retries,               conf_set_u8,          NULL },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "authority",                     &config->supp_cfg.tls.ca_cert,             conf_set_pem,         NULL },
@@ -160,6 +165,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
+    config->csma = rcp_csma_default;
     config->ws_phy_op_modes[0] = -1;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

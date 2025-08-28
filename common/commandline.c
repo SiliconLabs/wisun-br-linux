@@ -165,6 +165,24 @@ void conf_set_number(const struct storage_parse_info *info, void *raw_dest, cons
         FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
+void conf_set_u8(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    uint8_t *dest = raw_dest;
+    int val;
+
+    conf_set_number(info, &val, &(struct number_limit){ 0, UINT8_MAX });
+    *dest = val;
+}
+
+void conf_set_u16(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    uint16_t *dest = raw_dest;
+    int val;
+
+    conf_set_number(info, &val, &(struct number_limit){ 0, UINT16_MAX });
+    *dest = val;
+}
+
 void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     int *dest = raw_dest;

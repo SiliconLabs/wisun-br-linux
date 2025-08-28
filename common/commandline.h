@@ -52,6 +52,8 @@ void conf_set_enum(const struct storage_parse_info *info, void *raw_dest, const 
 void conf_set_enum_int_hex(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_enum_int(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_number(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
+void conf_set_u8(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
+void conf_set_u16(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_seconds_from_minutes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_ms_from_s(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_string(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);

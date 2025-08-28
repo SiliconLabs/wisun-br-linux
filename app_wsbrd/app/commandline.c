@@ -224,6 +224,11 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "gtk\\[*]",                      config->auth_cfg.gtk_init,                 conf_set_gtk,         (void *)WS_GTK_COUNT },
         { "lgtk\\[*]",                     config->auth_cfg.gtk_init + WS_GTK_COUNT,  conf_set_gtk,         (void *)WS_LGTK_COUNT },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
+        { "csma_backoff_unit",             &config->csma.backoff_unit_us,             conf_set_u16,         NULL },
+        { "csma_min_be",                   &config->csma.min_be,                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
+        { "csma_max_be",                   &config->csma.max_be,                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
+        { "csma_cca_retries",              &config->csma.cca_retries,                 conf_set_u8,          NULL },
+        { "csma_frame_retries",            &config->csma.frame_retries,               conf_set_u8,          NULL },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
         { "broadcast_interval",            &config->bc_interval,                      conf_set_number,      &valid_broadcast_interval },
@@ -509,6 +514,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "missing \"ipv6_prefix\" parameter");
     if (!IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && !config->tun_autoconf)
         FATAL(1, "\"ipv6_prefix\" is only available when \"tun_autoconf\" is set");
+    if (config->csma.min_be > config->csma.max_be)
+        FATAL(1, "invalid csma_min_be > csma_max_be");
     for (int i = 0; config->ws_phy_op_modes[i]; i++)
         if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))

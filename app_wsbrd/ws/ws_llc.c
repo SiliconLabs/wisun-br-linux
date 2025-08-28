@@ -1285,7 +1285,7 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
         tx_power_dbm = ws_neigh->apc_txpow_dbm;
 
     rate_list[0].phy_mode_id = phy_mode_id;
-    rate_list[0].tx_attempts = 20;
+    rate_list[0].tx_attempts = ws_info->tx_attempts;
     rate_list[0].tx_power_dbm = tx_power_dbm;
 }
 
