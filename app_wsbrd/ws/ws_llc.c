@@ -127,7 +127,6 @@ static llc_data_base_t g_llc_base;
 /** LLC message local functions */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list);
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base);
-static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base);
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
@@ -172,8 +171,14 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
 }
 
-static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base)
+static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
 {
+    llc_message_t *message;
+
+    if (ns_list_count(&llc_base->llc_message_list) >= LLC_MESSAGE_QUEUE_LIST_SIZE_MAX)
+        return NULL;
+
+    message = zalloc(sizeof(llc_message_t));
     //Guarantee
     while (1) {
         if (llc_message_discover_by_mac_handle(llc_base->mac_handle_base, &llc_base->llc_message_list)) {
@@ -182,18 +187,9 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
             break;
         }
     }
-
     //Storage handle and update base
     message->msg_handle = llc_base->mac_handle_base++;
-}
-
-static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
-{
-    if (ns_list_count(&llc_base->llc_message_list) >= LLC_MESSAGE_QUEUE_LIST_SIZE_MAX) {
-        return NULL;
-    }
-
-    return zalloc(sizeof(llc_message_t));
+    return message;
 }
 
 static inline bool ws_wp_ie_is_empty(const struct wp_ie_list *wp_ies)
@@ -1267,7 +1263,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         return;
     }
 
-    llc_message_id_allocate(message, base);
     ns_list_add_to_end(&base->llc_message_list, message);
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
 
@@ -1400,8 +1395,6 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 {
     mcps_data_req_t data_req;
 
-    //Allocate message ID
-    llc_message_id_allocate(message, base);
     ns_list_add_to_end(&base->llc_message_list, message);
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     ws_llc_eapol_data_req_init(&data_req, message);
@@ -1661,7 +1654,6 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
         return 0;
     }
 
-    llc_message_id_allocate(message, base);
     ns_list_add_to_end(&base->llc_message_list, message);
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     message->message_type = request->frame_type;
@@ -1712,7 +1704,6 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
         return 0;
     }
 
-    llc_message_id_allocate(msg, base);
     ns_list_add_to_end(&base->llc_message_list, msg);
     red_aq_calc(&base->interface_ptr->llc_random_early_detection, ns_list_count(&base->llc_message_list));
     msg->message_type = req->frame_type;
