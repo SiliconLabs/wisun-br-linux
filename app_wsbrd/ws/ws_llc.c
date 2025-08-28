@@ -1216,7 +1216,6 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
 {
     struct mpx_ie mpx_header = {
         .transfer_type = MPX_FT_FULL_FRAME,
-        .transaction_id = message->mpx_id,
         .multiplex_id = user_id,
     };
     uint16_t ie_len;
