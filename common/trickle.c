@@ -19,7 +19,7 @@
 
 #include "trickle.h"
 
-static void trickle_interval_begin(struct trickle *tkl)
+static void trickle_interval_begin(struct trickle *tkl, struct timer_group *group)
 {
     unsigned int t_ms;
 
@@ -31,8 +31,8 @@ static void trickle_interval_begin(struct trickle *tkl)
      */
     tkl->c = 0;
     t_ms = randf_range(tkl->I_ms / 2, tkl->I_ms);
-    timer_start_rel(NULL, &tkl->timer_transmit, t_ms);
-    timer_start_rel(NULL, &tkl->timer_interval, tkl->I_ms);
+    timer_start_rel(group, &tkl->timer_transmit, t_ms);
+    timer_start_rel(group, &tkl->timer_interval, tkl->I_ms);
     TRACE(TR_TRICKLE, "tkl %-4s begin: t=%us I[%u,%u]=%us", tkl->debug_name,
           t_ms / 1000, tkl->cfg->Imin_ms / 1000, tkl->cfg->Imax_ms / 1000, tkl->I_ms / 1000);
 }
@@ -48,10 +48,10 @@ static void trickle_interval_done(struct timer_group *group, struct timer_entry 
      * Imax.
      */
     tkl->I_ms = MIN(tkl->I_ms * 2, tkl->cfg->Imax_ms);
-    trickle_interval_begin(tkl);
+    trickle_interval_begin(tkl, group);
 
     if (tkl->on_interval_done)
-        tkl->on_interval_done(tkl);
+        tkl->on_interval_done(tkl, group);
 }
 
 static void trickle_transmit(struct timer_group *group, struct timer_entry *timer)
@@ -68,7 +68,7 @@ static void trickle_transmit(struct timer_group *group, struct timer_entry *time
           tx ? "tx" : "skip", tkl->c, tkl->cfg->k);
 
     if (tx && tkl->on_transmit)
-        tkl->on_transmit(tkl);
+        tkl->on_transmit(tkl, group);
 }
 
 void trickle_init(struct trickle *tkl)
@@ -85,7 +85,7 @@ bool trickle_stopped(struct trickle *tkl)
     return timer_stopped(&tkl->timer_interval);
 }
 
-void trickle_start(struct trickle *tkl)
+void trickle_start(struct trickle *tkl, struct timer_group *group)
 {
     /*
      * When the algorithm starts execution, it sets I to a value in the
@@ -94,13 +94,13 @@ void trickle_start(struct trickle *tkl)
      * first interval.
      */
     tkl->I_ms = randf_range(tkl->cfg->Imin_ms, tkl->cfg->Imax_ms);
-    trickle_interval_begin(tkl);
+    trickle_interval_begin(tkl, group);
 }
 
-void trickle_stop(struct trickle *tkl)
+void trickle_stop(struct trickle *tkl, struct timer_group *group)
 {
-    timer_stop(NULL, &tkl->timer_interval);
-    timer_stop(NULL, &tkl->timer_transmit);
+    timer_stop(group, &tkl->timer_interval);
+    timer_stop(group, &tkl->timer_transmit);
     TRACE(TR_TRICKLE, "tkl %-4s stop", tkl->debug_name);
 }
 
@@ -114,7 +114,7 @@ void trickle_consistent(struct trickle *tkl)
     TRACE(TR_TRICKLE, "tkl %-4s consistent: c=%u", tkl->debug_name, tkl->c);
 }
 
-void trickle_inconsistent(struct trickle *tkl)
+void trickle_inconsistent(struct trickle *tkl, struct timer_group *group)
 {
     /*
      * If Trickle hears a transmission that is "inconsistent" and I is greater
@@ -127,5 +127,5 @@ void trickle_inconsistent(struct trickle *tkl)
         return;
     TRACE(TR_TRICKLE, "tkl %-4s inconsistent", tkl->debug_name);
     tkl->I_ms = tkl->cfg->Imin_ms;
-    trickle_interval_begin(tkl);
+    trickle_interval_begin(tkl, group);
 }

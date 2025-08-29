@@ -192,7 +192,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
  * 1. The set of FFNs from which the joining FFN receives an acceptable PA
  * within DISC_IMIN of the end of the previous PAS interval.
  */
-void ws_on_pas_interval_done(struct trickle *tkl)
+void ws_on_pas_interval_done(struct trickle *tkl, struct timer_group *group)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pas_tkl);
 
@@ -311,7 +311,7 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
      *    with NETNAME-IE matching that of the receiving FFN.
      */
     trickle_consistent(&wsrd->pas_tkl);
-    trickle_inconsistent(&wsrd->pa_tkl);
+    trickle_inconsistent(&wsrd->pa_tkl, NULL);
 }
 
 void ws_on_pan_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -509,7 +509,7 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
      *     FFN’s current PAN version.
      */
     if (pan_version != wsrd->ws.pan_version)
-        trickle_inconsistent(&wsrd->pc_tkl);
+        trickle_inconsistent(&wsrd->pc_tkl, NULL);
     else
         trickle_consistent(&wsrd->pc_tkl);
 
@@ -565,7 +565,7 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
      *    receiving FFN and a NETNAME-IE / Network Name matching the network
      *    name configured on the receiving FFN.
      */
-    trickle_inconsistent(&wsrd->pc_tkl);
+    trickle_inconsistent(&wsrd->pc_tkl, NULL);
 }
 
 void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
@@ -729,14 +729,14 @@ void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const str
         ipv6_nud_confirm_ns(&wsrd->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
 }
 
-void ws_on_send_pas(struct trickle *tkl)
+void ws_on_send_pas(struct trickle *tkl, struct timer_group *group)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pas_tkl);
 
     ws_if_send_pas(&wsrd->ws);
 }
 
-void ws_on_send_pa(struct trickle *tkl)
+void ws_on_send_pa(struct trickle *tkl, struct timer_group *group)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pa_tkl);
     const struct ipv6_neigh *ipv6_parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
@@ -755,7 +755,7 @@ void ws_on_send_pa(struct trickle *tkl)
     ws_if_send_pa(&wsrd->ws, ws_parent->ie_pan.pan_size, own_routing_cost);
 }
 
-void ws_on_send_pcs(struct trickle *tkl)
+void ws_on_send_pcs(struct trickle *tkl, struct timer_group *group)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pcs_tkl);
 
@@ -780,7 +780,7 @@ void ws_on_send_pcs(struct trickle *tkl)
  * neighbor. Therefore, the information we sent in PC frames should still be
  * correct.
  */
-void ws_on_send_pc(struct trickle *tkl)
+void ws_on_send_pc(struct trickle *tkl, struct timer_group *group)
 {
     struct wsrd *wsrd = container_of(tkl, struct wsrd, pc_tkl);
 

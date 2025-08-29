@@ -213,7 +213,7 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
      * We skip the poisoning below if the DIO trickle is stopped.
      */
     if (!memzcmp(parents_new, sizeof(parents_new)) && !trickle_stopped(&ipv6->rpl.dio_trickle)) {
-        trickle_stop(&ipv6->rpl.dio_trickle);
+        trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
         rpl_send_dio(ipv6, parents_cur[0], &ipv6_addr_all_rpl_nodes_link);
     }
     if (parents_cur[0] != parents_new[0] && ipv6->rpl.mrhof.on_pref_parent_change)
@@ -331,7 +331,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
     iobuf_free(&iobuf);
 }
 
-static void rpl_send_dio_mc(struct trickle *tkl)
+static void rpl_send_dio_mc(struct trickle *tkl, struct timer_group *group)
 {
     struct ipv6_ctx *ipv6 = container_of(tkl, struct ipv6_ctx, rpl.dio_trickle);
     struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
@@ -358,7 +358,7 @@ void rpl_start_dio(struct ipv6_ctx *ipv6)
     cfg->Imin_ms = POW2(parent->rpl->config.dio_i_min);
     cfg->Imax_ms = TRICKLE_DOUBLINGS(cfg->Imin_ms, parent->rpl->config.dio_i_doublings);
     cfg->k       = parent->rpl->config.dio_redundancy;
-    trickle_start(&ipv6->rpl.dio_trickle);
+    trickle_start(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
 }
 
 void rpl_send_dis(struct ipv6_ctx *ipv6, const struct in6_addr *dst)
@@ -691,7 +691,7 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     }
 
     if (IN6_IS_ADDR_MULTICAST(dst))
-        trickle_inconsistent(&ipv6->rpl.dio_trickle);
+        trickle_inconsistent(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
     else
         rpl_send_dio(ipv6, parent, src);
     return;
@@ -826,7 +826,7 @@ void rpl_recv(struct ipv6_ctx *ipv6)
 
 void rpl_stop(struct ipv6_ctx *ipv6)
 {
-    trickle_stop(&ipv6->rpl.dio_trickle);
+    trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
     rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);

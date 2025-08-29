@@ -30,11 +30,11 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
 void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
 
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer);
-void ws_on_pas_interval_done(struct trickle *tkl);
-void ws_on_send_pas(struct trickle *tkl);
-void ws_on_send_pa(struct trickle *tkl);
-void ws_on_send_pcs(struct trickle *tkl);
-void ws_on_send_pc(struct trickle *tkl);
+void ws_on_pas_interval_done(struct trickle *tkl, struct timer_group *group);
+void ws_on_send_pas(struct trickle *tkl, struct timer_group *group);
+void ws_on_send_pa(struct trickle *tkl, struct timer_group *group);
+void ws_on_send_pcs(struct trickle *tkl, struct timer_group *group);
+void ws_on_send_pc(struct trickle *tkl, struct timer_group *group);
 void ws_on_send_dis(struct rfc8415_txalg *txalg);
 
 void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id);

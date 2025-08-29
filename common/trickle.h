@@ -43,17 +43,17 @@ struct trickle {
     struct timer_entry timer_transmit;
 
     char debug_name[4];
-    void (*on_transmit)(struct trickle *tkl);
-    void (*on_interval_done)(struct trickle *tkl);
+    void (*on_transmit)(struct trickle *tkl, struct timer_group *group);
+    void (*on_interval_done)(struct trickle *tkl, struct timer_group *group);
 };
 
 void trickle_init(struct trickle *tkl);
 bool trickle_stopped(struct trickle *tkl);
 
-void trickle_start(struct trickle *tkl);
-void trickle_stop(struct trickle *tkl);
+void trickle_start(struct trickle *tkl, struct timer_group *group);
+void trickle_stop(struct trickle *tkl, struct timer_group *group);
 
 void trickle_consistent(struct trickle *tkl);
-void trickle_inconsistent(struct trickle *tkl);
+void trickle_inconsistent(struct trickle *tkl, struct timer_group *group);
 
 #endif

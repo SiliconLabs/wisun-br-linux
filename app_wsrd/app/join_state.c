@@ -48,14 +48,14 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = WS_ETX_UPDATE_MIN_DELAY_MS;
     wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = WS_ETX_REFRESH_PERIOD_MS;
     INFO("Join state 1: Select PAN");
-    trickle_start(&wsrd->pas_tkl);
+    trickle_start(&wsrd->pas_tkl, NULL);
 }
 
 static void join_state_1_exit(struct wsrd *wsrd)
 {
     BUG_ON(timer_stopped(&wsrd->pas_tkl.timer_interval));
 
-    trickle_stop(&wsrd->pas_tkl);
+    trickle_stop(&wsrd->pas_tkl, NULL);
 }
 
 /*
@@ -91,16 +91,16 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = WS_ETX_UPDATE_MIN_DELAY_MS;
     wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = WS_ETX_REFRESH_PERIOD_MS;
 
-    trickle_start(&wsrd->pas_tkl);
-    trickle_start(&wsrd->pcs_tkl);
+    trickle_start(&wsrd->pas_tkl, NULL);
+    trickle_start(&wsrd->pcs_tkl, NULL);
     ws_if_send_pas(&wsrd->ws);
     ws_if_send_pcs(&wsrd->ws, wsrd->prev_pan_id);
 }
 
 static void join_state_3_reconnect_exit(struct wsrd *wsrd)
 {
-    trickle_stop(&wsrd->pas_tkl);
-    trickle_stop(&wsrd->pcs_tkl);
+    trickle_stop(&wsrd->pas_tkl, NULL);
+    trickle_stop(&wsrd->pcs_tkl, NULL);
 }
 
 static void join_state_2_enter(struct wsrd *wsrd)
@@ -126,14 +126,14 @@ static void join_state_3_enter(struct wsrd *wsrd)
     wsrd->pcs_nb  = 0;
 
     INFO("Join state 3: Acquire PAN Config");
-    trickle_start(&wsrd->pcs_tkl);
+    trickle_start(&wsrd->pcs_tkl, NULL);
 }
 
 static void join_state_3_exit(struct wsrd *wsrd)
 {
     BUG_ON(timer_stopped(&wsrd->pcs_tkl.timer_interval));
 
-    trickle_stop(&wsrd->pcs_tkl);
+    trickle_stop(&wsrd->pcs_tkl, NULL);
 }
 
 static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
@@ -209,8 +209,8 @@ static void join_state_5_enter(struct wsrd *wsrd)
     INFO("Join state 5: Operational");
     rpl_start_dio(&wsrd->ipv6);
     wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
-    trickle_start(&wsrd->pa_tkl);
-    trickle_start(&wsrd->pc_tkl);
+    trickle_start(&wsrd->pa_tkl, NULL);
+    trickle_start(&wsrd->pc_tkl, NULL);
     wsrd->dhcp_relay.server_addr = parent->rpl->dio.dodag_id;
     wsrd->dhcp_relay.link_addr   = wsrd->ipv6.dhcp.iaaddr.ipv6;
     dhcp_relay_start(&wsrd->dhcp_relay);
@@ -227,8 +227,8 @@ static void join_state_5_exit(struct wsrd *wsrd)
     close(wsrd->ws.eapol_relay_fd);
     wsrd->ws.eapol_relay_fd = -1;
     dhcp_relay_stop(&wsrd->dhcp_relay);
-    trickle_stop(&wsrd->pa_tkl);
-    trickle_stop(&wsrd->pc_tkl);
+    trickle_stop(&wsrd->pa_tkl, NULL);
+    trickle_stop(&wsrd->pc_tkl, NULL);
 }
 
 static void join_state_disconnecting_enter(struct wsrd *wsrd)

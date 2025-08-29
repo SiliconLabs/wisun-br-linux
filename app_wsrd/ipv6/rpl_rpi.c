@@ -61,7 +61,7 @@ int rpl_rpi_process(struct ipv6_ctx *ipv6, struct ip6_opt *opt)
         (!(rpi->flags & RPL_MASK_RPI_O) && ntohs(rpi->sender_rank) < dag_rank)) {
         if (rpi->flags & RPL_MASK_RPI_R) {
             TRACE(TR_DROP, "drop %-9s: rank error", "rpl-rpi");
-            trickle_inconsistent(&ipv6->rpl.dio_trickle);
+            trickle_inconsistent(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
             return -EINVAL;
         } else {
             rpi->flags |= RPL_MASK_RPI_R;
