@@ -728,17 +728,11 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         TRACE(TR_DROP, "drop %-9s: unsupported DODAGID present", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
-    if (timer_stopped(&ipv6->rpl.dao_txalg.timer_rt) || dao_ack->dao_seq != ipv6->rpl.path_seq) {
+    if (rfc8415_txalg_stopped(&ipv6->rpl.dao_txalg) || dao_ack->dao_seq != ipv6->rpl.path_seq) {
         TRACE(TR_DROP, "drop %-9s: unexpected DAOSequence", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
-    /*
-     * FIXME: Ensure that the current preferred parent has not changed between
-     * DAO send and DAO-ACK reception. This can be achieved by re-starting the
-     * DAO schedule with rpl_start_dao() on every parent change, and refuse
-     * DAO-ACKs for previously sent DAOs.
-     */
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
         if (nce->rpl)
             nce->rpl->dao_ack_received = false;
