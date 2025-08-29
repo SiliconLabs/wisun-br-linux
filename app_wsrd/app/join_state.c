@@ -261,7 +261,7 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
      * - If we have a parent, wsrd is stopping or a PAN timeout occurred. A PAN
      *   timeout can happen in any JS >= 4.
      */
-    if (!parent || IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6)) {
+    if (IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6)) {
         if (wsrd->last_event != WSRD_EVENT_RPL_PREF_LOST)
             timer_stop(NULL, &wsrd->pan_timeout_timer);
         // Stopping RPL to prevent any parent selection
@@ -270,18 +270,22 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
     }
 
     /*
+     * - If we have no parent, we can't send a DAO No-Path.
      * - On PAN timeout, the BR seems unreachable, we can skip DAO No-Path.
      * - If called before JS 5 and no DAO was sent, we can skip DAO No-Path.
      */
-    if (!timer_stopped(&wsrd->pan_timeout_timer) && !timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer))
-        rpl_send_dao_no_path(&wsrd->ipv6);
-    timer_stop(NULL, &wsrd->pan_timeout_timer);
-    // Poisoning: clearing the path control will set the DIO's rank to 0xffff
-    parent->rpl->path_ctl = 0;
-    // Skip poisoning if called before JS 5
-    if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
-        rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
-    rpl_unregister_from_parent(&wsrd->ipv6, parent);
+    if (parent) {
+        if (!timer_stopped(&wsrd->pan_timeout_timer) && !timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer))
+            rpl_send_dao_no_path(&wsrd->ipv6);
+        // Poisoning: clearing the path control will set the DIO's rank to 0xffff
+        parent->rpl->path_ctl = 0;
+        // Skip poisoning if called before JS 5
+        if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
+            rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
+        rpl_unregister_from_parent(&wsrd->ipv6, parent);
+    }
+    if (wsrd->last_event != WSRD_EVENT_RPL_PREF_LOST)
+        timer_stop(NULL, &wsrd->pan_timeout_timer);
     SLIST_FOREACH(nce, &wsrd->ipv6.neigh_cache, link) {
         if (nce->rpl && nce->rpl->path_ctl)
             rpl_unregister_from_parent(&wsrd->ipv6, nce);
