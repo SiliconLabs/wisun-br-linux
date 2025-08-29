@@ -488,6 +488,10 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
 }
 
+/*
+ * NOTE: the dao_refresh_timer is also used to delay the first DAO after
+ * NS(ARO) ack to allow for NA RX.
+ */
 static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
@@ -495,12 +499,7 @@ static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct t
 
     BUG_ON(!parent);
 
-    /*
-     * NOTE: the dao_refresh_timer is also used to delay the first DAO after
-     * NS(ARO) ack to allow for NA RX.
-     */
-    if (parent->rpl->dao_ack_received)
-        TRACE(TR_RPL, "rpl: dao refresh triggered");
+    TRACE(TR_RPL, "rpl: dao triggered");
     rpl_start_dao(ipv6);
 }
 
