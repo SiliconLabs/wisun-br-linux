@@ -438,7 +438,7 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
         transit.path_lifetime = path_lifetime;
         transit.parent_addr   = parents[i]->gua;
         rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
-        parents[i]->rpl->dao_ack_received = false;
+        parents[i]->rpl->path_ctl_acked = 0;
     }
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
@@ -735,12 +735,12 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
         if (nce->rpl)
-            nce->rpl->dao_ack_received = false;
+            nce->rpl->path_ctl_acked = 0;
     if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
         return;
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
         if (nce->rpl && nce->rpl->path_ctl)
-            nce->rpl->dao_ack_received = true;
+            nce->rpl->path_ctl_acked = nce->rpl->path_ctl;
     if (ipv6->rpl.on_dao_ack)
         ipv6->rpl.on_dao_ack(ipv6);
 }

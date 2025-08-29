@@ -48,7 +48,7 @@ struct rpl_neigh {
     struct rpl_dio dio;
     struct rpl_opt_config config;
     uint8_t path_ctl;
-    bool dao_ack_received;
+    uint8_t path_ctl_acked;
     struct timer_entry deny_timer;
     bool rsl_valid;
 };
