@@ -234,7 +234,6 @@ static void join_state_5_exit(struct wsrd *wsrd)
 static void join_state_disconnecting_enter(struct wsrd *wsrd)
 {
     struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
-    struct ipv6_neigh *nce;
 
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
     // NOTE: do not stop the DHCP client here since we may need our GUA
@@ -282,14 +281,11 @@ static void join_state_disconnecting_enter(struct wsrd *wsrd)
         // Skip poisoning if called before JS 5
         if (!trickle_stopped(&wsrd->ipv6.rpl.dio_trickle))
             rpl_send_dio(&wsrd->ipv6, parent, &ipv6_addr_all_rpl_nodes_link);
-        rpl_unregister_from_parent(&wsrd->ipv6, parent);
+        // Restore the path control to ensure unregistration from rpl_stop()
+        parent->rpl->path_ctl = RPL_PATH_CTL_PREFERRED;
     }
     if (wsrd->last_event != WSRD_EVENT_RPL_PREF_LOST)
         timer_stop(NULL, &wsrd->pan_timeout_timer);
-    SLIST_FOREACH(nce, &wsrd->ipv6.neigh_cache, link) {
-        if (nce->rpl && nce->rpl->path_ctl)
-            rpl_unregister_from_parent(&wsrd->ipv6, nce);
-    }
     rpl_stop(&wsrd->ipv6);
 }
 

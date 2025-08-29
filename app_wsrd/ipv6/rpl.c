@@ -189,13 +189,13 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
      * Section 5.5).
      */
     send_dao = memzcmp(parents_new, sizeof(parents_new)) != 0;
-    // FIXME: Send NS(ARO) with 0 lifetime on DAO-ACK of new parent
     if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
         for (int i = 0; i < ARRAY_SIZE(parents_cur); i++) {
             if (parents_cur[i] != parents_new[i]) {
-                if (parents_cur[i] && !parents_cur[i]->rpl->path_ctl)
+                if (parents_cur[i] && !parents_cur[i]->rpl->path_ctl && !parents_cur[i]->rpl->path_ctl_acked)
                     rpl_unregister_from_parent(ipv6, parents_cur[i]);
                 if (parents_new[i] && timer_stopped(&parents_new[i]->own_aro_timer)) {
+                    parents_new[i]->rpl->path_ctl_acked = 0;
                     rpl_register_to_parent(ipv6, parents_new[i]);
                     send_dao = false;
                 }
@@ -438,7 +438,6 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
         transit.path_lifetime = path_lifetime;
         transit.parent_addr   = parents[i]->gua;
         rpl_opt_push(&iobuf, RPL_OPT_TRANSIT, &transit, sizeof(transit));
-        parents[i]->rpl->path_ctl_acked = 0;
     }
 
     rpl_send(ipv6, RPL_CODE_DAO, iobuf.data, iobuf.len, &dodag_id);
@@ -733,14 +732,18 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         return;
     }
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
-        if (nce->rpl)
-            nce->rpl->path_ctl_acked = 0;
     if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
         return;
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
-        if (nce->rpl && nce->rpl->path_ctl)
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl)
+            continue;
+        if (nce->rpl->path_ctl) {
             nce->rpl->path_ctl_acked = nce->rpl->path_ctl;
+        } else if (nce->rpl->path_ctl_acked) {
+            nce->rpl->path_ctl_acked = 0;
+            rpl_unregister_from_parent(ipv6, nce);
+        }
+    }
     if (ipv6->rpl.on_dao_ack)
         ipv6->rpl.on_dao_ack(ipv6);
 }
@@ -819,6 +822,18 @@ void rpl_recv(struct ipv6_ctx *ipv6)
 
 void rpl_stop(struct ipv6_ctx *ipv6)
 {
+    struct ipv6_neigh *nce;
+
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl)
+            continue;
+        if (nce->rpl->path_ctl || nce->rpl->path_ctl_acked) {
+            nce->rpl->path_ctl = 0;
+            nce->rpl->path_ctl_acked = 0;
+            if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr))
+                rpl_unregister_from_parent(ipv6, nce);
+        }
+    }
     trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
     rfc8415_txalg_stop(&ipv6->rpl.dis_txalg);
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
