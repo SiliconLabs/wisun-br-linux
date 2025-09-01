@@ -1,3 +1,19 @@
+v2.6.1
+------
+  - Verify frame counters in `wsrd` and `silabs-ws-dc` to prevent replay
+    attacks.
+  - Fix occasional infinite loop in `wsbrd` with EAPoL congestion, neighbor
+    timeouts, and frame handle allocation failure.
+  - Update Singapore PHY definitions with the 2v03 specification: allow
+    ChanPlanId 41-43 and fix documented base frequencies.
+  - Fix malformed D-Bus message for `Nodes` property with new authenticator.
+  - Fix minor memory leak with CPC secondary version retrieval.
+  - Do not enable [source fortification][fortify] by default: let users
+    manually enable hardening features to prevent platform specific issues.
+  - Support MbedTLS >= 3.6.3.
+
+[fortify]: https://sourceware.org/glibc/manual/latest/html_node/Source-Fortification.html
+
 v2.6
 ------
   - New authenticator implementation for `wsbrd`:
