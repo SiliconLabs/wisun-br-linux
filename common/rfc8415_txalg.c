@@ -126,8 +126,7 @@ void rfc8415_txalg_init(struct rfc8415_txalg *txalg)
 
 void rfc8415_txalg_start(struct rfc8415_txalg *txalg)
 {
-    txalg->c = 0;
-
+    rfc8415_txalg_stop(txalg);
     /*
      * The first Solicit message from the client on the interface SHOULD be
      * delayed by a random amount of time between 0 and SOL_MAX_DELAY.
