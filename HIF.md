@@ -648,6 +648,21 @@ described in the IEEE 802.15.4 specification.
 
 [csma]: #0x27-set_radio_csma-api--2120
 
+### `0x28 SET_RADIO_APC` (API >= 2.13.0)
+
+Enable Adaptive Power Control as required by [ETSI EN 300 200-1][etsi] for
+transmission of _acknowledgement_ frames. For data frames,
+[`REQ_DATA_TX`][tx-req] already provides the necessary fields to allow a host
+to adjust the transmission power.
+
+  - `bool enable_apc`  
+    When set, the RCP will maintain a small neighbor table with associated TX
+    power. The power corresponds to the last value used when transmitting data
+    to that neighbor. If an entry cannot be found, maximum power is used (see
+    [`SET_RADIO_TX_POWER`][rf-pow]).
+
+[etsi]: https://www.etsi.org/deliver/etsi_en/300200_300299/30022001/03.01.01_60/en_30022001v030101p.pdf
+
 ## Frequency Hopping (FHSS) configuration
 
 Several schemes are used in Wi-SUN to transmit or receive packets using

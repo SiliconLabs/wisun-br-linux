@@ -409,6 +409,17 @@ void rcp_set_radio_csma(struct rcp *rcp, const struct rcp_csma_cfg *cfg)
     iobuf_free(&buf);
 }
 
+void rcp_set_radio_apc(struct rcp *rcp, bool enable)
+{
+    struct iobuf_write buf = { };
+
+    BUG_ON(version_older_than(rcp->version_api, 2, 13, 0));
+    hif_push_u8(&buf, HIF_CMD_SET_RADIO_APC);
+    hif_push_bool(&buf, enable);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_req_radio_tx_duration_reset(struct rcp *rcp)
 {
     struct iobuf_write buf = { };

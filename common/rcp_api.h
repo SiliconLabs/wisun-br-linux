@@ -126,6 +126,7 @@ void rcp_set_radio_regulation(struct rcp *rcp, enum hif_reg reg);
 void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm);
 void rcp_req_radio_tx_duration_reset(struct rcp *rcp);
 void rcp_set_radio_csma(struct rcp *rcp, const struct rcp_csma_cfg *cfg);
+void rcp_set_radio_apc(struct rcp *rcp, bool enable);
 
 void rcp_set_fhss_uc(struct rcp *rcp,
                      uint8_t dwell_interval_ms,
