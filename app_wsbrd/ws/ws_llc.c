@@ -282,12 +282,14 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl)) {
                 ws_neigh->rsl_out_dbm = ws_ewma_next(ws_neigh->rsl_out_dbm, ie_rsl, WS_EWMA_SF);
-                rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
-                etsi_apc_update(&ws_neigh->apc,
-                                rate ? rate->phy_mode_id : ws_info->phy_config.phy_mode_id_ms_base,
-                                ws_info->phy_config.tx_power_dbm, // TODO: get from CNF_DATA_TX
-                                ie_rsl,
-                                ws_info->phy_config.tx_power_dbm);
+                if (ws_info->phy_config.enable_apc) {
+                    rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
+                    etsi_apc_update(&ws_neigh->apc,
+                                    rate ? rate->phy_mode_id : ws_info->phy_config.phy_mode_id_ms_base,
+                                    ws_info->phy_config.tx_power_dbm, // TODO: get from CNF_DATA_TX
+                                    ie_rsl,
+                                    ws_info->phy_config.tx_power_dbm);
+                }
             }
             break;
         }
@@ -1160,7 +1162,7 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
         phy_mode_id = ws_info->phy_config.phy_mode_id_ms_base;
 
     phy_params = ws_regdb_phy_params(phy_mode_id, 0);
-    if (!ws_neigh || ws_info->fhss_config.regional_regulation != HIF_REG_WPC)
+    if (!ws_neigh || !ws_info->phy_config.enable_apc)
         tx_power_dbm = ws_info->phy_config.tx_power_dbm;
     else if (phy_params && phy_params->modulation == MODULATION_OFDM)
         tx_power_dbm = ws_neigh->apc.txpow_dbm_ofdm;

@@ -311,6 +311,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         fhss->regional_regulation = ctxt->config.ws_regional_regulation;
         rcp_set_radio_regulation(&ctxt->rcp, ctxt->config.ws_regional_regulation);
     }
+    ws_info->phy_config.enable_apc = ctxt->config.enable_apc;
+    if (ctxt->config.ws_regional_regulation == HIF_REG_WPC)
+        ws_info->phy_config.enable_apc = true;
+    if (!version_older_than(ctxt->rcp.version_api, 2, 13, 0))
+        rcp_set_radio_apc(&ctxt->rcp, ws_info->phy_config.enable_apc);
+    else if (ctxt->config.enable_apc)
+        WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
 
     ws_chan_mask_calc_reg(fhss->uc_chan_mask, fhss->chan_params);
     ws_chan_mask_calc_reg(fhss->bc_chan_mask, fhss->chan_params);

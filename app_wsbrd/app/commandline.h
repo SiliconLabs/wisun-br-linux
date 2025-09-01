@@ -70,6 +70,7 @@ struct wsbrd_conf {
     bool storage_exit;
 
     int  tx_power;
+    bool enable_apc;
     struct rcp_csma_cfg csma;
     int  ws_pan_id;
     int  ws_fan_version;
