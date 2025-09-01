@@ -138,6 +138,14 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
     ieee802154_ie_fill_len_payload(iobuf, offset);
 }
 
+static void ws_fill_rates(struct ws_ctx *ws, struct rcp_rate_info rates[4])
+{
+    memset(rates, 0, sizeof(struct rcp_rate_info) * 4);
+    rates[0].phy_mode_id = ws->phy.params->phy_mode_id;
+    rates[0].tx_attempts = ws->phy.tx_attempts;
+    rates[0].tx_power_dbm = ws->phy.tx_power_dbm;
+}
+
 void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
@@ -413,6 +421,8 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     if (!frame_ctx)
         return -ENOMEM;
     frame_ctx->dst = hdr.dst;
+    if (hdr.ack_req)
+        ws_fill_rates(ws, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -479,6 +489,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
+    ws_fill_rates(ws, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -704,6 +715,8 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
     if (!frame_ctx)
         return;
     frame_ctx->dst =  hdr.dst;
+    if (hdr.ack_req)
+        ws_fill_rates(ws, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 

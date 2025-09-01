@@ -43,6 +43,8 @@ struct ws_fhss_config {
 
 struct ws_phy_config {
     const struct phy_params *params;
+    int tx_attempts;
+    int tx_power_dbm;
     uint8_t phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) + 1]; // +1 for sentinel
     uint8_t ms_mode;
     uint8_t phy_mode_id_ms_tx;

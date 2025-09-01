@@ -77,6 +77,7 @@ struct ws_frame_ctx {
     uint8_t type;
     struct eui64 dst;
     uint8_t key_index;
+    struct rcp_rate_info rates[4];
     SLIST_ENTRY(ws_frame_ctx) link;
 };
 
