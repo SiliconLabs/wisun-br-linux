@@ -285,9 +285,9 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                 rate = ws_llc_success_rate(msg->rate_list, confirm->hif.tx_retries + 1);
                 etsi_apc_update(&ws_neigh->apc,
                                 rate ? rate->phy_mode_id : ws_info->phy_config.phy_mode_id_ms_base,
-                                ws_info->tx_power_dbm, // TODO: get from CNF_DATA_TX
+                                ws_info->phy_config.tx_power_dbm, // TODO: get from CNF_DATA_TX
                                 ie_rsl,
-                                ws_info->tx_power_dbm);
+                                ws_info->phy_config.tx_power_dbm);
             }
             break;
         }
@@ -472,7 +472,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (add_neighbor) {
         ws_neigh = ws_neigh_add(&net_if->ws_info.neighbor_storage,
                                 &EUI64_FROM_BUF(data->SrcAddr), WS_NR_ROLE_ROUTER,
-                                net_if->ws_info.tx_power_dbm);
+                                net_if->ws_info.phy_config.tx_power_dbm);
         BUG_ON(!ws_neigh);
     }
 
@@ -615,7 +615,7 @@ static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_dat
     if (neigh)
         return neigh;
     return ws_neigh_add(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr),
-                        node_role, ws_info->tx_power_dbm);
+                        node_role, ws_info->phy_config.tx_power_dbm);
 }
 
 static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
@@ -1161,14 +1161,14 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
 
     phy_params = ws_regdb_phy_params(phy_mode_id, 0);
     if (!ws_neigh || ws_info->fhss_config.regional_regulation != HIF_REG_WPC)
-        tx_power_dbm = ws_info->tx_power_dbm;
+        tx_power_dbm = ws_info->phy_config.tx_power_dbm;
     else if (phy_params && phy_params->modulation == MODULATION_OFDM)
         tx_power_dbm = ws_neigh->apc.txpow_dbm_ofdm;
     else
         tx_power_dbm = ws_neigh->apc.txpow_dbm_fsk;
 
     rate_list[0].phy_mode_id = phy_mode_id;
-    rate_list[0].tx_attempts = ws_info->tx_attempts;
+    rate_list[0].tx_attempts = ws_info->phy_config.tx_attempts;
     rate_list[0].tx_power_dbm = tx_power_dbm;
 }
 
@@ -1244,7 +1244,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         ws_llc_fill_rates(ws_info, ws_neigh, message->rate_list);
         // Do not send default params to the RCP to save some bytes
         if (data_req.rate_list[0].phy_mode_id != ws_info->phy_config.phy_mode_id_ms_base ||
-            data_req.rate_list[0].tx_power_dbm != ws_info->tx_power_dbm)
+            data_req.rate_list[0].tx_power_dbm != ws_info->phy_config.tx_power_dbm)
             memcpy(data_req.rate_list, message->rate_list, sizeof(data_req.rate_list));
         else
             memset(data_req.rate_list, 0, sizeof(data_req.rate_list));

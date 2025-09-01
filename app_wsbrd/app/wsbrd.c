@@ -367,13 +367,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->enable_ffn10 = ctxt->config.enable_ffn10;
 
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
-    ws_info->tx_power_dbm = ctxt->config.tx_power;
+    ws_info->phy_config.tx_power_dbm = ctxt->config.tx_power;
 
     if (!version_older_than(ctxt->rcp.version_api, 2, 12, 0))
         rcp_set_radio_csma(&ctxt->rcp, &ctxt->config.csma);
     else if (memcmp(&ctxt->config.csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
         WARN("csma_* parameters require RCP API >= 2.12.0");
-    ws_info->tx_attempts = ctxt->config.csma.frame_retries + 1;
+    ws_info->phy_config.tx_attempts = ctxt->config.csma.frame_retries + 1;
 
     ws_enable_mac_filtering(ctxt);
 

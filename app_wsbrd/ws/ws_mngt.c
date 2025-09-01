@@ -104,7 +104,7 @@ static struct ws_neigh *ws_mngt_neigh_fetch(struct ws_info *ws_info, const uint8
     if (neigh)
         return neigh;
     return ws_neigh_add(&ws_info->neighbor_storage, &EUI64_FROM_BUF(mac64),
-                        role, ws_info->tx_power_dbm);
+                        role, ws_info->phy_config.tx_power_dbm);
 }
 
 void ws_mngt_pa_analyze(struct ws_info *ws_info,
@@ -378,7 +378,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     if (add_neighbor) {
         ws_neigh = ws_neigh_add(&ws_info->neighbor_storage,
                                 &EUI64_FROM_BUF(data->SrcAddr), WS_NR_ROLE_LFN,
-                                ws_info->tx_power_dbm);
+                                ws_info->phy_config.tx_power_dbm);
         if (!ws_neigh) {
             TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
             return;
