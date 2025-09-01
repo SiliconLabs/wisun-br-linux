@@ -443,6 +443,8 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         }
         if (!rfc8415_txalg_stopped(&wsrd->ipv6.dhcp.solicit_txalg))
             rfc8415_txalg_start(&wsrd->ipv6.dhcp.solicit_txalg);
+        if (!rfc8415_txalg_stopped(&wsrd->supp.key_request_txalg))
+            rfc8415_txalg_start(&wsrd->supp.key_request_txalg);
         ws_sync_fhss_bc(wsrd, ws_neigh);
     } else {
         wsrd->eapol_target_eui64 = EUI64_BC;
