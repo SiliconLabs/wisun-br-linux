@@ -138,12 +138,36 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
     ieee802154_ie_fill_len_payload(iobuf, offset);
 }
 
-static void ws_fill_rates(struct ws_ctx *ws, struct rcp_rate_info rates[4])
+// Returns true if the rates do not use the default values
+static bool ws_fill_rates(struct ws_ctx *ws, struct ws_neigh *neigh,
+                          struct rcp_rate_info rates[4])
 {
+    bool is_default = true;
+
     memset(rates, 0, sizeof(struct rcp_rate_info) * 4);
     rates[0].phy_mode_id = ws->phy.params->phy_mode_id;
     rates[0].tx_attempts = ws->phy.tx_attempts;
     rates[0].tx_power_dbm = ws->phy.tx_power_dbm;
+
+    if (ws->phy.enable_apc && neigh) {
+        rates[0].tx_power_dbm = ws->phy.params->modulation == MODULATION_OFDM ?
+                                neigh->apc.txpow_dbm_ofdm :
+                                neigh->apc.txpow_dbm_fsk;
+        is_default = rates[0].tx_power_dbm != ws->phy.tx_power_dbm;
+    }
+
+    // TODO: mode switch
+    return !is_default;
+}
+
+static struct rcp_rate_info *ws_get_rate(struct rcp_rate_info rates[4], int tx_count)
+{
+    for (int i = 0; i < 4; i++) {
+        if (tx_count <= rates[i].tx_attempts)
+            return &rates[i];
+        tx_count -= rates[i].tx_attempts;
+    }
+    FATAL(3, "unexpected tx-count=%i", tx_count);
 }
 
 void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
@@ -295,6 +319,7 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
     struct ws_frame_ctx frame_ctx, *frame_ctx_ptr;
     struct iobuf_read ie_header, ie_payload;
+    const struct rcp_rate_info *rate;
     struct ws_neigh *neigh = NULL;
     struct ieee802154_hdr hdr;
     struct ws_utt_ie ie_utt;
@@ -352,8 +377,14 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
                                                          cnf->rx_power_dbm, WS_EWMA_SF);
         if (hdr.key_index)
             neigh->rsl_in_dbm = ws_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
-        if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl))
+        if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl)) {
             neigh->rsl_out_dbm = ws_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
+            rate = ws_get_rate(frame_ctx.rates, cnf->tx_retries + 1);
+            etsi_apc_update(&neigh->apc,
+                            rate->phy_mode_id,
+                            rate->tx_power_dbm, rsl,
+                            ws->phy.tx_power_dbm);
+        }
         if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
             ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
             if (hdr.key_index)
@@ -402,6 +433,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
+    bool has_rates = false;
     int offset;
 
     if (!ws->gak_index) {
@@ -422,7 +454,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         return -ENOMEM;
     frame_ctx->dst = hdr.dst;
     if (hdr.ack_req)
-        ws_fill_rates(ws, frame_ctx->rates);
+        has_rates = ws_fill_rates(ws, neigh, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -442,7 +474,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
                     neigh ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
                     neigh ? &neigh->fhss_data_unsecured : NULL,
                     neigh ? neigh->frame_counter_min : NULL,
-                    NULL, 0);  // TODO: mode switch
+                    has_rates ? frame_ctx->rates: NULL, 0);
     iobuf_free(&iobuf);
     return frame_ctx->handle;
 }
@@ -477,6 +509,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
     struct ws_neigh *neigh;
+    bool has_rates;
     int offset;
 
     neigh = ws_neigh_get(&ws->neigh_table, dst);
@@ -489,7 +522,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
     if (!frame_ctx)
         return;
     frame_ctx->dst = hdr.dst;
-    ws_fill_rates(ws, frame_ctx->rates);
+    has_rates = ws_fill_rates(ws, neigh, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -508,7 +541,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                     HIF_FHSS_TYPE_FFN_UC,
                     &neigh->fhss_data_unsecured,
                     neigh->frame_counter_min,
-                    NULL, 0); // TODO: mode switch
+                    has_rates ? frame_ctx->rates : NULL, 0);
     iobuf_free(&iobuf);
 }
 
@@ -709,6 +742,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
     };
     struct ws_frame_ctx *frame_ctx;
     struct iobuf_write iobuf = { };
+    bool has_rates = false;
     int offset;
 
     frame_ctx = ws_if_frame_ctx_new(ws, req->frame_type, hdr.key_index);
@@ -716,7 +750,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
         return;
     frame_ctx->dst =  hdr.dst;
     if (hdr.ack_req)
-        ws_fill_rates(ws, frame_ctx->rates);
+        has_rates = ws_fill_rates(ws, neigh, frame_ctx->rates);
 
     ieee802154_frame_write_hdr(&iobuf, &hdr);
 
@@ -738,6 +772,6 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
                     req->fhss_type,
                     neigh ? &neigh->fhss_data_unsecured : NULL,
                     neigh ? neigh->frame_counter_min : NULL,
-                    NULL, 0);
+                    has_rates ? frame_ctx->rates : NULL, 0);
     iobuf_free(&iobuf);
 }
