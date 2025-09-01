@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include "common/ws/etsi_apc.h"
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
 #include "common/ws/ws_etx.h"
@@ -127,17 +128,9 @@ struct ws_neigh {
     uint32_t ms_tx_count;                                  /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
     uint32_t ms_retries_count;                             /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
 
-    /*
-     * TX power used for Adaptive Power Control (APC).
-     * - Different Power Amplifiers (PA) can be used for different modulations.
-     * - RAIL sets the average TX power, but APC controls the peak power, and
-     *   average-to-peak varies greatly with the modulation used.
-     */
-    int8_t apc_txpow_dbm;
-    int8_t apc_txpow_dbm_ofdm;
-
     // TODO: Support ETX computation with mode switch as per FAN 1.1
     struct ws_etx ws_etx;
+    struct etsi_apc_ctx apc;
 
     uint8_t edfe_mode;
     bool trusted_device: 1;                                /*!< True mean use normal group key, false for enable pairwise key */

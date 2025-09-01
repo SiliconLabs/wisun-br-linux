@@ -146,6 +146,7 @@ add_library(libwsbrd STATIC
     common/ipv6/ipv6_addr.c
     common/ipv6/ipv6_flow_label.c
     common/ws/ws_chan_mask.c
+    common/ws/etsi_apc.c
     common/ws/ws_ie.c
     common/ws/ws_ie_list.c
     common/ws/ws_neigh.c
