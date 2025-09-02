@@ -127,6 +127,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
+        { "enable_apc",                    &config->enable_apc,                       conf_set_bool,        NULL },
         { "csma_backoff_unit",             &config->csma.backoff_unit_us,             conf_set_u16,         NULL },
         { "csma_min_be",                   &config->csma.min_be,                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
         { "csma_max_be",                   &config->csma.max_be,                      conf_set_u8,          &(struct number_limit){ 3, 8 } },

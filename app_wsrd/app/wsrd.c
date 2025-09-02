@@ -532,6 +532,13 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
     rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
+
+    wsrd->ws.phy.enable_apc = wsrd->config.enable_apc;
+    if (!version_older_than(wsrd->ws.rcp.version_api, 2, 13, 0))
+        rcp_set_radio_apc(&wsrd->ws.rcp, wsrd->ws.phy.enable_apc);
+    else
+        WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
+
     if (!version_older_than(wsrd->ws.rcp.version_api, 2, 12, 0))
         rcp_set_radio_csma(&wsrd->ws.rcp, &wsrd->config.csma);
     else if (memcmp(&wsrd->config.csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))

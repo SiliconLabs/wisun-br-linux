@@ -379,11 +379,11 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             neigh->rsl_in_dbm = ws_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
         if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl)) {
             neigh->rsl_out_dbm = ws_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
-            rate = ws_get_rate(frame_ctx.rates, cnf->tx_retries + 1);
-            etsi_apc_update(&neigh->apc,
-                            rate->phy_mode_id,
-                            rate->tx_power_dbm, rsl,
-                            ws->phy.tx_power_dbm);
+            if (ws->phy.enable_apc) {
+                rate = ws_get_rate(frame_ctx.rates, cnf->tx_retries + 1);
+                etsi_apc_update(&neigh->apc, rate->phy_mode_id,
+                                rate->tx_power_dbm, rsl, ws->phy.tx_power_dbm);
+            }
         }
         if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
             ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
