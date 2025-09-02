@@ -371,3 +371,14 @@ int ws_regdb_frame_duration_ms(const struct phy_params *phy, size_t len)
         return divup(len * 8 * 1000, phy->datarate);
     }
 }
+
+const char *tr_modulation(int modulation)
+{
+    static const struct name_value table[] = {
+        { "fsk",    MODULATION_2FSK, },
+        { "ofdm",   MODULATION_OFDM, },
+        { "o-qpsk", MODULATION_OQPSK, },
+    };
+
+    return val_to_str(modulation, table, "???");
+}

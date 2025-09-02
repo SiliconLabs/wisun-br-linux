@@ -118,4 +118,6 @@ bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id);
 
 int ws_regdb_frame_duration_ms(const struct phy_params *phy, size_t len);
 
+const char *tr_modulation(int modulation);
+
 #endif

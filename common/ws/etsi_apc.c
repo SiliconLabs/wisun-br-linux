@@ -11,14 +11,30 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/ws/ws_neigh.h"
 #include "common/ws/ws_regdb.h"
 #include "common/mathutils.h"
+#include "common/memutils.h"
+#include "common/log.h"
 
 #include "etsi_apc.h"
 
 // ETSI EN 300 220-1 v3.1.1 - 5.13 Adaptive Power Control
 #define ETSI_APC_ATTENUATION_DB 75
 #define ETSI_APC_POWER_LIMIT_DBM 7
+
+// HACK: This module depends on ws_neigh.h to log the EUI-64
+static void etsi_apc_trace(struct etsi_apc_ctx *apc,
+                           const struct phy_params *phy,
+                           int attenuation_db)
+{
+    struct ws_neigh *neigh = container_of(apc, struct ws_neigh, apc);
+
+    TRACE(TR_NEIGH_15_4, "neigh-15.4 set %s txpow-%s=%idBm (attenuation=%idB)",
+          tr_eui64(neigh->eui64.u8), tr_modulation(phy->modulation),
+          phy->modulation == MODULATION_OFDM ? apc->txpow_dbm_ofdm : apc->txpow_dbm_fsk,
+          attenuation_db);
+}
 
 /*
  * Adapt TX power linearly based on the measured attenuation.
@@ -63,4 +79,5 @@ void etsi_apc_update(struct etsi_apc_ctx *apc, uint8_t phy_mode_id,
         // 1dB margin
         apc->txpow_dbm_fsk  = etsi_apc_calc_txpow(attenuation_db, max_txpow_dbm, 1);
     }
+    etsi_apc_trace(apc, phy, attenuation_db);
 }
