@@ -41,13 +41,10 @@ enum {
     POLLFD_TUN,
     POLLFD_RCP,
     POLLFD_DBUS,
-    POLLFD_EVENT,
     POLLFD_TIMER,
     POLLFD_DHCP,
     POLLFD_RPL,
-    POLLFD_BR_EAPOL_RELAY, // HAVE_AUTH_LEGACY only
     POLLFD_EAPOL_RELAY,
-    POLLFD_PAE_AUTH,       // HAVE_AUTH_LEGACY only
     POLLFD_RADIUS,
     POLLFD_PCAP,
     POLLFD_COUNT,
@@ -55,7 +52,6 @@ enum {
 
 struct wsbr_ctxt {
     struct pollfd fds[POLLFD_COUNT];
-    struct events_scheduler scheduler;
     struct timer_entry timer_legacy;
     struct wsbrd_conf config;
     struct dhcp_relay dhcp_relay;

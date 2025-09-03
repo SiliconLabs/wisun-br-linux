@@ -153,8 +153,6 @@ static void wsbr_mpl_abort(struct mpl_ctx *mpl, void *tx_ctx)
 
 // See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
-    .scheduler.event_fd = { -1, -1 },
-
     .rcp.on_reset = wsbr_handle_reset,
     .rcp.on_tx_cnf = wsbr_tx_cnf,
     .rcp.on_rx_ind = wsbr_rx_ind,
@@ -544,8 +542,6 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_RCP].events = POLLIN;
     ctxt->fds[POLLFD_TUN].fd = ctxt->tun.fd;
     ctxt->fds[POLLFD_TUN].events = 0;
-    ctxt->fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
-    ctxt->fds[POLLFD_EVENT].events = POLLIN;
     ctxt->fds[POLLFD_TIMER].fd = timer_fd();
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
     ctxt->fds[POLLFD_DHCP].fd = IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr) ?
@@ -553,19 +549,14 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_DHCP].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
     ctxt->fds[POLLFD_RPL].events = POLLIN;
-    ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd = ws_eapol_relay_get_socket_fd();
-    ctxt->fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
     ctxt->fds[POLLFD_EAPOL_RELAY].fd = ws_auth_fd_eapol_relay(&ctxt->net_if);
     ctxt->fds[POLLFD_EAPOL_RELAY].events = POLLIN;
-    ctxt->fds[POLLFD_PAE_AUTH].fd = kmp_socket_if_get_pae_socket_fd();
-    ctxt->fds[POLLFD_PAE_AUTH].events = POLLIN;
     ctxt->fds[POLLFD_RADIUS].fd = ws_auth_fd_radius(&ctxt->net_if);
     ctxt->fds[POLLFD_RADIUS].events = POLLIN;
 }
 
 static void wsbr_poll(struct wsbr_ctxt *ctxt)
 {
-    uint64_t val;
     int ret;
 
     if (lowpan_adaptation_queue_size(ctxt->net_if.id) > 2)
@@ -589,22 +580,12 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     }
     if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
         rpl_recv(&ctxt->net_if.rpl_root);
-    if (ctxt->fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
-        ws_eapol_relay_socket_cb(ctxt->fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
         ws_auth_recv_eapol_relay(&ctxt->net_if);
-    if (ctxt->fds[POLLFD_PAE_AUTH].revents & POLLIN)
-        kmp_socket_if_pae_socket_cb(ctxt->fds[POLLFD_PAE_AUTH].fd);
     if (ctxt->fds[POLLFD_RADIUS].revents & POLLIN)
         ws_auth_recv_radius(&ctxt->net_if);
     if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
-    if (ctxt->fds[POLLFD_EVENT].revents & POLLIN) {
-        ret = read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
-        FATAL_ON(ret < sizeof(val), 2, "read eventfd: %m");
-        WARN_ON(val != 'W');
-        event_scheduler_run_until_idle();
-    }
     if (ctxt->fds[POLLFD_RCP].revents & POLLIN ||
         ctxt->fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->rcp.bus.uart.data_ready)
@@ -647,7 +628,6 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     check_mbedtls_features();
-    event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete) {
         INFO("deleting storage");
