@@ -235,8 +235,6 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
                                  const struct mcps_data_rx_ie_list *confirm_data,
                                  struct ws_neigh *ws_neigh)
 {
-    struct mcps_data_cnf mpx_confirm;
-    struct mpx_user *mpx_usr;
     struct ws_utt_ie ie_utt;
 
     if (ws_neigh) {
@@ -246,15 +244,8 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
             ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
     }
 
-    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
-    if (mpx_usr && mpx_usr->data_confirm) { // HAVE_AUTH_LEGACY path
-        mpx_confirm = *confirm;
-        mpx_confirm.hif.handle = msg->mpx_user_handle;
-        mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
-    } else {
-        free(msg->ie_iov_payload[1].iov_base);
-        msg->ie_iov_payload[1].iov_base = NULL;
-    }
+    free(msg->ie_iov_payload[1].iov_base);
+    msg->ie_iov_payload[1].iov_base = NULL;
 }
 
 static const struct rcp_rate_info *ws_llc_success_rate(const struct rcp_rate_info rate_list[4],
@@ -642,7 +633,6 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neigh *ws_neigh = NULL;
-    mcps_data_ind_t data_ind = *data;
     struct auth_supp_ctx *supp;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
@@ -650,7 +640,6 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     bool duplicated = false;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
-    mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
     bool has_us, has_bs;
 
@@ -704,17 +693,9 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    mpx_user = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
-    if (mpx_user && mpx_user->data_ind) {
-        // HAVE_AUTH_LEGACY path
-        data_ind.msdu_ptr = mpx_frame.frame_ptr;
-        data_ind.msduLength = mpx_frame.frame_length;
-        mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
-    } else {
-        auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
-                        mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
-    }
+    auth_recv_eapol(base->interface_ptr->auth,
+                    mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
+                    mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
 }
 
 static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *data,
@@ -722,7 +703,6 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 {
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     struct ws_neigh *ws_neigh = NULL;
-    mcps_data_ind_t data_ind = *data;
     struct auth_supp_ctx *supp;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
@@ -731,7 +711,6 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     struct ws_lcp_ie ie_lcp;
     bool duplicated = false;
     bool has_lus, has_lcp;
-    mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
 
     if (!base)
@@ -793,17 +772,9 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    mpx_user = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_ID_KMP);
-    if (mpx_user && mpx_user->data_ind) {
-        // HAVE_AUTH_LEGACY path
-        data_ind.msdu_ptr = mpx_frame.frame_ptr;
-        data_ind.msduLength = mpx_frame.frame_length;
-        mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
-    } else {
-        auth_recv_eapol(base->interface_ptr->auth,
-                        mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
-                        mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
-    }
+    auth_recv_eapol(base->interface_ptr->auth,
+                    mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
+                    mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
 }
 
 static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
@@ -1398,11 +1369,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
         memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
         data_conf.hif.handle = data->msduHandle;
         data_conf.hif.status = HIF_STATUS_NOMEM;
-        if (user_cb) // HAVE_AUTH_LEGACY path
-            user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
-        else
-            TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
-                  tr_ws_frame(WS_FT_EAPOL), tr_eui64(data->DstAddr));
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
+              tr_ws_frame(WS_FT_EAPOL), tr_eui64(data->DstAddr));
         return;
     }
     message->mpx_user_handle = data->msduHandle;
@@ -1417,12 +1385,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     message->security = data->Key;
 
     ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
-    if (user_cb) { // HAVE_AUTH_LEGACY path
-        message->ie_iov_payload[1].iov_base = data->msdu;
-    } else {
-        message->ie_iov_payload[1].iov_base = xalloc(data->msduLength);
-        memcpy(message->ie_iov_payload[1].iov_base, data->msdu, data->msduLength);
-    }
+    message->ie_iov_payload[1].iov_base = xalloc(data->msduLength);
+    memcpy(message->ie_iov_payload[1].iov_base, data->msdu, data->msduLength);
     message->ie_iov_payload[1].iov_len = data->msduLength;
     message->ie_ext.payloadIovLength = 2;
 
