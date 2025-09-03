@@ -22,11 +22,6 @@
 
 #include "ws_auth.h"
 
-bool ws_auth_is_1st_msg(const struct net_if *net_if, const void *buf, size_t buf_len)
-{
-    return true; // TODO
-}
-
 int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64)
 {
     return auth_revoke_pmk(net_if->auth, eui64);

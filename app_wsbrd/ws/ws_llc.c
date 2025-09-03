@@ -1366,15 +1366,14 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *user_cb,
                                      const struct mcps_data_req *data, uint8_t kmp_id)
 {
-    bool eapol_handshake_first_msg = ws_auth_is_1st_msg(base->interface_ptr, data->msdu, data->msduLength);
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .ea  = eapol_handshake_first_msg ? &base->interface_ptr->rcp->eui64 : NULL,
+        .ea  = &base->interface_ptr->rcp->eui64, // TODO: only include in 1st msg
     };
     struct wp_ie_list wp_ies = {
         .us = true,
-        .bs = eapol_handshake_first_msg,
+        .bs = true, // TODO: only include in 1st msg
     };
 
     //Allocate Message
