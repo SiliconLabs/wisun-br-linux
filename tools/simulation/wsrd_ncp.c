@@ -138,19 +138,10 @@ static void ncp_join(const void *_req, const void *req_data, void *_cnf, void *c
 
 static void ncp_set_regulation(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
-    static const struct ncp_val regulations[] = {
-        { SL_WISUN_REGULATION_NONE, HIF_REG_NONE },
-        { SL_WISUN_REGULATION_ARIB, HIF_REG_ARIB },
-        { SL_WISUN_REGULATION_WPC,  HIF_REG_WPC },
-    };
     const sl_wisun_msg_set_regulation_req_t *req = _req;
     sl_wisun_msg_set_regulation_cnf_t *cnf = _cnf;
-    int regulation;
 
-    regulation = ncp_ntoh(le32toh(req->body.regulation), regulations, ARRAY_SIZE(regulations));
-
-    // FIXME: wsrd does not support regional regulation yet
-    if (regulation != HIF_REG_NONE)
+    if (req->body.regulation != SL_WISUN_REGULATION_NONE)
         cnf->body.status = htole32(SL_STATUS_NOT_SUPPORTED);
 }
 
