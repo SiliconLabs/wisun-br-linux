@@ -65,6 +65,40 @@ static void ndp_opt_push(struct pktbuf *pktbuf, uint8_t type,
     pktbuf_push_tail(pktbuf, buf, buf_len);
 }
 
+static void ipv6_send_na_aro(struct ipv6_ctx *ipv6,
+                             const struct in6_addr *dst,
+                             const struct in6_addr *target,
+                             const struct eui64 *eui64,
+                             uint8_t status)
+{
+    struct in6_addr src = ipv6_prefix_linklocal;
+    struct nd_neighbor_advert *na;
+    struct ndp_opt_earo aro = { };
+    struct pktbuf pktbuf = { };
+
+    BUG_ON(!IN6_IS_ADDR_LINKLOCAL(dst));
+
+    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64.u8);
+
+    na = pktbuf_push_tail(&pktbuf, NULL, sizeof(struct nd_neighbor_advert));
+    na->nd_na_type = ND_NEIGHBOR_ADVERT;
+    na->nd_na_target = *target;
+    na->nd_na_flags_reserved = ND_NA_FLAG_SOLICITED | ND_NA_FLAG_OVERRIDE;
+
+    aro.status = status;
+    aro.eui64 = eui64->be64;
+    ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
+
+    na = (struct nd_neighbor_advert *)pktbuf_head(&pktbuf);
+    na->nd_na_cksum = ipv6_cksum(&src, dst, IPPROTO_ICMPV6,
+                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s status=%u", "na(aro)", tr_ipv6(dst->s6_addr), status);
+    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, &src, dst);
+    ipv6_sendto_mac(ipv6, &pktbuf);
+    pktbuf_free(&pktbuf);
+}
+
 int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
 {
     struct nd_neighbor_solicit *ns;
@@ -302,8 +336,10 @@ static void ipv6_own_aro_refresh(struct timer_group *group, struct timer_entry *
 
 static int ipv6_recv_ns_aro(struct ipv6_ctx *ipv6,
                             const void *buf, size_t buf_len,
-                            const struct in6_addr *src)
+                            const struct in6_addr *src,
+                            const struct in6_addr *ns_target)
 {
+    struct in6_addr src_linklocal = ipv6_prefix_linklocal;
     const struct ndp_opt_earo *aro;
     struct ipv6_neigh *nce;
     struct eui64 eui64;
@@ -325,13 +361,20 @@ static int ipv6_recv_ns_aro(struct ipv6_ctx *ipv6,
         return -ENOTSUP;
     }
 
+    eui64.be64 = aro->eui64;
+
+    if (!rpl_has_acked_parent(ipv6)) {
+        ipv6_addr_conv_iid_eui64(src_linklocal.s6_addr + 8, eui64.u8);
+        ipv6_send_na_aro(ipv6, &src_linklocal, ns_target, &eui64, NDP_ARO_STATUS_REMOVED);
+        return -EPERM;
+    }
+
     /*
      *   RFC 6775 6.5.3. Updating the Neighbor Cache
      * If the ARO did not result in a duplicate address being detected [...]
      * the router creates (if it didn't exist) or updates (otherwise) an NCE
      * for the IPv6 source address of the NS.
      */
-    eui64.be64 = aro->eui64;
     nce = ipv6_neigh_fetch(ipv6, src, &eui64);
     WARN_ON(!timer_stopped(&nce->own_aro_timer));
     timer_start_rel(&ipv6->timer_group, &nce->aro_lifetime,
@@ -396,7 +439,7 @@ void ipv6_recv_ns(struct ipv6_ctx *ipv6,
         }
         switch (opt->nd_opt_type) {
         case NDP_OPT_ARO:
-            ipv6_recv_ns_aro(ipv6, opt + 1, opt->nd_opt_len * 8 - sizeof(struct nd_opt_hdr), src);
+            ipv6_recv_ns_aro(ipv6, opt + 1, opt->nd_opt_len * 8 - sizeof(struct nd_opt_hdr), src, &ns->nd_ns_target);
             break;
         /*
          *   Wi-SUN FAN 1.1v09 6.2.3.1.4.1 FFN Neighbor Discovery
