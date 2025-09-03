@@ -22,8 +22,6 @@ struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64);
-int ws_auth_revoke_gtks(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16]);
 int ws_auth_install_gtk(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16]);
 void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter);
 

@@ -240,7 +240,7 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
     sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_auth_revoke_pmk(&ctxt->net_if, eui64);
+    ret = auth_revoke_pmk(&ctxt->auth, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
     sd_bus_reply_method_return(m, NULL);
@@ -297,11 +297,11 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
 }
 
 static int dbus_revoke_group_keys(sd_bus_message *m,
-                                  void *userdata,
+                                  struct wsbr_ctxt *wsbrd,
                                   sd_bus_error *ret_error,
                                   bool do_gtk, bool do_lgtk)
 {
-    struct wsbr_ctxt *ctxt = userdata;
+    struct auth_ctx *auth = &wsbrd->auth;
     const uint8_t *gtk, *lgtk;
     size_t len;
     int ret;
@@ -322,12 +322,12 @@ static int dbus_revoke_group_keys(sd_bus_message *m,
     }
 
     if (do_gtk) {
-        ret = ws_auth_revoke_gtks(&ctxt->net_if, false, gtk);
+        ret = auth_revoke_gtks(auth, &auth->gtk_group, gtk);
         if (ret < 0)
             return sd_bus_error_set_errno(ret_error, -ret);
     }
     if (do_lgtk) {
-        ret = ws_auth_revoke_gtks(&ctxt->net_if, true, lgtk);
+        ret = auth_revoke_gtks(auth, &auth->lgtk_group, lgtk);
         if (ret < 0)
             return sd_bus_error_set_errno(ret_error, -ret);
     }

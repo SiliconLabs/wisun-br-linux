@@ -22,18 +22,6 @@
 
 #include "ws_auth.h"
 
-int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64)
-{
-    return auth_revoke_pmk(net_if->auth, eui64);
-}
-
-int ws_auth_revoke_gtks(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16])
-{
-    return auth_revoke_gtks(net_if->auth,
-                            is_lgtk ? &net_if->auth->lgtk_group : &net_if->auth->gtk_group,
-                            new_gtk);
-}
-
 int ws_auth_install_gtk(struct net_if *net_if, bool is_lgtk, const uint8_t new_gtk[16])
 {
     struct auth_gtk_group *gtk_group;
