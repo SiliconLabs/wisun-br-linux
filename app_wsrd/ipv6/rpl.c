@@ -124,6 +124,14 @@ void rpl_neigh_del(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
     nce->rpl = NULL;
 }
 
+bool rpl_has_acked_parent(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *nce;
+
+    return SLIST_FIND(nce, &ipv6->neigh_cache, link,
+                      nce->rpl && nce->rpl->path_ctl_acked) != NULL;
+}
+
 struct ipv6_neigh *rpl_neigh_get_parent(struct ipv6_ctx *ipv6, uint8_t path_ctl)
 {
     struct ipv6_neigh *nce;
