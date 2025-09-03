@@ -530,6 +530,24 @@ void sig_error_handler(int signal)
     raise(signal);
 }
 
+static void wsbr_recv_eapol_relay(struct auth_ctx *auth)
+{
+    struct in6_addr eapol_target;
+    struct auth_supp_ctx *supp;
+    struct eui64 supp_eui64;
+    uint8_t buf[1500];
+    ssize_t buf_len;
+    uint8_t kmp_id;
+
+    buf_len = eapol_relay_recv(auth->eapol_relay_fd, buf, sizeof(buf),
+                               &eapol_target, &supp_eui64, &kmp_id);
+    if (buf_len < 0)
+        return;
+    supp = auth_fetch_supp(auth, &supp_eui64);
+    supp->eapol_target = eapol_target;
+    auth_recv_eapol(auth, kmp_id, &supp_eui64, buf, buf_len);
+}
+
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->fds[POLLFD_DBUS].fd = dbus_get_fd();
@@ -577,7 +595,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_RPL].revents & POLLIN)
         rpl_recv(&ctxt->net_if.rpl_root);
     if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
-        ws_auth_recv_eapol_relay(&ctxt->net_if);
+        wsbr_recv_eapol_relay(&ctxt->auth);
     if (ctxt->fds[POLLFD_RADIUS].revents & POLLIN)
         ws_auth_recv_radius(&ctxt->net_if);
     if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
