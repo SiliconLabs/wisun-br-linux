@@ -171,7 +171,7 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     return 0;
 }
 
-static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
+static int dbus_get_transient_keys(sd_bus_message *reply, struct auth_ctx *auth,
                                    sd_bus_error *ret_error, bool is_lfn)
 {
     const int count = is_lfn ? WS_LGTK_COUNT : WS_GTK_COUNT;
@@ -179,7 +179,7 @@ static int dbus_get_transient_keys(sd_bus_message *reply, struct net_if *net_if,
 
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < count; i++)
-        sd_bus_message_append_array(reply, 'y', ws_auth_gtk(net_if, i + offset + 1), 16);
+        sd_bus_message_append_array(reply, 'y', auth->gtks[offset + i].key, 16);
     sd_bus_message_close_container(reply);
     return 0;
 }
@@ -188,14 +188,14 @@ static int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_transient_keys(reply, (struct net_if *)userdata, ret_error, false);
+    return dbus_get_transient_keys(reply, userdata, ret_error, false);
 }
 
 static int dbus_get_lgtks(sd_bus *bus, const char *path, const char *interface,
                           const char *property, sd_bus_message *reply,
                           void *userdata, sd_bus_error *ret_error)
 {
-    return dbus_get_transient_keys(reply, (struct net_if *)userdata, ret_error, true);
+    return dbus_get_transient_keys(reply, userdata, ret_error, true);
 }
 
 static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
@@ -209,7 +209,7 @@ static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
     for (int i = 0; i < count; i++) {
         // GAK is SHA256 of network name concatened with GTK
         ws_generate_gak(net_if->ws_info.network_name,
-                        ws_auth_gtk(net_if, i + offset + 1), gak);
+                        net_if->auth->gtks[offset + i].key, gak);
         sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);
@@ -769,13 +769,13 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_METHOD("DenyMac64",           "aay",    NULL, dbus_deny_mac64, 0),
         SD_BUS_METHOD("TxDurationReset",     NULL,     NULL, dbus_tx_duration_reset, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
-                        offsetof(struct wsbr_ctxt, net_if),
+                        offsetof(struct wsbr_ctxt, auth),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Gaks", "aay", dbus_get_gaks,
                         offsetof(struct wsbr_ctxt, net_if),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Lgtks", "aay", dbus_get_lgtks,
-                        offsetof(struct wsbr_ctxt, net_if),
+                        offsetof(struct wsbr_ctxt, auth),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Lgaks", "aay", dbus_get_lgaks,
                         offsetof(struct wsbr_ctxt, net_if),

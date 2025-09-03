@@ -22,11 +22,6 @@
 
 #include "ws_auth.h"
 
-const uint8_t *ws_auth_gtk(const struct net_if *net_if, int key_index)
-{
-    return net_if->auth->gtks[key_index - 1].key;
-}
-
 static void ws_auth_gtkhash_common(const struct auth_ctx *auth, uint8_t gtkhash[][8], int offset, int count)
 {
     uint8_t sha256[32];
