@@ -25,7 +25,6 @@
 #include "common/tun.h"
 #include "common/version.h"
 
-#include "dbus_auth.h"
 #include "dbus.h"
 
 int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -446,7 +445,7 @@ static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_erro
     return 0;
 }
 
-void dbus_message_open_info(sd_bus_message *m, const char *property,
+static void dbus_message_open_info(sd_bus_message *m, const char *property,
                             const char *name, const char *type)
 {
     sd_bus_message_open_container(m, 'e', "sv");
@@ -454,17 +453,19 @@ void dbus_message_open_info(sd_bus_message *m, const char *property,
     sd_bus_message_open_container(m, 'v', type);
 }
 
-void dbus_message_close_info(sd_bus_message *m, const char *property)
+static void dbus_message_close_info(sd_bus_message *m, const char *property)
 {
     sd_bus_message_close_container(m);
     sd_bus_message_close_container(m);
 }
 
-void dbus_message_append_node(sd_bus_message *m, const char *property,
-                              const struct eui64 *eui64,
-                              bool is_br, const void *supp,
-                              const struct ws_neigh *neighbor)
+static void dbus_message_append_node(sd_bus_message *m, const char *property,
+                                     const struct eui64 *eui64,
+                                     bool is_br, const struct auth_supp_ctx *supp,
+                                     const struct ws_neigh *neighbor)
 {
+    struct in6_addr dodagid;
+
     sd_bus_message_open_container(m, 'r', "aya{sv}");
     sd_bus_message_append_array(m, 'y', eui64, 8);
     sd_bus_message_open_container(m, 'a', "{sv}");
@@ -478,7 +479,24 @@ void dbus_message_append_node(sd_bus_message *m, const char *property,
             sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
             dbus_message_close_info(m, property);
         } else if (supp) {
-            dbus_message_append_supp(m, property, supp);
+            if (memzcmp(supp->eap_tls.tls.pmk.key, 32)) {
+                dbus_message_open_info(m, property, "is_authenticated", "b");
+                sd_bus_message_append_basic(m, 'b', (int[1]){ true });
+                dbus_message_close_info(m, property);
+            }
+            if (ws_common_is_valid_nr(supp->node_role)) {
+                dbus_message_open_info(m, property, "node_role", "y");
+                sd_bus_message_append(m, "y", supp->node_role);
+                dbus_message_close_info(m, property);
+            }
+            dbus_message_open_info(m, property, "eapol_target", "ay");
+            if (!IN6_IS_ADDR_UNSPECIFIED(&supp->eapol_target)) {
+                sd_bus_message_append_array(m, 'y', &supp->eapol_target, 16);
+            } else {
+                tun_addr_get_uc_global(&g_ctxt.tun, &dodagid);
+                sd_bus_message_append_array(m, 'y', &dodagid, 16);
+            }
+            dbus_message_close_info(m, property);
         }
         if (neighbor) {
             dbus_message_open_info(m, property, "is_neighbor", "b");
@@ -531,7 +549,8 @@ void dbus_message_append_node(sd_bus_message *m, const char *property,
     sd_bus_message_close_container(m);
 }
 
-void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct wsbr_ctxt *ctxt)
+static void dbus_message_append_node_br(sd_bus_message *m, const char *property,
+                                        struct wsbr_ctxt *ctxt)
 {
     struct ws_neigh neigh = {
         .rx_power_dbm = INT_MAX,
@@ -550,6 +569,24 @@ void dbus_message_append_node_br(sd_bus_message *m, const char *property, struct
            ctxt->net_if.ws_info.phy_config.phy_op_modes,
            neigh.pom_ie.phy_op_mode_number);
     dbus_message_append_node(m, property, &ctxt->rcp.eui64, true, NULL, &neigh);
+}
+
+static int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
+                          const char *property, sd_bus_message *reply,
+                          void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    const struct auth_supp_ctx *supp;
+    const struct ws_neigh *neigh;
+
+    sd_bus_message_open_container(reply, 'a', "(aya{sv})");
+    dbus_message_append_node_br(reply, property, ctxt);
+    SLIST_FOREACH(supp, &ctxt->auth.supplicants, link) {
+        neigh = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage, &supp->eui64);
+        dbus_message_append_node(reply, property, &supp->eui64, false, supp, neigh);
+    }
+    sd_bus_message_close_container(reply);
+    return 0;
 }
 
 static void dbus_message_append_rpl_target(sd_bus_message *reply, struct rpl_target *target, uint8_t pcs)
