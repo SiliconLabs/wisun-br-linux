@@ -75,6 +75,7 @@ const struct name_value valid_join_metrics[] = {
 const struct name_value valid_ws_regional_regulations[] = {
     { "none", HIF_REG_NONE },
     { "arib", HIF_REG_ARIB },
+    { "etsi", HIF_REG_ETSI },
     { "wpc",  HIF_REG_WPC  },
     { NULL },
 };
