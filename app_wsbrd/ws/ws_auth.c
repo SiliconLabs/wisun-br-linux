@@ -22,35 +22,6 @@
 
 #include "ws_auth.h"
 
-static void ws_auth_gtkhash_common(const struct auth_ctx *auth, uint8_t gtkhash[][8], int offset, int count)
-{
-    uint8_t sha256[32];
-
-    for (int i = 0; i < count; i++) {
-        if (timer_stopped(&auth->gtks[i + offset].expiration_timer)) {
-            memset(gtkhash[i], 0, 8);
-        } else {
-            xmbedtls_sha256(auth->gtks[i + offset].key, 16, sha256, 0);
-            memcpy(gtkhash[i], sha256 + 24, 8);
-        }
-    }
-}
-
-void ws_auth_gtkhash(const struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8])
-{
-    ws_auth_gtkhash_common(net_if->auth, gtkhash, 0, WS_GTK_COUNT);
-}
-
-void ws_auth_lgtkhash(const struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8])
-{
-    ws_auth_gtkhash_common(net_if->auth, lgtkhash, WS_GTK_COUNT, WS_LGTK_COUNT);
-}
-
-uint8_t ws_auth_lgtk_index(const struct net_if *net_if)
-{
-    return net_if->auth->lgtk_group.slot_active - WS_GTK_COUNT;
-}
-
 bool ws_auth_is_1st_msg(const struct net_if *net_if, const void *buf, size_t buf_len)
 {
     return true; // TODO

@@ -955,6 +955,22 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
         TRACE(TR_DROP, "drop %-9s: unsupported frame type (0x%02x)", "15.4", frame_type);
     }
 }
+
+static void ws_llc_gtkhash(const struct auth_ctx *auth, uint8_t gtkhash[][8],
+                           int offset, int count)
+{
+    uint8_t sha256[32];
+
+    for (int i = 0; i < count; i++) {
+        if (timer_stopped(&auth->gtks[i + offset].expiration_timer)) {
+            memset(gtkhash[i], 0, 8);
+        } else {
+            xmbedtls_sha256(auth->gtks[i + offset].key, 16, sha256, 0);
+            memcpy(gtkhash[i], sha256 + 24, 8);
+        }
+    }
+}
+
 static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               const struct wh_ie_list *wh_ies,
                               const struct wp_ie_list *wp_ies)
@@ -963,6 +979,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     struct ws_jm *jm = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
                          rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
+    struct auth_ctx *auth = base->interface_ptr->auth;
     bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
     struct ws_ie *ie;
@@ -1035,7 +1052,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies->gtkhash) {
-            ws_auth_gtkhash(base->interface_ptr, gtkhash);
+            ws_llc_gtkhash(auth, gtkhash, 0, WS_GTK_COUNT);
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, gtkhash);
         }
         if (wp_ies->pom)
@@ -1046,8 +1063,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies->lfnver)
             ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lfn_version);
         if (wp_ies->lgtkhash) {
-            ws_auth_lgtkhash(base->interface_ptr, gtkhash);
-            ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, gtkhash, ws_auth_lgtk_index(base->interface_ptr));
+            ws_llc_gtkhash(auth, gtkhash, WS_GTK_COUNT, WS_LGTK_COUNT);
+            ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, gtkhash,
+                                        auth->lgtk_group.slot_active - WS_GTK_COUNT);
         }
         if (wp_ies->jm)
             ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);

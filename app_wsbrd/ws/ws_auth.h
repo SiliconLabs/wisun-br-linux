@@ -22,10 +22,6 @@ struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-void ws_auth_gtkhash(const struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8]);
-void ws_auth_lgtkhash(const struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8]);
-uint8_t ws_auth_lgtk_index(const struct net_if *net_if);
-
 bool ws_auth_is_1st_msg(const struct net_if *net_if, const void *buf, size_t buf_len);
 
 int ws_auth_revoke_pmk(struct net_if *net_if, const struct eui64 *eui64);
