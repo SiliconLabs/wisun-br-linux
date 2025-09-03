@@ -545,9 +545,9 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_DHCP].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
     ctxt->fds[POLLFD_RPL].events = POLLIN;
-    ctxt->fds[POLLFD_EAPOL_RELAY].fd = ws_auth_fd_eapol_relay(&ctxt->net_if);
+    ctxt->fds[POLLFD_EAPOL_RELAY].fd = ctxt->auth.eapol_relay_fd;
     ctxt->fds[POLLFD_EAPOL_RELAY].events = POLLIN;
-    ctxt->fds[POLLFD_RADIUS].fd = ws_auth_fd_radius(&ctxt->net_if);
+    ctxt->fds[POLLFD_RADIUS].fd = ctxt->auth.radius_fd;
     ctxt->fds[POLLFD_RADIUS].events = POLLIN;
 }
 

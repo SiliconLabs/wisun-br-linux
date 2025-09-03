@@ -23,11 +23,6 @@
 
 #include "ws_auth.h"
 
-int ws_auth_fd_eapol_relay(const struct net_if *net_if)
-{
-    return net_if->auth->eapol_relay_fd;
-}
-
 void ws_auth_recv_eapol_relay(struct net_if *net_if)
 {
     struct in6_addr eapol_target;
@@ -44,11 +39,6 @@ void ws_auth_recv_eapol_relay(struct net_if *net_if)
     supp = auth_fetch_supp(net_if->auth, &supp_eui64);
     supp->eapol_target = eapol_target;
     auth_recv_eapol(net_if->auth, kmp_id, &supp_eui64, buf, buf_len);
-}
-
-int ws_auth_fd_radius(const struct net_if *net_if)
-{
-    return net_if->auth->radius_fd;
 }
 
 void ws_auth_recv_radius(struct net_if *net_if)
