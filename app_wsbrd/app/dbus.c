@@ -355,17 +355,24 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
                                   sd_bus_error *ret_error, bool is_lgtk)
 {
     struct wsbr_ctxt *ctxt = userdata;
+    struct auth_gtk_group *gtk_group;
     const uint8_t *gtk;
     size_t len;
+    int slot;
     int ret;
 
     sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = ws_auth_install_gtk(&ctxt->net_if, is_lgtk, gtk);
+    gtk_group = is_lgtk ? &ctxt->auth.lgtk_group : &ctxt->auth.gtk_group;
+    slot = auth_gtk_slot_next(auth_gtk_slot_latest(&ctxt->auth, gtk_group));
+    ret = auth_install_gtk(&ctxt->auth, gtk_group, slot, gtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
+
+    if (ctxt->auth.on_gtk_change)
+        ctxt->auth.on_gtk_change(&ctxt->auth, 0, BIT(slot), 0);
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
