@@ -16,7 +16,6 @@
 
 #include "app_wsbrd/app/wsbrd.h"
 #include "app_wsbrd/app/commandline_values.h"
-#include "app_wsbrd/ws/ws_auth.h"
 #include "app_wsbrd/ws/ws_llc.h"
 #include "common/dbus.h"
 #include "common/duty_cycle.h"

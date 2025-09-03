@@ -203,7 +203,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/6lowpan/mac/mac_helper.c
     app_wsbrd/ipv6/nd_router_object.c
     app_wsbrd/ws/ws_pan_info_storage.c
-    app_wsbrd/ws/ws_auth.c
     app_wsbrd/ws/ws_bootstrap.c
     app_wsbrd/ws/ws_bootstrap_6lbr.c
     app_wsbrd/ws/ws_common.c

@@ -45,7 +45,6 @@
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "ws/ws_pan_info_storage.h"
-#include "ws/ws_auth.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
