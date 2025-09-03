@@ -22,6 +22,4 @@ struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter);
-
 #endif

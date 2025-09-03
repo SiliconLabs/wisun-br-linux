@@ -21,8 +21,3 @@
 #include "common/string_extra.h"
 
 #include "ws_auth.h"
-
-void ws_auth_update_frame_counter(struct net_if *net_if, int key_index, uint32_t frame_counter)
-{
-    auth_update_frame_counter(net_if->auth, key_index, frame_counter);
-}
