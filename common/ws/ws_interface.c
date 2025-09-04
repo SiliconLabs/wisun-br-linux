@@ -220,9 +220,10 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         FATAL_ON(ind.hdr.key_index < 1 || ind.hdr.key_index > HIF_KEY_COUNT, 3);
         if (ind.neigh->frame_counter_min[ind.hdr.key_index - 1] > ind.hdr.frame_counter ||
             ind.neigh->frame_counter_min[ind.hdr.key_index - 1] == UINT32_MAX) {
-            TRACE(TR_DROP, "drop %-9s: frame cnt=%u cnt-min=%u for key-idx=%u",
-                    "15.4", ind.hdr.key_index, ind.hdr.frame_counter,
-                    ind.neigh->frame_counter_min[ind.hdr.key_index - 1]);
+            TRACE(TR_DROP, "drop %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u",
+                  "15.4", ind.hdr.frame_counter,
+                  ind.neigh->frame_counter_min[ind.hdr.key_index - 1],
+                  ind.hdr.key_index);
             return;
         }
         ind.neigh->frame_counter_min[ind.hdr.key_index - 1] = add32sat(ind.hdr.frame_counter, 1);
@@ -365,8 +366,9 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
             if (neigh->frame_counter_min[hdr.key_index - 1] > hdr.frame_counter ||
                 neigh->frame_counter_min[hdr.key_index - 1] == UINT32_MAX) {
                 TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u",
-                      "15.4", hdr.key_index, hdr.frame_counter,
-                      neigh->frame_counter_min[hdr.key_index - 1]);
+                      "15.4", hdr.frame_counter,
+                      neigh->frame_counter_min[hdr.key_index - 1],
+                      hdr.key_index);
                 return;
             } else {
                 neigh->frame_counter_min[hdr.key_index - 1] = add32sat(hdr.frame_counter, 1);
