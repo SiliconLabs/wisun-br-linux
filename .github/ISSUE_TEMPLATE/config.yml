@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Silicon Labs Community Support
+    url: https://www.silabs.com/support
+    about: General support for Wi-SUN deployments and platform integration.
