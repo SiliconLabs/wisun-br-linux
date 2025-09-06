@@ -17,6 +17,7 @@
 #include <inttypes.h>
 #include <errno.h>
 #include <string.h>
+#include <endian.h>
 
 #include "common/specs/ieee802159.h"
 #include "common/specs/ieee80211.h"
