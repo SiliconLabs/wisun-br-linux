@@ -88,6 +88,7 @@ struct rpl_ctx {
     struct timer_entry   dao_refresh_timer;
     struct timer_entry parent_update_timer;
     uint8_t path_seq; // Serves as both path seqno and dao seqno
+    int dodag_verno; // -1 if not set
     int dtsn; // -1 if not set
     struct rpl_mrhof mrhof;
 

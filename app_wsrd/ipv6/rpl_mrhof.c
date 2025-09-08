@@ -334,6 +334,10 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
         parents_cur[i]->rpl->path_ctl = rpl_path_ctl_table[i];
         if (dtsn_best == -1 || seqno_cmp8(parents_cur[i]->rpl->dio.dtsn, dtsn_best) > 0)
             dtsn_best = parents_cur[i]->rpl->dio.dtsn;
+        if (ipv6->rpl.dodag_verno == -1) {
+            ipv6->rpl.dodag_verno = parents_cur[i]->rpl->dio.dodag_verno;
+            TRACE(TR_RPL, "rpl: set dodag-verno=%u", ipv6->rpl.dodag_verno);
+        }
     }
     /*
      *   RFC 6550 9.6 Triggering DAO Messages

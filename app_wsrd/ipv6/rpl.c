@@ -192,8 +192,8 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     if (parents_cur[0] != parents_new[0]) {
         dbus_emit_change("PrimaryParent");
         if (parents_new[0] && !parents_cur[0])
-            TRACE(TR_RPL, "rpl: select inst-id=%u dodag-ver=%u dodag-id=%s", parents_new[0]->rpl->dio.instance_id,
-                  parents_new[0]->rpl->dio.dodag_verno, tr_ipv6(parents_new[0]->rpl->dio.dodag_id.s6_addr));
+            TRACE(TR_RPL, "rpl: select inst-id=%u dodag-id=%s", parents_new[0]->rpl->dio.instance_id,
+                  tr_ipv6(parents_new[0]->rpl->dio.dodag_id.s6_addr));
     }
 
     timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
@@ -311,6 +311,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
 
     BUG_ON(!parent || !parent->rpl);
     BUG_ON(ipv6->rpl.dtsn == -1);
+    BUG_ON(ipv6->rpl.dodag_verno == -1);
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr));
 
     rank = rpl_mrhof_rank(ipv6);
@@ -318,7 +319,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
         ipv6->rpl.mrhof.lowest_advertised_rank = rank;
     memset(&dio, 0, sizeof(dio));
     dio.instance_id = parent->rpl->dio.instance_id;
-    dio.dodag_verno = parent->rpl->dio.dodag_verno;
+    dio.dodag_verno = ipv6->rpl.dodag_verno;
     dio.rank        = htons(rank);
     dio.g_mop_prf   = parent->rpl->dio.g_mop_prf;
     dio.dtsn        = ipv6->rpl.dtsn;
@@ -860,6 +861,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     close(ipv6->rpl.fd);
     ipv6->rpl.fd = -1;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+    ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
 }
 
@@ -886,6 +888,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
     ipv6->rpl.parent_update_timer.callback = rpl_parent_update_timer_cb;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+    ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
