@@ -843,7 +843,7 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
         nce = ipv6_neigh_get_from_eui64(ipv6, &neigh->eui64);
         if ((!nce || !nce->rpl) && !rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh) && !isnan(neigh->rsl_out_dbm))
             continue;
-        if (nce && nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, WS_ETX_MAX))
+        if (nce && nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, WS_ETX_MAX, -1))
             continue;
         ws_on_send_dis_insert_neigh(best_rsl_neighs, neigh);
         nb_candidates++;

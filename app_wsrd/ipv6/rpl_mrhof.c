@@ -151,7 +151,7 @@ static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *
 }
 
 const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                                         uint16_t rank_limit, float etx_max)
+                                         uint16_t rank_limit, float etx_max, int dodag_verno)
 {
     const char *discard;
     uint16_t new_rank;
@@ -176,7 +176,8 @@ const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neig
         return "etx";
     if (new_rank > rank_limit || new_rank == RPL_RANK_INFINITE)
         return "rank";
-    // TODO: filter out candidates with invalid DODAG version
+    if (dodag_verno != -1 && seqno_cmp8(nce->rpl->dio.dodag_verno, dodag_verno) != 0)
+        return "dodag-verno";
     return NULL;
 }
 
@@ -193,7 +194,7 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl)
             continue;
-        if (!rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, ipv6->rpl.mrhof.max_link_metric))
+        if (!rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, ipv6->rpl.mrhof.max_link_metric, -1))
             return true;
     }
     return false;
@@ -222,7 +223,8 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
         etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         new_rank = rpl_mrhof_path_rank(ipv6, nce);
-        discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric);
+        discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric,
+                                               ipv6->rpl.dodag_verno);
 
         /*
          *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
@@ -236,12 +238,14 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 
         if (discard) {
-            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
-                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank, discard);
+            TRACE(TR_RPL, "rpl:   candidate %-45s dodag-verno=%d etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
+                  tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
+                  path_cost, new_rank, discard);
             continue;
         } else {
-            TRACE(TR_RPL, "rpl:   candidate %-45s etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%u",
-                  tr_ipv6(nce->gua.s6_addr), etx, ntohs(nce->rpl->dio.rank), path_cost, new_rank);
+            TRACE(TR_RPL, "rpl:   candidate %-45s dodag-verno=%d etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%u",
+                  tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
+                  path_cost, new_rank);
         }
         if (path_cost >= pref_path_cost)
             continue;
@@ -260,7 +264,8 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * node MAY continue to use the current preferred parent.
      */
     if (cur_min_path_cost < mrhof->max_path_cost && pref_path_cost < mrhof->max_path_cost &&
-        pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
+        pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost &&
+        !seqno_cmp8(parent_cur->rpl->dio.dodag_verno, ipv6->rpl.dodag_verno)) {
         BUG_ON(!parent_cur); // we should always have a current parent here
         TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
               parent_new ? tr_ipv6(parent_new->gua.s6_addr) : "none", pref_path_cost,
@@ -324,9 +329,9 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
         if (parents_cur[i] && timer_stopped(&parents_cur[i]->rpl->deny_timer))
             cur_min_path_cost = rpl_mrhof_path_cost(ipv6, parents_cur[i]);
 
-        TRACE(TR_RPL, "rpl: selecting %s parent cur=%s min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
+        TRACE(TR_RPL, "rpl: selecting %s parent cur=%s dodag-verno=%d min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
               tr_path_ctl(rpl_path_ctl_table[i]), parents_cur[i] ? tr_ipv6(parents_cur[i]->gua.s6_addr) : "none",
-              cur_min_path_cost, ipv6->rpl.mrhof.max_link_metric, rank_limit);
+              ipv6->rpl.dodag_verno, cur_min_path_cost, ipv6->rpl.mrhof.max_link_metric, rank_limit);
 
         parents_cur[i] = rpl_mrhof_select_best_candidate(ipv6, parents_cur[i], cur_min_path_cost, rank_limit);
         if (!parents_cur[i])
