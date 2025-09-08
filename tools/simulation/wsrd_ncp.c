@@ -372,6 +372,38 @@ static void ncp_get_join_state(const void *req, const void *req_data, void *_cnf
     cnf->body.join_state = htole32(ncp_join_state());
 }
 
+static void ncp_get_rpl_info(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    sl_wisun_msg_get_rpl_info_cnf_t *cnf = _cnf;
+    sl_wisun_rpl_info_t *info;
+    struct ipv6_neigh *parent;
+    struct wsrd *wsrd = &g_wsrd;
+    uint16_t rank;
+
+    parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
+    if (!parent) {
+        cnf->body.status = htole32(SL_STATUS_NOT_FOUND);
+        return;
+    }
+
+    info = &cnf->body.rpl_info;
+    rank = rpl_mrhof_rank(&wsrd->ipv6);
+    info->dodag_rank             = htole16(rpl_dag_rank(parent->rpl->config.min_hop_rank_inc, rank));
+    info->min_hop_rank_increase  = htole16(be16toh(parent->rpl->config.min_hop_rank_inc));
+    info->dag_max_rank_increase  = htole16(be16toh(parent->rpl->config.max_rank_inc));
+    info->lifetime_unit          = htole16(be16toh(parent->rpl->config.lifetime_unit_s));
+    info->instance_id            = parent->rpl->dio.instance_id;
+    info->dodag_version_number   = wsrd->ipv6.rpl.dodag_verno;
+    info->grounded               = FIELD_GET(RPL_MASK_DIO_G,   parent->rpl->dio.g_mop_prf);
+    info->mode_of_operation      = FIELD_GET(RPL_MASK_DIO_MOP, parent->rpl->dio.g_mop_prf);
+    info->dodag_preference       = FIELD_GET(RPL_MASK_DIO_PRF, parent->rpl->dio.g_mop_prf);
+    info->dodag_dtsn             = wsrd->ipv6.rpl.dtsn;
+    info->dio_interval_min       = parent->rpl->config.dio_i_min;
+    info->dio_interval_doublings = parent->rpl->config.dio_i_doublings;
+    info->dio_redundancy_constant= parent->rpl->config.dio_redundancy;
+    info->default_lifetime       = parent->rpl->config.lifetime_default;
+}
+
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     static const struct {
@@ -432,7 +464,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_GET_STACK_VERSION_REQ_ID]              = { ncp_get_version,   sizeof(sl_wisun_msg_get_stack_version_req_t),              SL_WISUN_MSG_GET_STACK_VERSION_CNF_ID,              sizeof(sl_wisun_msg_get_stack_version_cnf_t) },
         [SL_WISUN_MSG_SET_SECURITY_STATE_REQ_ID]             = { NULL,              sizeof(sl_wisun_msg_set_security_state_req_t),             SL_WISUN_MSG_SET_SECURITY_STATE_CNF_ID,             sizeof(sl_wisun_msg_set_security_state_cnf_t) },
         [SL_WISUN_MSG_GET_NETWORK_INFO_REQ_ID]               = { NULL,              sizeof(sl_wisun_msg_get_network_info_req_t),               SL_WISUN_MSG_GET_NETWORK_INFO_CNF_ID,               sizeof(sl_wisun_msg_get_network_info_cnf_t) },
-        [SL_WISUN_MSG_GET_RPL_INFO_REQ_ID]                   = { NULL,              sizeof(sl_wisun_msg_get_rpl_info_req_t),                   SL_WISUN_MSG_GET_RPL_INFO_CNF_ID,                   sizeof(sl_wisun_msg_get_rpl_info_cnf_t) },
+        [SL_WISUN_MSG_GET_RPL_INFO_REQ_ID]                   = { ncp_get_rpl_info,  sizeof(sl_wisun_msg_get_rpl_info_req_t),                   SL_WISUN_MSG_GET_RPL_INFO_CNF_ID,                   sizeof(sl_wisun_msg_get_rpl_info_cnf_t) },
         [SL_WISUN_MSG_GET_EXCLUDED_CHANNEL_MASK_REQ_ID]      = { NULL,              sizeof(sl_wisun_msg_get_excluded_channel_mask_req_t),      SL_WISUN_MSG_GET_EXCLUDED_CHANNEL_MASK_CNF_ID,      sizeof(sl_wisun_msg_get_excluded_channel_mask_cnf_t) },
         [SL_WISUN_MSG_SET_NEIGHBOR_TABLE_SIZE_REQ_ID]        = { NULL,              sizeof(sl_wisun_msg_set_neighbor_table_size_req_t),        SL_WISUN_MSG_SET_NEIGHBOR_TABLE_SIZE_CNF_ID,        sizeof(sl_wisun_msg_set_neighbor_table_size_cnf_t) },
         [SL_WISUN_MSG_SOCKET_RECVMSG_REQ_ID]                 = { NULL,              sizeof(sl_wisun_msg_socket_recvmsg_req_t),                 SL_WISUN_MSG_SOCKET_RECVMSG_CNF_ID,                 sizeof(sl_wisun_msg_socket_recvmsg_cnf_t) },
