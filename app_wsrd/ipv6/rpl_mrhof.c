@@ -21,6 +21,7 @@
 #include "common/named_values.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
+#include "common/seqno.h"
 #include "common/dbus.h"
 #include "common/log.h"
 
@@ -280,6 +281,7 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *parents_cur[RPL_PARENTS_MAX] = { };
     struct rpl_mrhof *mrhof = &ipv6->rpl.mrhof;
+    int dtsn_best = ipv6->rpl.dtsn;
     float cur_min_path_cost;
     uint32_t rank_limit;
 
@@ -330,6 +332,17 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
         if (!parents_cur[i])
             break;
         parents_cur[i]->rpl->path_ctl = rpl_path_ctl_table[i];
+        if (dtsn_best == -1 || seqno_cmp8(parents_cur[i]->rpl->dio.dtsn, dtsn_best) > 0)
+            dtsn_best = parents_cur[i]->rpl->dio.dtsn;
+    }
+    /*
+     *   RFC 6550 9.6 Triggering DAO Messages
+     * In Non-Storing mode, if a node hears one of its DAO parents increment
+     * its DTSN, the node MUST increment its own DTSN.
+     */
+    if (dtsn_best != ipv6->rpl.dtsn) {
+        ipv6->rpl.dtsn = dtsn_best;
+        TRACE(TR_RPL, "rpl: set dtsn=%u", ipv6->rpl.dtsn);
     }
 }
 
