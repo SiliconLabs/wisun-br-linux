@@ -523,7 +523,7 @@ static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct t
 }
 
 static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
-                         const struct in6_addr *src)
+                         const struct in6_addr *src, const struct in6_addr *dst)
 {
     const struct rpl_opt_config *config = NULL;
     const struct rpl_opt_prefix *prefix = NULL;
@@ -545,6 +545,9 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     dio = iobuf_pop_data_ptr(&iobuf, sizeof(*dio));
     if (!dio)
         goto malformed;
+
+    TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s dst=%s dodag-verno=%u dtsn=%u rank=%u", tr_icmp_rpl(RPL_CODE_DIO),
+          tr_ipv6(src->s6_addr), tr_ipv6(dst->s6_addr), dio->dodag_verno, dio->dtsn, ntohs(dio->rank));
 
     if (FIELD_GET(RPL_MASK_INSTANCE_ID_TYPE, dio->instance_id) == RPL_INSTANCE_ID_TYPE_LOCAL) {
         TRACE(TR_DROP, "drop %-9s: unsupported local RPL instance", tr_icmp_rpl(RPL_CODE_DIO));
@@ -680,6 +683,9 @@ static void rpl_recv_dis(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     if (!dis)
         goto malformed;
 
+    TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s dst=%s", tr_icmp_rpl(RPL_CODE_DIS),
+          tr_ipv6(src->s6_addr), tr_ipv6(dst->s6_addr));
+
     while (iobuf_remaining_size(&iobuf)) {
         opt = (const struct rpl_opt *)iobuf_ptr(&iobuf);
         if (opt->type == RPL_OPT_PAD1) {
@@ -718,8 +724,8 @@ malformed:
     TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DIS));
 }
 
-static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
-                             const uint8_t *buf, size_t buf_len)
+static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
+                             const struct in6_addr *src)
 {
     const struct rpl_dao_ack *dao_ack;
     struct ipv6_neigh *parent, *nce;
@@ -739,6 +745,9 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6,
         TRACE(TR_DROP, "drop %-9s: malformed packet", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
     }
+
+    TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s", tr_icmp_rpl(RPL_CODE_DAO_ACK), tr_ipv6(src->s6_addr));
+
     if (dao_ack->instance_id != parent->rpl->dio.instance_id) {
         TRACE(TR_DROP, "drop %-9s: InstanceID mismatch", tr_icmp_rpl(RPL_CODE_DAO_ACK));
         return;
@@ -783,17 +792,15 @@ static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t 
     BUG_ON(buf.err);
     BUG_ON(type != ICMPV6_TYPE_RPL);
 
-    TRACE(TR_ICMP, "rx-icmp rpl-%-9s src=%s", tr_icmp_rpl(code), tr_ipv6(src->s6_addr));
-
     switch (code) {
     case RPL_CODE_DIO:
-        rpl_recv_dio(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
+        rpl_recv_dio(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
         break;
     case RPL_CODE_DIS:
         rpl_recv_dis(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src, dst);
         break;
     case RPL_CODE_DAO_ACK:
-        rpl_recv_dao_ack(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf));
+        rpl_recv_dao_ack(ipv6, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code %u", "rpl", code);
