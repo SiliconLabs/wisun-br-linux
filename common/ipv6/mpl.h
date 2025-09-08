@@ -35,12 +35,18 @@ struct mpl_ctx {
     struct trickle_cfg tkl_data_cfg;
     uint8_t tkl_data_e_max;
 
-    void (*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
+    /*
+     * Submit a transmission request to the MAC layer. Returns a unique handle
+     * identifying the request, which needs to be passed to mpl_msg_confirm()
+     * when the transmission is done, even if unsuccessful.
+     */
+    int (*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
 };
 
 int mpl_msg_gen(struct mpl_ctx *mpl,
                 const struct in6_addr *src,
                 struct pktbuf *pktbuf);
+void mpl_msg_confirm(struct mpl_ctx *mpl, int handle);
 int mpl_opt_process(struct mpl_ctx *mpl,
                     const struct ip6_hdr *hdr,
                     const struct ip6_opt *opt);

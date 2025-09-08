@@ -121,14 +121,16 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
         ws_pan_timeout_update(wsrd);
 }
 
-static void wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
+static int wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
 {
     struct ipv6_ctx *ipv6 = container_of(mpl, struct ipv6_ctx, mpl);
     struct pktbuf pktbuf = { };
+    int handle;
 
     pktbuf_init(&pktbuf, buf, buf_len);
-    ipv6_sendto_mac(ipv6, &pktbuf);
+    handle = ipv6_sendto_mac(ipv6, &pktbuf);
     pktbuf_free(&pktbuf);
+    return handle;
 }
 
 static void wsrd_on_unregistration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
