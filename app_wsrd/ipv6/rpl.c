@@ -634,6 +634,21 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
     ipv6_addr_conv_iid_eui64(eui64.u8, src->s6_addr + 8);
     nce = ipv6_neigh_fetch(ipv6, &addr, &eui64);
 
+    /*
+     *   RFC 6550 3.2.2 DODAG Repair
+     * A DODAG root institutes a global repair operation by incrementing the
+     * DODAGVersionNumber. This initiates a new DODAG Version. Nodes in the new
+     * DODAG Version can choose a new position whose Rank is not constrained by
+     * their Rank within the old DODAG Version.
+     * NOTE: this implementation increases the DODAGVersionNumber when one of
+     * the selected parent propagates a new DODAGVersionNumber.
+     */
+    if (nce->rpl && nce->rpl->path_ctl && seqno_cmp8(dio->dodag_verno, ipv6->rpl.dodag_verno) > 0) {
+        ipv6->rpl.dodag_verno = dio->dodag_verno;
+        ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+        TRACE(TR_RPL, "rpl: set dodag-verno=%u", ipv6->rpl.dodag_verno);
+    }
+
     if (!nce->rpl)
         rpl_neigh_add(ipv6, nce, dio, config, prefix);
     else
