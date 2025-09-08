@@ -216,6 +216,9 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * A node MUST select the candidate neighbor with the lowest path cost as
      * its preferred parent [...]
      */
+    TRACE(TR_RPL, "rpl:   %-45s | %-11s | %-4s | %-5s | %-9s | %-8s | %s",
+          "candidate", "dodag-verno", "etx", "rank", "path-cost", "new-rank", "discard");
+
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl || nce->rpl->path_ctl)
             continue;
@@ -237,16 +240,11 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
             rpl_mrhof_is_probe_needed(ipv6, nce))
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 
-        if (discard) {
-            TRACE(TR_RPL, "rpl:   candidate %-45s dodag-verno=%d etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%-5u (discard %s)",
-                  tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
-                  path_cost, new_rank, discard);
+        TRACE(TR_RPL, "rpl:   %-45s | %-11u | %-4.0f | %-5u | %-9.0f | %-8u | %s",
+              tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
+              path_cost, new_rank, discard ? discard : "");
+        if (discard)
             continue;
-        } else {
-            TRACE(TR_RPL, "rpl:   candidate %-45s dodag-verno=%d etx=%-4.0f rank=%-5u path-cost=%-5.0f new-rank=%u",
-                  tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
-                  path_cost, new_rank);
-        }
         if (path_cost >= pref_path_cost)
             continue;
         pref_path_cost = path_cost;
