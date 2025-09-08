@@ -41,6 +41,7 @@ struct mpl_ctx {
      * when the transmission is done, even if unsuccessful.
      */
     int (*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
+    void (*abort)(struct mpl_ctx *mpl, int handle);
 };
 
 int mpl_msg_gen(struct mpl_ctx *mpl,

@@ -405,6 +405,8 @@ int mpl_opt_process(struct mpl_ctx *mpl,
              * the Trickle timer.
              */
             trickle_consistent(&msg->tkl);
+            if (msg->tkl.c >= msg->tkl.cfg->k && msg->tx_handle >= 0)
+                mpl->abort(mpl, msg->tx_handle);
             TRACE(TR_DROP, "drop %-9s: id=%s seq=%u retransmission",
                   "mpl", tr_seed_id(seed->s, seed->id), opt->seq);
             return -EEXIST;

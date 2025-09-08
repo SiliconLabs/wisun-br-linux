@@ -133,6 +133,13 @@ static int wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     return handle;
 }
 
+static void wsrd_mpl_abort(struct mpl_ctx *mpl, int handle)
+{
+    struct wsrd *wsrd = container_of(mpl, struct wsrd, ipv6.mpl);
+
+    rcp_req_data_tx_abort(&wsrd->ws.rcp, handle);
+}
+
 static void wsrd_on_unregistration_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, unregistration_timer);
@@ -243,6 +250,7 @@ struct wsrd g_wsrd = {
     .ipv6.rpl.mrhof.on_pref_parent_change = wsrd_on_pref_parent_change,
 
     .ipv6.mpl.send = wsrd_mpl_send,
+    .ipv6.mpl.abort = wsrd_mpl_abort,
     // Wi-SUN FAN 1.1v09 6.2.1.1 Configuration Parameters
     .ipv6.mpl.tkl_data_cfg.Imin_ms = 10 * 1000,
     .ipv6.mpl.tkl_data_cfg.Imax_ms = TRICKLE_DOUBLINGS(10, 3) * 1000,
