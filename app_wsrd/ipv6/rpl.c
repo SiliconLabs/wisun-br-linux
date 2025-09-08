@@ -171,14 +171,24 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *parents_cur[RPL_PARENTS_MAX] = { };
     struct ipv6_neigh *parents_new[RPL_PARENTS_MAX] = { };
+    int dtsn_old = ipv6->rpl.dtsn;
     bool send_dao;
 
     rpl_get_parents(ipv6, parents_cur);
     rpl_mrhof_select_parents(ipv6);
     rpl_get_parents(ipv6, parents_new);
 
-    if (!memcmp(parents_cur, parents_new, sizeof(parents_cur)))
+    if (!memcmp(parents_cur, parents_new, sizeof(parents_cur))) {
+        /*
+         * NOTES:
+         * - if the parent changed, a DAO will be sent later
+         * - if dao_refresh_timer is stopped, a DAO will be sent after all ns(aro)
+         *   have been sent and acked
+         */
+        if (dtsn_old != -1 && dtsn_old != ipv6->rpl.dtsn && !timer_stopped(&ipv6->rpl.dao_refresh_timer))
+            rpl_start_dao(ipv6);
         return;
+    }
     if (parents_cur[0] != parents_new[0]) {
         dbus_emit_change("PrimaryParent");
         if (parents_new[0] && !parents_cur[0])
