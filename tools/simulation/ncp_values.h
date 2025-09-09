@@ -25,6 +25,9 @@ int ncp_ntoh(int val, const struct ncp_val table[], int count);
 // Host to NCP conversion
 int ncp_hton(int val, const struct ncp_val table[], int count);
 
+// NCP errno from Linux errno
+int ncp_errno(int err);
+
 // NCP status from Linux errno
 int ncp_status(int err);
 

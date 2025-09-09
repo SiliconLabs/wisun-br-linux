@@ -34,6 +34,12 @@ int ncp_hton(int val, const struct ncp_val table[], int count)
     return -1;
 }
 
+int ncp_errno(int err)
+{
+    // TODO: For now, assume that host and NCP errno values are identical.
+    return err;
+}
+
 int ncp_status(int err)
 {
     static const struct ncp_val table[] = {
@@ -45,7 +51,7 @@ int ncp_status(int err)
         { SL_STATUS_INVALID_PARAMETER, EINVAL },
     };
     int status;
-    
+
     status = ncp_hton(err, table, ARRAY_SIZE(table));
     return status >= 0 ? status : SL_STATUS_FAIL;
 }
