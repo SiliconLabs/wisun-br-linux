@@ -16,6 +16,7 @@
 
 void ncp_sk_open(const void *req, const void *req_data, void *cnf, void *cnf_data);
 void ncp_sk_close(const void *req, const void *req_data, void *cnf, void *cnf_data);
+void ncp_sk_connect(const void *req, const void *req_data, void *cnf, void *cnf_data);
 void ncp_sk_bind(const void *req, const void *req_data, void *cnf, void *cnf_data);
 void ncp_sk_send(const void *req, const void *req_data, void *cnf, void *cnf_data);
 void ncp_sk_setopt(const void *_req, const void *req_data, void *_cnf, void *cnf_data);

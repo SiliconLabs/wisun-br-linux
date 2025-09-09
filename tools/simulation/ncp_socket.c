@@ -120,6 +120,22 @@ void ncp_sk_close(const void *_req, const void *req_data, void *_cnf, void *cnf_
                       &cnf->body.status, &cnf->body.error_code);
 }
 
+void ncp_sk_connect(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_connect_socket_req_t *req = _req;
+    sl_wisun_msg_connect_socket_cnf_t *cnf = _cnf;
+    const struct sockaddr_in6 sin6 = {
+        .sin6_family = AF_INET6,
+        .sin6_addr   = req->body.remote_address,
+        .sin6_port   = req->body.remote_port,
+    };
+    int ret;
+
+    ret = connect(req->body.socket_id, (struct sockaddr *)&sin6, sizeof(sin6));
+    ncp_sk_set_result(ret < 0 ? errno : 0,
+                      &cnf->body.status, &cnf->body.error_code);
+}
+
 void ncp_sk_bind(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     const sl_wisun_msg_bind_socket_req_t *req = _req;
