@@ -164,6 +164,24 @@ void ncp_sk_send(const void *_req, const void *req_data, void *_cnf, void *cnf_d
                       &cnf->body.status, &cnf->body.error_code);
 }
 
+void ncp_sk_sendto(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    const sl_wisun_msg_sendto_on_socket_req_t *req = _req;
+    sl_wisun_msg_sendto_on_socket_cnf_t *cnf = _cnf;
+    const struct sockaddr_in6 sin6 = {
+        .sin6_family = AF_INET6,
+        .sin6_addr   = req->body.remote_address,
+        .sin6_port   = req->body.remote_port,
+    };
+    ssize_t ret;
+
+    ret = sendto(req->body.socket_id, req_data, req->body.data_length, 0,
+                 (struct sockaddr *)&sin6, sizeof(sin6));
+    cnf->body.data_length = htole32(ret);
+    ncp_sk_set_result(ret < 0 ? errno : 0,
+                      &cnf->body.status, &cnf->body.error_code);
+}
+
 static void ncp_sk_setopt_evtmode(const sl_wisun_msg_set_socket_option_req_t *req,
                                   const uint32_t *mode,
                                   sl_wisun_msg_set_socket_option_cnf_t *cnf)
