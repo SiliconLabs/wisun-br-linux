@@ -23,6 +23,7 @@
 
 #include "common/ipv6/ipv6_cksum.h"
 #include "common/log.h"
+#include "common/netinet_in_extra.h"
 #include "common/tun.h"
 
 enum {

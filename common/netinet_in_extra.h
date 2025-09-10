@@ -42,4 +42,8 @@ enum {
     IN6_ADDR_MC_SCOPE_GLOBAL = 0x0e,
 };
 
+#ifndef IPPORT_ECHO // Provided by glibc but not musl
+#define IPPORT_ECHO 7
+#endif
+
 #endif
