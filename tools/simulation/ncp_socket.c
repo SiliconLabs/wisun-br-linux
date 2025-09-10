@@ -143,6 +143,7 @@ void ncp_sk_send(const void *_req, const void *req_data, void *_cnf, void *cnf_d
     ssize_t ret;
 
     ret = send(req->body.socket_id, req_data, req->body.data_length, 0);
+    cnf->body.data_length = htole32(ret);
     ncp_sk_set_result(ret < 0 ? errno : 0,
                       &cnf->body.status, &cnf->body.error_code);
 }
