@@ -68,3 +68,24 @@ jobs:
                 -D AUTH_LEGACY=ON \
                 -G Ninja
           ninja -C build-auth wsbrd
+
+  build-alpine:
+    runs-on: ${{ github.repository_owner == 'SiliconLabsInternal' && 'silabs-internal' || 'ubuntu-24.04' }}
+    container:
+      image: alpine:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          apk add musl-dev bsd-compat-headers gcc g++ cmake samurai \
+                  mbedtls-dev mbedtls-static libnl3-dev libcap-dev
+      - name: Compile on Alpine
+        run: |
+          cmake -S . \
+                -B build \
+                -D COMPILE_WSRD=ON \
+                -D COMPILE_DEVTOOLS=ON \
+                -D COMPILE_DEMOS=ON \
+                -D CMAKE_C_FLAGS=-Werror \
+                -G Ninja
+          ninja -C build
