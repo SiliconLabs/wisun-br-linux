@@ -11,6 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <endian.h>
+
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/authenticator/authenticator_key.h"
