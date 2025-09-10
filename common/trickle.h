@@ -19,9 +19,14 @@
 #include "common/timer.h"
 
 /*
- * The trickle algorithm is specified by RFC 6202 and describes a strategy to
- * send packets with random exponential delays for collision avoidance, and a
- * notion of packet redundancy for distributed information delivery.
+ * The trickle algorithm is specified by RFC 6202 [1] and describes a strategy
+ * to send packets with random exponential delays for collision avoidance, and
+ * a notion of packet redundancy for distributed information delivery. The
+ * Trickle-F [1] modification is implemented to improve transmission fairness
+ * accross nodes.
+ *
+ * [1]: https://datatracker.ietf.org/doc/html/rfc6206
+ * [2]: https://ieeexplore.ieee.org/document/6685187
  */
 
 // Imax is defined as a number of Imin doublings: Imax = Imin * 2^doublings
@@ -38,6 +43,7 @@ struct trickle {
 
     unsigned int I_ms; // Current Interval Size
     unsigned int c;    // Consistent Counter
+    unsigned int s;    // Suppression Counter (Trickle-F)
 
     struct timer_entry timer_interval;
     struct timer_entry timer_transmit;

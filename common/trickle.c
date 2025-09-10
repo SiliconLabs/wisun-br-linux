@@ -30,7 +30,7 @@ static void trickle_interval_begin(struct trickle *tkl, struct timer_group *grou
      * interval ends at I.
      */
     tkl->c = 0;
-    t_ms = randf_range(tkl->I_ms / 2, tkl->I_ms);
+    t_ms = randf_range(tkl->I_ms / POW2(tkl->s + 1), tkl->I_ms / POW2(tkl->s));
     offset_ms = skip_listen ? t_ms : 0;
     timer_start_rel(group, &tkl->timer_transmit, t_ms - offset_ms);
     timer_start_rel(group, &tkl->timer_interval, tkl->I_ms - offset_ms);
@@ -69,8 +69,13 @@ static void trickle_transmit(struct timer_group *group, struct timer_entry *time
     TRACE(TR_TRICKLE, "tkl %-4s %-5s: c=%u k=%d", tkl->debug_name,
           tx ? "tx" : "skip", tkl->c, tkl->cfg->k);
 
-    if (tx && tkl->on_transmit)
-        tkl->on_transmit(tkl, group);
+    if (tx) {
+        if (tkl->on_transmit)
+            tkl->on_transmit(tkl, group);
+        tkl->s = 0;
+    } else {
+        tkl->s++;
+    }
 }
 
 void trickle_init(struct trickle *tkl)
@@ -95,6 +100,7 @@ static void __trickle_start(struct trickle *tkl, struct timer_group *group, bool
      * and less than or equal to Imax. The algorithm then begins the
      * first interval.
      */
+    tkl->s = 0;
     tkl->I_ms = randf_range(tkl->cfg->Imin_ms, tkl->cfg->Imax_ms);
     trickle_interval_begin(tkl, group, skip_listen);
 }

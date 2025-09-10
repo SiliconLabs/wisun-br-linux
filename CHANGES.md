@@ -1,6 +1,10 @@
+  - Implement Trickle-F [tkl-f] to improve fairness in transmission of
+    management frames and prevent issues in unfavorable network topologies.
   - `wsbrd`: Drop legacy tick based timer system. This should result in less
     CPU usage.
   - `wsrd`: Use link-local destination address in NS(ARO) packets.
+
+[tkl-f]: https://ieeexplore.ieee.org/document/6685187
 
 v2.8
 ------
