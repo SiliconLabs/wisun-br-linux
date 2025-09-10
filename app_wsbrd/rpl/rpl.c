@@ -618,13 +618,13 @@ void rpl_recv_srh_err(struct rpl_root *root,
     }
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!memcmp(target->transits[i].parent, src, 16)) {
-            memset(target->transits + i, 0, sizeof(struct rpl_transit));
+            // The transit will expire automatically at the next timer tick
+            target->transits[i].path_lifetime_s = 0;
             updated = true;
-            TRACE(TR_RPL, "rpl: transit remove target=%s parent=%s path-ctl-bit=%u",
-                  tr_ipv6_prefix(dst, 128), tr_ipv6(src), i);
         }
     }
     if (updated) {
+        rpl_transit_update_timer(root, target);
         rpl_storage_store_target(root, target);
         if (root->on_target_update)
             root->on_target_update(root, target);
