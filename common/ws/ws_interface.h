@@ -14,6 +14,7 @@
 #ifndef WS_INTERFACE_H
 #define WS_INTERFACE_H
 #include <inttypes.h>
+#include <assert.h>
 
 #include "common/ieee802154_frame.h"
 #include "common/crypto/ws_keys.h"
@@ -22,6 +23,10 @@
 #include "common/ws/ws_types.h"
 #include "common/rcp_api.h"
 #include "common/iobuf.h"
+
+// NOTE: Maximum simultaneous number of frames in MAC
+#define WS_IF_FRAME_MAX 16
+static_assert(WS_IF_FRAME_MAX <= 256, "unsupported WS_IF_FRAME_MAX");
 
 struct eui64;
 

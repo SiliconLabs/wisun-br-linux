@@ -274,7 +274,7 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type,
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
         return NULL;
     }
-    if (SLIST_SIZE(&ws->frame_ctx_list, link) > UINT8_MAX) {
+    if (SLIST_SIZE(&ws->frame_ctx_list, link) >= WS_IF_FRAME_MAX) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: no handle available", tr_ws_frame(type));
         return NULL;
     }
