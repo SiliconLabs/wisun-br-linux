@@ -258,6 +258,11 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ws->on_recv_ind(ws, &ind);
 }
 
+size_t ws_if_active_tx_count(struct ws_ctx *ws)
+{
+    return SLIST_SIZE(&ws->frame_ctx_list, link);
+}
+
 static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type, uint8_t key_index)
 {
     struct ws_frame_ctx *cur, *new;
@@ -274,7 +279,7 @@ static struct ws_frame_ctx *ws_if_frame_ctx_new(struct ws_ctx *ws, uint8_t type,
         TRACE(TR_TX_ABORT, "tx-abort %-9s: tx already in progress", tr_ws_frame(type));
         return NULL;
     }
-    if (SLIST_SIZE(&ws->frame_ctx_list, link) >= WS_IF_FRAME_MAX) {
+    if (ws_if_active_tx_count(ws) >= WS_IF_FRAME_MAX) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: no handle available", tr_ws_frame(type));
         return NULL;
     }

@@ -668,6 +668,7 @@ static void wsrd_poll(struct wsrd *wsrd, struct pollfd *pfd, const sigset_t *sig
     pfd[POLLFD_RPL].fd = wsrd->ipv6.rpl.fd;
     pfd[POLLFD_DHCP_RELAY].fd  = wsrd->dhcp_relay.fd;
     pfd[POLLFD_EAPOL_RELAY].fd = wsrd->ws.eapol_relay_fd;
+    pfd[POLLFD_TUN].events = ws_if_active_tx_count(&wsrd->ws) >= WS_IF_FRAME_MAX - 1 ? 0 : POLLIN;
     ret = poll(pfd, POLLFD_COUNT, wsrd->ws.rcp.bus.uart.data_ready ? 0 : -1);
     FATAL_ON(ret < 0, 2, "poll: %m");
     if (wsrd->ws.rcp.bus.uart.data_ready ||

@@ -132,6 +132,8 @@ struct ws_ctx {
     void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
 };
 
+size_t ws_if_active_tx_count(struct ws_ctx *ws);
+
 void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind);
 void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf);
 
