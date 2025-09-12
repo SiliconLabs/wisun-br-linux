@@ -82,4 +82,9 @@
     (type *)((uintptr_t)_mptr - offsetof(type, member)); \
 })
 
+static inline void *ptr_offset(void *ptr, size_t offset)
+{
+    return (uint8_t *)ptr + offset;
+}
+
 #endif
