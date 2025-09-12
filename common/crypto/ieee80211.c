@@ -21,7 +21,6 @@
 #include <mbedtls/md.h>
 #include "common/specs/ieee80211.h"
 #include "common/specs/eapol.h"
-#include "common/crypto/hmac_md.h"
 #include "common/time_extra.h"
 #include "common/rand.h"
 #include "common/log.h"
@@ -122,15 +121,17 @@ void ieee80211_derive_ptk384(const uint8_t pmk[32], const uint8_t auth_eui64[8],
 void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                             uint8_t pmkid[16])
 {
-    struct {
-        uint8_t pmk_name[8];
-        uint8_t auth_eui64[8];
-        uint8_t supp_eui64[8];
-    } data = {
-        .pmk_name = "PMK Name",
-    };
+    static const char *label = "PMK Name";
+    mbedtls_md_context_t md;
+    uint8_t hmac[20];
 
-    memcpy(data.auth_eui64, auth_eui64, sizeof(data.auth_eui64));
-    memcpy(data.supp_eui64, supp_eui64, sizeof(data.supp_eui64));
-    hmac_md_sha1(pmk, 32, (const uint8_t *)&data, sizeof(data), pmkid, 16);
+    mbedtls_md_init(&md);
+    xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), 1);
+    xmbedtls_md_hmac_starts(&md, pmk, 32);
+    xmbedtls_md_hmac_update(&md, (const uint8_t *)label, strlen(label));
+    xmbedtls_md_hmac_update(&md, auth_eui64, 8);
+    xmbedtls_md_hmac_update(&md, supp_eui64, 8);
+    xmbedtls_md_hmac_finish(&md, hmac);
+    mbedtls_md_free(&md);
+    memcpy(pmkid, hmac, 16);
 }
