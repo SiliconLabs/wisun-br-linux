@@ -13,9 +13,8 @@
  */
 #include <string.h>
 
-#include "common/crypto/hmac_md.h"
-#include "common/mbedtls_extra.h"
 #include "common/log.h"
+#include "common/mbedtls_extra.h"
 
 #include "ws_keys.h"
 
@@ -49,15 +48,17 @@ void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]
 void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                      uint8_t ptkid[16])
 {
-    struct {
-        uint8_t pmk_name[8];
-        uint8_t auth_eui64[8];
-        uint8_t supp_eui64[8];
-    } data = {
-        .pmk_name = "PTK Name",
-    };
+    static const char *label = "PTK Name";
+    mbedtls_md_context_t md;
+    uint8_t hmac[20];
 
-    memcpy(data.auth_eui64, auth_eui64, sizeof(data.auth_eui64));
-    memcpy(data.supp_eui64, supp_eui64, sizeof(data.supp_eui64));
-    hmac_md_sha1(ptk, 48, (const uint8_t *)&data, sizeof(data), ptkid, 16);
+    mbedtls_md_init(&md);
+    xmbedtls_md_setup(&md, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1), 1);
+    xmbedtls_md_hmac_starts(&md, ptk, 48);
+    xmbedtls_md_hmac_update(&md, (const uint8_t *)label, strlen(label));
+    xmbedtls_md_hmac_update(&md, auth_eui64, 8);
+    xmbedtls_md_hmac_update(&md, supp_eui64, 8);
+    xmbedtls_md_hmac_finish(&md, hmac);
+    mbedtls_md_free(&md);
+    memcpy(ptkid, hmac, 16);
 }
