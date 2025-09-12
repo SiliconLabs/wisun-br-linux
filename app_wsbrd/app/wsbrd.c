@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include "common/specs/mpl.h"
 #include "common/ws/ws_regdb.h"
 #include "common/mbedtls_config_check.h"
 #include "common/bus_uart.h"
@@ -61,6 +62,9 @@
 #include "rpl/rpl.h"
 #include "security/kmp/kmp_socket_if.h"
 #include "app_wsbrd/mpl/mpl.h"
+#include "common/ipv6/mpl.h"
+#include "net/ns_buffer.h"
+#include "ipv6/ipv6.h"
 
 #include "commandline_values.h"
 #include "commandline.h"
@@ -114,6 +118,30 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint
         ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
     if (increase_lfn_version)
         ws_mngt_lfn_version_increase(&ctxt->net_if.ws_info);
+}
+
+static int wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
+{
+    struct net_if *net_if = container_of(mpl, struct net_if, mpl);
+    const struct ip6_hdr *ip6_hdr = buf;
+    buffer_t *buffer = buffer_get_minimal(buf_len);
+
+    buffer_data_add(buffer, buf, buf_len);
+    buffer->src_sa.addr_type = ADDR_IPV6;
+    memcpy(buffer->src_sa.address, &ip6_hdr->ip6_src, 16);
+    buffer->dst_sa.addr_type = ADDR_IPV6;
+    memcpy(buffer->dst_sa.address, &ip6_hdr->ip6_dst, 16);
+    buffer->options.hop_limit = ip6_hdr->ip6_hlim;
+    buffer->interface = net_if;
+    buffer->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_TXRX);
+
+    if (!ipv6_buffer_route(buffer)) {
+        buffer_free(buffer);
+        TRACE(TR_TX_ABORT, "tx-abort: no route to %s", tr_ipv6(buffer->dst_sa.address));
+        return -1;
+    }
+    protocol_push(buffer);
+    return -1;
 }
 
 // See warning in wsbrd.h
@@ -179,6 +207,8 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del_cb,
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_config.bsi = -1,
+
+    .net_if.mpl.send = wsbr_mpl_send,
 
     .net_if.ws_info.mngt.trickle_pa.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
     .net_if.ws_info.mngt.trickle_pa.debug_name = "pa",
@@ -381,6 +411,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                 size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
                                                 ctxt->config.enable_ffn10 ? MPL_SEED_128_BIT : MPL_SEED_IPV6_SRC,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
+    ctxt->net_if.mpl.seed_lifetime_ms = size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime * 1000;
+    ctxt->net_if.mpl.tkl_data_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imin * 1000;
+    ctxt->net_if.mpl.tkl_data_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imax * 1000;
+    ctxt->net_if.mpl.tkl_data_cfg.k = size_params[ctxt->config.ws_size].trickle_mpl.k;
+    ctxt->net_if.mpl.tkl_data_e_max = size_params[ctxt->config.ws_size].trickle_mpl.TimerExpirations;
+    ctxt->net_if.mpl.s = ctxt->config.enable_ffn10 ? MPL_S_128 : MPL_S_SRC;
+    mpl_init(&ctxt->net_if.mpl);
 
     ws_info->mngt.trickle_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imin * 1000;
     ws_info->mngt.trickle_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imax * 1000;

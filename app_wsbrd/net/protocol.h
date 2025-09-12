@@ -20,6 +20,7 @@
 #include "common/random_early_detection.h"
 #include "common/trickle_legacy.h"
 #include "common/ns_list.h"
+#include "common/ipv6/mpl.h"
 
 #include "net/protocol_abstract.h"
 #include "net/ns_address_internal.h"
@@ -46,6 +47,7 @@ struct net_if {
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
     struct mpl_domain *mpl_domain;
+    struct mpl_ctx mpl;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
