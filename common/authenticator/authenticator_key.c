@@ -22,9 +22,9 @@
 #include "common/specs/eapol.h"
 #include "common/specs/ws.h"
 #include "common/crypto/ieee80211.h"
-#include "common/crypto/hmac_md.h"
 #include "common/crypto/nist_kw.h"
 #include "common/crypto/ws_keys.h"
+#include "common/mbedtls_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -90,7 +90,7 @@ static void auth_key_add_kde_padding(struct pktbuf *buf)
 static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *message)
 {
     struct eapol_key_frame *frame = (struct eapol_key_frame *)(pktbuf_head(message) + sizeof(struct eapol_hdr));
-    uint8_t mic[16];
+    uint8_t hmac[20];
 
     /*
      *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
@@ -102,11 +102,12 @@ static void auth_key_message_set_mic(const uint8_t ptk[48], struct pktbuf *messa
      * MIC(KCK, EAPOL)
      */
     memset(frame->mic, 0, sizeof(frame->mic));
-    hmac_md_sha1(ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES, pktbuf_head(message), pktbuf_len(message),
-                 mic, sizeof(mic));
+    xmbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA1),
+                     ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES,
+                     pktbuf_head(message), pktbuf_len(message), hmac);
 
     // Update MIC
-    memcpy(frame->mic, mic, sizeof(mic));
+    memcpy(frame->mic, hmac, sizeof(frame->mic));
 }
 
 static bool auth_key_accept_frame(struct auth_supp_ctx *supp, const struct tls_ptk *ptk,
