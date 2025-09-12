@@ -92,18 +92,6 @@ static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message)
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed);
 
-static bool mpl_initted;
-
-static void mpl_init(void)
-{
-    if (mpl_initted) {
-        return;
-    }
-    mpl_initted = true;
-
-    ipv6_set_exthdr_provider(ROUTE_MPL, mpl_exthdr_provider);
-}
-
 static uint8_t mpl_buffer_sequence(const mpl_buffered_message_t *message)
 {
     return message->message[message->mpl_opt_data_offset + 1];
@@ -158,7 +146,7 @@ mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
         return NULL;
     }
 
-    mpl_init();
+    ipv6_set_exthdr_provider(ROUTE_MPL, mpl_exthdr_provider);
 
     /* We lock out attempts to join two domains differing only by scop - this
      * is because we couldn't distinguish control messages, which are sent
