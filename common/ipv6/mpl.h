@@ -34,6 +34,7 @@ struct mpl_ctx {
     uint64_t seed_lifetime_ms;
     struct trickle_cfg tkl_data_cfg;
     uint8_t tkl_data_e_max;
+    uint8_t s;
 
     /*
      * Submit a transmission request to the MAC layer. Returns a unique handle

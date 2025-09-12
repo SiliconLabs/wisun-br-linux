@@ -78,7 +78,8 @@ static inline uint16_t mpl_msg_seq(struct mpl_msg *msg)
 
 static const char *tr_seed_id(uint8_t s, const uint8_t *id)
 {
-    if (s == MPL_S_SRC)
+    // NOTE: Wi-SUN always uses an IPv6 address as a 128bit Seed ID.
+    if (s == MPL_S_SRC || s == MPL_S_128)
         return tr_ipv6(id);
     else
         return tr_bytes(id, mpl_seed_id_len[s], NULL, 3 * 16, 0);
@@ -329,6 +330,8 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
     uintptr_t pad;
 
     opt_mpl_len = sizeof(struct ip6_opt) + sizeof(struct mpl_opt);
+    if (mpl->s != MPL_S_SRC)
+        opt_mpl_len += mpl_seed_id_len[mpl->s];
     hbh_len = divup(sizeof(struct ip6_hbh) + opt_mpl_len, 8) * 8;
 
     hdr = pktbuf_push_head(pktbuf, NULL, sizeof(struct ip6_hdr) + hbh_len);
@@ -345,10 +348,12 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
 
     opt = ptr_offset(hbh, sizeof(struct ip6_hbh));
     opt->ip6o_type = IPV6_OPTION_MPL;
-    opt->ip6o_len = sizeof(struct mpl_opt);
+    opt->ip6o_len = opt_mpl_len - sizeof(struct ip6_opt);
 
     opt_mpl = ptr_offset(opt, sizeof(struct ip6_opt));
-    opt_mpl->flags = FIELD_PREP(MPL_MASK_S, MPL_S_SRC);
+    opt_mpl->flags = FIELD_PREP(MPL_MASK_S, mpl->s);
+    if (mpl->s == MPL_S_128)
+        memcpy(opt_mpl->seed_id, src, mpl_seed_id_len[mpl->s]);
 
     opt = ptr_offset(opt, sizeof(struct ip6_opt) + opt->ip6o_len);
     pad = (uintptr_t)hbh + hbh_len - (uintptr_t)opt;
@@ -462,6 +467,7 @@ void mpl_init(struct mpl_ctx *mpl)
     BUG_ON(mpl->tkl_data_cfg.Imin_ms > mpl->tkl_data_cfg.Imax_ms);
     BUG_ON(!mpl->tkl_data_e_max);
     BUG_ON(!mpl->send);
+    BUG_ON(!(mpl->s == MPL_S_SRC || mpl->s == MPL_S_128));
 
     timer_group_init(&mpl->timer_group);
     SLIST_INIT(&mpl->seed_set);
