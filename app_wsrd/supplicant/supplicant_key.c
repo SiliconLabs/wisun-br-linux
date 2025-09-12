@@ -19,9 +19,9 @@
 #include "common/specs/ieee80211.h"
 #include "common/specs/eapol.h"
 #include "common/crypto/ieee80211.h"
-#include "common/crypto/hmac_md.h"
 #include "common/crypto/nist_kw.h"
 #include "common/crypto/ws_keys.h"
+#include "common/mbedtls_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
 #include "common/eapol.h"
@@ -39,6 +39,7 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
 {
     struct pktbuf buf = { };
     const uint8_t *ptk;
+    uint8_t hmac[20];
     uint8_t kmp_id;
 
     /*
@@ -65,9 +66,10 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
      *   IEEE 802.11-2020, 12.7.6 4-way handshake
      * MIC(KCK, EAPOL)
      */
-    hmac_md_sha1(ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES,
-                 pktbuf_head(&buf), pktbuf_len(&buf),
-                 response->mic, sizeof(response->mic));
+    xmbedtls_md_hmac(mbedtls_md_info_from_type(MBEDTLS_MD_SHA1),
+                     ieee80211_kck(ptk), IEEE80211_AKM_1_KCK_LEN_BYTES,
+                     pktbuf_head(&buf), pktbuf_len(&buf), hmac);
+    memcpy(response->mic, hmac, sizeof(response->mic));
 
     // Update MIC
     pktbuf_pop_tail(&buf, NULL, sizeof(*response));
