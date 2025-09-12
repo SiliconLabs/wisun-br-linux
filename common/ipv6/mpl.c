@@ -19,6 +19,7 @@
 #include "common/specs/ipv6.h"
 #include "common/specs/mpl.h"
 #include "common/ipv6/ipv6_addr.h"
+#include "common/mathutils.h"
 #include "common/bits.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -318,43 +319,65 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
                 const struct in6_addr *src,
                 struct pktbuf *pktbuf)
 {
-    struct mpl_tunhdr *tunhdr;
+    int opt_mpl_len, hbh_len;
+    struct mpl_opt *opt_mpl;
     struct mpl_seed *seed;
     struct mpl_msg *msg;
+    struct ip6_hdr *hdr;
+    struct ip6_hbh *hbh;
+    struct ip6_opt *opt;
+    uintptr_t pad;
 
-    tunhdr = pktbuf_push_head(pktbuf, NULL, sizeof(struct mpl_tunhdr));
-    tunhdr->hdr.ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6));
-    tunhdr->hdr.ip6_plen = htons(sizeof(struct mpl_tunhdr) - sizeof(struct ip6_hdr) + pktbuf_len(pktbuf));
-    tunhdr->hdr.ip6_nxt  = IPPROTO_HOPOPTS;
-    tunhdr->hdr.ip6_hlim = 24; // Arbitrary
-    tunhdr->hdr.ip6_src  = *src;
-    tunhdr->hdr.ip6_dst  = ipv6_addr_all_mpl_fwd_realm;
-    tunhdr->hbh.hdr.ip6h_nxt = IPPROTO_IPV6;
-    tunhdr->hbh.hdr.ip6h_len = sizeof(tunhdr->hbh) / 8 - 1;
-    tunhdr->hbh.opt_mpl.hdr.ip6o_type = IPV6_OPTION_MPL;
-    tunhdr->hbh.opt_mpl.hdr.ip6o_len  = sizeof(struct mpl_opt);
-    tunhdr->hbh.opt_mpl.data.flags    = FIELD_PREP(MPL_MASK_S, MPL_S_SRC);
-    tunhdr->hbh.opt_pad.hdr.ip6o_type = IP6OPT_PADN;
-    tunhdr->hbh.opt_pad.hdr.ip6o_len  = 0;
+    opt_mpl_len = sizeof(struct ip6_opt) + sizeof(struct mpl_opt);
+    hbh_len = divup(sizeof(struct ip6_hbh) + opt_mpl_len, 8) * 8;
 
-    seed = mpl_seed_get(mpl, src, &tunhdr->hbh.opt_mpl.data);
+    hdr = pktbuf_push_head(pktbuf, NULL, sizeof(struct ip6_hdr) + hbh_len);
+    hdr->ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6));
+    hdr->ip6_plen = htons(pktbuf_len(pktbuf) - sizeof(struct ip6_hdr));
+    hdr->ip6_nxt  = IPPROTO_HOPOPTS;
+    hdr->ip6_hlim = 24; // Arbitrary
+    hdr->ip6_src  = *src;
+    hdr->ip6_dst  = ipv6_addr_all_mpl_fwd_realm;
+
+    hbh = ptr_offset(hdr, sizeof(struct ip6_hdr));
+    hbh->ip6h_nxt = IPPROTO_IPV6;
+    hbh->ip6h_len = hbh_len / 8 - 1;
+
+    opt = ptr_offset(hbh, sizeof(struct ip6_hbh));
+    opt->ip6o_type = IPV6_OPTION_MPL;
+    opt->ip6o_len = sizeof(struct mpl_opt);
+
+    opt_mpl = ptr_offset(opt, sizeof(struct ip6_opt));
+    opt_mpl->flags = FIELD_PREP(MPL_MASK_S, MPL_S_SRC);
+
+    opt = ptr_offset(opt, sizeof(struct ip6_opt) + opt->ip6o_len);
+    pad = (uintptr_t)hbh + hbh_len - (uintptr_t)opt;
+    BUG_ON(pad >= 8);
+    if (pad == 1) {
+        opt->ip6o_type = IPV6_OPTION_PAD1;
+    } else if (pad > 1) {
+        opt->ip6o_type = IPV6_OPTION_PADN;
+        opt->ip6o_len = pad - sizeof(struct ip6_opt);
+    }
+
+    seed = mpl_seed_get(mpl, src, opt_mpl);
     if (!seed)
-        seed = mpl_seed_new(mpl, src, &tunhdr->hbh.opt_mpl.data);
+        seed = mpl_seed_new(mpl, src, opt_mpl);
 
     if (SLIST_EMPTY(&seed->msg_set)) {
-        tunhdr->hbh.opt_mpl.data.seq = seed->min_seq;
+        opt_mpl->seq = seed->min_seq;
     } else {
         // Get highest seq
         SLIST_FOREACH(msg, &seed->msg_set, link)
-            tunhdr->hbh.opt_mpl.data.seq = mpl_msg_seq(msg);
-        tunhdr->hbh.opt_mpl.data.seq++;
-        if (seqno_cmp8(tunhdr->hbh.opt_mpl.data.seq, seed->min_seq) < 0) {
+            opt_mpl->seq = mpl_msg_seq(msg);
+        opt_mpl->seq++;
+        if (seqno_cmp8(opt_mpl->seq, seed->min_seq) < 0) {
             TRACE(TR_TX_ABORT, "tx-abort %-9s: too many packets queued", "mpl");
             return -EBUSY;
         }
     }
 
-    mpl_msg_new(mpl, seed, &tunhdr->hdr, &tunhdr->hbh.opt_mpl.data);
+    mpl_msg_new(mpl, seed, hdr, opt_mpl);
     return 0;
 }
 
