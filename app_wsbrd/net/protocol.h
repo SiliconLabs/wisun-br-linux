@@ -46,7 +46,6 @@ struct net_if {
     ns_list_link_t link;
     if_address_list_t ip_addresses;
     if_group_list_t ip_groups;
-    struct mpl_domain *mpl_domain;
     struct mpl_ctx mpl;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
 

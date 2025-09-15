@@ -61,7 +61,6 @@
 #include "rpl/rpl_storage.h"
 #include "rpl/rpl.h"
 #include "security/kmp/kmp_socket_if.h"
-#include "app_wsbrd/mpl/mpl.h"
 #include "common/ipv6/mpl.h"
 #include "net/ns_buffer.h"
 #include "ipv6/ipv6.h"
@@ -407,10 +406,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
      * with the seed-id field set to the GUA\ULA of the FFN seed (this for
      * backwards compatibility with FAN 1.0).
      */
-    ctxt->net_if.mpl_domain = mpl_domain_create(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS,
-                                                size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
-                                                ctxt->config.enable_ffn10 ? MPL_SEED_128_BIT : MPL_SEED_IPV6_SRC,
-                                                &size_params[ctxt->config.ws_size].trickle_mpl);
+    addr_add_group(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS);
     ctxt->net_if.mpl.seed_lifetime_ms = size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime * 1000;
     ctxt->net_if.mpl.tkl_data_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imin * 1000;
     ctxt->net_if.mpl.tkl_data_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imax * 1000;
