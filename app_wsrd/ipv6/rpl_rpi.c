@@ -59,6 +59,9 @@ int rpl_rpi_process(struct ipv6_ctx *ipv6, struct ip6_opt *opt)
     dag_rank = rpl_dag_rank(ntohs(parent->rpl->config.min_hop_rank_inc), rpl_mrhof_rank(ipv6));
     if (( (rpi->flags & RPL_MASK_RPI_O) && ntohs(rpi->sender_rank) > dag_rank) ||
         (!(rpi->flags & RPL_MASK_RPI_O) && ntohs(rpi->sender_rank) < dag_rank)) {
+        TRACE(TR_RPL, "rpl: dag rank error rcv=%u %c own=%u o=%u r=%u",
+              ntohs(rpi->sender_rank), rpi->flags & RPL_MASK_RPI_O ? '>' : '<', dag_rank,
+              FIELD_GET(RPL_MASK_RPI_O, rpi->flags), FIELD_GET(RPL_MASK_RPI_R, rpi->flags));
         if (rpi->flags & RPL_MASK_RPI_R) {
             TRACE(TR_DROP, "drop %-9s: rank error", "rpl-rpi");
             trickle_inconsistent(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
