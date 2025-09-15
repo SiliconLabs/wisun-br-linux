@@ -23,7 +23,6 @@ struct timer_group;
 
 enum timer_id {
     WS_TIMER_MONOTONIC_TIME,
-    WS_TIMER_MPL,
     WS_TIMER_IPV6_DESTINATION,
     WS_TIMER_IPV6_ROUTE,
     WS_TIMER_CIPV6_FRAG,

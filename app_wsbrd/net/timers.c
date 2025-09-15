@@ -20,7 +20,6 @@
 #include "ws/ws_pae_controller.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "net/protocol.h"
-#include "mpl/mpl.h"
 #include "rpl/rpl.h"
 #include "common/memutils.h"
 #include "common/log.h"
@@ -44,7 +43,6 @@ static void timer_send_lpa(int time_update)
     [WS_TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 struct ws_timer g_timers[] = {
     timer_entry(MONOTONIC_TIME,         timer_update_monotonic_time,                100,                     true),
-    timer_entry(MPL,                    mpl_timer,                                  1000,                    true),
     timer_entry(IPV6_DESTINATION,       ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000, true),
     timer_entry(IPV6_ROUTE,             ipv6_route_table_ttl_update,                1000,                    true),
     timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                    true),
