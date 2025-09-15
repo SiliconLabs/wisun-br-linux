@@ -38,6 +38,7 @@
 #include "net/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
 #include "mpl/mpl.h"
+#include "common/ipv6/mpl.h"
 
 #include "ipv6/icmpv6.h"
 #include "ipv6/ipv6_resolution.h"
@@ -707,7 +708,10 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur,
                                      uint8_t *ptr, uint16_t payload_length,
                                      uint16_t *hdrlen_out, bool pre_fragment)
 {
+    const struct ip6_hdr *ip6_hdr = (struct ip6_hdr *)buffer_data_pointer(buf);
+    const struct ip6_opt *ip6_opt;
     uint8_t *opt_type_ptr;
+    int ret;
 
     if (payload_length < 2) {
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, 4);
@@ -746,14 +750,14 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur,
                 // FIXME: hack to allow ignoring RPI from the kernel.
                 *opt_type_ptr = IPV6_OPTION_RPI;
                 break;
-            case IPV6_OPTION_MPL:
-                if (!mpl_hbh_len_check(opt, optlen)) {
-                    goto len_err;
-                }
-                if (!mpl_process_hbh(buf, cur, opt)) {
+            case IPV6_OPTION_MPL: {
+                ip6_opt = (struct ip6_opt *)opt_type_ptr;
+                ret = mpl_opt_process(&cur->mpl, ip6_hdr, ip6_opt);
+                if (ret < 0)
                     goto drop;
-                }
+                buf->options.ip_extflags |= IPEXT_HBH_MPL;
                 break;
+            }
             default:
                 *opt_type_ptr &= IPV6_OPTION_ACTION_MASK;
                 if (*opt_type_ptr == IPV6_OPTION_ACTION_SKIP) {
@@ -1178,16 +1182,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
     if (*nh_ptr == IPV6_NH_ICMPV6 && payload_length >= 4 && ptr[0] == ICMPV6_TYPE_NS) {
         /* Treat as ours, let NS reply */
         intercept = true;
-    }
-
-    /* We don't reprocess if this is a reassembly - each fragment is its own MPL
-     * Data Message, and we already processed them.
-     */
-    if ((buf->options.ip_extflags & IPEXT_HBH_MPL) && !frag_offset) {
-        if (!mpl_forwarder_process_message(buf, NULL, false)) {
-            /* False return means "duplicate" or other reason not to process */
-            return buffer_free(buf);
-        }
     }
 
     bool for_us = intercept || ipv6_packet_is_for_us(buf);
