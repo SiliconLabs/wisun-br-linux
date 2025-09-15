@@ -14,8 +14,6 @@
 
 #include "ws/ws_config.h"
 
-#include "app_wsbrd/mpl/mpl.h"
-
 #include "wsbr_cfg.h"
 
 const struct wsbr_cfg size_params[5] = {

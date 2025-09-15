@@ -33,7 +33,6 @@
 #include "common/specs/ip.h"
 
 #include "net/protocol.h"
-#include "mpl/mpl.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "ipv6/nd_router_object.h"

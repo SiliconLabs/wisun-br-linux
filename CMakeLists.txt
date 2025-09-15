@@ -209,7 +209,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/net/ns_buffer.c
     app_wsbrd/ipv6/ipv6_neigh_storage.c
     app_wsbrd/ipv6/ipv6_routing_table.c
-    app_wsbrd/mpl/mpl.c
     common/ipv6/mpl.c
     app_wsbrd/net/protocol.c
     app_wsbrd/net/protocol_abstract.c

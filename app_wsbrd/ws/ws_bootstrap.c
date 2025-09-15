@@ -45,7 +45,6 @@
 #include "net/timers.h"
 #include "net/protocol.h"
 #include "ipv6/ipv6_routing_table.h"
-#include "mpl/mpl.h"
 #include "ipv6/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/ip.h"

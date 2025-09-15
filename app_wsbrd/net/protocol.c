@@ -37,7 +37,6 @@
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
 #include "ipv6/ipv6.h"
-#include "mpl/mpl.h"
 
 #include "net/protocol.h"
 
