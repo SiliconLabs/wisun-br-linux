@@ -544,6 +544,45 @@ void ipv6_push_hdr(struct pktbuf *pktbuf,
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 }
 
+static void ipv6_push_rpl_tunhdr(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                                 const struct in6_addr *dst,
+                                 const struct rpl_rpi *old_rpi)
+{
+    struct ipv6_neigh *parent;
+    struct ip6_hdr *hdr;
+    struct ip6_hbh *hbh;
+    struct ip6_opt *opt;
+    struct rpl_rpi *rpi;
+    int hbh_len;
+
+    parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
+    BUG_ON(!parent);
+    BUG_ON(!old_rpi);
+
+    hbh_len = sizeof(struct ip6_hbh) + sizeof(struct ip6_opt) + sizeof(struct rpl_rpi);
+    BUG_ON(hbh_len % 8);
+
+    hdr = pktbuf_push_head(pktbuf, NULL, sizeof(struct ip6_hdr) + hbh_len);
+    hdr->ip6_flow = htonl(FIELD_PREP(IPV6_MASK_VERSION, 6));
+    hdr->ip6_plen = htons(pktbuf_len(pktbuf) - sizeof(struct ip6_hdr));
+    hdr->ip6_nxt  = IPPROTO_HOPOPTS;
+    hdr->ip6_hlim = 1;
+    hdr->ip6_src  = ipv6->dhcp.iaaddr.ipv6;
+    hdr->ip6_dst  = *dst;
+
+    hbh = ptr_offset(hdr, sizeof(struct ip6_hdr));
+    hbh->ip6h_nxt = IPPROTO_IPV6;
+    hbh->ip6h_len = hbh_len / 8 - 1;
+    opt = ptr_offset(hbh, sizeof(struct ip6_hbh));
+    opt->ip6o_type = IPV6_OPTION_RPI_DEPRECATED;
+    opt->ip6o_len  = sizeof(struct rpl_rpi);
+    rpi = ptr_offset(opt, sizeof(struct ip6_opt));
+    rpi->flags       = old_rpi->flags & ~RPL_MASK_RPI_O;
+    rpi->instance_id = parent->rpl->dio.instance_id;
+    rpi->sender_rank = htons(rpl_dag_rank(ntohs(parent->rpl->config.min_hop_rank_inc),
+                                                rpl_mrhof_rank(ipv6)));
+}
+
 int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
                     const struct rpl_rpi *rpi)
 {
@@ -563,9 +602,16 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
         return ret;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
 
-    // TODO: MPL
-    // TODO: RPL Option
-    // TODO: IPv6 Tunnel
+    /*
+     *   RFC 6550 4. RPL Router Behavior
+     * After IPv6 decapsulation, if the router determines that it should
+     * forward the original packet to another RPL router, it MUST encapsulate
+     * the packet again using IPv6-in-IPv6 tunneling to include the RPL Option.
+     * Fields within the RPL Option that do not change hop-by-hop MUST remain
+     * the same as those received from the prior tunnel.
+     */
+    if (ret == IPV6_NXTHOP_RPL)
+        ipv6_push_rpl_tunhdr(ipv6, pktbuf, nxthop, rpi);
 
     return lowpan_send(ipv6, pktbuf, &ipv6->eui64, &dst_eui64);
 }
