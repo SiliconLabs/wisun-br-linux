@@ -74,5 +74,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf);
 buffer_t *ipv6_forwarding_up(buffer_t *buf);
 
 void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct net_if *cur);
+void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us);
 
 #endif /* _IPV6_H */

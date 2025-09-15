@@ -37,7 +37,6 @@
 #include "ipv6/ipv6_routing_table.h"
 #include "net/ns_address_internal.h"
 #include "rpl/rpl_glue.h"
-#include "mpl/mpl.h"
 #include "common/ipv6/mpl.h"
 
 #include "ipv6/icmpv6.h"
@@ -49,7 +48,6 @@
 #define TRACE_GROUP "ipv6"
 
 static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct net_if *cur, bool for_us);
-static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us);
 
 static bool ipv6_packet_is_for_us(buffer_t *buf)
 {
@@ -180,18 +178,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;      // Shouldn't happen - internal error
     }
 
-    if (buf->options.mpl_permitted &&
-        addr_is_ipv6_multicast(buf->dst_sa.address) &&
-        addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
-        /* Special handling for MPL. Once we have decided we're sending to a
-         * multicast next hop for a greater-than-realm-local destination,
-         * if we're functioning as an MPL seed on that interface, we turn this
-         * into an MPL route. If the destination matches a domain, MPL extension
-         * header processing will add the necessary headers, else it will get
-         * tunnelled to All-MPL-Forwarders (ff03::fc).
-         */
-        route->route_info.source = ROUTE_MPL;
-    }
 
     dest_entry->interface_id = route->route_info.interface_id;
     if (!addr_is_ipv6_multicast(dest_entry->destination)) {
@@ -975,7 +961,7 @@ no_forward:
     }
 }
 
-static void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us)
+void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us)
 {
     buffer_t *clone;
 
