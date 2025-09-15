@@ -485,10 +485,9 @@ static bool ipv6_is_pkt_allowed(struct pktbuf *pktbuf)
 
 void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
 {
-    const struct in6_addr *nxthop;
     struct pktbuf pktbuf = { };
     const struct ip6_hdr *hdr;
-    struct eui64 dst_eui64;
+    struct rpl_rpi rpi = { };
     ssize_t size;
 
     pktbuf_init(&pktbuf, NULL, 1500);
@@ -516,14 +515,7 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
         return;
     }
 
-    if (ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, true) < 0)
-        goto err;
-    ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
-
-    TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
-          tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
-
-    lowpan_send(ipv6, &pktbuf, &ipv6->eui64, &dst_eui64);
+    ipv6_sendto_mac(ipv6, &pktbuf, &rpi);
 err:
     pktbuf_free(&pktbuf);
 }
@@ -559,7 +551,7 @@ int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
     TRACE(TR_IPV6, "tx-ipv6 src=%s dst=%s",
           tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
 
-    ret = ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, false);
+    ret = ipv6_nxthop(ipv6, &hdr->ip6_dst, &nxthop, rpi != NULL);
     if (ret < 0)
         return ret;
     ipv6_addr_resolution(ipv6, nxthop, &dst_eui64);
