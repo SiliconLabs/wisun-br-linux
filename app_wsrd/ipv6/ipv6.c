@@ -101,6 +101,43 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6,
     return hbh;
 }
 
+static void ipv6_fwd(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                     const struct rpl_rpi *rpi)
+{
+    struct ip6_hdr *hdr;
+
+    BUG_ON(pktbuf_len(pktbuf) < sizeof(struct ip6_hdr));
+    hdr = (struct ip6_hdr *)pktbuf_head(pktbuf);
+
+    /*
+     *   RFC 8200 3. IPv6 Header Format
+     * Decremented by 1 by each node that forwards the packet. When forwarding,
+     * the packet is discarded if Hop Limit was zero when received or is
+     * decremented to zero. A node that is the destination of a packet should
+     * not discard a packet with Hop Limit equal to zero; it should process the
+     * packet normally.
+     */
+    if (hdr->ip6_hlim <= 1) {
+        TRACE(TR_DROP, "drop %-9s: hop limit exceeded", "ipv6");
+        return; // TODO: ICMPv6 error
+    }
+
+    hdr->ip6_hlim--;
+    ipv6_sendto_mac(ipv6, pktbuf, rpi);
+}
+
+static void ipv6_sendto_tun(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+{
+    ssize_t ret;
+
+    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
+    ret = write(ipv6->tun.fd, pktbuf_head(pktbuf), pktbuf_len(pktbuf));
+    if (ret < 0)
+        WARN("write tun : %m");
+    else if (ret != pktbuf_len(pktbuf))
+        WARN("write tun: Short write: %zi < %zu", ret, pktbuf_len(pktbuf));
+}
+
 void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struct eui64 *src_eui64)
 {
     struct in6_addr addr_linklocal = ipv6_prefix_linklocal;
@@ -109,7 +146,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     const struct ip6_rthdr *rthdr;
     struct rpl_rpi rpi = { };
     struct ip6_hdr hdr;
-    ssize_t ret;
+    int ret;
 
     pktbuf_pop_head(pktbuf, &hdr, sizeof(hdr));
     TRACE(TR_IPV6, "rx-ipv6 src=%s dst=%s",
@@ -247,13 +284,11 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
 submit:
     // Reinsert previously parsed IPv6 header.
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
-
-    TRACE(TR_TUN, "tx-tun: %zu bytes", pktbuf_len(pktbuf));
-    ret = write(ipv6->tun.fd, pktbuf->buf + pktbuf->offset_head, pktbuf_len(pktbuf));
-    if (ret < 0)
-        WARN("write tun : %m");
-    else if (ret != pktbuf_len(pktbuf))
-        WARN("write tun: Short write: %zi < %zu", ret, pktbuf_len(pktbuf));
+    if (IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) &&
+        !IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6))
+        ipv6_fwd(ipv6, pktbuf, &rpi);
+    else
+        ipv6_sendto_tun(ipv6, pktbuf);
 }
 
 /*
