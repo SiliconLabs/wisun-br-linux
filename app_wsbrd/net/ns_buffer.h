@@ -106,7 +106,6 @@ typedef struct buffer_options {
     signed  ipv6_use_min_mtu: 2;        /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */
     uint8_t traffic_class;              /*!< Traffic class */
     int24_t flow_label;                 /*!< IPv6 flow label; -1 means unspecified (may auto-generate); -2 means auto-generate required */
-    bool    mpl_fwd_workaround;         // force tunneling for packets arriving at TUN with dst ff03::fc
 } buffer_options_t;
 
 #define IPV6_FLOW_UNSPECIFIED (-1)
@@ -178,7 +177,6 @@ typedef struct buffer {
     bool                ip_routed_up: 1;
     uint32_t            adaptation_timestamp;   /*!< Timestamp when buffer pushed to adaptation interface. Unit 100ms */
     buffer_link_info_t  link_specific;
-    uint16_t            mpl_option_data_offset;
     struct rpl_srh_decmpr srh;
     buffer_options_t    options;                /*!< Additional signal info etc */
     buffer_routing_info_t *route;               /* A pointer last to try to get neat alignment for data */
