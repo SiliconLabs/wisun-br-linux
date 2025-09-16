@@ -222,7 +222,8 @@ static void mpl_msg_expire(struct trickle *tkl, struct timer_group *group)
 static struct mpl_msg *mpl_msg_new(struct mpl_ctx *mpl,
                                    struct mpl_seed *seed,
                                    const struct ip6_hdr *hdr,
-                                   const struct mpl_opt *opt)
+                                   const struct mpl_opt *opt,
+                                   bool seeding)
 {
     const size_t len = sizeof(struct ip6_hdr) + ntohs(hdr->ip6_plen);
     struct mpl_msg *msg = zalloc(sizeof(struct mpl_msg) + len);
@@ -234,7 +235,10 @@ static struct mpl_msg *mpl_msg_new(struct mpl_ctx *mpl,
     msg->tkl.on_transmit      = mpl_msg_transmit;
     msg->tkl.on_interval_done = mpl_msg_expire;
     trickle_init(&msg->tkl);
-    trickle_start(&msg->tkl, &mpl->timer_group);
+    if (seeding)
+        trickle_start_fast(&msg->tkl, &mpl->timer_group);
+    else
+        trickle_start(&msg->tkl, &mpl->timer_group);
     msg->tx_handle = -1;
 
     memcpy(msg->buf, hdr, len);
@@ -382,7 +386,7 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
         }
     }
 
-    mpl_msg_new(mpl, seed, hdr, opt_mpl);
+    mpl_msg_new(mpl, seed, hdr, opt_mpl, true);
     return 0;
 }
 
@@ -457,7 +461,7 @@ int mpl_opt_process(struct mpl_ctx *mpl,
      */
     timer_start_rel(&mpl->timer_group, &seed->lifetime, mpl->seed_lifetime_ms);
 
-    mpl_msg_new(mpl, seed, hdr, opt);
+    mpl_msg_new(mpl, seed, hdr, opt, false);
     return 0;
 }
 
