@@ -143,6 +143,14 @@ static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     return buffer;
 }
 
+static void wsbr_mpl_abort(struct mpl_ctx *mpl, void *tx_ctx)
+{
+    struct net_if *net_if = container_of(mpl, struct net_if, mpl);
+    struct buffer *buf = tx_ctx;
+
+    lowpan_adaptation_abort_buffer_tx(net_if, buf);
+}
+
 // See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
@@ -208,6 +216,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.fhss_config.bsi = -1,
 
     .net_if.mpl.send = wsbr_mpl_send,
+    .net_if.mpl.abort = wsbr_mpl_abort,
 
     .net_if.ws_info.mngt.trickle_pa.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
     .net_if.ws_info.mngt.trickle_pa.debug_name = "pa",
