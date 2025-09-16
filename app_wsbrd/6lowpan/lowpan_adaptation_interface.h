@@ -50,4 +50,6 @@ struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *b
 
 int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, const uint8_t *address_ptr, addrtype_e adr_type);
 
+void lowpan_adaptation_abort_buffer_tx(struct net_if *cur, struct buffer *buf);
+
 #endif

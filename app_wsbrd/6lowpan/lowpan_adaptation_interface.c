@@ -1005,3 +1005,25 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
 
     return 0;
 }
+
+void lowpan_adaptation_abort_buffer_tx(struct net_if *cur, struct buffer *buf)
+{
+    fragmenter_interface_t *frag_if = lowpan_adaptation_interface_discover(cur->id);
+
+    ns_list_foreach_safe(buffer_t, entry, &frag_if->directTxQueue) {
+        if (entry == buf) {
+            TRACE(TR_TX_ABORT, "tx-abort: abort requested dst:%s", tr_eui64(entry->dst_sa.address + PAN_ID_LEN));
+            ns_list_remove(&frag_if->directTxQueue, entry);
+            frag_if->directTxQueue_size--;
+            lowpan_adaptation_tx_queue_level_update(cur, frag_if);
+            mpl_msg_confirm(&cur->mpl, entry);
+            buffer_free(entry);
+            return;
+        }
+    }
+
+    // NOTE: The buffer will be confirmed once the RCP CNF_DATA_TX is received
+    TRACE(TR_TX_ABORT, "tx-abort: abort requested handle:%u dst:%s", buf->seq,
+          tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
+    ws_llc_message_abort_by_mpx_user_handle(buf->seq);
+}
