@@ -140,7 +140,7 @@ static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
         return NULL;
     }
     protocol_push(buffer);
-    return NULL;
+    return buffer;
 }
 
 // See warning in wsbrd.h

@@ -745,6 +745,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
                       tr_eui64(dropped->dst_sa.address + PAN_ID_LEN));
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
+                if (!dropped->link_specific.ieee802_15_4.requestAck && !dropped->options.lfn_multicast)
+                    mpl_msg_confirm(&cur->mpl, dropped);
                 buffer_free(dropped);
             }
         }
@@ -778,6 +780,8 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     return 0;
 
 tx_error_handler:
+    if (!is_unicast && !buf->options.lfn_multicast)
+        mpl_msg_confirm(&cur->mpl, buf);
     buffer_free(buf);
     return -1;
 }
@@ -841,6 +845,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     //Check first
     fragmenter_tx_entry_t *tx_ptr;
     if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf)) {
+        mpl_msg_confirm(&cur->mpl, interface_ptr->active_broadcast_tx_buf.buf);
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
         BUG_ON(tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
     } else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
@@ -991,6 +996,9 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
             interface_ptr->directTxQueue_size--;
             //Update Average QUEUE
             lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
+            // NOTE: should never happen
+            if (!entry->link_specific.ieee802_15_4.requestAck && !entry->options.lfn_multicast)
+                mpl_msg_confirm(&cur->mpl, entry);
             buffer_free(entry);
         }
     }
