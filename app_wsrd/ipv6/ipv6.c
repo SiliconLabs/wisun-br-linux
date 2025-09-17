@@ -37,7 +37,9 @@
 #include "app_wsrd/ipv6/rpl_srh.h"
 #include "ipv6.h"
 
-static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6,
+                                                  struct pktbuf *pktbuf,
+                                                  struct rpl_rpi *rpi)
 {
     struct iobuf_read iobuf = { };
     const struct ip6_hdr *hdr;
@@ -74,6 +76,8 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6, struct 
             ret = rpl_rpi_process(ipv6, opt);
             if (ret < 0)
                 return NULL;
+            memcpy(rpi, ptr_offset(opt, sizeof(struct ip6_opt)),
+                   sizeof(struct rpl_rpi));
             break;
         case IPV6_OPTION_MPL:
             ret = mpl_opt_process(&ipv6->mpl, hdr, opt);
@@ -103,6 +107,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
     const struct ip6_hbh *hbh = NULL;
     const struct icmpv6_hdr *icmp;
     const struct ip6_rthdr *rthdr;
+    struct rpl_rpi rpi = { };
     struct ip6_hdr hdr;
     ssize_t ret;
 
@@ -122,7 +127,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
      * Destination Address field of the IPv6 header.
      */
     if (hdr.ip6_nxt == IPPROTO_HOPOPTS) {
-        hbh = ipv6_process_hopopts(ipv6, pktbuf);
+        hbh = ipv6_process_hopopts(ipv6, pktbuf, &rpi);
         if (!hbh)
             return;
         /*
@@ -166,7 +171,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
                 if (ret < 0)
                     return;
                 pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
-                ipv6_sendto_mac(ipv6, pktbuf);
+                ipv6_sendto_mac(ipv6, pktbuf, NULL);
                 return;
             default:
                 TRACE(TR_DROP, "drop %-9s: unsupported routing header", "ipv6");
@@ -505,7 +510,8 @@ void ipv6_push_hdr(struct pktbuf *pktbuf,
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 }
 
-int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf)
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                    const struct rpl_rpi *rpi)
 {
     const struct in6_addr *nxthop;
     struct eui64 dst_eui64;

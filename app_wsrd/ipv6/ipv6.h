@@ -56,6 +56,7 @@ void ipv6_push_hdr(struct pktbuf *pktbuf,
                    uint8_t ipproto, uint8_t hlim,
                    const struct in6_addr *src,
                    const struct in6_addr *dst);
-int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf);
+int ipv6_sendto_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
+                    const struct rpl_rpi *rpi);
 
 #endif
