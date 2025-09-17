@@ -291,6 +291,13 @@ submit:
         ipv6_sendto_tun(ipv6, pktbuf);
 }
 
+enum {
+    IPV6_NXTHOP_MCAST,
+    IPV6_NXTHOP_LINKLOCAL,
+    IPV6_NXTHOP_NCE,
+    IPV6_NXTHOP_RPL,
+};
+
 /*
  *   RFC 4861 5.2. Conceptual Sending Algorithm
  * The sender performs a longest prefix match against the Prefix List to
@@ -323,7 +330,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
      */
     if (IN6_IS_ADDR_MULTICAST(dst)) {
         *nxthop = dst;
-        return 0;
+        return IPV6_NXTHOP_MCAST;
     }
 
     /*
@@ -334,14 +341,14 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
      */
     if (IN6_IS_ADDR_LINKLOCAL(dst)) {
         *nxthop = dst;
-        return 0;
+        return IPV6_NXTHOP_LINKLOCAL;
     }
 
     nce = ipv6_neigh_get_from_gua(ipv6, dst);
     if (!routing) {
         if (nce) {
             *nxthop = &nce->gua;
-            return 0;
+            return IPV6_NXTHOP_NCE;
         } else {
             TRACE(TR_TX_ABORT, "tx-abort %-9s: no next hop available", "ipv6");
             return -ENETUNREACH;
@@ -358,7 +365,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
         etx = rpl_mrhof_etx(ipv6, nce);
         if (ipv6_neigh_is_child(nce) || etx <= ipv6->rpl.mrhof.max_link_metric || isnan(etx)) {
             *nxthop = &nce->gua;
-            return 0;
+            return IPV6_NXTHOP_NCE;
         }
         TRACE(TR_IPV6, "ipv6: use pref parent instead of direct link with bad etx");
     }
@@ -367,7 +374,7 @@ static int ipv6_nxthop(struct ipv6_ctx *ipv6,
     nce = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     if (nce) {
         *nxthop = &nce->gua;
-        return 0;
+        return IPV6_NXTHOP_RPL;
     }
 
     TRACE(TR_TX_ABORT, "tx-abort %-9s: no next hop available", "ipv6");
