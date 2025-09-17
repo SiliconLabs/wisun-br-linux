@@ -417,10 +417,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
      */
     addr_add_group(&ctxt->net_if, ADDR_ALL_MPL_FORWARDERS);
     ctxt->net_if.mpl.seed_lifetime_ms = size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime * 1000;
-    ctxt->net_if.mpl.tkl_data_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imin * 1000;
-    ctxt->net_if.mpl.tkl_data_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_mpl.Imax * 1000;
-    ctxt->net_if.mpl.tkl_data_cfg.k = size_params[ctxt->config.ws_size].trickle_mpl.k;
-    ctxt->net_if.mpl.tkl_data_e_max = size_params[ctxt->config.ws_size].trickle_mpl.TimerExpirations;
+    ctxt->net_if.mpl.tkl_data_cfg = size_params[ctxt->config.ws_size].trickle_mpl;
+    ctxt->net_if.mpl.tkl_data_e_max = size_params[ctxt->config.ws_size].trickle_mpl_e_max;
     ctxt->net_if.mpl.s = ctxt->config.enable_ffn10 ? MPL_S_128 : MPL_S_SRC;
     mpl_init(&ctxt->net_if.mpl);
 
