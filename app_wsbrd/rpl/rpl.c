@@ -133,15 +133,6 @@ static void rpl_transit_expire(struct timer_group *group, struct timer_entry *ti
     }
 }
 
-static void rpl_dio_trickle_params(struct rpl_root *root)
-{
-    //   RFC 6550 - 8.3.1. Trickle Parameters
-    // Imin: learned from the DIO message as (2^DIOIntervalMin) ms.
-    root->dio_trickle_cfg.Imin_ms = POW2(root->dio_i_min);
-    root->dio_trickle_cfg.Imax_ms = TRICKLE_DOUBLINGS(root->dio_trickle_cfg.Imin_ms, root->dio_i_doublings);
-    root->dio_trickle_cfg.k       = root->dio_redundancy;
-}
-
 void rpl_dodag_version_inc(struct rpl_root *root)
 {
     root->dodag_version_number = rpl_lollipop_inc(root->dodag_version_number);
@@ -743,7 +734,13 @@ void rpl_start(struct rpl_root *root,
     err = setsockopt(root->sockfd, IPPROTO_ICMPV6, ICMP6_FILTER, &filter, sizeof(filter));
     FATAL_ON(err < 0, 2, "%s: setsockopt ICMP6_FILTER: %m", __func__);
 
-    rpl_dio_trickle_params(root);
+    /*
+     *   RFC 6550 - 8.3.1. Trickle Parameters
+     * Imin: learned from the DIO message as (2^DIOIntervalMin) ms.
+     */
+    root->dio_trickle_cfg.Imin_ms = POW2(root->dio_i_min);
+    root->dio_trickle_cfg.Imax_ms = TRICKLE_DOUBLINGS(root->dio_trickle_cfg.Imin_ms, root->dio_i_doublings);
+    root->dio_trickle_cfg.k       = root->dio_redundancy;
     root->dio_trickle.on_transmit = rpl_send_dio_mc;
     timer_group_init(&root->timer_group);
     trickle_init(&root->dio_trickle);
