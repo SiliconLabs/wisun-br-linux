@@ -243,8 +243,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     ipv6_destination_cache_clean(cur->id);
 
-    // All trickle timers stopped to allow entry from any state
-    ws_mngt_async_trickle_stop(&cur->ws_info);
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
 
@@ -266,14 +264,10 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     // Initialize eapol congestion tracking
     ws_bootstrap_6lbr_eapol_congestion_init(cur);
-    // Advertisements stopped during the RPL scan
-    ws_mngt_async_trickle_stop(&cur->ws_info);
     // Activate RPL
     // Activate IPv6 stack
     ws_bootstrap_ip_stack_activate(cur);
     addr_add_router_groups(cur);
-    // stopped all to make sure we can enter here from any state
-    ws_mngt_async_trickle_stop(&cur->ws_info);
 
     ws_mngt_async_trickle_start(&cur->ws_info);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);

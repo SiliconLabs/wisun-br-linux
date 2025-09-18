@@ -106,11 +106,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
 }
 
-void ws_bootstrap_configuration_reset(struct net_if *cur)
-{
-    ws_mngt_async_trickle_stop(&cur->ws_info);
-}
-
 /**
  * Neighbor management logic:
  * - 15.4 neigh and IPv6 neigh have independant lifetimes
@@ -211,8 +206,6 @@ void ws_bootstrap_init(int8_t interface_id)
 
     //Register MPXUser to adapatation layer
     lowpan_adaptation_interface_mpx_register(interface_id, mpx_api, MPX_ID_6LOWPAN);
-
-    ws_bootstrap_configuration_reset(cur);
 
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_NODES);
     addr_add_group(cur, ADDR_REALM_LOCAL_ALL_ROUTERS);

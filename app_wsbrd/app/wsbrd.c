@@ -375,6 +375,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                 ctxt->config.enable_ffn10 ? MPL_SEED_128_BIT : MPL_SEED_IPV6_SRC,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
     ws_info->mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
+    ws_mngt_async_trickle_stop(ws_info);
 
     ws_info->pan_information.version = ctxt->config.ws_fan_version;
     ws_info->pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);
