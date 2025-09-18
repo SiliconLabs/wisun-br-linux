@@ -53,8 +53,6 @@ void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message);
 void ws_mngt_pa_send(struct trickle *tkl, struct timer_group *group);
 void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group);
 
-void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks);
-
 void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8]);
 void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer);
 
