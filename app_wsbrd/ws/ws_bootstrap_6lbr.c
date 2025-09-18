@@ -250,8 +250,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
 
     cur->ws_info.pan_information.routing_cost = 0;
 
-    ws_mngt_pan_version_increase(&cur->ws_info);
-
     // Set default parameters for FHSS when starting a discovery
     ws_bootstrap_6lbr_fhss_configure(cur);
     ws_bootstrap_set_domain_rf_config(cur);
@@ -270,6 +268,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     addr_add_router_groups(cur);
 
     ws_mngt_async_trickle_start(&cur->ws_info);
+    ws_mngt_pan_version_increase(&cur->ws_info);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
     // Sending async frames to trigger trickle timers of devices in our range.
     // Doing so allows to get back to an operational network faster.
