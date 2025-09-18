@@ -150,14 +150,12 @@ void rpl_dodag_version_inc(struct rpl_root *root)
     // respect to the Trickle timer, and cause the Trickle timer to reset:
     // - When a node joins a new DODAG Version (e.g., by updating its
     //   DODAGVersionNumber, joining a new RPL Instance, etc.).
-    rpl_dio_trickle_params(root);
     trickle_inconsistent(&root->dio_trickle, &root->timer_group);
 }
 
 void rpl_dtsn_inc(struct rpl_root *root)
 {
     root->dtsn++;
-    rpl_dio_trickle_params(root);
     trickle_inconsistent(&root->dio_trickle, &root->timer_group);
 }
 
@@ -373,7 +371,6 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     }
     // RFC 6550 - 8.3. DIO Transmission
     if (IN6_IS_ADDR_MULTICAST(dst)) {
-        rpl_dio_trickle_params(root);
         trickle_inconsistent(&root->dio_trickle, &root->timer_group);
     } else {
         rpl_send_dio(root, src);
