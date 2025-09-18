@@ -49,7 +49,7 @@ struct mpl_msg {
     SLIST_ENTRY(mpl_msg) link;
     struct trickle tkl;
     uint8_t tkl_e;
-    int tx_handle;
+    void *tx_ctx;
     uint16_t opt_offset;
     union {
         struct ip6_hdr hdr[0];
@@ -168,27 +168,27 @@ static void mpl_msg_transmit(struct trickle *tkl, struct timer_group *group)
     if (!msg->hdr->ip6_hlim)
         return;
 
-    if (msg->tx_handle >= 0) {
+    if (msg->tx_ctx) {
         TRACE(TR_TX_ABORT, "tx-abort: mpl msg id=%s seq=%u already queued",
               tr_msg_seed_id(msg), mpl_msg_seq(msg));
     } else {
         TRACE(TR_MPL, "mpl: msg tx  id=%s seq=%u", tr_msg_seed_id(msg), mpl_msg_seq(msg));
-        msg->tx_handle = mpl->send(mpl, msg->buf,
-                                    sizeof(struct ip6_hdr) + ntohs(msg->hdr->ip6_plen));
+        msg->tx_ctx = mpl->send(mpl, msg->buf,
+                                sizeof(struct ip6_hdr) + ntohs(msg->hdr->ip6_plen));
     }
 }
 
-void mpl_msg_confirm(struct mpl_ctx *mpl, int handle)
+void mpl_msg_confirm(struct mpl_ctx *mpl, const void *tx_ctx)
 {
     const struct mpl_seed *seed;
     struct mpl_msg *msg = NULL;
 
     SLIST_FOREACH(seed, &mpl->seed_set, link)
         SLIST_FOREACH(msg, &seed->msg_set, link)
-            if (msg->tx_handle == handle)
+            if (msg->tx_ctx == tx_ctx)
                 break;
     if (msg)
-        msg->tx_handle = -1;
+        msg->tx_ctx = NULL;
 }
 
 static void mpl_msg_expire(struct trickle *tkl, struct timer_group *group)
@@ -239,7 +239,6 @@ static struct mpl_msg *mpl_msg_new(struct mpl_ctx *mpl,
         trickle_start_fast(&msg->tkl, &mpl->timer_group);
     else
         trickle_start(&msg->tkl, &mpl->timer_group);
-    msg->tx_handle = -1;
 
     memcpy(msg->buf, hdr, len);
     msg->opt_offset = (uintptr_t)opt - (uintptr_t)hdr;
@@ -437,8 +436,8 @@ int mpl_opt_process(struct mpl_ctx *mpl,
              * the Trickle timer.
              */
             trickle_consistent(&msg->tkl);
-            if (msg->tkl.c >= msg->tkl.cfg->k && msg->tx_handle >= 0)
-                mpl->abort(mpl, msg->tx_handle);
+            if (msg->tkl.c >= msg->tkl.cfg->k && msg->tx_ctx)
+                mpl->abort(mpl, msg->tx_ctx);
             TRACE(TR_DROP, "drop %-9s: id=%s seq=%u retransmission",
                   "mpl", tr_seed_id(seed->s, seed->id), opt->seq);
             return -EEXIST;

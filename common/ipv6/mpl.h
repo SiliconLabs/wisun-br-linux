@@ -37,18 +37,18 @@ struct mpl_ctx {
     uint8_t s;
 
     /*
-     * Submit a transmission request to the MAC layer. Returns a unique handle
+     * Submit a transmission request to the MAC layer. Returns a unique context
      * identifying the request, which needs to be passed to mpl_msg_confirm()
      * when the transmission is done, even if unsuccessful.
      */
-    int (*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
-    void (*abort)(struct mpl_ctx *mpl, int handle);
+    void *(*send)(struct mpl_ctx *mpl, const void *buf, size_t buf_len);
+    void (*abort)(struct mpl_ctx *mpl, void *tx_ctx);
 };
 
 int mpl_msg_gen(struct mpl_ctx *mpl,
                 const struct in6_addr *src,
                 struct pktbuf *pktbuf);
-void mpl_msg_confirm(struct mpl_ctx *mpl, int handle);
+void mpl_msg_confirm(struct mpl_ctx *mpl, const void *tx_ctx);
 int mpl_opt_process(struct mpl_ctx *mpl,
                     const struct ip6_hdr *hdr,
                     const struct ip6_opt *opt);

@@ -119,7 +119,7 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint
         ws_mngt_lfn_version_increase(&ctxt->net_if.ws_info);
 }
 
-static int wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
+static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
 {
     struct net_if *net_if = container_of(mpl, struct net_if, mpl);
     const struct ip6_hdr *ip6_hdr = buf;
@@ -137,10 +137,10 @@ static int wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     if (!ipv6_buffer_route(buffer)) {
         buffer_free(buffer);
         TRACE(TR_TX_ABORT, "tx-abort: no route to %s", tr_ipv6(buffer->dst_sa.address));
-        return -1;
+        return NULL;
     }
     protocol_push(buffer);
-    return -1;
+    return NULL;
 }
 
 // See warning in wsbrd.h

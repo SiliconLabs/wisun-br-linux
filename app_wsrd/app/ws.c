@@ -727,7 +727,7 @@ void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const str
         supp_update_frame_counter(&wsrd->supp, frame_ctx->key_index, cnf->frame_counter);
     if (frame_ctx->type == WS_FT_DATA) {
         if (eui64_is_bc(&frame_ctx->dst))
-            mpl_msg_confirm(&wsrd->ipv6.mpl, cnf->handle);
+            mpl_msg_confirm(&wsrd->ipv6.mpl, (void *)((uintptr_t)cnf->handle + 1));
         else
             ipv6_nud_confirm_ns(&wsrd->ipv6, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
     }

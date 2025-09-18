@@ -121,7 +121,7 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
         ws_pan_timeout_update(wsrd);
 }
 
-static int wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
+static void *wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
 {
     struct ipv6_ctx *ipv6 = container_of(mpl, struct ipv6_ctx, mpl);
     struct pktbuf pktbuf = { };
@@ -130,12 +130,15 @@ static int wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     pktbuf_init(&pktbuf, buf, buf_len);
     handle = ipv6_sendto_mac(ipv6, &pktbuf, NULL);
     pktbuf_free(&pktbuf);
-    return handle;
+    if (handle < 0)
+        return NULL;
+    return (void *)((uintptr_t)handle + 1);
 }
 
-static void wsrd_mpl_abort(struct mpl_ctx *mpl, int handle)
+static void wsrd_mpl_abort(struct mpl_ctx *mpl, void *tx_ctx)
 {
     struct wsrd *wsrd = container_of(mpl, struct wsrd, ipv6.mpl);
+    int handle = (uintptr_t)tx_ctx - 1;
 
     rcp_req_data_tx_abort(&wsrd->ws.rcp, handle);
 }
