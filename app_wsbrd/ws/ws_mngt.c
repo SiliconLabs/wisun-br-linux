@@ -567,11 +567,6 @@ void ws_mngt_async_trickle_start(struct ws_info *ws_info)
     trickle_start(&ws_info->mngt.trickle_pc, NULL);
 }
 
-void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
-{
-    trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
-}
-
 void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks)
 {
     (void)ws_info;
@@ -617,7 +612,7 @@ void ws_mngt_pan_version_increase(struct ws_info *ws_info)
     ws_info->pan_information.pan_version++;
     INFO("PAN version number update: %u", ws_info->pan_information.pan_version);
     // Inconsistent for border router to make information distribute faster
-    ws_mngt_async_trickle_reset_pc(ws_info);
+    trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
     ws_pan_info_storage_write(ws_info->fhss_config.bsi, ws_info->pan_information.pan_id,
                               ws_info->pan_information.pan_version, ws_info->pan_information.lfn_version,
                               ws_info->network_name);
