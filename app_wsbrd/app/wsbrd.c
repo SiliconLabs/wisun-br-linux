@@ -149,6 +149,8 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.rpl_root.lifetime_unit_s  = 1200,
     .net_if.rpl_root.lifetime_s = 1200 * 6,
     .net_if.rpl_root.min_hop_rank_inc = 128,
+    .net_if.rpl_root.dio_trickle.cfg  = &g_ctxt.net_if.rpl_root.dio_trickle_cfg,
+    .net_if.rpl_root.dio_trickle.debug_name = "dio",
     // Defined by Wi-SUN FAN 1.1v06 - 6.2.3.1.6.3 Upward Route Formation
     .net_if.rpl_root.pcs              = 7,
 
