@@ -107,7 +107,7 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint
      * We do not want to increase the version numbers in this case, so we rely
      * on the status of the PC trickle that is started in ws_bootstrap_6lbr_init().
      */
-    if (!trickle_legacy_running(&ctxt->net_if.ws_info.mngt.trickle_pc, &ctxt->net_if.ws_info.mngt.trickle_params))
+    if (trickle_stopped(&ctxt->net_if.ws_info.mngt.trickle_pc))
         return;
     // LFN version increase already increases PAN version
     if (increase_pan_version && !increase_lfn_version)
@@ -179,6 +179,13 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del_cb,
     .net_if.ws_info.pan_information.pan_id = -1,
     .net_if.ws_info.fhss_config.bsi = -1,
+
+    .net_if.ws_info.mngt.trickle_pa.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
+    .net_if.ws_info.mngt.trickle_pa.debug_name = "pa",
+    .net_if.ws_info.mngt.trickle_pa.on_transmit = ws_mngt_pa_send,
+    .net_if.ws_info.mngt.trickle_pc.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
+    .net_if.ws_info.mngt.trickle_pc.debug_name = "pc",
+    .net_if.ws_info.mngt.trickle_pc.on_transmit = ws_mngt_pc_send,
 };
 
 static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target)
@@ -374,7 +381,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                 size_params[ctxt->config.ws_size].mpl_seed_set_entry_lifetime,
                                                 ctxt->config.enable_ffn10 ? MPL_SEED_128_BIT : MPL_SEED_IPV6_SRC,
                                                 &size_params[ctxt->config.ws_size].trickle_mpl);
-    ws_info->mngt.trickle_params = size_params[ctxt->config.ws_size].trickle_discovery;
+
+    ws_info->mngt.trickle_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imin * 1000;
+    ws_info->mngt.trickle_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imax * 1000;
+    ws_info->mngt.trickle_cfg.k       = size_params[ctxt->config.ws_size].trickle_discovery.k;
     ws_mngt_async_trickle_stop(ws_info);
 
     ws_info->pan_information.version = ctxt->config.ws_fan_version;

@@ -272,6 +272,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
     // Sending async frames to trigger trickle timers of devices in our range.
     // Doing so allows to get back to an operational network faster.
-    ws_mngt_pa_send(&cur->ws_info);
-    ws_mngt_pc_send(&cur->ws_info);
+    ws_mngt_pa_send(&cur->ws_info.mngt.trickle_pa, NULL);
+    ws_mngt_pc_send(&cur->ws_info.mngt.trickle_pc, NULL);
 }

@@ -16,7 +16,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "common/trickle_legacy.h"
+#include "common/trickle.h"
 #include "common/timer.h"
 
 struct mcps_data_rx_ie_list;
@@ -24,9 +24,9 @@ struct mcps_data_ind;
 struct ws_info;
 
 struct ws_mngt {
-    trickle_legacy_params_t trickle_params;
-    trickle_legacy_t trickle_pa;
-    trickle_legacy_t trickle_pc;
+    struct trickle_cfg trickle_cfg;
+    struct trickle     trickle_pa;
+    struct trickle     trickle_pc;
     struct timer_entry lts_timer;
     uint8_t lpa_dst[8];
     int lpc_count;
@@ -50,8 +50,8 @@ void ws_mngt_ind(struct ws_info *ws_info, const struct mcps_data_ind *data,
 
 void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message);
 
-void ws_mngt_pa_send(struct ws_info *ws_info);
-void ws_mngt_pc_send(struct ws_info *ws_info);
+void ws_mngt_pa_send(struct trickle *tkl, struct timer_group *group);
+void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group);
 
 void ws_mngt_async_trickle_start(struct ws_info *ws_info);
 void ws_mngt_async_trickle_stop(struct ws_info *ws_info);

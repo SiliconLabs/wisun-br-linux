@@ -1194,7 +1194,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
         .jm  = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)) &&
                data->DstAddrMode == IEEE802154_ADDR_MODE_NONE &&
-               ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_params.k,
+               ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_cfg.k,
     };
     uint24_t adjusted_offset_ms = 0;
     uint24_t adjusted_listening_interval = 0;
