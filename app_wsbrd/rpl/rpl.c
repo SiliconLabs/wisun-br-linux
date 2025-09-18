@@ -756,8 +756,3 @@ void rpl_start(struct rpl_root *root,
         rpl_transit_update_timer(root, target);
     rpl_storage_store_config(root);
 }
-
-void rpl_timer(int ticks)
-{
-    (void)ticks;
-}

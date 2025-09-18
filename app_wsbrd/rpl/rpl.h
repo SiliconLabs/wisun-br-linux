@@ -36,8 +36,6 @@
  *
  * Once started, the caller has to poll (with poll() or equivalent)
  * rpl_root->sockfd for any incoming packets, and call rpl_recv() when ready.
- * Additionally rpl_timer() must be setup as a timer callback with the timer ID
- * WS_TIMER_RPL in order to run the trickle algorithm for DIO packets.
  *
  * Some information are stored to disk using rpl_storage.h. They can be restored on
  * reboot by calling rpl_storage_load() before rpl_start().
@@ -135,7 +133,6 @@ void rpl_start(struct rpl_root *root,
                const char ifname[IF_NAMESIZE],
                const struct in6_addr *dodag_id);
 void rpl_recv(struct rpl_root *root);
-void rpl_timer(int ticks);
 
 void rpl_dodag_version_inc(struct rpl_root *root);
 void rpl_dtsn_inc(struct rpl_root *root);
