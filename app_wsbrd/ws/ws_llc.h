@@ -101,4 +101,6 @@ void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
 
 void ws_llc_update_timing_info(const struct ws_neigh *neigh);
 
+void ws_llc_message_abort_by_mpx_user_handle(uint8_t handle);
+
 #endif

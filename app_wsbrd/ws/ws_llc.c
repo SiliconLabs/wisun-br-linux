@@ -161,6 +161,23 @@ static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_mes
     return NULL;
 }
 
+static llc_message_t *llc_message_discover_mpx_user_handle(uint8_t handle, llc_message_list_t *list)
+{
+    ns_list_foreach(llc_message_t, message, list)
+        if (message->mpx_user_handle == handle)
+            return message;
+    return NULL;
+}
+
+void ws_llc_message_abort_by_mpx_user_handle(uint8_t handle)
+{
+    struct llc_data_base *base = &g_llc_base;
+    llc_message_t *message = llc_message_discover_mpx_user_handle(handle, &base->llc_message_list);
+
+    if (message)
+        rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
+}
+
 //Free message and delete from list
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
 {
