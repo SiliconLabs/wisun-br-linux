@@ -385,7 +385,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->mngt.trickle_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imin * 1000;
     ws_info->mngt.trickle_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imax * 1000;
     ws_info->mngt.trickle_cfg.k       = size_params[ctxt->config.ws_size].trickle_discovery.k;
-    ws_mngt_async_trickle_stop(ws_info);
 
     ws_info->pan_information.version = ctxt->config.ws_fan_version;
     ws_info->pan_information.max_pan_size = wsbr_get_max_pan_size(ctxt->config.ws_size);

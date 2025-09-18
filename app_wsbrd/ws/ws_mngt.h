@@ -54,7 +54,6 @@ void ws_mngt_pa_send(struct trickle *tkl, struct timer_group *group);
 void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group);
 
 void ws_mngt_async_trickle_start(struct ws_info *ws_info);
-void ws_mngt_async_trickle_stop(struct ws_info *ws_info);
 void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info);
 void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks);
 

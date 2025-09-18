@@ -567,12 +567,6 @@ void ws_mngt_async_trickle_start(struct ws_info *ws_info)
     trickle_start(&ws_info->mngt.trickle_pc, NULL);
 }
 
-void ws_mngt_async_trickle_stop(struct ws_info *ws_info)
-{
-    trickle_stop(&ws_info->mngt.trickle_pa, NULL);
-    trickle_stop(&ws_info->mngt.trickle_pc, NULL);
-}
-
 void ws_mngt_async_trickle_reset_pc(struct ws_info *ws_info)
 {
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
