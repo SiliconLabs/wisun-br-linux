@@ -593,7 +593,6 @@ static void ws_mngt_lts_send(struct ws_info *ws_info)
         .wh_ies.utt    = true,
         .wh_ies.bt     = true,
         .wh_ies.lbt    = true,
-        .wp_ies.lfnver = true,
         .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .security.KeyIndex      = ws_info->lfn_gtk_index,
     };
