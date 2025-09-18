@@ -559,14 +559,6 @@ void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group)
     ws_llc_asynch_request(ws_info, &req);
 }
 
-void ws_mngt_async_trickle_start(struct ws_info *ws_info)
-{
-    trickle_init(&ws_info->mngt.trickle_pa);
-    trickle_init(&ws_info->mngt.trickle_pc);
-    trickle_start(&ws_info->mngt.trickle_pa, NULL);
-    trickle_start(&ws_info->mngt.trickle_pc, NULL);
-}
-
 void ws_mngt_async_trickle_timer_cb(struct ws_info *ws_info, uint16_t ticks)
 {
     (void)ws_info;

@@ -267,7 +267,8 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_ip_stack_activate(cur);
     addr_add_router_groups(cur);
 
-    ws_mngt_async_trickle_start(&cur->ws_info);
+    trickle_start(&cur->ws_info.mngt.trickle_pa, NULL);
+    trickle_start(&cur->ws_info.mngt.trickle_pc, NULL);
     ws_mngt_pan_version_increase(&cur->ws_info);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
     // Sending async frames to trigger trickle timers of devices in our range.
