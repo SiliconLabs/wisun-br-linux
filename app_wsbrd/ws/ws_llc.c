@@ -576,13 +576,12 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                             data->hif.timestamp_us);
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us);
+        ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data,
+                            has_lcp ? &ie_lcp.chan_plan : NULL, ie_lus.listen_interval, &ws_neigh->lto_info);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config,
-                                                                 &ws_neigh->fhss_data,
+                                                                 &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
-        ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
-                            has_lcp ? &ie_lcp.chan_plan : NULL,
-                            ie_lus.listen_interval, &ws_neigh->lto_info);
         ws_llc_update_timing_info(ws_neigh);
     }
 
