@@ -320,8 +320,12 @@ uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_i
 
     if (!bc_interval || !uc_interval || !uc_interval_min || !uc_interval_max)
         return 0;
+    /*
+     * Consider that an LFN advertizing an interval out of NR-IE bounds has its
+     * reasons, do not proceed to do any adjustment.
+     */
     if (uc_interval < uc_interval_min || uc_interval > uc_interval_max) {
-        TRACE(TR_IGNORE, "ignore: lto-ie incoherent with nr-ie");
+        TRACE(TR_IGNORE, "ignore: lus-ie interval incoherent with nr-ie, cannot compute lto-ie");
         return 0;
     }
 
