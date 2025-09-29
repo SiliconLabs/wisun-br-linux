@@ -534,6 +534,8 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         .data_size = buf_len,
         .data = buf,
     };
+    int dodag_verno_old;
+    int dtsn_old;
 
     if (!IN6_IS_ADDR_LINKLOCAL(src)) {
         TRACE(TR_DROP, "drop %-9s: invalid source address", tr_icmp_rpl(RPL_CODE_DIO));
@@ -644,6 +646,7 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
      *   Wi-SUN FAN 1.1v10 6.2.3.1.6.5 RPL Global Repair
      * A Router MUST send a new DAO to the Border Router
      */
+    dodag_verno_old = ipv6->rpl.dodag_verno;
     if (nce->rpl && nce->rpl->path_ctl && seqno_cmp8(dio->dodag_verno, ipv6->rpl.dodag_verno) > 0) {
         ipv6->rpl.dodag_verno = dio->dodag_verno;
         ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
@@ -651,11 +654,29 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         TRACE(TR_RPL, "rpl: set dodag-verno=%u", ipv6->rpl.dodag_verno);
     }
 
+    dtsn_old = ipv6->rpl.dtsn;
+
     if (!nce->rpl)
         rpl_neigh_add(ipv6, nce, dio, config, prefix);
     else
         rpl_neigh_update(ipv6, nce, dio, config, prefix);
 
+    /*
+     *   RFC 6550 8.3 DIO Transmission
+     * A DIO from a sender with a lesser DAGRank that causes no changes to the
+     * recipient's parent set, preferred parent, or Rank SHOULD be considered
+     * consistent with respect to the Trickle timer.
+     *
+     * The following packets and events MUST be considered inconsistencies with
+     * respect to the Trickle timer, and cause the Trickle timer to reset:
+     * [...]
+     * - When a node joins a new DODAG Version (e.g., by updating its
+     *   DODAGVersionNumber, joining a new RPL Instance, etc.).
+     *
+     * NOTE: this implementation considers a DTSN change as an inconsistency.
+     */
+    if (dodag_verno_old != ipv6->rpl.dodag_verno || dtsn_old != ipv6->rpl.dtsn)
+        trickle_inconsistent(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
 
