@@ -118,6 +118,8 @@ void trickle_stop(struct trickle *tkl, struct timer_group *group)
 
 void trickle_consistent(struct trickle *tkl)
 {
+    if (trickle_stopped(tkl))
+        return;
     /*
      * Whenever Trickle hears a transmission that is "consistent", it
      * increments the counter c.
