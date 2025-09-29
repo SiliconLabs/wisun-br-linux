@@ -523,6 +523,8 @@ static void rpl_on_dao_refresh_timer_timeout(struct timer_group *group, struct t
 static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_len,
                          const struct in6_addr *src, const struct in6_addr *dst)
 {
+    struct ipv6_neigh *parents_cur[RPL_PARENTS_MAX] = { };
+    struct ipv6_neigh *parents_new[RPL_PARENTS_MAX] = { };
     const struct rpl_opt_config *config = NULL;
     const struct rpl_opt_prefix *prefix = NULL;
     const struct rpl_dio *dio;
@@ -534,7 +536,9 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         .data_size = buf_len,
         .data = buf,
     };
+    uint16_t min_hop_rank_inc;
     int dodag_verno_old;
+    uint16_t rank_old;
     int dtsn_old;
 
     if (!IN6_IS_ADDR_LINKLOCAL(src)) {
@@ -654,12 +658,16 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
         TRACE(TR_RPL, "rpl: set dodag-verno=%u", ipv6->rpl.dodag_verno);
     }
 
+    rank_old = rpl_mrhof_rank(ipv6);
     dtsn_old = ipv6->rpl.dtsn;
+    rpl_get_parents(ipv6, parents_cur);
 
     if (!nce->rpl)
         rpl_neigh_add(ipv6, nce, dio, config, prefix);
     else
         rpl_neigh_update(ipv6, nce, dio, config, prefix);
+
+    rpl_get_parents(ipv6, parents_new);
 
     /*
      *   RFC 6550 8.3 DIO Transmission
@@ -675,8 +683,13 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
      *
      * NOTE: this implementation considers a DTSN change as an inconsistency.
      */
+    min_hop_rank_inc = ntohs(config->min_hop_rank_inc);
     if (dodag_verno_old != ipv6->rpl.dodag_verno || dtsn_old != ipv6->rpl.dtsn)
         trickle_inconsistent(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
+    else if (rpl_dag_rank(min_hop_rank_inc, ntohs(dio->rank)) < rpl_dag_rank(min_hop_rank_inc, rpl_mrhof_rank(ipv6)) &&
+             !memcmp(parents_cur, parents_new, sizeof(parents_cur)) && rank_old == rpl_mrhof_rank(ipv6))
+        trickle_consistent(&ipv6->rpl.dio_trickle);
+
     // TODO: filter candidate neighbors according to
     // Wi-SUN FAN 1.1v08 6.2.3.1.6.3 Upward Route Formation
 
