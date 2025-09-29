@@ -102,7 +102,6 @@ static void rpl_neigh_add(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     nce->rpl->dio    = *dio;
     nce->rpl->config = *config;
     TRACE(TR_RPL, "rpl: neigh add %s", tr_ipv6(nce->gua.s6_addr));
-    rpl_neigh_update(ipv6, nce, dio, config, prefix);
     if (rpl_can_update_parent(ipv6))
         rpl_update_parents(ipv6);
 }
