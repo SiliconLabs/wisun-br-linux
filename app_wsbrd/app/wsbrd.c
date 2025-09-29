@@ -189,21 +189,6 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.rpl_root.on_target_del    = wsbr_rpl_target_del,
     .net_if.rpl_root.on_target_update = wsbr_rpl_target_update,
 
-    .net_if.llc_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
-    .net_if.llc_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
-    .net_if.llc_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
-    .net_if.llc_random_early_detection.drop_max_probability = 100,
-
-    .net_if.llc_eapol_random_early_detection.weight = RED_AVERAGE_WEIGHT_EIGHTH,
-    .net_if.llc_eapol_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
-    .net_if.llc_eapol_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
-    .net_if.llc_eapol_random_early_detection.drop_max_probability = 100,
-
-    .net_if.pae_random_early_detection.weight = RED_AVERAGE_WEIGHT_DISABLED,
-    .net_if.pae_random_early_detection.threshold_min = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MIN,
-    .net_if.pae_random_early_detection.threshold_max = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_TX_QUEUE_MAX,
-    .net_if.pae_random_early_detection.drop_max_probability = 100,
-
     .net_if.ws_info.neighbor_storage.on_add = ws_bootstrap_neighbor_add_cb,
     .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del_cb,
     .net_if.ws_info.pan_information.pan_id = -1,

@@ -43,7 +43,6 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
 #include "common/specs/ws.h"
-#include "common/random_early_detection.h"
 
 #include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
@@ -181,7 +180,6 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     iobuf_free(&message->ie_buf_header);
     iobuf_free(&message->ie_buf_payload);
     free(message);
-    red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
 }
 
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
@@ -196,7 +194,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         llc_base->handle_next++;
     message->msg_handle = llc_base->handle_next++;
     ns_list_add_to_end(&llc_base->llc_message_list, message);
-    red_aq_calc(&llc_base->interface_ptr->llc_random_early_detection, ns_list_count(&llc_base->llc_message_list));
     return message;
 }
 
