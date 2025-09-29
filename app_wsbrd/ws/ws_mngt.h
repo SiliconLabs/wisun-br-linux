@@ -24,9 +24,8 @@ struct mcps_data_ind;
 struct ws_info;
 
 struct ws_mngt {
-    struct trickle_cfg trickle_cfg;
-    struct trickle     trickle_pa;
-    struct trickle     trickle_pc;
+    struct trickle trickle_pa;
+    struct trickle trickle_pc;
     struct timer_entry lts_timer;
     uint8_t lpa_dst[8];
     int lpc_count;

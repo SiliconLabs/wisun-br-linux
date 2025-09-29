@@ -19,10 +19,9 @@
 const struct wsbr_cfg size_params[5] = {
     [WS_NETWORK_SIZE_CERTIFICATION] = {
         // Discovery
-        .trickle_discovery.Imin = 15,
-        .trickle_discovery.Imax = 60,
+        .trickle_discovery.Imin_ms = 15 * 1000,
+        .trickle_discovery.Imax_ms = 60 * 1000,
         .trickle_discovery.k = 3,
-        .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // Wi-SUN FAN 1.1v08 6.2.1.1 Configuration Parameters
         .trickle_mpl.Imin_ms =  6 * 1000,      // Arbitrary (Wi-SUN 10s default is too long)
@@ -41,10 +40,9 @@ const struct wsbr_cfg size_params[5] = {
     },
     [WS_NETWORK_SIZE_SMALL] = {
         // Discovery
-        .trickle_discovery.Imin = 15,
-        .trickle_discovery.Imax = 60,
+        .trickle_discovery.Imin_ms = 15 * 1000,
+        .trickle_discovery.Imax_ms = 60 * 1000,
         .trickle_discovery.k = 1,
-        .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
         .trickle_mpl.Imin_ms = 1 * 1000,
@@ -63,10 +61,9 @@ const struct wsbr_cfg size_params[5] = {
     },
     [WS_NETWORK_SIZE_MEDIUM] = {
         // Discovery
-        .trickle_discovery.Imin = 60,
-        .trickle_discovery.Imax = 960,
+        .trickle_discovery.Imin_ms = 60 * 1000,
+        .trickle_discovery.Imax_ms = 960 * 1000,
         .trickle_discovery.k = 1,
-        .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
         .trickle_mpl.Imin_ms = 1 * 1000,
@@ -85,10 +82,9 @@ const struct wsbr_cfg size_params[5] = {
     },
     [WS_NETWORK_SIZE_LARGE] = {
         // Discovery
-        .trickle_discovery.Imin = 120,
-        .trickle_discovery.Imax = 1536,
+        .trickle_discovery.Imin_ms = 120 * 1000,
+        .trickle_discovery.Imax_ms = 1536 * 1000,
         .trickle_discovery.k = 1,
-        .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
         .trickle_mpl.Imin_ms = 5 * 1000,
@@ -107,10 +103,9 @@ const struct wsbr_cfg size_params[5] = {
     },
     [WS_NETWORK_SIZE_XLARGE] = {
         // Discovery
-        .trickle_discovery.Imin = 240,
-        .trickle_discovery.Imax = 1920,
+        .trickle_discovery.Imin_ms = 240 * 1000,
+        .trickle_discovery.Imax_ms = 1920 * 1000,
         .trickle_discovery.k = 1,
-        .trickle_discovery.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE,
 
         // MPL
         .trickle_mpl.Imin_ms = 10 * 1000,

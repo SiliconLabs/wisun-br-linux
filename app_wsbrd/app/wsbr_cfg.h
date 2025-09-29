@@ -18,7 +18,6 @@
 #include <stdint.h>
 
 #include "security/protocols/sec_prot_cfg.h"
-#include "common/trickle_legacy.h"
 #include "common/trickle.h"
 
 enum ws_network_size {
@@ -30,7 +29,7 @@ enum ws_network_size {
 };
 
 struct wsbr_cfg {
-    struct trickle_legacy_params trickle_discovery;
+    struct trickle_cfg trickle_discovery;
 
     struct trickle_cfg trickle_mpl;
     uint8_t trickle_mpl_e_max;

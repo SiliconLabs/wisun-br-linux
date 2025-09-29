@@ -218,10 +218,8 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.mpl.send = wsbr_mpl_send,
     .net_if.mpl.abort = wsbr_mpl_abort,
 
-    .net_if.ws_info.mngt.trickle_pa.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
     .net_if.ws_info.mngt.trickle_pa.debug_name = "pa",
     .net_if.ws_info.mngt.trickle_pa.on_transmit = ws_mngt_pa_send,
-    .net_if.ws_info.mngt.trickle_pc.cfg = &g_ctxt.net_if.ws_info.mngt.trickle_cfg,
     .net_if.ws_info.mngt.trickle_pc.debug_name = "pc",
     .net_if.ws_info.mngt.trickle_pc.on_transmit = ws_mngt_pc_send,
 };
@@ -422,9 +420,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.mpl.s = ctxt->config.enable_ffn10 ? MPL_S_128 : MPL_S_SRC;
     mpl_init(&ctxt->net_if.mpl);
 
-    ws_info->mngt.trickle_cfg.Imin_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imin * 1000;
-    ws_info->mngt.trickle_cfg.Imax_ms = size_params[ctxt->config.ws_size].trickle_discovery.Imax * 1000;
-    ws_info->mngt.trickle_cfg.k       = size_params[ctxt->config.ws_size].trickle_discovery.k;
+    ws_info->mngt.trickle_pa.cfg = &size_params[ctxt->config.ws_size].trickle_discovery;
+    ws_info->mngt.trickle_pc.cfg = &size_params[ctxt->config.ws_size].trickle_discovery;
     trickle_init(&ws_info->mngt.trickle_pa);
     trickle_init(&ws_info->mngt.trickle_pc);
 
