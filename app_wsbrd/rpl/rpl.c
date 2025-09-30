@@ -670,7 +670,8 @@ static void rpl_recv_dispatch(struct rpl_root *root, const uint8_t *pkt, size_t 
         rpl_recv_srh_err(root, iobuf_ptr(&buf), iobuf_remaining_size(&buf), src);
         break;
     default:
-        BUG();
+        TRACE(TR_DROP, "drop %-9s: unexpected type=%u", "rpl", type);
+        break;
     }
 }
 

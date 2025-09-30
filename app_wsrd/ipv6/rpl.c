@@ -804,7 +804,11 @@ static void rpl_recv_dispatch(struct ipv6_ctx *ipv6, const uint8_t *pkt, size_t 
     code = iobuf_pop_u8(&buf);
     iobuf_pop_be16(&buf); // Checksum verified by kernel
     BUG_ON(buf.err);
-    BUG_ON(type != ICMPV6_TYPE_RPL);
+
+    if (type != ICMPV6_TYPE_RPL) {
+        TRACE(TR_DROP, "drop %-9s: unexpected type=%u", "rpl", type);
+        return;
+    }
 
     switch (code) {
     case RPL_CODE_DIO:
