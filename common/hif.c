@@ -34,6 +34,7 @@ static const struct name_value hif_cmd_names[] = {
     ENTRY(REQ_DATA_TX_ABORT),
     ENTRY(CNF_DATA_TX),
     ENTRY(IND_DATA_RX),
+    ENTRY(SET_DATA_EDFE),
     ENTRY(REQ_RADIO_ENABLE),
     ENTRY(REQ_RADIO_LIST),
     ENTRY(CNF_RADIO_LIST),
@@ -94,6 +95,7 @@ static const struct name_value hif_fatal_names[] = {
     ENTRY(EINVAL_SCF),
     ENTRY(EINVAL_FRAME),
     ENTRY(EINVAL_CHAN_FIXED),
+    ENTRY(EINVAL_EDFE_FMT),
     ENTRY(ENOTSUP),
     ENTRY(ENOTSUP_FHSS_DEFAULT),
     { 0 }

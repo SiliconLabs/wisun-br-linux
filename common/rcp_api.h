@@ -118,6 +118,7 @@ void rcp_req_data_tx(struct rcp *rcp,
                      const uint32_t frame_counters_min[HIF_KEY_COUNT],
                      const struct rcp_rate_info rate_list[4], uint8_t ms_mode);
 void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle);
+void rcp_set_data_edfe(struct rcp *rcp, bool enable, uint8_t fmt);
 
 void rcp_req_radio_enable(struct rcp *rcp);
 void rcp_req_radio_list(struct rcp *rcp);

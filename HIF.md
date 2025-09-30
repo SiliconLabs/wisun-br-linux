@@ -191,6 +191,7 @@ purposes.
 |`EINVAL_SCF`          |`0x100f`| Invalid IEEE 802.15.4 security control field.               |
 |`EINVAL_FRAME`        |`0x1010`| Invalid IEEE 802.15.4 frame (generic).                      |
 |`EINVAL_CHAN_FIXED`   |`0x1011`| Invalid fixed channel.                                      |
+|`EINVAL_EDFE_FMT`     |`0x1012`| Invalid EDFE frame format ([`SET_DATA_EDFE`][edfe]).        |
 |`ENOTSUP`             |`0x2000`| Unsupported feature (generic).                              |
 |`ENOTSUP_FHSS_DEFAULT`|`0x2001`| Unsupported configuration mode for selected FHSS type ([`REQ_DATA_TX`][tx-req]).|
 
@@ -485,6 +486,33 @@ once the radio is started with [`SET_RADIO`][rf-set]. See
 
  - `uint16_t chan_num`  
     Channel number used during reception.
+
+### `0x14 SET_DATA_EDFE` (API >= 2.15.0)
+
+Configure Extended Directed Frame Exchange (EDFE). This mode of communication
+allows efficient data streaming between 2 nodes. Currently, the RCP does not
+support streaming its own data, but it does support receiving a stream of
+packets from a neighbor. Each received frame will be passed to the host through
+[`IND_DATA_RX`][rx] like any other frame.
+
+ - `bool enable`  
+    If set, the RCP will respond to EDFE initial frames with EDFE response
+    frames without any data, and be ready for receiving more frames if
+    necessary. EDFE is enabled by default, but some regions disallow its usage
+    so this setting allows to turn it off. Note that the deprecated
+    [`SET_RADIO_REGULATION`][rf-reg] command overrides this setting.
+
+ - `uint8_t format`  
+    Wi-SUN defines 2 different frame formats for EDFE, which unfortunately
+    creates interoperability issues between devices. Since the RCP generates
+    response frames without any host involvment, it must be informed of the
+    format to use.
+    - `1` FAN 1.0 format: source address is elided from response frames, and
+      sequence number is never included.
+    - `2` FAN 1.1 format (default): source address is always included, and
+      sequence number is included in EDFE frames containing data.
+
+[edfe]: #0x14-set_data_edfe-api--2140
 
 ## Radio configuration
 

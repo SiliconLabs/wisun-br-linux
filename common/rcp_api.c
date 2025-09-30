@@ -239,6 +239,18 @@ void rcp_req_data_tx_abort(struct rcp *rcp, uint8_t handle)
     iobuf_free(&buf);
 }
 
+void rcp_set_data_edfe(struct rcp *rcp, bool enable, uint8_t fmt)
+{
+    struct iobuf_write buf = { };
+
+    BUG_ON(version_older_than(rcp->version_api, 2, 15, 0));
+    hif_push_u8(&buf, HIF_CMD_SET_DATA_EDFE);
+    hif_push_bool(&buf, enable);
+    hif_push_u8(&buf, fmt);
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
 {
     struct rcp_tx_cnf cnf = { };
