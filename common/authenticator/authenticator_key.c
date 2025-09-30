@@ -531,6 +531,10 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      */
     if (!kde_read_nr(data, data_len, &supp->node_role))
         supp->node_role = WS_NR_ROLE_UNKNOWN;
+    if (supp->node_role == WS_NR_ROLE_LFN && !auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)) {
+        TRACE(TR_DROP, "drop %-9s: LFN authentication disabled", "key-req");
+        return;
+    }
 
     supp->gtkl = supp->lgtkl = 0;
     if (supp->node_role != WS_NR_ROLE_LFN)
