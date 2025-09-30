@@ -88,6 +88,7 @@ struct auth_cfg {
     struct sockaddr_storage radius_addr;
     char radius_secret[256];
     uint8_t gtk_init[WS_GTK_COUNT + WS_LGTK_COUNT][16];
+    bool allow_fan10;
 };
 
 struct auth_ctx {

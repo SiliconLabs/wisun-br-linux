@@ -530,4 +530,5 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
         WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
     duty_cycle_cfg_check(&config->duty_cycle);
+    config->auth_cfg.allow_fan10 = config->enable_ffn10;
 }

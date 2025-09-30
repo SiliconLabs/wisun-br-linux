@@ -535,6 +535,10 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
         TRACE(TR_DROP, "drop %-9s: LFN authentication disabled", "key-req");
         return;
     }
+    if (supp->node_role == WS_NR_ROLE_UNKNOWN && !auth->cfg->allow_fan10) {
+        TRACE(TR_DROP, "drop %-9s: FAN 1.0 authentication disabled", "key-req");
+        return;
+    }
 
     supp->gtkl = supp->lgtkl = 0;
     if (supp->node_role != WS_NR_ROLE_LFN)
