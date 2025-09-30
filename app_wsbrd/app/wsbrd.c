@@ -320,6 +320,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     else if (ctxt->config.enable_apc)
         WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
 
+    if (!version_older_than(ctxt->rcp.version_api, 2, 15, 0))
+        rcp_set_data_edfe(&ctxt->rcp, true,
+                          ctxt->config.enable_ffn10 ? WS_FAN_VERSION_1_0 : WS_FAN_VERSION_1_1);
+    else if (ctxt->config.enable_ffn10)
+        WARN("enable_ffn10 requires RCP API >= 2.14.0 for edfe frames");
+
     ws_chan_mask_calc_reg(fhss->uc_chan_mask, fhss->chan_params);
     ws_chan_mask_calc_reg(fhss->bc_chan_mask, fhss->chan_params);
     bitand(fhss->uc_chan_mask, ctxt->config.ws_allowed_channels, 256);

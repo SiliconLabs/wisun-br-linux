@@ -1241,6 +1241,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (wh_ies.fc) {
         data_req.TxAckReq = false;
         message->ack_requested = false;
+        /*
+         *   Wi-SUN FAN 6.3.2.1.6 Upper Layer Application Data Frame
+         * -- version 1v33
+         * The Sequence Number field MUST be elided for EDFE.
+         * -- version 1.1v10
+         * The Sequence Number field MUST be included for EDFE frames carrying an MPX-IE.
+         */
+        data_req.SeqNumSuppressed = ws_info->enable_ffn10;
     }
 
     if (ws_neigh) {
