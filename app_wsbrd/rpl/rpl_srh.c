@@ -50,7 +50,7 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
         }
         if (!memcmp(transit->parent, root->dodag_id, 16))
             break;
-        if (seg_count > WS_RPL_SRH_MAXSEG) {
+        if (seg_count >= WS_RPL_SRH_MAXSEG) {
             TRACE(TR_TX_ABORT, "tx-abort: rpl srh > %u hops", WS_RPL_SRH_MAXSEG);
             return -1;
         }
