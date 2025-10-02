@@ -44,6 +44,7 @@ static void supp_key_update_failure_timer(struct supp_ctx *supp)
         timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
     } else {
         TRACE(TR_SECURITY, "sec: gtkl local=0x%02x == auth=0x%02x", gtkl, supp->auth_gtkl);
+        timer_stop(NULL, &supp->failure_timer);
     }
 }
 
@@ -489,8 +490,6 @@ exit:
 static void supp_key_pairwise_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                    struct iobuf_read *iobuf)
 {
-    timer_stop(NULL, &supp->failure_timer);
-
     switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_INSTALL, be16toh(frame->information)))
     {
     case 0:
