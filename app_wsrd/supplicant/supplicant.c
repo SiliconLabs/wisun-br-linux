@@ -288,6 +288,7 @@ void supp_reset(struct supp_ctx *supp)
             supp->on_gtk_change(supp, NULL, 0, i + 1);
         ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
     }
+    supp->auth_gtkl = 0;
 }
 
 void supp_init(struct supp_ctx *supp)

@@ -35,6 +35,18 @@
 
 #include "supplicant_key.h"
 
+static void supp_key_update_failure_timer(struct supp_ctx *supp)
+{
+    uint8_t gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
+
+    if (gtkl != supp->auth_gtkl) {
+        TRACE(TR_SECURITY, "sec: gtkl local=0x%02x != auth=0x%02x (expect gkh)", gtkl, supp->auth_gtkl);
+        timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
+    } else {
+        TRACE(TR_SECURITY, "sec: gtkl local=0x%02x == auth=0x%02x", gtkl, supp->auth_gtkl);
+    }
+}
+
 static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame *response)
 {
     struct pktbuf buf = { };
@@ -235,12 +247,10 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
     TRACE(TR_SECURITY, "sec: %s local=0x%02x auth=0x%02x", is_lgtk ? "lgtkl" : "gtkl", gtkl, gtkl_kde);
     if (is_lgtk)
         return;
-    // Waiting for other GTKs
-    if (gtkl != gtkl_kde) {
-        timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
-        return;
-    }
-    if (supp->on_all_keys_installed)
+
+    supp->auth_gtkl = gtkl_kde;
+    if (supp->on_all_keys_installed &&
+        gtkl == supp->auth_gtkl)
         supp->on_all_keys_installed(supp);
 }
 
@@ -366,6 +376,7 @@ static void supp_key_group_message_1_recv(struct supp_ctx *supp, const struct ea
     supp_key_group_message_2_send(supp);
     // We may have started the key request txalg after a gtkhash missmatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
+    supp_key_update_failure_timer(supp);
 }
 
 static void supp_key_pairwise_message_3_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
@@ -412,6 +423,7 @@ static void supp_key_pairwise_message_3_recv(struct supp_ctx *supp, const struct
     if (supp_key_handle_key_data(supp, frame, iobuf))
         goto error;
     supp_key_pairwise_message_4_send(supp);
+    supp_key_update_failure_timer(supp);
     return;
 
 error:

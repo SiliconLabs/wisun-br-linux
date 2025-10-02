@@ -86,6 +86,7 @@ struct supp_ctx {
     // 4WH and 2WH
     struct ws_gtk gtks[WS_GTK_COUNT + WS_LGTK_COUNT];
     struct eui64 auth_eui64;
+    uint8_t auth_gtkl;
     uint8_t anonce[32];
     uint8_t snonce[32];
 
