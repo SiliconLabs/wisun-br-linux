@@ -482,22 +482,6 @@ exit:
     timer_start_rel(NULL, &supp->failure_timer, supp->cfg->timeout_ms);
 }
 
-static void supp_key_pairwise_recv(struct supp_ctx *supp, const struct eapol_key_frame *frame,
-                                   struct iobuf_read *iobuf)
-{
-    switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_INSTALL, be16toh(frame->information)))
-    {
-    case 0:
-        supp_key_pairwise_message_1_recv(supp, frame, iobuf);
-        break;
-    case 1:
-        supp_key_pairwise_message_3_recv(supp, frame, iobuf);
-        break;
-    default:
-        break;
-    }
-}
-
 void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
 {
     const struct eapol_key_frame *frame;
@@ -548,15 +532,12 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
         return;
     }
 
-    switch (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)))
-    {
-    case IEEE80211_KEY_TYPE_GROUP:
+    if (be16toh(frame->information) & IEEE80211_MASK_KEY_INFO_TYPE) {
+        if (!(be16toh(frame->information) & IEEE80211_MASK_KEY_INFO_INSTALL))
+            supp_key_pairwise_message_1_recv(supp, frame, iobuf);
+        else
+            supp_key_pairwise_message_3_recv(supp, frame, iobuf);
+    } else {
         supp_key_group_message_1_recv(supp, frame, iobuf);
-        break;
-    case IEEE80211_KEY_TYPE_PAIRWISE:
-        supp_key_pairwise_recv(supp, frame, iobuf);
-        break;
-    default:
-        break;
     }
 }
