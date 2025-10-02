@@ -376,11 +376,20 @@ static int ipv6_recv_ns_aro(struct ipv6_ctx *ipv6,
      * for the IPv6 source address of the NS.
      */
     nce = ipv6_neigh_fetch(ipv6, src, &eui64);
-    WARN_ON(!timer_stopped(&nce->own_aro_timer));
     timer_start_rel(&ipv6->timer_group, &nce->aro_lifetime,
                     (uint64_t)ntohs(aro->lifetime_minutes) * 60 * 1000);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%umin",
           tr_ipv6(src->s6_addr), (int)(timer_duration_ms(&nce->aro_lifetime) / 1000 / 60));
+    // NOTE: Parent will be discarded during parent selection as it is a child
+    if (nce->rpl && nce->rpl->path_ctl) {
+        WARN("discard child from parent set");
+        rpl_update_parents(ipv6);
+        if (!rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED)) {
+            WARN("no more preferred parent, discard child");
+            ipv6_send_na_aro(ipv6, &src_linklocal, ns_target, &eui64, NDP_ARO_STATUS_REMOVED);
+            timer_stop(&ipv6->timer_group, &nce->aro_lifetime);
+        }
+    }
     return 0;
 }
 
