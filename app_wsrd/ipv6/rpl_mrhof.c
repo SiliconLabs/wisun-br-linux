@@ -324,7 +324,7 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
          * too often.
          */
         cur_min_path_cost = mrhof->max_path_cost;
-        if (parents_cur[i] && timer_stopped(&parents_cur[i]->rpl->deny_timer))
+        if (parents_cur[i] && timer_stopped(&parents_cur[i]->rpl->deny_timer) && !parents_cur[i]->rpl->path_ctl)
             cur_min_path_cost = rpl_mrhof_path_cost(ipv6, parents_cur[i]);
 
         TRACE(TR_RPL, "rpl: selecting %s parent cur=%s dodag-verno=%d min-path-cost=%.0f max-link-metric=%.0f rank-limit=%u",
