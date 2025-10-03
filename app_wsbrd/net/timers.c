@@ -47,8 +47,6 @@ struct ws_timer g_timers[] = {
     timer_entry(IPV6_ROUTE,             ipv6_route_table_ttl_update,                1000,                    true),
     timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                    true),
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
-    timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
-    timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
