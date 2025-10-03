@@ -79,7 +79,6 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                              const struct rpl_opt_prefix *prefix)
 {
     const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
-    bool update = nce->rpl->dio.rank != dio->rank;
 
     WARN_ON(nce->rpl->dio.instance_id != dio->instance_id);
     WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio.dodag_id.s6_addr, &dodag_id));
@@ -89,7 +88,7 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
     // TODO: timer for prefix lifetime
     TRACE(TR_RPL, "rpl: neigh set %s rank=%u ",
           tr_ipv6(nce->gua.s6_addr), ntohs(dio->rank));
-    if (update && rpl_can_update_parent(ipv6))
+    if (rpl_can_update_parent(ipv6))
         rpl_update_parents(ipv6);
 }
 
