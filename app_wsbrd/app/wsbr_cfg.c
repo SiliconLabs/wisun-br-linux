@@ -30,13 +30,6 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl.k = 3,         // Arbitrary (RFC 7731 k=1 default is too small)
         .trickle_mpl_e_max = 3,
         .mpl_seed_set_entry_lifetime = 30 * 60,
-
-        // Security protocol
-        .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
-        .security_protocol_config.sec_prot_trickle_params.Imax = 120 * 10,
-        .security_protocol_config.sec_prot_trickle_params.k = 0,
-        .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
-        .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_SMALL] = {
         // Discovery
@@ -51,13 +44,6 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl_e_max = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
         .mpl_seed_set_entry_lifetime = 10 * MPL_SAFE_HOP_COUNT * (2 + 1),
-
-        // Security protocol
-        .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
-        .security_protocol_config.sec_prot_trickle_params.Imax = 120 * 10,
-        .security_protocol_config.sec_prot_trickle_params.k = 0,
-        .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
-        .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_MEDIUM] = {
         // Discovery
@@ -72,13 +58,6 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl_e_max = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
         .mpl_seed_set_entry_lifetime = 32 * MPL_SAFE_HOP_COUNT * (2 + 1),
-
-        // Security protocol
-        .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
-        .security_protocol_config.sec_prot_trickle_params.Imax = 120 * 10,
-        .security_protocol_config.sec_prot_trickle_params.k = 0,
-        .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
-        .security_protocol_config.sec_prot_retry_timeout = 450 * 10,
     },
     [WS_NETWORK_SIZE_LARGE] = {
         // Discovery
@@ -93,13 +72,6 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl_e_max = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
         .mpl_seed_set_entry_lifetime = 40 * MPL_SAFE_HOP_COUNT * (2 + 1),
-
-        // Security protocol
-        .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
-        .security_protocol_config.sec_prot_trickle_params.Imax = 240 * 10,
-        .security_protocol_config.sec_prot_trickle_params.k = 0,
-        .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
-        .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
     },
     [WS_NETWORK_SIZE_XLARGE] = {
         // Discovery
@@ -114,12 +86,5 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl_e_max = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
         .mpl_seed_set_entry_lifetime = 80 * MPL_SAFE_HOP_COUNT * (2 + 1),
-
-        // Security protocol
-        .security_protocol_config.sec_prot_trickle_params.Imin = 60 * 10,
-        .security_protocol_config.sec_prot_trickle_params.Imax = 240 * 10,
-        .security_protocol_config.sec_prot_trickle_params.k = 0,
-        .security_protocol_config.sec_prot_trickle_params.TimerExpirations = 4,
-        .security_protocol_config.sec_prot_retry_timeout = 750 * 10,
     },
 };
