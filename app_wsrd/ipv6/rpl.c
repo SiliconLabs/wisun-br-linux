@@ -641,10 +641,14 @@ static void rpl_recv_dio(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t buf_l
      * their Rank within the old DODAG Version.
      * NOTE: this implementation increases the DODAGVersionNumber when one of
      * the selected parent propagates a new DODAGVersionNumber.
+     *
+     *   Wi-SUN FAN 1.1v10 6.2.3.1.6.5 RPL Global Repair
+     * A Router MUST send a new DAO to the Border Router
      */
     if (nce->rpl && nce->rpl->path_ctl && seqno_cmp8(dio->dodag_verno, ipv6->rpl.dodag_verno) > 0) {
         ipv6->rpl.dodag_verno = dio->dodag_verno;
         ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+        rpl_start_dao(ipv6);
         TRACE(TR_RPL, "rpl: set dodag-verno=%u", ipv6->rpl.dodag_verno);
     }
 
