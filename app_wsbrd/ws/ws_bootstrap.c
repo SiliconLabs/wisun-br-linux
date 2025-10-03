@@ -33,7 +33,6 @@
 #include "common/time_extra.h"
 #include "common/string_extra.h"
 #include "common/version.h"
-#include "common/events_scheduler.h"
 #include "common/specs/icmpv6.h"
 #include "common/specs/ieee802154.h"
 #include "common/specs/ieee802159.h"
@@ -57,11 +56,7 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_config.h"
-#include "ws/ws_eapol_auth_relay.h"
-#include "ws/ws_eapol_pdu.h"
-#include "ws/ws_eapol_relay.h"
 #include "ws/ws_llc.h"
-#include "ws/ws_pae_controller.h"
 
 #include "ws/ws_bootstrap.h"
 

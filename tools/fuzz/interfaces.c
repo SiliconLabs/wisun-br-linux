@@ -17,9 +17,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include "app_wsbrd/net/netaddr_types.h"
-#include "app_wsbrd/security/kmp/kmp_socket_if.h"
-#include "app_wsbrd/ws/ws_eapol_relay.h"
-#include "app_wsbrd/ws/ws_eapol_auth_relay.h"
 #include "app_wsbrd/app/wsbrd.h"
 #include "app_wsbrd/app/wsbr_mac.h"
 #include "common/log.h"

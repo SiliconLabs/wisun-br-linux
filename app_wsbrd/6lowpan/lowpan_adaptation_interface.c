@@ -33,7 +33,6 @@
 #include "common/specs/ip.h"
 
 #include "common/random_early_detection.h"
-#include "common/events_scheduler.h"
 
 #include "app/wsbrd.h"
 #include "app/wsbr_mac.h"

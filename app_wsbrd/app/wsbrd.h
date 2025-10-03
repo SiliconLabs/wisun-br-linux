@@ -27,7 +27,6 @@ typedef struct sd_bus sd_bus;
 #include "common/authenticator/authenticator.h"
 #include "common/dhcp_relay.h"
 #include "common/dhcp_server.h"
-#include "common/events_scheduler.h"
 #include "common/rcp_api.h"
 #include "common/timer.h"
 #include "common/tun.h"

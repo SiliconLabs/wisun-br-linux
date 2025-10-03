@@ -50,15 +50,12 @@
 #include "app/rcp_api_legacy.h"
 #include "net/timers.h"
 #include "net/protocol.h"
-#include "security/pana/pana_eap_header.h"
-#include "security/eapol/eapol_helper.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "ws/ws_auth.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_ie_validation.h"
-#include "ws/ws_pae_controller.h"
 
 #include "ws/ws_llc.h"
 

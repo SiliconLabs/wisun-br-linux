@@ -22,7 +22,6 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
-#include "common/events_scheduler.h"
 #include "common/endian.h"
 #include "common/string_extra.h"
 #include "common/specs/ipv6.h"

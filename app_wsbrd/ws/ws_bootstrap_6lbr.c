@@ -28,7 +28,6 @@
 #include "common/trickle_legacy.h"
 #include "common/named_values.h"
 #include "common/endian.h"
-#include "common/events_scheduler.h"
 #include "common/version.h"
 #include "common/specs/ws.h"
 #include "common/specs/ipv6.h"
@@ -51,10 +50,6 @@
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_llc.h"
-#include "ws/ws_pae_controller.h"
-#include "ws/ws_eapol_pdu.h"
-#include "ws/ws_eapol_auth_relay.h"
-#include "ws/ws_eapol_relay.h"
 #include "ws/ws_mngt.h"
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
