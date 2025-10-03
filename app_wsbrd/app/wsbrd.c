@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <string.h>
 #include "common/specs/mpl.h"
+#include "common/ws/eapol_relay.h"
 #include "common/ws/ws_regdb.h"
 #include "common/mbedtls_config_check.h"
 #include "common/bus_uart.h"
@@ -665,9 +666,10 @@ int wsbr_main(int argc, char *argv[])
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
-    ws_auth_init(&ctxt->net_if, &ctxt->config, ctxt->tun.ifname);
+    ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->tun.ifname);
+    auth_start(&ctxt->auth, &ctxt->rcp.eui64, ctxt->config.enable_lfn);
     /*
-     * WARNING: do not move this function call before ws_auth_init().
+     * WARNING: do not move this function call before auth_start().
      * See comment in wsbr_on_gtk_change().
      */
     ws_bootstrap_6lbr_init(&ctxt->net_if);

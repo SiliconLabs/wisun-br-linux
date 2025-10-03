@@ -23,12 +23,6 @@
 
 #include "ws_auth.h"
 
-void ws_auth_init(struct net_if *net_if, const struct wsbrd_conf *conf, const char ifname[IF_NAMESIZE])
-{
-    net_if->auth->eapol_relay_fd = eapol_relay_start(ifname);
-    auth_start(net_if->auth, &net_if->rcp->eui64, conf->enable_lfn);
-}
-
 int ws_auth_fd_eapol_relay(const struct net_if *net_if)
 {
     return net_if->auth->eapol_relay_fd;

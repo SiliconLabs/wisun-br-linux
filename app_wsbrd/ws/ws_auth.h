@@ -22,10 +22,6 @@ struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-void ws_auth_init(struct net_if *net_if,
-                  const struct wsbrd_conf *conf,
-                  const char ifname[IF_NAMESIZE]);
-
 int  ws_auth_fd_eapol_relay(const struct net_if *net_if);
 void ws_auth_recv_eapol_relay(struct net_if *net_if);
 int  ws_auth_fd_radius(const struct net_if *net_if);
