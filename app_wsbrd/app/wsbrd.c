@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include "common/authenticator/authenticator_radius.h"
 #include "common/specs/mpl.h"
 #include "common/ws/eapol_relay.h"
 #include "common/ws/ws_regdb.h"
@@ -597,7 +598,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
         wsbr_recv_eapol_relay(&ctxt->auth);
     if (ctxt->fds[POLLFD_RADIUS].revents & POLLIN)
-        ws_auth_recv_radius(&ctxt->net_if);
+        radius_recv(&ctxt->auth);
     if (ctxt->fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (ctxt->fds[POLLFD_RCP].revents & POLLIN ||

@@ -16,17 +16,11 @@
 #include "app_wsbrd/app/commandline.h"
 #include "app_wsbrd/net/protocol.h"
 #include "common/authenticator/authenticator.h"
-#include "common/authenticator/authenticator_radius.h"
 #include "common/ws/eapol_relay.h"
 #include "common/mbedtls_extra.h"
 #include "common/string_extra.h"
 
 #include "ws_auth.h"
-
-void ws_auth_recv_radius(struct net_if *net_if)
-{
-    radius_recv(net_if->auth);
-}
 
 const uint8_t *ws_auth_gtk(const struct net_if *net_if, int key_index)
 {

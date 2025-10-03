@@ -22,8 +22,6 @@ struct eui64;
 struct net_if;
 struct wsbrd_conf;
 
-void ws_auth_recv_radius(struct net_if *net_if);
-
 const uint8_t *ws_auth_gtk(const struct net_if *net_if, int key_index);
 void ws_auth_gtkhash(const struct net_if *net_if, uint8_t gtkhash[WS_GTK_COUNT][8]);
 void ws_auth_lgtkhash(const struct net_if *net_if, uint8_t lgtkhash[WS_LGTK_COUNT][8]);
