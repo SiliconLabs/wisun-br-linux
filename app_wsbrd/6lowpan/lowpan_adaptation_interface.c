@@ -700,9 +700,12 @@ int lowpan_adaptation_queue_size(int8_t interface_id)
 
 int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 {
+    bool is_unicast;
+
     if (!buf) {
         return -1;
     }
+    is_unicast = buf->link_specific.ieee802_15_4.requestAck;
 
     if (!cur) {
         goto tx_error_handler;
@@ -731,7 +734,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
         if (!interface_ptr->fragment_indirect_tx_buffer)
             interface_ptr->fragment_indirect_tx_buffer = xalloc(cur->mac_parameters.mtu);
     }
-    bool is_unicast = buf->link_specific.ieee802_15_4.requestAck;
 
     if (!lowpan_buffer_tx_allowed(interface_ptr, buf)) {
 
