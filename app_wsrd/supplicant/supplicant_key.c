@@ -225,7 +225,12 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
     const uint8_t count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
     const uint8_t offset = is_lgtk ? WS_GTK_COUNT : 0;
     struct ws_gtk *gtk;
-    uint8_t gtkl;
+
+    if (!is_lgtk)
+        supp->auth_gtkl = gtkl_kde;
+
+    TRACE(TR_SECURITY, "sec: %s local=0x%02x auth=0x%02x", is_lgtk ? "lgtkl" : "gtkl",
+          supp_get_gtkl(supp->gtks + offset, count), gtkl_kde);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
@@ -243,16 +248,6 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
             continue;
         supp_revoke_gtk(supp, i + offset);
     }
-
-    gtkl = supp_get_gtkl(supp->gtks + offset, count);
-    TRACE(TR_SECURITY, "sec: %s local=0x%02x auth=0x%02x", is_lgtk ? "lgtkl" : "gtkl", gtkl, gtkl_kde);
-    if (is_lgtk)
-        return;
-
-    supp->auth_gtkl = gtkl_kde;
-    if (supp->on_all_keys_installed &&
-        gtkl == supp->auth_gtkl)
-        supp->on_all_keys_installed(supp);
 }
 
 static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_key_frame *frame,
@@ -312,6 +307,11 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         goto error;
     }
 
+    if (has_gtkl || has_lgtkl)
+        supp_key_update_gtkl(supp, gtkl_kde, has_lgtkl);
+    else
+        WARN("sec: no (L)GTKL KDE found");
+
     if (has_gtk || has_lgtk) {
         ret = supp_key_install_gtk(supp, &gtk_kde, lifetime_kde, has_lgtk);
         if (ret < 0)
@@ -319,11 +319,6 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     } else {
         WARN("sec: no (L)GTK KDE found");
     }
-
-    if (has_gtkl || has_lgtkl)
-        supp_key_update_gtkl(supp, gtkl_kde, has_lgtkl);
-    else
-        WARN("sec: no (L)GTKL KDE found");
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)

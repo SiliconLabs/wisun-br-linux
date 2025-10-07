@@ -99,7 +99,6 @@ struct supp_ctx {
                        const struct eui64 *dst);
     struct eui64 (*get_target)(struct supp_ctx *supp);
     void (*on_gtk_change)(struct supp_ctx *supp, const uint8_t gtk[16], uint32_t frame_counter, uint8_t index);
-    void (*on_all_keys_installed)(struct supp_ctx *supp);
     void (*on_failure)(struct supp_ctx *supp);
 };
 

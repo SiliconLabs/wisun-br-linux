@@ -147,13 +147,6 @@ static void wsrd_on_unregistration_timer_timeout(struct timer_group *group, stru
     join_state_transition(wsrd, wsrd->last_event);
 }
 
-static void wsrd_eapol_on_all_keys_installed(struct supp_ctx *supp)
-{
-    struct wsrd *wsrd = container_of(supp, struct wsrd, supp);
-
-    join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
-}
-
 struct wsrd g_wsrd = {
     .ws.rcp.bus.fd = -1,
     .ws.rcp.on_reset  = wsrd_on_rcp_reset,
@@ -187,7 +180,6 @@ struct wsrd g_wsrd = {
     // FreeRADIUS refuses an empty identity, so an arbitrary value is used.
     .config.supp_cfg.eap_identity = "Anonymous",
     .supp.cfg = &g_wsrd.config.supp_cfg,
-    .supp.on_all_keys_installed = wsrd_eapol_on_all_keys_installed,
     .supp.on_gtk_change = wsrd_eapol_on_gtk_change,
     .supp.on_failure  = wsrd_eapol_on_failure,
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
@@ -387,6 +379,9 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
         rcp_set_sec_key(&wsrd->ws.rcp, index, NULL, 0);
     }
     dbus_emit_change("Gaks");
+
+    if (supp_get_gtkl(supp->gtks, WS_GTK_COUNT) == supp->auth_gtkl)
+        join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
 }
 
 static void wsrd_eapol_on_failure(struct supp_ctx *supp)
