@@ -1,3 +1,33 @@
+v2.7
+------
+  - Implement remaining FAN 1.1 core feature for `wsrd`:
+    * Insert IPv6 tunnel header with RPL hop-by-hop option in upward traffic.
+    * Support MPL forwarding and message generation.
+    * Support RPL secondary parent selection and registration.
+    * Support RPL DTSN and DODAGVersionNumber updates.
+    * Retrieve all available GTKs before advancing from join state 2 to 3.
+  - Introduce `csma_xxx` parameters to customize MAC transmission policy.
+  - Deprecate `regional_regulation` in favor of specific parameters such as
+    `enable_apc`.
+  - Merge key update events in `wsbrd` to avoid sending multiple LFN PAN
+    Configuration frames and incrementing the PAN version multiple times during
+    key revocation.
+  - Do not include LFNVER-IE in LFN Time Sync frames sent by `wsbrd`.
+  - Verify certificate and private key consistency during initialization.
+  - Use FAN 1.0 EDFE frame format with `enable_ffn10 = true`.
+  - Fix storage of IPv6 neighbor cache expiration date for specific platforms.
+  - Fixed computing LFN frame timeout after schedule change in `wsbrd`: some
+    frames could end up being incorrectly dropped.
+  - Fix D-Bus `RoutingGraph` exposing nodes without any parents in `wsbrd`.
+  - Fix memory corruption when generating a SRH with more than 24 hops.
+  - Fix [muslc libc][musl] support and build against it in GitHub action.
+  - Fix incorrectly deleting child address registration on receipt of a DAO
+    indicating `wsbrd` as parent but not as the 1st transit option present
+    following a RPL target option.
+  - Support mode switch PHY configuration and LTO-IE insersion for TBU.
+
+[musl]: https://www.musl-libc.org/
+
 v2.6.1
 ------
   - Verify frame counters in `wsrd` and `silabs-ws-dc` to prevent replay
