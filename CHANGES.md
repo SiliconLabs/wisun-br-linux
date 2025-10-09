@@ -43,6 +43,9 @@ v2.5
       leaving the network.
     * Respond to NA(EARO) for Registration Refresh Request to accelerate parent
       recovery.
+  - Better support for LFN schedule updates in `wsbrd`: when a packet is
+    queued in the RCP, it would previously perform all retransmissions using
+    outdated timing.
   - Drop duplicate MAC frames in `wsrd` and `silabs-ws-dc` based on MAC
     sequence number.
   - Forward IPv6 packets that are not tunneled in `wsrd`. This issue prevented
