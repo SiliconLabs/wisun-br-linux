@@ -110,7 +110,7 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     if (neigh->ns_handle >= 0) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
               "ns(aro)", tr_ipv6(neigh->gua.s6_addr));
-        return neigh->ns_handle;
+        return -EAGAIN;
     }
 
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
@@ -151,7 +151,7 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     if (neigh->ns_handle >= 0) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
               "ns", tr_ipv6(neigh->gua.s6_addr));
-        return neigh->ns_handle;
+        return -EAGAIN;
     }
 
     src = ipv6_prefix_linklocal;
@@ -225,6 +225,7 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
 static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
 {
     uint64_t delay_ms;
+    int handle;
 
     // MAX_UNICAST_SOLICIT = 3
     if (neigh->nud_probe_count >= 3) {
@@ -251,11 +252,17 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
          * a default router.
          */
         if (neigh->rpl && neigh->rpl->path_ctl && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
-            neigh->ns_handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
-            neigh->ns_has_aro = true;
+            handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
+            if (handle >= 0) {
+                neigh->ns_handle = handle;
+                neigh->ns_has_aro = true;
+            }
         } else {
-            neigh->ns_handle = ipv6_send_ns(ipv6, neigh);
-            neigh->ns_has_aro = false;
+            handle = ipv6_send_ns(ipv6, neigh);
+            if (handle >= 0) {
+                neigh->ns_handle = handle;
+                neigh->ns_has_aro = false;
+            }
         }
         neigh->nud_probe_count++;
         delay_ms = randf_range(0.5 * ipv6->probe_delay_ms, 1.5 * ipv6->probe_delay_ms);
