@@ -79,6 +79,34 @@ enum {
 #define LOWPAN_MASK_IPHC_TF10_ECN  0b11000000
 #define LOWPAN_MASK_IPHC_TF10_DSCP 0b00111111
 
+enum {
+    LOWPAN_TF_ECN_DSCP_FLOW = 0x0,
+    LOWPAN_TF_ECN_FLOW      = 0x1,
+    LOWPAN_TF_ECN_DSCP      = 0x2,
+    LOWPAN_TF_NONE          = 0x3,
+};
+
+enum {
+    LOWPAN_HLIM_INLINE = 0x0,
+    LOWPAN_HLIM_1      = 0x1,
+    LOWPAN_HLIM_64     = 0x2,
+    LOWPAN_HLIM_255    = 0x3,
+};
+
+enum {
+    LOWPAN_AM_INLINE = 0x0,
+    LOWPAN_AM_IID64  = 0x1, // fe80::XXXX:XXXX:XXXX:XXXX
+    LOWPAN_AM_IID16  = 0x2, // fe80::ff:fe00:XXXX
+    LOWPAN_AM_NONE   = 0x3,
+};
+
+enum {
+    LOWPAN_MAM_INLINE = 0x0,
+    LOWPAN_MAM_FS_G40 = 0x1, // ffXX::XX:XXXX:XXXX
+    LOWPAN_MAM_FS_G28 = 0x2, // ffXX::XX:XXXX
+    LOWPAN_MAM_G8     = 0x3, // ff02::XX
+};
+
 // LOWPAN_NHC Header Type
 // https://www.iana.org/assignments/_6lowpan-parameters/_6lowpan-parameters.xhtml#lowpan_nhc
 #define LOWPAN_NHC_EXTHDR     0b11100000 // 1110EEEN
@@ -102,6 +130,14 @@ enum lowpan_nhc_exthdr_eid {
 // RFC 6282 - Figure 14: UDP Header Encoding
 #define LOWPAN_MASK_NHC_UDP_C 0b00000100
 #define LOWPAN_MASK_NHC_UDP_P 0b00000011
+
+// RFC 6282 4.3.3. UDP LOWPAN_NHC Format
+enum {
+    LOWPAN_UDP_P_INLINE = 0x0,
+    LOWPAN_UDP_P_S16_D8 = 0x1, // XXXX f0XX
+    LOWPAN_UDP_P_S8_D16 = 0x2, // f0XX XXXX
+    LOWPAN_UDP_P_S8_D8  = 0x3, // f0eX f0eX
+};
 
 #define LOWPAN_MASK_NHC_UDP_P11_SRC 0b11110000
 #define LOWPAN_MASK_NHC_UDP_P11_DST 0b00001111

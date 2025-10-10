@@ -40,26 +40,26 @@ static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
     uint32_t tmp;
 
     switch (FIELD_GET(LOWPAN_MASK_IPHC_TF, base)) {
-    case 0b00:
+    case LOWPAN_TF_ECN_DSCP_FLOW:
         // 00: ECN + DSCP + 4-bit Pad + Flow Label (4 bytes)
         tmp = pktbuf_pop_head_be32(pktbuf);
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF00_ECN,  tmp);
         dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF00_DSCP, tmp);
         flow = FIELD_GET(LOWPAN_MASK_IPHC_TF00_FLOW, tmp);
         break;
-    case 0b01:
+    case LOWPAN_TF_ECN_FLOW:
         // 01: ECN + 2-bit Pad + Flow Label (3 bytes), DSCP is elided.
         tmp = pktbuf_pop_head_be24(pktbuf);
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF01_ECN,  tmp);
         flow = FIELD_GET(LOWPAN_MASK_IPHC_TF01_FLOW, tmp);
         break;
-    case 0b10:
+    case LOWPAN_TF_ECN_DSCP:
         // 10: ECN + DSCP (1 byte), Flow Label is elided.
         tmp = pktbuf_pop_head_u8(pktbuf);
         ecn  = FIELD_GET(LOWPAN_MASK_IPHC_TF10_ECN,  tmp);
         dscp = FIELD_GET(LOWPAN_MASK_IPHC_TF10_DSCP, tmp);
         break;
-    case 0b11:
+    case LOWPAN_TF_NONE:
         // 11: Traffic Class and Flow Label are elided.
         break;
     }
@@ -73,17 +73,13 @@ static uint32_t lowpan_iphc_decmpr_vtcflow(struct pktbuf *pktbuf, uint16_t base)
 static uint8_t lowpan_iphc_decmpr_hlim(struct pktbuf *pktbuf, uint16_t base)
 {
     switch (FIELD_GET(LOWPAN_MASK_IPHC_HLIM, base)) {
-    case 0b00:
-        // 00: The Hop Limit field is carried in-line.
+    case LOWPAN_HLIM_INLINE:
         return pktbuf_pop_head_u8(pktbuf);
-    case 0b01:
-        // 01: The Hop Limit field is compressed and the hop limit is 1.
+    case LOWPAN_HLIM_1:
         return 1;
-    case 0b10:
-        // 10: The Hop Limit field is compressed and the hop limit is 64.
+    case LOWPAN_HLIM_64:
         return 64;
-    case 0b11:
-        // 11: The Hop Limit field is compressed and the hop limit is 255.
+    case LOWPAN_HLIM_255:
         return 255;
     default:
         BUG();
@@ -94,18 +90,18 @@ static void lowpan_iphc_decmpr_addr_stless(struct pktbuf *pktbuf, struct in6_add
                                            uint8_t mode, const uint8_t iid[8])
 {
     switch (mode) {
-    case 0b00:
+    case LOWPAN_AM_INLINE:
         // 00: 128 bits. The full address is carried in-line.
         pktbuf_pop_head(pktbuf, addr->s6_addr, 16);
         break;
-    case 0b01:
+    case LOWPAN_AM_IID64:
         // 01: 64 bits. The first 64-bits of the address are elided. The
         // value of those bits is the link-local prefix padded with zeros.
         // The remaining 64 bits are carried in-line.
         memcpy(addr->s6_addr, ipv6_prefix_linklocal.s6_addr, 8);
         pktbuf_pop_head(pktbuf, addr->s6_addr + 8, 8);
         break;
-    case 0b10:
+    case LOWPAN_AM_IID16:
         // 10: 16 bits. The first 112 bits of the address are elided. The
         // value of the first 64 bits is the link-local prefix padded with
         // zeros. The following 64 bits are 0000:00ff:fe00:XXXX, where XXXX
@@ -114,7 +110,7 @@ static void lowpan_iphc_decmpr_addr_stless(struct pktbuf *pktbuf, struct in6_add
         memcpy(addr->s6_addr + 8, (uint8_t[6]){ 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00 }, 6);
         pktbuf_pop_head(pktbuf, addr->s6_addr + 14, 2);
         break;
-    case 0b11:
+    case LOWPAN_AM_NONE:
         // 11: 0 bits. The address is fully elided.  The first 64 bits of the
         // address are the link-local prefix padded with zeros. The remaining
         // 64 bits are computed from the encapsulating header (e.g., 802.15.4
@@ -129,25 +125,25 @@ static void lowpan_iphc_decmpr_addr_stless(struct pktbuf *pktbuf, struct in6_add
 static void lowpan_iphc_decmpr_maddr_stless(struct pktbuf *pktbuf, struct in6_addr *addr, uint8_t mode)
 {
     switch (mode) {
-    case 0b00:
+    case LOWPAN_MAM_INLINE:
         // 00: 128 bits. The full address is carried in-line.
         pktbuf_pop_head(pktbuf, addr->s6_addr, 16);
         break;
-    case 0b01:
+    case LOWPAN_MAM_FS_G40:
         // 01: 48 bits. The address takes the form ffXX::00XX:XXXX:XXXX.
         addr->s6_addr[0] = 0xff;
         pktbuf_pop_head(pktbuf, addr->s6_addr + 1, 1);
         memset(addr->s6_addr + 2, 0, 9);
         pktbuf_pop_head(pktbuf, addr->s6_addr + 11, 5);
         break;
-    case 0b10:
+    case LOWPAN_MAM_FS_G28:
         // 10: 32 bits. The address takes the form ffXX::00XX:XXXX.
         addr->s6_addr[0] = 0xff;
         pktbuf_pop_head(pktbuf, addr->s6_addr + 1, 1);
         memset(addr->s6_addr + 2, 0, 11);
         pktbuf_pop_head(pktbuf, addr->s6_addr + 13, 3);
         break;
-    case 0b11:
+    case LOWPAN_MAM_G8:
         // 11: 8 bits. The address takes the form ff02::00XX.
         addr->s6_addr[0]  = 0xff;
         addr->s6_addr[1]  = 0x02;
@@ -289,27 +285,27 @@ static void lowpan_nhc_decmpr_udp(struct pktbuf *pktbuf, uint8_t nhc,
     uint8_t tmp;
 
     switch (FIELD_GET(LOWPAN_MASK_NHC_UDP_P, nhc)) {
-    case 0b00:
+    case LOWPAN_UDP_P_INLINE:
         // 00: All 16 bits for both Source Port and Destination Port are
         // carried in-line.
         pktbuf_pop_head(pktbuf, &hdr.uh_sport, sizeof(hdr.uh_sport));
         pktbuf_pop_head(pktbuf, &hdr.uh_dport, sizeof(hdr.uh_dport));
         break;
-    case 0b01:
+    case LOWPAN_UDP_P_S16_D8:
         // 01: All 16 bits for Source Port are carried in-line. First 8 bits of
         // Destination Port is 0xf0 and elided. The remaining 8 bits of
         // Destination Port are carried in-line.
         pktbuf_pop_head(pktbuf, &hdr.uh_sport, sizeof(hdr.uh_sport));
         hdr.uh_dport = htons(0xf000 | pktbuf_pop_head_u8(pktbuf));
         break;
-    case 0b10:
+    case LOWPAN_UDP_P_S8_D16:
         // 10: First 8 bits of Source Port are 0xf0 and elided. The remaining 8
         // bits of Source Port are carried in-line. All 16 bits for Destination
         // Port are carried in-line.
         hdr.uh_sport = htons(0xf000 | pktbuf_pop_head_u8(pktbuf));
         pktbuf_pop_head(pktbuf, &hdr.uh_dport, sizeof(hdr.uh_dport));
         break;
-    case 0b11:
+    case LOWPAN_UDP_P_S8_D8:
         // 11: First 12 bits of both Source Port and Destination Port are 0xf0b
         // and elided. The remaining 4 bits for each are carried in-line.
         tmp = pktbuf_pop_head_u8(pktbuf);
