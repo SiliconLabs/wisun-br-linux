@@ -193,8 +193,19 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     if (!success)
         return;
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_REACHABLE);
-    if (!neigh->ns_has_aro)
+
+    /*
+     * NOTE: if an ETX probe (NS) was sent to a neighbor and this neighbor is
+     * selected as parent while that NS is pending confirmation, we have to
+     * stay in PROBE state upon confirmation to send a NS(ARO) to that selected
+     * parent.
+     */
+    if (!neigh->ns_has_aro) {
+        if (neigh->rpl && neigh->rpl->path_ctl)
+            ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_PROBE);
         return;
+    }
+
     neigh->ns_has_aro = false;
     if (!neigh->rpl || !neigh->rpl->path_ctl || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         return;
