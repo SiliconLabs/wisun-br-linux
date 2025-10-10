@@ -133,19 +133,12 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
      */
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
         /*
-         *   Wi-SUN FAN 1.1v08, 17 Appendix K EAPOL Target Selection
-         * From the set of EAPOL candidates with an RSSI exceeding the threshold
-         * of DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS,
-         * a joining node should select the EAPOL candidate with lowest PAN Cost
-         * as its EAPOL target node.
-         *
          *   Wi-SUN FAN 1.1v09 6.3.2.3.2.3 PAN Information Element (PAN-IE)
          * A node unable to act as an EAPOL target MAY set this field to the
          * maximum value of 0xFFFF.
          */
         if (!candidate->last_pa_rx_time_s || candidate->ie_pan.routing_cost == 0xffff ||
-            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
-            WS_CAND_PARENT_HYSTERESIS_DB)
+            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm)
             continue;
         if (!selected_candidate)
             selected_candidate = candidate;
@@ -161,8 +154,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     // Ensure we select the candidate with the lowest pan cost
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
         if (!candidate->last_pa_rx_time_s || candidate->pan_id != selected_pan_id ||
-            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm + WS_CAND_PARENT_THRESHOLD_DB +
-            WS_CAND_PARENT_HYSTERESIS_DB)
+            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm)
             continue;
         if (ws_neigh_get_pan_cost(candidate) < ws_neigh_get_pan_cost(selected_candidate))
             selected_candidate = candidate;

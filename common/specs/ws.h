@@ -199,10 +199,6 @@ enum {
 // Wi-SUN FAN 1.1v08 6.2.3 Operation
 #define WS_MTU_BYTES 1576
 
-// Wi-SUN FAN 1.1v08 6.2.1 Constants
-#define WS_CAND_PARENT_THRESHOLD_DB  10
-#define WS_CAND_PARENT_HYSTERESIS_DB 3
-
 /*
  *   Wi-SUN FAN 1.1v08 6.2.1 Constants
  * ETX_EWMA_SF    ETX EWMA Smoothing Factor   1/8
