@@ -39,15 +39,18 @@
 static int ws_send_lowpan(struct dc *dc, struct pktbuf *pktbuf, const uint8_t src[8], const uint8_t dst[8])
 {
     uint8_t src_iid[8], dst_iid[8];
+    int ret;
 
+    BUG_ON(pktbuf->err);
     ipv6_addr_conv_iid_eui64(src_iid, src);
     ipv6_addr_conv_iid_eui64(dst_iid, dst);
 
-    lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
-    if (pktbuf->err) {
+    ret = lowpan_iphc_cmpr(pktbuf_head(pktbuf), pktbuf_len(pktbuf), src_iid, dst_iid);
+    if (ret < 0) {
         TRACE(TR_TX_ABORT, "tx-abort: 6lowpan compression error");
         return -EINVAL;
     }
+    pktbuf->offset_tail = pktbuf->offset_head + ret;
 
     return ws_if_send_data(&dc->ws, pktbuf_head(pktbuf), pktbuf_len(pktbuf), &EUI64_FROM_BUF(dst));
 }

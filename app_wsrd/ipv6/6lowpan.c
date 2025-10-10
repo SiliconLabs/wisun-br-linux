@@ -68,13 +68,18 @@ int lowpan_send(struct ipv6_ctx *ipv6,
                 const struct eui64 *dst)
 {
     uint8_t src_iid[8], dst_iid[8];
+    int ret;
 
+    BUG_ON(pktbuf->err);
     ipv6_addr_conv_iid_eui64(src_iid, src->u8);
     ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
-    lowpan_iphc_cmpr(pktbuf, src_iid, dst_iid);
-    if (pktbuf->err)
-        return -EINVAL;
+    ret = lowpan_iphc_cmpr(pktbuf_head(pktbuf), pktbuf_len(pktbuf), src_iid, dst_iid);
+    if (ret < 0) {
+        pktbuf->err = true;
+        return ret;
+    }
+    pktbuf->offset_tail = pktbuf->offset_head + ret;
 
     return ipv6->sendto_mac(ipv6, pktbuf, dst);
 }
