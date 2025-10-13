@@ -45,6 +45,7 @@ void ws_pan_timeout_update(struct wsrd *wsrd);
 
 void ws_check_gtkhash(struct wsrd *wsrd);
 
+void ws_fhss_uc_use_rand_fixed_chan(struct wsrd *wsrd);
 void ws_fhss_uc_use_default(struct wsrd *wsrd);
 
 #endif

@@ -17,6 +17,7 @@
 #include "common/ws/eapol_relay.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/dhcp_client.h"
+#include "common/version.h"
 #include "common/dbus.h"
 
 #include "app_wsrd/supplicant/supplicant_storage.h"
@@ -47,6 +48,8 @@ void join_state_1_enter(struct wsrd *wsrd)
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_tx_req_cnt = WS_ETX_UPDATE_MIN_TX_REQ_CNT;
     wsrd->ws.neigh_table.ws_etx_ctx.update_min_delay_ms = WS_ETX_UPDATE_MIN_DELAY_MS;
     wsrd->ws.neigh_table.ws_etx_ctx.refresh_period_ms = WS_ETX_REFRESH_PERIOD_MS;
+    if (!version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0))
+        ws_fhss_uc_use_rand_fixed_chan(wsrd);
     INFO("Join state 1: Select PAN");
     trickle_start(&wsrd->pas_tkl, NULL);
 }
@@ -57,6 +60,8 @@ static void join_state_1_exit(struct wsrd *wsrd)
 
     trickle_stop(&wsrd->pas_tkl, NULL);
     timer_stop(NULL, &wsrd->pan_selection_timer);
+    if (!version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0))
+        ws_fhss_uc_use_default(wsrd);
 }
 
 /*

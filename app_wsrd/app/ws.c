@@ -37,6 +37,8 @@
 #include "common/time_extra.h"
 #include "common/seqno.h"
 #include "common/rail_config.h"
+#include "common/version.h"
+#include "common/rand.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd_storage.h"
@@ -895,6 +897,33 @@ static void ws_set_fhss_uc(struct wsrd *wsrd, const uint8_t chan_mask[WS_CHAN_MA
 
     rail_fill_ms_chan_masks(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, ms_chan_mask);
     rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, ms_chan_mask);
+}
+
+void ws_fhss_uc_use_rand_fixed_chan(struct wsrd *wsrd)
+{
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+    int selected_chan;
+    int chan_count;
+    int chan_idx;
+
+    BUG_ON(version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0));
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
+    bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
+    BUG_ON(!memzcmp(chan_mask, sizeof(chan_mask)));
+
+    if (ws_chan_mask_get_fixed(chan_mask) >= 0) {
+        ws_set_fhss_uc(wsrd, chan_mask);
+        return;
+    }
+
+    chan_count = ws_chan_mask_count(chan_mask);
+    chan_idx = rand_get_random_in_range(0, chan_count - 1);
+    selected_chan = ws_chan_mask_get_num(chan_mask, chan_idx);
+    BUG_ON(selected_chan < 0);
+    memset(chan_mask, 0, sizeof(chan_mask));
+    bitset(chan_mask, selected_chan);
+    BUG_ON(ws_chan_mask_get_fixed(chan_mask) < 0);
+    ws_set_fhss_uc(wsrd, chan_mask);
 }
 
 void ws_fhss_uc_use_default(struct wsrd *wsrd)
