@@ -14,6 +14,7 @@
 #include <ns3/sl-wisun-linux.h>
 #include <sl_wisun_msg_api.h>
 #include <sl_wisun_api.h>
+#include <endian.h>
 #include <stddef.h>
 #include <string.h>
 
