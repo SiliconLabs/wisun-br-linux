@@ -44,6 +44,10 @@
 
 #include "ws.h"
 
+#ifndef EAPOL_TARGET_AUTO_SELECT_DBM
+#define EAPOL_TARGET_AUTO_SELECT_DBM -60
+#endif
+
 /*
  * Maximum number of candidates to send unicast DIS.
  * If we have more than this number of candidates, a multicast DIS is also sent.
@@ -232,6 +236,9 @@ static void ws_eapol_target_add(struct wsrd *wsrd, struct ws_ind *ind, struct ws
     else
         TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:n/a",
               added ? "add" : "refresh", tr_eui64(ind->neigh->eui64.u8), ind->neigh->pan_id, pan_cost);
+
+    if (ws_is_eapol_target_valid(wsrd, ind->neigh, 0xffff, EAPOL_TARGET_AUTO_SELECT_DBM))
+        ws_on_eapol_target_selected(wsrd, ind->neigh);
 }
 
 void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
