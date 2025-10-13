@@ -61,13 +61,6 @@ jobs:
           ninja -C mbedtls/build
           sudo ninja -C mbedtls/build install
           ninja -C build
-      - name: Compile legacy authenticator
-        run: |
-          cmake -S . \
-                -B build-auth \
-                -D AUTH_LEGACY=ON \
-                -G Ninja
-          ninja -C build-auth wsbrd
 
   build-alpine:
     runs-on: ${{ github.repository_owner == 'SiliconLabsInternal' && 'silabs-internal' || 'ubuntu-24.04' }}

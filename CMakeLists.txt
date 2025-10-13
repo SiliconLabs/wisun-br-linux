@@ -16,7 +16,6 @@ project(wsbrd)
 set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Router implementation")
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 set(COMPILE_DEMOS    OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
-set(AUTH_LEGACY      OFF CACHE BOOL "Keep unset unless a regression is identified")
 set(SISDK_PATH "" CACHE STRING "Path to the Simplicity SDK, used to compile the simulation stubs")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
@@ -139,13 +138,20 @@ add_library(libwsbrd STATIC
     app_wsbrd/app/tun.c
     app_wsbrd/app/commandline.c
     app_wsbrd/app/commandline_values.c
+    common/authenticator/authenticator.c
+    common/authenticator/authenticator_key.c
+    common/authenticator/authenticator_eap.c
+    common/authenticator/authenticator_radius.c
+    common/authenticator/authenticator_storage.c
     common/crypto/ieee80211.c
     common/crypto/hmac_md.c
     common/crypto/nist_kw.c
+    common/crypto/tls.c
     common/crypto/ws_keys.c
     common/ipv6/ipv6_addr.c
     common/ipv6/ipv6_flow_label.c
     common/ws/ws_chan_mask.c
+    common/ws/eapol_relay.c
     common/ws/etsi_apc.c
     common/ws/ws_ie.c
     common/ws/ws_ie_list.c
@@ -159,8 +165,10 @@ add_library(libwsbrd STATIC
     common/duty_cycle.c
     common/log.c
     common/bits.c
+    common/eap.c
     common/eapol.c
     common/endian.c
+    common/kde.c
     common/rand.c
     common/mbedtls_config_check.c
     common/named_values.c
@@ -195,6 +203,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/6lowpan/mac/mac_helper.c
     app_wsbrd/ipv6/nd_router_object.c
     app_wsbrd/ws/ws_pan_info_storage.c
+    app_wsbrd/ws/ws_auth.c
     app_wsbrd/ws/ws_bootstrap.c
     app_wsbrd/ws/ws_bootstrap_6lbr.c
     app_wsbrd/ws/ws_common.c
@@ -217,55 +226,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/rpl/rpl_srh.c
     app_wsbrd/rpl/rpl.c
 )
-if(AUTH_LEGACY)
-    target_sources(libwsbrd PRIVATE
-        common/events_scheduler.c
-        common/crypto/tls.c
-        app_wsbrd/ws/ws_auth_legacy.c
-        app_wsbrd/ws/ws_eapol_auth_relay.c
-        app_wsbrd/ws/ws_eapol_pdu.c
-        app_wsbrd/ws/ws_eapol_relay.c
-        app_wsbrd/ws/ws_eapol_relay_lib.c
-        app_wsbrd/ws/ws_pae_auth.c
-        app_wsbrd/ws/ws_pae_controller.c
-        app_wsbrd/ws/ws_pae_key_storage.c
-        app_wsbrd/ws/ws_pae_lib.c
-        app_wsbrd/security/eapol/eapol_helper.c
-        app_wsbrd/security/eapol/kde_helper.c
-        app_wsbrd/security/kmp/kmp_addr.c
-        app_wsbrd/security/kmp/kmp_api.c
-        app_wsbrd/security/kmp/kmp_socket_if.c
-        app_wsbrd/security/pana/pana_eap_header.c
-        app_wsbrd/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
-        app_wsbrd/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-        app_wsbrd/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-        app_wsbrd/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-        app_wsbrd/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-        app_wsbrd/security/protocols/key_sec_prot/key_sec_prot.c
-        app_wsbrd/security/protocols/msg_sec_prot/msg_sec_prot.c
-        app_wsbrd/security/protocols/radius_sec_prot/avp_helper.c
-        app_wsbrd/security/protocols/radius_sec_prot/radius_client_sec_prot.c
-        app_wsbrd/security/protocols/sec_prot_certs.c
-        app_wsbrd/security/protocols/sec_prot_keys.c
-        app_wsbrd/security/protocols/sec_prot_lib.c
-        app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot.c
-        app_wsbrd/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    )
-    target_compile_definitions(libwsbrd PUBLIC HAVE_AUTH_LEGACY)
-else()
-    target_sources(libwsbrd PRIVATE
-        app_wsbrd/ws/ws_auth.c
-        common/authenticator/authenticator.c
-        common/authenticator/authenticator_key.c
-        common/authenticator/authenticator_eap.c
-        common/authenticator/authenticator_radius.c
-        common/authenticator/authenticator_storage.c
-        common/crypto/tls.c
-        common/ws/eapol_relay.c
-        common/eap.c
-        common/kde.c
-    )
-endif()
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     app_wsbrd/
@@ -283,11 +243,7 @@ endif()
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(libwsbrd PRIVATE common/dbus.c app_wsbrd/app/dbus.c)
-    if(AUTH_LEGACY)
-        target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth_legacy.c)
-    else()
-        target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth.c)
-    endif()
+    target_sources(libwsbrd PRIVATE app_wsbrd/app/dbus_auth.c)
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)
