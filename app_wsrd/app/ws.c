@@ -36,6 +36,7 @@
 #include "common/sys_queue_extra.h"
 #include "common/time_extra.h"
 #include "common/seqno.h"
+#include "common/rail_config.h"
 #include "app_wsrd/ipv6/6lowpan.h"
 #include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd_storage.h"
@@ -886,4 +887,24 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
     } else {
         TRACE(TR_RPL, "rpl: next parent selection in %"PRIu64"ms", timer_remaining_ms(&ipv6->rpl.dis_txalg.timer_rt));
     }
+}
+
+static void ws_set_fhss_uc(struct wsrd *wsrd, const uint8_t chan_mask[WS_CHAN_MASK_LEN])
+{
+    struct ws_ms_chan_mask ms_chan_mask[FIELD_MAX(WS_MASK_POM_COUNT) + 1] = { 0 };
+
+    rail_fill_ms_chan_masks(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, ms_chan_mask);
+    rcp_set_fhss_uc(&wsrd->ws.rcp, wsrd->config.ws_uc_dwell_interval_ms, chan_mask, ms_chan_mask);
+}
+
+void ws_fhss_uc_use_default(struct wsrd *wsrd)
+{
+    uint8_t chan_mask[WS_CHAN_MASK_LEN];
+
+    BUG_ON(!wsrd->ws.fhss.chan_params);
+    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
+    bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
+    if (!memzcmp(chan_mask, sizeof(chan_mask)))
+        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
+    ws_set_fhss_uc(wsrd, chan_mask);
 }
