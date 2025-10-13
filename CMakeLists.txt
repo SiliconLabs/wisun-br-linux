@@ -727,7 +727,10 @@ if(COMPILE_DEVTOOLS)
             )
             # Prevent conflict with bitand()
             target_compile_options(wsrd-ns3 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-operator-names>)
-            target_compile_definitions(wsrd-ns3 PRIVATE "__STATIC_INLINE=static inline")
+            target_compile_definitions(wsrd-ns3 PRIVATE
+                "__STATIC_INLINE=static inline"
+                __SOCKET_H__ # Prevent Silicon Labs socket.h from being included.
+            )
             target_include_directories(wsrd-ns3 PRIVATE
                 ${CMAKE_CURRENT_SOURCE_DIR}
                 tools/simulation/include
