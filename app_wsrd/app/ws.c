@@ -111,6 +111,20 @@ void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id)
     dbus_emit_change("PanId");
 }
 
+static bool ws_is_eapol_target_valid(struct wsrd *wsrd, struct ws_neigh *candidate, uint16_t pan_id,
+                                     int rsl_in_threshold_dbm)
+{
+    if (pan_id != 0xffff && candidate->pan_id != pan_id)
+        return false;
+    if (!candidate->last_pa_rx_time_s)
+        return false;
+    if (candidate->ie_pan.routing_cost == 0xffff)
+        return false;
+    if (candidate->rsl_in_dbm_unsecured < rsl_in_threshold_dbm)
+        return false;
+    return true;
+}
+
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
@@ -137,8 +151,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
          * A node unable to act as an EAPOL target MAY set this field to the
          * maximum value of 0xFFFF.
          */
-        if (!candidate->last_pa_rx_time_s || candidate->ie_pan.routing_cost == 0xffff ||
-            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm)
+        if (!ws_is_eapol_target_valid(wsrd, candidate, 0xffff, rail_config->sensitivity_dbm))
             continue;
         if (!selected_candidate)
             selected_candidate = candidate;
@@ -153,8 +166,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
 
     // Ensure we select the candidate with the lowest pan cost
     SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link) {
-        if (!candidate->last_pa_rx_time_s || candidate->pan_id != selected_pan_id ||
-            candidate->rsl_in_dbm_unsecured < rail_config->sensitivity_dbm)
+        if (!ws_is_eapol_target_valid(wsrd, candidate, selected_pan_id, rail_config->sensitivity_dbm))
             continue;
         if (ws_neigh_get_pan_cost(candidate) < ws_neigh_get_pan_cost(selected_candidate))
             selected_candidate = candidate;
