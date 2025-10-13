@@ -56,6 +56,7 @@ static void join_state_1_exit(struct wsrd *wsrd)
     BUG_ON(timer_stopped(&wsrd->pas_tkl.timer_interval));
 
     trickle_stop(&wsrd->pas_tkl, NULL);
+    timer_stop(NULL, &wsrd->pan_selection_timer);
 }
 
 /*
