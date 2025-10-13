@@ -771,7 +771,9 @@ Only present if `chan_func == 2`:
 Configure unicast schedule for reception.
 
  - `uint8_t dwell_interval`  
-    Unicast dwell interval in milliseconds (from US-IE).
+    Unicast dwell interval in milliseconds (from US-IE). This value is used to
+    calculate the UFSI (from UTT-IE) of transmitted frames. Because UFSI
+    calculation depends on this field, dwell_interval cannot be set to 0.
 
  - `struct chan_seq`  
     See ["Channel Sequence"][chan-seq].
