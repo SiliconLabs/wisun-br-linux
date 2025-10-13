@@ -44,4 +44,14 @@ void ws_chan_mask_calc_excl(uint8_t chan_mask[WS_CHAN_MASK_LEN],
 // contains 2 ranges.
 int ws_chan_mask_ranges(const uint8_t chan_mask[WS_CHAN_MASK_LEN]);
 
+/*
+ * Get the channel number from a channel index which skips holes.
+ * Example with mask { 0b11001100 }:
+ *   Channel Number  0 1 2 3 4 5 6 7
+ *   Channel Allowed 0 0 1 1 0 0 1 1
+ *   Channel Index   - - 0 1 - - 2 3
+ * ws_chan_mask_get_num((uint8_t[WS_CHAN_MASK_LEN]){ 0b11001100 }, 2) == 6
+ */
+int ws_chan_mask_get_num(const uint8_t chan_mask[WS_CHAN_MASK_LEN], uint16_t num_skip_holes);
+
 #endif

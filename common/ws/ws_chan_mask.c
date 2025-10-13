@@ -91,3 +91,15 @@ int ws_chan_mask_ranges(const uint8_t chan_mask[WS_CHAN_MASK_LEN])
     }
     return cnt;
 }
+
+int ws_chan_mask_get_num(const uint8_t chan_mask[WS_CHAN_MASK_LEN], uint16_t num_skip_holes)
+{
+    for (int i = 0; i < 8 * WS_CHAN_MASK_LEN; i++) {
+        if (!bittest(chan_mask, i))
+            continue;
+        if (!num_skip_holes)
+            return i;
+        num_skip_holes--;
+    }
+    return -ERANGE;
+}
