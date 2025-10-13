@@ -56,6 +56,7 @@ enum {
     HIF_CMD_SET_FILTER_DST64         = 0x5a,
     HIF_CMD_REQ_PING                 = 0xe1,
     HIF_CMD_CNF_PING                 = 0xe2,
+    HIF_CMD_SET_LOG                  = 0xe3,
     HIF_CMD_IND_REPLAY_TIMER         = 0xf0,
     HIF_CMD_IND_REPLAY_SOCKET        = 0xf1,
 };

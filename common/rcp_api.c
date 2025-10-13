@@ -678,6 +678,38 @@ void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8])
     iobuf_free(&buf);
 }
 
+const struct name_value rcp_log_names[] = {
+    { "mac",         0 },
+    { "fhss",       29 },
+    { "events",     31 },
+    { "crypto",     33 },
+    { "rf",         34 },
+    { "timers",     37 },
+    { "regulation", 43 },
+    { "fsm",        45 },
+    { }
+};
+
+void rcp_set_log(struct rcp *rcp, const struct rcp_log_cfg *cfg)
+{
+    struct iobuf_write buf = { };
+    int n;
+
+    for (n = 0; n < ARRAY_SIZE(cfg->groups); n++)
+        if (!cfg->groups[n].level)
+            break;
+    BUG_ON(n >= ARRAY_SIZE(cfg->groups));
+    BUG_ON(version_older_than(rcp->version_api, 2, 16, 0));
+    hif_push_u8(&buf, HIF_CMD_SET_LOG);
+    hif_push_u8(&buf, n);
+    for (int i = 0; i < n; i++) {
+        hif_push_u8(&buf, cfg->groups[i].id);
+        hif_push_u8(&buf, cfg->groups[i].level);
+    }
+    rcp_tx(rcp, &buf);
+    iobuf_free(&buf);
+}
+
 struct rcp_cmd rcp_cmd_table[] = {
     { HIF_CMD_IND_NOP,           rcp_ind_nop        },
     { HIF_CMD_IND_RESET,         rcp_ind_reset      },

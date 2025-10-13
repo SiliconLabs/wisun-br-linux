@@ -83,6 +83,13 @@ struct rcp_csma_cfg {
     uint8_t frame_retries;
 };
 
+struct rcp_log_cfg {
+    struct {
+        uint8_t id;
+        uint8_t level;
+    } groups[16];
+};
+
 extern const struct rcp_csma_cfg rcp_csma_default;
 
 struct rcp {
@@ -165,6 +172,9 @@ void rcp_set_filter_src64(struct rcp *rcp,
                           uint8_t count,
                           bool allow);
 void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8]);
+
+extern const struct name_value rcp_log_names[];
+void rcp_set_log(struct rcp *rcp, const struct rcp_log_cfg groups[]);
 
 // Exported for wsbrd-fuzz
 struct rcp_cmd {

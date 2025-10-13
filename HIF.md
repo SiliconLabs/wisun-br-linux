@@ -1056,3 +1056,36 @@ Reply to [`REQ_PING`][ping-req] with some arbitrary data.
 
  - `uint8_t payload[]`  
     Arbitrary data.
+
+### `0xE3 SET_LOG (API >= 2.16.0)`
+
+Configure debug log enabled on the RCP. Logs can be read using
+[Segger RTT][rtt]. Note that enabling some verbose traces can mess up time
+critical operations such as mode switch or LFN communication.
+
+ - `uint8_t count`  
+   Number of trace groups to change. Trace groups not included are left
+   untouched.
+
+ - `struct trace_config[]`  
+    - `uint8_t id`  
+      Trace group identifier as defined in [`sl_wisun_trace_group_t`][log-id].
+      The supported values for the RCP is a subset, as listed in the table
+      below.
+    - `uint8_t level`  
+      Trace level as defined in [`sl_wisun_trace_level_t`][log-lvl].
+
+| Trace group         | Value |
+|---------------------|-------|
+| MAC                 |     0 |
+| Frequency Hopping   |    29 |
+| Event Loop          |    31 |
+| Cryptography        |    33 |
+| Radio Driver        |    34 |
+| Timers              |    37 |
+| Regional Regulation |    43 |
+| MAC State Machine   |    45 |
+
+[rtt]: https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/
+[log-id]: https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-group-t
+[log-lvl]: https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-level-t
