@@ -125,12 +125,38 @@ static bool ws_is_eapol_target_valid(struct wsrd *wsrd, struct ws_neigh *candida
     return true;
 }
 
+static void ws_on_eapol_target_selected(struct wsrd *wsrd, struct ws_neigh *selected_candidate)
+{
+    uint16_t prev_pan_id = wsrd->prev_pan_id;
+    struct ws_neigh *tmp;
+
+    memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
+    ws_set_pan_id(wsrd, selected_candidate->pan_id);
+    wsrd->fhss_bc_synced_to_target = false;
+
+    if (selected_candidate->plf != 0xff)
+        TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:%u%%", "select",
+              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
+              ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
+    else
+        TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:n/a", "select",
+              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
+              ws_neigh_get_pan_cost(selected_candidate));
+
+    SLIST_FOREACH(tmp, &wsrd->ws.neigh_table.neigh_list, link)
+        tmp->last_pa_rx_time_s = 0;
+
+    if (prev_pan_id != 0xffff && prev_pan_id == wsrd->ws.pan_id)
+        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_PREV_PAN);
+    else
+        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
+}
+
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct wsrd *wsrd = container_of(timer, struct wsrd, pan_selection_timer);
     const struct rcp_rail_config *rail_config = &wsrd->ws.rcp.rail_config_list[wsrd->ws.phy.rcp_rail_config_index];
     struct ws_neigh *selected_candidate = NULL;
-    uint16_t prev_pan_id = wsrd->prev_pan_id;
     struct ws_neigh *candidate = NULL;
     uint16_t selected_pan_id;
 
@@ -171,24 +197,7 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
         if (ws_neigh_get_pan_cost(candidate) < ws_neigh_get_pan_cost(selected_candidate))
             selected_candidate = candidate;
     }
-
-    memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
-    ws_set_pan_id(wsrd, selected_pan_id);
-    wsrd->fhss_bc_synced_to_target = false;
-    if (selected_candidate->plf != 0xff)
-        TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:%u%%", "select",
-              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
-              ws_neigh_get_pan_cost(selected_candidate), selected_candidate->plf);
-    else
-        TRACE(TR_SECURITY, "eapol target candidate %-7s %s panid:0x%04x pan_cost:%u plf:n/a", "select",
-              tr_eui64(selected_candidate->eui64.u8), selected_candidate->pan_id,
-              ws_neigh_get_pan_cost(selected_candidate));
-    SLIST_FOREACH(candidate, &wsrd->ws.neigh_table.neigh_list, link)
-        candidate->last_pa_rx_time_s = 0;
-    if (prev_pan_id != 0xffff && prev_pan_id == wsrd->ws.pan_id)
-        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_PREV_PAN);
-    else
-        join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);
+    ws_on_eapol_target_selected(wsrd, selected_candidate);
 }
 
 /*
