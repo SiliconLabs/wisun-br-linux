@@ -15,6 +15,7 @@
 #define _GNU_SOURCE
 #include <linux/limits.h>
 #include <arpa/inet.h>
+#include <inttypes.h>
 #include <fnmatch.h>
 #include <stdlib.h>
 #include <glob.h>
@@ -69,7 +70,7 @@ void ipv6_neigh_storage_save(struct ipv6_neighbour_cache *cache, const uint8_t *
         fprintf(nvm->file, "ipv6[%d] = %s\n", i, ipv6_str);
         fprintf(nvm->file, "lifetime[%d] = %u\n", i, cur->lifetime_s);
         fprintf(nvm->file, "# %s\n", time_str);
-        fprintf(nvm->file, "expiration[%d] = %lu\n", i, ts);
+        fprintf(nvm->file, "expiration[%d] = %"PRIu64"\n", i, (uint64_t)ts);
         i++;
     }
 
