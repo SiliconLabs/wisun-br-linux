@@ -121,7 +121,6 @@ struct ws_neigh {
     struct lto_info lto_info;
     uint8_t node_role;
     uint32_t frame_counter_min[HIF_KEY_COUNT];
-    uint32_t expiration_s;
     uint32_t lifetime_s;                                   /*!< Life time in seconds */
     uint8_t ms_phy_mode_id;                                /*!< PhyModeId selected for Mode Switch with this neighbor */
     uint8_t ms_mode;                                       /*!< Mode switch mode */
