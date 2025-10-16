@@ -56,7 +56,8 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     struct ws_ms_chan_mask ms_chan_mask[FIELD_MAX(WS_MASK_POM_COUNT) + 1] = { 0 };
     const struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
-    uint8_t chan_mask_async[WS_CHAN_MASK_LEN];
+    uint8_t chan_mask_async[WS_CHAN_MASK_LEN] = { };
+    int chan_fixed;
 
     rail_fill_ms_chan_masks(cur->rcp, fhss, &cur->ws_info.phy_config, ms_chan_mask);
     rcp_set_fhss_uc(cur->rcp,
@@ -75,8 +76,20 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
                         fhss->bsi,
                         fhss->bc_chan_mask);
 
+    /*
+     *   Wi-SUN FAN 1.1v10 6.3.4.6.2 Join Usage of Asynchronous Frame Transmission
+     * When operating in fixed channel mode on a specific channel, ChannelList
+     * MUST contain a single entry for that specific channel.
+     *   Wi-SUN FAN 1.1v10 6.3.4.6.2.1 FFN Usage of MLME-WS-ASYNC-FRAME
+     * The MLME-WS-ASYNC-FRAME.request mechanism MUST be performed over All
+     * Regulatory Channels.
+     */
     BUG_ON(!fhss->chan_params);
-    ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params);
+    chan_fixed = ws_chan_mask_get_fixed(fhss->uc_chan_mask);
+    if (chan_fixed >= 0)
+        bitset(chan_mask_async, chan_fixed);
+    else
+        ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params);
     rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
     return 0;
