@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <errno.h>
 #include <string.h>
 
 #include "common/bits.h"
@@ -21,6 +22,29 @@
 #include "common/specs/ipv6.h"
 #include "rpl_srh.h"
 #include "rpl.h"
+
+void rpl_srh_trace_err(int err)
+{
+    static const char *prefix = "tx-abort rpl-srh";
+
+    switch (err) {
+    case -ENOENT:
+        TRACE(TR_TX_ABORT, "%s: unknown target", prefix);
+        break;
+    case -EINVAL:
+        TRACE(TR_TX_ABORT, "%s: external target", prefix);
+        break;
+    case -ENETUNREACH:
+        TRACE(TR_TX_ABORT, "%s: no route to target", prefix);
+        break;
+    case -ERANGE:
+        TRACE(TR_TX_ABORT, "%s: > %u hops", prefix, WS_RPL_SRH_MAXSEG);
+        break;
+    case -ELOOP:
+        TRACE(TR_TX_ABORT, "%s: loop", prefix);
+        break;
+    }
+}
 
 int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop_ret)
@@ -36,28 +60,28 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
         target = rpl_target_get(root, nxthop);
         if (!target) {
             TRACE(TR_TX_ABORT, "tx-abort: rpl srh unknown target %s", tr_ipv6(nxthop));
-            return -1;
+            return -ENOENT;
         }
         if (target->external) {
             TRACE(TR_TX_ABORT, "tx-abort: rpl srh external target %s", tr_ipv6(target->prefix));
-            return -1;
+            return -EINVAL;
         }
         // Only consider the preferred parent
         transit = rpl_transit_preferred(root, target);
         if (!transit) {
             TRACE(TR_TX_ABORT, "tx-abort: rpl srh no transit to target %s", tr_ipv6(target->prefix));
-            return -1;
+            return -ENETUNREACH;
         }
         if (!memcmp(transit->parent, root->dodag_id, 16))
             break;
         if (seg_count >= WS_RPL_SRH_MAXSEG) {
             TRACE(TR_TX_ABORT, "tx-abort: rpl srh > %u hops", WS_RPL_SRH_MAXSEG);
-            return -1;
+            return -ERANGE;
         }
         for (uint8_t i = 0; i < seg_count; i++) {
             if (!memcmp(transit->parent, seg_list[i], 16)) {
                 TRACE(TR_TX_ABORT, "tx-abort: rpl srh loop");
-                return -1;
+                return -ELOOP;
             }
         }
         seg_list[seg_count++] = nxthop;

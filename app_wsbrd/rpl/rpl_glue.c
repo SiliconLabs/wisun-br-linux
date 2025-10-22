@@ -167,6 +167,7 @@ static bool rpl_glue_nxthop(const uint8_t dst[16], ipv6_route_info_t *route)
     struct rpl_transit *transit;
     struct rpl_target *target;
     const uint8_t *nxthop;
+    int err;
 
     target = rpl_target_get(root, dst);
     if (!target)
@@ -178,8 +179,11 @@ static bool rpl_glue_nxthop(const uint8_t dst[16], ipv6_route_info_t *route)
         rpl_dst = transit->parent;
     }
 
-    if (rpl_srh_build(root, rpl_dst, 0, NULL, &nxthop) < 0)
+    err = rpl_srh_build(root, rpl_dst, 0, NULL, &nxthop);
+    if (err < 0) {
+        rpl_srh_trace_err(err);
         return false;
+    }
 
     memcpy(route->next_hop_addr, nxthop, 16);
     return true;
