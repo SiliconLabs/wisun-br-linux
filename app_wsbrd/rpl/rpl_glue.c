@@ -76,6 +76,7 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
     const uint8_t *rpl_dst = buf->dst_sa.address;
     struct rpl_transit *transit;
     struct rpl_target *target;
+    bool external;
 
     *res = 0;
 
@@ -94,7 +95,8 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
     // If the SRH only specifies a subset of the path from source to
     // destination, the router uses IPv6-in-IPv6 tunneling [RFC2473] and places
     // the SRH in the outer IPv6 header.
-    if (target->external) {
+    external = target->external;
+    if (external) {
         if (!buf->options.tunnelled && (stage == IPV6_EXTHDR_SIZE || stage == IPV6_EXTHDR_INSERT)) {
             buf->options.ipv6_use_min_mtu = 1;
             return buf;
@@ -112,9 +114,10 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         *res = -1;
         return buf;
     }
-    if (!buf->srh.seg_count)
+    if (!buf->srh.seg_count && !external)
         return buf; // TODO: add hop-by-hop option
-    rpl_srh_push(&srh_buf, &buf->srh, buf->route->ip_dest, buf->options.type, root->compat);
+    if (buf->srh.seg_count)
+        rpl_srh_push(&srh_buf, &buf->srh, buf->route->ip_dest, buf->options.type, root->compat);
 
     switch (stage) {
     case IPV6_EXTHDR_SIZE:
@@ -125,7 +128,15 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         if (!buf)
             return NULL;
         memcpy(buffer_data_reserve_header(buf, srh_buf.len), srh_buf.data, srh_buf.len);
-        buf->options.type = IPV6_NH_ROUTING;
+        /*
+         *   Wi-SUN FAN 1.1 6.2.3.1.4.2 LFN Neighbor Discovery
+         * FFN Border Routers MUST terminate the IPv6 tunnel at the LFN parent
+         * when sending frames towards the LFN
+         *
+         * NOTE: Insert a tunnel header without any extension header if there
+         * is a single hop.
+         */
+        buf->options.type = srh_buf.len ? IPV6_NH_ROUTING : IPV6_NH_IPV6;
         buf->options.ip_extflags |= IPEXT_SRH_RPL;
         return buf;
     case IPV6_EXTHDR_MODIFY:
