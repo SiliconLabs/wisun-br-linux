@@ -265,6 +265,7 @@ int auth_revoke_gtks(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
             removed_mask |= BIT(slot_offset + i);
         }
         slot_latest = next_slot;
+        reduced_lifetime_ms += active_remaining_ms;
     }
 
     timer_start_rel(&auth->timer_group, &auth->gtks[slot_latest].expiration_timer, reduced_lifetime_ms);
