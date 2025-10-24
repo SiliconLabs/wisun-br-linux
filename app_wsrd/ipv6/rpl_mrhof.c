@@ -242,14 +242,15 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * node MAY continue to use the current preferred parent.
      */
     if (cur_min_path_cost < mrhof->max_path_cost && pref_path_cost < mrhof->max_path_cost &&
-        pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost &&
-        !seqno_cmp8(parent_cur->rpl->dio.dodag_verno, ipv6->rpl.dodag_verno)) {
+        pref_path_cost + mrhof->parent_switch_threshold > cur_min_path_cost) {
         BUG_ON(!parent_cur); // we should always have a current parent here
-        TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
-              parent_new ? tr_ipv6(parent_new->gua.s6_addr) : "none", pref_path_cost,
-              mrhof->parent_switch_threshold, cur_min_path_cost);
-        TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(parent_cur->gua.s6_addr));
-        return parent_cur;
+        if (!seqno_cmp8(parent_cur->rpl->dio.dodag_verno, ipv6->rpl.dodag_verno)) {
+            TRACE(TR_RPL, "rpl: discard %s: path-cost=%.0f + thresh=%.0f > min-path-cost=%.0f",
+                  parent_new ? tr_ipv6(parent_new->gua.s6_addr) : "none", pref_path_cost,
+                  mrhof->parent_switch_threshold, cur_min_path_cost);
+            TRACE(TR_RPL, "rpl: parent select %s (keep)", tr_ipv6(parent_cur->gua.s6_addr));
+            return parent_cur;
+        }
     }
 
     if (parent_new)
