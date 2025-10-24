@@ -453,8 +453,9 @@ static bool compress_ipv6(iphc_compress_state_t *restrict cs, bool from_nhc)
 
 static bool compress_nh(uint8_t nh, iphc_compress_state_t *restrict cs)
 {
+    uint8_t nhc;
+
     switch (nh) {
-            uint8_t nhc;
         case IPV6_NH_HOP_BY_HOP:
             nhc = NHC_EXT_HOP_BY_HOP;
             goto ext_hdr;
