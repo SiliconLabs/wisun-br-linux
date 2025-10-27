@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <inttypes.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -367,7 +368,7 @@ static void print_progress(struct commandline_args *cmdline, int out, int in)
     if (cmdline->quiet)
         return;
     if (cmdline->verbose)
-        INFO("%ld.%06ld: tx:%d rx:%d", ts.tv_sec, ts.tv_nsec / 1000, out, in);
+        INFO("%"PRIu64".%06ld: tx:%d rx:%d", (uint64_t)ts.tv_sec, ts.tv_nsec / 1000, out, in);
     else
         printf(" %c\r", progress[in % ARRAY_SIZE(progress)]);
     fflush(stdout);

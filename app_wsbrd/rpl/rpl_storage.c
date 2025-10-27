@@ -12,6 +12,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <arpa/inet.h>
+#include <inttypes.h>
 #include <fcntl.h>
 #include <fnmatch.h>
 #include <glob.h>
@@ -96,8 +97,8 @@ void rpl_storage_store_target(const struct rpl_root *root, const struct rpl_targ
     tstamp = target->path_seq_tstamp_s + time_get_storage_offset_s();
     str_date(tstamp, time_str);
     fprintf(nvm->file, "# %s\n", time_str);
-    fprintf(nvm->file, "path_seq_timestamp = %lu\n",
-            target->path_seq_tstamp_s + time_get_storage_offset_s());
+    fprintf(nvm->file, "path_seq_timestamp = %"PRIu64"\n",
+            (uint64_t)target->path_seq_tstamp_s + time_get_storage_offset_s());
     fprintf(nvm->file, "external = %u\n", target->external);
     for (uint8_t i = 0; i < root->pcs + 1; i++) {
         if (!memzcmp(target->transits + i, sizeof(struct rpl_transit)))
