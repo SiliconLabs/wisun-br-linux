@@ -65,14 +65,19 @@ jobs:
   build-alpine:
     runs-on: ${{ github.repository_owner == 'SiliconLabsInternal' && 'silabs-internal' || 'ubuntu-24.04' }}
     container:
-      image: alpine:latest
+      image: i386/alpine:latest
     steps:
-      - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           apk add musl-dev bsd-compat-headers gcc g++ cmake samurai \
-                  mbedtls-dev mbedtls-static libnl3-dev libcap-dev
-      - name: Compile on Alpine
+                  mbedtls-dev mbedtls-static libnl3-dev libcap-dev git
+      - name: Checkout
+        run: |
+          git clone --depth=1 \
+                    --revision=${{ github.sha }} \
+                    https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} \
+                    "$GITHUB_WORKSPACE"
+      - name: Compile on 32bit Alpine
         run: |
           cmake -S . \
                 -B build \
