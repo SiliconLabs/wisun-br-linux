@@ -90,14 +90,16 @@ static int lowpan_reasm_update(struct lowpan_reasm *reasm,
     // RFC 815 3. Fragment Processing Algorithm
     for (prev = NULL, hole = SLIST_FIRST(&reasm->holes);
          hole && (next = SLIST_NEXT(hole, link), 1);
-         prev = hole, hole = next) {
+         hole = next) {
 
         hole_first = hole->first;
         hole_end   = hole->end;
 
         // Check overlap
-        if (frag_first >= hole_end || frag_end <= hole_first)
+        if (frag_first >= hole_end || frag_end <= hole_first) {
+            prev = hole;
             continue;
+        }
 
         // Remove hole
         if (!prev)
