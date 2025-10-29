@@ -29,13 +29,13 @@ Configuration files are provided in [`tools/dut/`](/tools/dut):
 
 Once the test has run, the border router can be stopped using Ctrl+C.
 
-### IPv6 addresses
+## IPv6 addresses
 
 The Border Router DUT IPv6 addresses can be retrieved using:
 
     ip -6 addr show dev tunwsdut
 
-### Multicast ICMPv6
+## Multicast ICMPv6
 
 The test `MULTICAST-ORIGINATOR-LBR-1` requires the following operation:
 
@@ -46,7 +46,7 @@ This is performed by the following command:
 
     ping -c 1 -I tunwsdut ff03::1
 
-### GTK Lifecycle
+## GTK Lifecycle
 
 The test `SEC-LIFECYCLE-2` requires the following operations:
 
@@ -58,7 +58,7 @@ border router, for example:
 
 [lifecycle]: /tools/dut/sec/lifecycle.conf
 
-### Pairwise Key Revocation
+## Pairwise Key Revocation
 
 The test `SEC-REVOKE-GTK-1` requires the following operations:
 
@@ -98,7 +98,7 @@ The same script is used, using the MAC address of device J:
 [revoke-cnf]: /tools/dut/sec/revoke.conf
 [revoke-sh]:  /tools/dut/sec/revoke.bash
 
-### Powercycle
+## Powercycle
 
 The test `POWERCYCLE-LBR-1` requires the following operation:
 
@@ -118,14 +118,14 @@ This is achieved by stopping the border router with Ctrl+C, and restarting it
 
 [powercycle]:  /tools/dut/sec/powercycle.conf
 
-### LFN support
+## LFN support
 
 The test `CORE-LE-UNSUPPORTED-1` requires disabling LFN support. This is
 achieved by adding `-o enable_lfn=false` to the command line:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-fixed.conf -F sec/gtk.conf -o enable_lfn=false
 
-### Channel Exclusion
+## Channel Exclusion
 
 The test `DIRECT-EXC-CHAN-LISTEN-LBR-1` requires excluding channels according
 to 'Table 6-1 Channel Plan 0 DHC1CF'.
