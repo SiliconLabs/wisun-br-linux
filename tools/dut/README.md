@@ -124,3 +124,14 @@ The test `CORE-LE-UNSUPPORTED-1` requires disabling LFN support. This is
 achieved by adding `-o enable_lfn=false` to the command line:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-fixed.conf -F sec/gtk.conf -o enable_lfn=false
+
+### Channel Exclusion
+
+The test `DIRECT-EXC-CHAN-LISTEN-LBR-1` requires excluding channels according
+to 'Table 6-1 Channel Plan 0 DHC1CF'.
+
+A special configuration file [`na/chan-excl.conf`](na/chan-excl.conf) is
+provided to `allow` the remaining channels. It should be added to the command
+which starts the border router, for example:
+
+    sudo wsbrd -F dut.conf -F na/chan-plan-0-dh1cf.conf -F na/chan-excl.conf
