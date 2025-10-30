@@ -21,7 +21,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/log.h"
 #include "common/string_extra.h"
-#include "tools/simulation/ncp_ind.h"
+#include "tools/simulation/ncp_iface.h"
 #include "tools/simulation/ncp_socket.h"
 #include "tools/simulation/ncp_values.h"
 

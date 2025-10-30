@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "tools/simulation/ncp_ind.h"
+#include "tools/simulation/ncp_iface.h"
 #include "tools/simulation/ncp_values.h"
 #include "common/endian.h"
 #include "common/log.h"

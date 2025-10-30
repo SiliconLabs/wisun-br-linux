@@ -11,8 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef NCP_IND_H
-#define NCP_IND_H
+#ifndef NCP_IFACE_H
+#define NCP_IFACE_H
 
 #include <sl_wisun_events.h>
 

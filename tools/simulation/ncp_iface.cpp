@@ -17,7 +17,7 @@
 extern "C" {
 #include "common/memutils.h"
 
-#include "ncp_ind.h"
+#include "ncp_iface.h"
 }
 
 ns3::Callback<void, const void *> g_ncp_ind_cb;
