@@ -88,7 +88,7 @@ void ncp_sk_open(const void *_req, const void *req_data, void *_cnf, void *cnf_d
         { 3, SOCK_RAW },
     };
     static const struct ncp_val protos[] = {
-        { 0, IPPROTO_IPV6 },
+        { 0, 0 },
         { 1, IPPROTO_ICMPV6 },
         { 2, IPPROTO_TCP },
         { 3, IPPROTO_UDP },
