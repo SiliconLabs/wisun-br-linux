@@ -131,8 +131,8 @@ static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     buffer->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_TXRX);
 
     if (!ipv6_buffer_route(buffer)) {
-        buffer_free(buffer);
         TRACE(TR_TX_ABORT, "tx-abort: no route to %s", tr_ipv6(buffer->dst_sa.address));
+        buffer_free(buffer);
         return NULL;
     }
     protocol_push(buffer);
