@@ -22,14 +22,14 @@ extern "C" {
 
 ns3::Callback<void, const void *> g_ncp_ind_cb;
 
-static void __ncp_send(sl_wisun_evt_t *ind_cpy)
+static void __ncp_ind(sl_wisun_evt_t *ind_cpy)
 {
     if (!g_ncp_ind_cb.IsNull())
         g_ncp_ind_cb(ind_cpy);
     free(ind_cpy);
 }
 
-void ncp_send(const sl_wisun_evt_t *ind)
+void ncp_ind(const sl_wisun_evt_t *ind)
 {
     sl_wisun_evt_t *ind_cpy = (sl_wisun_evt_t *)xalloc(le16toh(ind->header.length));
 
@@ -41,10 +41,10 @@ void ncp_send(const sl_wisun_evt_t *ind)
      */
     memcpy(ind_cpy, ind, le16toh(ind->header.length));
     ns3::Simulator::ScheduleWithContext(g_simulation_id, ns3::Seconds(0),
-                                        __ncp_send, ind_cpy);
+                                        __ncp_ind, ind_cpy);
 }
 
-void ncp_send_sk_data(int fd, const void *buf, size_t buf_len, const struct sockaddr_in6 *sin6)
+void ncp_ind_sk_data(int fd, const void *buf, size_t buf_len, const struct sockaddr_in6 *sin6)
 {
     sl_wisun_evt_t *ind = (sl_wisun_evt_t *)xalloc(sizeof(sl_wisun_msg_socket_data_ind_t) + buf_len);
 
@@ -58,5 +58,5 @@ void ncp_send_sk_data(int fd, const void *buf, size_t buf_len, const struct sock
     ind->evt.socket_data.data_length    = htole16(buf_len);
     memcpy(ind->evt.socket_data.data, buf, buf_len);
     ns3::Simulator::ScheduleWithContext(g_simulation_id, ns3::Seconds(0),
-                                        __ncp_send, ind);
+                                        __ncp_ind, ind);
 }

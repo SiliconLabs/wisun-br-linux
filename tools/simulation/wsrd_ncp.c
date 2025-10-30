@@ -502,7 +502,7 @@ static void ncp_ind_primary_parent_changed(void)
     ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.network_update));
     ind.evt.network_update.flags = htole32(1 << SL_WISUN_NETWORK_UPDATE_FLAGS_PRIMARY_PARENT);
     ind.evt.network_update.status = htole32(SL_STATUS_OK);
-    ncp_send(&ind);
+    ncp_ind(&ind);
 }
 
 void __real_dbus_emit_change(const char *property_name);
@@ -526,18 +526,18 @@ void __wrap_join_state_transition(struct wsrd *wsrd, enum wsrd_event event)
         ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.join_state));
         ind.evt.join_state.join_state = htole32(ncp_join_state());
         ind.evt.join_state.status = htole32(SL_STATUS_OK);
-        ncp_send(&ind);
+        ncp_ind(&ind);
     }
 
     if (prev != WSRD_STATE_OPERATIONAL && wsrd->state == WSRD_STATE_OPERATIONAL) {
         ind.header.id = SL_WISUN_MSG_CONNECTED_IND_ID;
         ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.connected));
         ind.evt.connected.status = htole32(SL_STATUS_OK);
-        ncp_send(&ind);
+        ncp_ind(&ind);
     } else if (prev == WSRD_STATE_OPERATIONAL && wsrd->state != WSRD_STATE_OPERATIONAL) {
         ind.header.id = SL_WISUN_MSG_DISCONNECTED_IND_ID;
         ind.header.length = htole16(sizeof(ind.header) + sizeof(ind.evt.disconnected));
         ind.evt.disconnected.status = htole32(SL_STATUS_OK);
-        ncp_send(&ind);
+        ncp_ind(&ind);
     }
 }

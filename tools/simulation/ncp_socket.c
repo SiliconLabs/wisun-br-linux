@@ -50,7 +50,7 @@ static void *ncp_sk_thread(void *arg)
         ret = recvfrom(event.data.fd, buf, sizeof(buf), 0,
                        (struct sockaddr *)&sin6, (socklen_t[]){ sizeof(sin6) });
         FATAL_ON(ret < 0, 2, "recvfrom: %m");
-        ncp_send_sk_data(event.data.fd, buf, ret, &sin6);
+        ncp_ind_sk_data(event.data.fd, buf, ret, &sin6);
     }
 }
 
