@@ -39,7 +39,7 @@
 #include "commandline.h"
 
 static const struct number_limit valid_async_frag_duration = {
-    500, UINT32_MAX
+    500, INT_MAX
 };
 
 static const struct number_limit valid_unicast_dwell_interval = {
