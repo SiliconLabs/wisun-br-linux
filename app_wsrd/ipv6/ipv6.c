@@ -60,8 +60,10 @@ static const struct ip6_hbh *ipv6_process_hopopts(struct ipv6_ctx *ipv6,
     iobuf.data_size = (hbh->ip6h_len + 1) * 8 - sizeof(struct ip6_hbh);
     while (iobuf_remaining_size(&iobuf)) {
         opt = (struct ip6_opt *)iobuf_ptr(&iobuf);
-        if (opt->ip6o_type == IP6OPT_PAD1)
+        if (opt->ip6o_type == IP6OPT_PAD1) {
+            iobuf_pop_u8(&iobuf);
             continue;
+        }
         if (!iobuf_pop_data_ptr(&iobuf, sizeof(struct ip6_opt)) ||
             !iobuf_pop_data_ptr(&iobuf, opt->ip6o_len)) {
             TRACE(TR_DROP, "drop %-9s: malformed packet", "ipv6-hbh");
