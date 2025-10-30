@@ -79,9 +79,6 @@ static inline void ncp_sk_set_result(int err, void *status, void *error_code)
 
 void ncp_sk_open(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
-    static const struct ncp_val domains[] = {
-        { 0, AF_INET6 },
-    };
     static const struct ncp_val types[] = {
         { 1, SOCK_STREAM },
         { 2, SOCK_DGRAM },
@@ -97,7 +94,7 @@ void ncp_sk_open(const void *_req, const void *req_data, void *_cnf, void *cnf_d
     sl_wisun_msg_open_socket_cnf_t *cnf = _cnf;
     int domain, type, proto;
 
-    domain = ncp_ntoh(le32toh(req->body.domain),            domains, ARRAY_SIZE(domains));
+    domain = le32toh(req->body.domain) == SL_WISUN_AF_INET6 ? AF_INET6 : -1;
     type   = ncp_ntoh(le32toh(req->body.type) & 0x0000ffff, types,   ARRAY_SIZE(types));
     proto  = ncp_ntoh(le32toh(req->body.protocol),          protos,  ARRAY_SIZE(protos));
 

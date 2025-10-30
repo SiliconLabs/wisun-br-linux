@@ -19,6 +19,10 @@ struct ncp_val {
     int host;
 };
 
+enum {
+    SL_WISUN_AF_INET6 = 0,
+};
+
 // NCP to host conversion
 int ncp_ntoh(int val, const struct ncp_val table[], int count);
 
