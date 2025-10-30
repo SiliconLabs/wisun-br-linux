@@ -18,6 +18,10 @@
 
 struct sockaddr_in6;
 
+// Pass a NCP request from the C API stub to the simulation core before being
+// processed by the NCP stub.
+void ncp_req(const void *req, const void *req_data, void *cnf, void *cnf_data);
+
 // Pass a NCP indication from the Linux stub to the simulation core.
 void ncp_ind(const sl_wisun_evt_t *ind);
 

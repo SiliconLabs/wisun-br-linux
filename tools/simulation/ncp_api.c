@@ -18,6 +18,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "tools/simulation/ncp_iface.h"
+
 sl_status_t sl_wisun_join(const uint8_t *name, sl_wisun_phy_config_t *phy_config)
 {
     sl_wisun_msg_join_req_t req = {
@@ -30,7 +32,7 @@ sl_status_t sl_wisun_join(const uint8_t *name, sl_wisun_phy_config_t *phy_config
     if (strlen((const char *)name) >= SL_WISUN_NETWORK_NAME_SIZE)
         return SL_STATUS_INVALID_PARAMETER;
     strcpy((char *)req.body.name, (const char *)name);
-    ns3_ncp_recv(&req, NULL, &cnf, NULL);
+    ncp_req(&req, NULL, &cnf, NULL);
     return cnf.body.status;
 }
 
@@ -46,7 +48,7 @@ sl_status_t sl_wisun_set_trusted_certificate(uint16_t certificate_options,
     };
     sl_wisun_msg_set_trusted_certificate_cnf_t cnf;
 
-    ns3_ncp_recv(&req, certificate, &cnf, NULL);
+    ncp_req(&req, certificate, &cnf, NULL);
     return cnf.body.status;
 }
 
@@ -62,7 +64,7 @@ sl_status_t sl_wisun_set_device_certificate(uint16_t certificate_options,
     };
     sl_wisun_msg_set_device_certificate_cnf_t cnf;
 
-    ns3_ncp_recv(&req, certificate, &cnf, NULL);
+    ncp_req(&req, certificate, &cnf, NULL);
     return cnf.body.status;
 }
 
@@ -78,7 +80,7 @@ sl_status_t sl_wisun_set_device_private_key(uint16_t key_options,
     };
     sl_wisun_msg_set_device_private_key_cnf_t cnf;
 
-    ns3_ncp_recv(&req, key, &cnf, NULL);
+    ncp_req(&req, key, &cnf, NULL);
     return cnf.body.status;
 }
 
@@ -92,6 +94,6 @@ sl_status_t sl_wisun_get_ip_address(sl_wisun_ip_address_type_t address_type,
     };
     sl_wisun_msg_get_ip_address_cnf_t cnf;
 
-    ns3_ncp_recv(&req, NULL, &cnf, NULL);
+    ncp_req(&req, NULL, &cnf, NULL);
     return cnf.body.status;
 }

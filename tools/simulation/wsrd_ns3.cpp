@@ -33,7 +33,7 @@ extern "C" {
 #undef restrict
 }
 
-#if SL_NS3_WISUN_LINUX_VERSION < VERSION(2, 3, 0) || SL_NS3_WISUN_LINUX_VERSION >= VERSION(3, 0, 0)
+#if SL_NS3_WISUN_LINUX_VERSION < VERSION(2, 4, 0) || SL_NS3_WISUN_LINUX_VERSION >= VERSION(3, 0, 0)
 #error "Incompatible ns-3 version"
 #endif
 

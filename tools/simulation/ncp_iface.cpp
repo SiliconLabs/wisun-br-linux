@@ -20,7 +20,14 @@ extern "C" {
 #include "ncp_iface.h"
 }
 
+ns3::Callback<void, const void *, const void *, void *, void *> g_ncp_req_cb;
 ns3::Callback<void, const void *> g_ncp_ind_cb;
+
+void ncp_req(const void *req, const void *req_data, void *cnf, void *cnf_data)
+{
+    if (!g_ncp_req_cb.IsNull())
+        g_ncp_req_cb(req, req_data, cnf, cnf_data);
+}
 
 static void __ncp_ind(sl_wisun_evt_t *ind_cpy)
 {
