@@ -149,6 +149,20 @@ void ncp_sk_bind(const void *_req, const void *req_data, void *_cnf, void *cnf_d
                       &cnf->body.status, &cnf->body.error_code);
 }
 
+static void ncp_sk_data_sent(int fd)
+{
+    sl_wisun_evt_t ind = {
+        .header.id     = SL_WISUN_MSG_SOCKET_DATA_SENT_IND_ID,
+        .header.info   = 0,
+        .header.length = htole16(sizeof(sl_wisun_msg_socket_data_sent_ind_t)),
+        .evt.socket_data_sent.status            = htole32(SL_STATUS_OK),
+        .evt.socket_data_sent.socket_id         = htole32(fd),
+        .evt.socket_data_sent.socket_space_left = htole32(UINT32_MAX),
+    };
+
+    ncp_ind(&ind);
+}
+
 void ncp_sk_send(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     const sl_wisun_msg_send_on_socket_req_t *req = _req;
@@ -159,6 +173,8 @@ void ncp_sk_send(const void *_req, const void *req_data, void *_cnf, void *cnf_d
     cnf->body.data_length = htole32(ret);
     ncp_sk_set_result(ret < 0 ? errno : 0,
                       &cnf->body.status, &cnf->body.error_code);
+    if (ret >= 0)
+        ncp_sk_data_sent(req->body.socket_id);
 }
 
 void ncp_sk_sendto(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
@@ -177,6 +193,8 @@ void ncp_sk_sendto(const void *_req, const void *req_data, void *_cnf, void *cnf
     cnf->body.data_length = htole32(ret);
     ncp_sk_set_result(ret < 0 ? errno : 0,
                       &cnf->body.status, &cnf->body.error_code);
+    if (ret >= 0)
+        ncp_sk_data_sent(req->body.socket_id);
 }
 
 static void ncp_sk_setopt_evtmode(const sl_wisun_msg_set_socket_option_req_t *req,
