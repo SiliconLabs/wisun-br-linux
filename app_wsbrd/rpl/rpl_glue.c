@@ -73,9 +73,9 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
 {
     __attribute__((cleanup(iobuf_free))) struct iobuf_write srh_buf = { };
     struct rpl_root *root = buf->route->route_info.info;
-    const uint8_t *rpl_dst = buf->dst_sa.address;
     struct rpl_transit *transit;
     struct rpl_target *target;
+    const uint8_t *rpl_dst;
     bool external;
 
     *res = 0;
@@ -85,6 +85,8 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
         *res = -1;
         return buf;
     }
+    rpl_dst = target->prefix;
+
     transit = rpl_transit_preferred(root, target);
     if (!transit) {
         *res = -1;
