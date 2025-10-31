@@ -40,7 +40,7 @@ sl_status_t sl_wisun_set_trusted_certificate(uint16_t certificate_options,
 {
     sl_wisun_msg_set_trusted_certificate_req_t req = {
         .header.id     = SL_WISUN_MSG_SET_TRUSTED_CERTIFICATE_REQ_ID,
-        .header.length = htole16(sizeof(req)),
+        .header.length = htole16(sizeof(req) + certificate_length),
         .body.certificate_options = htole16(certificate_options),
         .body.certificate_length  = htole16(certificate_length),
     };
@@ -56,7 +56,7 @@ sl_status_t sl_wisun_set_device_certificate(uint16_t certificate_options,
 {
     sl_wisun_msg_set_device_certificate_req_t req = {
         .header.id     = SL_WISUN_MSG_SET_DEVICE_CERTIFICATE_REQ_ID,
-        .header.length = htole16(sizeof(req)),
+        .header.length = htole16(sizeof(req) + certificate_length),
         .body.certificate_options = htole16(certificate_options),
         .body.certificate_length  = htole16(certificate_length),
     };
@@ -72,7 +72,7 @@ sl_status_t sl_wisun_set_device_private_key(uint16_t key_options,
 {
     sl_wisun_msg_set_device_private_key_req_t req = {
         .header.id     = SL_WISUN_MSG_SET_DEVICE_PRIVATE_KEY_REQ_ID,
-        .header.length = htole16(sizeof(req)),
+        .header.length = htole16(sizeof(req) + key_length),
         .body.key_options = htole16(key_options),
         .body.key_length  = htole16(key_length),
     };
