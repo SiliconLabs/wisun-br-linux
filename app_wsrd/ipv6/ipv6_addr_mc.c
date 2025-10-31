@@ -63,7 +63,7 @@ int ipv6_addr_del_mc(struct ipv6_ctx *ipv6, const struct in6_addr *addr)
 
     memmove(ipv6->addr_list_mc + i,
             ipv6->addr_list_mc + i + 1,
-            ipv6->addr_list_mc_len - i);
+            (ipv6->addr_list_mc_len - i - 1) * sizeof(*ipv6->addr_list_mc));
     ipv6->addr_list_mc_len--;
 
     ret = tun_addr_del_mc(&ipv6->tun, addr);
