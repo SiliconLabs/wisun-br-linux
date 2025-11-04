@@ -30,6 +30,7 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/rpl.h"
 #include "rpl_storage.h"
+#include "rpl_srh.h"
 #include "rpl.h"
 
 const uint8_t rpl_all_nodes[16] = { // ff02::1a
@@ -449,13 +450,23 @@ static bool rpl_apply_transits(struct rpl_root *root,
 {
     const struct rpl_opt_transit *opt_transit = NULL;
     bool updated_transits = false;
+    int srh_err_old, srh_err_new;
     struct iobuf_read opt_buf;
     struct rpl_target *target;
+    struct rpl_target backup;
     struct iobuf_read buf = {
         .data_size = opts_len,
         .data = opts,
     };
     uint8_t opt_type;
+
+    target = rpl_target_get(root, opt_target->prefix.s6_addr);
+    if (target) {
+        backup = *target;
+        srh_err_old = rpl_srh_build(root, target->prefix, 0, NULL, 0);
+    } else {
+        srh_err_old = -1;
+    }
 
     while (iobuf_remaining_size(&buf)) {
         opt_type = iobuf_pop_u8(&buf);
@@ -476,10 +487,22 @@ static bool rpl_apply_transits(struct rpl_root *root,
             updated_transits |= rpl_transit_update(root, opt_target, opt_transit);
         buf.err |= opt_buf.err;
     }
-    if (updated_transits && root->on_target_update) {
+    if (updated_transits) {
         target = rpl_target_get(root, opt_target->prefix.s6_addr);
-        if (target)
-            root->on_target_update(root, target);
+        if (target) {
+            srh_err_new = rpl_srh_build(root, target->prefix, 0, NULL, 0);
+            if (srh_err_new < 0 && srh_err_old >= 0) {
+                WARN("dao inconsistency");
+                TRACE(TR_RPL, "rpl: target  revert prefix=%s path-seq=%u",
+                      tr_ipv6_prefix(backup.prefix, 128), backup.path_seq);
+                *target = backup;
+                rpl_storage_store_target(root, target);
+                rpl_transit_update_timer(root, target);
+                buf.err = true;
+            } else if (root->on_target_update) {
+                root->on_target_update(root, target);
+            }
+        }
     }
     return !buf.err;
 }
