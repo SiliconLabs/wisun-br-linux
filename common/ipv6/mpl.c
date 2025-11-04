@@ -181,14 +181,16 @@ static void mpl_msg_transmit(struct trickle *tkl, struct timer_group *group)
 void mpl_msg_confirm(struct mpl_ctx *mpl, const void *tx_ctx)
 {
     const struct mpl_seed *seed;
-    struct mpl_msg *msg = NULL;
+    struct mpl_msg *msg;
 
-    SLIST_FOREACH(seed, &mpl->seed_set, link)
-        SLIST_FOREACH(msg, &seed->msg_set, link)
-            if (msg->tx_ctx == tx_ctx)
-                break;
-    if (msg)
-        msg->tx_ctx = NULL;
+    SLIST_FOREACH(seed, &mpl->seed_set, link) {
+        SLIST_FOREACH(msg, &seed->msg_set, link) {
+            if (msg->tx_ctx == tx_ctx) {
+                msg->tx_ctx = NULL;
+                return;
+            }
+        }
+    }
 }
 
 static void mpl_msg_expire(struct trickle *tkl, struct timer_group *group)
