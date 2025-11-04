@@ -904,7 +904,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 static void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)
 {
     buffer_t *buf = buffer_get(data_ind->msduLength);
-    if (!buf || !cur) {
+    if (!buf) {
         return;
     }
     uint8_t *ptr;
