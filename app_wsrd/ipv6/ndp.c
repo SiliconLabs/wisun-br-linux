@@ -201,7 +201,8 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
      * parent.
      */
     if (!neigh->ns_has_aro) {
-        if (neigh->rpl && neigh->rpl->path_ctl)
+        if (neigh->rpl && neigh->rpl->path_ctl &&
+            !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
             ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_PROBE);
         return;
     }
