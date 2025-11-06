@@ -473,7 +473,6 @@ static void wsrd_on_dhcp_addr_add(struct dhcp_client *client)
     SLIST_FOREACH(nce, &wsrd->ipv6.neigh_cache, link)
         if (nce->rpl && nce->rpl->path_ctl)
             ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_PROBE);
-    BUG_ON(!ipv6_has_pending_ns_aro(&wsrd->ipv6));
 }
 
 static void wsrd_on_dhcp_addr_del(struct dhcp_client *client)
