@@ -19,7 +19,6 @@
 #include <limits.h>
 #include <getopt.h>
 #include "common/ws/ws_regdb.h"
-#include "common/commandline.h"
 #include "common/key_value_storage.h"
 #include "common/named_values.h"
 #include "common/bus.h"
@@ -191,6 +190,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
+        { "rcp_trace",                     &config->rcp_traces,                       conf_add_rcp_traces,  &rcp_log_names },
         { "internal_dhcp",                 &config->dhcp_server,                      conf_set_dhcp_internal, NULL },
         { "dhcp_server",                   &config->dhcp_server,                      conf_set_netaddr,     &valid_ipv6 },
         { "radius_server",                 &config->auth_cfg.radius_addr,             conf_set_netaddr,     &valid_ipv4or6 },

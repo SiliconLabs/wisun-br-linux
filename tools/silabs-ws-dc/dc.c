@@ -275,6 +275,12 @@ int dc_main(int argc, char *argv[])
         exit(0);
     }
 
+    if (dc->cfg.rcp_traces.groups[0].level) {
+        if (version_older_than(dc->ws.rcp.version_api, 2, 16, 0))
+            FATAL(3, "rcp_trace require RCP API >= 2.16.0");
+        rcp_set_log(&dc->ws.rcp, &dc->cfg.rcp_traces);
+    }
+
     dc_init_radio(dc);
     dc_init_tun(dc);
     lowpan_frag_init(&dc->lowpan_frag);

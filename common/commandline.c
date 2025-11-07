@@ -24,9 +24,11 @@
 #include "common/bits.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
+#include "common/memutils.h"
 #include "common/named_values.h"
 #include "common/netinet_in_extra.h"
 #include "common/parsers.h"
+#include "common/rcp_api.h"
 
 #include "commandline.h"
 
@@ -272,6 +274,30 @@ void conf_set_flags(const struct storage_parse_info *info, void *raw_dest, const
 
     *dest = 0;
     conf_add_flags(info, dest, raw_param);
+}
+
+void conf_add_rcp_traces(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    const struct name_value *table = raw_param;
+    struct rcp_log_cfg *dest = raw_dest;
+    char *tmp, *substr;
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(dest->groups); i++)
+        if (!dest->groups[i].level)
+            break;
+
+    tmp = strdup(info->value);
+    substr = strtok(tmp, ",");
+    do {
+        if (i >= ARRAY_SIZE(dest->groups))
+            FATAL(1, "%s:%d: too many entries (max=%zu)",
+                  info->filename, info->linenr, ARRAY_SIZE(dest->groups));
+        dest->groups[i].id = str_to_val(substr, table);
+        dest->groups[i].level = 4; // DEBUG
+        i++;
+    } while ((substr = strtok(NULL, ",")));
+    free(tmp);
 }
 
 void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)

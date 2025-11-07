@@ -21,6 +21,7 @@
 
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
+#include "common/commandline.h"
 #include "common/duty_cycle.h"
 #include "common/trickle.h"
 #include "common/rcp_api.h"
@@ -73,6 +74,7 @@ struct wsrd_conf {
 
     bool list_rf_configs;
     int  color_output;
+    struct rcp_log_cfg rcp_traces;
 };
 
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[]);

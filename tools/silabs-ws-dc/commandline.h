@@ -17,6 +17,7 @@
 #include <net/if.h>
 
 #include "common/rcp_api.h"
+#include "common/commandline.h"
 #include "common/authenticator/authenticator.h"
 
 struct dc_cfg {
@@ -47,6 +48,7 @@ struct dc_cfg {
 
     bool list_rf_configs;
     int  color_output;
+    struct rcp_log_cfg rcp_traces;
 };
 
 void parse_commandline(struct dc_cfg *config, int argc, char *argv[]);

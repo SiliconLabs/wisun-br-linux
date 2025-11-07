@@ -644,6 +644,13 @@ int wsbr_main(int argc, char *argv[])
         rail_print_config_list(&ctxt->rcp);
         exit(0);
     }
+
+    if (ctxt->config.rcp_traces.groups[0].level) {
+        if (version_older_than(ctxt->rcp.version_api, 2, 16, 0))
+            FATAL(3, "rcp_trace require RCP API >= 2.16.0");
+        rcp_set_log(&ctxt->rcp, &ctxt->config.rcp_traces);
+    }
+
     // NOTE: destination address filtering is enabled by default with the
     // native EUI-64.
     if (memcmp(ctxt->config.ws_mac_address, &EUI64_BC, 8))

@@ -26,6 +26,7 @@
 #include "common/authenticator/authenticator.h"
 #include "common/specs/ws.h"
 #include "common/ws/ws_chan_mask.h"
+#include "common/commandline.h"
 #include "common/duty_cycle.h"
 #include "common/rcp_api.h"
 #include "common/bits.h"
@@ -34,6 +35,7 @@
 struct wsbrd_conf {
     bool list_rf_configs;
     int color_output;
+    struct rcp_log_cfg rcp_traces;
 
     struct rcp_cfg rcp_cfg;
 

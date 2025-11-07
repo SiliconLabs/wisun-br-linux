@@ -15,7 +15,6 @@
 #include <getopt.h>
 
 #include "common/ws/ws_regdb.h"
-#include "common/commandline.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/memutils.h"
@@ -134,6 +133,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "csma_cca_retries",              &config->csma.cca_retries,                 conf_set_u8,          NULL },
         { "csma_frame_retries",            &config->csma.frame_retries,               conf_set_u8,          NULL },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
+        { "rcp_trace",                     &config->rcp_traces,                       conf_add_rcp_traces,  &rcp_log_names },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "authority",                     &config->supp_cfg.tls.ca_cert,             conf_set_pem,         NULL },
         { "certificate",                   &config->supp_cfg.tls.cert,                conf_set_pem,         NULL },

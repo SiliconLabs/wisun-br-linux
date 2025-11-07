@@ -18,7 +18,6 @@
 #include "common/key_value_storage.h"
 #include "common/ieee802154_frame.h"
 #include "common/string_extra.h"
-#include "common/commandline.h"
 #include "common/parsers.h"
 #include "common/log.h"
 
@@ -94,6 +93,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
         { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
+        { "rcp_trace",                     &config->rcp_traces,                       conf_add_rcp_traces,  &rcp_log_names },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { }
     };

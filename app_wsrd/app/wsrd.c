@@ -747,6 +747,13 @@ int wsrd_main(int argc, char *argv[])
         rail_print_config_list(&wsrd->ws.rcp);
         exit(0);
     }
+
+    if (wsrd->config.rcp_traces.groups[0].level) {
+        if (version_older_than(wsrd->ws.rcp.version_api, 2, 16, 0))
+            FATAL(3, "rcp_trace require RCP API >= 2.16.0");
+        rcp_set_log(&wsrd->ws.rcp, &wsrd->config.rcp_traces);
+    }
+
     // NOTE: destination address filtering is enabled by default with the
     // native EUI-64.
     if (!eui64_is_bc(&wsrd->config.ws_mac_address))
