@@ -391,19 +391,20 @@ def config_chan_plan_common(json: dict):
                 return error(400, WSTBU_ERR_UNKNOWN, 'invalid channel exclusion range')
             if max < min:
                 continue
-            chan_excl_mask = utils.extend_to(chan_excl_mask, max + 1, False)
+            chan_excl_mask = utils.extend_to(chan_excl_mask, max // 8 + 1, 0x00)
             for i in range(min, max + 1):
-                chan_excl_mask[i] = True
+                chan_excl_mask[i // 8] |= (1 << (i % 8))
 
     # Convert excluded mask to allowed ranges
     chan_allowed = []
     i_start = -1
     for i, excl in enumerate(chan_excl_mask):
-        if not excl and i_start < 0:
-            i_start = i
-        elif excl and i_start >= 0:
-            chan_allowed.append((i_start, i - 1))
-            i_start = -1
+        for j in range(8):
+            if not (excl & (1 << j)) and i_start < 0:
+                i_start = i * 8 + j
+            elif (excl & (1 << j)) and i_start >= 0:
+                chan_allowed.append((i_start, i * 8 + j - 1))
+                i_start = -1
     if i_start >= 0:
         chan_allowed.append((i_start, 255))
 
