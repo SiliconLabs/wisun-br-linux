@@ -29,8 +29,6 @@ struct pktbuf;
 struct ipv6_ctx {
     struct tun_ctx tun;
     struct dhcp_client dhcp;
-    struct in6_addr *addr_list_mc;
-    int addr_list_mc_len;
 
     int reach_base_ms;  // BaseReachableTime
     int probe_delay_ms; // RetransDelay

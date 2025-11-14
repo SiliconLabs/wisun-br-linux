@@ -32,7 +32,6 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "app_wsrd/ipv6/6lowpan.h"
-#include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/ipv6/rpl_rpi.h"
 #include "app_wsrd/ipv6/rpl_srh.h"
 #include "ipv6.h"
@@ -188,7 +187,7 @@ void ipv6_recvfrom_mac(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, const struc
         ipv6->on_recv(ipv6, &hdr.ip6_src);
 
     ipv6_addr_conv_iid_eui64(addr_linklocal.s6_addr + 8, ipv6->eui64.u8);
-    if (!(IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) && ipv6_addr_has_mc(ipv6, &hdr.ip6_dst)) &&
+    if (!IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst) &&
         !(IN6_IS_ADDR_LINKLOCAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &addr_linklocal)) &&
         !(IN6_IS_ADDR_UC_GLOBAL(&hdr.ip6_dst) && IN6_ARE_ADDR_EQUAL(&hdr.ip6_dst, &ipv6->dhcp.iaaddr.ipv6)))
         goto submit;

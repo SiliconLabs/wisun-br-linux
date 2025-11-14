@@ -40,7 +40,6 @@
 #include "common/version.h"
 #include "common/rand.h"
 #include "app_wsrd/ipv6/6lowpan.h"
-#include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd_storage.h"
 #include "app_wsrd/app/join_state.h"
 #include "app_wsrd/app/wsrd.h"

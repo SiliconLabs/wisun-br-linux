@@ -19,7 +19,6 @@
 #include "common/crypto/ws_keys.h"
 #include "common/memutils.h"
 #include "common/version.h"
-#include "app_wsrd/ipv6/ipv6_addr_mc.h"
 #include "app_wsrd/app/wsrd.h"
 
 #include "dbus.h"
@@ -35,9 +34,9 @@ static int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_e
     if (len != 16  || !IN6_IS_ADDR_MULTICAST(addr))
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = ipv6_addr_add_mc(ipv6, addr);
+    ret = tun_addr_add_mc(&ipv6->tun, addr);
     if (ret < 0) {
-        WARN("%s: %s", __func__, strerror(-ret));
+        WARN("tun_addr_add_mc %s: %s", tr_ipv6(addr->s6_addr), strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
     }
     sd_bus_reply_method_return(m, NULL);
@@ -55,9 +54,9 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     if (len != 16 || !IN6_IS_ADDR_MULTICAST(addr))
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = ipv6_addr_del_mc(ipv6, addr);
+    ret = tun_addr_del_mc(&ipv6->tun, addr);
     if (ret < 0) {
-        WARN("%s: %s", __func__, strerror(-ret));
+        WARN("tun_addr_del_mc %s: %s", tr_ipv6(addr->s6_addr), strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
     }
     sd_bus_reply_method_return(m, NULL);

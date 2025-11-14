@@ -274,7 +274,6 @@ if(COMPILE_WSRD)
         app_wsrd/app/ws.c
         app_wsrd/ipv6/6lowpan.c
         app_wsrd/ipv6/ipv6.c
-        app_wsrd/ipv6/ipv6_addr_mc.c
         app_wsrd/ipv6/ndp.c
         app_wsrd/ipv6/rpl.c
         app_wsrd/ipv6/rpl_mrhof.c
