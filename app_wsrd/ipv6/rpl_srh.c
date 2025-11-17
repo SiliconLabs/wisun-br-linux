@@ -12,12 +12,15 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <netinet/in.h>
+#include <netinet/icmp6.h>
 #include <netinet/ip6.h>
 #include <linux/rpl.h>
 #include <errno.h>
 
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/ipv6.h"
+#include "common/ipv6/icmpv6_err.h"
+#include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 #include "common/log.h"
 #include "common/mathutils.h"
@@ -105,8 +108,12 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
 
     /* if Segments Left is greater than n */
     if (srh->segments_left > n) {
-        // TODO: send ICMP Parameter Problem, Code 0
         TRACE(TR_DROP, "drop %-9s: invalid routing header", "rpl-srh");
+        pktbuf_push_head(pktbuf, srh, (1 + srh->hdrlen) * 8);
+        pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
+        icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
+                        ICMP6_PARAM_PROB, ICMP6_PARAMPROB_HEADER,
+                        sizeof(struct ip6_hdr) + offsetof(struct ipv6_rpl_sr_hdr, segments_left));
         return -EINVAL;
     }
 
@@ -137,9 +144,13 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
     for (int j = 0; j < n; j++) {
         // NOTE: only check if the GUA appears more than once.
         if (IN6_ARE_ADDR_EQUAL(&segaddr[j], &ipv6->dhcp.iaaddr.ipv6)) {
-            // TODO: send an ICMP Parameter Problem (Code 0)
             TRACE(TR_DROP, "drop %-9s: loop seg[%i] assigned to self", "rpl-srh", j);
             free(segaddr);
+            pktbuf_push_head(pktbuf, srh, (1 + srh->hdrlen) * 8);
+            pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
+            icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
+                            ICMP6_PARAM_PROB, ICMP6_PARAMPROB_HEADER,
+                            sizeof(struct ip6_hdr) + offsetof(struct ipv6_rpl_sr_hdr, rpl_segdata) + j * (16 - srh->cmpri));
             return -EINVAL;
         }
     }
@@ -152,8 +163,10 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
 
     /* if the IPv6 Hop Limit is less than or equal to 1 */
     if (hdr->ip6_hlim <= 1) {
-        // TODO: send ICMP Time Exceeded -- Hop Limit Exceeded
         TRACE(TR_DROP, "drop %-9s: hop limit exceeded", "rpl-srh");
+        pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
+        icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
+                        ICMP6_TIME_EXCEEDED, ICMP6_TIME_EXCEED_TRANSIT, 0);
         return -ETIMEDOUT;
     }
 
@@ -169,7 +182,9 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
     if (!nce || !ipv6_neigh_is_child(nce)) {
         TRACE(TR_DROP, "drop %-9s: dst=%s not on-link",
               "rpl-srh", tr_ipv6(hdr->ip6_dst.s6_addr));
-        // TODO: send ICMP Destination Unreachable, Code 7
+        pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
+        icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
+                        ICMP6_DST_UNREACH, ICMPV6_CODE_DST_UNREACH_SRH, 0);
         return -EHOSTUNREACH;
     }
 
