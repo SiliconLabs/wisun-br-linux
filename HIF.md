@@ -730,6 +730,9 @@ transmitted packets, based on active schedules:
       broadcast window (see [`SET_FHSS_LFN_BC`][bc-lfn]). The RCP recomputes
       the offset to be relative to the destination LFN's unicast schedule,
       based on the timing information passed in [`REQ_DATA_TX`][tx-req].
+      Since API >= 2.17.0, if the host desires its offset to not be processed
+      by the RCP, it may set the most significant bit (`0x800000`), in which
+      case the RCP will clear it and leave the remaining bits untouched.
 
 ### Channel Sequence
 

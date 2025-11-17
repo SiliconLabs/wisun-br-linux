@@ -858,6 +858,10 @@ def transmitter_icmpv6():
         return error(400, WSTBU_ERR_UNKNOWN, f'missing adjustedListeningOffset or adjustedListeningInterval')
     if (lto_offset is not None) and (lto_interval is not None):
         # Wi-SUN FAN 1.1v08 - Figure 6-47 LTO IE Format
+        if wsbrd.dbus().rcp_api_version >= (2, 17, 0):
+            lto_offset |= 0x800000
+        else:
+            utils.warn('adjustedListeningOffset requires RCP API >= 2.17.0 or a TBU specific firmware')
         lto = utils.htole24(lto_offset) + utils.htole24(lto_interval)
         wsbrd.dbus().ie_custom_insert(WSTBU_IE_FORMAT_WH, WS_WHIE_LTO, lto, bytes([WS_FRAME_TYPE_DATA]))
     else:

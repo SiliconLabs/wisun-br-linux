@@ -86,6 +86,10 @@ class WsbrdDbusInterface(
     sdbus.DbusInterfaceCommon,
     interface_name='com.silabs.Wisun.BorderRouter'
 ):
+    @sdbus.dbus_property('(uuu)')
+    def rcp_api_version(self) -> tuple[int, int, int]:
+        raise NotImplementedError
+
     @sdbus.dbus_property('aay')
     def gtks(self) -> list[bytes]:
         raise NotImplementedError
