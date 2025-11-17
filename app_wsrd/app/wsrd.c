@@ -28,6 +28,7 @@
 #include "app_wsrd/supplicant/supplicant_storage.h"
 #include "common/ws/eapol_relay.h"
 #include "common/ws/ws_regdb.h"
+#include "common/ipv6/icmpv6_err.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
@@ -597,6 +598,7 @@ static void wsrd_init_ipv6(struct wsrd *wsrd)
     tun_addr_add_mc(&wsrd->ipv6.tun, &ipv6_addr_all_routers_realm);  // ff03::2
     tun_addr_add_mc(&wsrd->ipv6.tun, &ipv6_addr_all_mpl_fwd_realm);  // ff03::fc
 
+    icmpv6_err_init(&wsrd->ipv6.icmp_err, wsrd->ipv6.tun.ifname);
     mpl_init(&wsrd->ipv6.mpl);
 }
 

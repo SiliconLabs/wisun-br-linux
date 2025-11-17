@@ -17,6 +17,7 @@
 #include "app_wsrd/ipv6/ndp.h"
 #include "app_wsrd/ipv6/rpl.h"
 #include "common/ipv6/6lowpan_frag.h"
+#include "common/ipv6/icmpv6_err.h"
 #include "common/ipv6/mpl.h"
 #include "common/dhcp_client.h"
 #include "common/eui64.h"
@@ -40,6 +41,7 @@ struct ipv6_ctx {
     struct timer_group timer_group;
     struct rpl_ctx rpl;
     struct mpl_ctx mpl;
+    struct icmpv6_err_ctx icmp_err;
 
     struct lowpan_frag_ctx lowpan_frag;
 
