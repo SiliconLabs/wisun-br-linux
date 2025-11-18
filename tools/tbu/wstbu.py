@@ -203,7 +203,7 @@ def wsbrd_set_join_metrics(jm_list, jm_version):
 def run_mode(mode: int):
     global jm_version, jm_list, sub_process
 
-    if mode == 0:
+    if mode == 0 or mode == 2:
         wsbrd.service.stop('fail')
         wsbrd.config = wsbrd.config_default(config)
         try:
@@ -212,6 +212,9 @@ def run_mode(mode: int):
             pass
         jm_list = dict()
         jm_version = 0
+        if mode == 0:
+            shutil.rmtree(wsbrd.config['storage_prefix'], ignore_errors=True)
+            os.mkdir(wsbrd.config['storage_prefix'])
     elif mode == 1:
         if sub_process:
             subscription_frame_restart(*sub_process.args)
