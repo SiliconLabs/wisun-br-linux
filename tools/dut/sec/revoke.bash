@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+EUI64="$1"
 echo "Revoke PMK/PTK for $EUI64"
 IFS=':-' read -r -a EUI64 <<< "$EUI64"
 busctl call --timeout=1 \
