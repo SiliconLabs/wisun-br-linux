@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 
 #include "common/ipv6/ipv6_cksum.h"
+#include "common/named_values.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
@@ -47,6 +48,20 @@ void icmpv6_err_init(struct icmpv6_err_ctx *ctx, const char *ifname)
 
     ctx->ratelimit_timer.callback = icmpv6_err_ratelimit_reset;
     icmpv6_err_ratelimit_reset(NULL, &ctx->ratelimit_timer);
+}
+
+static void icmpv6_err_trace(const struct icmp6_hdr *icmp)
+{
+    static const struct name_value table[] = {
+        { "err-reach", ICMP6_DST_UNREACH },
+        { "err-mtu",   ICMP6_PACKET_TOO_BIG },
+        { "err-time",  ICMP6_TIME_EXCEEDED },
+        { "err-param", ICMP6_PARAM_PROB },
+        { 0 }
+    };
+
+    TRACE(TR_ICMP, "tx-icmp %-9s code=%u",
+          val_to_str(icmp->icmp6_type, table, "err-???"), icmp->icmp6_code);
 }
 
 void icmpv6_err_send(struct icmpv6_err_ctx *ctx,
@@ -85,6 +100,7 @@ void icmpv6_err_send(struct icmpv6_err_ctx *ctx,
     if (timer_stopped(&ctx->ratelimit_timer))
         timer_start_rel(NULL, &ctx->ratelimit_timer, 1000);
 
+    icmpv6_err_trace(&icmp);
     ret = sendmsg(ctx->fd, &msg, 0);
     if (ret < 0)
         WARN("%s: sendmsg %s: %m", __func__, tr_ipv6(dst.sin6_addr.s6_addr));
