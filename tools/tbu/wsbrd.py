@@ -118,6 +118,10 @@ class WsbrdDbusInterface(
         raise NotImplementedError
 
     @sdbus.dbus_method('ay')
+    def revoke_pairwise_keys(self, eui64: bytes) -> None:
+        raise NotImplementedError
+
+    @sdbus.dbus_method('ay')
     def revoke_gtks(self, gtk: bytes) -> None:
         raise NotImplementedError
 

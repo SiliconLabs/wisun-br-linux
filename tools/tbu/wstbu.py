@@ -566,6 +566,18 @@ def config_border_router_key_lifetimes():
 
 
 @dbus_errcheck
+@json_errcheck('/config/borderRouter/revokeNodes')
+def config_border_router_revoke_nodes():
+    json = flask.request.get_json(force=True, silent=True)
+    eui64s = [utils.parse_eui64(addr) for addr in json['macAddressList']]
+    if None in eui64s:
+        return error(400, WSTBU_ERR_UNKNOWN, 'invalid macAddressList')
+    for eui64 in eui64s:
+        wsbrd.dbus().revoke_pairwise_keys(eui64)
+    return success()
+
+
+@dbus_errcheck
 @json_errcheck('/config/borderRouter/revokeKeys')
 def config_border_router_revoke_keys():
     json = flask.request.get_json(force=True, silent=True)
@@ -945,6 +957,7 @@ def app_build():
     app.add_url_rule('/config/borderRouter',                            view_func=config_border_router,                              methods=['PUT'])
     app.add_url_rule('/config/borderRouter/gtks',                       view_func=config_border_router_gtks,                         methods=['PUT'])
     app.add_url_rule('/config/borderRouter/keyLifetimes',               view_func=config_border_router_key_lifetimes,                methods=['PUT'])
+    app.add_url_rule('/config/borderRouter/revokeNodes',                view_func=config_border_router_revoke_nodes,                 methods=['PUT'])
     app.add_url_rule('/config/borderRouter/revokeKeys',                 view_func=config_border_router_revoke_keys,                  methods=['PUT'])
     app.add_url_rule('/config/borderRouter/informationElements',        view_func=config_border_router_information_elements,         methods=['PUT', 'DELETE'])
     app.add_url_rule('/config/borderRouter/joinMetrics',                view_func=config_border_router_join_metrics,                 methods=['PUT', 'DELETE'])
