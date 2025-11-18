@@ -170,11 +170,14 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     if (!chan_func) {
         BUG_ON(fixed_channel < 0);
         INFO("     unicast   %*s BIT(%d)", length, "--", fixed_channel);
+        INFO("     async     %*s BIT(%d)", length, "--", fixed_channel);
     } else {
         ws_chan_mask_calc_excl(chan_mask_excl, chan_mask_reg, fhss_config->uc_chan_mask);
         INFO("     unicast   %*s %*s",
              length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_params->chan_count),
              length, tr_channel_mask(fhss_config->uc_chan_mask, fhss_config->chan_params->chan_count));
+        INFO("     async     %*s %*s", length, "--",
+             length, tr_channel_mask(chan_mask_reg, fhss_config->chan_params->chan_count));
     }
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->bc_chan_mask);
@@ -188,9 +191,6 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_excl_channel_mask(chan_mask_excl, fhss_config->chan_params->chan_count),
              length, tr_channel_mask(fhss_config->bc_chan_mask, fhss_config->chan_params->chan_count));
     }
-
-    INFO("     async     %*s %*s", length, "--",
-            length, tr_channel_mask(chan_mask_reg, fhss_config->chan_params->chan_count));
 }
 
 static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
