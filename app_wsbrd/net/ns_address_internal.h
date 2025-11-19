@@ -15,23 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- * \file ns_address_internal.h
- * \brief address type definitions.
- *
- *  nanoStack: supported address types and associated data structures.
- *
- *
- */
-
-
 #ifndef _NS_ADDRESS_H
 #define _NS_ADDRESS_H
 #include <stdbool.h>
 #include "common/ns_list.h"
 
 #include "netaddr_types.h"
+
+/*
+ * Utility functions that can be used to check, manipulate etc. addresses.
+ */
 
 #define ADDR_MULTICAST_MAX 3
 #define PAN_ID_LEN 2
@@ -41,13 +34,10 @@ struct net_if;
 struct if_address_entry;
 struct socket;
 
-/** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
-///@{
 #define SOCKET_IPV6_PREFER_SRC_TMP              0x00000001 /**< Prefer temporary address (RFC 4941); default. */
 #define SOCKET_IPV6_PREFER_SRC_PUBLIC           0x00010000 /**< Prefer public address (RFC 4941). */
 #define SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT    0x00000100 /**< Prefer 6LoWPAN short address. */
 #define SOCKET_IPV6_PREFER_SRC_6LOWPAN_LONG     0x01000000 /**< Prefer 6LoWPAN long address. */
-///@}
 
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
@@ -105,4 +95,5 @@ int addr_interface_set_ll64(struct net_if *cur);
 int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, uint8_t address_type);
 int addr_interface_get_gua(struct net_if *cur, struct in6_addr *addr);
 int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr);
-#endif /*_NS_ADDRESS_H*/
+
+#endif

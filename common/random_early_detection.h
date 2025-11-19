@@ -15,18 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef RANDOM_EARLY_DETECTION_H
 #define RANDOM_EARLY_DETECTION_H
+#include <stdint.h>
+#include <stdbool.h>
 
 /**
- * This mechanism is described on Wikipedia[1].
+ * Random Early Detection as described on Wikipedia[1].
  *
  * [1]: https://en.wikipedia.org/wiki/Random_early_detection
 */
-
-#include <stdint.h>
-#include <stdbool.h>
 
 struct red_config {
     uint16_t weight;                /*< Weight for new sample len, 256 disabled average */
@@ -45,37 +43,12 @@ struct red_config {
 
 void red_init(struct red_config *red_config);
 
-/**
- * \brief Random early detection drop function
- *
- * \param red_info pointer, which is created user include all configurations
- * \param sampleLen Current queue length
- * \return true Drop packet
- * \return false Packet can be added to queue
- */
+/* If return true, the packet should be dropped. */
 bool red_congestion_check(struct red_config *red_info);
 
-/**
- * \brief Random early detection Average queue calculate
- *
- *  Call this when add or remove from queue
- *
- * \param red_info pointer, which is created user include all configurations
- * \param sampleLen Current queue length
- *
- * \return New average
- */
+/* Random early detection Average queue calculate */
 uint16_t red_aq_calc(struct red_config *red_info, uint16_t sample_len);
 
-/**
- * \brief Read Random early detection Average queue size
- *
- *  Call this when add or remove from queue
- *
- * \param red_info pointer, which is created user include all configurations
- *
- * \return Current average
- */
 uint16_t red_aq_get(struct red_config *red_info);
 
 #endif

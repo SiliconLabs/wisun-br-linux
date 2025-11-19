@@ -56,15 +56,6 @@ buffer_t *buffer_get_minimal(uint16_t size)
     return buffer_get_specific(0, size, 0);
 }
 
-/**
- * Get pointer to a buffer_t structure and reserve memory for it from the dynamic heap.
- *
- * \param headroom required headroom in addition to basic size
- * \param size basic size of data allocate memory for
- * \param minspace minimum size of buffer
- * \return a pointer of type buffer_t to the allocated memory area
- *
- */
 buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspace)
 {
     buffer_t *buf = NULL;
@@ -98,14 +89,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
     return buf;
 }
 
-/**
- * Make sure buffer has enough room for header.
- *
- * \param buf buffer to check
- * \param size required header space
- * \return a pointer of type buffer_t to the newly allocated buffer (or the original one)
- *
- */
 buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
 {
     uint16_t curr_len = buffer_data_length(buf);
@@ -151,13 +134,6 @@ buffer_t *buffer_free_route(buffer_t *buf)
     return buf;
 }
 
-/**
- * Free a memory block from the heap.
- *
- * \param buf pointer to buffer to be freed
- * \return (buffer_t *) NULL
- *
- */
 buffer_t *buffer_free(buffer_t *buf)
 {
     buffer_free_route(buf);
@@ -209,14 +185,6 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
     dst->buf_end = buf_end;
 }
 
-/**
- * Add buffer at the end of data.
- *
- * \param buf pointer to buffer where data is added
- * \param data_ptr data pointer where data is copied
- * \data_len length of data copied.
- *
- */
 void buffer_data_add(buffer_t *buf, const uint8_t *data_ptr, uint16_t data_len)
 {
     memcpy(buffer_data_end(buf), data_ptr, data_len);
@@ -225,13 +193,6 @@ void buffer_data_add(buffer_t *buf, const uint8_t *data_ptr, uint16_t data_len)
     return;
 }
 
-/**
- * Create new buffer that has the same data and fields.
- *
- * \param buf pointer to buffer to be freed
- * \return (buffer_t *) new clone.
- *
- */
 buffer_t *buffer_clone(buffer_t *buf)
 {
     buffer_t *result_ptr = NULL;

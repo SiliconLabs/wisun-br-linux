@@ -15,20 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- * \file buffer.h
- * \brief buffer type definitions.
- *
- *  nanoStack: buffer carrier structure.
- *
- */
-
-
 #ifndef _NS_BUFFER_H
 #define _NS_BUFFER_H
-
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -39,17 +27,9 @@
 #include "ipv6/ipv6_routing_table.h"
 #include "rpl/rpl_srh.h"
 
-#ifndef BUFFERS_MAX
 #define BUFFERS_MAX 10
-#endif
-
-#ifndef BUFFER_SIZE
 #define BUFFER_SIZE 128
-#endif
-
-#ifndef ACK_BUFFER_SIZE
 #define ACK_BUFFER_SIZE 5
-#endif
 
 /*
  * headroom given to buffers by default.
@@ -67,9 +47,7 @@
  * this can be overridden at compile-time, or changed on a per-socket basis
  * with socket_setsockopt. It can also be overridden by Router Advertisements.
  */
-#ifndef UNICAST_HOP_LIMIT_DEFAULT
 #define UNICAST_HOP_LIMIT_DEFAULT 64
-#endif
 
 /** link-specific buffer data */
 typedef struct buffer_link_ieee802_15_4 {
