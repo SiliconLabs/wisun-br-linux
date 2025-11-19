@@ -23,6 +23,7 @@
 #include "common/ipv6/ipv6_flow_label.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/memutils.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/specs/ipv6.h"
 #include "common/specs/icmpv6.h"
@@ -107,12 +108,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         return buf->route;
     }
 
-    buf->route = route = malloc(sizeof(buffer_routing_info_t));
-    if (!route) {
-        return NULL;
-    }
-
-    route->ip_dest = NULL;
+    buf->route = route = zalloc(sizeof(buffer_routing_info_t));
     route->ref_count = 1;
 
     /* Realm-or-lower scope addresses must have interface specified */
