@@ -115,7 +115,7 @@ static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer
 /* Common data tx request process functions */
 static void lowpan_active_buffer_state_reset(fragmenter_tx_entry_t *tx_buffer);
 static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *interface_ptr);
-static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size);
+static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate();
 static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr,
                                                                 bool is_unicast, bool lfn_multicast);
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur);
@@ -393,28 +393,11 @@ void lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_ap
     }
 }
 
-static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
+static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate()
 {
-    fragmenter_tx_entry_t *indirec_entry = malloc(sizeof(fragmenter_tx_entry_t));
-    if (!indirec_entry) {
-        return NULL;
-    }
+    fragmenter_tx_entry_t *indirec_entry = zalloc(sizeof(fragmenter_tx_entry_t));
 
-    if (fragment_buffer_size) {
-        indirec_entry->fragmenter_buf = malloc(fragment_buffer_size);
-        if (!indirec_entry->fragmenter_buf) {
-            free(indirec_entry);
-            return NULL;
-        }
-    } else {
-        indirec_entry->fragmenter_buf = NULL;
-    }
-
-
-    indirec_entry->buf = NULL;
-    indirec_entry->fragmented_data = false;
     indirec_entry->first_fragment = true;
-
     return indirec_entry;
 }
 
@@ -513,10 +496,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
     fragmenter_tx_entry_t *tx_entry;
 
     if (is_unicast) {
-        tx_entry = lowpan_indirect_entry_allocate(0);
-        if (!tx_entry) {
-            return NULL;
-        }
+        tx_entry = lowpan_indirect_entry_allocate();
         ns_list_add_to_end(&interface_ptr->activeUnicastList, tx_entry);
         interface_ptr->activeTxList_size++;
     } else if (lfn_multicast) {
@@ -759,10 +739,6 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 
     fragmenter_tx_entry_t *tx_ptr = lowpan_adaptation_tx_process_init(interface_ptr, is_unicast,
                                                                       buf->options.lfn_multicast);
-    if (!tx_ptr) {
-        goto tx_error_handler;
-    }
-
     tx_ptr->buf = buf;
 
     if (fragmented_needed) {
