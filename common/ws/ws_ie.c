@@ -369,7 +369,12 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_fhss_
     if (!memzcmp(chan_mask_excl, WS_CHAN_MASK_LEN))
         return;
 
-    mask_len = ws_chan_mask_width(chan_mask_excl);
+    /*
+     *   Wi-SUN FAN 1v10 6.3.2.3.2.1.6.2 Excluded Channel Mask Field
+     * Note that the size of this field is determined by the channel plan
+     * indicated in the IE.
+     */
+    mask_len = ws_chan_mask_width(chan_mask_reg);
     range_cnt = ws_chan_mask_ranges(chan_mask_excl);
 
     if (mask_len < 1 + 4 * range_cnt) {
