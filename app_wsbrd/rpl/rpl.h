@@ -120,7 +120,6 @@ struct rpl_root {
     // In particular:
     // - Path Sequence is ignored, information found in DAO is always
     //   considered up to date and added to previously learned information.
-    // - Source Routing Header compression always uses CmprI = CmprE.
     bool compat;
 
     struct timer_group timer_group;

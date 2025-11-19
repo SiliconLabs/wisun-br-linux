@@ -35,7 +35,7 @@ struct rpl_srh_decmpr {
 int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop);
 void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
-                  const uint8_t dst[16], uint8_t nxthdr, bool cmpri_eq_cmpre);
+                  const uint8_t dst[16], uint8_t nxthdr);
 void rpl_srh_trace_err(int err);
 
 #endif
