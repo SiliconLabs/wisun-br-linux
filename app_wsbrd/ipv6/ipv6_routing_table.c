@@ -491,10 +491,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         }
 
         /* If no entry, make one */
-        entry = malloc(sizeof(ipv6_destination_t));
-        if (!entry) {
-            return NULL;
-        }
+        entry = zalloc(sizeof(ipv6_destination_t));
         memcpy(entry->destination, address, 16);
         entry->refcount = 1;
         entry->last_neighbour = NULL;
@@ -878,11 +875,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
 
     if (!route) { /* new route */
         uint8_t prefix_bytes = (prefix_len + 7u) / 8u;
-        route = malloc(sizeof(ipv6_route_t) + prefix_bytes);
-        if (!route) {
-            return NULL;
-        }
-        memset(route->prefix, 0, prefix_bytes);
+        route = zalloc(sizeof(ipv6_route_t) + prefix_bytes);
         bitcpy(route->prefix, prefix, prefix_len);
         route->prefix_len = prefix_len;
         route->search_skip = false;
