@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "common/bits.h"
 #include "common/endian.h"
+#include "common/memutils.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/specs/ipv6.h"
@@ -490,6 +491,7 @@ buffer_t *iphc_compress(buffer_t *buf, uint16_t hc_space)
     uint8_t *ptr = buffer_data_pointer(buf);
     uint16_t len = buffer_data_length(buf);
     uint8_t src_iid[8], dst_iid[8];
+    uint8_t *hc_out;
 
     if (len < 40 || (ptr[0] & 0xF0) != 0x60) {
         tr_debug("Not IPv6");
@@ -504,11 +506,7 @@ buffer_t *iphc_compress(buffer_t *buf, uint16_t hc_space)
     /* TODO: Could actually do it in-place with more care, working backwards
      * in each header.
      */
-    uint8_t *hc_out = malloc(hc_space);
-    if (!hc_out) {
-        tr_debug("No mem");
-        return buffer_free(buf);
-    }
+    hc_out = xalloc(hc_space);
 
     if (!addr_iid_from_outer(src_iid, &buf->src_sa) || !addr_iid_from_outer(dst_iid, &buf->dst_sa)) {
         tr_debug("Bad outer addr");

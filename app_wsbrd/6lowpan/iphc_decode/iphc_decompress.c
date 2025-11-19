@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/bits.h"
+#include "common/memutils.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/specs/ipv6.h"
@@ -501,21 +502,16 @@ buffer_t *iphc_decompress(buffer_t *buf)
 {
     uint8_t src_iid[8], dst_iid[8];
     uint8_t *iphc = NULL;
-
-    /* Pre-scan to get compressed and uncompressed header size */
     uint16_t ip_size;
     uint16_t hc_size = iphc_header_scan(buf, &ip_size);
+
     if (hc_size == 0) {
         tr_warn("IPHC size 0");
         goto decomp_error;
     }
 
     /* Copy compressed header into temporary buffer */
-    iphc = malloc(hc_size);
-    if (!iphc) {
-        tr_warn("IPHC header alloc fail %d", hc_size);
-        goto decomp_error;
-    }
+    iphc = xalloc(hc_size);
     memcpy(iphc, buffer_data_pointer(buf), hc_size);
 
     /* Reserve buffer room for the uncompressed header */
