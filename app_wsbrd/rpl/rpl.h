@@ -118,8 +118,6 @@ struct rpl_root {
     // When enabled, some parts of the specification are ignored in order to
     // hopefully improve interoperability with faulty devices.
     // In particular:
-    // - Path Sequence is ignored, information found in DAO is always
-    //   considered up to date and added to previously learned information.
     // - The prefix length in PIO is set to 64 instead of 128.
     bool compat;
 

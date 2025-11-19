@@ -396,30 +396,22 @@ static bool rpl_transit_update(struct rpl_root *root,
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
 
-    if (root->compat) {
+    path_ctl_desync = rpl_lollipop_desync(opt_transit->path_seq, target->path_seq);
+    path_ctl_old    = rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) < 0;
+    if (path_ctl_desync || path_ctl_old) {
+        TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
+              tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
+              path_ctl_desync ? "desync" : "old");
+        return false;
+    }
+    if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
+        memset(target->transits, 0, sizeof(target->transits));
+        updated_lifetime = true;
         target->path_seq = opt_transit->path_seq;
         target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
-        updated_lifetime = true;
+        updated_transit = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
-    } else {
-        path_ctl_desync = rpl_lollipop_desync(opt_transit->path_seq, target->path_seq);
-        path_ctl_old    = rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) < 0;
-        if (path_ctl_desync || path_ctl_old) {
-            TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
-                  tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
-                  path_ctl_desync ? "desync" : "old");
-            return false;
-        }
-        if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
-            memset(target->transits, 0, sizeof(target->transits));
-            updated_lifetime = true;
-            target->path_seq = opt_transit->path_seq;
-            target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
-            updated_transit = true;
-            TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
-                  tr_ipv6_prefix(target->prefix, 128), target->path_seq);
-        }
     }
 
     WARN_ON(target->external != (bool)(opt_transit->flags & RPL_MASK_OPT_TRANSIT_E));
@@ -431,7 +423,7 @@ static bool rpl_transit_update(struct rpl_root *root,
         if (!memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)))
             continue;
         if (memzcmp(target->transits + i, sizeof(struct rpl_transit)) &&
-            memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)) && !root->compat)
+            memcmp(target->transits + i, &transit, sizeof(struct rpl_transit)))
             WARN("%s: overwrite", __func__);
         target->transits[i] = transit;
         updated_transit = true;
