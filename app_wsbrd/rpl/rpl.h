@@ -120,6 +120,7 @@ struct rpl_root {
     // In particular:
     // - Path Sequence is ignored, information found in DAO is always
     //   considered up to date and added to previously learned information.
+    // - The prefix length in PIO is set to 64 instead of 128.
     bool compat;
 
     struct timer_group timer_group;
