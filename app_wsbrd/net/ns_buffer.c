@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <sys/socket.h>
 #include "common/log_legacy.h"
+#include "common/memutils.h"
 
 #include "net/netaddr_types.h"
 
@@ -82,11 +83,10 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
 
     // Note - as well as this alloc+init, buffers can also be "realloced"
     // in buffer_headroom()
-    buf = malloc(sizeof(buffer_t) + total_size);
-    FATAL_ON(!buf, 2);
+    buf = xalloc(sizeof(buffer_t) + total_size);
+    memset(buf, 0, sizeof(buffer_t));
 
     buffer_count++;
-    memset(buf, 0, sizeof(buffer_t));
     buf->buf_ptr = total_size - size;
     buf->buf_end = buf->buf_ptr;
     buf->interface = NULL;
@@ -119,8 +119,7 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         /* This buffer isn't big enough at all - allocate a new block */
         // TODO - should we be giving them extra? probably
         uint32_t new_total = (curr_len + size + 3) & ~ 3;
-        new_buf = malloc(sizeof(buffer_t) + new_total);
-        FATAL_ON(!new_buf, 2);
+        new_buf = xalloc(sizeof(buffer_t) + new_total);
         // Copy the buffer_t header
         *new_buf = *buf;
         // Set new pointers, leaving specified headroom
