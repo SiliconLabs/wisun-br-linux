@@ -37,6 +37,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "app_wsrd/ipv6/rpl_mrhof.h"
 #include "app_wsrd/ipv6/ipv6.h"
+#include "rpl_storage.h"
 #include "rpl.h"
 
 static const struct name_value rpl_codes[] = {
@@ -472,6 +473,7 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
 {
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
+    rpl_storage_store(&ipv6->rpl);
     rpl_send_dao(ipv6, 0);
 }
 
@@ -502,6 +504,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
      * transits are always applied.
      */
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
+    rpl_storage_store(&ipv6->rpl);
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
 }
 
@@ -952,6 +955,8 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
+    ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
+    rpl_storage_load(&ipv6->rpl);
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(ipv6->rpl.fd < 0, 2, "%s: socket: %m", __func__);

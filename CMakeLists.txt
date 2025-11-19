@@ -276,6 +276,7 @@ if(COMPILE_WSRD)
         app_wsrd/ipv6/ipv6.c
         app_wsrd/ipv6/ndp.c
         app_wsrd/ipv6/rpl.c
+        app_wsrd/ipv6/rpl_storage.c
         app_wsrd/ipv6/rpl_mrhof.c
         app_wsrd/ipv6/rpl_rpi.c
         app_wsrd/ipv6/rpl_srh.c
