@@ -55,7 +55,6 @@
 
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
-#include "ws/ws_config.h"
 #include "ws/ws_llc.h"
 
 #include "ws/ws_bootstrap.h"
@@ -285,6 +284,12 @@ static uint16_t ws_bootstrap_packet_per_seconds(struct net_if *cur, uint16_t pac
     //Return 2 for 50kBits
     return data_rate / 5;
 }
+
+#define WS_CONGESTION_PACKET_SIZE 500           // Packet length for calculate how much heap message queue can fit
+#define WS_CONGESTION_QUEUE_DELAY 60            // Define message queue max length for given delay. This value is multiple by packet/seconds
+#define WS_CONGESTION_RED_DROP_PROBABILITY 10 //10.0%
+#define WS_CONGESTION_BR_MIN_QUEUE_SIZE 85000 / WS_CONGESTION_PACKET_SIZE
+#define WS_CONGESTION_BR_MAX_QUEUE_SIZE 600000 / WS_CONGESTION_PACKET_SIZE
 
 void ws_bootstrap_packet_congestion_init(struct net_if *cur)
 {

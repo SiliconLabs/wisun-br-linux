@@ -49,7 +49,6 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
-#include "ws/ws_config.h"
 #include "net/timers.h"
 #include "net/ns_address_internal.h"
 #include "net/netaddr_types.h"

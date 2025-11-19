@@ -40,7 +40,6 @@
 #include "net/protocol.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_common.h"
-#include "ws/ws_config.h"
 #include "ws/ws_llc.h"
 
 #include "wsbrd.h"

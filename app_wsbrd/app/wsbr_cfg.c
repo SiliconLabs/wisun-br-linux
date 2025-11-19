@@ -11,10 +11,9 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
-#include "ws/ws_config.h"
-
 #include "wsbr_cfg.h"
+
+#define MPL_SAFE_HOP_COUNT 6
 
 const struct wsbr_cfg size_params[5] = {
     [WS_NETWORK_SIZE_CERTIFICATION] = {

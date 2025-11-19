@@ -46,7 +46,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 
-#include "ws/ws_config.h"
 #include "ws/ws_common.h"
 #include "ws/ws_bootstrap.h"
 #include "ws/ws_llc.h"
