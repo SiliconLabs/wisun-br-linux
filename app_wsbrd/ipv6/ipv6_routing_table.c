@@ -784,7 +784,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
     return best;
 }
 
-ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int_fast16_t src_id)
+ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int src_id)
 {
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
         if (interface_id == r->info.interface_id && prefix_len == r->prefix_len && !bitcmp(prefix, r->prefix, prefix_len)) {
@@ -822,12 +822,12 @@ ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_
 
 #define PREF_TO_METRIC(pref) (128 - 64 * (pref))
 
-ipv6_route_t *ipv6_route_add(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int_fast8_t pref)
+ipv6_route_t *ipv6_route_add(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int pref)
 {
     return ipv6_route_add_with_info(prefix, prefix_len, interface_id, next_hop, source, NULL, 0, lifetime, pref);
 }
 
-ipv6_route_t *ipv6_route_add_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int_fast8_t pref)
+ipv6_route_t *ipv6_route_add_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int pref)
 {
     /* Only support -1, 0 and +1 prefs, as per RFC 4191 */
     if (pref < -1 || pref > +1) {
@@ -924,12 +924,12 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
     return route;
 }
 
-int_fast8_t ipv6_route_delete(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source)
+int ipv6_route_delete(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source)
 {
     return ipv6_route_delete_with_info(prefix, prefix_len, interface_id, next_hop, source, NULL, 0);
 }
 
-int_fast8_t ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int_fast16_t source_id)
+int ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int source_id)
 {
     ipv6_route_t *route = ipv6_route_lookup_with_info(prefix, prefix_len, interface_id, next_hop, source, info, source_id);
     if (!route) {

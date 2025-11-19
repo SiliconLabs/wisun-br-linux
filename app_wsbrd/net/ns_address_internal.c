@@ -188,7 +188,7 @@ void address_module_init(void)
     //mac_reset_short_address();
 }
 
-static int_fast8_t addr_policy_table_add_entry(const char *_netmask, uint8_t precedence, uint8_t label)
+static int addr_policy_table_add_entry(const char *_netmask, uint8_t precedence, uint8_t label)
 {
     addr_policy_table_entry_t *entry = zalloc(sizeof(addr_policy_table_entry_t));
     char *netmask = strdupa(_netmask);
@@ -575,7 +575,7 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint
  */
 bool addr_ipv6_equal(const uint8_t a[16], const uint8_t b[16])
 {
-    for (int_fast8_t n = 15; n >= 0; n--) {
+    for (int n = 15; n >= 0; n--) {
         if (a[n] != b[n]) {
             return false;
         }
@@ -585,7 +585,7 @@ bool addr_ipv6_equal(const uint8_t a[16], const uint8_t b[16])
 
 bool addr_iid_matches_eui64(const uint8_t iid[8], const uint8_t eui64[8])
 {
-    for (int_fast8_t n = 7; n >= 1; n--) {
+    for (int n = 7; n >= 1; n--) {
         if (iid[n] != eui64[n]) {
             return false;
         }
