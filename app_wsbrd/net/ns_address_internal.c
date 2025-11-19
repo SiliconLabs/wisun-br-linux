@@ -305,10 +305,7 @@ if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[1
         return NULL;
     }
 
-    entry = malloc(sizeof(if_group_entry_t));
-    if (!entry) {
-        return NULL;
-    }
+    entry = zalloc(sizeof(if_group_entry_t));
     memcpy(entry->group, group, 16);
     entry->ref_count = 1;
     ns_list_add_to_end(&interface->ip_groups, entry);
@@ -555,12 +552,7 @@ if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[16], uint
         return NULL;
     }
 
-    if_address_entry_t *entry = malloc(sizeof(if_address_entry_t));
-    if (!entry) {
-        return NULL;
-    }
-
-    memset(entry, 0, sizeof * entry);
+    if_address_entry_t *entry = zalloc(sizeof(if_address_entry_t));
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
 
