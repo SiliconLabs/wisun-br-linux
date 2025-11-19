@@ -31,8 +31,6 @@
 
 #define TRACE_GROUP "buff"
 
-volatile unsigned int buffer_count = 0;
-
 uint8_t *buffer_corrupt_check(buffer_t *buf)
 {
     if (buf == NULL) {
@@ -85,8 +83,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
     // in buffer_headroom()
     buf = xalloc(sizeof(buffer_t) + total_size);
     memset(buf, 0, sizeof(buffer_t));
-
-    buffer_count++;
     buf->buf_ptr = total_size - size;
     buf->buf_end = buf->buf_ptr;
     buf->interface = NULL;
@@ -145,10 +141,11 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
 
 buffer_t *buffer_free_route(buffer_t *buf)
 {
+    if (!buf)
+        return NULL;
     if (buf->route) {
-        if (--buf->route->ref_count == 0) {
+        if (--buf->route->ref_count == 0)
             free(buf->route);
-        }
         buf->route = NULL;
     }
     return buf;
@@ -163,19 +160,8 @@ buffer_t *buffer_free_route(buffer_t *buf)
  */
 buffer_t *buffer_free(buffer_t *buf)
 {
-    if (buf) {
-        if (buffer_count) {
-            buffer_count--;
-        } else {
-            tr_error("bc neg");
-        }
-
-        buf = buffer_free_route(buf);
-        free(buf);
-
-    } else {
-        tr_error("nullp F");
-    }
+    buffer_free_route(buf);
+    free(buf);
     return NULL;
 }
 
