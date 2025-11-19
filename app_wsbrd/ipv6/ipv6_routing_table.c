@@ -82,9 +82,9 @@ static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
 static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neighbour);
 static bool ipv6_destination_release(ipv6_destination_t *dest);
 static uint16_t total_metric(const ipv6_route_t *route);
-static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source);
-static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source);
-static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source);
+static uint8_t ipv6_route_table_count_source(struct net_if *net_if, ipv6_route_src_t source);
+static void ipv6_route_table_remove_last_one_from_source(struct net_if *net_if, ipv6_route_src_t source);
+static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_route_src_t source);
 
 static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint8_t retrans_num)
 {
@@ -161,7 +161,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     }
     ipv6_destination_cache_forget_neighbour(entry);
     if (!IN6_IS_ADDR_MULTICAST(entry->ip_address))
-        ipv6_route_delete(entry->ip_address, 128, net_if->id, entry->ip_address, ROUTE_ARO);
+        ipv6_route_delete(net_if, entry->ip_address, 128, entry->ip_address, ROUTE_ARO);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
@@ -458,13 +458,13 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
  * other addresses. That prevents us having multiple Destination Cache entries
  * for one global address.
  */
-ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id)
+ipv6_destination_t *ipv6_destination_lookup_or_create(struct net_if *net_if, const uint8_t *address)
 {
     uint16_t count = 0;
     ipv6_destination_t *entry = NULL;
     bool interface_specific = addr_ipv6_scope(address) <= IPV6_SCOPE_REALM_LOCAL;
 
-    if (interface_specific && interface_id == -1) {
+    if (interface_specific && !net_if) {
         return NULL;
     }
 
@@ -475,7 +475,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
             continue;
         }
         /* For LL addresses, interface ID must also be compared */
-        if (interface_specific && cur->interface_id != interface_id) {
+        if (interface_specific && cur->interface_id != net_if->id) {
             continue;
         }
 
@@ -496,7 +496,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         entry->refcount = 1;
         entry->last_neighbour = NULL;
         if (interface_specific) {
-            entry->interface_id = interface_id;
+            entry->interface_id = net_if->id;
         } else {
             entry->interface_id = -1;
         }
@@ -525,10 +525,10 @@ static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neig
     }
 }
 
-void ipv6_destination_cache_clean(int8_t interface_id)
+void ipv6_destination_cache_clean(struct net_if *net_if)
 {
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->interface_id == interface_id) {
+        if (entry->interface_id == net_if->id) {
             ipv6_destination_release(entry);
         }
     }
@@ -690,7 +690,7 @@ static bool ipv6_route_is_better(const ipv6_route_t *a, const ipv6_route_t *b)
 }
 
 /* Find the "best" route regardless of reachability, but respecting the skip flag and predicates */
-static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_id)
+static ipv6_route_t *ipv6_route_find_best(struct net_if *net_if, const uint8_t *addr)
 {
     ipv6_route_t *best = NULL;
     ns_list_foreach(ipv6_route_t, route, &ipv6_routing_table) {
@@ -700,7 +700,7 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
         }
 
         /* Interface must match, if caller specified */
-        if (interface_id != -1 && interface_id != route->info.interface_id) {
+        if (net_if && net_if->id != route->info.interface_id) {
             continue;
         }
 
@@ -716,7 +716,7 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
     return best;
 }
 
-ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_id)
+ipv6_route_t *ipv6_route_choose_next_hop(struct net_if *net_if, const uint8_t *dest)
 {
     ipv6_route_t *best = NULL;
 
@@ -751,7 +751,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
      * possibility would be a special precedence flag.
      */
     for (;;) {
-        ipv6_route_t *route = ipv6_route_find_best(dest, interface_id);
+        ipv6_route_t *route = ipv6_route_find_best(net_if, dest);
         if (!route) {
             break;
         }
@@ -781,10 +781,10 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
     return best;
 }
 
-ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int src_id)
+ipv6_route_t *ipv6_route_lookup_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int src_id)
 {
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && prefix_len == r->prefix_len && !bitcmp(prefix, r->prefix, prefix_len)) {
+        if (net_if->id == r->info.interface_id && prefix_len == r->prefix_len && !bitcmp(prefix, r->prefix, prefix_len)) {
             if (source != ROUTE_ANY) {
                 if (source != r->info.source) {
                     continue;
@@ -819,22 +819,22 @@ ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_
 
 #define PREF_TO_METRIC(pref) (128 - 64 * (pref))
 
-ipv6_route_t *ipv6_route_add(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int pref)
+ipv6_route_t *ipv6_route_add(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int pref)
 {
-    return ipv6_route_add_with_info(prefix, prefix_len, interface_id, next_hop, source, NULL, 0, lifetime, pref);
+    return ipv6_route_add_with_info(net_if, prefix, prefix_len, next_hop, source, NULL, 0, lifetime, pref);
 }
 
-ipv6_route_t *ipv6_route_add_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int pref)
+ipv6_route_t *ipv6_route_add_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int pref)
 {
     /* Only support -1, 0 and +1 prefs, as per RFC 4191 */
     if (pref < -1 || pref > +1) {
         return NULL;
     }
 
-    return ipv6_route_add_metric(prefix, prefix_len, interface_id, next_hop, source, info,  source_id, lifetime, PREF_TO_METRIC(pref));
+    return ipv6_route_add_metric(net_if, prefix, prefix_len, next_hop, source, info,  source_id, lifetime, PREF_TO_METRIC(pref));
 }
 
-ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, uint8_t metric)
+ipv6_route_t *ipv6_route_add_metric(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, uint8_t metric)
 {
     ipv6_route_t *route = NULL;
     enum { UNCHANGED, UPDATED, NEW } changed_info = UNCHANGED;
@@ -854,7 +854,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
 
 
     /* Check for matching info, in which case it's an update */
-    route = ipv6_route_lookup_with_info(prefix, prefix_len, interface_id, next_hop, source, info, source_id);
+    route = ipv6_route_lookup_with_info(net_if, prefix, prefix_len, next_hop, source, info, source_id);
 
     /* 0 lifetime is a deletion request (common to all protocols) */
     if (lifetime == 0) {
@@ -865,11 +865,11 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         return NULL;
     }
 
-    uint8_t max_entries = ipv6_route_table_get_max_entries(interface_id, source);
+    uint8_t max_entries = ipv6_route_table_get_max_entries(net_if, source);
     if (max_entries > 0) {
-        uint8_t entries = ipv6_route_table_count_source(interface_id, source);
+        uint8_t entries = ipv6_route_table_count_source(net_if, source);
         if (entries > max_entries) {
-            ipv6_route_table_remove_last_one_from_source(interface_id, source);
+            ipv6_route_table_remove_last_one_from_source(net_if, source);
         }
     }
 
@@ -885,7 +885,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         route->info_autofree = false;
         route->info.info = info;
         route->info.source_id = source_id;
-        route->info.interface_id = interface_id;
+        route->info.interface_id = net_if->id;
         route->info.pmtu = 0xFFFF;
         if (next_hop) {
             route->on_link = false;
@@ -917,14 +917,14 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
     return route;
 }
 
-int ipv6_route_delete(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source)
+int ipv6_route_delete(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source)
 {
-    return ipv6_route_delete_with_info(prefix, prefix_len, interface_id, next_hop, source, NULL, 0);
+    return ipv6_route_delete_with_info(net_if, prefix, prefix_len, next_hop, source, NULL, 0);
 }
 
-int ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int source_id)
+int ipv6_route_delete_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int source_id)
 {
-    ipv6_route_t *route = ipv6_route_lookup_with_info(prefix, prefix_len, interface_id, next_hop, source, info, source_id);
+    ipv6_route_t *route = ipv6_route_lookup_with_info(net_if, prefix, prefix_len, next_hop, source, info, source_id);
     if (!route) {
         return -1;
     }
@@ -933,11 +933,11 @@ int ipv6_route_delete_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_
     return 0;
 }
 
-static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source)
+static uint8_t ipv6_route_table_count_source(struct net_if *net_if, ipv6_route_src_t source)
 {
     uint8_t count = 0;
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && r->info.source == source) {
+        if (net_if->id== r->info.interface_id && r->info.source == source) {
             count++;
             if (count == 0xff) {
                 break;
@@ -947,11 +947,11 @@ static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src
     return count;
 }
 
-static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source)
+static void ipv6_route_table_remove_last_one_from_source(struct net_if *net_if, ipv6_route_src_t source)
 {
     // Removes last i.e. oldest entry */
     ns_list_foreach_reverse(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && r->info.source == source) {
+        if (net_if->id == r->info.interface_id && r->info.source == source) {
             ipv6_route_entry_remove(r);
             break;
         }
@@ -976,13 +976,7 @@ void ipv6_route_table_ttl_update(int seconds)
     }
 }
 
-static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source)
+static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_route_src_t source)
 {
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);
-
-    if (ncache) {
-        return ncache->route_if_info.sources[source];
-    }
-
-    return 0;
+    return net_if->ipv6_neighbour_cache.route_if_info.sources[source];
 }

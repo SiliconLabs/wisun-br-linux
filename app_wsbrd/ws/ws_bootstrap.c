@@ -96,7 +96,7 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 
     addr_add(cur, ipv6_address, 64);
-    ipv6_route_add(ipv6_address, 128, cur->id, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
+    ipv6_route_add(cur, ipv6_address, 128, NULL, ROUTE_LOOPBACK, 0xFFFFFFFF, 0);
 }
 
 /**

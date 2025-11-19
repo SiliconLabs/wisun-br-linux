@@ -118,7 +118,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;
     }
 
-    ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(buf->dst_sa.address, cur ? cur->id : -1);
+    ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(cur, buf->dst_sa.address);
     if (!dest_entry) {
         tr_error("ipv6_buffer_route no destination entry %s", tr_ipv6(buf->dst_sa.address));
         goto no_route;
@@ -143,7 +143,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
          */
         if (!cur) {
             /* Choose interface (only) from routing table */
-            ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, -1);
+            ipv6_route_t *ip_route = ipv6_route_choose_next_hop(NULL, buf->dst_sa.address);
             if (!ip_route) {
                 tr_debug("No route for multicast %s", tr_ipv6(buf->dst_sa.address));
                 goto no_route;
@@ -156,7 +156,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         route->route_info.pmtu = 0xFFFF;
         route->route_info.source = ROUTE_MULTICAST;
     } else { /* unicast, normal */
-        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1);
+        ipv6_route_t *ip_route = ipv6_route_choose_next_hop(interface_specific ? cur : NULL, buf->dst_sa.address);
         if (!ip_route) {
             goto no_route;
         }

@@ -206,9 +206,9 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
 {
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
 
-    ipv6_route_add_with_info(target->prefix,      // prefix
+    ipv6_route_add_with_info(&ctxt->net_if,       // interface id
+                             target->prefix,      // prefix
                              128,                 // prefix length
-                             ctxt->net_if.id,     // interface id
                              in6addr_any.s6_addr, // next hop
                              ROUTE_RPL_DAO_SR,    // source
                              (void *)root,        // info
@@ -223,9 +223,9 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
 {
     struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
 
-    ipv6_route_delete_with_info(target->prefix,      // prefix
+    ipv6_route_delete_with_info(&ctxt->net_if,       // interface id
+                                target->prefix,      // prefix
                                 128,                 // prefix length
-                                ctxt->net_if.id,     // interface id
                                 in6addr_any.s6_addr, // next hop
                                 ROUTE_RPL_DAO_SR,    // source
                                 (void *)root,        // info

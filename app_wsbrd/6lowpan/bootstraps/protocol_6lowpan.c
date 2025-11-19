@@ -194,8 +194,8 @@ void protocol_6lowpan_up(struct net_if *cur)
      * for routers, as RPL doesn't deal with it) */
     cur->ipv6_neighbour_cache.send_addr_reg = true;
 
-    ipv6_route_add(ADDR_LINK_LOCAL_PREFIX, 64, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, 0);
+    ipv6_route_add(cur, ADDR_LINK_LOCAL_PREFIX, 64, NULL, ROUTE_STATIC, 0xFFFFFFFF, 0);
     // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
     // Interface metric will determine which interface is actually used, if we have multiple.
-    ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
+    ipv6_route_add(cur, ADDR_LINK_LOCAL_ALL_NODES, 8, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 }

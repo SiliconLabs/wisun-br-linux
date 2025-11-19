@@ -240,7 +240,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
 
-    ipv6_destination_cache_clean(cur->id);
+    ipv6_destination_cache_clean(cur);
 
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
