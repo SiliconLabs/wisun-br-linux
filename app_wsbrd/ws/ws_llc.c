@@ -114,7 +114,7 @@ typedef struct llc_data_base {
 
     ws_llc_mngt_ind_cb              *mngt_ind;                      /* Called when Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) is received */
     ws_llc_mngt_cnf_cb              *mngt_cnf;                      /* Called when RCP confirms transmission of a Wi-SUN management frame (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS) */
-    struct net_if *interface_ptr;                 /**< List link entry */
+    struct net_if *net_if;
 } llc_data_base_t;
 
 static llc_data_base_t g_llc_base;
@@ -170,7 +170,7 @@ void ws_llc_message_abort_by_mpx_user_handle(uint8_t handle)
     llc_message_t *message = llc_message_discover_mpx_user_handle(handle, &base->llc_message_list);
 
     if (message)
-        rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
+        rcp_req_data_tx_abort(base->net_if->rcp, message->msg_handle);
 }
 
 //Free message and delete from list
@@ -232,7 +232,7 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
 
     if (ws_neigh) {
         if (confirm->hif.status == HIF_STATUS_SUCCESS)
-            ws_neigh_refresh(&base->interface_ptr->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
+            ws_neigh_refresh(&base->net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
         if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt))
             ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
     }
@@ -258,7 +258,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                                 const struct mcps_data_rx_ie_list *confirm_data,
                                 struct ws_neigh *ws_neigh)
 {
-    struct ws_info *ws_info = &base->interface_ptr->ws_info;
+    struct ws_info *ws_info = &base->net_if->ws_info;
     const struct rcp_rate_info *rate;
     struct mcps_data_cnf mpx_confirm;
     struct mpx_user *mpx_usr;
@@ -395,7 +395,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
         return NULL;
     }
 
-    if (data->SrcPANId != base->interface_ptr->ws_info.pan_information.pan_id) {
+    if (data->SrcPANId != base->net_if->ws_info.pan_information.pan_id) {
         TRACE(TR_DROP, "drop %-9s: invalid source PAN ID", tr_ws_frame(frame_type));
         return NULL;
     }
@@ -462,7 +462,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
     has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
 
-    if (has_us && !ws_ie_validate_us(&base->interface_ptr->ws_info, &ie_us))
+    if (has_us && !ws_ie_validate_us(&base->net_if->ws_info, &ie_us))
         return;
 
     add_neighbor = false;
@@ -509,9 +509,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             return;
         }
         if (has_us) {
-            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data,
+            ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data,
                                &ie_us.chan_plan, ie_us.dwell_interval);
-            ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
+            ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                &ie_us.chan_plan, ie_us.dwell_interval);
         }
         if (has_pom)
@@ -559,11 +559,11 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_DATA));
             return;
         }
-        if (!ws_ie_validate_lcp(&base->interface_ptr->ws_info, &ie_lcp))
+        if (!ws_ie_validate_lcp(&base->net_if->ws_info, &ie_lcp))
             return;
     }
 
-    ws_neigh = ws_neigh_get(&base->interface_ptr->ws_info.neighbor_storage,
+    ws_neigh = ws_neigh_get(&base->net_if->ws_info.neighbor_storage,
                             &EUI64_FROM_BUF(data->SrcAddr));
     if (!ws_neigh) {
         TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_DATA), tr_eui64(data->SrcAddr));
@@ -580,9 +580,9 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
                             data->hif.timestamp_us);
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us);
-        ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data,
+        ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data,
                             has_lcp ? &ie_lcp.chan_plan : NULL, ie_lus.listen_interval, &ws_neigh->lto_info);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
                                                                  &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
@@ -614,7 +614,7 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
 static struct ws_neigh *ws_llc_neigh_fetch(llc_data_base_t *base, const mcps_data_ind_t *data, uint8_t node_role)
 {
-    struct ws_info *ws_info = &base->interface_ptr->ws_info;
+    struct ws_info *ws_info = &base->net_if->ws_info;
     struct ws_neigh *neigh;
 
     neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
@@ -648,10 +648,10 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
-    if (has_us && !ws_ie_validate_us(&base->interface_ptr->ws_info, &ie_us))
+    if (has_us && !ws_ie_validate_us(&base->net_if->ws_info, &ie_us))
         return;
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
-    if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
+    if (has_bs && !ws_ie_validate_bs(&base->net_if->ws_info, &ie_bs))
         return;
 
     ws_neigh = ws_llc_neigh_fetch(base, data, WS_NR_ROLE_ROUTER);
@@ -675,7 +675,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
     if (has_us)
-        ws_neigh_us_update(&base->interface_ptr->ws_info.fhss_config,
+        ws_neigh_us_update(&base->net_if->ws_info.fhss_config,
                            &ws_neigh->fhss_data_unsecured,
                            &ie_us.chan_plan, ie_us.dwell_interval);
 
@@ -689,7 +689,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    auth_recv_eapol(base->interface_ptr->auth,
+    auth_recv_eapol(base->net_if->auth,
                     mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
                     mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
 }
@@ -727,7 +727,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
             TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_EAPOL));
             return;
         }
-        if (!ws_ie_validate_lcp(&base->interface_ptr->ws_info, &ie_lcp))
+        if (!ws_ie_validate_lcp(&base->net_if->ws_info, &ie_lcp))
             return;
     }
 
@@ -748,7 +748,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
                             data->hif.timestamp_us);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->interface_ptr->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
         ws_llc_update_timing_info(ws_neigh);
@@ -768,7 +768,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         return;
     }
 
-    auth_recv_eapol(base->interface_ptr->auth,
+    auth_recv_eapol(base->net_if->auth,
                     mpx_frame.frame_ptr[0], &EUI64_FROM_BUF(data->SrcAddr),
                     mpx_frame.frame_ptr + 1, mpx_frame.frame_length - 1);
 }
@@ -795,7 +795,7 @@ static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *
     // the content of the WP-IE instead.
     ie_list.payloadIeList       = ie_buf.data;
     ie_list.payloadIeListLength = ie_buf.data_size;
-    base->mngt_ind(&base->interface_ptr->ws_info, data, &ie_list, frame_type);
+    base->mngt_ind(&base->net_if->ws_info, data, &ie_list, frame_type);
 }
 
 static const struct name_value ws_frames[] = {
@@ -975,11 +975,11 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               const struct wh_ie_list *wh_ies,
                               const struct wp_ie_list *wp_ies)
 {
-    struct ws_info *info = &base->interface_ptr->ws_info;
+    struct ws_info *info = &base->net_if->ws_info;
     struct ws_jm *jm = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
-                         rpl_target_count(&base->interface_ptr->rpl_root) : info->pan_information.test_pan_size;
-    struct auth_ctx *auth = base->interface_ptr->auth;
+                         rpl_target_count(&base->net_if->rpl_root) : info->pan_information.test_pan_size;
+    struct auth_ctx *auth = base->net_if->auth;
     bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
     struct ws_ie *ie;
@@ -1001,7 +1001,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->bt)
         ws_wh_bt_write(&msg->ie_buf_header);
     if (wh_ies->ea)
-        ws_wh_ea_write(&msg->ie_buf_header, &base->interface_ptr->rcp->eui64);
+        ws_wh_ea_write(&msg->ie_buf_header, &base->net_if->rcp->eui64);
     if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->lbt)
@@ -1088,13 +1088,13 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true) +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, false);
+                       ws_wp_nested_hopping_schedule_length(&base->net_if->ws_info.fhss_config, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->net_if->ws_info.fhss_config, false);
     } else if (MPX_ID_KMP) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + 2 /* WP-IE header */ +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.fhss_config, true);
+                       ws_wp_nested_hopping_schedule_length(&base->net_if->ws_info.fhss_config, true);
     }
     return header_size;
 }
@@ -1178,7 +1178,7 @@ static void ws_llc_fill_rates(const struct ws_info *ws_info,
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data)
 {
-    struct ws_info *ws_info = &base->interface_ptr->ws_info;
+    struct ws_info *ws_info = &base->net_if->ws_info;
     struct ws_neigh *ws_neigh = data->DstAddrMode == IEEE802154_ADDR_MODE_64_BIT ?
                                 ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->DstAddr)) :
                                 NULL;
@@ -1291,12 +1291,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // The MAC then reads these information and calculates the actual offset to
     // be applied based on the target's current broadcast schedule offset.
     if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
-        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->interface_ptr->ws_info.fhss_config.lfn_bc_interval,
+        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->net_if->ws_info.fhss_config.lfn_bc_interval,
                                                                                    ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->lto_info.uc_interval_min_ms,
                                                                                    ws_neigh->lto_info.uc_interval_max_ms);
         adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
-                                                   base->interface_ptr->ws_info.fhss_config.lfn_bc_interval);
+                                                   base->net_if->ws_info.fhss_config.lfn_bc_interval);
         if ((adjusted_listening_interval != ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms ||
             !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             // FIXME: insert LTO-IE in ws_llc_prepare_ie()
@@ -1318,7 +1318,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->net_if, &data_req, &message->ie_ext);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1350,7 +1350,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 
     ws_llc_eapol_data_req_init(&data_req, message);
     BUG_ON(data_req.DstAddrMode != IEEE802154_ADDR_MODE_64_BIT); // EAPOL frames are unicast
-    if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
+    if (ws_llc_get_node_role(base->net_if, message->dst_address) == WS_NR_ROLE_LFN)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     else
         data_req.fhss_type = HIF_FHSS_TYPE_FFN_UC;
@@ -1358,7 +1358,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->net_if, &data_req, &message->ie_ext);
 }
 
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *user_cb,
@@ -1367,7 +1367,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .ea  = &base->interface_ptr->rcp->eui64, // TODO: only include in 1st msg
+        .ea  = &base->net_if->rcp->eui64, // TODO: only include in 1st msg
     };
     struct wp_ie_list wp_ies = {
         .us = true,
@@ -1413,7 +1413,7 @@ void ws_llc_auth_sendto_mac(struct auth_ctx *auth_ctx, uint8_t kmp_id,
         .TxAckReq    = true,
         .SrcAddrMode = IEEE802154_ADDR_MODE_64_BIT,
         .DstAddrMode = IEEE802154_ADDR_MODE_64_BIT,
-        .DstPANId    = base->interface_ptr->ws_info.pan_information.pan_id,
+        .DstPANId    = base->net_if->ws_info.pan_information.pan_id,
         .msdu        = (void *)buf,
         .msduLength  = buf_len,
         .msduHandle  = 0,
@@ -1473,7 +1473,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 {
     //Clean Message queue's
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
-        rcp_req_data_tx_abort(base->interface_ptr->rcp, message->msg_handle);
+        rcp_req_data_tx_abort(base->net_if->rcp, message->msg_handle);
         llc_message_free(message, base);
     }
 }
@@ -1481,7 +1481,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 void ws_llc_update_timing_info(const struct ws_neigh *neigh)
 {
     llc_data_base_t *base = &g_llc_base;
-    struct rcp *rcp = base->interface_ptr->rcp;
+    struct rcp *rcp = base->net_if->rcp;
     uint8_t *handle_list = NULL;
     uint8_t handle_count = 0;
 
@@ -1513,7 +1513,7 @@ void ws_llc_update_timing_info(const struct ws_neigh *neigh)
 // Mode Switch rate management function
 static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_cnf_t *data, struct ws_neigh *neighbor)
 {
-    struct ws_phy_config *schedule = &base->interface_ptr->ws_info.phy_config;
+    struct ws_phy_config *schedule = &base->net_if->ws_info.phy_config;
     uint8_t i;
 
     if (data->success_phy_mode_id == schedule->phy_mode_id_ms_base)
@@ -1554,7 +1554,7 @@ int8_t ws_llc_create(struct net_if *interface,
     struct llc_data_base *base = &g_llc_base;
 
     ns_list_init(&base->llc_message_list);
-    base->interface_ptr = interface;
+    base->net_if = interface;
     base->mngt_ind = mngt_ind;
     base->mngt_cnf = mngt_cnf;
     //Init MPX class
@@ -1622,7 +1622,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->net_if, &data_req, &message->ie_ext);
 
     return 0;
 }
@@ -1664,8 +1664,8 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     } else {
         // FIXME: This timer should be restarted at confirmation instead
         if (req->wh_ies.lbt)
-            timer_start_rel(NULL, &base->interface_ptr->ws_info.mngt.lts_timer,
-                            base->interface_ptr->ws_info.mngt.lts_timer.period_ms);
+            timer_start_rel(NULL, &base->net_if->ws_info.mngt.lts_timer,
+                            base->net_if->ws_info.mngt.lts_timer.period_ms);
         // Broadcast LPC are the only LFN frames that include a source PAN ID
         if (req->frame_type == WS_FT_LPC)
             data_req.PanIdSuppressed = false;
@@ -1684,7 +1684,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     msg->tx_time = time_now_s(CLOCK_MONOTONIC);
 
     ws_trace_llc_mac_req(&data_req, msg);
-    wsbr_data_req_ext(base->interface_ptr, &data_req, &msg->ie_ext);
+    wsbr_data_req_ext(base->net_if, &data_req, &msg->ie_ext);
     return 0;
 }
 
