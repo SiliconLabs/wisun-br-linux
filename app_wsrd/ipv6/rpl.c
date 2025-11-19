@@ -470,10 +470,15 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
     iobuf_free(&iobuf);
 }
 
-void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
+static void rpl_path_seq_inc(struct ipv6_ctx *ipv6)
 {
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
     rpl_storage_store(&ipv6->rpl);
+}
+
+void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
+{
+    rpl_path_seq_inc(ipv6);
     rpl_send_dao(ipv6, 0);
 }
 
@@ -503,8 +508,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
      * can be incremented at every DAO transmission sequence in order to ensure
      * transits are always applied.
      */
-    ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
-    rpl_storage_store(&ipv6->rpl);
+    rpl_path_seq_inc(ipv6);
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
 }
 
