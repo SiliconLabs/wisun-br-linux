@@ -40,7 +40,6 @@
 #include "net/netaddr_types.h"
 #include "net/ns_buffer.h"
 #include "net/ns_address_internal.h"
-#include "net/ns_error_types.h"
 #include "net/protocol.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -541,7 +540,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         goto tx_error_handler;
     }
 
-    if (addr_check_broadcast(buf->dst_sa.address, buf->dst_sa.addr_type) == eOK) {
+    if (addr_check_broadcast(buf->dst_sa.address, buf->dst_sa.addr_type) == 0) {
         buf->dst_sa.addr_type = ADDR_802_15_4_SHORT;
         buf->dst_sa.address[2] = 0xff;
         buf->dst_sa.address[3] = 0xff;
