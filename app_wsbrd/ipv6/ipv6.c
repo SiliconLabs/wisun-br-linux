@@ -29,6 +29,7 @@
 #include "common/specs/ndp.h"
 #include "common/specs/rpl.h"
 #include "common/specs/ip.h"
+#include "common/pktbuf.h"
 
 #include "ipv6/nd_router_object.h"
 #include "ws/ws_bootstrap.h"
@@ -742,6 +743,7 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur,
                 if (ret < 0)
                     goto drop;
                 buf->options.ip_extflags |= IPEXT_HBH_MPL;
+                buf->options.mpl_rx = true;
                 break;
             }
             default:
@@ -914,6 +916,25 @@ void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct net_if *cur)
     /* Send straight to IP transmission? Or to forwarding down? */
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
     protocol_push(buf);
+}
+
+static void ipv6_consider_inserting_to_mpl_domain(buffer_t *buf)
+{
+    struct pktbuf pktbuf = { };
+    struct in6_addr addr;
+    int ret;
+
+    if (buf->options.mpl_rx ||
+        addr_ipv6_multicast_scope(buf->dst_sa.address) < IPV6_SCOPE_REALM_LOCAL) {
+        return;
+    }
+
+    ret = addr_interface_get_gua(buf->interface, &addr);
+    BUG_ON(ret < 0);
+
+    pktbuf_init(&pktbuf, buffer_data_pointer(buf), buffer_data_length(buf));
+    mpl_msg_gen(&buf->interface->mpl, &addr, &pktbuf);
+    pktbuf_free(&pktbuf);
 }
 
 /* Traditional multicast forwarding - from one interface to other(s).
@@ -1177,6 +1198,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
          * clone or take ownership of the buffer, depending on for_us. If not
          * forwarding or for us, it will bin.
          */
+        ipv6_consider_inserting_to_mpl_domain(buf);
         ipv6_consider_forwarding_multicast_packet_to_lfn(buf, for_us);
         buf = ipv6_consider_forwarding_multicast_packet(buf, cur, for_us);
         if (!buf) {
