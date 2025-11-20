@@ -334,6 +334,12 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
     struct ip6_opt *opt;
     uintptr_t pad;
 
+    if (pktbuf_len(pktbuf) < sizeof(struct ip6_hdr))
+        return -EINVAL;
+    hdr = (struct ip6_hdr *)pktbuf_head(pktbuf);
+    TRACE(TR_MPL, "mpl: msg gen src=%s dst=%s",
+          tr_ipv6(hdr->ip6_src.s6_addr), tr_ipv6(hdr->ip6_dst.s6_addr));
+
     opt_mpl_len = sizeof(struct ip6_opt) + sizeof(struct mpl_opt);
     if (mpl->s != MPL_S_SRC)
         opt_mpl_len += mpl_seed_id_len[mpl->s];
