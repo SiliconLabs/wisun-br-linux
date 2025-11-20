@@ -971,6 +971,9 @@ def main():
     if len(sys.argv) != 2:
         utils.fatal(f'usage: {sys.argv[0]} config.ini')
 
+    with open('/proc/sys/net/ipv6/conf/all/forwarding', 'w') as f:
+        f.write('1')
+
     wsbrd.service.stop('fail')
     config = configutils.read_wstbu(sys.argv[1])
     wsbrd.config = wsbrd.config_default(config)
