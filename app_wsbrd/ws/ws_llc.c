@@ -349,10 +349,11 @@ void ws_llc_mac_confirm_cb(struct net_if *net_if, const mcps_data_cnf_t *data,
             if (ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] > data_cpy.sec.frame_counter ||
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] == UINT32_MAX) {
                 data_cpy.hif.status = HIF_STATUS_NOACK;
-                TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u",
+                TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u src=%s",
                       "15.4", data_cpy.sec.frame_counter,
                       ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1],
-                      data_cpy.sec.KeyIndex);
+                      data_cpy.sec.KeyIndex,
+                      tr_eui64(ws_neigh->eui64.u8));
             } else {
                 ws_neigh->frame_counter_min[data_cpy.sec.KeyIndex - 1] = add32sat(data_cpy.sec.frame_counter, 1);
             }
@@ -914,10 +915,11 @@ void ws_llc_mac_indication_cb(struct net_if *net_if, struct mcps_data_ind *data,
         FATAL_ON(data->Key.KeyIndex < 1 || data->Key.KeyIndex > 7, 3);
         if (neigh->frame_counter_min[data->Key.KeyIndex - 1] > data->Key.frame_counter ||
             neigh->frame_counter_min[data->Key.KeyIndex - 1] == UINT32_MAX) {
-            TRACE(TR_DROP, "drop %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u",
+            TRACE(TR_DROP, "drop %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u src=%s",
                   "15.4", data->Key.frame_counter,
                   neigh->frame_counter_min[data->Key.KeyIndex - 1],
-                  data->Key.KeyIndex);
+                  data->Key.KeyIndex,
+                  tr_eui64(neigh->eui64.u8));
             return;
         }
         neigh->frame_counter_min[data->Key.KeyIndex - 1] = add32sat(data->Key.frame_counter, 1);
