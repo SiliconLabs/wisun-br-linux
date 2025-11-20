@@ -23,6 +23,7 @@
  * check, manipulate etc. addresses.
  */
 #define _GNU_SOURCE
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@
 #include "common/bits.h"
 #include "common/string_extra.h"
 #include "common/log_legacy.h"
-#include "common/string_extra.h"
+#include "common/netinet_in_extra.h"
 
 #include "common/specs/ipv6.h"
 
@@ -670,6 +671,17 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
     } else {
         return -1;
     }
+}
+
+int addr_interface_get_gua(struct net_if *cur, struct in6_addr *addr)
+{
+    ns_list_foreach(if_address_entry_t, a, &cur->ip_addresses) {
+        if (IN6_IS_ADDR_UC_GLOBAL(a)) {
+            memcpy(addr, a->address, 16);
+            return 0;
+        }
+    }
+    return -ENOENT;
 }
 
 int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr)
