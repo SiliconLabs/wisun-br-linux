@@ -7,6 +7,20 @@
     4. Users of the old configs need to edit `ws_regdb.c` to provide the
     desired regulatory channel mask.
 
+v2.7.1
+------
+  - Fix advertised excluded channel mask format leading to interoperability
+    issues: do not strip trailing 0 bits.
+  - Use single channel for async transmissions when unicast is also in fixed
+    channel.
+  - Fix `async_frag_duration` parameter parsing.
+  - Fix `LeaveMulticastGroup` D-Bus method for `wsrd`.
+  - Fix infinite loop when parsing IPv6 padding options in `wsrd`.
+  - Prevent use-after-free with `wsrd` fragment reassembly.
+  - Fix edge case with `wsrd` reconnection involving race condition with NS,
+    NS(ARO), and DHCP reply.
+  - Improve documentation for Border Router certification.
+
 v2.7
 ------
   - Implement remaining FAN 1.1 core feature for `wsrd`:
