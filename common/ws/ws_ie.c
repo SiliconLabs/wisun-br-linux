@@ -416,7 +416,7 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_fhss_config 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_US, true);
     iobuf_push_u8(buf, fhss_config->uc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
-    iobuf_push_u8(buf, 0); // TODO: timing accuracy
+    iobuf_push_u8(buf, 1); // Timing accuracy
     ws_wp_schedule_write(buf, fhss_config, true);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
@@ -430,7 +430,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_fhss_config 
     iobuf_push_le16(buf, fhss_config->bsi);
     iobuf_push_u8(buf, fhss_config->bc_dwell_interval);
     iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
-    iobuf_push_u8(buf, 0); // TODO: timing accuracy
+    iobuf_push_u8(buf, 1); // Timing accuracy
     ws_wp_schedule_write(buf, fhss_config, false);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
