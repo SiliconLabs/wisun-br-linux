@@ -32,7 +32,7 @@ static const char *tr_path_ctl(uint8_t path_ctl)
     static const struct name_value rpl_path_ctl_names[RPL_PARENTS_MAX] = {
         { "preferred",  RPL_PATH_CTL_PREFERRED },
         { "secondary",  RPL_PATH_CTL_SECONDARY },
-};
+    };
 
     return val_to_str(path_ctl, rpl_path_ctl_names, "??");
 }
