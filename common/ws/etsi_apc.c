@@ -72,7 +72,8 @@ void etsi_apc_update(struct etsi_apc_ctx *apc, uint8_t phy_mode_id,
     const struct phy_params *phy;
 
     phy = ws_regdb_phy_params(phy_mode_id, 0);
-    if (phy && phy->modulation == MODULATION_OFDM) {
+    BUG_ON(!phy);
+    if (phy->modulation == MODULATION_OFDM) {
         // 10dB average-to-peak + 1dB margin
         apc->txpow_dbm_ofdm = etsi_apc_calc_txpow(attenuation_db, max_txpow_dbm, 11);
     } else {
