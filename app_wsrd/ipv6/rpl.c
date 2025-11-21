@@ -166,6 +166,18 @@ static void rpl_register_to_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce
     ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 }
 
+static bool rpl_dag_rank_increased(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *preferred_parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
+    uint16_t rank_new = rpl_mrhof_rank(ipv6);
+
+    if (!preferred_parent || rank_new == RPL_RANK_INFINITE)
+        return false;
+    return rpl_dag_rank(ntohs(preferred_parent->rpl->config.min_hop_rank_inc), rank_new) >
+           rpl_dag_rank(ntohs(preferred_parent->rpl->config.min_hop_rank_inc), ipv6->rpl.last_advertised_rank);
+}
+
+static void rpl_send_dio_mc(struct trickle *tkl, struct timer_group *group);
 void rpl_update_parents(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *parents_cur[RPL_PARENTS_MAX] = { };
@@ -177,6 +189,9 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     rpl_mrhof_select_parents(ipv6);
     rpl_get_parents(ipv6, parents_new);
 
+    // NOTE: send DIO if our DagRank increased to reduce rank forwarding errors
+    if (rpl_dag_rank_increased(ipv6))
+        rpl_send_dio_mc(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
     if (!memcmp(parents_cur, parents_new, sizeof(parents_cur))) {
         /*
          * NOTES:
