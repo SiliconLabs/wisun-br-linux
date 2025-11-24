@@ -46,9 +46,10 @@ const int valid_ws_chan_plan_ids[] = {
     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x27, 0x28,       // EU / IN
     0x29, 0x2a, 0x2b,                                     // SG
     0x30, 0x31,                                           // PH / NZ
-    0x40, 0x41,                                           // SG / TH / VN
+    0x40, 0x41,                                           // TH / VN
     0x50, 0x51,                                           // MY
     0x60, 0x61,                                           // KR
+    0x62, 0x63,                                           // SG
     0x70, 0x71,                                           // WW
     0x80,                                                 // CN
     0xa0,                                                 // CN
@@ -195,8 +196,8 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_SG, 1, HIF_REG_NONE,  41,  866100000,  100000,  29, { 0x01, 0x11                               }, },
     { REG_DOMAIN_SG, 2, HIF_REG_NONE,  42,  866100000,  200000,  15, { 0x03, 0x05, 0x12, 0x15, 0x54, 0x55, 0x56 }, },
     { REG_DOMAIN_SG, 3, HIF_REG_NONE,  43,  866300000,  400000,   7, { 0x06, 0x08, 0x16, 0x18                   }, },
-    { REG_DOMAIN_SG, 4, HIF_REG_NONE,  64,  920200000,  200000,  24, { 0x02, 0x03, 0x12, 0x13                   }, },
-    { REG_DOMAIN_SG, 5, HIF_REG_NONE,  65,  920400000,  400000,  12, { 0x05, 0x06, 0x08, 0x15, 0x16, 0x18       }, },
+    { REG_DOMAIN_SG, 4, HIF_REG_NONE,  98,  917200000,  200000,  39, { 0x02, 0x03, 0x12, 0x13                   }, },
+    { REG_DOMAIN_SG, 5, HIF_REG_NONE,  99,  917400000,  400000,  19, { 0x05, 0x06, 0x08, 0x15, 0x16, 0x18       }, },
     { REG_DOMAIN_TH, 1, HIF_REG_NONE,  64,  920200000,  200000,  24, { 0x02, 0x03, 0x12, 0x13                   }, },
     { REG_DOMAIN_TH, 2, HIF_REG_NONE,  65,  920400000,  400000,  12, { 0x05, 0x06, 0x08, 0x15, 0x16, 0x18       }, },
     { REG_DOMAIN_VN, 1, HIF_REG_NONE,  64,  920200000,  200000,  24, { 0x02, 0x03, 0x12, 0x13                   }, },

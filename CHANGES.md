@@ -1,3 +1,8 @@
+  - Update Singapore PHY definitions with the 2v04 PHY specification: replace
+    ChanPlanId 64-65 with 98-99 providing an extended band. Users of the legacy
+    definitions need to use a custom channel plan (`chan0_freq`, `chan_spacing`
+    and `chan_count`).
+
 v2.7
 ------
   - Implement remaining FAN 1.1 core feature for `wsrd`:
