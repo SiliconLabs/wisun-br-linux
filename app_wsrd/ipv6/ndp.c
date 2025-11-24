@@ -208,7 +208,7 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     }
 
     neigh->ns_has_aro = false;
-    if (IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
+    if (IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6) || ipv6->rpl.fd < 0)
         return;
     /*
      *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
