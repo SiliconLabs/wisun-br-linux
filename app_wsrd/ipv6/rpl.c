@@ -227,8 +227,6 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
         for (int i = 0; i < ARRAY_SIZE(parents_cur); i++) {
             if (parents_cur[i] != parents_new[i]) {
-                if (parents_cur[i] && !parents_cur[i]->rpl->path_ctl && !parents_cur[i]->rpl->path_ctl_acked)
-                    rpl_unregister_from_parent(ipv6, parents_cur[i]);
                 if (parents_new[i] && timer_stopped(&parents_new[i]->own_aro_timer)) {
                     parents_new[i]->rpl->path_ctl_acked = 0;
                     rpl_register_to_parent(ipv6, parents_new[i]);
@@ -843,7 +841,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t b
             continue;
         if (nce->rpl->path_ctl) {
             nce->rpl->path_ctl_acked = nce->rpl->path_ctl;
-        } else if (nce->rpl->path_ctl_acked) {
+        } else if (nce->rpl->path_ctl_acked || !timer_stopped(&nce->own_aro_timer)) {
             nce->rpl->path_ctl_acked = 0;
             rpl_unregister_from_parent(ipv6, nce);
         }
@@ -933,7 +931,8 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl)
             continue;
-        if (nce->rpl->path_ctl || nce->rpl->path_ctl_acked) {
+        if (nce->rpl->path_ctl || nce->rpl->path_ctl_acked ||
+            !timer_stopped(&nce->own_aro_timer)) {
             nce->rpl->path_ctl = 0;
             nce->rpl->path_ctl_acked = 0;
             if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr))
