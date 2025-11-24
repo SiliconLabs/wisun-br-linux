@@ -65,7 +65,7 @@ jobs:
   build-alpine:
     runs-on: ${{ github.repository_owner == 'SiliconLabsInternal' && 'silabs-internal' || 'ubuntu-24.04' }}
     container:
-      image: i386/alpine:latest
+      image: ${{ github.repository_owner == 'SiliconLabsInternal' && 'artifactory.silabs.net/wisun-docker-proxy/' || '' }}i386/alpine:latest
     steps:
       - name: Install dependencies
         run: |
