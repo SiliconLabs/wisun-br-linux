@@ -928,14 +928,13 @@ void rpl_stop(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *nce;
 
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-        if (!nce->rpl)
-            continue;
-        if (nce->rpl->path_ctl || nce->rpl->path_ctl_acked ||
-            !timer_stopped(&nce->own_aro_timer)) {
+    if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr)) {
+        SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+            if (!nce->rpl)
+                continue;
             nce->rpl->path_ctl = 0;
             nce->rpl->path_ctl_acked = 0;
-            if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr))
+            if (!timer_stopped(&nce->own_aro_timer) || nce->ns_has_aro)
                 rpl_unregister_from_parent(ipv6, nce);
         }
     }
