@@ -208,7 +208,7 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
     }
 
     neigh->ns_has_aro = false;
-    if (!neigh->rpl || !neigh->rpl->path_ctl || IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
+    if (IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6))
         return;
     /*
      *   RFC 6775 5.5. Registration and Neighbor Unreachability Detection
@@ -218,13 +218,13 @@ void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
      * to the router well in advance of the Registration Lifetime expiring.
      *
      * Note: we give a 5 minute window for retries.
-     * We assume that if the neighbor is not our parent anymore that a
-     * NS(ARO) lifetime 0 has already been sent.
+     * If the neighbor is not our parent anymore, we will unregister on DAO-ACK
+     * or disconnection.
      */
     WARN_ON(!timer_stopped(&neigh->aro_lifetime));
     timer_start_rel(&ipv6->timer_group, &neigh->own_aro_timer, ipv6->aro_lifetime_ms - 5 * 60 * 1000);
 
-    if (ipv6_has_pending_ns_aro(ipv6))
+    if (!neigh->rpl || !neigh->rpl->path_ctl || ipv6_has_pending_ns_aro(ipv6))
         return;
     /*
      * NOTE: arbitrarily start a 3s timer before sending DAO to allow for
@@ -349,7 +349,10 @@ static void ipv6_own_aro_refresh(struct timer_group *group, struct timer_entry *
     struct ipv6_neigh *neigh = container_of(timer, struct ipv6_neigh, own_aro_timer);
     struct ipv6_ctx *ipv6 = container_of(group, struct ipv6_ctx, timer_group);
 
-    BUG_ON(!neigh->rpl || !neigh->rpl->path_ctl);
+    BUG_ON(!neigh->rpl);
+    // NOTE: do not refresh if not a parent anymore
+    if (!neigh->rpl->path_ctl)
+        return;
     ipv6_nud_set_state(ipv6, neigh, IPV6_NUD_PROBE);
 }
 
