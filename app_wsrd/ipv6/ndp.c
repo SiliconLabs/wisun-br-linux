@@ -172,11 +172,20 @@ static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     return handle;
 }
 
+static inline bool ipv6_neigh_has_pending_aro(struct ipv6_neigh *neigh)
+{
+    if (neigh->ns_handle < 0)
+        return false;
+    if (neigh->rpl && neigh->rpl->path_ctl && !timer_stopped(&neigh->own_aro_timer))
+        return true;
+    return neigh->ns_has_aro;
+}
+
 bool ipv6_has_pending_ns_aro(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *neigh;
 
-    return SLIST_FIND(neigh, &ipv6->neigh_cache, link, neigh->ns_handle >= 0 && neigh->ns_has_aro) != NULL;
+    return SLIST_FIND(neigh, &ipv6->neigh_cache, link, ipv6_neigh_has_pending_aro(neigh)) != NULL;
 }
 
 void ipv6_nud_confirm_ns(struct ipv6_ctx *ipv6, int handle, bool success)
