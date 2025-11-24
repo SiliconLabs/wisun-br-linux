@@ -61,7 +61,8 @@ static const char *tr_icmp_rpl(uint8_t code)
 bool rpl_can_update_parent(struct ipv6_ctx *ipv6)
 {
     return timer_stopped(&ipv6->rpl.parent_update_timer) &&
-           rfc8415_txalg_stopped(&ipv6->rpl.dis_txalg);
+           rfc8415_txalg_stopped(&ipv6->rpl.dis_txalg) &&
+           !trickle_stopped(&ipv6->rpl.dio_trickle);
 }
 
 void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
