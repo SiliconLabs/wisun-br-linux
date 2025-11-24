@@ -304,6 +304,7 @@ const char *tr_mbedtls_err(int err)
 {
     char *out = trace_buffer + trace_idx;
 
+    BUG_ON(!trace_nested_counter, "%s must be called within a trace", __func__);
     mbedtls_strerror(err, out, sizeof(trace_buffer) - trace_idx);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
@@ -315,6 +316,7 @@ static const char *tr_gkname(uint8_t slot, const char *name)
     char *out = trace_buffer + trace_idx;
     int len;
 
+    BUG_ON(!trace_nested_counter, "%s must be called within a trace", __func__);
     len = snprintf(out, sizeof(trace_buffer) - trace_idx, "%s%s[%i]",
                    slot < WS_GTK_COUNT ? "" : "l", name,
                    slot < WS_GTK_COUNT ? slot : slot - WS_GTK_COUNT);
