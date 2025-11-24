@@ -90,6 +90,7 @@ struct rpl_ctx {
     uint8_t path_seq; // Serves as both path seqno and dao seqno
     int dodag_verno; // -1 if not set
     int dtsn; // -1 if not set
+    uint16_t last_advertised_rank; // Last rank advertised in a DIO
     struct rpl_mrhof mrhof;
 
     void (*on_dao_ack)(struct ipv6_ctx *ipv6);

@@ -306,20 +306,19 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
     struct iobuf_write iobuf = { };
     struct rpl_opt_prefix prefix;
     struct rpl_dio dio;
-    uint16_t rank;
 
     BUG_ON(!parent || !parent->rpl);
     BUG_ON(ipv6->rpl.dtsn == -1);
     BUG_ON(ipv6->rpl.dodag_verno == -1);
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr));
 
-    rank = rpl_mrhof_rank(ipv6);
-    if (rank < ipv6->rpl.mrhof.lowest_advertised_rank)
-        ipv6->rpl.mrhof.lowest_advertised_rank = rank;
+    ipv6->rpl.last_advertised_rank = rpl_mrhof_rank(ipv6);
+    if (ipv6->rpl.last_advertised_rank < ipv6->rpl.mrhof.lowest_advertised_rank)
+        ipv6->rpl.mrhof.lowest_advertised_rank = ipv6->rpl.last_advertised_rank;
     memset(&dio, 0, sizeof(dio));
     dio.instance_id = parent->rpl->dio.instance_id;
     dio.dodag_verno = ipv6->rpl.dodag_verno;
-    dio.rank        = htons(rank);
+    dio.rank        = htons(ipv6->rpl.last_advertised_rank);
     dio.g_mop_prf   = parent->rpl->dio.g_mop_prf;
     dio.dtsn        = ipv6->rpl.dtsn;
     dio.dodag_id    = parent->rpl->dio.dodag_id;
@@ -930,6 +929,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     close(ipv6->rpl.fd);
     ipv6->rpl.fd = -1;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+    ipv6->rpl.last_advertised_rank = RPL_RANK_INFINITE;
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
 }
@@ -957,6 +957,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dao_refresh_timer.callback = rpl_on_dao_refresh_timer_timeout;
     ipv6->rpl.parent_update_timer.callback = rpl_parent_update_timer_cb;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
+    ipv6->rpl.last_advertised_rank = RPL_RANK_INFINITE;
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
     ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
