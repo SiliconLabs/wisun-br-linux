@@ -2,6 +2,8 @@
 # SPDX-Copyright-Text: (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
 name: Build
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ${{ github.repository_owner == 'SiliconLabsInternal' && 'silabs-internal' || 'ubuntu-24.04' }}
