@@ -1007,9 +1007,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->lbt)
         ws_wh_lbt_write(&msg->ie_buf_header);
     if (wh_ies->nr)
-        // TODO: Provide clock drift and timing accuracy
-        // TODO: Make the LFN listening interval configurable (currently it is 5s-4.66h)
-        ws_wh_nr_write(&msg->ie_buf_header, WS_NR_ROLE_BR, 255, 0, 5000, 1680000);
+        ws_wh_nr_write(&msg->ie_buf_header, WS_NR_ROLE_BR);
     if (wh_ies->flus)
         // Only a single chan plan tag is supported. (0)
         ws_wh_flus_write(&msg->ie_buf_header, info->fhss_config.uc_dwell_interval, 0);

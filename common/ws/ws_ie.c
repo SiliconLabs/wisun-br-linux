@@ -219,20 +219,15 @@ void ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_pe
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
-                    uint8_t clock_drift, uint8_t timing_accuracy,
-                    uint24_t listen_interval_min, uint24_t listen_interval_max)
+void ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role)
 {
     int offset;
 
+    BUG_ON(node_role != WS_NR_ROLE_ROUTER && node_role != WS_NR_ROLE_BR);
     offset = ws_wh_header_base_write(buf, WS_WHIE_NR);
     iobuf_push_u8(buf, FIELD_PREP(WS_MASK_NR_ID, node_role));
-    iobuf_push_u8(buf, clock_drift);
-    iobuf_push_u8(buf, timing_accuracy);
-    if (node_role == WS_NR_ROLE_LFN) {
-        iobuf_push_le24(buf, listen_interval_min);
-        iobuf_push_le24(buf, listen_interval_max);
-    }
+    iobuf_push_u8(buf, WS_CLOCK_DRIFT_NOT_PROVIDED);
+    iobuf_push_u8(buf, 100); // Timing accuracy (1ms)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
