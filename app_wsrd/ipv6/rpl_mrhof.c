@@ -253,6 +253,20 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
         }
     }
 
+    /*
+     * NOTE: Try keeping the current parent if no other candidate with a better
+     * ETX was found. This mechanism is only useful when the rank limit is not
+     * set: therefore, it won't work on secondary parent selection.
+     */
+    if (!parent_new && parent_cur) {
+        discard = rpl_mrhof_validate_candidate(ipv6, parent_cur, rank_limit, WS_ETX_MAX, ipv6->rpl.dodag_verno);
+        if (!discard) {
+            TRACE(TR_RPL, "rpl: parent select %s (keep etx > %.0f)", tr_ipv6(parent_cur->gua.s6_addr),
+                  ipv6->rpl.mrhof.max_link_metric);
+            return parent_cur;
+        }
+    }
+
     if (parent_new)
         TRACE(TR_RPL, "rpl: parent select %s", tr_ipv6(parent_new->gua.s6_addr));
     else
