@@ -110,3 +110,18 @@ int dbus_get_fd(void)
         return -1;
     return sd_bus_get_fd(dbus_ctx->dbus);
 }
+
+int dbus_get_version(sd_bus *bus, const char *path, const char *interface,
+                     const char *property, sd_bus_message *reply,
+                     void *userdata, sd_bus_error *ret_error)
+{
+    uint32_t *version = userdata;
+
+    sd_bus_message_open_container(reply, 'r', "uuu");
+    sd_bus_message_append(reply, "uuu",
+                          FIELD_GET(0xff000000, *version),
+                          FIELD_GET(0x00ffff00, *version),
+                          FIELD_GET(0x000000ff, *version));
+    sd_bus_message_close_container(reply);
+    return 0;
+}

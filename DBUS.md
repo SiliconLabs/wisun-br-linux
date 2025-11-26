@@ -270,6 +270,11 @@ the Wi-SUN FAN and IEEE 802.11 specifications for more details.
 
 EUI64 (MAC address) of the RCP
 
+### `RcpApiVersion` (`(uuu)`)
+
+RCP API version number in the form (major, minor, patch). See [HIF.md](/HIF.md)
+to learn about version specific features.
+
 ### `TxDuration` (`u`)
 
 Time spent transmitting over-the-air during the last hour, in milliseconds.

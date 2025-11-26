@@ -200,6 +200,7 @@ const struct sd_bus_vtable wsrd_dbus_vtable[] = {
     SD_BUS_METHOD_WITH_OFFSET("LeaveMulticastGroup", "ay", NULL, dbus_leave_multicast_group, offsetof(struct wsrd, ipv6), 0),
     SD_BUS_METHOD_WITH_OFFSET("TxDurationReset",     NULL, NULL, dbus_tx_duration_reset,     offsetof(struct wsrd, ws), 0),
     SD_BUS_PROPERTY("HwAddress",     "ay",  dbus_get_hw_address,     offsetof(struct wsrd, ws.rcp.eui64), 0),
+    SD_BUS_PROPERTY("RcpApiVersion", "(uuu)", dbus_get_version,      offsetof(struct wsrd, ws.rcp.version_api), 0),
     SD_BUS_PROPERTY("TxDuration",    "u",   dbus_get_tx_duration,    0, 0),
     SD_BUS_PROPERTY("DutyCycleLevel", "i",  dbus_get_duty_cycle_level, 0,                                   SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
     SD_BUS_PROPERTY("PanId",         "q",   NULL,                    offsetof(struct wsrd, ws.pan_id),      SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

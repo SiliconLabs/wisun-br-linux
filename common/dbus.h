@@ -24,6 +24,7 @@ struct dbus_ctx {
 };
 
 #ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-bus.h>
 
 void dbus_register(const char *name, const char *path, const char *interface,
                    const struct sd_bus_vtable *vtable, void *app_ctxt);
@@ -33,6 +34,9 @@ int dbus_process(void);
 struct dbus_ctx *dbus_get_ctx(void);
 void dbus_emit_change(const char *property_name);
 
+int dbus_get_version(sd_bus *bus, const char *path, const char *interface,
+                     const char *property, sd_bus_message *reply,
+                     void *userdata, sd_bus_error *ret_error);
 #else
 
 #include "common/log.h"

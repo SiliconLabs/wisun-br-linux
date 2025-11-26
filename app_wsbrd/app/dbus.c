@@ -808,6 +808,8 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, rcp.eui64),
                         0),
+        SD_BUS_PROPERTY("RcpApiVersion", "(uuu)", dbus_get_version,
+                        offsetof(struct wsbr_ctxt, rcp.version_api), 0),
         SD_BUS_PROPERTY("TxDuration", "u", dbus_get_tx_duration, 0, 0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, config.ws_name),
