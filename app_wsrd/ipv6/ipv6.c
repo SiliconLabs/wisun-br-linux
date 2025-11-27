@@ -120,7 +120,9 @@ static void ipv6_fwd(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf,
      */
     if (hdr->ip6_hlim <= 1) {
         TRACE(TR_DROP, "drop %-9s: hop limit exceeded", "ipv6");
-        return; // TODO: ICMPv6 error
+        icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
+                        ICMP6_TIME_EXCEEDED, ICMP6_TIME_EXCEED_TRANSIT, 0);
+        return;
     }
 
     hdr->ip6_hlim--;
