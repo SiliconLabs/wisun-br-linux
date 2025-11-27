@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include <netinet/ip6.h>
 #include "common/ipv6/ipv6_flow_label.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
@@ -918,6 +919,7 @@ static void ipv6_consider_inserting_to_mpl_domain(buffer_t *buf)
 {
     struct pktbuf pktbuf = { };
     struct in6_addr addr;
+    struct ip6_hdr *hdr;
     int ret;
 
     if (buf->options.mpl_rx ||
@@ -925,10 +927,17 @@ static void ipv6_consider_inserting_to_mpl_domain(buffer_t *buf)
         return;
     }
 
+    if (buf->options.hop_limit <= 1) {
+        TRACE(TR_DROP, "drop %-9s: hop limit exceeded", "ipv6");
+        return;
+    }
+
     ret = addr_interface_get_gua(buf->interface, &addr);
     BUG_ON(ret < 0);
 
     pktbuf_init(&pktbuf, buffer_data_pointer(buf), buffer_data_length(buf));
+    hdr = (struct ip6_hdr *)pktbuf_head(&pktbuf);
+    hdr->ip6_hlim--;
     mpl_msg_gen(&buf->interface->mpl, &addr, &pktbuf);
     pktbuf_free(&pktbuf);
 }
