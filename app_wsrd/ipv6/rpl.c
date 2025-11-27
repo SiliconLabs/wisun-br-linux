@@ -150,19 +150,6 @@ void rpl_get_parents(struct ipv6_ctx *ipv6, struct ipv6_neigh *parents[RPL_PAREN
     }
 }
 
-void rpl_unregister_from_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
-{
-    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
-    /*
-     * Always send NS(ARO) lifetime 1 in case NS(ARO) ACK was not received
-     * before changing parent.
-     * NOTE: we unregister with a 1 minute lifetime to allow traffic in transit
-     * to reach its destination.
-     */
-    timer_stop(&ipv6->timer_group, &nce->own_aro_timer);
-    ipv6_send_ns_aro(ipv6, nce, 1);
-}
-
 static void rpl_register_to_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
@@ -843,7 +830,7 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t b
             nce->rpl->path_ctl_acked = nce->rpl->path_ctl;
         } else if (nce->rpl->path_ctl_acked || !timer_stopped(&nce->own_aro_timer)) {
             nce->rpl->path_ctl_acked = 0;
-            rpl_unregister_from_parent(ipv6, nce);
+            ipv6_own_aro_unregister(ipv6, nce);
         }
     }
     if (ipv6->rpl.on_dao_ack)
@@ -935,7 +922,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
             nce->rpl->path_ctl = 0;
             nce->rpl->path_ctl_acked = 0;
             if (!timer_stopped(&nce->own_aro_timer) || nce->ns_has_aro)
-                rpl_unregister_from_parent(ipv6, nce);
+                ipv6_own_aro_unregister(ipv6, nce);
         }
     }
     trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);

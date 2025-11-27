@@ -99,19 +99,13 @@ static void ipv6_send_na_aro(struct ipv6_ctx *ipv6,
     pktbuf_free(&pktbuf);
 }
 
-int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
+static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
 {
     struct nd_neighbor_solicit *ns;
     struct pktbuf pktbuf = { };
     struct in6_addr src, dst;
     struct ndp_opt_earo aro;
     int handle;
-
-    if (neigh->ns_handle >= 0) {
-        TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
-              "ns(aro)", tr_ipv6(neigh->gua.s6_addr));
-        return -EAGAIN;
-    }
 
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
 
@@ -139,6 +133,29 @@ int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t l
     handle = ipv6_sendto_mac(ipv6, &pktbuf, NULL);
     pktbuf_free(&pktbuf);
     return handle;
+}
+
+static int ipv6_own_aro_register(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    if (neigh->ns_handle >= 0) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: ns already in progress for %s",
+              "ns(aro)", tr_ipv6(neigh->gua.s6_addr));
+        return -EAGAIN;
+    }
+    return ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
+}
+
+int ipv6_own_aro_unregister(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
+{
+    /*
+     * NOTES:
+     * - we unregister with a 1 minute lifetime to allow traffic in transit
+     *   to reach its destination.
+     * - we send a NS(ARO) regardless of whether a NS(ARO) is already in
+     *   progress or not.
+     */
+    timer_stop(&ipv6->timer_group, &neigh->own_aro_timer);
+    return ipv6_send_ns_aro(ipv6, neigh, 1);
 }
 
 static int ipv6_send_ns(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
@@ -273,7 +290,7 @@ static void ipv6_nud_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
          * a default router.
          */
         if (neigh->rpl && neigh->rpl->path_ctl && !IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6)) {
-            handle = ipv6_send_ns_aro(ipv6, neigh, ipv6->aro_lifetime_ms / 1000 / 60);
+            handle = ipv6_own_aro_register(ipv6, neigh);
             if (handle >= 0) {
                 neigh->ns_handle = handle;
                 neigh->ns_has_aro = true;

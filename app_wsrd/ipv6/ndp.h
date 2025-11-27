@@ -94,7 +94,7 @@ void ipv6_neigh_clean(struct ipv6_ctx *ipv6);
 
 void ipv6_nud_set_state(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, int state);
 
-int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes);
+int ipv6_own_aro_unregister(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh);
 void ipv6_recv_ns(struct ipv6_ctx *ipv6,
                   const void *buf, size_t buf_len,
                   const struct in6_addr *src);
