@@ -195,6 +195,22 @@ For more details about these lists, see `wsbrd.conf`.
 Reset [`TxDuration`][#txduration-u] counter to 0 and clear records of previous
 transmission durations. Requires RCP API >= 2.11.0.
 
+### `StartPanDefect` (`uu`)
+
+Start the [Silicon Labs PAN Defect procedure][pan-defect]: include the PAN
+Defect IE in PAN Configuration frames, and stop sending PAN Advertisement
+frames to prevent new devices from connecting.
+
+- `u`: Minimum delay (seconds) between PAN defect IE reception and PAN switch.
+- `u`: Maximum delay (seconds) between PAN defect IE reception and PAN switch.
+
+[pan-defect]: https://docs.silabs.com/wisun/latest/wisun-pan-defect
+
+### `StopPanDefect`
+
+Return to normal operation: resume PAN Avertisement frame transmissions, and
+stop advertising the PAN Defect IE.
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)

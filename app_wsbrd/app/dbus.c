@@ -434,6 +434,36 @@ static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_erro
     return sd_bus_reply_method_return(m, NULL);
 }
 
+static int dbus_start_pan_defect(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *wsbrd = userdata;
+    uint32_t min_delay_s, max_delay_s;
+    struct iobuf_write buf = { };
+
+    sd_bus_message_read(m, "uu", &min_delay_s, &max_delay_s);
+    iobuf_push_u8(&buf, true); // Enable
+    iobuf_push_le32(&buf, min_delay_s);
+    iobuf_push_le32(&buf, max_delay_s);
+    ws_ie_list_update(&wsbrd->net_if.ws_info.ie_list,
+                      WS_IE_TYPE_NESTED_SHORT, WP_WPIE_SL_PANDEFECT,
+                      buf.data, buf.len, BIT(WS_FT_PC));
+    iobuf_free(&buf);
+    trickle_stop(&wsbrd->net_if.ws_info.mngt.trickle_pa, NULL);
+    return sd_bus_reply_method_return(m, NULL);
+}
+
+static int dbus_stop_pan_defect(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *wsbrd = userdata;
+
+    ws_ie_list_update(&wsbrd->net_if.ws_info.ie_list,
+                      WS_IE_TYPE_NESTED_SHORT, WP_WPIE_SL_PANDEFECT,
+                      NULL, 0, 0);
+    if (trickle_stopped(&wsbrd->net_if.ws_info.mngt.trickle_pa))
+        trickle_start(&wsbrd->net_if.ws_info.mngt.trickle_pa, NULL);
+    return sd_bus_reply_method_return(m, NULL);
+}
+
 static void dbus_message_open_info(sd_bus_message *m, const char *property,
                             const char *name, const char *type)
 {
@@ -757,6 +787,8 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_METHOD("AllowMac64",          "aay",    NULL, dbus_allow_mac64, 0),
         SD_BUS_METHOD("DenyMac64",           "aay",    NULL, dbus_deny_mac64, 0),
         SD_BUS_METHOD("TxDurationReset",     NULL,     NULL, dbus_tx_duration_reset, 0),
+        SD_BUS_METHOD("StartPanDefect",      "uu",     NULL, dbus_start_pan_defect, 0),
+        SD_BUS_METHOD("StopPanDefect",       NULL,     NULL, dbus_stop_pan_defect, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, auth),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
