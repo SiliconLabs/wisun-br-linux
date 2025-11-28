@@ -213,7 +213,8 @@ fn do_pan_defect_stop(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(),
 
 fn do_revoke(dbus_proxy: &dyn ComSilabsWisunBorderRouter, eui64: &[u8; 8]) -> Result<(), Box<dyn std::error::Error>> {
     if *eui64 == EUI64_BC {
-        dbus_proxy.revoke_group_keys(vec![], vec![])?;
+        dbus_proxy.revoke_gtks(vec![])?;
+        dbus_proxy.revoke_lgtks(vec![])?;
     } else {
         dbus_proxy.revoke_pairwise_keys(eui64.to_vec())?;
     }
