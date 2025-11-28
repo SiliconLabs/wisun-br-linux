@@ -186,31 +186,6 @@ fn do_status(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(), Box<dyn 
     Ok(())
 }
 
-fn do_pan_defect_start(dbus_proxy: &dyn ComSilabsWisunBorderRouter,
-                       min_delay_s: u32, max_delay_s: u32) -> Result<(), Box<dyn std::error::Error>> {
-    let mut data: Vec<u8> = vec![];
-    data.push(true as u8); // Enable
-    data.extend_from_slice(&min_delay_s.to_le_bytes());
-    data.extend_from_slice(&max_delay_s.to_le_bytes());
-    dbus_proxy.ie_custom_insert(
-        WsIeType::WpShort as u8,
-        WsIeWpShort::SlPanDefect as u8,
-        data,
-        vec![WsFrameType::Pc as u8]
-    )?;
-    Ok(())
-}
-
-fn do_pan_defect_stop(dbus_proxy: &dyn ComSilabsWisunBorderRouter) -> Result<(), Box<dyn std::error::Error>> {
-    dbus_proxy.ie_custom_insert(
-        WsIeType::WpShort as u8,
-        WsIeWpShort::SlPanDefect as u8,
-        vec![],
-        vec![]
-    )?;
-    Ok(())
-}
-
 fn do_revoke(dbus_proxy: &dyn ComSilabsWisunBorderRouter, eui64: &[u8; 8]) -> Result<(), Box<dyn std::error::Error>> {
     if *eui64 == EUI64_BC {
         dbus_proxy.revoke_gtks(vec![])?;
@@ -233,7 +208,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     (see https://docs.silabs.com/wisun/latest/wisun-pan-defect)")
             .setting(AppSettings::SubcommandRequired)
             .subcommand(SubCommand::with_name("start")
-                .about("Start propagating the PAN Defect IE")
+                .about("Start propagating the PAN Defect IE, and disable PAN Advertisement")
                 .args(&[
                     Arg::with_name("min-delay")
                         .help("Minimum delay (seconds) between PAN defect IE reception and PAN switch"),
@@ -274,9 +249,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ("start", Some(subsubmatches)) => {
                     let min_delay_s = value_t!(subsubmatches, "min-delay", u32).unwrap_or_else(|e| e.exit());
                     let max_delay_s = value_t!(subsubmatches, "max-delay", u32).unwrap_or_else(|e| e.exit());
-                    do_pan_defect_start(&dbus_proxy, min_delay_s, max_delay_s)
+                    dbus_proxy.start_pan_defect(min_delay_s, max_delay_s)?;
+                    Ok(())
                 }
-                ("stop", _) => do_pan_defect_stop(&dbus_proxy),
+                ("stop", _) => {
+                    dbus_proxy.stop_pan_defect()?;
+                    Ok(())
+                }
                 _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
             }
         }
