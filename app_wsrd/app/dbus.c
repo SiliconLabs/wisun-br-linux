@@ -39,8 +39,7 @@ static int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_e
         WARN("tun_addr_add_mc %s: %s", tr_ipv6(addr->s6_addr), strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
     }
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -59,8 +58,7 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
         WARN("tun_addr_del_mc %s: %s", tr_ipv6(addr->s6_addr), strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
     }
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -71,8 +69,7 @@ static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_erro
         return sd_bus_error_set_errno(ret_error, ENOTSUP);
     ws->tx_duration_ms = 0;
     rcp_req_radio_tx_duration_reset(&ws->rcp);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_get_join_state(sd_bus *bus, const char *path, const char *interface,

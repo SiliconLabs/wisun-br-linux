@@ -59,9 +59,7 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    sd_bus_reply_method_return(m, NULL);
-
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_set_link_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -92,9 +90,7 @@ int dbus_set_link_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *r
     ret = ws_llc_set_mode_switch(&ctxt->net_if, ms_mode, phy_mode_id, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    sd_bus_reply_method_return(m, NULL);
-
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_set_link_edfe(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -123,9 +119,7 @@ int dbus_set_link_edfe(sd_bus_message *m, void *userdata, sd_bus_error *ret_erro
     ret = ws_llc_set_edfe(&ctxt->net_if, edfe_mode, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_reply_method_return(m, NULL);
-
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -145,8 +139,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
         return sd_bus_error_set_errno(ret_error, -ret);
     }
     addr_add_group(&ctxt->net_if, ipv6->s6_addr);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -166,8 +159,7 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
         return sd_bus_error_set_errno(ret_error, -ret);
     }
     addr_remove_group(&ctxt->net_if, ipv6->s6_addr);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_get_transient_keys(sd_bus_message *reply, struct auth_ctx *auth,
@@ -242,8 +234,7 @@ static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_e
     ret = auth_revoke_pmk(&ctxt->auth, eui64);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
@@ -251,8 +242,7 @@ static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error 
 
     ws_ie_list_clear(&ctxt->net_if.ws_info.ie_list);
     ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -291,8 +281,7 @@ static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error
         return sd_bus_error_set_errno(ret_error, -ret);
     ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
 
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_revoke_group_keys(sd_bus_message *m,
@@ -331,8 +320,7 @@ static int dbus_revoke_group_keys(sd_bus_message *m,
             return sd_bus_error_set_errno(ret_error, -ret);
     }
 
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int __dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -373,8 +361,7 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
     if (ctxt->auth.on_gtk_change)
         ctxt->auth.on_gtk_change(&ctxt->auth, 0, BIT(slot), 0);
 
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_install_gtk(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -392,8 +379,7 @@ int dbus_increment_rpl_dtsn(sd_bus_message *m, void *userdata, sd_bus_error *ret
     struct wsbr_ctxt *ctxt = userdata;
 
     rpl_dtsn_inc(&ctxt->net_if.rpl_root);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_increment_rpl_dodag_version_number(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -401,8 +387,7 @@ int dbus_increment_rpl_dodag_version_number(sd_bus_message *m, void *userdata, s
     struct wsbr_ctxt *ctxt = userdata;
 
     rpl_dodag_version_inc(&ctxt->net_if.rpl_root);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static int dbus_set_filter_src64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error, bool allow)
@@ -425,8 +410,7 @@ static int dbus_set_filter_src64(sd_bus_message *m, void *userdata, sd_bus_error
     // When given an empty list, 'allow' must be reversed
     rcp_set_filter_src64(&ctxt->rcp, (struct eui64 *)buf.data, buf.len / 8, buf.len ? allow : !allow);
     iobuf_free(&buf);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 int dbus_allow_mac64(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
@@ -447,8 +431,7 @@ static int dbus_tx_duration_reset(sd_bus_message *m, void *userdata, sd_bus_erro
         return sd_bus_error_set_errno(ret_error, ENOTSUP);
     wsbrd->net_if.ws_info.tx_duration_ms = 0;
     rcp_req_radio_tx_duration_reset(&wsbrd->rcp);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
+    return sd_bus_reply_method_return(m, NULL);
 }
 
 static void dbus_message_open_info(sd_bus_message *m, const char *property,
