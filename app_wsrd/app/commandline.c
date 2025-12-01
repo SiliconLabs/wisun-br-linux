@@ -117,7 +117,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
         { "duty_cycle_budget",             &config->duty_cycle.budget_ms,             conf_set_number,      &valid_budget },
         { "duty_cycle_threshold\\[*]",     &config->duty_cycle.threshold,             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
-        { "duty_chan_cycle_budget",        &config->duty_cycle.chan_budget_ms,        conf_set_number,      &valid_budget },
+        { "duty_cycle_chan_budget",        &config->duty_cycle.chan_budget_ms,        conf_set_number,      &valid_budget },
         { "duty_cycle_chan_threshold\\[*]", &config->duty_cycle.chan_threshold,       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
