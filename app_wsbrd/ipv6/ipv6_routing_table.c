@@ -45,6 +45,7 @@
 #include "common/string_extra.h"
 
 #include "common/specs/ipv6.h"
+#include "app/tun.h" // FIXME
 #include "ipv6/icmpv6.h"
 #include "ipv6/ipv6_resolution.h"
 #include "net/protocol.h"
@@ -161,7 +162,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     }
     ipv6_destination_cache_forget_neighbour(entry);
     if (!IN6_IS_ADDR_MULTICAST(entry->ip_address))
-        ipv6_route_delete(net_if, entry->ip_address, 128, entry->ip_address, ROUTE_ARO);
+        ipv6_route_del_aro(net_if, entry);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
@@ -979,4 +980,18 @@ void ipv6_route_table_ttl_update(int seconds)
 static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_route_src_t source)
 {
     return net_if->ipv6_neighbour_cache.route_if_info.sources[source];
+}
+
+void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
+{
+    ipv6_route_add_metric(net_if, neigh->ip_address, 128, neigh->ip_address,
+                          ROUTE_ARO, NULL, 0, neigh->lifetime_s, 32);
+    tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
+    tun_add_ipv6_direct_route(net_if, neigh->ip_address);
+}
+
+void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
+{
+    ipv6_route_delete(net_if, neigh->ip_address, 128, neigh->ip_address, ROUTE_ARO);
+    // TODO: remove from NDP proxy
 }

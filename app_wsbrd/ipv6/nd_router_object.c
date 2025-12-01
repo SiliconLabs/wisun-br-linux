@@ -29,7 +29,6 @@
 #include "common/specs/icmpv6.h"
 #include "common/specs/ipv6.h"
 
-#include "app/tun.h" // FIXME
 #include "net/protocol.h"
 #include "ipv6/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -37,14 +36,6 @@
 #include "ipv6/ipv6_routing_table.h"
 
 #include "ipv6/nd_router_object.h"
-
-static void nd_add_ipv6_neigh_route(struct net_if *net_if, struct ipv6_neighbour *neigh)
-{
-    ipv6_route_add_metric(net_if, neigh->ip_address, 128, neigh->ip_address,
-                          ROUTE_ARO, NULL, 0, neigh->lifetime_s - 2, 32);
-    tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
-    tun_add_ipv6_direct_route(net_if, neigh->ip_address);
-}
 
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro,
                             struct ws_neigh *ws_neigh)
@@ -60,7 +51,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
-            nd_add_ipv6_neigh_route(cur_interface, neigh);
+            ipv6_route_add_aro(cur_interface, neigh);
             BUG_ON(!ws_neigh);
             ws_neigh_refresh(&cur_interface->ws_info.neighbor_storage, ws_neigh, aro->lifetime * UINT32_C(60));
         }
@@ -78,7 +69,7 @@ void nd_remove_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
         if ((neigh->type == IP_NEIGHBOUR_REGISTERED || neigh->type == IP_NEIGHBOUR_TENTATIVE) &&
             !memcmp(ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, neigh), eui64, 8) &&
             !IN6_IS_ADDR_MULTICAST(neigh->ip_address))
-            ipv6_route_delete(net_if, neigh->ip_address, 128, neigh->ip_address, ROUTE_ARO);
+            ipv6_route_del_aro(net_if, neigh);
 }
 
 void nd_restore_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
@@ -87,7 +78,7 @@ void nd_restore_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
         if ((neigh->type == IP_NEIGHBOUR_REGISTERED || neigh->type == IP_NEIGHBOUR_TENTATIVE) &&
             !memcmp(ipv6_neighbour_eui64(&net_if->ipv6_neighbour_cache, neigh), eui64, 8) &&
             !IN6_IS_ADDR_MULTICAST(neigh->ip_address))
-            nd_add_ipv6_neigh_route(net_if, neigh);
+            ipv6_route_add_aro(net_if, neigh);
 }
 
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505 + draft-ietf-6lo-multicast-registration-15) EARO. */

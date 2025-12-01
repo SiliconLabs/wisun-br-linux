@@ -201,4 +201,7 @@ void ipv6_route_table_ttl_update(int seconds);
 bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src);
 void ipv6_route_table_source_invalidated_reset(void);
 
+void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh);
+void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh);
+
 #endif /* IPV6_ROUTING_TABLE_H_ */
