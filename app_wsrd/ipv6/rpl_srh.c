@@ -93,13 +93,15 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
     struct ipv6_rpl_sr_hdr *srh;
     struct in6_addr *segaddr;
     struct ipv6_neigh *nce;
-    int n, i, len;
+    int old_len, new_len;
+    int n, i;
 
     srh = (struct ipv6_rpl_sr_hdr *)pktbuf_head(pktbuf);
     BUG_ON(pktbuf_len(pktbuf) < sizeof(struct ip6_rthdr));
     BUG_ON(srh->type != IPV6_ROUTING_RPL_SRH);
     BUG_ON(!srh->segments_left);
-    pktbuf_pop_head(pktbuf, NULL, (1 + srh->hdrlen) * 8);
+    old_len = (1 + srh->hdrlen) * 8;
+    pktbuf_pop_head(pktbuf, NULL, old_len);
     if (pktbuf->err)
         return -EINVAL;
 
@@ -109,7 +111,7 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
     /* if Segments Left is greater than n */
     if (srh->segments_left > n) {
         TRACE(TR_DROP, "drop %-9s: invalid routing header", "rpl-srh");
-        pktbuf_push_head(pktbuf, srh, (1 + srh->hdrlen) * 8);
+        pktbuf_push_head(pktbuf, srh, old_len);
         pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
         icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
                         ICMP6_PARAM_PROB, ICMP6_PARAMPROB_HEADER,
@@ -146,7 +148,7 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
         if (IN6_ARE_ADDR_EQUAL(&segaddr[j], &ipv6->dhcp.iaaddr.ipv6)) {
             TRACE(TR_DROP, "drop %-9s: loop seg[%i] assigned to self", "rpl-srh", j);
             free(segaddr);
-            pktbuf_push_head(pktbuf, srh, (1 + srh->hdrlen) * 8);
+            pktbuf_push_head(pktbuf, srh, old_len);
             pktbuf_push_head(pktbuf, hdr, sizeof(struct ip6_hdr));
             icmpv6_err_send(&ipv6->icmp_err, pktbuf_head(pktbuf), pktbuf_len(pktbuf),
                             ICMP6_PARAM_PROB, ICMP6_PARAMPROB_HEADER,
@@ -157,8 +159,8 @@ int rpl_srh_process(struct ipv6_ctx *ipv6, struct pktbuf *pktbuf, struct ip6_hdr
 
     /* swap the IPv6 Destination Address and Address[i] */
     memswap(&hdr->ip6_dst, &segaddr[i], 16);
-    len = rpl_srh_push(pktbuf, &hdr->ip6_dst, segaddr, n, srh->nexthdr, srh->segments_left);
-    hdr->ip6_plen = htons(ntohs(hdr->ip6_plen) - (1 + srh->hdrlen) * 8 + len);
+    new_len = rpl_srh_push(pktbuf, &hdr->ip6_dst, segaddr, n, srh->nexthdr, srh->segments_left);
+    hdr->ip6_plen = htons(ntohs(hdr->ip6_plen) - old_len + new_len);
     free(segaddr);
 
     /* if the IPv6 Hop Limit is less than or equal to 1 */
