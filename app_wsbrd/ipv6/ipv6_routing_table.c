@@ -985,6 +985,16 @@ static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_rout
 
 void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 {
+    ipv6_route_t *route;
+
+    route = ipv6_route_lookup_with_info(net_if, neigh->ip_address,
+                                        128, neigh->ip_address,
+                                        ROUTE_ARO, NULL, 0);
+    if (route) {
+        route->lifetime = neigh->lifetime_s;
+        return;
+    }
+
     ipv6_route_add_metric(net_if, neigh->ip_address, 128, neigh->ip_address,
                           ROUTE_ARO, NULL, 0, neigh->lifetime_s, 32);
     tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
