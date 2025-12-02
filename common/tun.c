@@ -123,6 +123,7 @@ static struct rtnl_addr *tun_rtnladdr_build(struct tun_ctx *tun, const struct in
     FATAL_ON(ret < 0, 2, "rtnl_addr_set_local %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
     rtnl_addr_set_prefixlen(rtnladdr, prefix_len);
     rtnl_addr_set_ifindex(rtnladdr, tun->ifindex);
+    rtnl_addr_set_flags(rtnladdr, IFA_F_NODAD);
     nl_addr_put(nladdr);
     return rtnladdr;
 }
