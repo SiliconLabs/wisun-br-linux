@@ -49,6 +49,7 @@
 #include "ipv6/icmpv6.h"
 #include "ipv6/ipv6_resolution.h"
 #include "net/protocol.h"
+#include "common/dbus.h"
 #include "common/time_extra.h"
 
 #include "ipv6/ipv6_neigh_storage.h"
@@ -988,10 +989,12 @@ void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
                           ROUTE_ARO, NULL, 0, neigh->lifetime_s, 32);
     tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
     tun_add_ipv6_direct_route(net_if, neigh->ip_address);
+    dbus_emit_change("RoutingGraph");
 }
 
 void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 {
     ipv6_route_delete(net_if, neigh->ip_address, 128, neigh->ip_address, ROUTE_ARO);
     // TODO: remove from NDP proxy
+    dbus_emit_change("RoutingGraph");
 }
