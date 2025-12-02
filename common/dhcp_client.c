@@ -19,6 +19,7 @@
 #include <errno.h>
 
 #include "common/specs/dhcpv6.h"
+#include "common/ipv6/ipv6_addr.h"
 #include "common/string_extra.h"
 #include "common/dhcp_common.h"
 #include "common/time_extra.h"
@@ -300,6 +301,9 @@ void dhcp_client_init(struct dhcp_client *client,
     capture_register_netfd(client->fd);
     if (setsockopt(client->fd, SOL_SOCKET, SO_BINDTODEVICE, tun->ifname, IF_NAMESIZE) < 0)
         FATAL(1, "%s: setsockopt: %m", __func__);
+    sockaddr.sin6_addr = ipv6_prefix_linklocal;
+    sockaddr.sin6_scope_id = tun->ifindex;
+    ipv6_addr_conv_iid_eui64(sockaddr.sin6_addr.s6_addr + 8, eui64);
     if (bind(client->fd, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
         FATAL(1, "%s: bind: %m", __func__);
 
