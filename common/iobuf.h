@@ -45,6 +45,7 @@ struct iobuf_write {
     int data_size;
     int len;
     uint8_t *data;
+    bool no_realloc;
 };
 
 struct iobuf_read {

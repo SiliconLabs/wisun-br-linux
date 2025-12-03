@@ -22,6 +22,7 @@
 
 static void iobuf_enlarge_buffer(struct iobuf_write *buf, size_t new_data_size) {
     if (buf->data_size < buf->len + new_data_size) {
+        BUG_ON(buf->no_realloc);
         buf->data_size = MAX(64, buf->len + new_data_size);
         buf->data = realloc(buf->data, buf->data_size);
         BUG_ON(!buf->data);
@@ -96,7 +97,8 @@ void iobuf_push_data_reserved(struct iobuf_write *buf, const int num)
 }
 
 void iobuf_free(struct iobuf_write *buf) {
-    free(buf->data);
+    if (!buf->no_realloc)
+        free(buf->data);
     memset(buf, 0, sizeof(struct iobuf_write));
 }
 
