@@ -432,6 +432,7 @@ struct lowpan_cmpr_ctx {
     uint8_t dst_iid[8];
     struct iobuf_write wbuf;
     struct iobuf_read rbuf;
+    uint8_t nxthdr;
 };
 
 // RFC 6282 3.2.1. Traffic Class and Flow Label Compression
@@ -556,6 +557,22 @@ static void lowpan_iphc_cmpr_maddr(struct lowpan_cmpr_ctx *cmpr, uint8_t mam,
     }
 }
 
+static bool lowpan_nhc_can_cmpr(uint8_t ipproto)
+{
+    switch (ipproto) {
+    case IPPROTO_HOPOPTS:
+    case IPPROTO_ROUTING:
+    case IPPROTO_FRAGMENT:
+    case IPPROTO_DSTOPTS:
+    case IPPROTO_MH:
+    case IPPROTO_IPV6:
+    case IPPROTO_UDP:
+        return true;
+    default:
+        return false;
+    }
+}
+
 // RFC 6282 3.1. LOWPAN_IPHC Encoding Format
 static int __lowpan_iphc_cmpr(struct lowpan_cmpr_ctx *cmpr)
 {
@@ -575,6 +592,8 @@ static int __lowpan_iphc_cmpr(struct lowpan_cmpr_ctx *cmpr)
 
     iphc = LOWPAN_DISPATCH_IPHC << 8;
     iphc |= FIELD_PREP(LOWPAN_MASK_IPHC_TF, lowpan_iphc_calc_tf(ntohl(hdr.ip6_flow)));
+    if (lowpan_nhc_can_cmpr(hdr.ip6_nxt))
+        iphc |= LOWPAN_MASK_IPHC_NH;
     iphc |= FIELD_PREP(LOWPAN_MASK_IPHC_HLIM, lowpan_iphc_calc_hlim(hdr.ip6_hlim));
     iphc |= FIELD_PREP(LOWPAN_MASK_IPHC_SAM, lowpan_iphc_calc_am(&hdr.ip6_src, cmpr->src_iid));
     if (IN6_IS_ADDR_MULTICAST(&hdr.ip6_dst)) {
@@ -587,7 +606,9 @@ static int __lowpan_iphc_cmpr(struct lowpan_cmpr_ctx *cmpr)
 
     lowpan_iphc_cmpr_tf(cmpr, FIELD_GET(LOWPAN_MASK_IPHC_TF, iphc), ntohl(hdr.ip6_flow));
 
-    // TODO: Next Header Compression
+    if (!(iphc & LOWPAN_MASK_IPHC_NH))
+        iobuf_push_u8(&cmpr->wbuf, hdr.ip6_nxt);
+    cmpr->nxthdr = hdr.ip6_nxt;
 
     if (FIELD_GET(LOWPAN_MASK_IPHC_HLIM, iphc) == LOWPAN_HLIM_INLINE)
         iobuf_push_u8(&cmpr->wbuf, hdr.ip6_hlim);
@@ -599,7 +620,166 @@ static int __lowpan_iphc_cmpr(struct lowpan_cmpr_ctx *cmpr)
     else
         lowpan_iphc_cmpr_addr(cmpr, FIELD_GET(LOWPAN_MASK_IPHC_DAM, iphc), &hdr.ip6_dst);
 
+    /*
+     *   RFC 6282 3.2.2. Deriving IIDs from the Encapsulating Header
+     * When the encapsulating header carries IPv6 addresses, bits for the
+     * source and destination addresses are copied from the source and
+     * destination addresses of the encapsulating IPv6 header.
+     */
+    memcpy(cmpr->src_iid, hdr.ip6_src.s6_addr + 8, 8);
+    memcpy(cmpr->dst_iid, hdr.ip6_dst.s6_addr + 8, 8);
+
     return 0;
+}
+
+static uint8_t lowpan_ipproto2eid(uint8_t ipproto)
+{
+    switch (ipproto) {
+    case IPPROTO_HOPOPTS:  return LOWPAN_NHC_EID_HOPOPT;
+    case IPPROTO_ROUTING:  return LOWPAN_NHC_EID_ROUTING;
+    case IPPROTO_FRAGMENT: return LOWPAN_NHC_EID_FRAG;
+    case IPPROTO_DSTOPTS:  return LOWPAN_NHC_EID_DSTOPT;
+    case IPPROTO_MH:       return LOWPAN_NHC_EID_MOBILITY;
+    case IPPROTO_IPV6:     return LOWPAN_NHC_EID_IPV6;
+    default:               BUG();
+    }
+}
+
+// RFC 6282 4.2. IPv6 Extension Header Compression
+static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
+{
+    struct ip6_ext ext;
+    const void *data;
+    size_t data_len;
+    uint8_t nhc;
+
+    iobuf_pop_data(&cmpr->rbuf, &ext, sizeof(struct ip6_ext));
+    if (cmpr->rbuf.err)
+        return -EINVAL;
+    cmpr->wbuf.data_size += sizeof(struct ip6_ext);
+
+    nhc = LOWPAN_NHC_EXTHDR;
+    nhc |= FIELD_PREP(LOWPAN_MASK_NHC_EXTHDR_EID, lowpan_ipproto2eid(cmpr->nxthdr));
+    if (lowpan_nhc_can_cmpr(ext.ip6e_nxt) && cmpr->nxthdr != IPPROTO_FRAGMENT)
+        nhc |= LOWPAN_MASK_NHC_EXTHDR_NH;
+    iobuf_push_u8(&cmpr->wbuf, nhc);
+
+    if (nhc & LOWPAN_MASK_NHC_EXTHDR_NH) {
+        cmpr->nxthdr = ext.ip6e_nxt;
+    } else {
+        cmpr->nxthdr = IPPROTO_NONE;
+        iobuf_push_u8(&cmpr->wbuf, ext.ip6e_nxt);
+    }
+
+    data_len = 8 * (ext.ip6e_len + 1) - sizeof(struct ip6_ext);
+    if (data_len > UINT8_MAX)
+        return -ENOTSUP;
+    iobuf_push_u8(&cmpr->wbuf, data_len);
+
+    data = iobuf_pop_data_ptr(&cmpr->rbuf, data_len);
+    if (!data)
+        return -EINVAL;
+    cmpr->wbuf.data_size += data_len;
+    iobuf_push_data(&cmpr->wbuf, data, data_len);
+    return 0;
+}
+
+// RFC 6282 4.2. IPv6 Extension Header Compression
+static int lowpan_nhc_cmpr_ip6(struct lowpan_cmpr_ctx *cmpr)
+{
+    uint8_t nhc;
+
+    nhc = LOWPAN_NHC_EXTHDR;
+    nhc |= FIELD_PREP(LOWPAN_MASK_NHC_EXTHDR_EID, LOWPAN_NHC_EID_IPV6);
+    iobuf_push_u8(&cmpr->wbuf, nhc);
+    return __lowpan_iphc_cmpr(cmpr);
+}
+
+// RFC 6282 4.3.1. Compressing UDP Ports
+static uint8_t lowpan_nhc_calc_udp_p(uint16_t src, uint16_t dst)
+{
+    if ((src & 0xfff0) == (LOWPAN_UDP_PORT_PREFIX & 0xfff0) &&
+        (dst & 0xfff0) == (LOWPAN_UDP_PORT_PREFIX & 0xfff0))
+        return LOWPAN_UDP_P_S8_D8;
+    if ((src & 0xff00) == (LOWPAN_UDP_PORT_PREFIX & 0xff00))
+        return LOWPAN_UDP_P_S8_D16;
+    if ((dst & 0xff00) == (LOWPAN_UDP_PORT_PREFIX & 0xff00))
+        return LOWPAN_UDP_P_S16_D8;
+    else
+        return LOWPAN_UDP_P_INLINE;
+}
+
+static int lowpan_nhc_cmpr_udp(struct lowpan_cmpr_ctx *cmpr)
+{
+    struct udphdr udp;
+    uint16_t data_len;
+    const void *data;
+    uint8_t nhc;
+
+    iobuf_pop_data(&cmpr->rbuf, &udp, sizeof(struct udphdr));
+    if (cmpr->rbuf.err)
+        return -EINVAL;
+    cmpr->wbuf.data_size += sizeof(struct udphdr);
+
+    nhc = LOWPAN_NHC_UDP;
+    nhc |= FIELD_PREP(LOWPAN_MASK_NHC_UDP_P,
+                      lowpan_nhc_calc_udp_p(ntohs(udp.uh_sport),
+                                            ntohs(udp.uh_dport)));
+    iobuf_push_u8(&cmpr->wbuf, nhc);
+
+    switch (FIELD_GET(LOWPAN_MASK_NHC_UDP_P, nhc)) {
+    case LOWPAN_UDP_P_INLINE:
+        iobuf_push_data(&cmpr->wbuf, &udp.uh_sport, 2);
+        iobuf_push_data(&cmpr->wbuf, &udp.uh_dport, 2);
+        break;
+    case LOWPAN_UDP_P_S16_D8:
+        iobuf_push_data(&cmpr->wbuf, &udp.uh_sport, 2);
+        iobuf_push_u8(&cmpr->wbuf, ntohs(udp.uh_dport));
+        break;
+    case LOWPAN_UDP_P_S8_D16:
+        iobuf_push_u8(&cmpr->wbuf, ntohs(udp.uh_sport));
+        iobuf_push_data(&cmpr->wbuf, &udp.uh_dport, 2);
+        break;
+    case LOWPAN_UDP_P_S8_D8:
+        iobuf_push_u8(&cmpr->wbuf,
+                      FIELD_PREP(0xf0, ntohs(udp.uh_sport)) |
+                      FIELD_PREP(0x0f, ntohs(udp.uh_dport)));
+        break;
+    }
+
+    if (ntohs(udp.uh_ulen) < sizeof(struct udphdr))
+        return -EINVAL;
+    data_len = ntohs(udp.uh_ulen) - sizeof(struct udphdr);
+
+    // TODO: checksum compression
+    iobuf_push_data(&cmpr->wbuf, &udp.uh_sum, 2);
+
+    data = iobuf_pop_data_ptr(&cmpr->rbuf, data_len);
+    if (!data)
+        return -EINVAL;
+    cmpr->wbuf.data_size += data_len;
+    iobuf_push_data(&cmpr->wbuf, data, data_len);
+    cmpr->rbuf.data_size = cmpr->rbuf.cnt;
+    cmpr->nxthdr = IPPROTO_NONE;
+    return 0;
+}
+
+static int lowpan_nhc_cmpr(struct lowpan_cmpr_ctx *cmpr)
+{
+    switch (cmpr->nxthdr) {
+    case IPPROTO_HOPOPTS:
+    case IPPROTO_ROUTING:
+    case IPPROTO_FRAGMENT:
+    case IPPROTO_DSTOPTS:
+    case IPPROTO_MH:
+        return lowpan_nhc_cmpr_ext(cmpr);
+    case IPPROTO_IPV6:
+        return lowpan_nhc_cmpr_ip6(cmpr);
+    case IPPROTO_UDP:
+        return lowpan_nhc_cmpr_udp(cmpr);
+    default:
+        BUG();
+    }
 }
 
 ssize_t lowpan_iphc_cmpr(void *buf, size_t buf_len,
@@ -623,6 +803,12 @@ ssize_t lowpan_iphc_cmpr(void *buf, size_t buf_len,
     ret = __lowpan_iphc_cmpr(&cmpr);
     if (ret < 0)
         return ret;
+
+    while (lowpan_nhc_can_cmpr(cmpr.nxthdr)) {
+        ret = lowpan_nhc_cmpr(&cmpr);
+        if (ret < 0)
+            return ret;
+    }
 
     data_len = iobuf_remaining_size(&cmpr.rbuf);
     data = iobuf_pop_data_ptr(&cmpr.rbuf, data_len);
