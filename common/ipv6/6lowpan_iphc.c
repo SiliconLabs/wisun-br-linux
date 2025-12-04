@@ -296,21 +296,25 @@ static void lowpan_nhc_decmpr_udp(struct pktbuf *pktbuf, uint8_t nhc,
         // Destination Port is 0xf0 and elided. The remaining 8 bits of
         // Destination Port are carried in-line.
         pktbuf_pop_head(pktbuf, &hdr.uh_sport, sizeof(hdr.uh_sport));
-        hdr.uh_dport = htons(0xf000 | pktbuf_pop_head_u8(pktbuf));
+        hdr.uh_dport = htons((LOWPAN_UDP_PORT_PREFIX & 0xff00) |
+                             pktbuf_pop_head_u8(pktbuf));
         break;
     case LOWPAN_UDP_P_S8_D16:
         // 10: First 8 bits of Source Port are 0xf0 and elided. The remaining 8
         // bits of Source Port are carried in-line. All 16 bits for Destination
         // Port are carried in-line.
-        hdr.uh_sport = htons(0xf000 | pktbuf_pop_head_u8(pktbuf));
+        hdr.uh_sport = htons((LOWPAN_UDP_PORT_PREFIX & 0xff00) |
+                             pktbuf_pop_head_u8(pktbuf));
         pktbuf_pop_head(pktbuf, &hdr.uh_dport, sizeof(hdr.uh_dport));
         break;
     case LOWPAN_UDP_P_S8_D8:
         // 11: First 12 bits of both Source Port and Destination Port are 0xf0b
         // and elided. The remaining 4 bits for each are carried in-line.
         tmp = pktbuf_pop_head_u8(pktbuf);
-        hdr.uh_sport = htons(0xf0b0 | FIELD_GET(LOWPAN_MASK_NHC_UDP_P11_SRC, tmp));
-        hdr.uh_dport = htons(0xf0b0 | FIELD_GET(LOWPAN_MASK_NHC_UDP_P11_DST, tmp));
+        hdr.uh_sport = htons((LOWPAN_UDP_PORT_PREFIX & 0xfff0) |
+                             FIELD_GET(LOWPAN_MASK_NHC_UDP_P11_SRC, tmp));
+        hdr.uh_dport = htons((LOWPAN_UDP_PORT_PREFIX & 0xfff0) |
+                             FIELD_GET(LOWPAN_MASK_NHC_UDP_P11_DST, tmp));
         break;
     }
 

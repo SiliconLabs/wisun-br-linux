@@ -131,6 +131,10 @@ enum lowpan_nhc_exthdr_eid {
 #define LOWPAN_MASK_NHC_UDP_C 0b00000100
 #define LOWPAN_MASK_NHC_UDP_P 0b00000011
 
+// RFC 4944 10.2. Encoding of UDP Header Fields
+// RFC 6282 4.3.1. Compressing UDP Ports
+#define LOWPAN_UDP_PORT_PREFIX 0xf0b0
+
 // RFC 6282 4.3.3. UDP LOWPAN_NHC Format
 enum {
     LOWPAN_UDP_P_INLINE = 0x0,
