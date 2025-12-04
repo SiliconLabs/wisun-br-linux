@@ -22,7 +22,9 @@ eap {
         fragment_size = 1024
 
         # Wi-SUN specification enforces these algorithms
-        cipher_list = "ECDHE-ECDSA-AES128-CCM8"
+        # OpenSSL >=3.2 considers 64bit authentication as weak, thus requiring
+        # a security level override.
+        cipher_list = "ECDHE-ECDSA-AES128-CCM8@SECLEVEL=0"
         ecdh_curve = "prime256v1"
     }
 
