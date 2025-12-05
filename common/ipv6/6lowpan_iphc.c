@@ -435,6 +435,20 @@ struct lowpan_cmpr_ctx {
     uint8_t nxthdr;
 };
 
+static int lowpan_cmpr_memmove(struct lowpan_cmpr_ctx *cmpr, size_t len)
+{
+    const void *ptr;
+
+    ptr = iobuf_pop_data_ptr(&cmpr->rbuf, len);
+    if (!ptr)
+        return -EINVAL;
+    cmpr->wbuf.data_size += len;
+    // NOTE: iobuf_push_data() uses memcpy()
+    memmove(cmpr->wbuf.data + cmpr->wbuf.len, ptr, len);
+    cmpr->wbuf.len += len;
+    return 0;
+}
+
 // RFC 6282 3.2.1. Traffic Class and Flow Label Compression
 static uint8_t lowpan_iphc_calc_tf(uint32_t vtcflow)
 {
@@ -649,7 +663,6 @@ static uint8_t lowpan_ipproto2eid(uint8_t ipproto)
 static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
 {
     struct ip6_ext ext;
-    const void *data;
     size_t data_len;
     uint8_t nhc;
 
@@ -676,12 +689,7 @@ static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
         return -ENOTSUP;
     iobuf_push_u8(&cmpr->wbuf, data_len);
 
-    data = iobuf_pop_data_ptr(&cmpr->rbuf, data_len);
-    if (!data)
-        return -EINVAL;
-    cmpr->wbuf.data_size += data_len;
-    iobuf_push_data(&cmpr->wbuf, data, data_len);
-    return 0;
+    return lowpan_cmpr_memmove(cmpr, data_len);
 }
 
 // RFC 6282 4.2. IPv6 Extension Header Compression
@@ -713,7 +721,6 @@ static int lowpan_nhc_cmpr_udp(struct lowpan_cmpr_ctx *cmpr)
 {
     struct udphdr udp;
     uint16_t data_len;
-    const void *data;
     uint8_t nhc;
 
     iobuf_pop_data(&cmpr->rbuf, &udp, sizeof(struct udphdr));
@@ -750,18 +757,14 @@ static int lowpan_nhc_cmpr_udp(struct lowpan_cmpr_ctx *cmpr)
     if (ntohs(udp.uh_ulen) < sizeof(struct udphdr))
         return -EINVAL;
     data_len = ntohs(udp.uh_ulen) - sizeof(struct udphdr);
+    // Clamp buffer length in case there are garbage trailing bytes
+    cmpr->rbuf.data_size = cmpr->rbuf.cnt + data_len;
 
     // TODO: checksum compression
     iobuf_push_data(&cmpr->wbuf, &udp.uh_sum, 2);
 
-    data = iobuf_pop_data_ptr(&cmpr->rbuf, data_len);
-    if (!data)
-        return -EINVAL;
-    cmpr->wbuf.data_size += data_len;
-    iobuf_push_data(&cmpr->wbuf, data, data_len);
-    cmpr->rbuf.data_size = cmpr->rbuf.cnt;
     cmpr->nxthdr = IPPROTO_NONE;
-    return 0;
+    return lowpan_cmpr_memmove(cmpr, data_len);
 }
 
 static int lowpan_nhc_cmpr(struct lowpan_cmpr_ctx *cmpr)
@@ -793,8 +796,6 @@ ssize_t lowpan_iphc_cmpr(void *buf, size_t buf_len,
         .wbuf.data_size = 0,
         .wbuf.no_realloc = true,
     };
-    const void *data;
-    int data_len;
     int ret;
 
     memcpy(cmpr.src_iid, src_iid, 8);
@@ -810,9 +811,7 @@ ssize_t lowpan_iphc_cmpr(void *buf, size_t buf_len,
             return ret;
     }
 
-    data_len = iobuf_remaining_size(&cmpr.rbuf);
-    data = iobuf_pop_data_ptr(&cmpr.rbuf, data_len);
-    cmpr.wbuf.data_size += data_len;
-    iobuf_push_data(&cmpr.wbuf, data, data_len);
+    ret = lowpan_cmpr_memmove(&cmpr, iobuf_remaining_size(&cmpr.rbuf));
+    BUG_ON(ret < 0);
     return cmpr.wbuf.len;
 }
