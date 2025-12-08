@@ -25,10 +25,12 @@
 #include <ns3/sl-wisun-linux.hpp>
 
 extern "C" {
+#define restrict
 #include "tools/silabs-ws-dc/dc.h"
 #include "common/memutils.h"
 #include "common/log.h"
 #include "common/version.h"
+#undef restrict
 }
 
 #if SL_NS3_WISUN_LINUX_VERSION < VERSION(2, 2, 0) || SL_NS3_WISUN_LINUX_VERSION >= VERSION(3, 0, 0)
