@@ -24,6 +24,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/bits.h"
 #include "common/log.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/iobuf.h"
@@ -231,6 +232,7 @@ static void lowpan_nhc_decmpr_exthdr(struct pktbuf *pktbuf, uint8_t nhc,
                                      const struct in6_addr *src, const struct in6_addr *dst)
 {
     struct ip6_ext hdr;
+    size_t data_len;
     uint8_t pad;
     void *buf;
 
@@ -245,9 +247,23 @@ static void lowpan_nhc_decmpr_exthdr(struct pktbuf *pktbuf, uint8_t nhc,
 
     if (!FIELD_GET(LOWPAN_MASK_NHC_EXTHDR_NH, nhc))
         hdr.ip6e_nxt = pktbuf_pop_head_u8(pktbuf);
-    hdr.ip6e_len = pktbuf_pop_head_u8(pktbuf);
-    buf = xalloc(hdr.ip6e_len);
-    pktbuf_pop_head(pktbuf, buf, hdr.ip6e_len);
+
+    if (FIELD_GET(LOWPAN_MASK_NHC_EXTHDR_EID, nhc) == LOWPAN_NHC_EID_FRAG) {
+        if (nhc & LOWPAN_MASK_NHC_EXTHDR_NH) {
+            TRACE(TR_DROP, "drop %-9s: unsupported NH=1 after fragment header", "6lowpan");
+            pktbuf->err = true;
+            return;
+        }
+        // NOTE: Fragment headers have a reserved field instead of length
+        data_len = sizeof(struct ip6_frag) - sizeof(struct ip6_ext);
+        ((struct ip6_frag *)&hdr)->ip6f_reserved = pktbuf_pop_head_u8(pktbuf);
+    } else {
+        data_len = pktbuf_pop_head_u8(pktbuf);
+        hdr.ip6e_len = divup(sizeof(struct ip6_ext) + data_len, 8) - 1;
+    }
+
+    buf = xalloc(data_len);
+    pktbuf_pop_head(pktbuf, buf, data_len);
 
     if (FIELD_GET(LOWPAN_MASK_NHC_EXTHDR_NH, nhc)) {
         hdr.ip6e_nxt = lowpan_nhc_nxthdr(pktbuf);
@@ -266,15 +282,14 @@ static void lowpan_nhc_decmpr_exthdr(struct pktbuf *pktbuf, uint8_t nhc,
     switch (FIELD_GET(LOWPAN_MASK_NHC_EXTHDR_EID, nhc)) {
     case LOWPAN_NHC_EID_HOPOPT:
     case LOWPAN_NHC_EID_DSTOPT:
-        pad = (8 - ((2 + hdr.ip6e_len) % 8)) % 8;
+        pad = (hdr.ip6e_len + 1) * 8 - sizeof(struct ip6_ext) - data_len;
         break;
     }
     if (pad)
         lowpan_nhc_decmpr_pad(pktbuf, pad);
 
-    pktbuf_push_head(pktbuf, buf, hdr.ip6e_len);
+    pktbuf_push_head(pktbuf, buf, data_len);
     free(buf);
-    hdr.ip6e_len = (2 + hdr.ip6e_len + pad) / 8 - 1;
     pktbuf_push_head(pktbuf, &hdr, sizeof(hdr));
 }
 
@@ -662,6 +677,7 @@ static uint8_t lowpan_ipproto2eid(uint8_t ipproto)
 // RFC 6282 4.2. IPv6 Extension Header Compression
 static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
 {
+    const uint8_t ext_type = cmpr->nxthdr;
     struct ip6_ext ext;
     size_t data_len;
     uint8_t nhc;
@@ -673,7 +689,7 @@ static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
 
     nhc = LOWPAN_NHC_EXTHDR;
     nhc |= FIELD_PREP(LOWPAN_MASK_NHC_EXTHDR_EID, lowpan_ipproto2eid(cmpr->nxthdr));
-    if (lowpan_nhc_can_cmpr(ext.ip6e_nxt) && cmpr->nxthdr != IPPROTO_FRAGMENT)
+    if (lowpan_nhc_can_cmpr(ext.ip6e_nxt) && ext_type != IPPROTO_FRAGMENT)
         nhc |= LOWPAN_MASK_NHC_EXTHDR_NH;
     iobuf_push_u8(&cmpr->wbuf, nhc);
 
@@ -684,10 +700,16 @@ static int lowpan_nhc_cmpr_ext(struct lowpan_cmpr_ctx *cmpr)
         iobuf_push_u8(&cmpr->wbuf, ext.ip6e_nxt);
     }
 
-    data_len = 8 * (ext.ip6e_len + 1) - sizeof(struct ip6_ext);
-    if (data_len > UINT8_MAX)
-        return -ENOTSUP;
-    iobuf_push_u8(&cmpr->wbuf, data_len);
+    if (ext_type == IPPROTO_FRAGMENT) {
+        // NOTE: Fragment headers have a reserved field instead of length
+        data_len = sizeof(struct ip6_frag) - sizeof(struct ip6_ext);
+        iobuf_push_u8(&cmpr->wbuf, ((const struct ip6_frag *)&ext)->ip6f_reserved);
+    } else {
+        data_len = 8 * (ext.ip6e_len + 1) - sizeof(struct ip6_ext);
+        if (data_len > UINT8_MAX)
+            return -ENOTSUP;
+        iobuf_push_u8(&cmpr->wbuf, data_len);
+    }
 
     return lowpan_cmpr_memmove(cmpr, data_len);
 }
