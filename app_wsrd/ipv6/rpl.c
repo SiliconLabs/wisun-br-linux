@@ -710,11 +710,12 @@ malformed:
 
 static bool rpl_opt_solicit_matches(const struct rpl_opt_solicit *solicit, const struct rpl_dio *dio)
 {
+    const struct in6_addr dodag_id_solicit = solicit->dodag_id; // -Waddress-of-packed-member
     const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
 
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_I && solicit->instance_id != dio->instance_id)
         return false;
-    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&solicit->dodag_id, &dodag_id))
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&dodag_id_solicit, &dodag_id))
         return false;
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_V && solicit->dodag_verno != dio->dodag_verno)
         return false;
