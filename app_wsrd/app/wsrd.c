@@ -392,16 +392,16 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
     BUG_ON(!ws_neigh);
 
     /*
-     * If we have a RPL parent, we simply deny it and expect the next PC
-     * RX to trigger a new EAPOL Key-Request.
-     * Otherwise, it is expected that by setting the routing_cost to 0xffff and
+     * NOTES:
+     * We always emit WSRD_EVENT_AUTH_FAIL in Join State 2 (pan_version == -1).
+     * It is expected that by setting the routing_cost to 0xffff and
      * transitioning to JS1, we will end up selecting another EAPOL Target.
+     * Otherwise, during Key-Rotation or LGTK(s) installation, we only emit a
+     * WSRD_EVENT_AUTH_FAIL if we have no-more GTKs installed.
      */
     ws_neigh->ie_pan.routing_cost = 0xffff;
     // TODO: check LGTKL once LFN are supported
-    if (parent && supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
-        rpl_neigh_deny(&wsrd->ipv6, parent);
-    else
+    if (wsrd->ws.pan_version == -1 || !supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
         join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
 }
 
