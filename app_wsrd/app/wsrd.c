@@ -174,7 +174,6 @@ struct wsrd g_wsrd = {
     // Wi-SUN FAN 1.1v08 - 6.5.2.1.1 SUP Operation
     .supp.key_request_txalg.irt_s       =  300, //  5 * 60
     .supp.key_request_txalg.mrt_s       = 3600, // 60 * 60
-    .supp.key_request_txalg.mrc         =  3, // Unspecified
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .supp.key_request_txalg.rand_min    = -0.1,
     .supp.key_request_txalg.rand_max    = +0.1,
@@ -397,10 +396,13 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
      * It is expected that by setting the routing_cost to 0xffff and
      * transitioning to JS1, we will end up selecting another EAPOL Target.
      * Otherwise, during Key-Rotation or LGTK(s) installation, we only emit a
-     * WSRD_EVENT_AUTH_FAIL if we have no-more GTKs installed.
+     * WSRD_EVENT_AUTH_FAIL if we have no-more GTKs installed or start the
+     * Key-Request txalg again. See supp_start_key_request() for more details.
      */
     ws_neigh->ie_pan.routing_cost = 0xffff;
     // TODO: check LGTKL once LFN are supported
+    if (wsrd->ws.pan_version != -1 && supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
+        supp_start_key_request(&wsrd->supp);
     if (wsrd->ws.pan_version == -1 || !supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
         join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
 }
