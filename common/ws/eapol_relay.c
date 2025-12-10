@@ -78,7 +78,8 @@ ssize_t eapol_relay_recv(int fd, void *buf, size_t buf_len, struct in6_addr *src
     ret -= sizeof(*supp_eui64) + sizeof(*kmp_id);
     if (src)
         *src = sin6.sin6_addr;
-    TRACE(TR_SECURITY, "sec: %-8s supp=%s", "rx-eapol-rel", tr_eui64(supp_eui64->u8));
+    TRACE(TR_SECURITY, "sec: %-8s supp=%s src=%s", "rx-eapol-rel",
+          tr_eui64(supp_eui64->u8), tr_ipv6(sin6.sin6_addr.s6_addr));
     return ret;
 }
 
@@ -105,7 +106,8 @@ void eapol_relay_send(int fd, const void *buf, size_t buf_len,
     };
     ssize_t ret;
 
-    TRACE(TR_SECURITY, "sec: %-8s supp=%s", "tx-eapol-rel", tr_eui64(supp_eui64->u8));
+    TRACE(TR_SECURITY, "sec: %-8s supp=%s dst=%s", "tx-eapol-rel",
+          tr_eui64(supp_eui64->u8), tr_ipv6(dst->s6_addr));
     ret = xsendmsg(fd, &msg, 0);
     if (ret < 0)
         TRACE(TR_TX_ABORT, "tx-abort %-9s: %m", "eapol-rel");
