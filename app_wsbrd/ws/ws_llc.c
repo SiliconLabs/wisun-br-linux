@@ -992,7 +992,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->bt)
         ws_wh_bt_write(&msg->ie_buf_header);
     if (wh_ies->ea)
-        ws_wh_ea_write(&msg->ie_buf_header, &base->net_if->rcp->eui64);
+        ws_wh_ea_write(&msg->ie_buf_header, wh_ies->ea);
     if (wh_ies->lutt)
         ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->lbt)
@@ -1380,7 +1380,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .ea  = &base->net_if->rcp->eui64, // TODO: only include in 1st msg
+        .ea  = &base->net_if->auth->eui64, // TODO: only include in 1st msg
     };
     struct wp_ie_list wp_ies = {
         .us = true,
