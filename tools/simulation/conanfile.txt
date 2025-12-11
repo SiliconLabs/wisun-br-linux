@@ -1,0 +1,4 @@
+[requires]
+wisun/[>=2.10, include_prerelease]@silabs
+[generators]
+SLConf

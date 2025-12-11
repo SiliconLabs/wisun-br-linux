@@ -55,6 +55,19 @@ endif()
 find_package(Rust 1.38)
 find_package(Cargo 1.38)
 
+# HACK: Parse .slconf comments to retrieve package path
+include(FindPackageHandleStandardArgs)
+macro(slt_find_pkg SLCONF PKG_NAME)
+    unset(${PKG_NAME}_DIR)
+    if(EXISTS ${SLCONF})
+        file(STRINGS ${SLCONF} LINE REGEX ${PKG_NAME}/)
+        string(REGEX REPLACE [[ *"(.*)",.*]] \\1 ${PKG_NAME}_DIR "${LINE}")
+    endif()
+    find_package_handle_standard_args(${PKG_NAME}
+        REQUIRED_VARS ${PKG_NAME}_DIR
+    )
+endmacro()
+
 find_package(ns3 QUIET)
 mark_as_advanced(ns3_DIR)
 if(ns3_FOUND)
@@ -69,9 +82,17 @@ if(ns3_FOUND)
     unset(CMAKE_REQUIRED_QUIET)
     unset(CMAKE_REQUIRED_INCLUDES)
 endif()
-if(ns3_FOUND AND COMPILE_DEVTOOLS AND NOT EXISTS "${SISDK_PATH}/simplicity_sdk.slcs")
-    message(WARNING "simulation needs valid SISDK_PATH")
-    unset(ns3_FOUND)
+if(ns3_FOUND AND COMPILE_DEVTOOLS)
+    message(STATUS "Checking for simulation dependencies")
+    slt_find_pkg(tools/simulation/conan.slconf wisun)
+    slt_find_pkg(tools/simulation/conan.slconf platform_core)
+    if(wisun_FOUND AND platform_core_FOUND)
+        message(STATUS "Checking for simulation dependencies - Success")
+    else()
+        message(STATUS "Checking for simulation dependencies - Missing")
+        message(STATUS "    Download them with 'conan install tools/simulation' and re-run CMake.")
+        set(ns3_FOUND OFF)
+    endif()
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -733,9 +754,8 @@ if(COMPILE_DEVTOOLS)
                 ${CMAKE_CURRENT_SOURCE_DIR}
                 tools/simulation/include
                 ${NS3_INCLUDE_DIRECTORIES}
-                ${SISDK_PATH}/platform/common/inc
-                ${SISDK_PATH}/protocol/wisun/stack/inc
-                ${SISDK_PATH}/protocol/wisun/stack/src
+                ${platform_core_DIR}/platform/common/inc
+                ${wisun_DIR}/stack/inc
             )
             target_link_libraries(wsrd-ns3 libwsrd)
             target_link_libraries(wsrd-ns3 Threads::Threads)
