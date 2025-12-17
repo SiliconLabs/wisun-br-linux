@@ -125,7 +125,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
 static bool lowpan_active_tx_handle_verify(uint8_t handle, buffer_t *buf);
 static fragmenter_tx_entry_t *lowpan_listed_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue);
 static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
-static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
+static bool lowpan_adaptation_buf_has_more_fragments(fragmenter_tx_entry_t *tx_ptr);
 
 /* Fragmentation local functions */
 static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, struct net_if *cur, fragmenter_interface_t *interface_ptr);
@@ -754,10 +754,10 @@ tx_error_handler:
     return -1;
 }
 
-static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
+static bool lowpan_adaptation_buf_has_more_fragments(fragmenter_tx_entry_t *tx_ptr)
 {
     if (!tx_ptr->fragmented_data)
-        return true;
+        return false;
 
     //Update data pointer by last packet length
     buffer_data_strip_header(tx_ptr->buf, tx_ptr->frag_len);
@@ -774,7 +774,7 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
 
     //Release current data
     if (tx_ptr->frag_len == 0)
-        return true;
+        return false;
 
     //Continue Process
 
@@ -783,7 +783,7 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
         tx_ptr->frag_len &= ~7;
     }
 
-    return false;
+    return true;
 }
 
 static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
@@ -830,7 +830,7 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     }
     buffer_t *buf = tx_ptr->buf;
 
-    if (confirm->hif.status == HIF_STATUS_SUCCESS && !lowpan_adaptation_tx_process_ready(tx_ptr)) {
+    if (confirm->hif.status == HIF_STATUS_SUCCESS && lowpan_adaptation_buf_has_more_fragments(tx_ptr)) {
         lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
     } else {
         if (tx_ptr->fragmented_data)
