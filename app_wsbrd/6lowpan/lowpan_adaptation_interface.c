@@ -848,19 +848,12 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
     } else {
-        if (buf->link_specific.ieee802_15_4.requestAck && confirm->hif.status == HIF_STATUS_TIMEDOUT) {
-            lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
-            ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
-            free(tx_ptr);
-            interface_ptr->activeTxList_size--;
-        } else {
-            if (tx_ptr->fragmented_data) {
-                tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
-                tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
-                interface_ptr->fragmenter_active = false;
-            }
-            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
+        if (tx_ptr->fragmented_data) {
+            tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
+            tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
+            interface_ptr->fragmenter_active = false;
         }
+        lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     }
     buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
     while (buf_from_queue) {
