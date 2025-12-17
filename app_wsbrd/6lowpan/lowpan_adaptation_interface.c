@@ -838,23 +838,14 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     }
     buffer_t *buf = tx_ptr->buf;
 
-    if (confirm->hif.status == HIF_STATUS_SUCCESS) {
-        //Check is there more packets
-        if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
-            if (tx_ptr->fragmented_data)
-                interface_ptr->fragmenter_active = false;
-            lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
-        } else {
-            lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
-        }
+    if (confirm->hif.status == HIF_STATUS_SUCCESS && !lowpan_adaptation_tx_process_ready(tx_ptr)) {
+        lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
     } else {
-        if (tx_ptr->fragmented_data) {
-            tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
-            tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;
+        if (tx_ptr->fragmented_data)
             interface_ptr->fragmenter_active = false;
-        }
         lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr);
     }
+
     buffer_t *buf_from_queue = lowpan_adaptation_tx_queue_read(cur, interface_ptr);
     while (buf_from_queue) {
         lowpan_adaptation_interface_tx(cur, buf_from_queue);
