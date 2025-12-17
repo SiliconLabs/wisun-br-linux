@@ -182,14 +182,6 @@ static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_inte
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
 }
 
-static void lowpan_adaptation_tx_queue_write_to_front(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
-{
-    TRACE(TR_QUEUE, "queue: frame enqueued front dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
-    ns_list_add_to_start(&interface_ptr->directTxQueue, buf);
-    interface_ptr->directTxQueue_size++;
-    lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
-}
-
 static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     TRACE(TR_QUEUE, "queue: looking for frame to tx");
