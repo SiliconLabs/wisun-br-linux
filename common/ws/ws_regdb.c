@@ -152,11 +152,11 @@ const struct chan_params chan_params_table[] = {
          domain   class regional_reg    |   chan0_freq      |     |    valid_phy_modes */
     { REG_DOMAIN_AZ, 1, HIF_REG_NONE,  48,  915200000,  200000,  64, { 0x02, 0x03, 0x12, 0x13                   }, }, // REG_DOMAIN_AZ and REG_DOMAIN_NZ share the same ID
     { REG_DOMAIN_AZ, 2, HIF_REG_NONE,  49,  915400000,  400000,  32, { 0x05, 0x06, 0x08, 0x15, 0x16, 0x18       }, },
-    { REG_DOMAIN_BZ, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, { 0x02, 0x03, 0x12, 0x13, 0x54, 0x55, 0x56 }, .chan_allowed = "0-13,65-128", },
-    { REG_DOMAIN_BZ, 2, HIF_REG_NONE,   2,  902400000,  400000,  64, { 0x05, 0x06, 0x15, 0x16, 0x44, 0x45, 0x46 }, .chan_allowed = "0-5,33-63", },
-    { REG_DOMAIN_BZ, 3, HIF_REG_NONE,   3,  902600000,  600000,  42, { 0x08, 0x18                               }, .chan_allowed = "0-3,22-41", },
-    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 0x33, 0x34, 0x35, 0x36                   }, .chan_allowed = "0-1,17-30", },
-    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 0x22, 0x23, 0x24, 0x25, 0x26             }, .chan_allowed = "0,11-19", },
+    { REG_DOMAIN_BZ, 1, HIF_REG_NONE,   1,  902200000,  200000, 129, { 0x02, 0x03, 0x12, 0x13, 0x54, 0x55, 0x56 }, .chan_allowed = "0-25,65-128", },
+    { REG_DOMAIN_BZ, 2, HIF_REG_NONE,   2,  902400000,  400000,  64, { 0x05, 0x06, 0x15, 0x16, 0x44, 0x45, 0x46 }, .chan_allowed = "0-11,33-63", },
+    { REG_DOMAIN_BZ, 3, HIF_REG_NONE,   3,  902600000,  600000,  42, { 0x08, 0x18                               }, .chan_allowed = "0-7,22-41", },
+    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   4,  902800000,  800000,  32, { 0x33, 0x34, 0x35, 0x36                   }, .chan_allowed = "0-4,17-30", },
+    { REG_DOMAIN_BZ, 0, HIF_REG_NONE,   5,  903200000, 1200000,  21, { 0x22, 0x23, 0x24, 0x25, 0x26             }, .chan_allowed = "0-2,11-19", },
     { REG_DOMAIN_CN, 1, HIF_REG_NONE, 160,  470200000,  200000, 199, { 0x02, 0x03, 0x05, 0x12, 0x13, 0x15       }, },
     { REG_DOMAIN_CN, 2, HIF_REG_NONE,   0,  779200000,  200000,  39, { 0x02, 0x03                               }, },
     { REG_DOMAIN_CN, 3, HIF_REG_NONE,   0,  779400000,  400000,  19, { 0x05, 0x06, 0x08                         }, },

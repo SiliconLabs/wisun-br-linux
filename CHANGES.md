@@ -2,6 +2,10 @@
     ChanPlanId 64-65 with 98-99 providing an extended band. Users of the legacy
     definitions need to use a custom channel plan (`chan0_freq`, `chan_spacing`
     and `chan_count`).
+  - Update Brazil PHY definitions with the 2v04 PHY specification: revert
+    channel masks to what was in PHY 2v02, and remove channel 5 from ChanPlanId
+    4. Users of the old configs need to edit `ws_regdb.c` to provide the
+    desired regulatory channel mask.
 
 v2.7
 ------
