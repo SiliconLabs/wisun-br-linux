@@ -95,6 +95,11 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 
     strcpy(ctxt->net_if.tun.ifname, ctxt->config.tun_dev);
     tun_init(&ctxt->net_if.tun, ctxt->config.tun_autoconf);
+    if (ctxt->config.neighbor_proxy[0]) {
+        ctxt->net_if.ndp_proxy_ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
+        FATAL_ON(!ctxt->net_if.ndp_proxy_ifindex, 2,
+                 "if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
+    }
     capture_register_netfd(ctxt->net_if.tun.fd);
 
     if (ctxt->config.tun_autoconf) {

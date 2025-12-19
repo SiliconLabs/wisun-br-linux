@@ -44,6 +44,7 @@ typedef struct arm_15_4_mac_parameters {
 struct net_if {
     int8_t id;
     struct tun_ctx tun;
+    int ndp_proxy_ifindex;
     uint8_t zone_index[16];
     ns_list_link_t link;
     if_address_list_t ip_addresses;
