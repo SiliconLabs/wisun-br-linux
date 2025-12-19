@@ -205,6 +205,8 @@ def run_mode(mode: int):
 
     if mode == 0 or mode == 2:
         wsbrd.service.stop('fail')
+        while wsbrd.service.active_state not in ('failed', 'inactive'):
+            time.sleep(0.5)
         wsbrd.config = wsbrd.config_default(config)
         try:
             os.remove('/ect/wstbu-dhcpv6-server.conf')
