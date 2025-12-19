@@ -191,6 +191,7 @@ typedef bool ipv6_route_next_hop_fn_t(const uint8_t *dest, ipv6_route_info_t *ro
 ipv6_route_t *ipv6_route_add(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, uint32_t lifetime, int pref);
 ipv6_route_t *ipv6_route_add_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, int pref);
 ipv6_route_t *ipv6_route_add_metric(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, uint8_t metric);
+ipv6_route_t *ipv6_route_lookup(struct net_if *net_if, const uint8_t *addr);
 ipv6_route_t *ipv6_route_lookup_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int source_id);
 int ipv6_route_delete(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source);
 int ipv6_route_delete_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int source_id);

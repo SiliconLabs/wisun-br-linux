@@ -235,6 +235,11 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
                                 0);                  // source id
     dbus_emit_change("Nodes");
     dbus_emit_change("RoutingGraph");
+    if (ctxt->net_if.ndp_proxy_ifindex && !ipv6_route_lookup(&ctxt->net_if, target->prefix)) {
+        tun_neigh_del_proxy(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix,
+                            ctxt->net_if.ndp_proxy_ifindex);
+        tun_route_del(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix);
+    }
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)

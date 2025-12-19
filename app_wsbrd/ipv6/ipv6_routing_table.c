@@ -783,6 +783,15 @@ ipv6_route_t *ipv6_route_choose_next_hop(struct net_if *net_if, const uint8_t *d
     return best;
 }
 
+ipv6_route_t *ipv6_route_lookup(struct net_if *net_if, const uint8_t *addr)
+{
+    ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table)
+        if (net_if->id == r->info.interface_id &&
+            r->prefix_len == 128 && IN6_ARE_ADDR_EQUAL(addr, r->prefix))
+            return r;
+    return NULL;
+}
+
 ipv6_route_t *ipv6_route_lookup_with_info(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int src_id)
 {
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
@@ -1008,6 +1017,10 @@ void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 {
     ipv6_route_delete(net_if, neigh->ip_address, 128, neigh->ip_address, ROUTE_ARO);
-    // TODO: remove from NDP proxy
+    if (net_if->ndp_proxy_ifindex && !ipv6_route_lookup(net_if, neigh->ip_address)) {
+        tun_neigh_del_proxy(&net_if->tun, (const struct in6_addr *)neigh->ip_address,
+                            net_if->ndp_proxy_ifindex);
+        tun_route_del(&net_if->tun, (const struct in6_addr *)neigh->ip_address);
+    }
     dbus_emit_change("RoutingGraph");
 }
