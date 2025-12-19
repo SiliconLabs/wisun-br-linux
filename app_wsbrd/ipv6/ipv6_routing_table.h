@@ -31,6 +31,7 @@
 #include "net/netaddr_types.h"
 
 struct net_if;
+struct in6_addr;
 
 /* Address Resolution and Neighbour Unreachablity Detection constants from
  * RFC 4861, updated by RFC 7048.
@@ -204,5 +205,7 @@ void ipv6_route_table_source_invalidated_reset(void);
 
 void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh);
 void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh);
+void ipv6_neigh_add_proxy(struct net_if *net_if, const struct in6_addr *addr);
+void ipv6_neigh_del_proxy(struct net_if *net_if, const struct in6_addr *addr);
 
 #endif /* IPV6_ROUTING_TABLE_H_ */

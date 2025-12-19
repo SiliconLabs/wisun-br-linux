@@ -992,6 +992,22 @@ static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_rout
     return net_if->ipv6_neighbour_cache.route_if_info.sources[source];
 }
 
+void ipv6_neigh_add_proxy(struct net_if *net_if, const struct in6_addr *addr)
+{
+    if (!net_if->ndp_proxy_ifindex)
+        return;
+    tun_neigh_add_proxy(&net_if->tun, addr, net_if->ndp_proxy_ifindex);
+    tun_route_add(&net_if->tun, addr);
+}
+
+void ipv6_neigh_del_proxy(struct net_if *net_if, const struct in6_addr *addr)
+{
+    if (!net_if->ndp_proxy_ifindex)
+        return;
+    tun_neigh_del_proxy(&net_if->tun, addr, net_if->ndp_proxy_ifindex);
+    tun_route_del(&net_if->tun, addr);
+}
+
 void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 {
     ipv6_route_t *route;
@@ -1006,21 +1022,14 @@ void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 
     ipv6_route_add_metric(net_if, neigh->ip_address, 128, neigh->ip_address,
                           ROUTE_ARO, NULL, 0, neigh->lifetime_s, 32);
-    if (net_if->ndp_proxy_ifindex) {
-        tun_neigh_add_proxy(&net_if->tun, (const struct in6_addr *)neigh->ip_address,
-                            net_if->ndp_proxy_ifindex);
-        tun_route_add(&net_if->tun, (const struct in6_addr *)neigh->ip_address);
-    }
+    ipv6_neigh_add_proxy(net_if, (const struct in6_addr *)neigh->ip_address);
     dbus_emit_change("RoutingGraph");
 }
 
 void ipv6_route_del_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 {
     ipv6_route_delete(net_if, neigh->ip_address, 128, neigh->ip_address, ROUTE_ARO);
-    if (net_if->ndp_proxy_ifindex && !ipv6_route_lookup(net_if, neigh->ip_address)) {
-        tun_neigh_del_proxy(&net_if->tun, (const struct in6_addr *)neigh->ip_address,
-                            net_if->ndp_proxy_ifindex);
-        tun_route_del(&net_if->tun, (const struct in6_addr *)neigh->ip_address);
-    }
+    if (!ipv6_route_lookup(net_if, neigh->ip_address))
+        ipv6_neigh_del_proxy(net_if, (const struct in6_addr *)neigh->ip_address);
     dbus_emit_change("RoutingGraph");
 }

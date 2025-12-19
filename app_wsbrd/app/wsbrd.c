@@ -215,11 +215,7 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0,                   // source id
                              0xffffffff,          // lifetime
                              0);                  // pref
-    if (ctxt->net_if.ndp_proxy_ifindex) {
-        tun_neigh_add_proxy(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix,
-                            ctxt->net_if.ndp_proxy_ifindex);
-        tun_route_add(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix);
-    }
+    ipv6_neigh_add_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
 }
 
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)
@@ -235,11 +231,8 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
                                 0);                  // source id
     dbus_emit_change("Nodes");
     dbus_emit_change("RoutingGraph");
-    if (ctxt->net_if.ndp_proxy_ifindex && !ipv6_route_lookup(&ctxt->net_if, target->prefix)) {
-        tun_neigh_del_proxy(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix,
-                            ctxt->net_if.ndp_proxy_ifindex);
-        tun_route_del(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix);
-    }
+    if (!ipv6_route_lookup(&ctxt->net_if, target->prefix))
+        ipv6_neigh_del_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)
