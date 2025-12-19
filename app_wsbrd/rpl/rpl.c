@@ -436,6 +436,15 @@ static bool rpl_transit_update(struct rpl_root *root,
     return updated_transit;
 }
 
+static void rpl_target_backup(const struct rpl_target *in, struct rpl_target *out)
+{
+    memcpy(out->prefix, in->prefix, sizeof(in->prefix));
+    out->external = in->external;
+    out->path_seq = in->path_seq;
+    out->path_seq_tstamp_s = in->path_seq_tstamp_s;
+    memcpy(out->transits, in->transits, sizeof(in->transits));
+}
+
 static bool rpl_apply_transits(struct rpl_root *root,
                                const struct rpl_opt_target *opt_target,
                                const uint8_t *opts, size_t opts_len)
@@ -454,7 +463,7 @@ static bool rpl_apply_transits(struct rpl_root *root,
 
     target = rpl_target_get(root, opt_target->prefix.s6_addr);
     if (target) {
-        backup = *target;
+        rpl_target_backup(target, &backup);
         srh_err_old = rpl_srh_build(root, target->prefix, 0, NULL, 0);
     } else {
         srh_err_old = -1;
@@ -487,7 +496,7 @@ static bool rpl_apply_transits(struct rpl_root *root,
                 WARN("dao inconsistency");
                 TRACE(TR_RPL, "rpl: target  revert prefix=%s path-seq=%u",
                       tr_ipv6_prefix(backup.prefix, 128), backup.path_seq);
-                *target = backup;
+                rpl_target_backup(&backup, target);
                 rpl_storage_store_target(root, target);
                 rpl_transit_update_timer(root, target);
                 buf.err = true;
