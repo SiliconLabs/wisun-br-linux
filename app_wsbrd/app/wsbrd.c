@@ -153,11 +153,11 @@ struct wsbr_ctxt g_ctxt = {
     .rcp.on_rx_ind = wsbr_rx_ind,
 
     // avoid initializating to 0 = STDIN_FILENO
-    .tun.fd = -1,
     .pcapng_fd = -1,
     .rcp.bus.fd = -1,
     .dhcp_server.fd = -1,
     .net_if.rpl_root.sockfd = -1,
+    .net_if.tun.fd = -1,
 
     .net_if.auth = &g_ctxt.auth,
     .auth.cfg = &g_ctxt.config.auth_cfg,
@@ -430,14 +430,14 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
     int ret;
     bool cmp;
 
-    ret = tun_addr_get_linklocal(&ctxt->tun, &addr_tun);
-    FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->tun.ifname);
+    ret = tun_addr_get_linklocal(&ctxt->net_if.tun, &addr_tun);
+    FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->net_if.tun.ifname);
 
     addr_interface_get_ll_address(&ctxt->net_if, addr_ws0, 0);
 
     cmp = memcmp(addr_ws0, addr_tun.s6_addr, 16);
     FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
-             tr_ipv6(addr_ws0), tr_ipv6(addr_tun.s6_addr), ctxt->tun.ifname);
+             tr_ipv6(addr_ws0), tr_ipv6(addr_tun.s6_addr), ctxt->net_if.tun.ifname);
 }
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
@@ -451,13 +451,14 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     ws_bootstrap_init(ctxt->net_if.id);
 
     wsbr_configure_ws(ctxt);
-    ret = tun_addr_get_uc_global(&ctxt->tun, &gua);
-    FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->tun.ifname);
+    ret = tun_addr_get_uc_global(&ctxt->net_if.tun, &gua);
+    FATAL_ON(ret < 0, 1, "no GUA found on %s", ctxt->net_if.tun.ifname);
 
     ws_bootstrap_up(&ctxt->net_if, gua.s6_addr);
     wsbr_check_link_local_addr(ctxt);
     if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr)) {
-        dhcp_start(&ctxt->dhcp_server, ctxt->tun.ifname, ctxt->rcp.eui64.u8, gua.s6_addr);
+        dhcp_start(&ctxt->dhcp_server, ctxt->net_if.tun.ifname,
+                   ctxt->rcp.eui64.u8, gua.s6_addr);
     } else if (!IN6_IS_ADDR_LOOPBACK(&ctxt->config.dhcp_server.sin6_addr)) {
         ctxt->dhcp_relay.server_addr = ctxt->config.dhcp_server.sin6_addr;
         ctxt->dhcp_relay.link_addr = gua;
@@ -472,7 +473,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         ctxt->net_if.rpl_root.dio_i_doublings = 2;  // max interval 131s with default large Imin
     }
     rpl_glue_init(&ctxt->net_if);
-    rpl_start(&ctxt->net_if.rpl_root, ctxt->tun.ifname, &gua);
+    rpl_start(&ctxt->net_if.rpl_root, ctxt->net_if.tun.ifname, &gua);
 }
 
 static void wsbr_handle_reset(struct rcp *rcp)
@@ -538,7 +539,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_DBUS].events = POLLIN;
     ctxt->fds[POLLFD_RCP].fd = ctxt->rcp.bus.fd;
     ctxt->fds[POLLFD_RCP].events = POLLIN;
-    ctxt->fds[POLLFD_TUN].fd = ctxt->tun.fd;
+    ctxt->fds[POLLFD_TUN].fd = ctxt->net_if.tun.fd;
     ctxt->fds[POLLFD_TUN].events = 0;
     ctxt->fds[POLLFD_TIMER].fd = timer_fd();
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
@@ -675,7 +676,7 @@ int wsbr_main(int argc, char *argv[])
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
                               ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
-    ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->tun.ifname);
+    ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->net_if.tun.ifname);
     auth_start(&ctxt->auth, &ctxt->rcp.eui64, ctxt->config.enable_lfn);
     /*
      * WARNING: do not move this function call before auth_start().

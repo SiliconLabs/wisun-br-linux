@@ -133,7 +133,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = tun_addr_add_mc(&ctxt->tun, ipv6);
+    ret = tun_addr_add_mc(&ctxt->net_if.tun, ipv6);
     if (ret < 0) {
         WARN("%s: %s", __func__, strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
@@ -153,7 +153,7 @@ int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *
     if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    ret = tun_addr_del_mc(&ctxt->tun, ipv6);
+    ret = tun_addr_del_mc(&ctxt->net_if.tun, ipv6);
     if (ret < 0) {
         WARN("%s: %s", __func__, strerror(-ret));
         return sd_bus_error_set_errno(ret_error, -ret);
@@ -482,7 +482,7 @@ static void dbus_message_append_node(sd_bus_message *m, const char *property,
             if (!IN6_IS_ADDR_UNSPECIFIED(&supp->eapol_target)) {
                 sd_bus_message_append_array(m, 'y', &supp->eapol_target, 16);
             } else {
-                tun_addr_get_uc_global(&g_ctxt.tun, &dodagid);
+                tun_addr_get_uc_global(&g_ctxt.net_if.tun, &dodagid);
                 sd_bus_message_append_array(m, 'y', &dodagid, 16);
             }
             dbus_message_close_info(m, property);
@@ -620,7 +620,7 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
 
     sd_bus_message_open_container(reply, 'a', "(aybaay)");
 
-    tun_addr_get_uc_global(&ctxt->tun, (struct in6_addr *)target_br.prefix);
+    tun_addr_get_uc_global(&ctxt->net_if.tun, (struct in6_addr *)target_br.prefix);
     dbus_message_append_rpl_target(reply, &target_br, 0);
 
     SLIST_FOREACH(target, &ctxt->net_if.rpl_root.targets, link)

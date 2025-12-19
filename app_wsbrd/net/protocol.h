@@ -21,6 +21,7 @@
 #include "common/trickle_legacy.h"
 #include "common/ns_list.h"
 #include "common/ipv6/mpl.h"
+#include "common/tun.h"
 
 #include "net/protocol_abstract.h"
 #include "net/ns_address_internal.h"
@@ -42,6 +43,7 @@ typedef struct arm_15_4_mac_parameters {
 
 struct net_if {
     int8_t id;
+    struct tun_ctx tun;
     uint8_t zone_index[16];
     ns_list_link_t link;
     if_address_list_t ip_addresses;

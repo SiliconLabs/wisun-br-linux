@@ -29,7 +29,6 @@ typedef struct sd_bus sd_bus;
 #include "common/dhcp_server.h"
 #include "common/rcp_api.h"
 #include "common/timer.h"
-#include "common/tun.h"
 #include "net/protocol.h"
 
 #include "commandline.h"
@@ -59,7 +58,6 @@ struct wsbr_ctxt {
     struct net_if net_if;
     sd_bus *dbus;
 
-    struct tun_ctx tun;
     struct rcp rcp;
 
     int spinel_tid;

@@ -53,7 +53,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     ssize_t ret;
 
-    ret = xwrite(ctxt->tun.fd, buf, len);
+    ret = xwrite(ctxt->net_if.tun.fd, buf, len);
     TRACE(TR_TUN, "tx-tun: %u bytes", len);
     if (ret < 0)
         WARN("%s: write: %m", __func__);
@@ -108,7 +108,7 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
 
-    tun_route_add(&ctxt->tun,  (const struct in6_addr *)address);
+    tun_route_add(&ctxt->net_if.tun, (const struct in6_addr *)address);
 }
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
@@ -116,42 +116,42 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     struct in6_addr addr;
     int ret;
 
-    strcpy(ctxt->tun.ifname, ctxt->config.tun_dev);
-    tun_init(&ctxt->tun, ctxt->config.tun_autoconf);
-    capture_register_netfd(ctxt->tun.fd);
+    strcpy(ctxt->net_if.tun.ifname, ctxt->config.tun_dev);
+    tun_init(&ctxt->net_if.tun, ctxt->config.tun_autoconf);
+    capture_register_netfd(ctxt->net_if.tun.fd);
 
     if (ctxt->config.tun_autoconf) {
         memcpy(addr.s6_addr + 8, &ctxt->rcp.eui64, 8);
         addr.s6_addr[8] ^= 0x02;
 
         memcpy(addr.s6_addr, ADDR_LINK_LOCAL_PREFIX, 8);
-        tun_addr_add(&ctxt->tun, &addr, 64);
+        tun_addr_add(&ctxt->net_if.tun, &addr, 64);
 
         memcpy(addr.s6_addr, &ctxt->config.ipv6_prefix, 8);
-        tun_addr_add(&ctxt->tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
+        tun_addr_add(&ctxt->net_if.tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
         if (ctxt->config.neighbor_proxy[0])
             tun_add_node_to_proxy_neightbl(NULL, addr.s6_addr);
     }
 
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
-    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->tun.ifname, "accept_ra", '0');
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->net_if.tun.ifname, "accept_ra", '0');
     if (strlen(ctxt->config.neighbor_proxy)) {
         tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
         tun_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
     }
 
     // ff02::1 and ff02::2 are automatically joined by Linux when the interface is brought up
-    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_LINK_LOCAL_ALL_RPL_NODES); // ff02::1a
+    ret = tun_addr_add_mc(&ctxt->net_if.tun, (const struct in6_addr *)ADDR_LINK_LOCAL_ALL_RPL_NODES); // ff02::1a
     if (ret < 0 && ret != -EADDRINUSE)
         FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_LINK_LOCAL_ALL_RPL_NODES), strerror(-ret));
-    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_NODES);    // ff03::1
+    ret = tun_addr_add_mc(&ctxt->net_if.tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_NODES);    // ff03::1
     if (ret < 0 && ret != -EADDRINUSE)
         FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_REALM_LOCAL_ALL_NODES), strerror(-ret));
-    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_ROUTERS);  // ff03::2
+    ret = tun_addr_add_mc(&ctxt->net_if.tun, (const struct in6_addr *)ADDR_REALM_LOCAL_ALL_ROUTERS);  // ff03::2
     if (ret < 0 && ret != -EADDRINUSE)
         FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_REALM_LOCAL_ALL_ROUTERS), strerror(-ret));
-    ret = tun_addr_add_mc(&ctxt->tun, (const struct in6_addr *)ADDR_ALL_MPL_FORWARDERS);       // ff03::fc
+    ret = tun_addr_add_mc(&ctxt->net_if.tun, (const struct in6_addr *)ADDR_ALL_MPL_FORWARDERS);       // ff03::fc
     if (ret < 0 && ret != -EADDRINUSE)
         FATAL(2, "tun_addr_add_mc %s %s", tr_ipv6(ADDR_ALL_MPL_FORWARDERS), strerror(-ret));
 }
@@ -181,7 +181,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     uint8_t type;
 
     pktbuf_init(&pktbuf, NULL, 1504); // Max ethernet frame size + TUN header
-    read_len = xread(ctxt->tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+    read_len = xread(ctxt->net_if.tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     if (read_len < 0) {
         WARN("%s: read: %m", __func__);
         goto cleanup;
