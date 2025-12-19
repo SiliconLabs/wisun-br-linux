@@ -215,8 +215,11 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0,                   // source id
                              0xffffffff,          // lifetime
                              0);                  // pref
-    tun_add_node_to_proxy_neightbl(&ctxt->net_if, target->prefix);
-    tun_add_ipv6_direct_route(&ctxt->net_if, target->prefix);
+    if (ctxt->net_if.ndp_proxy_ifindex) {
+        tun_neigh_add_proxy(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix,
+                            ctxt->net_if.ndp_proxy_ifindex);
+        tun_route_add(&ctxt->net_if.tun, (const struct in6_addr *)target->prefix);
+    }
 }
 
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)

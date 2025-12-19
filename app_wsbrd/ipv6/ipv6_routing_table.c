@@ -997,8 +997,11 @@ void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
 
     ipv6_route_add_metric(net_if, neigh->ip_address, 128, neigh->ip_address,
                           ROUTE_ARO, NULL, 0, neigh->lifetime_s, 32);
-    tun_add_node_to_proxy_neightbl(net_if, neigh->ip_address);
-    tun_add_ipv6_direct_route(net_if, neigh->ip_address);
+    if (net_if->ndp_proxy_ifindex) {
+        tun_neigh_add_proxy(&net_if->tun, (const struct in6_addr *)neigh->ip_address,
+                            net_if->ndp_proxy_ifindex);
+        tun_route_add(&net_if->tun, (const struct in6_addr *)neigh->ip_address);
+    }
     dbus_emit_change("RoutingGraph");
 }
 

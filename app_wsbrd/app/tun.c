@@ -62,32 +62,6 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t address[16])
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    int ifindex;
-
-    if (strlen(ctxt->config.neighbor_proxy) == 0)
-        return;
-    ifindex = if_nametoindex(ctxt->config.neighbor_proxy);
-    if (!ifindex) {
-        ERROR("if_nametoindex %s: %m", ctxt->config.neighbor_proxy);
-        return;
-    }
-
-    tun_neigh_add_proxy(&ctxt->net_if.tun, (const struct in6_addr *)address, ifindex);
-}
-
-void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16])
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-
-    if (strlen(ctxt->config.neighbor_proxy) == 0)
-        return;
-
-    tun_route_add(&ctxt->net_if.tun, (const struct in6_addr *)address);
-}
-
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     struct in6_addr addr;
@@ -112,7 +86,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
         memcpy(addr.s6_addr, &ctxt->config.ipv6_prefix, 8);
         tun_addr_add(&ctxt->net_if.tun, &addr, ctxt->config.neighbor_proxy[0] ? 128 : 64);
         if (ctxt->config.neighbor_proxy[0])
-            tun_add_node_to_proxy_neightbl(NULL, addr.s6_addr);
+            tun_neigh_add_proxy(&ctxt->net_if.tun, &addr, ctxt->net_if.ndp_proxy_ifindex);
     }
 
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
