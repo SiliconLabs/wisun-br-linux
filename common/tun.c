@@ -29,6 +29,7 @@
 #include <netlink/route/route.h>
 #include <netlink/route/link.h>
 #include <netlink/route/link/inet6.h>
+#include <netlink/route/neighbour.h>
 
 #include "common/log.h"
 #include "common/netinet_in_extra.h"
@@ -214,6 +215,60 @@ void tun_route_del(struct tun_ctx *tun, const struct in6_addr *addr)
             FATAL(2, "rtnl_route_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
     }
     rtnl_route_put(route);
+}
+
+static struct rtnl_neigh *tun_neigh_build_proxy(const struct in6_addr *addr, int ifindex)
+{
+    struct rtnl_neigh *neigh;
+    struct nl_addr *nladdr;
+    int ret;
+
+    neigh = rtnl_neigh_alloc();
+    FATAL_ON(!neigh, 2, "rtnl_neigh_alloc; %s", strerror(ENOMEM));
+
+    nladdr = nl_addr_build(AF_INET6, addr, sizeof(*addr));
+    FATAL_ON(!nladdr, 2, "nl_addr_build: %s", strerror(ENOMEM));
+    ret = rtnl_neigh_set_dst(neigh, nladdr);
+    FATAL_ON(ret < 0, 2, "rtnl_neigh_set_dst %s: %s",
+             tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    nl_addr_put(nladdr);
+
+    rtnl_neigh_set_ifindex(neigh, ifindex);
+    rtnl_neigh_set_flags(neigh, NTF_PROXY | NTF_ROUTER);
+
+    return neigh;
+}
+
+// ip neigh add proxy [addr] dev [ifname]
+void tun_neigh_add_proxy(struct tun_ctx *tun, const struct in6_addr *addr, int ifindex)
+{
+    struct rtnl_neigh *route = tun_neigh_build_proxy(addr, ifindex);
+    int ret;
+
+    ret = rtnl_neigh_add(tun->nlsock, route, 0);
+    if (ret < 0) {
+        if (ret == -NLE_EXIST)
+            WARN("rtnl_neigh_add %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+        else
+            FATAL(2, "rtnl_neigh_add %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    }
+    rtnl_neigh_put(route);
+}
+
+// ip neigh del proxy [addr] dev [ifname]
+void tun_neigh_del_proxy(struct tun_ctx *tun, const struct in6_addr *addr, int ifindex)
+{
+    struct rtnl_neigh *route = tun_neigh_build_proxy(addr, ifindex);
+    int ret;
+
+    ret = rtnl_neigh_delete(tun->nlsock, route, 0);
+    if (ret < 0) {
+        if (ret == -NLE_OBJ_NOTFOUND)
+            WARN("rtnl_neigh_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+        else
+            FATAL(2, "rtnl_neigh_delete %s: %s", tr_ipv6(addr->s6_addr), nl_geterror(ret));
+    }
+    rtnl_neigh_put(route);
 }
 
 static int tun_addr_get(struct tun_ctx *tun, struct in6_addr *addr,
