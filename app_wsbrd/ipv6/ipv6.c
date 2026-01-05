@@ -505,8 +505,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         return buf;
     }
 
-    ipv6_consider_forwarding_multicast_packet_to_lfn(buf, true);
-
     /* Note ipv6_buffer_route can change interface */
     if (!ipv6_buffer_route(buf)) {
         tr_info("ipv6_forwarding route fail");

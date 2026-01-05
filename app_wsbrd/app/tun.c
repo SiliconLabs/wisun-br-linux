@@ -214,10 +214,10 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
             TRACE(TR_DROP, "drop %-9s: unsupported dst=%s", "tun", tr_ipv6(buf_6lowpan->dst_sa.address));
             goto cleanup;
         }
+        ipv6_consider_forwarding_multicast_packet_to_lfn(buf_6lowpan, true);
         if (addr_ipv6_scope(buf_6lowpan->dst_sa.address) > IPV6_SCOPE_LINK_LOCAL) {
             pktbuf.offset_head = 0;
             mpl_msg_gen(&ctxt->net_if.mpl, (struct in6_addr *)buf_6lowpan->src_sa.address, &pktbuf);
-            ipv6_consider_forwarding_multicast_packet_to_lfn(buf_6lowpan, true);
             goto cleanup;
         }
     }
