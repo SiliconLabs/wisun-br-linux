@@ -47,6 +47,7 @@ def config_default(wstbu_config):
         join_metrics   = 'none',
         trace          = 'hif,trickle,15.4,security,icmp,dhcp,rpl,drop,queue',
         phy_operating_modes = 'none',
+        tx_power       = 0,
     )
     if 'dhcpv6_server' in wstbu_config:
         config['dhcp_server'] = wstbu_config['dhcpv6_server']
