@@ -505,7 +505,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         return buf;
     }
 
-    ipv6_consider_forwarding_multicast_packet_to_lfn(buf, false);
+    ipv6_consider_forwarding_multicast_packet_to_lfn(buf, false, true);
 
     /* Note ipv6_buffer_route can change interface */
     if (!ipv6_buffer_route(buf)) {
@@ -987,7 +987,7 @@ no_forward:
     }
 }
 
-void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us)
+void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us, bool from_us)
 {
     buffer_t *clone;
 
@@ -1008,7 +1008,7 @@ void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us
         return;
     if (!ws_neigh_lfn_count(&buf->interface->ws_info.neighbor_storage))
         return;
-    if (buf->options.hop_limit <= 1)
+    if (!from_us && buf->options.hop_limit <= 1)
         return;
 
     clone = buffer_clone(buf);
@@ -1017,7 +1017,8 @@ void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool for_us
 
     clone->route = ipv6_buffer_route(clone);
     clone->options.lfn_multicast = true;
-    buffer_data_pointer(clone)[IPV6_HDROFF_HOP_LIMIT] = --clone->options.hop_limit;
+    if (!from_us)
+        buffer_data_pointer(clone)[IPV6_HDROFF_HOP_LIMIT] = --clone->options.hop_limit;
     clone->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
     protocol_push(clone);
     buf->options.lfn_multicast = false;
@@ -1204,7 +1205,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
          * forwarding or for us, it will bin.
          */
         ipv6_consider_inserting_to_mpl_domain(buf);
-        ipv6_consider_forwarding_multicast_packet_to_lfn(buf, for_us);
+        ipv6_consider_forwarding_multicast_packet_to_lfn(buf, for_us, false);
         buf = ipv6_consider_forwarding_multicast_packet(buf, cur, for_us);
         if (!buf) {
             return NULL;
