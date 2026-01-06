@@ -117,7 +117,7 @@ static void lowpan_active_buffer_state_reset(fragmenter_tx_entry_t *tx_buffer);
 static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *interface_ptr);
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate();
 static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr,
-                                                                bool is_unicast, bool lfn_multicast);
+                                                                bool is_unicast);
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur);
 static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr);
 
@@ -482,7 +482,7 @@ static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry
 }
 
 static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr,
-                                                                bool is_unicast, bool lfn_multicast)
+                                                                bool is_unicast)
 {
     // For broadcast, the active TX queue is only 1 entry. For unicast, using a list.
     fragmenter_tx_entry_t *tx_entry;
@@ -491,8 +491,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
         tx_entry = lowpan_indirect_entry_allocate();
         ns_list_add_to_end(&interface_ptr->activeUnicastList, tx_entry);
         interface_ptr->activeTxList_size++;
-    } else if (lfn_multicast) {
-        tx_entry = &interface_ptr->active_lfn_broadcast_tx_buf;
     } else {
         tx_entry = &interface_ptr->active_broadcast_tx_buf;
     }
@@ -562,7 +560,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     if (dataReq->Key.SecurityLevel) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage,
                                 &EUI64_FROM_BUF(dataReq->DstAddr));
-        if ((ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN) || buf->options.lfn_multicast)
+        if (ws_neigh && ws_neigh->node_role == WS_NR_ROLE_LFN)
             dataReq->Key.KeyIndex = cur->ws_info.lfn_gtk_index;
         else
             dataReq->Key.KeyIndex = cur->ws_info.ffn_gtk_index;
@@ -583,7 +581,6 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
         dataReq.msdu = buffer_data_pointer(buf);
     }
 
-    dataReq.lfn_multicast = buf->options.lfn_multicast;
     interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id);
 }
 
@@ -609,17 +606,10 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
         return false;
     }
     // Do not accept more than one active broadcast TX
-    if (!is_unicast) {
-        if (buf->options.lfn_multicast && interface_ptr->active_lfn_broadcast_tx_buf.buf) {
-            TRACE(TR_QUEUE, "queue: tx not allowed: lfn broadcast frame with handle %u already in MAC",
-                  interface_ptr->active_lfn_broadcast_tx_buf.buf->seq);
-            return false;
-        }
-        if (!buf->options.lfn_multicast && interface_ptr->active_broadcast_tx_buf.buf) {
-            TRACE(TR_QUEUE, "queue: tx not allowed: broadcast frame with handle %u already in MAC",
-                  interface_ptr->active_broadcast_tx_buf.buf->seq);
-            return false;
-        }
+    if (!is_unicast && interface_ptr->active_broadcast_tx_buf.buf) {
+        TRACE(TR_QUEUE, "queue: tx not allowed: broadcast frame with handle %u already in MAC",
+              interface_ptr->active_broadcast_tx_buf.buf->seq);
+        return false;
     }
 
     if (is_unicast && interface_ptr->activeTxList_size >= LOWPAN_ACTIVE_UNICAST_ONGOING_MAX) {
@@ -642,12 +632,9 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur,
 {
     // Convert from 100ms slots to seconds
     uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
-    int lfn_bc_interval_s = cur->ws_info.fhss_config.lfn_bc_interval / 1000;
     struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
-    if (buf->options.lfn_multicast)
-        return buffer_age_s > LFN_BUFFER_TIMEOUT_PARAM * lfn_bc_interval_s;
     if (buf->link_specific.ieee802_15_4.requestAck) {
         ws_neigh = ws_neigh_get(&cur->ws_info.neighbor_storage,
                                 &EUI64_FROM_BUF(buf->dst_sa.address + PAN_ID_LEN));
@@ -717,7 +704,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
                       tr_eui64(dropped->dst_sa.address + PAN_ID_LEN));
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
-                if (!dropped->link_specific.ieee802_15_4.requestAck && !dropped->options.lfn_multicast)
+                if (!dropped->link_specific.ieee802_15_4.requestAck)
                     mpl_msg_confirm(&cur->mpl, dropped);
                 buffer_free(dropped);
             }
@@ -729,8 +716,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     //Allocate Handle
     buf->seq = lowpan_data_request_unique_handle_get(interface_ptr);
 
-    fragmenter_tx_entry_t *tx_ptr = lowpan_adaptation_tx_process_init(interface_ptr, is_unicast,
-                                                                      buf->options.lfn_multicast);
+    fragmenter_tx_entry_t *tx_ptr = lowpan_adaptation_tx_process_init(interface_ptr, is_unicast);
     tx_ptr->buf = buf;
 
     if (fragmented_needed) {
@@ -748,7 +734,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     return 0;
 
 tx_error_handler:
-    if (!is_unicast && !buf->options.lfn_multicast)
+    if (!is_unicast)
         mpl_msg_confirm(&cur->mpl, buf);
     buffer_free(buf);
     return -1;
@@ -949,7 +935,7 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
             //Update Average QUEUE
             lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
             // NOTE: should never happen
-            if (!entry->link_specific.ieee802_15_4.requestAck && !entry->options.lfn_multicast)
+            if (!entry->link_specific.ieee802_15_4.requestAck)
                 mpl_msg_confirm(&cur->mpl, entry);
             buffer_free(entry);
         }

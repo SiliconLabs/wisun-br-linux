@@ -1186,7 +1186,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .lbt = node_role == WS_NR_ROLE_LFN || data->lfn_multicast,
+        .lbt = node_role == WS_NR_ROLE_LFN,
     };
     struct wp_ie_list wp_ies = {
         .us  = true,
@@ -1279,7 +1279,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         data_req.PanIdSuppressed = true;
     }
 
-    if (node_role == WS_NR_ROLE_LFN || data->lfn_multicast)
+    if (node_role == WS_NR_ROLE_LFN)
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_LFN_UC : HIF_FHSS_TYPE_LFN_BC;
     else
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
@@ -1290,7 +1290,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // The chosen solution is to write the computed LTO information in the LTO-IE.
     // The MAC then reads these information and calculates the actual offset to
     // be applied based on the target's current broadcast schedule offset.
-    if (node_role == WS_NR_ROLE_LFN && !data->lfn_multicast) {
+    if (node_role == WS_NR_ROLE_LFN) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->net_if->ws_info.fhss_config.lfn_bc_interval,
                                                                                    ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->lto_info.uc_interval_min_ms,

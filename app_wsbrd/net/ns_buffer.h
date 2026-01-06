@@ -79,7 +79,6 @@ typedef struct buffer_options {
     bool    ll_security_bypass_rx: 1;   /*!< Was received without link-layer security, when security was enabled */
     bool    ll_broadcast_rx: 1;         /*!< Was received as link-layer broadcast */
     bool    tunnelled: 1;               /*!< We tunnelled it as part of (RPL?) routing */
-    bool    lfn_multicast: 1;           /*!< Buffer contain multicast data for LFN */
     bool    mpl_permitted: 1;           /*!< MPL will be used if enabled on interface and scope >=3 */
     bool    mpl_rx: 1;                  /*!< Was processed by MPL */
     signed  ipv6_use_min_mtu: 2;        /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */

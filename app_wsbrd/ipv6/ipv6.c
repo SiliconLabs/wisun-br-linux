@@ -993,7 +993,7 @@ void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool from_u
     const uint8_t *eui64;
     buffer_t *clone;
 
-    if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address) || buf->options.lfn_multicast)
+    if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address))
         return;
 
     // In Wi-SUN FAN 1.1v07 - 6.2.3.1.2.2 Multicast Addresses,
