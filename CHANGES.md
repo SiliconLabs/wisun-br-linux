@@ -1,3 +1,19 @@
+v2.8
+------
+  - RPL routing improvements:
+    * `wsrd`: Allow DAGRank increase to remain connected when no better
+      choice is availabe. This risks creating temporary loops at the benefit of
+      usually staying reachable and keeping children.
+    * `wsbrd`: Refuse registering routing loops on DAO reception.
+    * `wsbrd`: Enforce Path Sequence comparison to avoid DAO races.
+    * `wsrd`: Store Path Sequence and restore on reboot. Increment by 4 in the
+      linear section to reconnect faster in specific cases.
+    * `wsrd`: Implement DIO trickle (in)consistency criteria on DIO reception.
+    * `wsrd`: Remove radio sensitivity thresholds for parent selection: exploit
+      full radio capacity and allow to connect in unfavorable environments.
+    * `wsrd`: Send NS(ARO) with lifetime 60s to parent when unregistering:
+      leave time for traffic in transit to arrive instead of unregistering
+      immediately.
   - Update Singapore PHY definitions with the 2v04 PHY specification: replace
     ChanPlanId 64-65 with 98-99 providing an extended band. Users of the legacy
     definitions need to use a custom channel plan (`chan0_freq`, `chan_spacing`
@@ -6,6 +22,16 @@
     channel masks to what was in PHY 2v02, and remove channel 5 from ChanPlanId
     4. Users of the old configs need to edit `ws_regdb.c` to provide the
     desired regulatory channel mask.
+  - `wsrd`: Compress UDP and IPv6 extension headers using 6LoWPAN.
+  - `wsrd`: Listen on a single channel in join state 1 to increase chances of
+    hearing a PAN Advertisement frame.
+  - `wsbrd`: Support forwarding of IPv6 multicast packets originated from LFN
+    children.
+  - `wsbrd`: Improve LFN parenting reliability: advertise 1ms timing accuracy
+    instead of 0.
+  - Introduce `rcp_trace` parameter to configure RCP RTT traces for debugging.
+  - `wsbrd`: Drop legacy authenticator support and clean relevant code.
+  - `wsbrd`: Replace legacy MPL implementation with `wsrd`'s.
 
 v2.7.1
 ------
