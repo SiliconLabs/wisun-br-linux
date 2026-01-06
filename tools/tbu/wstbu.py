@@ -869,7 +869,7 @@ def transmitter_icmpv6():
         json.get('identifier'),    # Identifier
         json.get('sequenceNumber') # Sequence Number
     )
-    data += bytes(json.get('data', ''), 'utf-8')
+    data += bytes(json.get('echoBody', ''), 'utf-8')
     cmsg = [(socket.IPPROTO_IPV6, socket.IPV6_HOPLIMIT, struct.pack('i', json['hopLimit']))]
 
     with socket.socket(socket.AF_INET6, socket.SOCK_RAW, socket.IPPROTO_ICMPV6) as sck:
