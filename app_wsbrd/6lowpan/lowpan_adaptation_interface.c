@@ -81,7 +81,6 @@ typedef struct fragmenter_interface {
     uint8_t msduHandle;
     uint8_t *fragment_indirect_tx_buffer; //Used for write fragmentation header
     fragmenter_tx_entry_t active_broadcast_tx_buf; //Current active direct broadcast tx process
-    fragmenter_tx_entry_t active_lfn_broadcast_tx_buf; //Current active direct lfn broadcast tx process
     fragmenter_tx_list_t activeUnicastList; //Unicast packets waiting data confirmation from MAC
     buffer_list_t directTxQueue; //Waiting free tx process
     uint16_t directTxQueue_size;
@@ -256,8 +255,7 @@ static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *int
     while (!valid_info) {
         handle = interface_ptr->msduHandle++;
         if (!lowpan_listed_tx_handle_verify(handle, &interface_ptr->activeUnicastList) &&
-            !lowpan_active_tx_handle_verify(handle, interface_ptr->active_broadcast_tx_buf.buf) &&
-            !lowpan_active_tx_handle_verify(handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
+            !lowpan_active_tx_handle_verify(handle, interface_ptr->active_broadcast_tx_buf.buf)) {
             valid_info = true;
         }
     }
@@ -316,7 +314,6 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id)
     lowpan_list_free(&interface_ptr->activeUnicastList, false);
     interface_ptr->activeTxList_size = 0;
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
-    lowpan_active_buffer_state_reset(&interface_ptr->active_lfn_broadcast_tx_buf);
 
     buffer_free_list(&interface_ptr->directTxQueue);
     interface_ptr->directTxQueue_size = 0;
@@ -341,7 +338,6 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     lowpan_list_free(&interface_ptr->activeUnicastList, false);
     interface_ptr->activeTxList_size  = 0;
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
-    lowpan_active_buffer_state_reset(&interface_ptr->active_lfn_broadcast_tx_buf);
     //Clean fragmented message flag
     interface_ptr->fragmenter_active = false;
 
@@ -801,9 +797,6 @@ static int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const m
     if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_broadcast_tx_buf.buf)) {
         mpl_msg_confirm(&cur->mpl, interface_ptr->active_broadcast_tx_buf.buf);
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
-        BUG_ON(tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
-    } else if (lowpan_active_tx_handle_verify(confirm->hif.handle, interface_ptr->active_lfn_broadcast_tx_buf.buf)) {
-        tx_ptr = &interface_ptr->active_lfn_broadcast_tx_buf;
         BUG_ON(tx_ptr->buf->link_specific.ieee802_15_4.requestAck);
     } else {
         tx_ptr = lowpan_listed_tx_handle_verify(confirm->hif.handle, &interface_ptr->activeUnicastList);
