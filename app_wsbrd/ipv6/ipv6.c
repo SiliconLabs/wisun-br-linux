@@ -31,6 +31,7 @@
 #include "common/specs/ndp.h"
 #include "common/specs/rpl.h"
 #include "common/specs/ip.h"
+#include "common/netinet_in_extra.h"
 #include "common/pktbuf.h"
 
 #include "ipv6/nd_router_object.h"
@@ -987,6 +988,9 @@ no_forward:
 
 void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool from_us)
 {
+    uint8_t lfn_link_local[16];
+    struct ws_neigh *ws_neigh;
+    const uint8_t *eui64;
     buffer_t *clone;
 
     if (!IN6_IS_ADDR_MULTICAST(buf->dst_sa.address) || buf->options.lfn_multicast)
@@ -1007,17 +1011,32 @@ void ipv6_consider_forwarding_multicast_packet_to_lfn(buffer_t *buf, bool from_u
     if (!from_us && buf->options.hop_limit <= 1)
         return;
 
-    clone = buffer_clone(buf);
-    if (!clone)
-        return;
+    memcpy(lfn_link_local, ADDR_LINK_LOCAL_PREFIX, 8);
+    ns_list_foreach(ipv6_neighbour_t, neigh, &buf->interface->ipv6_neighbour_cache.list) {
+        if (!memcmp(buf->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16)) {
+            if (!IN6_IS_ADDR_UC_GLOBAL(neigh->ip_address))
+                continue;
+            eui64 = ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, neigh);
+            ws_neigh = ws_neigh_get(&buf->interface->ws_info.neighbor_storage, &EUI64_FROM_BUF(eui64));
+            if (!ws_neigh || ws_neigh->node_role != WS_NR_ROLE_LFN)
+                continue;
+        } else {
+            if (!addr_ipv6_equal(neigh->ip_address, buf->dst_sa.address))
+                continue;
+            eui64 = ipv6_neighbour_eui64(&buf->interface->ipv6_neighbour_cache, neigh);
+        }
 
-    clone->route = ipv6_buffer_route(clone);
-    clone->options.lfn_multicast = true;
-    if (!from_us)
-        buffer_data_pointer(clone)[IPV6_HDROFF_HOP_LIMIT] = --clone->options.hop_limit;
-    clone->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
-    protocol_push(clone);
-    buf->options.lfn_multicast = false;
+        ipv6_addr_conv_iid_eui64(lfn_link_local + 8, eui64);
+
+        clone = buffer_clone(buf);
+        BUG_ON(!clone);
+        memcpy(clone->dst_sa.address, lfn_link_local, 16);
+        clone->route = ipv6_buffer_route(clone);
+        if (!from_us)
+            buffer_data_pointer(clone)[IPV6_HDROFF_HOP_LIMIT] = --clone->options.hop_limit;
+        clone->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
+        protocol_push(clone);
+    }
 }
 
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
