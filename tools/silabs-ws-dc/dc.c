@@ -23,9 +23,11 @@
 #include "common/memutils.h"
 #include "common/version.h"
 #include "common/sl_ws.h"
+#include "common/dbus.h"
 #include "common/bits.h"
 #include "common/log.h"
 
+#include "dbus.h"
 #include "ws.h"
 
 #include "dc.h"
@@ -43,6 +45,7 @@ enum {
     POLLFD_RCP,
     POLLFD_TIMER,
     POLLFD_TUN,
+    POLLFD_DBUS,
     POLLFD_COUNT,
 };
 
@@ -304,6 +307,11 @@ int dc_main(int argc, char *argv[])
         supp->eap_tls.tls.pmk.installation_s = INT32_MAX;
     }
 
+    dbus_register("com.silabs.Wisun.DirectConnect",
+                  "/com/silabs/Wisun/DirectConnect",
+                  "com.silabs.Wisun.DirectConnect",
+                  dc_dbus_vtable, dc);
+
     timer_group_init(&dc->ws.neigh_table.timer_group);
     // keep privileges to manage route to target later
     if (dc->cfg.user[0] && dc->cfg.group[0])
@@ -320,6 +328,8 @@ int dc_main(int argc, char *argv[])
     pfd[POLLFD_TIMER].events = POLLIN;
     pfd[POLLFD_TUN].fd = dc->tun.fd;
     pfd[POLLFD_TUN].events = POLLIN;
+    pfd[POLLFD_DBUS].fd = dbus_get_fd();
+    pfd[POLLFD_DBUS].events = POLLIN;
     while (true) {
         ret = poll(pfd, POLLFD_COUNT, dc->ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
@@ -330,5 +340,7 @@ int dc_main(int argc, char *argv[])
             timer_process();
         if (pfd[POLLFD_TUN].revents & POLLIN)
             ws_recvfrom_tun(dc);
+        if (pfd[POLLFD_DBUS].revents & POLLIN)
+            dbus_process();
     }
 }
