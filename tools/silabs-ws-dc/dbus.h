@@ -14,15 +14,25 @@
 #ifndef DC_DBUS_H
 #define DC_DBUS_H
 
+#include <stdint.h>
+
+#include "common/sl_ws.h"
+
 #ifdef HAVE_LIBSYSTEMD
 
 #include <systemd/sd-bus.h>
 
 extern const struct sd_bus_vtable dc_dbus_vtable[];
 
+void dc_dbus_emit_target_discovered(const uint8_t eui64[8], const uint8_t target_id[SL_DC_ID_LEN]);
+
 #else
 
 static const struct sd_bus_vtable *const dc_dbus_vtable;
+
+static inline void dc_dbus_emit_target_discovered(const uint8_t eui64[8], const uint8_t target_id[SL_DC_ID_LEN])
+{
+}
 
 #endif
 

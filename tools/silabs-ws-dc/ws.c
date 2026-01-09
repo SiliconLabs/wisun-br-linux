@@ -33,6 +33,7 @@
 #include "common/mpx.h"
 #include "common/log.h"
 #include "common/tun.h"
+#include "dbus.h"
 #include "dc.h"
 
 #include "ws.h"
@@ -157,6 +158,7 @@ static void ws_recv_dci(struct dc *dc, struct ws_ind *ind)
     }
 
     INFO("rx eui64=%s id=%s", tr_eui64(ind->neigh->eui64.u8), dc_id);
+    dc_dbus_emit_target_discovered(ind->neigh->eui64.u8, dc_id);
 }
 
 static bool ws_is_exthdr(uint8_t ipproto)
