@@ -22,7 +22,10 @@ enum {
 
 // Silicon Labs Wi-SUN Header Information Element Sub-IDs
 enum {
-    SL_WHIE_UTT = 0,
+    SL_WHIE_UTT   = 0,
+    SL_WHIE_DC_ID = 1,
 };
+
+#define SL_DC_ID_LEN 32
 
 #endif

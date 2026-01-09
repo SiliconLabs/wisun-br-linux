@@ -47,6 +47,7 @@ struct wh_ie_list {
     bool panid;
     bool lbc;
     bool sl_utt;
+    const uint8_t *sl_dc_id;
 };
 
 struct wp_ie_list {

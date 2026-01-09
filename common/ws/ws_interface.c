@@ -96,6 +96,8 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
     }
     if (wh_ies->sl_utt)
         ws_wh_sl_utt_write(iobuf, frame_type);
+    if (wh_ies->sl_dc_id)
+        ws_wh_sl_dc_id_write(iobuf, wh_ies->sl_dc_id);
     if (wh_ies->ea)
         ws_wh_ea_write(iobuf, wh_ies->ea);
     SLIST_FOREACH(ie, &ws->ie_list, link) {

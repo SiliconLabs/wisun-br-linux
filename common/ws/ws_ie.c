@@ -283,6 +283,15 @@ void ws_wh_sl_utt_write(struct iobuf_write *buf, uint8_t sl_frame_type)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
+void ws_wh_sl_dc_id_write(struct iobuf_write *buf, const uint8_t dc_id[SL_DC_ID_LEN])
+{
+    int offset = ws_wh_vendor_write(buf, WS_VIN_SILICON_LABS);
+
+    iobuf_push_u8(buf, SL_WHIE_DC_ID);
+    iobuf_push_data(buf, dc_id, SL_DC_ID_LEN);
+    ieee802154_ie_fill_len_header(buf, offset);
+}
+
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_chan_mask_get_fixed(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);
@@ -631,6 +640,15 @@ bool ws_wh_sl_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *u
     ws_wh_find_sl_subid(data, length, SL_WHIE_UTT, &ie_buf);
     utt_ie->message_type = iobuf_pop_u8(&ie_buf);
     utt_ie->ufsi         = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
+}
+
+bool ws_wh_sl_dc_id_read(const uint8_t *data, uint16_t length, uint8_t dc_id[SL_DC_ID_LEN])
+{
+    struct iobuf_read ie_buf;
+
+    ws_wh_find_sl_subid(data, length, SL_WHIE_DC_ID, &ie_buf);
+    iobuf_pop_data(&ie_buf, dc_id, SL_DC_ID_LEN);
     return !ie_buf.err;
 }
 
