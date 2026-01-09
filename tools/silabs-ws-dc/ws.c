@@ -25,6 +25,7 @@
 #include "common/ipv6/6lowpan_iphc.h"
 #include "common/ipv6/ipv6_cksum.h"
 #include "common/ipv6/ipv6_addr.h"
+#include "common/string_extra.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
 #include "common/sl_ws.h"
@@ -353,19 +354,28 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     struct ws_utt_ie ie_utt;
 
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
-        if (!eui64_eq(&dc->cfg.target_eui64, &ind->neigh->eui64)) {
-            TRACE(TR_DROP, "drop %-9s: direct connect target eui64 missmatch", "15.4");
-            return;
-        }
         switch (ie_utt.message_type)
         {
         case SL_FT_DCA:
+            if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+                TRACE(TR_DROP, "drop %-9s: discovery mode", "15.4");
+                return;
+            }
+            if (!eui64_eq(&dc->cfg.target_eui64, &ind->neigh->eui64)) {
+                TRACE(TR_DROP, "drop %-9s: direct connect target eui64 mismatch", "15.4");
+                return;
+            }
             ws_recv_dca(dc, ind);
             break;
         default:
             TRACE(TR_DROP, "drop %-9s: unsupported sl frame type %d", "15.4", ie_utt.message_type);
             break;
         }
+        return;
+    }
+
+    if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+        TRACE(TR_DROP, "drop %-9s: discovery mode", "15.4");
         return;
     }
 
@@ -408,6 +418,11 @@ void ws_recvfrom_tun(struct dc *dc)
     pktbuf.offset_tail = size;
 
     TRACE(TR_TUN, "rx-tun: %zd bytes", size);
+
+    if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+        TRACE(TR_DROP, "drop: discovery mode");
+        goto err;
+    }
 
     if (!ws_is_pkt_allowed(&pktbuf))
         goto err;

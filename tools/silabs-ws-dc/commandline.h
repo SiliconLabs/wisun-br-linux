@@ -19,6 +19,7 @@
 #include "common/rcp_api.h"
 #include "common/commandline.h"
 #include "common/authenticator/authenticator.h"
+#include "common/sl_ws.h"
 
 struct dc_cfg {
     struct rcp_cfg rcp_cfg;
@@ -43,6 +44,7 @@ struct dc_cfg {
 
     uint8_t target_pmk[32];
     struct eui64 target_eui64;
+    char target_id[SL_DC_ID_LEN + 1];
     int disc_period_s;
     int disc_count_max;
 

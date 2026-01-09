@@ -90,6 +90,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "target_eui64",                  &config->target_eui64,                     conf_set_array,       (void *)sizeof(config->target_eui64) },
         { "target_pmk",                    &config->target_pmk,                       conf_set_array,       (void *)sizeof(config->target_pmk) },
+        { "target_id",                     config->target_id,                         conf_set_string,      (void *)sizeof(config->target_id) },
         { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
         { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
         { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
@@ -197,8 +198,12 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (eui64_is_bc(&config->target_eui64))
-        FATAL(1, "missing \"target_eui64\" parameter");
-    if (!memzcmp(config->target_pmk, sizeof(config->target_pmk)))
+    if (memzcmp(config->target_id, sizeof(config->target_id)) && !eui64_is_bc(&config->target_eui64))
+        FATAL(1, "\"target_id\" and \"target_eui64\" are mutually exclusive");
+    if (memzcmp(config->target_id, sizeof(config->target_id)) && memzcmp(config->target_pmk, sizeof(config->target_pmk)))
+        FATAL(1, "\"target_id\" and \"target_pmk\" are mutually exclusive");
+    if (!memzcmp(config->target_id, sizeof(config->target_id)) && eui64_is_bc(&config->target_eui64))
+        FATAL(1, "missing \"target_eui64\" or \"target_id\" parameter");
+    if (!memzcmp(config->target_id, sizeof(config->target_id)) && !memzcmp(config->target_pmk, sizeof(config->target_pmk)))
         FATAL(1, "missing \"target_pmk\" parameter");
 }
