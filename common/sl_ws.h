@@ -16,8 +16,10 @@
 
 // Silicon Labs Wi-SUN Frame Types
 enum {
-    SL_FT_DCS = 0xf0,
-    SL_FT_DCA = 0xf1,
+    SL_FT_DCS  = 0xf0,
+    SL_FT_DCA  = 0xf1,
+    SL_FT_DCI  = 0xf2,
+    SL_FT_DCIS = 0xf3,
 };
 
 // Silicon Labs Wi-SUN Header Information Element Sub-IDs

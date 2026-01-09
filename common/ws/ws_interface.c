@@ -46,6 +46,8 @@ static const struct name_value ws_frames[] = {
     { "l-tsync",   WS_FT_LTS },
     { "dc-sol",    SL_FT_DCS },
     { "dc-adv",    SL_FT_DCA },
+    { "dc-id",     SL_FT_DCI },
+    { "dc-id-sol", SL_FT_DCIS },
     { NULL },
 };
 

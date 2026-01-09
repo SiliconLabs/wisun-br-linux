@@ -65,15 +65,27 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
 {
     struct dc *dc = container_of(timer, struct dc, disc_timer);
     struct ws_send_req req = {
-        .frame_type    = SL_FT_DCS,
         .fhss_type     = HIF_FHSS_TYPE_ASYNC,
         .wh_ies.sl_utt = true,
         .wp_ies.us     = true,
-        .dst = &dc->cfg.target_eui64,
     };
 
-    if (dc->disc_count >= dc->cfg.disc_count_max)
+    if (dc->disc_count >= dc->cfg.disc_count_max) {
+        if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+            INFO("Discovery process completed");
+            return;
+        }
         FATAL(1, "%s is unreachable, please check your configuration", tr_eui64(dc->cfg.target_eui64.u8));
+    }
+
+    if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+        req.frame_type = SL_FT_DCIS;
+        req.wh_ies.sl_dc_id = (const uint8_t *)dc->cfg.target_id;
+        req.dst = &EUI64_BC;
+    } else {
+        req.frame_type = SL_FT_DCS;
+        req.dst = &dc->cfg.target_eui64;
+    }
 
     ws_if_send(&dc->ws, &req);
     dc->disc_count++;
