@@ -147,6 +147,18 @@ static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
     ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
 }
 
+static void ws_recv_dci(struct dc *dc, struct ws_ind *ind)
+{
+    uint8_t dc_id[SL_DC_ID_LEN + 1] = { };
+
+    if (!ws_wh_sl_dc_id_read(ind->ie_hdr.data, ind->ie_hdr.data_size, dc_id)) {
+        TRACE(TR_DROP, "drop %-9s: missing DC_ID IE", "dci");
+        return;
+    }
+
+    INFO("rx eui64=%s id=%s", tr_eui64(ind->neigh->eui64.u8), dc_id);
+}
+
 static bool ws_is_exthdr(uint8_t ipproto)
 {
     switch (ipproto) {
@@ -356,6 +368,13 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
         switch (ie_utt.message_type)
         {
+        case SL_FT_DCI:
+            if (!memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
+                TRACE(TR_DROP, "drop %-9s: connection mode", "15.4");
+                return;
+            }
+            ws_recv_dci(dc, ind);
+            break;
         case SL_FT_DCA:
             if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
                 TRACE(TR_DROP, "drop %-9s: discovery mode", "15.4");
