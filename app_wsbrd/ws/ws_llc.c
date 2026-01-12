@@ -1486,6 +1486,8 @@ void ws_llc_update_timing_info(const struct ws_neigh *neigh)
     uint8_t handle_count = 0;
 
     ns_list_foreach(llc_message_t, msg, &base->llc_message_list) {
+        if (msg->message_type == WS_FT_LPA)
+            continue;
         if (memcmp(&neigh->eui64, msg->dst_address, 8))
             continue;
         handle_list = realloc(handle_list, ++handle_count);
