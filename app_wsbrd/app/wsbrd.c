@@ -359,6 +359,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rail_fill_pom(&ctxt->rcp, &ws_info->fhss_config, &ws_info->phy_config, ctxt->config.ws_phy_op_modes);
 
+    ws_info->mngt.lpa_timer.callback = ws_mngt_lpa_timeout;
     ws_info->mngt.lts_timer.callback = ws_mngt_lts_timeout;
     ws_info->mngt.lts_timer.period_ms = ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period;
     fhss->async_frag_duration_ms = ctxt->config.ws_async_frag_duration;

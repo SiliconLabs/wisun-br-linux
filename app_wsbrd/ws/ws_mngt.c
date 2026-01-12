@@ -260,7 +260,7 @@ void ws_mngt_pcs_analyze(struct ws_info *ws_info,
                        ie_us.dwell_interval);
 }
 
-void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
+static void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPA,
@@ -289,17 +289,24 @@ void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
     ws_llc_mngt_lfn_request(&req, dst);
 }
 
+void ws_mngt_lpa_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ws_info *ws_info = container_of(timer, struct ws_info, mngt.lpa_timer);
+
+    ws_mngt_lpa_send(ws_info, ws_info->mngt.lpa_dst);
+}
+
 static void ws_mngt_lpa_schedule(struct ws_mngt *mngt, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
 {
     const uint16_t slot = rand_get_random_in_range(0, ie_lnd->discovery_slots);
-    const int timeout = slot * ie_lnd->discovery_slot_time + ie_lnd->response_delay;
 
     // FIXME: The LPA slot should be chosen by the RCP. UART transmission
     // delays likely implies that the slot is missed and one of the later
     // slots is used instead (if any).
     memcpy(mngt->lpa_dst, eui64, 8);
     // Start timer
-    g_timers[WS_TIMER_LPA].timeout = timeout / WS_TIMER_GLOBAL_PERIOD_MS;
+    timer_start_rel(NULL, &mngt->lpa_timer,
+                    ie_lnd->response_delay + slot * ie_lnd->discovery_slot_time);
 }
 
 void ws_mngt_lpas_analyze(struct ws_info *ws_info,
@@ -316,7 +323,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     struct ws_nr_ie ie_nr;
     bool add_neighbor;
 
-    if (g_timers[WS_TIMER_LPA].timeout) {
+    if (!timer_stopped(&ws_info->mngt.lpa_timer)) {
         TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
               tr_ws_frame(WS_FT_LPAS), tr_eui64(ws_info->mngt.lpa_dst));
         return;

@@ -16,7 +16,6 @@
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "ipv6/nd_router_object.h"
 #include "ws/ws_common.h"
-#include "ws/ws_mngt.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "net/protocol.h"
 #include "rpl/rpl.h"
@@ -32,12 +31,6 @@ static void timer_update_monotonic_time(int ticks)
     g_monotonic_time_100ms += ticks;
 }
 
-static void timer_send_lpa(int time_update)
-{
-    struct net_if *interface = protocol_stack_interface_info_get();
-    ws_mngt_lpa_send(&interface->ws_info, interface->ws_info.mngt.lpa_dst);
-}
-
 #define timer_entry(name, callback, period_ms, is_periodic) \
     [WS_TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 struct ws_timer g_timers[] = {
@@ -49,7 +42,6 @@ struct ws_timer g_timers[] = {
     timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                    true),
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
-    timer_entry(LPA,                    timer_send_lpa,                             0,                       false),
 };
 static_assert(ARRAY_SIZE(g_timers) == WS_TIMER_COUNT, "missing timer declarations");
 

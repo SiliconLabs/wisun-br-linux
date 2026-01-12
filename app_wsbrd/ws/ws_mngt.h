@@ -27,6 +27,7 @@ struct ws_mngt {
     struct trickle trickle_pa;
     struct trickle trickle_pc;
     struct timer_entry lts_timer;
+    struct timer_entry lpa_timer;
     uint8_t lpa_dst[8];
     int lpc_count;
     bool pan_advert_running;
@@ -52,7 +53,7 @@ void ws_mngt_cnf(struct ws_info *ws_info, uint8_t asynch_message);
 void ws_mngt_pa_send(struct trickle *tkl, struct timer_group *group);
 void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group);
 
-void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8]);
+void ws_mngt_lpa_timeout(struct timer_group *group, struct timer_entry *timer);
 void ws_mngt_lts_timeout(struct timer_group *group, struct timer_entry *timer);
 
 // Broadcast an LPC frame on LGTK hash, or active LGTK index change
