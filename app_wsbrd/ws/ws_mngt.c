@@ -397,7 +397,10 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
 
     ws_neigh_nr_update(ws_neigh, &ie_nr);
 
-    ws_mngt_lpa_schedule(&ws_info->mngt, &ie_lnd, data->SrcAddr);
+    if (ws_info->mngt.lpa_legacy)
+        ws_mngt_lpa_schedule(&ws_info->mngt, &ie_lnd, data->SrcAddr);
+    else
+        ws_mngt_lpa_send(ws_info, data->SrcAddr);
 }
 
 static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])

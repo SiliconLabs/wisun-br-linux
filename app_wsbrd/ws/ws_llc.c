@@ -1627,6 +1627,14 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
     return 0;
 }
 
+static bool ws_llc_has_active_lpa(struct llc_data_base *base, const uint8_t dst[8])
+{
+    ns_list_foreach(llc_message_t, m, &base->llc_message_list)
+        if (m->message_type == WS_FT_LPA && !memcmp(m->dst_address, dst, 8))
+            return true;
+    return false;
+}
+
 // TODO: Factorize this with MPX and EAPOL
 // The Wi-SUN spec uses the term "directed frames" for LPA and LPC, but it
 // seems to just mean unicast.
@@ -1642,6 +1650,12 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
         .Key = req->security,
     };
     llc_message_t *msg;
+
+    if (req->frame_type == WS_FT_LPA && ws_llc_has_active_lpa(base, dst)) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: already queued for %s",
+              tr_ws_frame(WS_FT_LPA), tr_eui64(dst));
+        return -EBUSY;
+    }
 
     msg = llc_message_allocate(base);
     if (!msg) {

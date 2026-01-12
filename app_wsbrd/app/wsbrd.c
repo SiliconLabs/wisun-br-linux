@@ -411,6 +411,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->enable_lfn   = ctxt->config.enable_lfn;
     ws_info->enable_ffn10 = ctxt->config.enable_ffn10;
 
+    ws_info->mngt.lpa_legacy = version_older_than(ctxt->rcp.version_api, 2, 16, 1);
+    if (ctxt->config.enable_lfn && ws_info->mngt.lpa_legacy)
+        WARN("enable_lfn recommends RCP API >= 2.16.1");
+
     rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
     ws_info->phy_config.tx_power_dbm = ctxt->config.tx_power;
 
