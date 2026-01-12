@@ -76,6 +76,7 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
     if (dc->disc_count >= dc->cfg.disc_count_max) {
         if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
             INFO("Discovery process completed");
+            dc->running = false;
             return;
         }
         FATAL(1, "%s is unreachable, please check your configuration", tr_eui64(dc->cfg.target_eui64.u8));
@@ -330,7 +331,8 @@ int dc_main(int argc, char *argv[])
     pfd[POLLFD_TUN].events = POLLIN;
     pfd[POLLFD_DBUS].fd = dbus_get_fd();
     pfd[POLLFD_DBUS].events = POLLIN;
-    while (true) {
+    dc->running = true;
+    while (dc->running) {
         ret = poll(pfd, POLLFD_COUNT, dc->ws.rcp.bus.uart.data_ready ? 0 : -1);
         FATAL_ON(ret < 0, 2, "poll: %m");
         if (dc->ws.rcp.bus.uart.data_ready ||
@@ -343,4 +345,5 @@ int dc_main(int argc, char *argv[])
         if (pfd[POLLFD_DBUS].revents & POLLIN)
             dbus_process();
     }
+    return 0;
 }

@@ -13,6 +13,7 @@
  */
 #ifndef DC_H
 #define DC_H
+#include <stdbool.h>
 #include <netinet/in.h>
 
 #include "common/ipv6/6lowpan_frag.h"
@@ -34,6 +35,8 @@ struct dc {
     struct tun_ctx tun;
     struct lowpan_frag_ctx lowpan_frag;
     struct in6_addr addr_linklocal;
+
+    bool running;
 };
 
 extern struct dc g_dc;
