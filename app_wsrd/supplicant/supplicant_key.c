@@ -371,7 +371,7 @@ static void supp_key_group_message_1_recv(struct supp_ctx *supp, const struct ea
     if (supp_key_handle_key_data(supp, frame, iobuf))
         return;
     supp_key_group_message_2_send(supp);
-    // We may have started the key request txalg after a gtkhash missmatch
+    // We may have started the key request txalg after a gtkhash mismatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
     supp_key_update_failure_timer(supp);
 }
@@ -476,7 +476,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
                             supp->anonce, supp->snonce, supp->tls_client.tptk.key);
     supp->tls_client.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     supp_key_pairwise_message_2_send(supp, frame);
-    // We may have started the key request txalg after a gtkhash missmatch
+    // We may have started the key request txalg after a gtkhash mismatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
 
 exit:

@@ -51,7 +51,7 @@ static uint8_t auth_key_get_gtkl(const struct ws_gtk *gtks, int gtks_size)
     return gtkl;
 }
 
-static int auth_key_get_key_slot_missmatch(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
+static int auth_key_get_key_slot_mismatch(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
 {
     const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
     const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
@@ -320,7 +320,7 @@ static void auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx 
 
     // We store the installed PTK and the updated GTKL/LGTKL
     auth_storage_store_supplicant(supp, true);
-    next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
+    next_key_slot = auth_key_get_key_slot_mismatch(auth, supp);
     if (next_key_slot != -1)
         auth_key_group_message_1_send(auth, supp, next_key_slot);
     // TODO: LGTK
@@ -418,7 +418,7 @@ static void auth_key_pairwise_message_2_recv(struct auth_ctx *auth, struct auth_
     }
     memcpy(&supp->eap_tls.tls.tptk, &tptk, sizeof(supp->eap_tls.tls.tptk));
     TRACE(TR_SECURITY, "sec: install tptk=%s", tr_key(supp->eap_tls.tls.tptk.key, sizeof(supp->eap_tls.tls.tptk.key)));
-    next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
+    next_key_slot = auth_key_get_key_slot_mismatch(auth, supp);
     auth_key_pairwise_message_3_send(auth, supp, next_key_slot);
 }
 
@@ -577,7 +577,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     if ((supp->node_role != WS_NR_ROLE_LFN     && supp->gtkl  != auth_gtkl) ||
         (supp->node_role != WS_NR_ROLE_UNKNOWN && supp->lgtkl != auth_lgtkl)) {
         TRACE(TR_SECURITY, "sec: (l)gtkl out-of-date starting gkh");
-        next_key_slot = auth_key_get_key_slot_missmatch(auth, supp);
+        next_key_slot = auth_key_get_key_slot_mismatch(auth, supp);
     } else {
         TRACE(TR_SECURITY, "sec: (l)gtkl up-to-date starting gkh");
     }
