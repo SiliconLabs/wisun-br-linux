@@ -73,7 +73,7 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
         .wp_ies.us     = true,
     };
 
-    if (dc->disc_count >= dc->cfg.disc_count_max) {
+    if (dc->cfg.disc_count_max && dc->disc_count >= dc->cfg.disc_count_max) {
         if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
             INFO("Discovery process completed");
             dc->running = false;
