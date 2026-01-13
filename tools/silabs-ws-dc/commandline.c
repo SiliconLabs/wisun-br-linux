@@ -50,6 +50,7 @@ static void print_help(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  silabs-ws-dc [OPTIONS]\n");
+    fprintf(stream, "  silabs-ws-dc [OPTIONS] -o target_id=foo\n");
     fprintf(stream, "  silabs-ws-dc [OPTIONS] --list-rf-configs\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
