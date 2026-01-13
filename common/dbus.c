@@ -20,11 +20,14 @@
 
 #include "dbus.h"
 
-struct dbus_ctx {
-    sd_bus *dbus;
-    const char *path;
-    const char *interface;
-} g_dbus = { };
+struct dbus_ctx g_dbus = { };
+
+struct dbus_ctx *dbus_get_ctx(void)
+{
+    if (!g_dbus.dbus)
+        return NULL;
+    return &g_dbus;
+}
 
 void dbus_emit_change(const char *property_name)
 {

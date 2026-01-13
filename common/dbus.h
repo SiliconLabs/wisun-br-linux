@@ -15,6 +15,13 @@
 #define COMMON_DBUS_H
 
 struct sd_bus_vtable;
+struct sd_bus;
+
+struct dbus_ctx {
+    struct sd_bus *dbus;
+    const char *path;
+    const char *interface;
+};
 
 #ifdef HAVE_LIBSYSTEMD
 
@@ -23,6 +30,7 @@ void dbus_register(const char *name, const char *path, const char *interface,
 int dbus_get_fd(void);
 int dbus_process(void);
 
+struct dbus_ctx *dbus_get_ctx(void);
 void dbus_emit_change(const char *property_name);
 
 #else
@@ -43,6 +51,11 @@ static inline int dbus_get_fd(void)
 static inline int dbus_process(void)
 {
     return 0;
+}
+
+static inline struct dbus_ctx *dbus_get_ctx(void)
+{
+    return NULL;
 }
 
 static inline void dbus_emit_change(const char *property_name)
