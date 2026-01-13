@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: LicenseRef-MSLA
 # SPDX-Copyright-Text: (c) 2024 Silicon Laboratories Inc. (www.silabs.com)
 name: Build
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, master, staging, next]
+  pull_request:
 permissions:
   contents: read
 jobs:
