@@ -255,8 +255,10 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
 
     /*
      * NOTE: Try keeping the current parent if no other candidate with a better
-     * ETX was found. This mechanism is only useful when the rank limit is not
-     * set: therefore, it won't work on secondary parent selection.
+     * ETX was found. This mechanism is useful during primary parent selection
+     * as the rank limit can be set to RPL_RANK_INFINITE. It can also be used
+     * during secondary parent selection if the rank of the secondary parent
+     * does not exceed the rank of the preferred parent.
      */
     if (!parent_new && parent_cur && !parent_cur->rpl->path_ctl) {
         discard = rpl_mrhof_validate_candidate(ipv6, parent_cur, rank_limit, WS_ETX_MAX, ipv6->rpl.dodag_verno);
