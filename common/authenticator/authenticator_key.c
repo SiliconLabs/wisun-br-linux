@@ -509,6 +509,17 @@ static bool auth_is_ptkid_valid(const struct auth_ctx *auth,
     return auth_is_supp_ptk_valid(auth, supp);
 }
 
+static int auth_active_supp_count(struct auth_ctx *auth)
+{
+    struct auth_supp_ctx *supp;
+    int count = 0;
+
+    SLIST_FOREACH(supp, &auth->supplicants, link)
+        if (!timer_stopped(&supp->rt_timer))
+            count++;
+    return count;
+}
+
 static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                                   const struct eapol_key_frame *frame,
                                   const void *data, size_t data_len)
@@ -519,6 +530,12 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
     int next_key_slot = -1;
 
     TRACE(TR_SECURITY, "sec: %-8s", "rx-key-req");
+
+    // NOTE: arbitrary limit, testing shows 20 is enough in most cases
+    if (auth_active_supp_count(auth) >= 20) {
+        TRACE(TR_DROP, "drop %-9s: max active authentications reached", "key-req");
+        return;
+    }
 
     /*
      *   Wi-SUN FAN 1.1v09 6.5.2.2 Authentication and PMK Installation Flow
