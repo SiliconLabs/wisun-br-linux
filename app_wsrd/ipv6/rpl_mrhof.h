@@ -46,8 +46,7 @@ struct rpl_mrhof {
 float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce);
 uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc, uint16_t min_hop_rank_inc);
 bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *neigh);
-const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                                         uint16_t rank_limit, float etx_max, int dodag_verno);
+const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6);
 void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6);
 uint16_t rpl_mrhof_path_rank(const struct ipv6_ctx *ipv6,

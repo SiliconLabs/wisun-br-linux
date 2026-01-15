@@ -320,14 +320,9 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
 static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
 {
     struct wsrd *wsrd = container_of(ws_etx_ctx, struct wsrd, ws.neigh_table.ws_etx_ctx);
-    struct ipv6_neigh *pref_parent_cur = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
     struct ws_neigh *neigh = container_of(ws_etx, struct ws_neigh, ws_etx);
-    uint16_t rank_limit = RPL_RANK_INFINITE;
     struct ipv6_neigh *nce;
 
-    if (pref_parent_cur)
-        rank_limit = rpl_mrhof_get_rank_limit(&wsrd->ipv6.rpl.mrhof, ntohs(pref_parent_cur->rpl->config.max_rank_inc),
-                                              ntohs(pref_parent_cur->rpl->config.min_hop_rank_inc));
     /*
      *   Wi-SUN FAN 1.1v08 6.2.3.1.6.1 Link Metrics
      * In the absence of other messaging, a Router SHOULD initiate NUD
@@ -335,7 +330,7 @@ static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *w
      */
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce || nce->nud_state == IPV6_NUD_DELAY || nce->nud_state == IPV6_NUD_PROBE ||
-        !nce->rpl || rpl_mrhof_validate_candidate(&wsrd->ipv6, nce, rank_limit, WS_ETX_MAX, -1))
+        !nce->rpl || rpl_mrhof_is_candidate(&wsrd->ipv6, nce))
         return;
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_DELAY);
 }

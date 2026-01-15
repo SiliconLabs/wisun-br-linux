@@ -98,7 +98,7 @@ uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc
     return rank_limit - 1;
 }
 
-static const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
 
@@ -130,8 +130,8 @@ static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *
     return false;
 }
 
-const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                                         uint16_t rank_limit, float etx_max, int dodag_verno)
+static const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
+                                                uint16_t rank_limit, float etx_max, int dodag_verno)
 {
     const char *discard;
     uint16_t new_rank;
