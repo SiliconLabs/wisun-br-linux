@@ -70,6 +70,8 @@ static void auth_mqtt_recv_cb(struct mosquitto *mosq, void *obj,
 
 void auth_mqtt_start(struct auth_ctx *auth, const char *host)
 {
+    struct pollfd pfd = { };
+    uint64_t t0;
     int ret;
 
     mqtt_start(&auth->mqtt, host);
@@ -81,4 +83,23 @@ void auth_mqtt_start(struct auth_ctx *auth, const char *host)
     // NOTE: Force new active key in on_gtk_change() 1st call
     auth->gtk_group.slot_active = -1;
     auth->lgtk_group.slot_active = -1;
+
+    t0 = time_now_ms(CLOCK_MONOTONIC);
+    while (true) {
+        pfd.fd = mqtt_fd(&auth->mqtt);
+        pfd.events = mqtt_events(&auth->mqtt);
+
+        ret = poll(&pfd, 1, t0 ? 1000 : -1);
+        FATAL_ON(ret < 0, 2, "poll: %m");
+
+        mqtt_process(&auth->mqtt, pfd.revents);
+
+        for (int i = 0; i < WS_GTK_COUNT + WS_LGTK_COUNT; i++)
+            if (!timer_stopped(&auth->gtks[i].expiration_timer))
+                return;
+        if (t0 && time_now_ms(CLOCK_MONOTONIC) > t0 + 1000) {
+            WARN("waiting for gtks from MQTT broker");
+            t0 = 0;
+        }
+    }
 }
