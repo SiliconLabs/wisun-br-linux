@@ -34,17 +34,41 @@ static void mqtt_keepalive(struct timer_group *group, struct timer_entry *timer)
     WARN_ON(ret, "mosquitto_loop_misc: %s", mosquitto_strerror(ret));
 }
 
+static void mqtt_connect_cb(struct mosquitto *mosq, void *obj, int rc)
+{
+    struct mqtt_ctx *mqtt = obj;
+
+    mqtt->connected = !rc;
+    FATAL_ON(!mqtt->connected, 2, "mqtt: %s", mosquitto_connack_string(rc));
+}
+
+static void mqtt_disconnect_cb(struct mosquitto *mosq, void *obj, int rc)
+{
+    FATAL(2, "mqtt disconnected: %s", mosquitto_strerror(rc));
+}
+
 void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
 {
+    struct pollfd pfd = { };
     int ret;
 
     mosquitto_lib_init();
     mqtt->mosq = mosquitto_new(NULL, true, mqtt);
     FATAL_ON(!mqtt->mosq, 2, "mosquitto_new: %m");
+    mosquitto_connect_callback_set(mqtt->mosq, mqtt_connect_cb);
+    mosquitto_disconnect_callback_set(mqtt->mosq, mqtt_disconnect_cb);
     mosquitto_log_callback_set(mqtt->mosq, mqtt_log_cb);
     ret = mosquitto_connect(mqtt->mosq, host, 1883,
                             mqtt->keepalive.period_ms / 1000);
     FATAL_ON(ret, 2, "mosquitto_connect %s: %s", host, mosquitto_strerror(ret));
+
+    while (!mqtt->connected) {
+        pfd.fd = mqtt_fd(mqtt);
+        pfd.events = mqtt_events(mqtt);
+        ret = poll(&pfd, 1, -1);
+        FATAL_ON(ret < 0, 2, "poll: %m");
+        mqtt_process(mqtt, pfd.revents);
+    }
 
     BUG_ON(!mqtt->keepalive.period_ms);
     mqtt->keepalive.callback = mqtt_keepalive;

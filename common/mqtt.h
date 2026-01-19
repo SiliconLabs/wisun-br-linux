@@ -14,6 +14,8 @@
 #ifndef MQTT_H
 #define MQTT_H
 
+#include <stdbool.h>
+
 #include "common/timer.h"
 
 struct mosquitto;
@@ -21,6 +23,7 @@ struct mosquitto;
 struct mqtt_ctx {
     struct mosquitto *mosq;
     struct timer_entry keepalive;
+    bool connected;
 };
 
 #ifdef HAVE_MQTT
