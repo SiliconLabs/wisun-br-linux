@@ -29,6 +29,7 @@ jobs:
           sudo apt-get install -y ninja-build \
                                   libnl-3-dev libnl-route-3-dev \
                                   libcap-dev libsystemd-dev \
+                                  libmosquitto-dev \
                                   libdbus-1-dev
           cargo fetch --manifest-path=tools/wsbrd_cli/Cargo.toml
       - name: Install MbedTLS
