@@ -71,8 +71,7 @@ void rpl_neigh_deny(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh)
     timer_start_rel(&ipv6->timer_group, &neigh->rpl->deny_timer, 10 * 60 * 1000);
     TRACE(TR_NEIGH_IPV6, "rpl: neigh deny %s for %"PRIu64"s", tr_ipv6(neigh->gua.s6_addr),
           timer_duration_ms(&neigh->rpl->deny_timer) / 1000);
-    if (rpl_can_update_parent(ipv6))
-        rpl_update_parents(ipv6);
+    rpl_update_parents(ipv6);
 }
 
 static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
