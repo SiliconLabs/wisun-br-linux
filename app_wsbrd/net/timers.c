@@ -12,7 +12,6 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <assert.h>
-#include "ipv6/ipv6_routing_table.h"
 #include "net/protocol.h"
 #include "common/memutils.h"
 #include "common/log.h"
@@ -22,7 +21,6 @@
 #define timer_entry(name, callback, period_ms, is_periodic) \
     [WS_TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 struct ws_timer g_timers[] = {
-    timer_entry(IPV6_DESTINATION,       ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000, true),
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
 };
 static_assert(ARRAY_SIZE(g_timers) == WS_TIMER_COUNT, "missing timer declarations");

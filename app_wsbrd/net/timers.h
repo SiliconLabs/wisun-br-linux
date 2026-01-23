@@ -22,7 +22,6 @@ struct timer_group;
 #define WS_TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
-    WS_TIMER_IPV6_DESTINATION,
     WS_TIMER_ICMP_FAST,
     WS_TIMER_COUNT,
 };

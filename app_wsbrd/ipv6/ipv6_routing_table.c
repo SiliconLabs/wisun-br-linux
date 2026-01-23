@@ -71,12 +71,12 @@
 #define DCACHE_MAX_LONG_TERM    16
 #define DCACHE_MAX_SHORT_TERM   40
 #define DCACHE_MAX_ABSOLUTE     64 /* Never have more than this */
-#define DCACHE_GC_AGE           (30 * DCACHE_GC_PERIOD)    /* 10 minutes */
+#define DCACHE_GC_AGE           600    /* 10 minutes */
 
 /* We track "lifetime" of garbage-collectible entries, resetting
  * when used. Entries with lifetime 0 are favoured
  * for garbage-collection. */
-#define DCACHE_GC_AGE_LL (120 / DCACHE_GC_PERIOD)  /* 2 minutes for link-local destinations, in DCACHE_GC_PERIOD intervals */
+#define DCACHE_GC_AGE_LL 120  /* 2 minutes for link-local destinations */
 
 static NS_LIST_DEFINE(ipv6_destination_cache, ipv6_destination_t, link);
 static NS_LIST_DEFINE(ipv6_routing_table, ipv6_route_t, link);
@@ -414,6 +414,28 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     return entry;
 }
 
+static void ipv6_destination_cache_expire(struct timer_group *group, struct timer_entry *timer)
+{
+    uint16_t gc_count = ns_list_count(&ipv6_destination_cache);
+
+    if (gc_count <= DCACHE_MAX_LONG_TERM)
+        return;
+
+    /* Cache is in most-recently-used-first order. GC strategy is to start from
+     * the back, and reduce the size to "MAX_SHORT_TERM" every GC period,
+     * deleting any entry. Timed-out entries will be deleted to keep it to
+     * MAX_LONG_TERM.
+     */
+    ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
+        if (timer_stopped(&entry->lifetime) || gc_count > DCACHE_MAX_SHORT_TERM) {
+            if (ipv6_destination_release(entry))
+                gc_count--;
+            if (gc_count <= DCACHE_MAX_LONG_TERM)
+                break;
+        }
+    }
+}
+
 /* Unlike original version, this does NOT perform routing check - it's pure destination cache look-up
  *
  * We no longer attempt to cache route lookups in the destination cache, as
@@ -460,6 +482,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(struct net_if *net_if, con
 
         /* If no entry, make one */
         entry = zalloc(sizeof(ipv6_destination_t));
+        entry->lifetime.callback = ipv6_destination_cache_expire;
         memcpy(entry->destination, address, 16);
         entry->refcount = 1;
         entry->last_neighbour = NULL;
@@ -476,9 +499,9 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(struct net_if *net_if, con
     }
 
     if (addr_ipv6_scope(address) <= IPV6_SCOPE_LINK_LOCAL) {
-        entry->lifetime = DCACHE_GC_AGE_LL;
+        timer_start_rel(NULL, &entry->lifetime, DCACHE_GC_AGE_LL * 1000);
     } else {
-        entry->lifetime = DCACHE_GC_AGE / DCACHE_GC_PERIOD;
+        timer_start_rel(NULL, &entry->lifetime, DCACHE_GC_AGE * 1000);
     }
 
     return entry;
@@ -507,49 +530,11 @@ static bool ipv6_destination_release(ipv6_destination_t *dest)
     if (--dest->refcount == 0) {
         ns_list_remove(&ipv6_destination_cache, dest);
         tr_debug("Destination cache remove: %s", tr_ipv6(dest->destination));
+        timer_stop(NULL, &dest->lifetime);
         free(dest);
         return true;
     }
     return false;
-}
-
-static void ipv6_destination_cache_gc_periodic(void)
-{
-    uint16_t gc_count = 0;
-    ns_list_foreach_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->lifetime) {
-            entry->lifetime--;
-        }
-        gc_count++;
-    }
-
-    if (gc_count <= DCACHE_MAX_LONG_TERM) {
-        return;
-    }
-
-    /* Cache is in most-recently-used-first order. GC strategy is to start from
-     * the back, and reduce the size to "MAX_SHORT_TERM" every GC period,
-     * deleting any entry. Timed-out entries will be deleted to keep it to
-     * MAX_LONG_TERM.
-     */
-    ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->lifetime == 0 || gc_count > DCACHE_MAX_SHORT_TERM) {
-            if (ipv6_destination_release(entry)) {
-                gc_count--;
-            }
-
-            if (gc_count <= DCACHE_MAX_LONG_TERM) {
-                break;
-            }
-        }
-    }
-
-}
-
-void ipv6_destination_cache_timer(int ticks)
-{
-    for (int i = 0; i < ticks; i++)
-        ipv6_destination_cache_gc_periodic();
 }
 
 static const char *route_src_names[] = {

@@ -49,8 +49,6 @@ struct in6_addr;
 
 #define IPV6_ROUTE_DEFAULT_METRIC           128
 
-#define DCACHE_GC_PERIOD    20  /* seconds */
-
 /* XXX in the process of renaming this - it's really specifically the
  * IP Neighbour Cache  but was initially called a routing table */
 
@@ -162,13 +160,12 @@ typedef struct ipv6_destination {
     uint8_t                         destination[16];
     int8_t                          interface_id;       // fixed if link-local destination, else variable and gets set from redirect interface and/or last_neighbour interface
     uint16_t                        refcount;
-    uint16_t                        lifetime;           // Life in GC calls, so 20s units
+    struct timer_entry              lifetime;
     ipv6_neighbour_t                *last_neighbour;    // last neighbour used (only for reachability confirmation)
     ns_list_link_t                  link;
 } ipv6_destination_t;
 
 ipv6_destination_t *ipv6_destination_lookup_or_create(struct net_if *net_if, const uint8_t *address);
-void ipv6_destination_cache_timer(int ticks);
 void ipv6_destination_cache_clean(struct net_if *net_if);
 
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */

@@ -74,7 +74,6 @@ static void update_reachable_time(struct timer_group *group, struct timer_entry 
 
 void protocol_core_init(void)
 {
-    ws_timer_start(WS_TIMER_IPV6_DESTINATION);
     ws_timer_start(WS_TIMER_ICMP_FAST);
 }
 
