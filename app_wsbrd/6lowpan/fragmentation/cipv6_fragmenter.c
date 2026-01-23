@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/rand.h"
+#include "common/timer.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/memutils.h"
@@ -35,7 +36,7 @@
 #define TRACE_GROUP "6frg"
 
 typedef struct reassembly_entry {
-    uint16_t ttl;   /*!< Reassembly timer (seconds) */
+    struct timer_entry ttl;
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
     uint16_t size;  /*!< Datagram Total Size (uncompressed) */
     uint16_t orig_size; /*!< Datagram Original Size (compressed) */
@@ -50,6 +51,7 @@ typedef NS_LIST_HEAD(reassembly_entry_t, link) reassembly_list_t;
 
 typedef struct reassembly_interface {
     int8_t interface_id;
+    struct timer_group timer_group;
     uint16_t timeout;
     reassembly_list_t rx_list;
     reassembly_list_t free_list;
@@ -211,6 +213,7 @@ static void reassembly_entry_free(reassembly_interface_t *interface_ptr, reassem
     if (entry->buf) {
         entry->buf = buffer_free(entry->buf);
     }
+    timer_stop(&interface_ptr->timer_group, &entry->ttl);
 }
 
 static reassembly_entry_t *reassembly_already_action(reassembly_list_t *reassembly_list,
@@ -248,6 +251,15 @@ static reassembly_entry_t *lowpan_adaptation_reassembly_get(reassembly_interface
     return entry;
 }
 
+static void reassembly_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    reassembly_interface_t *iface = container_of(group, reassembly_interface_t, timer_group);
+    reassembly_entry_t *reasm = container_of(timer, reassembly_entry_t, ttl);
+
+    tr_debug("Reassembly TO: src %s size %u",
+             trace_sockaddr(&reasm->buf->src_sa, true), reasm->size);
+    reassembly_entry_free(iface, reasm);
+}
 
 buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
 {
@@ -312,7 +324,9 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
 
         reassembly_buffer->src_sa = buf->src_sa;
         reassembly_buffer->dst_sa = buf->dst_sa;
-        frag_ptr->ttl = interface_ptr->timeout;
+        frag_ptr->ttl.callback = reassembly_timeout;
+        timer_start_rel(&interface_ptr->timer_group, &frag_ptr->ttl,
+                        interface_ptr->timeout * 1000);
         frag_ptr->tag = datagram_tag;
         frag_ptr->size = datagram_size;
         // Set buffer length and adjust start pointer, so it represents the
@@ -445,27 +459,6 @@ reassembly_error:
     return buffer_free(buf);
 }
 
-static void reassembly_entry_timer_update(reassembly_interface_t *interface_ptr, uint16_t seconds)
-{
-    ns_list_foreach_safe(reassembly_entry_t, reassembly_entry, &interface_ptr->rx_list) {
-        if (reassembly_entry->ttl > seconds) {
-            reassembly_entry->ttl -= seconds;
-        } else {
-            tr_debug("Reassembly TO: src %s size %u",
-                     trace_sockaddr(&reassembly_entry->buf->src_sa, true),
-                     reassembly_entry->size);
-            reassembly_entry_free(interface_ptr, reassembly_entry);
-        }
-    }
-}
-
-void cipv6_frag_timer(int seconds)
-{
-    ns_list_foreach(reassembly_interface_t, interface_ptr, &reassembly_interface_list) {
-        reassembly_entry_timer_update(interface_ptr, seconds);
-    }
-}
-
 int8_t reassembly_interface_free(int8_t interface_id)
 {
     //Discover
@@ -492,6 +485,7 @@ void reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_l
     reassembly_interface_free(interface_id);
     memset(interface_ptr, 0, sizeof(reassembly_interface_t));
     interface_ptr->interface_id = interface_id;
+    timer_group_init(&interface_ptr->timer_group);
     interface_ptr->timeout = reassembly_timeout;
     interface_ptr->entry_pointer_buffer = reassemply_ptr;
     ns_list_init(&interface_ptr->free_list);
