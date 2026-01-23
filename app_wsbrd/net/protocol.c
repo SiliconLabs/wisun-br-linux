@@ -83,7 +83,6 @@ void update_reachable_time(int seconds)
 void protocol_core_init(void)
 {
     ws_timer_start(WS_TIMER_IPV6_DESTINATION);
-    ws_timer_start(WS_TIMER_IPV6_ROUTE);
     ws_timer_start(WS_TIMER_CIPV6_FRAG);
     ws_timer_start(WS_TIMER_ICMP_FAST);
     ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_SLOW);

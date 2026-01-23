@@ -23,7 +23,6 @@ struct timer_group;
 
 enum timer_id {
     WS_TIMER_IPV6_DESTINATION,
-    WS_TIMER_IPV6_ROUTE,
     WS_TIMER_CIPV6_FRAG,
     WS_TIMER_ICMP_FAST,
     WS_TIMER_6LOWPAN_NEIGHBOR_SLOW,

@@ -617,11 +617,11 @@ static void ipv6_route_print(const ipv6_route_t *route)
     // Route prefix is variable-length, so need to zero pad for str_ipv6
     uint8_t addr[16] = { 0 };
     bitcpy(addr, route->prefix, route->prefix_len);
-    if (route->lifetime != 0xFFFFFFFF) {
-        tr_debug(" %24s if:%u src:'%s' id:%d lifetime:%"PRIu32,
+    if (!timer_stopped(&route->lifetime)) {
+        tr_debug(" %24s if:%u src:'%s' id:%d lifetime:%"PRIu64,
                  tr_ipv6_prefix(addr, route->prefix_len), route->info.interface_id,
-                 route_src_names[route->info.source], route->info.source_id, route->lifetime
-                );
+                 route_src_names[route->info.source], route->info.source_id,
+                 timer_remaining_ms(&route->lifetime) / 1000);
     } else {
         tr_debug(" %24s if:%u src:'%s' id:%d lifetime:infinite",
                  tr_ipv6_prefix(addr, route->prefix_len), route->info.interface_id,
@@ -663,6 +663,7 @@ static void ipv6_route_entry_remove(ipv6_route_t *route)
         free(route->info.info);
     }
     ns_list_remove(&ipv6_routing_table, route);
+    timer_stop(NULL, &route->lifetime);
     free(route);
 }
 
@@ -845,6 +846,14 @@ ipv6_route_t *ipv6_route_add_with_info(struct net_if *net_if, const uint8_t *pre
     return ipv6_route_add_metric(net_if, prefix, prefix_len, next_hop, source, info,  source_id, lifetime, PREF_TO_METRIC(pref));
 }
 
+static void ipv6_route_expire(struct timer_group *group, struct timer_entry *timer)
+{
+    ipv6_route_t *route = container_of(timer, ipv6_route_t, lifetime);
+
+    tr_debug("Route expired");
+    ipv6_route_entry_remove(route);
+}
+
 ipv6_route_t *ipv6_route_add_metric(struct net_if *net_if, const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, ipv6_route_src_t source, void *info, uint8_t source_id, uint32_t lifetime, uint8_t metric)
 {
     ipv6_route_t *route = NULL;
@@ -890,7 +899,7 @@ ipv6_route_t *ipv6_route_add_metric(struct net_if *net_if, const uint8_t *prefix
         bitcpy(route->prefix, prefix, prefix_len);
         route->prefix_len = prefix_len;
         route->search_skip = false;
-        route->lifetime = lifetime;
+        route->lifetime.callback = ipv6_route_expire;
         route->metric = metric;
         route->info.source = source;
         route->info_autofree = false;
@@ -912,13 +921,16 @@ ipv6_route_t *ipv6_route_add_metric(struct net_if *net_if, const uint8_t *prefix
         ns_list_add_to_start(&ipv6_routing_table, route);
         changed_info = NEW;
     } else { /* updating a route - only lifetime and metric can be changing */
-        route->lifetime = lifetime;
         if (metric != route->metric) {
             route->metric = metric;
             changed_info = UPDATED;
         }
 
     }
+    if (lifetime == 0xffffffff)
+        timer_stop(NULL, &route->lifetime);
+    else
+        timer_start_rel(NULL, &route->lifetime, (uint64_t)lifetime * 1000);
 
     if (changed_info != UNCHANGED) {
         tr_info("%s route:", changed_info == NEW ? "Added" : "Updated");
@@ -969,24 +981,6 @@ static void ipv6_route_table_remove_last_one_from_source(struct net_if *net_if, 
     }
 }
 
-
-void ipv6_route_table_ttl_update(int seconds)
-{
-    ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
-        if (r->lifetime == 0xFFFFFFFF) {
-            continue;
-        }
-
-        if (r->lifetime > seconds) {
-            r->lifetime -= seconds;
-            continue;
-        }
-
-        tr_debug("Route expired");
-        ipv6_route_entry_remove(r);
-    }
-}
-
 static uint8_t ipv6_route_table_get_max_entries(struct net_if *net_if, ipv6_route_src_t source)
 {
     return net_if->ipv6_neighbour_cache.route_if_info.sources[source];
@@ -1016,7 +1010,7 @@ void ipv6_route_add_aro(struct net_if *net_if, struct ipv6_neighbour *neigh)
                                         128, neigh->ip_address,
                                         ROUTE_ARO, NULL, 0);
     if (route) {
-        route->lifetime = neigh->lifetime_s;
+        timer_start_rel(NULL, &route->lifetime, (uint64_t)neigh->lifetime_s * 1000);
         return;
     }
 

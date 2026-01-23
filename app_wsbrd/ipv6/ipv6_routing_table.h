@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include "common/ns_list.h"
+#include "common/timer.h"
 
 #include "net/netaddr_types.h"
 
@@ -181,7 +182,7 @@ typedef struct ipv6_route {
     bool                info_autofree: 1;
     uint8_t             metric;             // 0x40 = RFC 4191 pref high, 0x80 = default, 0xC0 = RFC 4191 pref low
     ipv6_route_info_t   info;
-    uint32_t            lifetime;           // (seconds); 0xFFFFFFFF means permanent
+    struct timer_entry  lifetime;
     ns_list_link_t      link;
     uint8_t             prefix[];           // variable length
 } ipv6_route_t;
@@ -199,7 +200,6 @@ int ipv6_route_delete_with_info(struct net_if *net_if, const uint8_t *prefix, ui
 ipv6_route_t *ipv6_route_choose_next_hop(struct net_if *net_if, const uint8_t *dest);
 
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t *fn);
-void ipv6_route_table_ttl_update(int seconds);
 bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src);
 void ipv6_route_table_source_invalidated_reset(void);
 
