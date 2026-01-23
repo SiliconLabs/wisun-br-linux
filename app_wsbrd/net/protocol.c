@@ -23,6 +23,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/endian.h"
+#include "common/memutils.h"
 #include "common/string_extra.h"
 #include "common/specs/ipv6.h"
 
@@ -59,32 +60,22 @@ void icmp_fast_timer(int ticks)
     }
 }
 
-static uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
+static uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur)
 {
-    cur->base_reachable_time = base_reachable_time;
-    cur->reachable_time_ttl = REACHABLE_TIME_UPDATE_SECONDS;
-
-    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(base_reachable_time, 0x4000, 0xBFFF);
+    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(cur->base_reachable_time, 0x4000, 0xBFFF);
 }
 
-void update_reachable_time(int seconds)
+static void update_reachable_time(struct timer_group *group, struct timer_entry *timer)
 {
-    struct net_if *cur = protocol_stack_interface_info_get();
+    struct net_if *cur = container_of(timer, struct net_if, reachable_time_ttl);
 
-    if (!cur)
-        return;
-    if (cur->reachable_time_ttl > seconds) {
-        cur->reachable_time_ttl -= seconds;
-    } else {
-        protocol_stack_interface_set_reachable_time(cur, cur->base_reachable_time);
-    }
+    protocol_stack_interface_set_reachable_time(cur);
 }
 
 void protocol_core_init(void)
 {
     ws_timer_start(WS_TIMER_IPV6_DESTINATION);
     ws_timer_start(WS_TIMER_ICMP_FAST);
-    ws_timer_start(WS_TIMER_6LOWPAN_REACHABLE_TIME);
 }
 
 static void protocol_set_eui64(struct net_if *cur, uint8_t eui64[8])
@@ -114,7 +105,11 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->rcp = rcp;
     entry->icmp_tokens = 10;
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
-    protocol_stack_interface_set_reachable_time(entry, 30000);
+    entry->base_reachable_time = 30000;
+    entry->reachable_time_ttl.callback = update_reachable_time;
+    entry->reachable_time_ttl.period_ms = REACHABLE_TIME_UPDATE_SECONDS * 1000;
+    timer_start_rel(NULL, &entry->reachable_time_ttl, entry->reachable_time_ttl.period_ms);
+    protocol_stack_interface_set_reachable_time(entry);
     ns_list_link_init(entry, link);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);

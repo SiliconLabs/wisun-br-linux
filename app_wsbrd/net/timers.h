@@ -24,7 +24,6 @@ struct timer_group;
 enum timer_id {
     WS_TIMER_IPV6_DESTINATION,
     WS_TIMER_ICMP_FAST,
-    WS_TIMER_6LOWPAN_REACHABLE_TIME,
     WS_TIMER_COUNT,
 };
 

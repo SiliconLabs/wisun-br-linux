@@ -55,7 +55,7 @@ struct net_if {
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
-    uint16_t reachable_time_ttl;        // s
+    struct timer_entry reachable_time_ttl;
     uint32_t base_reachable_time;       // ms
 
     uint8_t mac[8];
@@ -86,6 +86,5 @@ struct net_if *protocol_stack_interface_info_get();
 void protocol_init(struct net_if *net_if, struct rcp *rcp, int mtu);
 
 void icmp_fast_timer(int ticks);
-void update_reachable_time(int seconds);
 
 #endif
