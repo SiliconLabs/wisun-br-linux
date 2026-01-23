@@ -626,8 +626,7 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
 
 static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur, buffer_t *buf)
 {
-    // Convert from 100ms slots to seconds
-    uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
+    uint32_t buffer_age_s = (time_now_ms(CLOCK_MONOTONIC) - buf->adaptation_timestamp) / 1000;
     struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
@@ -672,7 +671,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 
     if (!buf->adaptation_timestamp) {
         // Set TX start timestamp
-        buf->adaptation_timestamp = g_monotonic_time_100ms;
+        buf->adaptation_timestamp = time_now_ms(CLOCK_MONOTONIC);
         if (!buf->adaptation_timestamp) {
             buf->adaptation_timestamp--;
         }

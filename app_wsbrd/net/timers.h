@@ -22,7 +22,6 @@ struct timer_group;
 #define WS_TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
-    WS_TIMER_MONOTONIC_TIME,
     WS_TIMER_IPV6_DESTINATION,
     WS_TIMER_IPV6_ROUTE,
     WS_TIMER_CIPV6_FRAG,
@@ -32,8 +31,6 @@ enum timer_id {
     WS_TIMER_6LOWPAN_REACHABLE_TIME,
     WS_TIMER_COUNT,
 };
-
-extern int g_monotonic_time_100ms;
 
 // Expose timer array to avoid boilerplate API functions when "low level"
 // operation are needed.
