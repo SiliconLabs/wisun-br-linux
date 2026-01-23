@@ -212,7 +212,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/ipv6/icmpv6.c
     app_wsbrd/ipv6/ipv6.c
     app_wsbrd/ipv6/ipv6_resolution.c
-    app_wsbrd/net/timers.c
     app_wsbrd/net/ns_address_internal.c
     app_wsbrd/net/ns_buffer.c
     app_wsbrd/ipv6/ipv6_neigh_storage.c

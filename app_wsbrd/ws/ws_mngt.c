@@ -21,7 +21,6 @@
 #include "common/string_extra.h"
 #include "common/version.h"
 
-#include "net/timers.h"
 #include "ws/ws_pan_info_storage.h"
 #include "ws/ws_common.h"
 #include "ws/ws_ie_validation.h"

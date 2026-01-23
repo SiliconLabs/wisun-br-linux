@@ -50,7 +50,6 @@ enum {
 
 struct wsbr_ctxt {
     struct pollfd fds[POLLFD_COUNT];
-    struct timer_entry timer_legacy;
     struct wsbrd_conf config;
     struct dhcp_relay dhcp_relay;
     struct dhcp_server dhcp_server;

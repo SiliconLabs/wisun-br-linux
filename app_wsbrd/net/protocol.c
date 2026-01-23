@@ -28,7 +28,6 @@
 #include "common/specs/ipv6.h"
 
 #include "app/wsbr_mac.h"
-#include "net/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

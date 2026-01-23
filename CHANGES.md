@@ -1,3 +1,6 @@
+  - `wsbrd`: Drop legacy tick based timer system. This should result in less
+    CPU usage.
+
 v2.8
 ------
   - RPL routing improvements:

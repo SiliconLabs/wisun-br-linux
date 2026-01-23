@@ -49,7 +49,6 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
-#include "net/timers.h"
 #include "net/ns_address_internal.h"
 #include "net/netaddr_types.h"
 #include "net/protocol.h"
@@ -662,9 +661,6 @@ int wsbr_main(int argc, char *argv[])
         rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
 
     wsbr_tun_init(ctxt);
-    ctxt->timer_legacy.period_ms = WS_TIMER_GLOBAL_PERIOD_MS;
-    ctxt->timer_legacy.callback  = ws_timer_cb;
-    timer_start_rel(NULL, &ctxt->timer_legacy, WS_TIMER_GLOBAL_PERIOD_MS);
     wsbr_network_init(ctxt);
     dbus_register("com.silabs.Wisun.BorderRouter",
                   "/com/silabs/Wisun/BorderRouter",

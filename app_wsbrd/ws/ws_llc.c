@@ -47,7 +47,6 @@
 #include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
 #include "app/rcp_api_legacy.h"
-#include "net/timers.h"
 #include "net/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"

@@ -13,7 +13,6 @@
  */
 #include <netinet/in.h>
 #include "app_wsbrd/net/netaddr_types.h"
-#include "app_wsbrd/net/timers.h"
 #include "app_wsbrd/app/rcp_api_legacy.h"
 #include "app_wsbrd/app/libwsbrd.h"
 #include "app_wsbrd/app/wsbr_mac.h"

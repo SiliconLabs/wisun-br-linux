@@ -36,7 +36,6 @@
 
 #include "app/wsbrd.h"
 #include "app/wsbr_mac.h"
-#include "net/timers.h"
 #include "net/netaddr_types.h"
 #include "net/ns_buffer.h"
 #include "net/ns_address_internal.h"

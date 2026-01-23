@@ -41,7 +41,6 @@
 #include "common/memutils.h"
 
 #include "net/ns_address_internal.h"
-#include "net/timers.h"
 #include "net/protocol.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "ipv6/icmpv6.h"
