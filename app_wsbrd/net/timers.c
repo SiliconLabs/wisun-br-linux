@@ -12,13 +12,9 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <assert.h>
-#include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "ipv6/nd_router_object.h"
-#include "ws/ws_common.h"
 #include "ipv6/ipv6_routing_table.h"
 #include "net/protocol.h"
-#include "rpl/rpl.h"
 #include "common/memutils.h"
 #include "common/log.h"
 
