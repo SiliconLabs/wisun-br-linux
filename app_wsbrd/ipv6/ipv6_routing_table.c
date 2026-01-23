@@ -118,6 +118,7 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->send_nud_probes = true;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
+    timer_group_init(&cache->timer_group);
     memset(cache->route_if_info.sources, 0, sizeof(cache->route_if_info.sources));
 }
 
@@ -167,6 +168,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 del %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
+    timer_stop(&cache->timer_group, &entry->timer);
     free(entry);
 }
 
@@ -183,6 +185,65 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_mc(ipv6_neighbour_cache_t *cache, const 
         }
 
     return NULL;
+}
+
+static void ipv6_neighbour_trig(struct timer_group *group, struct timer_entry *timer)
+{
+    ipv6_neighbour_cache_t *cache = container_of(group, ipv6_neighbour_cache_t, timer_group);
+    ipv6_neighbour_t *nce = container_of(timer, ipv6_neighbour_t, timer);
+
+    switch (nce->state) {
+    case IP_NEIGHBOUR_NEW:
+        /* Shouldn't happen */
+        break;
+    case IP_NEIGHBOUR_INCOMPLETE:
+        if (++nce->retrans_count >= MAX_MULTICAST_SOLICIT) {
+            /* Should be safe for registration - Tentative/Registered entries can't be INCOMPLETE */
+            ipv6_destination_cache_forget_neighbour(nce);
+            ipv6_neighbour_entry_remove(cache, nce);
+        } else {
+            ipv6_interface_resolve_send_ns(cache, nce, false, nce->retrans_count);
+            timer_start_rel(group, timer, cache->retrans_timer);
+        }
+        break;
+    case IP_NEIGHBOUR_STALE:
+        /* Shouldn't happen */
+        break;
+    case IP_NEIGHBOUR_REACHABLE:
+        ipv6_neighbour_set_state(cache, nce, IP_NEIGHBOUR_STALE);
+        break;
+    case IP_NEIGHBOUR_DELAY:
+        ipv6_neighbour_set_state(cache, nce, IP_NEIGHBOUR_PROBE);
+        ipv6_interface_resolve_send_ns(cache, nce, true, 0);
+        break;
+    case IP_NEIGHBOUR_PROBE:
+        if (nce->retrans_count >= MARK_UNREACHABLE - 1)
+            ipv6_neighbour_set_state(cache, nce, IP_NEIGHBOUR_UNREACHABLE);
+    /* fall through */
+    case IP_NEIGHBOUR_UNREACHABLE:
+        if (nce->retrans_count < 0xFF)
+            nce->retrans_count++;
+
+        if (nce->retrans_count >= MAX_UNICAST_SOLICIT && nce->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
+            ipv6_neighbour_entry_remove(cache, nce);
+        } else {
+            ipv6_interface_resolve_send_ns(cache, nce, true, nce->retrans_count);
+            if (nce->retrans_count >= MAX_UNICAST_SOLICIT - 1) {
+                /* "Final" unicast probe */
+                if (nce->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
+                    /* Only wait 1 initial retrans time for response to final probe - don't want backoff in this case */
+                    timer_start_rel(group, timer, cache->retrans_timer);
+                } else {
+                    /* We're not going to remove this. Let's stop the timer. We'll restart to probe once more if it's used */
+                    timer_stop(group, timer);
+                }
+            } else {
+                /* Backoff for the next probe */
+                timer_start_rel(group, timer, next_probe_time(cache, nce->retrans_count));
+            }
+        }
+        break;
+    }
 }
 
 ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
@@ -211,6 +272,7 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     memcpy(entry->ip_address, address, 16);
     if (cache->recv_addr_reg)
         memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
+    entry->timer.callback = ipv6_neighbour_trig;
     ns_list_add_to_start(&cache->list, entry);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
@@ -238,8 +300,9 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     }
 
     /* Special case for Registered Unreachable entries - restart the probe timer if stopped */
-    else if (entry->state == IP_NEIGHBOUR_UNREACHABLE && entry->timer == 0) {
-        entry->timer = next_probe_time(cache, entry->retrans_count);
+    else if (entry->state == IP_NEIGHBOUR_UNREACHABLE && timer_stopped(&entry->timer)) {
+        timer_start_rel(&cache->timer_group, &entry->timer,
+                        next_probe_time(cache, entry->retrans_count));
     }
 
     return entry;
@@ -273,27 +336,27 @@ void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *e
     switch (state) {
         case IP_NEIGHBOUR_INCOMPLETE:
             entry->retrans_count = 0;
-            entry->timer = cache->retrans_timer;
+            timer_start_rel(&cache->timer_group, &entry->timer, cache->retrans_timer);
             break;
         case IP_NEIGHBOUR_STALE:
-            entry->timer = 0;
+            timer_stop(&cache->timer_group, &entry->timer);
             break;
         case IP_NEIGHBOUR_DELAY:
-            entry->timer = DELAY_FIRST_PROBE_TIME;
+            timer_start_rel(&cache->timer_group, &entry->timer, DELAY_FIRST_PROBE_TIME);
             break;
         case IP_NEIGHBOUR_PROBE:
             entry->retrans_count = 0;
-            entry->timer = next_probe_time(cache, 0);
+            timer_start_rel(&cache->timer_group, &entry->timer, next_probe_time(cache, 0));
             break;
         case IP_NEIGHBOUR_REACHABLE:
-            entry->timer = cache->reachable_time;
+            timer_start_rel(&cache->timer_group, &entry->timer, cache->reachable_time);
             break;
         case IP_NEIGHBOUR_UNREACHABLE:
             /* Progress to this from PROBE - timers continue */
             ipv6_destination_cache_forget_neighbour(entry);
             break;
         default:
-            entry->timer = 0;
+            timer_stop(&cache->timer_group, &entry->timer);
             break;
     }
     entry->state = state;
@@ -372,80 +435,6 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
 
     cache->gc_timer = NCACHE_GC_PERIOD;
     ipv6_neighbour_cache_gc_periodic(cache);
-}
-
-void ipv6_neighbour_cache_fast_timer(int ticks)
-{
-    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
-    uint32_t ms = (uint32_t) ticks * 100;
-
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->timer == 0) {
-            continue;
-        }
-
-        if (cur->timer > ms) {
-            cur->timer -= ms;
-            continue;
-        }
-
-        cur->timer = 0;
-
-        /* Timer expired */
-        switch (cur->state) {
-            case IP_NEIGHBOUR_NEW:
-                /* Shouldn't happen */
-                break;
-            case IP_NEIGHBOUR_INCOMPLETE:
-                if (++cur->retrans_count >= MAX_MULTICAST_SOLICIT) {
-                    /* Should be safe for registration - Tentative/Registered entries can't be INCOMPLETE */
-                    ipv6_destination_cache_forget_neighbour(cur);
-                    ipv6_neighbour_entry_remove(cache, cur);
-                } else {
-                    ipv6_interface_resolve_send_ns(cache, cur, false, cur->retrans_count);
-                    cur->timer = cache->retrans_timer;
-                }
-                break;
-            case IP_NEIGHBOUR_STALE:
-                /* Shouldn't happen */
-                break;
-            case IP_NEIGHBOUR_REACHABLE:
-                ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_STALE);
-                break;
-            case IP_NEIGHBOUR_DELAY:
-                ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_PROBE);
-                ipv6_interface_resolve_send_ns(cache, cur, true, 0);
-                break;
-            case IP_NEIGHBOUR_PROBE:
-                if (cur->retrans_count >= MARK_UNREACHABLE - 1)
-                    ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_UNREACHABLE);
-            /* fall through */
-            case IP_NEIGHBOUR_UNREACHABLE:
-                if (cur->retrans_count < 0xFF) {
-                    cur->retrans_count++;
-                }
-
-                if (cur->retrans_count >= MAX_UNICAST_SOLICIT && cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-                    ipv6_neighbour_entry_remove(cache, cur);
-                } else {
-                    ipv6_interface_resolve_send_ns(cache, cur, true, cur->retrans_count);
-                    if (cur->retrans_count >= MAX_UNICAST_SOLICIT - 1) {
-                        /* "Final" unicast probe */
-                        if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-                            /* Only wait 1 initial retrans time for response to final probe - don't want backoff in this case */
-                            cur->timer = cache->retrans_timer;
-                        } else {
-                            /* We're not going to remove this. Let's stop the timer. We'll restart to probe once more if it's used */
-                            cur->timer = 0;
-                        }
-                    } else {
-                        /* Backoff for the next probe */
-                        cur->timer = next_probe_time(cache, cur->retrans_count);
-                    }
-                }
-                break;
-        }
-    }
 }
 
 /* Unlike original version, this does NOT perform routing check - it's pure destination cache look-up
