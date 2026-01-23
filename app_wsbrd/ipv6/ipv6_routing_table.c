@@ -109,7 +109,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
         ipv6_neighbour_entry_remove(cache, cur);
     }
-    cache->gc_timer = NCACHE_GC_PERIOD;
     cache->retrans_timer = 1000;
     cache->max_ll_len = 2 + 8;
     cache->interface_id = interface_id;
@@ -169,6 +168,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
     ipv6_neigh_storage_save(cache, ipv6_neighbour_eui64(cache, entry));
     timer_stop(&cache->timer_group, &entry->timer);
+    timer_stop(&cache->timer_group, &entry->expiration);
     free(entry);
 }
 
@@ -246,6 +246,26 @@ static void ipv6_neighbour_trig(struct timer_group *group, struct timer_entry *t
     }
 }
 
+static void ipv6_neighbour_expire(struct timer_group *group, struct timer_entry *timer)
+{
+    ipv6_neighbour_cache_t *cache = container_of(group, ipv6_neighbour_cache_t, timer_group);
+    ipv6_neighbour_t *nce = container_of(timer, ipv6_neighbour_t, expiration);
+
+    /* Lifetime expired */
+    switch (nce->type) {
+    case IP_NEIGHBOUR_GARBAGE_COLLECTIBLE:
+        /* No immediate action, but 0 lifetime is an input to the GC */
+        break;
+
+    case IP_NEIGHBOUR_TENTATIVE:
+    case IP_NEIGHBOUR_REGISTERED:
+        /* These are deleted as soon as lifetime expires */
+        ipv6_destination_cache_forget_neighbour(nce);
+        ipv6_neighbour_entry_remove(cache, nce);
+        break;
+    }
+}
+
 ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uint8_t *address, const uint8_t *eui64)
 {
     uint16_t count = 0;
@@ -273,6 +293,7 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     if (cache->recv_addr_reg)
         memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
     entry->timer.callback = ipv6_neighbour_trig;
+    entry->expiration.callback = ipv6_neighbour_expire;
     ns_list_add_to_start(&cache->list, entry);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));
@@ -285,7 +306,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     /* Reset the GC life, if it's a GC entry */
     if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
         entry->lifetime_s = NCACHE_GC_AGE;
-        entry->expiration_s = time_now_s(CLOCK_MONOTONIC) + NCACHE_GC_AGE;
+        timer_start_rel(&cache->timer_group, &entry->expiration, NCACHE_GC_AGE * 1000);
     }
 
     /* Move it to the front of the list */
@@ -391,50 +412,6 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     ipv6_neighbour_entry_update_unsolicited(cache, entry, type, ll_address/*, tentative*/);
 
     return entry;
-}
-
-static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
-{
-    ns_list_foreach_reverse_safe(ipv6_neighbour_t, entry, &cache->list) {
-        if (entry->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
-            continue;
-
-        if (time_now_s(CLOCK_MONOTONIC) >= entry->expiration_s)
-            ipv6_neighbour_entry_remove(cache, entry);
-    }
-}
-
-void ipv6_neighbour_cache_slow_timer(int seconds)
-{
-    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
-
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->lifetime_s && cur->expiration_s &&
-            time_now_s(CLOCK_MONOTONIC) < cur->expiration_s)
-            continue;
-
-        /* Lifetime expired */
-        switch (cur->type) {
-            case IP_NEIGHBOUR_GARBAGE_COLLECTIBLE:
-                /* No immediate action, but 0 lifetime is an input to the GC */
-                break;
-
-            case IP_NEIGHBOUR_TENTATIVE:
-            case IP_NEIGHBOUR_REGISTERED:
-                /* These are deleted as soon as lifetime expires */
-                ipv6_destination_cache_forget_neighbour(cur);
-                ipv6_neighbour_entry_remove(cache, cur);
-                break;
-        }
-    }
-
-    if (cache->gc_timer > seconds) {
-        cache->gc_timer -= seconds;
-        return;
-    }
-
-    cache->gc_timer = NCACHE_GC_PERIOD;
-    ipv6_neighbour_cache_gc_periodic(cache);
 }
 
 /* Unlike original version, this does NOT perform routing check - it's pure destination cache look-up

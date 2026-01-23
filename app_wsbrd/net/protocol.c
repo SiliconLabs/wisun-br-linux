@@ -84,7 +84,6 @@ void protocol_core_init(void)
 {
     ws_timer_start(WS_TIMER_IPV6_DESTINATION);
     ws_timer_start(WS_TIMER_ICMP_FAST);
-    ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_SLOW);
     ws_timer_start(WS_TIMER_6LOWPAN_REACHABLE_TIME);
 }
 

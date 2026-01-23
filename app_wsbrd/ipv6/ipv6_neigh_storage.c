@@ -62,9 +62,9 @@ void ipv6_neigh_storage_save(struct ipv6_neighbour_cache *cache, const uint8_t *
     ns_list_foreach(struct ipv6_neighbour, cur, &cache->list) {
         if (memcmp(eui64, ipv6_neighbour_eui64(cache, cur), 8))
             continue;
-        if (!cur->lifetime_s || !cur->expiration_s)
+        if (!cur->lifetime_s || timer_stopped(&cur->expiration))
             continue;
-        ts = cur->expiration_s + time_get_storage_offset_s();
+        ts = cur->expiration.expire_ms / 1000 + time_get_storage_offset_s();
         str_date(ts, time_str);
         str_ipv6(cur->ip_address, ipv6_str);
         fprintf(nvm->file, "ipv6[%d] = %s\n", i, ipv6_str);
@@ -135,14 +135,15 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         } else if (!fnmatch("lifetime\\[*]", nvm->key, 0)) {
             ipv6_neighbors[nvm->key_array_index].lifetime_s = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("expiration\\[*]", nvm->key, 0)) {
-            ipv6_neighbors[nvm->key_array_index].expiration_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset_s();
+            ipv6_neighbors[nvm->key_array_index].expiration.expire_ms =
+                (strtoull(nvm->value, NULL, 0) - time_get_storage_offset_s()) * 1000;
         } else {
             WARN("%s:%d: invalid key: '%s'", nvm->filename, nvm->linenr, nvm->line);
         }
     }
 
     for (int i = 0; i < array_len; i++) {
-        if (!ipv6_neighbors[i].lifetime_s || !ipv6_neighbors[i].expiration_s ||
+        if (!ipv6_neighbors[i].lifetime_s || !ipv6_neighbors[i].expiration.expire_ms ||
             ipv6_neighbors[i].type != IP_NEIGHBOUR_REGISTERED)
             continue;
         if (IN6_IS_ADDR_MULTICAST(ipv6_neighbors[i].ip_address) &&
@@ -156,7 +157,8 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         FATAL_ON(!ipv6_neigh, 2, "ipv6_neighbour_create()");
 
         ipv6_neigh->lifetime_s = ipv6_neighbors[i].lifetime_s;
-        ipv6_neigh->expiration_s = ipv6_neighbors[i].expiration_s;
+        timer_start_abs(&cache->timer_group, &ipv6_neigh->expiration,
+                        ipv6_neighbors[i].expiration.expire_ms);
         // ll_address is a combination of PAN_ID and EUI-64
         ll_addr.addr_type = ADDR_802_15_4_LONG;
         write_be16(ll_addr.address, cur->ws_info.pan_information.pan_id);

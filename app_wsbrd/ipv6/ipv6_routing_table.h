@@ -102,7 +102,7 @@ typedef struct ipv6_neighbour {
     addrtype_e                      ll_type;
     struct timer_entry              timer;
     uint32_t                        lifetime_s;
-    time_t                          expiration_s;
+    struct timer_entry              expiration;
     ns_list_link_t                  link;                       /*!< List link */
     uint8_t                         ll_address[];
 } ipv6_neighbour_t;
@@ -127,7 +127,6 @@ typedef struct ipv6_neighbour_cache {
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
     struct timer_group                      timer_group;
-    uint8_t                                 gc_timer;
     uint32_t                                retrans_timer;
     uint32_t                                reachable_time;
     // Interface specific information for route
@@ -148,7 +147,6 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
 ipv6_neighbour_t *ipv6_neighbour_lookup_gua_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
 void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/);
 ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_e ll_type, const uint8_t *ll_address);
-void ipv6_neighbour_cache_slow_timer(int seconds);
 
 typedef struct ipv6_route_info {
     ipv6_route_src_t                source;
