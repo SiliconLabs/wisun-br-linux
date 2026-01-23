@@ -46,18 +46,12 @@
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
-void icmp_fast_timer(int ticks)
+static void icmp_ratelimit_reset(struct timer_group *group, struct timer_entry *timer)
 {
-    struct net_if *cur = protocol_stack_interface_info_get();
+    struct net_if *net_if = container_of(timer, struct net_if, icmp_ratelimit_timer);
 
-    if (!cur)
-        return;
-
-    /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
-    cur->icmp_tokens += ticks;
-    if (cur->icmp_tokens > 10) {
-        cur->icmp_tokens = 10;
-    }
+    // RFC 4443 2.4. Message Processing Rules
+    net_if->icmp_tokens = 10;
 }
 
 static uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur)
@@ -70,11 +64,6 @@ static void update_reachable_time(struct timer_group *group, struct timer_entry 
     struct net_if *cur = container_of(timer, struct net_if, reachable_time_ttl);
 
     protocol_stack_interface_set_reachable_time(cur);
-}
-
-void protocol_core_init(void)
-{
-    ws_timer_start(WS_TIMER_ICMP_FAST);
 }
 
 static void protocol_set_eui64(struct net_if *cur, uint8_t eui64[8])
@@ -102,7 +91,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->ws_info.ffn_gtk_index = 0;
     entry->mac_parameters.mtu = mtu;
     entry->rcp = rcp;
-    entry->icmp_tokens = 10;
+    icmp_ratelimit_reset(NULL, &entry->icmp_ratelimit_timer);
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     entry->base_reachable_time = 30000;
     entry->reachable_time_ttl.callback = update_reachable_time;

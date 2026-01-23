@@ -451,7 +451,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     struct in6_addr gua;
     int ret;
 
-    protocol_core_init();
     address_module_init();
     protocol_init(&ctxt->net_if, &ctxt->rcp, ctxt->config.lowpan_mtu);
     ws_bootstrap_init(ctxt->net_if.id);

@@ -167,6 +167,8 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
         return buffer_free(buf);
     }
     cur->icmp_tokens--;
+    if (timer_stopped(&cur->icmp_ratelimit_timer))
+        timer_start_rel(NULL, &cur->icmp_ratelimit_timer, 1000);
 
     /* Include as much of the original packet as possible, without exceeding
      * minimum MTU of 1280. */

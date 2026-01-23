@@ -34,7 +34,6 @@ typedef struct buffer buffer_t;
 struct auth_ctx;
 
 void protocol_push(buffer_t *buf);
-void protocol_core_init(void);
 
 typedef struct arm_15_4_mac_parameters {
     uint16_t mtu;
@@ -53,6 +52,7 @@ struct net_if {
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
+    struct timer_entry icmp_ratelimit_timer;
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
     struct timer_entry reachable_time_ttl;

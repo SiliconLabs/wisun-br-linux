@@ -21,7 +21,6 @@
 #define timer_entry(name, callback, period_ms, is_periodic) \
     [WS_TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 struct ws_timer g_timers[] = {
-    timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
 };
 static_assert(ARRAY_SIZE(g_timers) == WS_TIMER_COUNT, "missing timer declarations");
 
