@@ -14,6 +14,7 @@
 #define _GNU_SOURCE
 #include <sys/timerfd.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
@@ -142,13 +143,12 @@ void timer_process(void)
             SLIST_INSERT_HEAD(&ctxt->trig_list, timer, link);
         }
         while ((timer = SLIST_POP(&ctxt->trig_list, link))) {
-            if (timer->period_ms) {
-                if (timer->expire_ms + timer->period_ms < now_ms)
-                    WARN("periodic timer overrun");
+            if (timer->expire_ms + 100 < now_ms)
+                WARN("late timer (%"PRIu64"ms)", now_ms - timer->expire_ms);
+            if (timer->period_ms)
                 timer_start(group, timer, timer->expire_ms + timer->period_ms);
-            } else {
+            else
                 timer_reset(timer);
-            }
             // WARN: timer->callback() is allowed to free(timer)
             if (timer->callback)
                 timer->callback(group == &ctxt->group_default ? NULL : group, timer);
