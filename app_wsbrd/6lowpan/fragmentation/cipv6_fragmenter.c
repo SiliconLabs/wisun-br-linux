@@ -52,7 +52,7 @@ typedef NS_LIST_HEAD(reassembly_entry_t, link) reassembly_list_t;
 typedef struct reassembly_interface {
     int8_t interface_id;
     struct timer_group timer_group;
-    uint16_t timeout;
+    uint16_t timeout_s;
     reassembly_list_t rx_list;
     reassembly_list_t free_list;
     reassembly_entry_t *entry_pointer_buffer;
@@ -326,7 +326,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
         reassembly_buffer->dst_sa = buf->dst_sa;
         frag_ptr->ttl.callback = reassembly_timeout;
         timer_start_rel(&interface_ptr->timer_group, &frag_ptr->ttl,
-                        interface_ptr->timeout * 1000);
+                        interface_ptr->timeout_s * 1000);
         frag_ptr->tag = datagram_tag;
         frag_ptr->size = datagram_size;
         // Set buffer length and adjust start pointer, so it represents the
@@ -486,7 +486,7 @@ void reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_l
     memset(interface_ptr, 0, sizeof(reassembly_interface_t));
     interface_ptr->interface_id = interface_id;
     timer_group_init(&interface_ptr->timer_group);
-    interface_ptr->timeout = reassembly_timeout;
+    interface_ptr->timeout_s = reassembly_timeout;
     interface_ptr->entry_pointer_buffer = reassemply_ptr;
     ns_list_init(&interface_ptr->free_list);
     ns_list_init(&interface_ptr->rx_list);

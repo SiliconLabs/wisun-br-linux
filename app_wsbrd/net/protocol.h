@@ -56,7 +56,7 @@ struct net_if {
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
     struct timer_entry reachable_time_ttl;
-    uint32_t base_reachable_time;       // ms
+    uint32_t base_reachable_time_ms;
 
     uint8_t mac[8];
     uint8_t iid_eui64[8];

@@ -370,7 +370,7 @@ void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *e
             timer_start_rel(&cache->timer_group, &entry->timer, next_probe_time(cache, 0));
             break;
         case IP_NEIGHBOUR_REACHABLE:
-            timer_start_rel(&cache->timer_group, &entry->timer, cache->reachable_time);
+            timer_start_rel(&cache->timer_group, &entry->timer, cache->reachable_time_ms);
             break;
         case IP_NEIGHBOUR_UNREACHABLE:
             /* Progress to this from PROBE - timers continue */

@@ -126,7 +126,7 @@ typedef struct ipv6_neighbour_cache {
     uint8_t                                 max_ll_len;
     struct timer_group                      timer_group;
     uint32_t                                retrans_timer;
-    uint32_t                                reachable_time;
+    uint32_t                                reachable_time_ms;
     // Interface specific information for route
     ipv6_route_interface_info_t             route_if_info;
     //uint8_t                                   num_entries;

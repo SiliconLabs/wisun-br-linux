@@ -55,7 +55,7 @@ static void icmp_ratelimit_reset(struct timer_group *group, struct timer_entry *
 
 static uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur)
 {
-    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(cur->base_reachable_time, 0x4000, 0xBFFF);
+    return cur->ipv6_neighbour_cache.reachable_time_ms = rand_randomise_base(cur->base_reachable_time_ms, 0x4000, 0xBFFF);
 }
 
 static void update_reachable_time(struct timer_group *group, struct timer_entry *timer)
@@ -92,7 +92,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     entry->rcp = rcp;
     icmp_ratelimit_reset(NULL, &entry->icmp_ratelimit_timer);
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
-    entry->base_reachable_time = 30000;
+    entry->base_reachable_time_ms = 30000;
     entry->reachable_time_ttl.callback = update_reachable_time;
     entry->reachable_time_ttl.period_ms = REACHABLE_TIME_UPDATE_SECONDS * 1000;
     timer_start_rel(NULL, &entry->reachable_time_ttl, entry->reachable_time_ttl.period_ms);

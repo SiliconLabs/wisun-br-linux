@@ -625,7 +625,7 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
 
 static bool lowpan_adaptation_interface_check_buffer_timeout(struct net_if *cur, buffer_t *buf)
 {
-    uint32_t buffer_age_s = (time_now_ms(CLOCK_MONOTONIC) - buf->adaptation_timestamp) / 1000;
+    uint32_t buffer_age_s = (time_now_ms(CLOCK_MONOTONIC) - buf->adaptation_timestamp_ms) / 1000;
     struct ws_neigh *ws_neigh;
     int lfn_uc_l_interval_s;
 
@@ -668,11 +668,11 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
         goto tx_error_handler;
     }
 
-    if (!buf->adaptation_timestamp) {
+    if (!buf->adaptation_timestamp_ms) {
         // Set TX start timestamp
-        buf->adaptation_timestamp = time_now_ms(CLOCK_MONOTONIC);
-        if (!buf->adaptation_timestamp) {
-            buf->adaptation_timestamp--;
+        buf->adaptation_timestamp_ms = time_now_ms(CLOCK_MONOTONIC);
+        if (!buf->adaptation_timestamp_ms) {
+            buf->adaptation_timestamp_ms--;
         }
     } else if (lowpan_adaptation_interface_check_buffer_timeout(cur, buf)) {
         TRACE(TR_TX_ABORT, "tx-abort: buffer timed out dst:%s", tr_eui64(buf->dst_sa.address + PAN_ID_LEN));
