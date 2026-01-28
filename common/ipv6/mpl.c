@@ -127,17 +127,14 @@ static void mpl_seed_update_seq(struct mpl_ctx *mpl, struct mpl_seed *seed, uint
     }
 }
 
-static struct mpl_seed *mpl_seed_new(struct mpl_ctx *mpl,
-                                     const struct in6_addr *src,
-                                     const struct mpl_opt *opt)
+static struct mpl_seed *mpl_seed_new(struct mpl_ctx *mpl, uint8_t s,
+                                     const uint8_t id[], uint8_t seq)
 {
     struct mpl_seed *seed = zalloc(sizeof(struct mpl_seed));
-    const uint8_t *seed_id;
 
-    seed->s = FIELD_GET(MPL_MASK_S, opt->flags);
-    seed_id = seed->s == MPL_S_SRC ? src->s6_addr : opt->seed_id;
-    memcpy(seed->id, seed_id, mpl_seed_id_len[seed->s]);
-    seed->min_seq = opt->seq;
+    seed->s = s;
+    memcpy(seed->id, id, mpl_seed_id_len[seed->s]);
+    seed->min_seq = seq;
     seed->lifetime.callback = mpl_seed_expire;
     SLIST_INIT(&seed->msg_set);
     SLIST_INSERT_HEAD(&mpl->seed_set, seed, link);
@@ -378,7 +375,7 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
 
     seed = mpl_seed_get(mpl, src, opt_mpl);
     if (!seed)
-        seed = mpl_seed_new(mpl, src, opt_mpl);
+        seed = mpl_seed_new(mpl, mpl->s, src->s6_addr, 0);
 
     if (SLIST_EMPTY(&seed->msg_set)) {
         opt_mpl->seq = seed->min_seq;
@@ -458,7 +455,7 @@ int mpl_opt_process(struct mpl_ctx *mpl,
      * Message.
      */
     if (!seed)
-        seed = mpl_seed_new(mpl, &hdr->ip6_src, opt);
+        seed = mpl_seed_new(mpl, s, s == MPL_S_SRC ? hdr->ip6_src.s6_addr : opt->seed_id, opt->seq);
 
     /*
      * If the MPL Forwarder accepts the MPL Data Message, the MPL Forwarder
