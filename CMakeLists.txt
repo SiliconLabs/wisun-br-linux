@@ -182,7 +182,6 @@ add_library(libwsbrd STATIC
     common/iobuf.c
     common/hif.c
     common/spinel.c
-    common/trickle_legacy.c
     common/trickle.c
     common/key_value_storage.c
     common/ieee802154_frame.c

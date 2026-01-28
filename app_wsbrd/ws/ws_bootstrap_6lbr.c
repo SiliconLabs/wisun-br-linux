@@ -25,7 +25,6 @@
 #include "common/bits.h"
 #include "common/rand.h"
 #include "common/mathutils.h"
-#include "common/trickle_legacy.h"
 #include "common/named_values.h"
 #include "common/endian.h"
 #include "common/version.h"

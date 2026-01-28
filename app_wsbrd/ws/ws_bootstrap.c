@@ -26,7 +26,6 @@
 #include "common/dbus.h"
 #include "common/log.h"
 #include "common/rand.h"
-#include "common/trickle_legacy.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/mathutils.h"
