@@ -148,6 +148,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "gtk_max_mismatch",              &config->supp_cfg.gtk_max_mismatch_s,      conf_set_seconds_from_minutes, &valid_positive },
+        { "pan_timeout",                   &config->pan_timeout_s,                    conf_set_seconds_from_minutes, &valid_positive },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";
