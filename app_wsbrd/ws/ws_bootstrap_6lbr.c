@@ -36,9 +36,12 @@
 #include "common/specs/ip.h"
 #include "common/random_early_detection.h"
 #include "common/rail_config.h"
+#include "common/string_extra.h"
+#include "common/memutils.h"
 
 #include "app/rcp_api_legacy.h"
 #include "app/commandline_values.h"
+#include "app/wsbrd.h"
 #include "net/protocol.h"
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"
@@ -61,6 +64,7 @@
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     struct ws_ms_chan_mask ms_chan_mask[FIELD_MAX(WS_MASK_POM_COUNT) + 1] = { 0 };
+    struct wsbr_ctxt *ctxt = container_of(cur, struct wsbr_ctxt, net_if);
     const struct ws_fhss_config *fhss = &cur->ws_info.fhss_config;
     uint8_t chan_mask_async[WS_CHAN_MASK_LEN] = { };
     int chan_fixed;
@@ -92,10 +96,15 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
      */
     BUG_ON(!fhss->chan_params);
     chan_fixed = ws_chan_mask_get_fixed(fhss->uc_chan_mask);
-    if (chan_fixed >= 0)
+    if (chan_fixed >= 0) {
         bitset(chan_mask_async, chan_fixed);
-    else
+    } else {
         ws_chan_mask_calc_reg(chan_mask_async, fhss->chan_params);
+        if (memzcmp(ctxt->config.ws_custom_allowed_channels, sizeof(ctxt->config.ws_custom_allowed_channels)))
+            bitand(chan_mask_async, ctxt->config.ws_custom_allowed_channels, 256);
+        if (!memzcmp(chan_mask_async, sizeof(chan_mask_async)))
+            FATAL(1, "regulatory/custom_allowed_channels constraints results in no valid channel (see --list-rf-configs)");
+    }
     rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
     return 0;

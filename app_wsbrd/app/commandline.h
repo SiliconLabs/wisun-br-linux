@@ -53,6 +53,7 @@ struct wsbrd_conf {
     int  ws_chan_spacing;
     int  ws_chan_count;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
+    uint8_t ws_custom_allowed_channels[WS_CHAN_MASK_LEN];
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
     // -1 for base mode +1 for sentinel

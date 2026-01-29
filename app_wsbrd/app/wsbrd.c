@@ -328,10 +328,14 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ws_chan_mask_calc_reg(fhss->uc_chan_mask, fhss->chan_params);
     ws_chan_mask_calc_reg(fhss->bc_chan_mask, fhss->chan_params);
+    if (memzcmp(ctxt->config.ws_custom_allowed_channels, sizeof(ctxt->config.ws_custom_allowed_channels))) {
+        bitand(fhss->uc_chan_mask, ctxt->config.ws_custom_allowed_channels, 256);
+        bitand(fhss->bc_chan_mask, ctxt->config.ws_custom_allowed_channels, 256);
+    }
     bitand(fhss->uc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     bitand(fhss->bc_chan_mask, ctxt->config.ws_allowed_channels, 256);
     if (!memzcmp(fhss->uc_chan_mask, sizeof(fhss->uc_chan_mask)))
-        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
+        FATAL(1, "combination of allowed_channels and regulatory/custom_allowed_channels constraints results in no valid channel (see --list-rf-configs)");
 
     rail_fill_pom(&ctxt->rcp, &ws_info->fhss_config, &ws_info->phy_config, ctxt->config.ws_phy_op_modes);
 

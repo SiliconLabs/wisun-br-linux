@@ -1,3 +1,7 @@
+  - Introduce "custom_allowed_channels" configuration parameter allowing to
+    configure a channel mask applied to UC, BC, and async frames when using
+    a custom channel plan. See [`wsbrd.conf`][conf] for more details.
+
 v2.7.1
 ------
   - Fix advertised excluded channel mask format leading to interoperability
