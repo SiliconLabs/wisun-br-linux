@@ -246,6 +246,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
             FATAL(1, "custom channel plan needs \"chan_spacing\"");
         if (!config->ws_chan_count)
             FATAL(1, "custom channel plan needs \"chan_count\"");
+        if (config->ws_phy_op_modes[0] != 0 && config->ws_phy_op_modes[0] != (uint8_t)-1)
+            FATAL(1, "\"phy_operating_modes\" cannot be used with custom channel plan");
     } else {
         if (memzcmp(config->ws_custom_allowed_channels, sizeof(config->ws_custom_allowed_channels)))
             FATAL(1, "\"custom_allowed_channels\" can only be used with custom channel plan");
