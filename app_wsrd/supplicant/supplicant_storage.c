@@ -36,19 +36,13 @@ bool supp_storage_load(struct supp_ctx *supp)
     uint64_t now_ms = time_now_ms(CLOCK_MONOTONIC);
     struct storage_parse_info *info;
     struct eui64 eui64;
-    int ret;
 
     info = storage_open_prefix("network-keys", "r");
     if (!info)
         return false;
 
-    while (true) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("eui64", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(eui64.u8, sizeof(eui64.u8), info->value))
                 FATAL(1, "%s:%d: invalid eui64: %s", info->filename, info->linenr, info->value);
             FATAL_ON(!eui64_eq(&eui64, &supp->cfg->eui64), 1, "eui64 mismatch between current and previous state loaded from storage");

@@ -120,15 +120,16 @@ int storage_parse_line(struct storage_parse_info *info)
 
     BUG_ON(!info);
     BUG_ON(!info->file);
-    if (!storage_get_line(info))
-        // EOF is the same value than -EPERM. Ensure that parse_line() will
-        // never return -EPERM.
-        return EOF;
-    if (sscanf(info->line, " %256[^= ] = %256s %c", info->key, info->value, &garbage) != 2)
-        return -EINVAL;
-    if (sscanf(info->key, "%*[^[][%u]", &info->key_array_index) != 1)
-        info->key_array_index = UINT_MAX;
-    return 0;
+    while (storage_get_line(info)) {
+        if (sscanf(info->line, " %256[^= ] = %256s %c", info->key, info->value, &garbage) == 2) {
+            if (sscanf(info->key, "%*[^[][%u]", &info->key_array_index) != 1)
+                info->key_array_index = UINT_MAX;
+            return 0;
+        } else {
+            WARN("%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
+        }
+    }
+    return EOF;
 }
 
 void storage_delete(const char *files[])

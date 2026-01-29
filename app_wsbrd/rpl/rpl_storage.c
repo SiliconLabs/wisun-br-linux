@@ -55,13 +55,8 @@ void rpl_storage_load_config(struct rpl_root *root, const char *filename)
         WARN("%s %s failure", __func__, filename);
         return;
     }
-    while (true) {
-        ret = storage_parse_line(nvm);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", nvm->filename, nvm->linenr, nvm->line);
-        } else if (!fnmatch("instance_id", nvm->key, 0)) {
+    while (storage_parse_line(nvm) != EOF) {
+        if (!fnmatch("instance_id", nvm->key, 0)) {
             root->instance_id = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("dodag_id", nvm->key, 0)) {
             ret = inet_pton(AF_INET6, nvm->value, root->dodag_id);
@@ -146,13 +141,8 @@ void rpl_storage_load_target(struct rpl_root *root, const char *filename)
         WARN("%s %s failure", __func__, filename);
         return;
     }
-    while (true) {
-        ret = storage_parse_line(nvm);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", nvm->filename, nvm->linenr, nvm->line);
-        } else if (!fnmatch("path_seq", nvm->key, 0)) {
+    while (storage_parse_line(nvm) != EOF) {
+        if (!fnmatch("path_seq", nvm->key, 0)) {
             target->path_seq = strtoul(nvm->value, NULL, 0);
         } else if (!fnmatch("path_seq_timestamp", nvm->key, 0)) {
             target->path_seq_tstamp_s = strtoull(nvm->value, NULL, 0) - time_get_storage_offset_s();

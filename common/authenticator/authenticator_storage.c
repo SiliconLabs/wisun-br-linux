@@ -113,19 +113,13 @@ static bool auth_storage_load_keys(struct auth_ctx *auth)
     uint8_t installed_mask = 0;
     uint8_t activated_mask = 0;
     struct eui64 eui64;
-    int ret;
 
     info = storage_open_prefix("network-keys", "r");
     if (!info)
         return false;
 
-    while (true) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("eui64", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("eui64", info->key, 0)) {
             if (parse_byte_array(eui64.u8, sizeof(eui64.u8), info->value))
                 FATAL(1, "%s:%d: invalid eui64: %s", info->filename, info->linenr, info->value);
             FATAL_ON(!eui64_eq(&eui64, &auth->eui64), 1, "eui64 mismatch between current and previous state loaded from storage");
@@ -185,7 +179,6 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
     struct auth_supp_ctx *supp;
     struct eui64 eui64;
     const char *strptr;
-    int ret;
 
     strptr = strrchr(filename, '-');
     if (!strptr) {
@@ -204,13 +197,8 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
 
     supp = auth_fetch_supp(auth, &eui64);
 
-    while (true) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("pmk", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("pmk", info->key, 0)) {
             if (parse_byte_array(supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key), info->value))
                 FATAL(1, "%s:%d: invalid pmk: %s", info->filename, info->linenr, info->value);
         } else if (!fnmatch("pmk.installation_timestamp_s", info->key, 0)) {

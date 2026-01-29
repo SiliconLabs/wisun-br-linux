@@ -26,19 +26,13 @@ bool wsrd_storage_load(struct wsrd *wsrd)
 {
     char netname[WS_NETNAME_LEN + 1] = { };
     struct storage_parse_info *info;
-    int ret;
 
     info = storage_open_prefix("network-config", "r");
     if (!info)
         return false;
 
-    while (true) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("network_name", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("network_name", info->key, 0)) {
              if (parse_escape_sequences(netname, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
             if (memcmp(wsrd->ws.netname, netname, sizeof(wsrd->ws.netname)))

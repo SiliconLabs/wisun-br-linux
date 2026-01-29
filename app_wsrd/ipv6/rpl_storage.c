@@ -30,13 +30,8 @@ bool rpl_storage_load(struct rpl_ctx *rpl, struct in6_addr *dodag_id)
     if (!info)
         return false;
 
-    while (true) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("path_seq", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("path_seq", info->key, 0)) {
             rpl->path_seq = (uint8_t)strtoul(info->value, NULL, 0);
         } else if (!fnmatch("dodag_id", info->key, 0)) {
             ret = inet_pton(AF_INET6, info->value, dodag_id->s6_addr);

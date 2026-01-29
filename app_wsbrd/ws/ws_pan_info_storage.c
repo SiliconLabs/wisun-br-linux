@@ -31,17 +31,11 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
                               char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
-    int ret;
 
     if (!info)
         return;
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("bsi", info->key, 0)) {
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("bsi", info->key, 0)) {
             *bsi = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_id", info->key, 0)) {
             *pan_id = strtoul(info->value, NULL, 0);

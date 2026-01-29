@@ -110,15 +110,7 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
     ipv6_neighbors = calloc(array_len, sizeof(struct ipv6_neighbour));
     FATAL_ON(!ipv6_neighbors, 2, "%s %s", __func__, filename);
 
-    while (true) {
-        ret = storage_parse_line(nvm);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", nvm->filename, nvm->linenr, nvm->line);
-            continue;
-        }
-
+    while (storage_parse_line(nvm) != EOF) {
         FATAL_ON(nvm->key_array_index > array_len, 1, "%s: invalid key index: %d", __func__, nvm->key_array_index);
 
         if (nvm->key_array_index == array_len) {

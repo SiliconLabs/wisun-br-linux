@@ -390,17 +390,10 @@ void parse_config_line(const struct option_struct opts[], struct storage_parse_i
 void parse_config_file(const struct option_struct opts[], const char *filename)
 {
     struct storage_parse_info *info = storage_open(filename, "r");
-    int ret;
 
     if (!info)
         FATAL(1, "%s: %m", filename);
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret)
-            FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
+    while (storage_parse_line(info) != EOF)
         parse_config_line(opts, info);
-    }
     storage_close(info);
 }
