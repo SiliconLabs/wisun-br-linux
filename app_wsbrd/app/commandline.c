@@ -215,6 +215,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
+        { "custom_allowed_channels",       config->ws_custom_allowed_channels,        conf_set_bitmask,     NULL },
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      &valid_pan_id },
         { "enable_lfn",                    &config->enable_lfn,                       conf_set_bool,        NULL },
         { "enable_ffn10",                  &config->enable_ffn10,                     conf_set_bool,        NULL },
@@ -457,6 +458,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         if (!config->ws_chan_count)
             FATAL(1, "custom channel plan need \"chan_count\"");
     } else {
+        if (memzcmp(config->ws_custom_allowed_channels, sizeof(config->ws_custom_allowed_channels)))
+            FATAL(1, "\"custom_allowed_channels\" can only be used with custom channel plan");
         if (config->ws_domain == REG_DOMAIN_UNDEF)
             FATAL(1, "missing \"domain\" parameter");
         if (!config->ws_class && !config->ws_chan_plan_id)

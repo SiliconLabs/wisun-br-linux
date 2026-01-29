@@ -3,6 +3,9 @@
   - `wsbrd`: Drop legacy tick based timer system. This should result in less
     CPU usage.
   - `wsrd`: Use link-local destination address in NS(ARO) packets.
+  - Introduce "custom_allowed_channels" configuration parameter allowing to
+    configure a channel mask applied to UC, BC, and async frames when using
+    a custom channel plan. See [`wsbrd.conf`][conf] for more details.
 
 [tkl-f]: https://ieeexplore.ieee.org/document/6685187
 
