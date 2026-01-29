@@ -390,7 +390,6 @@ static bool rpl_transit_update(struct rpl_root *root,
         BUG_ON(!target);
         target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
         target->path_seq = opt_transit->path_seq;
-        target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
         updated_lifetime = true;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
@@ -408,11 +407,11 @@ static bool rpl_transit_update(struct rpl_root *root,
         memset(target->transits, 0, sizeof(target->transits));
         updated_lifetime = true;
         target->path_seq = opt_transit->path_seq;
-        target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
         updated_transit = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq);
     }
+    target->path_seq_tstamp_s = time_now_s(CLOCK_MONOTONIC);
 
     WARN_ON(target->external != (bool)(opt_transit->flags & RPL_MASK_OPT_TRANSIT_E));
     target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
