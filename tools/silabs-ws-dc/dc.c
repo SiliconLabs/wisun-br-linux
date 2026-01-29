@@ -245,7 +245,10 @@ static void dc_init_radio(struct dc *dc)
         dc->ws.fhss.chan_plan = dc->cfg.ws_chan_plan_id ? 2 : 0;
     }
     dc->ws.fhss.uc_dwell_interval = dc->cfg.ws_uc_dwell_interval_ms;
-    memcpy(dc->ws.fhss.uc_chan_mask, dc->cfg.ws_allowed_channels, sizeof(dc->ws.fhss.uc_chan_mask));
+    ws_chan_mask_calc_reg(dc->ws.fhss.uc_chan_mask, dc->ws.fhss.chan_params);
+    bitand(dc->ws.fhss.uc_chan_mask, dc->cfg.ws_allowed_channels, 256);
+    if (!memzcmp(dc->ws.fhss.uc_chan_mask, sizeof(dc->ws.fhss.uc_chan_mask)))
+        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
 
     for (rail_config = dc->ws.rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
         if (rail_config->rail_phy_mode_id == dc->ws.phy.params->rail_phy_mode_id   &&
@@ -262,10 +265,7 @@ static void dc_init_radio(struct dc *dc)
     ws_chan_mask_calc_reg(chan_mask, dc->ws.fhss.chan_params);
     // Disable async fragmentation for faster advertisement
     rcp_set_fhss_async(&dc->ws.rcp, UINT32_MAX, chan_mask);
-    bitand(chan_mask, dc->cfg.ws_allowed_channels, 256);
-    if (!memzcmp(chan_mask, sizeof(chan_mask)))
-        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    rcp_set_fhss_uc(&dc->ws.rcp, dc->cfg.ws_uc_dwell_interval_ms, chan_mask, NULL);
+    rcp_set_fhss_uc(&dc->ws.rcp, dc->cfg.ws_uc_dwell_interval_ms, dc->ws.fhss.uc_chan_mask, NULL);
 
     rcp_req_radio_enable(&dc->ws.rcp);
 }
