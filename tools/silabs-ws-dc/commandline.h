@@ -38,6 +38,7 @@ struct dc_cfg {
     int  ws_chan_count;
     int  ws_uc_dwell_interval_ms;
     uint8_t ws_allowed_channels[WS_CHAN_MASK_LEN];
+    uint8_t ws_custom_allowed_channels[WS_CHAN_MASK_LEN];
     int tx_power;
 
     uint8_t target_pmk[32];
