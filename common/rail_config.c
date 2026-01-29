@@ -269,6 +269,12 @@ static void rail_fill_pom_auto(const struct rcp *rcp, const struct ws_fhss_confi
     const uint8_t *phy_mode;
     int i;
 
+    if (fhss->chan_plan == 1) {
+        INFO("Disabling mode switch because explicit channel plan is used");
+        rail_fill_pom_disabled(rcp, fhss, phy);
+        return;
+    }
+
     for (base_rail_params = rail_get_next_config(rcp->rail_config_list, fhss->chan_params, phy->params);
          base_rail_params;
          base_rail_params = rail_get_next_config(base_rail_params + 1, fhss->chan_params, phy->params))
