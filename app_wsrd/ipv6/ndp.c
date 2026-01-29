@@ -101,9 +101,10 @@ static void ipv6_send_na_aro(struct ipv6_ctx *ipv6,
 
 static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uint16_t lifetime_minutes)
 {
+    struct in6_addr dst = ipv6_prefix_linklocal;
     struct nd_neighbor_solicit *ns;
     struct pktbuf pktbuf = { };
-    struct in6_addr src, dst;
+    struct in6_addr src;
     struct ndp_opt_earo aro;
     int handle;
 
@@ -113,7 +114,14 @@ static int ipv6_send_ns_aro(struct ipv6_ctx *ipv6, struct ipv6_neigh *neigh, uin
     // [...] the address that is to be registered MUST be the IPv6 source
     // address of the NS message.
     src = ipv6->dhcp.iaaddr.ipv6;
-    dst = neigh->gua;
+    /*
+     *   Wi-SUN Tests 1.1v73 Table 6-167 [POWERCYCLE-ROUTER-1] Pass/Fail Criteria
+     * Step 9: The NS(ARO) must contain:
+     *   - IPv6 Destination Address: TBU Router’s link local addresses
+     *
+     * FIXME: This requirement does not come from any protocol specification.
+     */
+    ipv6_addr_conv_iid_eui64(dst.s6_addr + 8, neigh->eui64.u8);
 
     ns = pktbuf_push_tail(&pktbuf, NULL, sizeof(*ns));
     ns->nd_ns_type   = ND_NEIGHBOR_SOLICIT;

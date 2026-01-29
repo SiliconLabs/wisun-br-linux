@@ -1,5 +1,6 @@
   - `wsbrd`: Drop legacy tick based timer system. This should result in less
     CPU usage.
+  - `wsrd`: Use link-local destination address in NS(ARO) packets.
 
 v2.8
 ------
