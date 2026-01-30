@@ -454,9 +454,8 @@ buffer_t *ipv6_down(buffer_t *buf)
             } else {
                 *ptr++ = IPV6_OPTION_PADN;
                 *ptr++ = (pad -= 2);
-                while (pad) {
-                    *ptr = 0, pad--;
-                }
+                memset(ptr, 0, pad);
+                ptr += pad;
             }
         }
         /* Go back and fill in the length byte */
