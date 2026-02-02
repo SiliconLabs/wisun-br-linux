@@ -84,9 +84,9 @@ int dbus_set_link_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *r
     else if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    if (ms_mode > WS_MODE_SWITCH_MAC)
+    if (ms_mode >= WS_MODE_SWITCH_CNT)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    if (ms_mode > WS_MODE_SWITCH_DISABLED && !phy_mode_id)
+    if ((ms_mode == WS_MODE_SWITCH_PHY || ms_mode == WS_MODE_SWITCH_MAC) && !phy_mode_id)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     if (ms_mode == WS_MODE_SWITCH_DEFAULT && phy_mode_id)
         return sd_bus_error_set_errno(ret_error, EINVAL);
