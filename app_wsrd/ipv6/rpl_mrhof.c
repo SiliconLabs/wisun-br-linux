@@ -18,6 +18,7 @@
 #include "app_wsrd/ipv6/rpl.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/ws/ws_neigh.h"
+#include "common/sys_queue_extra.h"
 #include "common/named_values.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
@@ -161,13 +162,9 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *nce;
 
-    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
-        if (!nce->rpl)
-            continue;
-        if (!rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE, ipv6->rpl.mrhof.max_link_metric, -1))
-            return true;
-    }
-    return false;
+    return SLIST_FIND(nce, &ipv6->neigh_cache, link,
+                      nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE,
+                                                               ipv6->rpl.mrhof.max_link_metric, -1) == NULL);
 }
 
 static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent_cur,
