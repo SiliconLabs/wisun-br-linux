@@ -908,9 +908,8 @@ void ws_fhss_uc_use_rand_fixed_chan(struct wsrd *wsrd)
     int chan_idx;
 
     BUG_ON(version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0));
-    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
-    bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
-    BUG_ON(!memzcmp(chan_mask, sizeof(chan_mask)));
+    BUG_ON(!memzcmp(wsrd->ws.fhss.uc_chan_mask, sizeof(wsrd->ws.fhss.uc_chan_mask)));
+    memcpy(chan_mask, wsrd->ws.fhss.uc_chan_mask, sizeof(chan_mask));
 
     if (ws_chan_mask_get_fixed(chan_mask) >= 0) {
         ws_set_fhss_uc(wsrd, chan_mask);
@@ -929,12 +928,6 @@ void ws_fhss_uc_use_rand_fixed_chan(struct wsrd *wsrd)
 
 void ws_fhss_uc_use_default(struct wsrd *wsrd)
 {
-    uint8_t chan_mask[WS_CHAN_MASK_LEN];
-
-    BUG_ON(!wsrd->ws.fhss.chan_params);
-    ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
-    bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
-    if (!memzcmp(chan_mask, sizeof(chan_mask)))
-        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
-    ws_set_fhss_uc(wsrd, chan_mask);
+    BUG_ON(!memzcmp(wsrd->ws.fhss.uc_chan_mask, sizeof(wsrd->ws.fhss.uc_chan_mask)));
+    ws_set_fhss_uc(wsrd, wsrd->ws.fhss.uc_chan_mask);
 }
