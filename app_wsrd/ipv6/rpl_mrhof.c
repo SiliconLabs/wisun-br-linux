@@ -112,16 +112,8 @@ const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce
 
 static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
-    const char *discard;
-    float etx;
-
-    discard = rpl_mrhof_is_candidate(ipv6, nce);
-    if (discard)
-        return false;
-    etx = rpl_mrhof_etx(ipv6, nce);
-    if (isnan(etx))
-        return true;
-    return false;
+    return rpl_mrhof_is_candidate(ipv6, nce) == NULL &&
+           isnan(rpl_mrhof_etx(ipv6, nce));
 }
 
 static const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
