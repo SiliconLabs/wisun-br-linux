@@ -135,11 +135,8 @@ static const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ip
         return discard;
     new_rank = rpl_mrhof_path_rank(ipv6, nce);
     etx = rpl_mrhof_etx(ipv6, nce);
-    if (isnan(etx)) {
-        if (etx_max == WS_ETX_MAX)
-            return NULL;
+    if (isnan(etx))
         return "etx";
-    }
     /*
      * If the selected metric for a link is greater than MAX_LINK_METRIC,
      * the node SHOULD exclude that link from consideration during parent
