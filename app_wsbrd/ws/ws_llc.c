@@ -1206,6 +1206,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         memset(&data_conf, 0, sizeof(mcps_data_cnf_t));
         data_conf.hif.handle = data->msduHandle;
         data_conf.hif.status = HIF_STATUS_NOMEM;
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
+              tr_ws_frame(WS_FT_DATA), tr_eui64(data->DstAddr));
         user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
