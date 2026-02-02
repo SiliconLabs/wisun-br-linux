@@ -527,9 +527,11 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     }
     wsrd->ws.fhss.uc_dwell_interval = wsrd->config.ws_uc_dwell_interval_ms;
     ws_chan_mask_calc_reg(wsrd->ws.fhss.uc_chan_mask, wsrd->ws.fhss.chan_params);
+    if (memzcmp(wsrd->config.ws_custom_allowed_channels, sizeof(wsrd->config.ws_custom_allowed_channels)))
+        bitand(wsrd->ws.fhss.uc_chan_mask, wsrd->config.ws_custom_allowed_channels, 256);
     bitand(wsrd->ws.fhss.uc_chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(wsrd->ws.fhss.uc_chan_mask, sizeof(wsrd->ws.fhss.uc_chan_mask)))
-        FATAL(1, "combination of allowed_channels and regulatory constraints results in no valid channel (see --list-rf-configs)");
+        FATAL(1, "combination of allowed_channels and regulatory/custom_allowed_channels constraints results in no valid channel (see --list-rf-configs)");
 
     for (rail_config = wsrd->ws.rcp.rail_config_list; rail_config->chan0_freq; rail_config++)
         if (rail_config->rail_phy_mode_id == wsrd->ws.phy.params->rail_phy_mode_id   &&
@@ -564,10 +566,15 @@ static void wsrd_init_radio(struct wsrd *wsrd)
      * Regulatory Channels.
      */
     chan_fixed = ws_chan_mask_get_fixed(wsrd->ws.fhss.uc_chan_mask);
-    if (chan_fixed >= 0)
+    if (chan_fixed >= 0) {
         bitset(chan_mask, chan_fixed);
-    else
+    } else {
         ws_chan_mask_calc_reg(chan_mask, wsrd->ws.fhss.chan_params);
+        if (memzcmp(wsrd->config.ws_custom_allowed_channels, sizeof(wsrd->config.ws_custom_allowed_channels)))
+            bitand(chan_mask, wsrd->config.ws_custom_allowed_channels, 256);
+        if (!memzcmp(chan_mask, sizeof(chan_mask)))
+            FATAL(1, "regulatory/custom_allowed_channels constraints results in no valid channel (see --list-rf-configs)");
+    }
     rcp_set_fhss_async(&wsrd->ws.rcp, 500, chan_mask);
     bitand(chan_mask, wsrd->config.ws_allowed_channels, 256);
     if (!memzcmp(chan_mask, sizeof(chan_mask)))

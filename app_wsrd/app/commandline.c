@@ -125,6 +125,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
+        { "custom_allowed_channels",       config->ws_custom_allowed_channels,        conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    &config->enable_apc,                       conf_set_bool,        NULL },
@@ -246,6 +247,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         if (!config->ws_chan_count)
             FATAL(1, "custom channel plan needs \"chan_count\"");
     } else {
+        if (memzcmp(config->ws_custom_allowed_channels, sizeof(config->ws_custom_allowed_channels)))
+            FATAL(1, "\"custom_allowed_channels\" can only be used with custom channel plan");
         if (config->ws_domain == REG_DOMAIN_UNDEF)
             FATAL(1, "missing \"domain\" parameter");
         if (!config->ws_class && !config->ws_chan_plan_id)
