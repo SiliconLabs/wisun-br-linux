@@ -78,13 +78,6 @@ static inline uint8_t rpl_lollipop_inc(uint8_t val)
 {
     int8_t sval = val;
 
-    /*
-     * NOTE: We increment the lollipop counter by 4 in the linear region to
-     * reach the circular region faster and better handle reboots in the linear
-     * region.
-     */
-    if (sval < 0)
-        return sval + 4;
     return sval == INT8_MAX ? 0 : sval + 1;
 }
 
