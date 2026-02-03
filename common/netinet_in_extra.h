@@ -14,12 +14,16 @@
 #ifndef NETINET_IN_EXTRA_H
 #define NETINET_IN_EXTRA_H
 #include <netinet/in.h>
+#include <string.h>
 
 /*
  * Provide some non-standard extensions to netinet/in.h.
  *
  * These functions keep the same name and call conventions as netinet/in.h.
  */
+
+// IN6_ARE_ADDR_EQUAL() expects addresses to be memory aligned
+#define IN6_ARE_ADDR_EQUAL_SAFE(a, b) !memcmp(a, b, sizeof(struct in6_addr))
 
 // RFC 4291 - 2.4. Address Type Identification
 #define IN6_IS_ADDR_UC_GLOBAL(a) ( \

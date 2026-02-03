@@ -32,6 +32,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/crypto/ws_keys.h"
 #include "common/mbedtls_config_check.h"
+#include "common/netinet_in_extra.h"
 #include "common/key_value_storage.h"
 #include "common/drop_privileges.h"
 #include "common/rpl_lollipop.h"
@@ -104,12 +105,10 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
     struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
     struct wsrd *wsrd = container_of(ipv6, struct wsrd, ipv6);
     struct ipv6_neigh *neigh;
-    struct in6_addr dodag_id; // -Waddress-of-packed-member
     struct eui64 eui64;
 
     if (!parent)
         return;
-    dodag_id = parent->rpl->dio.dodag_id;
     if (IN6_IS_ADDR_LINKLOCAL(src)) {
         ipv6_addr_conv_iid_eui64(eui64.u8, src->s6_addr + 8);
         neigh = ipv6_neigh_get_from_eui64(ipv6, &eui64);
@@ -117,7 +116,7 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
             return;
         src = &neigh->gua;
     }
-    if (IN6_ARE_ADDR_EQUAL(src, &dodag_id))
+    if (IN6_ARE_ADDR_EQUAL_SAFE(src, &parent->rpl->dio.dodag_id))
         ws_pan_timeout_update(wsrd);
 }
 

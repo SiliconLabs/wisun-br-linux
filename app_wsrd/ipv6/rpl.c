@@ -79,10 +79,8 @@ static void rpl_neigh_update(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
                              const struct rpl_opt_config *config,
                              const struct rpl_opt_prefix *prefix)
 {
-    const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
-
     WARN_ON(nce->rpl->dio.instance_id != dio->instance_id);
-    WARN_ON(!IN6_ARE_ADDR_EQUAL(nce->rpl->dio.dodag_id.s6_addr, &dodag_id));
+    WARN_ON(!IN6_ARE_ADDR_EQUAL_SAFE(&nce->rpl->dio.dodag_id, &dio->dodag_id));
     WARN_ON(memcmp(&nce->rpl->config, config, sizeof(nce->rpl->config)));
     nce->rpl->dio = *dio;
     nce->rpl->config   = *config;
@@ -709,12 +707,9 @@ malformed:
 
 static bool rpl_opt_solicit_matches(const struct rpl_opt_solicit *solicit, const struct rpl_dio *dio)
 {
-    const struct in6_addr dodag_id_solicit = solicit->dodag_id; // -Waddress-of-packed-member
-    const struct in6_addr dodag_id = dio->dodag_id; // -Waddress-of-packed-member
-
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_I && solicit->instance_id != dio->instance_id)
         return false;
-    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL(&dodag_id_solicit, &dodag_id))
+    if (solicit->flags & RPL_MASK_OPT_SOLICIT_D && !IN6_ARE_ADDR_EQUAL_SAFE(&solicit->dodag_id, &dio->dodag_id))
         return false;
     if (solicit->flags & RPL_MASK_OPT_SOLICIT_V && solicit->dodag_verno != dio->dodag_verno)
         return false;
