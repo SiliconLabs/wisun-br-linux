@@ -450,6 +450,11 @@ int mpl_opt_process(struct mpl_ctx *mpl,
                   "mpl", tr_seed_id(seed->s, seed->id), opt->seq);
             return -EEXIST;
         }
+        if (seed == mpl->seed_self) {
+            TRACE(TR_DROP, "drop %-9s: id=%s seq=%u own message",
+                  "mpl", tr_seed_id(seed->s, seed->id), opt->seq);
+            return -EALREADY;
+        }
     }
 
     /*
