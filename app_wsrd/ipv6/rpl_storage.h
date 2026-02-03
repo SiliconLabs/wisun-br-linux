@@ -16,7 +16,7 @@
 
 struct rpl_ctx;
 
-bool rpl_storage_load(struct rpl_ctx *rpl);
+bool rpl_storage_load(struct rpl_ctx *rpl, struct in6_addr *dodag_id);
 void rpl_storage_store(const struct rpl_ctx *rpl, const struct in6_addr *dodag_id);
 
 #endif

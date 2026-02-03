@@ -11,6 +11,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <arpa/inet.h>
 #include <fnmatch.h>
 #include <unistd.h>
 
@@ -20,7 +21,7 @@
 #include "rpl.h"
 #include "rpl_storage.h"
 
-bool rpl_storage_load(struct rpl_ctx *rpl)
+bool rpl_storage_load(struct rpl_ctx *rpl, struct in6_addr *dodag_id)
 {
     struct storage_parse_info *info;
     int ret;
@@ -37,6 +38,9 @@ bool rpl_storage_load(struct rpl_ctx *rpl)
             WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
         } else if (!fnmatch("path_seq", info->key, 0)) {
             rpl->path_seq = (uint8_t)strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("dodag_id", info->key, 0)) {
+            ret = inet_pton(AF_INET6, info->value, dodag_id->s6_addr);
+            WARN_ON(ret != 1, "%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }

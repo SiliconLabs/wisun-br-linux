@@ -169,7 +169,9 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
 {
     struct ipv6_neigh *parents_cur[RPL_PARENTS_MAX] = { };
     struct ipv6_neigh *parents_new[RPL_PARENTS_MAX] = { };
+    struct in6_addr old_dodag_id = { };
     int dtsn_old = ipv6->rpl.dtsn;
+    struct in6_addr dodag_id;
     bool send_dao;
 
     rpl_get_parents(ipv6, parents_cur);
@@ -192,9 +194,18 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     }
     if (parents_cur[0] != parents_new[0]) {
         dbus_emit_change("PrimaryParent");
-        if (parents_new[0] && !parents_cur[0])
+        if (parents_new[0] && !parents_cur[0]) {
             TRACE(TR_RPL, "rpl: select inst-id=%u dodag-id=%s", parents_new[0]->rpl->dio.instance_id,
                   tr_ipv6(parents_new[0]->rpl->dio.dodag_id.s6_addr));
+            if (!rpl_storage_load(&ipv6->rpl, &old_dodag_id) ||
+                !IN6_ARE_ADDR_EQUAL_SAFE(&parents_new[0]->rpl->dio.dodag_id, &old_dodag_id)) {
+                TRACE(TR_RPL, "rpl: dodag-id mismatch, reset path-seq");
+                ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
+                ipv6->rpl.path_seq_last_tx = -1;
+                dodag_id = parents_new[0]->rpl->dio.dodag_id; // -Waddress-of-packed-member
+                rpl_storage_store(&ipv6->rpl, &dodag_id);
+            }
+        }
     }
 
     timer_stop(&ipv6->timer_group, &ipv6->rpl.dao_refresh_timer);
@@ -970,7 +981,6 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dtsn = -1;
     ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
     ipv6->rpl.path_seq_last_tx = -1;
-    rpl_storage_load(&ipv6->rpl);
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
     FATAL_ON(ipv6->rpl.fd < 0, 2, "%s: socket: %m", __func__);
