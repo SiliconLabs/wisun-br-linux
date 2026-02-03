@@ -45,15 +45,17 @@ bool rpl_storage_load(struct rpl_ctx *rpl)
     return true;
 }
 
-void rpl_storage_store(const struct rpl_ctx *rpl)
+void rpl_storage_store(const struct rpl_ctx *rpl, const struct in6_addr *dodag_id)
 {
     struct storage_parse_info *info;
+    char ipv6_str[STR_MAX_LEN_IPV6];
 
     info = storage_open_prefix("rpl", "w");
     if (!info)
         return;
 
     fprintf(info->file, "path_seq = %u\n", rpl->path_seq);
+    fprintf(info->file, "dodag_id = %s\n", str_ipv6(dodag_id->s6_addr, ipv6_str));
     fflush(info->file);
     fsync(fileno(info->file));
     storage_close(info);

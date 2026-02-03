@@ -472,11 +472,16 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
 
 static void rpl_path_seq_update(struct ipv6_ctx *ipv6)
 {
+    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
+    struct in6_addr dodag_id;
+
+    BUG_ON(!parent);
     // NOTE: Do not increment if current value was not used in any packet yet
     if (ipv6->rpl.path_seq_last_tx != ipv6->rpl.path_seq)
         return;
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
-    rpl_storage_store(&ipv6->rpl);
+    dodag_id = parent->rpl->dio.dodag_id; // -Waddress-of-packed-member
+    rpl_storage_store(&ipv6->rpl, &dodag_id);
 }
 
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
