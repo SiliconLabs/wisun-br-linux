@@ -167,9 +167,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
     struct ipv6_neigh *parent_new = NULL;
     struct ipv6_neigh *nce;
     const char *discard;
-    uint16_t new_rank;
     float path_cost;
-    float etx;
 
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
@@ -182,9 +180,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
         if (!nce->rpl || nce->rpl->path_ctl)
             continue;
 
-        etx = rpl_mrhof_etx(ipv6, nce);
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
-        new_rank = rpl_mrhof_path_rank(ipv6, nce);
         discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric,
                                                ipv6->rpl.dodag_verno);
 
@@ -200,8 +196,9 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 
         TRACE(TR_RPL, "rpl:   %-45s | %-11u | %-4.0f | %-5u | %-9.0f | %-8u | %s",
-              tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno, etx, ntohs(nce->rpl->dio.rank),
-              path_cost, new_rank, discard ? discard : "");
+              tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno,
+              rpl_mrhof_etx(ipv6, nce), ntohs(nce->rpl->dio.rank), path_cost,
+              rpl_mrhof_path_rank(ipv6, nce), discard ? discard : "");
         if (discard)
             continue;
         if (path_cost >= pref_path_cost)
