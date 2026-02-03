@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <sys/queue.h>
+#include <fnmatch.h>
 #include <errno.h>
 
 #include "common/specs/ipv6.h"
@@ -21,6 +22,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/mathutils.h"
 #include "common/bits.h"
+#include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/memutils.h"
 #include "common/pktbuf.h"
@@ -317,6 +319,55 @@ static void mpl_msg_del(struct mpl_ctx *mpl, struct mpl_seed *seed, struct mpl_m
     free(msg);
 }
 
+/*
+ *   Wi-SUN FAN 1.1v11 6.5.6 State Maintenance Through Power Cycling
+ * FFNs and LFNs MUST maintain the following state across power cyclings:
+ *   2. MPL sequence number (if operating as seed)
+ */
+
+static uint8_t mpl_seq_load(void)
+{
+    struct storage_parse_info *info;
+    uint8_t seq = 0; // Arbitrary
+
+    info = storage_open_prefix("mpl", "r");
+    if (!info)
+        return seq;
+
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("seq", info->key, 0))
+            seq = strtoul(info->value, NULL, 0);
+        else
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+    }
+    storage_close(info);
+    return seq;
+}
+
+static void mpl_seq_store(const struct mpl_seed *seed)
+{
+    struct storage_parse_info *info;
+    struct mpl_msg *msg;
+    char strbuf[48];
+    uint8_t seq;
+
+    info = storage_open_prefix("mpl", "w");
+    if (!info)
+        return;
+
+    SLIST_FOREACH(msg, &seed->msg_set, link)
+        seq = mpl_msg_seq(msg);
+
+    fprintf(info->file, "#s = %u\n", seed->s);
+    if (seed->s == MPL_S_SRC || seed->s == MPL_S_128)
+        str_ipv6(seed->id, strbuf);
+    else
+        str_bytes(seed->id, mpl_seed_id_len[seed->s], NULL, strbuf, sizeof(strbuf), DELIM_COLON);
+    fprintf(info->file, "#seed_id = %s\n", strbuf);
+    fprintf(info->file, "seq = %u\n", seq);
+    storage_close_flush(info);
+}
+
 // RFC 7731 9.1. MPL Data Message Generation
 int mpl_msg_gen(struct mpl_ctx *mpl,
                 const struct in6_addr *src,
@@ -336,7 +387,7 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
         mpl->seed_self = NULL;
     }
     if (!mpl->seed_self)
-        mpl->seed_self = mpl_seed_new(mpl, mpl->s, src->s6_addr, 0);
+        mpl->seed_self = mpl_seed_new(mpl, mpl->s, src->s6_addr, mpl_seq_load());
 
     if (pktbuf_len(pktbuf) < sizeof(struct ip6_hdr))
         return -EINVAL;
@@ -394,6 +445,7 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
     }
 
     mpl_msg_new(mpl, mpl->seed_self, hdr, opt_mpl, true);
+    mpl_seq_store(mpl->seed_self);
     return 0;
 }
 

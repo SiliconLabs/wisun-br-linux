@@ -613,6 +613,7 @@ int wsbr_main(int argc, char *argv[])
         "br-info",
         "supp-*",
         "rpl-*",
+        "mpl",
         NULL,
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;

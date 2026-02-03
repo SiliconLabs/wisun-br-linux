@@ -723,6 +723,7 @@ int wsrd_main(int argc, char *argv[])
     static const char *files[] = {
         "network-config",
         "network-keys",
+        "mpl",
         NULL,
     };
     struct sigaction sigact = { };
