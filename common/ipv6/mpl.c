@@ -324,12 +324,19 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
 {
     int opt_mpl_len, hbh_len;
     struct mpl_opt *opt_mpl;
-    struct mpl_seed *seed;
     struct mpl_msg *msg;
     struct ip6_hdr *hdr;
     struct ip6_hbh *hbh;
     struct ip6_opt *opt;
     uintptr_t pad;
+
+    if (mpl->seed_self && memcmp(mpl->seed_self->id, src, sizeof(struct in6_addr))) {
+        WARN("MPL Seed change");
+        mpl_seed_expire(&mpl->timer_group, &mpl->seed_self->lifetime);
+        mpl->seed_self = NULL;
+    }
+    if (!mpl->seed_self)
+        mpl->seed_self = mpl_seed_new(mpl, mpl->s, src->s6_addr, 0);
 
     if (pktbuf_len(pktbuf) < sizeof(struct ip6_hdr))
         return -EINVAL;
@@ -373,24 +380,20 @@ int mpl_msg_gen(struct mpl_ctx *mpl,
         opt->ip6o_len = pad - sizeof(struct ip6_opt);
     }
 
-    seed = mpl_seed_get(mpl, src, opt_mpl);
-    if (!seed)
-        seed = mpl_seed_new(mpl, mpl->s, src->s6_addr, 0);
-
-    if (SLIST_EMPTY(&seed->msg_set)) {
-        opt_mpl->seq = seed->min_seq;
+    if (SLIST_EMPTY(&mpl->seed_self->msg_set)) {
+        opt_mpl->seq = mpl->seed_self->min_seq;
     } else {
         // Get highest seq
-        SLIST_FOREACH(msg, &seed->msg_set, link)
+        SLIST_FOREACH(msg, &mpl->seed_self->msg_set, link)
             opt_mpl->seq = mpl_msg_seq(msg);
         opt_mpl->seq++;
-        if (seqno_cmp8(opt_mpl->seq, seed->min_seq) < 0) {
+        if (seqno_cmp8(opt_mpl->seq, mpl->seed_self->min_seq) < 0) {
             TRACE(TR_TX_ABORT, "tx-abort %-9s: too many packets queued", "mpl");
             return -EBUSY;
         }
     }
 
-    mpl_msg_new(mpl, seed, hdr, opt_mpl, true);
+    mpl_msg_new(mpl, mpl->seed_self, hdr, opt_mpl, true);
     return 0;
 }
 

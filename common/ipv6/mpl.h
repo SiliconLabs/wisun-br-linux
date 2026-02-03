@@ -29,6 +29,7 @@ SLIST_HEAD(mpl_seed_set, mpl_seed);
 struct mpl_ctx {
     struct timer_group timer_group;
     struct mpl_seed_set seed_set;
+    struct mpl_seed *seed_self;
 
     // RFC 7731 5.4. MPL Parameters
     uint64_t seed_lifetime_ms;
