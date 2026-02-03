@@ -432,6 +432,7 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
     if (path_lifetime)
         dao.flags |= RPL_MASK_DAO_K;
     dao.dao_seq = ipv6->rpl.path_seq;
+    ipv6->rpl.path_seq_last_tx = ipv6->rpl.path_seq;
     iobuf_push_data(&iobuf, &dao, sizeof(dao));
 
     // A RPL Target option MUST be included and populated for each GUA/ULA to
@@ -469,15 +470,18 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
     iobuf_free(&iobuf);
 }
 
-static void rpl_path_seq_inc(struct ipv6_ctx *ipv6)
+static void rpl_path_seq_update(struct ipv6_ctx *ipv6)
 {
+    // NOTE: Do not increment if current value was not used in any packet yet
+    if (ipv6->rpl.path_seq_last_tx != ipv6->rpl.path_seq)
+        return;
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
     rpl_storage_store(&ipv6->rpl);
 }
 
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
 {
-    rpl_path_seq_inc(ipv6);
+    rpl_path_seq_update(ipv6);
     rpl_send_dao(ipv6, 0);
 }
 
@@ -507,7 +511,7 @@ void rpl_start_dao(struct ipv6_ctx *ipv6)
      * can be incremented at every DAO transmission sequence in order to ensure
      * transits are always applied.
      */
-    rpl_path_seq_inc(ipv6);
+    rpl_path_seq_update(ipv6);
     rfc8415_txalg_start(&ipv6->rpl.dao_txalg);
 }
 
@@ -930,6 +934,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     ipv6->rpl.last_advertised_rank = RPL_RANK_INFINITE;
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
+    ipv6->rpl.path_seq_last_tx = -1;
 }
 
 void rpl_start(struct ipv6_ctx *ipv6)
@@ -959,6 +964,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
     ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
+    ipv6->rpl.path_seq_last_tx = -1;
     rpl_storage_load(&ipv6->rpl);
 
     ipv6->rpl.fd = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
