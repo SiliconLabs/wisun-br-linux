@@ -146,6 +146,11 @@ void trickle_inconsistent(struct trickle *tkl, struct timer_group *group)
     if (tkl->I_ms <= tkl->cfg->Imin_ms || trickle_stopped(tkl))
         return;
     TRACE(TR_TRICKLE, "tkl %-4s inconsistent", tkl->debug_name);
+    /*
+     * NOTE: Contrary to standard Trickle-F, do not reset S on inconsistency, keep
+     * TX probabilities high to improve delivery time in unfavorable topologies.
+     */
+    // t->s = 0;
     tkl->I_ms = tkl->cfg->Imin_ms;
     trickle_interval_begin(tkl, group, false);
 }
