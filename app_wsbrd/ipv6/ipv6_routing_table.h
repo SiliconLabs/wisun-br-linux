@@ -155,19 +155,6 @@ typedef struct ipv6_route_info {
     uint8_t                         next_hop_addr[16];
 } ipv6_route_info_t;
 
-typedef struct ipv6_destination {
-    /* Destination/path information */
-    uint8_t                         destination[16];
-    int8_t                          interface_id;       // fixed if link-local destination, else variable and gets set from redirect interface and/or last_neighbour interface
-    uint16_t                        refcount;
-    struct timer_entry              lifetime;
-    ipv6_neighbour_t                *last_neighbour;    // last neighbour used (only for reachability confirmation)
-    ns_list_link_t                  link;
-} ipv6_destination_t;
-
-ipv6_destination_t *ipv6_destination_lookup_or_create(struct net_if *net_if, const uint8_t *address);
-void ipv6_destination_cache_clean(struct net_if *net_if);
-
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */
 /* On-link prefixes have the on_link flag set and next_hop is unset */
 typedef struct ipv6_route {

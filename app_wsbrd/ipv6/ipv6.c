@@ -102,8 +102,6 @@ void ipv6_set_exthdr_provider(ipv6_route_src_t src, ipv6_exthdr_provider_fn_t *f
 /* If next_if != NULL, this sends to next_hop on that interface */
 buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct net_if *next_if)
 {
-    addrtype_e ll_type;
-    const uint8_t *ll_addr;
     buffer_routing_info_t *route;
 
     if (buf->route) {
@@ -117,12 +115,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     bool interface_specific = addr_ipv6_scope(buf->dst_sa.address) <= IPV6_SCOPE_REALM_LOCAL;
     struct net_if *cur = buf->interface;
     if (cur == NULL && interface_specific) {
-        goto no_route;
-    }
-
-    ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(cur, buf->dst_sa.address);
-    if (!dest_entry) {
-        tr_error("ipv6_buffer_route no destination entry %s", tr_ipv6(buf->dst_sa.address));
         goto no_route;
     }
 
@@ -176,24 +168,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     if (!outgoing_if) {
         goto no_route;      // Shouldn't happen - internal error
     }
-
-
-    dest_entry->interface_id = route->route_info.interface_id;
-    if (!addr_is_ipv6_multicast(dest_entry->destination)) {
-        dest_entry->last_neighbour = ipv6_neighbour_lookup(&outgoing_if->ipv6_neighbour_cache, route->route_info.next_hop_addr);
-
-        if (!dest_entry->last_neighbour) {
-            if (!ipv6_map_ip_to_ll(outgoing_if, NULL, route->route_info.next_hop_addr, &ll_type, &ll_addr) ||
-                ll_type != ADDR_802_15_4_LONG)
-                goto no_route;
-            dest_entry->last_neighbour = ipv6_neighbour_create(&outgoing_if->ipv6_neighbour_cache,
-                                                               route->route_info.next_hop_addr,
-                                                               ll_addr + PAN_ID_LEN);
-        }
-        if (!dest_entry->last_neighbour)
-            goto no_route;
-    }
-    //tr_debug("%s->last_neighbour := %s", tr_ipv6(dest_entry->destination), tr_ipv6(route->route_info.next_hop_addr));
 
     if (!cur || route->route_info.interface_id != cur->id) {
         struct net_if *new_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
