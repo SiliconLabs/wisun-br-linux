@@ -81,6 +81,14 @@ int storage_close(struct storage_parse_info *info)
     return fclose(file);
 }
 
+int storage_close_flush(struct storage_parse_info *info)
+{
+    BUG_ON(!info || !info->file);
+    fflush(info->file);
+    fsync(fileno(info->file));
+    return storage_close(info);
+}
+
 static char *storage_get_line(struct storage_parse_info *info)
 {
     char garbage;

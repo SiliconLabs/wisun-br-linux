@@ -313,11 +313,10 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
     fprintf(info->file, "gtkl = %u\n", supp->gtkl);
     fprintf(info->file, "lgtkl = %u\n", supp->lgtkl);
     fprintf(info->file, "node_role = %u\n", supp->node_role);
-    if (force_write) {
-        fflush(info->file);
-        fsync(fileno(info->file));
-    }
-    storage_close(info);
+    if (force_write)
+        storage_close_flush(info);
+    else
+        storage_close(info);
 }
 
 void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write)
@@ -376,9 +375,8 @@ void auth_storage_store_keys(const struct auth_ctx *auth, bool force_write)
             fprintf(info->file, "lgtk[%d].frame_counter = %"PRIu32"\n", i - WS_GTK_COUNT, auth->gtks[i].frame_counter);
         }
     }
-    if (force_write) {
-        fflush(info->file);
-        fsync(fileno(info->file));
-    }
-    storage_close(info);
+    if (force_write)
+        storage_close_flush(info);
+    else
+        storage_close(info);
 }

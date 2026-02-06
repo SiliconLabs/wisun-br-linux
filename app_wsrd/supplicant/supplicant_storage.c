@@ -142,11 +142,10 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
             fprintf(info->file, "lgtk[%d].frame_counter = %"PRIu32"\n", i - WS_GTK_COUNT, supp->gtks[i].frame_counter);
         }
     }
-    if (force_write) {
-        fflush(info->file);
-        fsync(fileno(info->file));
-    }
-    storage_close(info);
+    if (force_write)
+        storage_close_flush(info);
+    else
+        storage_close(info);
 }
 
 void supp_storage_clear(void)

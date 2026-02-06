@@ -60,7 +60,5 @@ void rpl_storage_store(const struct rpl_ctx *rpl, const struct in6_addr *dodag_i
 
     fprintf(info->file, "path_seq = %u\n", rpl->path_seq);
     fprintf(info->file, "dodag_id = %s\n", str_ipv6(dodag_id->s6_addr, ipv6_str));
-    fflush(info->file);
-    fsync(fileno(info->file));
-    storage_close(info);
+    storage_close_flush(info);
 }

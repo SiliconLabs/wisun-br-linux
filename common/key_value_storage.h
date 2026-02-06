@@ -51,6 +51,7 @@ int storage_check_access(const char *storage_prefix);
 struct storage_parse_info *storage_open(const char *filename, const char *mode);
 struct storage_parse_info *storage_open_prefix(const char *filename, const char *mode);
 int storage_close(struct storage_parse_info *file);
+int storage_close_flush(struct storage_parse_info *file);
 int storage_parse_line(struct storage_parse_info *file);
 void storage_delete(const char *files[]);
 

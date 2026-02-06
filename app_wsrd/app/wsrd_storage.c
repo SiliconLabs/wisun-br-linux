@@ -67,9 +67,7 @@ void wsrd_storage_store(const struct wsrd *wsrd)
     str_bytes(netname, strlen(netname), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     fprintf(info->file, "pan_id = %#04x\n", wsrd->ws.pan_id);
-    fflush(info->file);
-    fsync(fileno(info->file));
-    storage_close(info);
+    storage_close_flush(info);
 }
 
 void wsrd_storage_clear(void)
