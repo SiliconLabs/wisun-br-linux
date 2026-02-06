@@ -120,8 +120,7 @@ enum rpl_cand_status rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_n
 
 static bool rpl_cand_needs_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
-    return rpl_cand_is_acceptable(ipv6, nce) == RPL_CAND_OK &&
-           isnan(rpl_mrhof_etx(ipv6, nce));
+    return nce->rpl->cand_pref && isnan(rpl_mrhof_etx(ipv6, nce));
 }
 
 static enum rpl_cand_status rpl_cand_can_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
