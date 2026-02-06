@@ -113,6 +113,8 @@ enum rpl_cand_status rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_n
         return RPL_CAND_DISCARD_DENY;
     if (ipv6_neigh_is_child(nce))
         return RPL_CAND_DISCARD_CHILD;
+    if (ipv6->rpl.dodag_verno != -1 && nce->rpl->dio.dodag_verno != ipv6->rpl.dodag_verno)
+        return RPL_CAND_DISCARD_VERNO;
     return RPL_CAND_OK;
 }
 
@@ -145,8 +147,6 @@ static enum rpl_cand_status rpl_cand_can_parent(struct ipv6_ctx *ipv6, struct ip
         return RPL_CAND_DISCARD_ETX;
     if (new_rank > rank_limit || new_rank == RPL_RANK_INFINITE)
         return RPL_CAND_DISCARD_RANK;
-    if (ipv6->rpl.dodag_verno != -1 && nce->rpl->dio.dodag_verno != ipv6->rpl.dodag_verno)
-        return RPL_CAND_DISCARD_VERNO;
     return RPL_CAND_OK;
 }
 
