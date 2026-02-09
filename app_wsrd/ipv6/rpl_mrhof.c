@@ -70,14 +70,6 @@ static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_
     return etx + ntohs(nce->rpl->dio.rank);
 }
 
-bool rpl_mrhof_candidate_rsl_is_valid(struct ipv6_ctx *ipv6, struct ws_neigh *neigh)
-{
-    BUG_ON(!neigh);
-    BUG_ON(isnan(neigh->rsl_in_dbm_unsecured));
-
-    return neigh->rsl_in_dbm_unsecured >= ipv6->rpl.mrhof.device_min_sens_dbm;
-}
-
 /*
  *   RFC 6550 8.2.2.4.  Rank and Movement within a DODAG Version
  * Let L be the lowest Rank within a DODAG Version that a given node has
@@ -105,8 +97,9 @@ const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce
     BUG_ON(!nce->rpl);
     if (!neigh)
         return "15.4-neigh";
-    if (!nce->rpl->rsl_valid)
-        nce->rpl->rsl_valid = rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh);
+    if (!nce->rpl->rsl_valid &&
+        neigh->rsl_in_dbm_unsecured >= ipv6->rpl.mrhof.device_min_sens_dbm)
+        nce->rpl->rsl_valid = true;
     if (!nce->rpl->rsl_valid)
         return "rsl";
     if (!timer_stopped(&nce->rpl->deny_timer))

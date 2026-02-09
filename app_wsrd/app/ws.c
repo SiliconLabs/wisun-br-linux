@@ -867,7 +867,8 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
         if (neigh->pan_id != 0xffff && neigh->pan_id != wsrd->ws.pan_id)
             continue;
         nce = ipv6_neigh_get_from_eui64(ipv6, &neigh->eui64);
-        if ((!nce || !nce->rpl) && !rpl_mrhof_candidate_rsl_is_valid(ipv6, neigh))
+        if ((!nce || !nce->rpl) &&
+            neigh->rsl_in_dbm_unsecured < ipv6->rpl.mrhof.device_min_sens_dbm)
             continue;
         if (nce && nce->rpl && rpl_mrhof_is_candidate(ipv6, nce))
             continue;
