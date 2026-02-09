@@ -29,6 +29,17 @@ struct ipv6_ctx;
 struct ipv6_neigh;
 struct ws_neigh_table;
 
+enum rpl_cand_status {
+    RPL_CAND_OK,
+    RPL_CAND_DISCARD_ETX,
+    RPL_CAND_DISCARD_RSL,
+    RPL_CAND_DISCARD_DENY,
+    RPL_CAND_DISCARD_CHILD,
+    RPL_CAND_DISCARD_L2,
+    RPL_CAND_DISCARD_RANK,
+    RPL_CAND_DISCARD_VERNO,
+};
+
 struct rpl_mrhof {
     float max_link_metric;
     float max_path_cost;
@@ -45,7 +56,7 @@ struct rpl_mrhof {
 
 float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce);
 uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc, uint16_t min_hop_rank_inc);
-const char *rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
+enum rpl_cand_status rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce);
 bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6);
 void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6);
 uint16_t rpl_mrhof_path_rank(const struct ipv6_ctx *ipv6,

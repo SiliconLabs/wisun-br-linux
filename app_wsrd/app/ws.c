@@ -870,7 +870,7 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
         if ((!nce || !nce->rpl) &&
             neigh->rsl_in_dbm_unsecured < ipv6->rpl.mrhof.device_min_sens_dbm)
             continue;
-        if (nce && nce->rpl && rpl_cand_is_acceptable(ipv6, nce) != NULL)
+        if (nce && nce->rpl && rpl_cand_is_acceptable(ipv6, nce) != RPL_CAND_OK)
             continue;
         ws_on_send_dis_insert_neigh(best_rsl_neighs, neigh);
         nb_candidates++;
