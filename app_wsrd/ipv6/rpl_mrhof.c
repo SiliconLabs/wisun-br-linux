@@ -91,7 +91,7 @@ uint16_t rpl_mrhof_get_rank_limit(struct rpl_mrhof *mrhof, uint16_t max_rank_inc
     return rank_limit - 1;
 }
 
-const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+const char *rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
     struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
 
@@ -110,20 +110,20 @@ const char *rpl_mrhof_is_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce
     return NULL;
 }
 
-static bool rpl_mrhof_is_probe_needed(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
+static bool rpl_cand_needs_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 {
-    return rpl_mrhof_is_candidate(ipv6, nce) == NULL &&
+    return rpl_cand_is_acceptable(ipv6, nce) == NULL &&
            isnan(rpl_mrhof_etx(ipv6, nce));
 }
 
-static const char *rpl_mrhof_validate_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                                                uint16_t rank_limit, float etx_max, int dodag_verno)
+static const char *rpl_cand_can_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
+                                       uint16_t rank_limit, float etx_max, int dodag_verno)
 {
     const char *discard;
     uint16_t new_rank;
     float etx;
 
-    discard = rpl_mrhof_is_candidate(ipv6, nce);
+    discard = rpl_cand_is_acceptable(ipv6, nce);
     if (discard)
         return discard;
     new_rank = rpl_mrhof_path_rank(ipv6, nce);
@@ -155,8 +155,8 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *nce;
 
     return SLIST_FIND(nce, &ipv6->neigh_cache, link,
-                      nce->rpl && rpl_mrhof_validate_candidate(ipv6, nce, RPL_RANK_INFINITE,
-                                                               ipv6->rpl.mrhof.max_link_metric, -1) == NULL);
+                      nce->rpl && rpl_cand_can_parent(ipv6, nce, RPL_RANK_INFINITE,
+                                                      ipv6->rpl.mrhof.max_link_metric, -1) == NULL);
 }
 
 static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent_cur,
@@ -181,8 +181,9 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
             continue;
 
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
-        discard = rpl_mrhof_validate_candidate(ipv6, nce, rank_limit, ipv6->rpl.mrhof.max_link_metric,
-                                               ipv6->rpl.dodag_verno);
+        discard = rpl_cand_can_parent(ipv6, nce, rank_limit,
+                                      ipv6->rpl.mrhof.max_link_metric,
+                                      ipv6->rpl.dodag_verno);
 
         /*
          *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
@@ -192,7 +193,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
          * for the neighbor).
          */
         if (discard && nce->nud_state != IPV6_NUD_PROBE &&
-            rpl_mrhof_is_probe_needed(ipv6, nce))
+            rpl_cand_needs_probe(ipv6, nce))
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 
         TRACE(TR_RPL, "rpl:   %-45s | %-11u | %-4.0f | %-5u | %-9.0f | %-8u | %s",
@@ -237,7 +238,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * does not exceed the rank of the preferred parent.
      */
     if (!parent_new && parent_cur && !parent_cur->rpl->path_ctl) {
-        discard = rpl_mrhof_validate_candidate(ipv6, parent_cur, rank_limit, WS_ETX_MAX, ipv6->rpl.dodag_verno);
+        discard = rpl_cand_can_parent(ipv6, parent_cur, rank_limit, WS_ETX_MAX, ipv6->rpl.dodag_verno);
         if (!discard) {
             TRACE(TR_RPL, "rpl: parent select %s (keep etx > %.0f)", tr_ipv6(parent_cur->gua.s6_addr),
                   ipv6->rpl.mrhof.max_link_metric);

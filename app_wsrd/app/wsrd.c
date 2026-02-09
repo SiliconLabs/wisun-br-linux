@@ -329,7 +329,7 @@ static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *w
      */
     nce = ipv6_neigh_get_from_eui64(&wsrd->ipv6, &neigh->eui64);
     if (!nce || nce->nud_state == IPV6_NUD_DELAY || nce->nud_state == IPV6_NUD_PROBE ||
-        !nce->rpl || rpl_mrhof_is_candidate(&wsrd->ipv6, nce))
+        !nce->rpl || rpl_cand_is_acceptable(&wsrd->ipv6, nce) != NULL)
         return;
     ipv6_nud_set_state(&wsrd->ipv6, nce, IPV6_NUD_DELAY);
 }
