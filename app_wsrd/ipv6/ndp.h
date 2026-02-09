@@ -33,8 +33,9 @@ struct ipv6_ctx;
  *     Wireless Personal Area Networks (6LoWPANs)
  *   - RFC 8505: Registration Extensions for IPv6 over Low-Power Wireless
  *     Personal Area Network (6LoWPAN) Neighbor Discovery
- *   - draft-ietf-6lo-multicast-registration-18: IPv6 Neighbor Discovery
- *     Multicast and Anycast Address Listener Subscription
+ *   - RFC 9685: Listener Subscription for IPv6 Neighbor Discovery Multicast
+ *     and Anycast Addresses
+ *   - Wi-SUN FAN 1.1v11 6.2.3.1.4.1 FFN Neighbor Discovery
  */
 
 // RFC 4861 7.3.2. Neighbor Cache Entry States
