@@ -243,6 +243,7 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     if (!memzcmp(parents_new, sizeof(parents_new)) && !trickle_stopped(&ipv6->rpl.dio_trickle)) {
         trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
         rpl_send_dio(ipv6, parents_cur[0], &ipv6_addr_all_rpl_nodes_link);
+        ipv6->rpl.dodag_verno = -1;
     }
     if (parents_cur[0] != parents_new[0] && ipv6->rpl.mrhof.on_pref_parent_change)
         ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, parents_new[0]);

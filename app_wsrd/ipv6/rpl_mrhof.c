@@ -123,7 +123,7 @@ static bool rpl_cand_needs_probe(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce)
 }
 
 static enum rpl_cand_status rpl_cand_can_parent(struct ipv6_ctx *ipv6, struct ipv6_neigh *nce,
-                                                uint16_t rank_limit, float etx_max, int dodag_verno)
+                                                uint16_t rank_limit, float etx_max)
 {
     enum rpl_cand_status discard;
     uint16_t new_rank;
@@ -145,7 +145,7 @@ static enum rpl_cand_status rpl_cand_can_parent(struct ipv6_ctx *ipv6, struct ip
         return RPL_CAND_DISCARD_ETX;
     if (new_rank > rank_limit || new_rank == RPL_RANK_INFINITE)
         return RPL_CAND_DISCARD_RANK;
-    if (dodag_verno != -1 && seqno_cmp8(nce->rpl->dio.dodag_verno, dodag_verno) != 0)
+    if (ipv6->rpl.dodag_verno != -1 && nce->rpl->dio.dodag_verno != ipv6->rpl.dodag_verno)
         return RPL_CAND_DISCARD_VERNO;
     return RPL_CAND_OK;
 }
@@ -180,7 +180,7 @@ bool rpl_mrhof_has_candidates(struct ipv6_ctx *ipv6)
 
     return SLIST_FIND(nce, &ipv6->neigh_cache, link,
                       nce->rpl && rpl_cand_can_parent(ipv6, nce, RPL_RANK_INFINITE,
-                                                      ipv6->rpl.mrhof.max_link_metric, -1) == RPL_CAND_OK);
+                                                      ipv6->rpl.mrhof.max_link_metric) == RPL_CAND_OK);
 }
 
 static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent_cur,
@@ -206,8 +206,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
 
         path_cost = rpl_mrhof_path_cost(ipv6, nce);
         discard = rpl_cand_can_parent(ipv6, nce, rank_limit,
-                                      ipv6->rpl.mrhof.max_link_metric,
-                                      ipv6->rpl.dodag_verno);
+                                      ipv6->rpl.mrhof.max_link_metric);
         if (!discard && !nce->rpl->cand_pref)
             discard = RPL_CAND_DISCARD_PREF;
 
@@ -264,7 +263,7 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
      * does not exceed the rank of the preferred parent.
      */
     if (!parent_new && parent_cur && !parent_cur->rpl->path_ctl) {
-        discard = rpl_cand_can_parent(ipv6, parent_cur, rank_limit, WS_ETX_MAX, ipv6->rpl.dodag_verno);
+        discard = rpl_cand_can_parent(ipv6, parent_cur, rank_limit, WS_ETX_MAX);
         if (!discard) {
             TRACE(TR_RPL, "rpl: parent select %s (keep etx > %.0f)", tr_ipv6(parent_cur->gua.s6_addr),
                   ipv6->rpl.mrhof.max_link_metric);
