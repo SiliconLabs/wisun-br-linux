@@ -28,6 +28,12 @@
 
 #include "rpl_mrhof.h"
 
+#ifndef RPL_MRHOF_CANDIDATES_MAX
+#define RPL_MRHOF_CANDIDATES_MAX 5
+#endif
+
+#define RPL_CAND_HYSTERESIS_DB 4
+
 static const char *tr_path_ctl(uint8_t path_ctl)
 {
     static const struct name_value rpl_path_ctl_names[RPL_PARENTS_MAX] = {
@@ -155,6 +161,7 @@ const char *tr_cand_status(enum rpl_cand_status status)
         { "15.4-neigh",  RPL_CAND_DISCARD_L2 },
         { "rank",        RPL_CAND_DISCARD_RANK },
         { "dodag-verno", RPL_CAND_DISCARD_VERNO },
+        { "pref",        RPL_CAND_DISCARD_PREF },
         { }
     };
 
@@ -201,6 +208,8 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
         discard = rpl_cand_can_parent(ipv6, nce, rank_limit,
                                       ipv6->rpl.mrhof.max_link_metric,
                                       ipv6->rpl.dodag_verno);
+        if (!discard && !nce->rpl->cand_pref)
+            discard = RPL_CAND_DISCARD_PREF;
 
         /*
          *   Wi-SUN FAN 1.1v08 6.3.4.6.3.2.4 FFN Join State 4: Configure Routing
@@ -270,6 +279,72 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
     return parent_new;
 }
 
+// <0 if a worse than b
+// >0 if a better than b
+int rpl_cand_cmp(struct ipv6_ctx *ipv6,
+                 const struct ipv6_neigh *a,
+                 const struct ipv6_neigh *b)
+{
+    const uint16_t a_dagrank = rpl_dag_rank(ntohs(a->rpl->config.min_hop_rank_inc), ntohs(a->rpl->dio.rank));
+    const uint16_t b_dagrank = rpl_dag_rank(ntohs(b->rpl->config.min_hop_rank_inc), ntohs(b->rpl->dio.rank));
+    const struct ws_neigh *a_l2, *b_l2;
+    float a_rsl, b_rsl;
+
+    // Prefer parents
+    if (a->rpl->path_ctl != b->rpl->path_ctl)
+        return a->rpl->path_ctl - b->rpl->path_ctl;
+    // Prefer lower DAGRank
+    if (a_dagrank != b_dagrank)
+        return b_dagrank - a_dagrank;
+    // Prefer higher RSL
+    a_l2 = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &a->eui64);
+    b_l2 = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &b->eui64);
+    BUG_ON(!a_l2 || !b_l2);
+    a_rsl = a_l2->rsl_in_dbm_unsecured;
+    b_rsl = b_l2->rsl_in_dbm_unsecured;
+    // Apply hysteresis to previous candidates to avoid switching too often
+    if (a->rpl->cand_pref < 0)
+        a_rsl += RPL_CAND_HYSTERESIS_DB;
+    if (b->rpl->cand_pref < 0)
+        b_rsl += RPL_CAND_HYSTERESIS_DB;
+    return a_rsl - b_rsl;
+}
+
+static void rpl_cand_update(struct ipv6_ctx *ipv6)
+{
+    struct ipv6_neigh *nce, *best;
+
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        if (!nce->rpl)
+            continue;
+        if (rpl_cand_is_acceptable(ipv6, nce) == RPL_CAND_OK)
+            // HACK: indicates that RSL hysteresis is applied.
+            nce->rpl->cand_pref = -nce->rpl->cand_pref;
+        else
+            nce->rpl->cand_pref = 0;
+    }
+    for (int pref = RPL_MRHOF_CANDIDATES_MAX; pref; pref--) {
+        best = NULL;
+        SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+            if (!nce->rpl)
+                continue;
+            if (nce->rpl->cand_pref > 0)
+                continue;
+            if (rpl_cand_is_acceptable(ipv6, nce) != RPL_CAND_OK)
+                continue;
+            if (best && rpl_cand_cmp(ipv6, nce, best) <= 0)
+                continue;
+            best = nce;
+        }
+        if (!best)
+            break;
+        best->rpl->cand_pref = pref;
+    }
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link)
+        if (nce->rpl && nce->rpl->cand_pref < 0)
+            nce->rpl->cand_pref = 0;
+}
+
 // RFC 6719 3.2.2. Parent Selection Algorithm
 void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
 {
@@ -280,6 +355,7 @@ void rpl_mrhof_select_parents(struct ipv6_ctx *ipv6)
     float cur_min_path_cost;
     uint32_t rank_limit;
 
+    rpl_cand_update(ipv6);
     rpl_get_parents(ipv6, parents_cur);
     for (int i = 0; i < ARRAY_SIZE(parents_cur); i++) {
         // Reset all path controls to allow re-selection

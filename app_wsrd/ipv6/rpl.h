@@ -51,6 +51,12 @@ struct rpl_neigh {
     uint8_t path_ctl_acked;
     struct timer_entry deny_timer;
     bool rsl_valid;
+    /*
+     * Candidate preference: determines whether the neighbor is actively probed
+     * in order to maintain metrics up-to-date. Set to a negative value during
+     * candidate update to indicate that the neighbor was already a candidate.
+     */
+    int cand_pref;
 };
 
 /*
