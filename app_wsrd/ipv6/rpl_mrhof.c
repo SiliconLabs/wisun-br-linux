@@ -51,6 +51,13 @@ float rpl_mrhof_etx(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
     return neigh ? neigh->ws_etx.etx : NAN;
 }
 
+float rpl_mrhof_rsl(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
+{
+    struct ws_neigh *neigh = ws_neigh_get(ipv6->rpl.mrhof.ws_neigh_table, &nce->eui64);
+
+    return neigh ? neigh->rsl_in_dbm_unsecured : NAN;
+}
+
 // RFC 6719 3.1. Computing the Path Cost
 static float rpl_mrhof_path_cost(const struct ipv6_ctx *ipv6, const struct ipv6_neigh *nce)
 {
@@ -189,15 +196,21 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
     float pref_path_cost = mrhof->max_path_cost;
     struct ipv6_neigh *parent_new = NULL;
     enum rpl_cand_status discard;
+    char str[INET6_ADDRSTRLEN];
     struct ipv6_neigh *nce;
+    int maxstrlen = 10;
     float path_cost;
 
     /*
      * A node MUST select the candidate neighbor with the lowest path cost as
      * its preferred parent [...]
      */
-    TRACE(TR_RPL, "rpl:   %-45s | %-11s | %-4s | %-5s | %-9s | %-8s | %s",
-          "candidate", "dodag-verno", "etx", "rank", "path-cost", "new-rank", "discard");
+    SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
+        inet_ntop(AF_INET6, &nce->gua, str, sizeof(str));
+        maxstrlen = MAX(maxstrlen, strlen(str));
+    }
+    TRACE(TR_RPL, "rpl:   %-*s  rsl verno  etx  rank  cost new-rank pref discard",
+          maxstrlen, "candidate");
 
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {
         if (!nce->rpl || nce->rpl->path_ctl)
@@ -220,10 +233,11 @@ static struct ipv6_neigh *rpl_mrhof_select_best_candidate(struct ipv6_ctx *ipv6,
             rpl_cand_needs_probe(ipv6, nce))
             ipv6_nud_set_state(ipv6, nce, IPV6_NUD_PROBE);
 
-        TRACE(TR_RPL, "rpl:   %-45s | %-11u | %-4.0f | %-5u | %-9.0f | %-8u | %s",
-              tr_ipv6(nce->gua.s6_addr), nce->rpl->dio.dodag_verno,
-              rpl_mrhof_etx(ipv6, nce), ntohs(nce->rpl->dio.rank), path_cost,
-              rpl_mrhof_path_rank(ipv6, nce), tr_cand_status(discard));
+        TRACE(TR_RPL, "rpl:   %-*s %4.0f %5u %4.0f %5u %5.0f %8u %4u %s",
+              maxstrlen, tr_ipv6(nce->gua.s6_addr), rpl_mrhof_rsl(ipv6, nce),
+              nce->rpl->dio.dodag_verno, rpl_mrhof_etx(ipv6, nce),
+              ntohs(nce->rpl->dio.rank), path_cost, rpl_mrhof_path_rank(ipv6, nce),
+              nce->rpl->cand_pref, tr_cand_status(discard));
         if (discard)
             continue;
         if (path_cost >= pref_path_cost)
