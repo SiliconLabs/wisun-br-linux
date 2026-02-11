@@ -326,7 +326,6 @@ void auth_rt_timer_stop(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     timer_stop(&auth->timer_group, &supp->rt_timer);
     pktbuf_free(&supp->rt_buffer);
     supp->rt_kmp_id = -1;
-    supp->rt_count = 0;
 }
 
 void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
@@ -350,7 +349,14 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     auth_rt_timer_stop(auth, supp);
     pktbuf_init(&supp->rt_buffer, buf, buf_len);
     supp->rt_kmp_id = kmp_id;
-    supp->rt_count  = 0;
+
+    /*
+     *   IEEE 802.11-2020 C.3 MIB detail
+     * dot11RSNAConfigPairwiseUpdateCount [...] DEFVAL { 3 }
+     *   RFC 3748 4.3. Retransmission Behavior
+     * A maximum of 3-5 retransmissions is suggested.
+     */
+    supp->rt_timer.rounds = 3;
     timer_start_rel(&auth->timer_group, &supp->rt_timer, supp->rt_timer.period_ms);
 }
 
@@ -370,15 +376,8 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
     struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
 
     BUG_ON(supp->rt_kmp_id == -1);
-    supp->rt_count++;
 
-    /*
-     *     IEEE 802.11-2020 C.3 MIB detail
-     * dot11RSNAConfigPairwiseUpdateCount [...] DEFVAL { 3 }
-     *     RFC 3748 4.3. Retransmission Behavior
-     * A maximum of 3-5 retransmissions is suggested.
-     */
-    if (supp->rt_count == 3) {
+    if (!timer->rounds) {
         TRACE(TR_SECURITY, "sec: %s max retry count exceeded eui64=%s",
               supp->rt_kmp_id ? "eapol" : "radius", tr_eui64(supp->eui64.u8));
         if (!supp->rt_kmp_id)

@@ -28,7 +28,6 @@ struct dc {
     struct auth_ctx auth_ctx;
     struct ws_ctx ws;
     struct timer_entry disc_timer;
-    int disc_count;
     struct timer_entry probe_timer;
     int probe_handle;
 

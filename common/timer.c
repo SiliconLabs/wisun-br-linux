@@ -145,10 +145,12 @@ void timer_process(void)
         while ((timer = SLIST_POP(&ctxt->trig_list, link))) {
             if (timer->expire_ms + 100 < now_ms)
                 WARN("late timer (%"PRIu64"ms)", now_ms - timer->expire_ms);
-            if (timer->period_ms)
+            if (timer->period_ms && (!timer->rounds || timer->rounds > 1))
                 timer_start(group, timer, timer->expire_ms + timer->period_ms);
             else
                 timer_reset(timer);
+            if (timer->rounds)
+                timer->rounds--;
             // WARN: timer->callback() is allowed to free(timer)
             if (timer->callback)
                 timer->callback(group == &ctxt->group_default ? NULL : group, timer);

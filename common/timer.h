@@ -60,6 +60,7 @@ struct timer_group {
 };
 
 struct timer_entry {
+    int rounds; // Limit the number of times a periodic timer is triggered.
     uint64_t period_ms;
     void (*callback)(struct timer_group *group, struct timer_entry *timer);
 

@@ -690,23 +690,19 @@ static void ipv6_ncr_send(struct timer_group *group, struct timer_entry *timer)
     ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, src, dst);
     ipv6_sendto_mac(ipv6, &pktbuf, NULL);
     pktbuf_free(&pktbuf);
-
-    if (ipv6->ncr_req_count > ipv6->ncr_req_retries)
-        timer_stop(group, timer);
-    ipv6->ncr_req_count++;
 }
 
 void ipv6_ncr_start(struct ipv6_ctx *ipv6)
 {
     if (!timer_stopped(&ipv6->ncr_req_timer))
         return;
-    ipv6->ncr_req_count = 0;
     /*
      *   Wi-SUN FAN 1.1v11 6.2.3.1.4.1 FFN Neighbor Discovery
      * The initial transmission and all retries SHOULD be completed within
      * NCR_RESP_WINDOW.
      */
     ipv6->ncr_req_timer.period_ms = ipv6->ncr_resp_window_ms / ipv6->ncr_req_retries;
+    ipv6->ncr_req_timer.rounds = ipv6->ncr_req_retries + 1;
     ipv6->ncr_req_timer.callback = ipv6_ncr_send;
     timer_start_rel(&ipv6->timer_group, &ipv6->ncr_req_timer, 0);
 }

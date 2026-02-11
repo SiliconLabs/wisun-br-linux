@@ -36,7 +36,6 @@ struct ipv6_ctx {
     uint64_t aro_lifetime_ms;
     uint64_t ncr_resp_window_ms;
     int ncr_req_retries;
-    int ncr_req_count;
     struct timer_entry ncr_req_timer;
     struct ipv6_neigh_cache neigh_cache;
     struct eui64 eui64;

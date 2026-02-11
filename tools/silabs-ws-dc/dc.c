@@ -73,7 +73,7 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
         .wp_ies.us     = true,
     };
 
-    if (dc->cfg.disc_count_max && dc->disc_count >= dc->cfg.disc_count_max) {
+    if (dc->cfg.disc_count_max && !timer->rounds) {
         if (memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
             INFO("Discovery process completed");
             dc->running = false;
@@ -92,12 +92,11 @@ static void dc_on_disc_timer_timeout(struct timer_group *group, struct timer_ent
     }
 
     ws_if_send(&dc->ws, &req);
-    dc->disc_count++;
 }
 
 static void dc_restart_disc_timer(struct dc *dc)
 {
-    dc->disc_count = 0;
+    dc->disc_timer.rounds = dc->cfg.disc_count_max;
     timer_start_rel(NULL, &dc->disc_timer, 0);
 }
 
