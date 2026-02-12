@@ -375,7 +375,6 @@ static bool rpl_transit_update(struct rpl_root *root,
                                const struct rpl_opt_transit *opt_transit)
 {
     bool path_ctl_desync, path_ctl_old;
-    bool updated_lifetime = false;
     bool updated_transit = false;
     struct rpl_transit transit;
     struct rpl_target *target;
@@ -390,7 +389,6 @@ static bool rpl_transit_update(struct rpl_root *root,
         BUG_ON(!target);
         target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
         target->path_seq = opt_transit->path_seq;
-        updated_lifetime = true;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
@@ -405,7 +403,6 @@ static bool rpl_transit_update(struct rpl_root *root,
     }
     if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
         memset(target->transits, 0, sizeof(target->transits));
-        updated_lifetime = true;
         target->path_seq = opt_transit->path_seq;
         updated_transit = true;
         TRACE(TR_RPL, "rpl: target  update prefix=%s path-seq=%u",
@@ -429,8 +426,7 @@ static bool rpl_transit_update(struct rpl_root *root,
         TRACE(TR_RPL, "rpl: transit new    target=%s parent=%s path-ctl-bit=%u",
               tr_ipv6_prefix(target->prefix, 128), tr_ipv6(target->transits[i].parent), i);
     }
-    if (updated_lifetime || updated_transit)
-        rpl_storage_store_target(root, target);
+    rpl_storage_store_target(root, target);
     rpl_transit_update_timer(root, target);
     return updated_transit;
 }
