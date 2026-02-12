@@ -649,6 +649,68 @@ void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const 
     }
 }
 
+static void ipv6_ncr_send(struct timer_group *group, struct timer_entry *timer)
+{
+    struct ipv6_ctx *ipv6 = container_of(timer, struct ipv6_ctx, ncr_req_timer);
+    const struct in6_addr *src, *dst;
+    struct nd_neighbor_advert *na;
+    struct ndp_opt_earo aro = { };
+    struct pktbuf pktbuf = { };
+
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
+
+    na = pktbuf_push_tail(&pktbuf, NULL, sizeof(struct nd_neighbor_advert));
+    na->nd_na_type           = ND_NEIGHBOR_ADVERT;
+    na->nd_na_flags_reserved = ND_NA_FLAG_ROUTER;
+
+    /*
+     *   RFC 9685 7.3. Registration Extensions
+     * [...] the Target MUST be set to the link-local address that was exposed
+     * previously by this node to accept registrations.
+     */
+    na->nd_na_target = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(na->nd_na_target.s6_addr + 8, ipv6->eui64.u8);
+
+    aro.status = NDP_ARO_STATUS_REFRESH;
+    ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
+
+    /*
+     *   RFC 9685 7.3. Registration Extensions
+     * That asynchronous multicast NA(EARO) MUST be sent to the all-nodes
+     * link-scope multicast address (ff02::1).
+     */
+    src = &na->nd_na_target;
+    dst = &ipv6_addr_all_nodes_link;
+
+    na = (struct nd_neighbor_advert *)pktbuf_head(&pktbuf);
+    na->nd_na_cksum = ipv6_cksum(src, dst, IPPROTO_ICMPV6,
+                                 pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
+
+    TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "na(aro)", tr_ipv6(dst->s6_addr));
+    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, src, dst);
+    ipv6_sendto_mac(ipv6, &pktbuf, NULL);
+    pktbuf_free(&pktbuf);
+
+    if (ipv6->ncr_req_count > ipv6->ncr_req_retries)
+        timer_stop(group, timer);
+    ipv6->ncr_req_count++;
+}
+
+void ipv6_ncr_start(struct ipv6_ctx *ipv6)
+{
+    if (!timer_stopped(&ipv6->ncr_req_timer))
+        return;
+    ipv6->ncr_req_count = 0;
+    /*
+     *   Wi-SUN FAN 1.1v11 6.2.3.1.4.1 FFN Neighbor Discovery
+     * The initial transmission and all retries SHOULD be completed within
+     * NCR_RESP_WINDOW.
+     */
+    ipv6->ncr_req_timer.period_ms = ipv6->ncr_resp_window_ms / ipv6->ncr_req_retries;
+    ipv6->ncr_req_timer.callback = ipv6_ncr_send;
+    timer_start_rel(&ipv6->timer_group, &ipv6->ncr_req_timer, 0);
+}
+
 struct ipv6_neigh *ipv6_neigh_get_from_gua(const struct ipv6_ctx *ipv6,
                                            const struct in6_addr *gua)
 {

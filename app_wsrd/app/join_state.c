@@ -217,6 +217,22 @@ static void join_state_5_enter(struct wsrd *wsrd)
     wsrd->dhcp_relay.server_addr = parent->rpl->dio.dodag_id;
     wsrd->dhcp_relay.link_addr   = wsrd->ipv6.dhcp.iaaddr.ipv6;
     dhcp_relay_start(&wsrd->dhcp_relay);
+
+    /*
+     *   Wi-SUN FAN 1.1v11 6.2.3.1.4.1 FFN Neighbor Discovery
+     * Upon detection of loss of neighbor cache (corruption, device reboot wipes
+     * cache, etc.), an FFN MUST execute the "Registration Refresh Request"
+     * procedure [...] to trigger neighbor refresh of the FFN's neighbor cache.
+     */
+    if (wsrd->ws.pan_id == wsrd->prev_pan_id)
+        ipv6_ncr_start(&wsrd->ipv6);
+
+    /*
+     * HACK: Clear prev_pan_id so that NCR is not triggered on reconnection
+     * through join states 5 -> 4 -> 5, since IPv6 neighbor cache is not
+     * cleared through that path.
+     */
+    wsrd->prev_pan_id = 0xffff;
 }
 
 static void join_state_5_exit(struct wsrd *wsrd)
@@ -232,6 +248,7 @@ static void join_state_5_exit(struct wsrd *wsrd)
     dhcp_relay_stop(&wsrd->dhcp_relay);
     trickle_stop(&wsrd->pa_tkl, NULL);
     trickle_stop(&wsrd->pc_tkl, NULL);
+    timer_stop(&wsrd->ipv6.timer_group, &wsrd->ipv6.ncr_req_timer);
 }
 
 static void join_state_disconnecting_enter(struct wsrd *wsrd)

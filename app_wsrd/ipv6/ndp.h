@@ -102,6 +102,12 @@ void ipv6_recv_ns(struct ipv6_ctx *ipv6,
 void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const struct in6_addr *src);
 
 /*
+ * Neighbor Cache Refresh: send multicast NA(EARO) to request previous children
+ * to re-register their IPv6 address by sending a NS(ARO).
+ */
+void ipv6_ncr_start(struct ipv6_ctx *ipv6);
+
+/*
  *   Wi-SUN FAN 1.1v08 6.2.3.1.4.1 FFN Neighbor Discovery
  * Neighbor Advertisement MUST NOT be transmitted in response to successful
  * Neighbor Solicitation (address registrations or NUD).
