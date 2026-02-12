@@ -111,7 +111,6 @@ void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id)
 {
     if (wsrd->ws.pan_id == pan_id)
         return;
-    wsrd->prev_pan_id = wsrd->ws.pan_id;
     wsrd->ws.pan_id = pan_id;
     rcp_set_filter_pan_id(&wsrd->ws.rcp, pan_id);
     dbus_emit_change("PanId");
@@ -133,7 +132,6 @@ static bool ws_is_eapol_target_valid(struct wsrd *wsrd, struct ws_neigh *candida
 
 static void ws_on_eapol_target_selected(struct wsrd *wsrd, struct ws_neigh *selected_candidate)
 {
-    uint16_t prev_pan_id = wsrd->prev_pan_id;
     struct ws_neigh *tmp;
 
     memcpy(&wsrd->eapol_target_eui64, selected_candidate->eui64.u8, sizeof(selected_candidate->eui64.u8));
@@ -152,7 +150,7 @@ static void ws_on_eapol_target_selected(struct wsrd *wsrd, struct ws_neigh *sele
     SLIST_FOREACH(tmp, &wsrd->ws.neigh_table.neigh_list, link)
         tmp->last_pa_rx_time_s = 0;
 
-    if (prev_pan_id != 0xffff && prev_pan_id == wsrd->ws.pan_id)
+    if (wsrd->prev_pan_id != 0xffff && wsrd->prev_pan_id == wsrd->ws.pan_id)
         join_state_transition(wsrd, WSRD_EVENT_PA_FROM_PREV_PAN);
     else
         join_state_transition(wsrd, WSRD_EVENT_PA_FROM_NEW_PAN);

@@ -79,10 +79,7 @@ void join_state_3_reconnect_enter(struct wsrd *wsrd)
     BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     INFO("Join state 3: Reconnect");
-    /*
-     * - sets prev_pan_id for PCS TX/PA from prev PAN RX
-     * - sets pan_id to 0xffff for PA RX from new PAN
-     */
+    wsrd->prev_pan_id = wsrd->ws.pan_id;
     ws_set_pan_id(wsrd, 0xffff);
     wsrd->eapol_target_eui64 = EUI64_BC;
     rfc8415_txalg_stop(&wsrd->supp.key_request_txalg);
