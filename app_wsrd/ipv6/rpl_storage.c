@@ -33,6 +33,13 @@ bool rpl_storage_load(struct rpl_ctx *rpl, struct in6_addr *dodag_id)
     while (storage_parse_line(info) != EOF) {
         if (!fnmatch("path_seq", info->key, 0)) {
             rpl->path_seq = (uint8_t)strtoul(info->value, NULL, 0);
+            /*
+             * Mark the path_seq as already transmitted so the next
+             * rpl_path_seq_update() call increments it. This ensures the first
+             * DAO after reboot carries a strictly greater path-seq, which
+             * forces the border router to refresh the target lifetime.
+             */
+            rpl->path_seq_last_tx = rpl->path_seq;
         } else if (!fnmatch("dodag_id", info->key, 0)) {
             ret = inet_pton(AF_INET6, info->value, dodag_id->s6_addr);
             WARN_ON(ret != 1, "%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
