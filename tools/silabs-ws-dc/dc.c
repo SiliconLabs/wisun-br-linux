@@ -256,7 +256,7 @@ static void dc_init_radio(struct dc *dc)
         if (rail_config->rail_phy_mode_id == dc->ws.phy.params->rail_phy_mode_id   &&
             rail_config->chan0_freq       == dc->ws.fhss.chan_params->chan0_freq   &&
             rail_config->chan_spacing     == dc->ws.fhss.chan_params->chan_spacing &&
-            rail_config->chan_count       == dc->ws.fhss.chan_params->chan_count)
+            rail_config->chan_count       >= dc->ws.fhss.chan_params->chan_count)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");

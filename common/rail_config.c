@@ -146,7 +146,7 @@ void rail_print_config_list(struct rcp *rcp)
                 if (chan_params->reg_domain != domain ||
                     chan_params->chan0_freq != rail_params->chan0_freq ||
                     chan_params->chan_spacing != rail_params->chan_spacing ||
-                    chan_params->chan_count != rail_params->chan_count)
+                    chan_params->chan_count > rail_params->chan_count)
                     continue;
                 entry_found = false;
                 for (phy_params = phy_params_table; phy_params->phy_mode_id; phy_params++) {
@@ -164,7 +164,7 @@ void rail_print_config_list(struct rcp *rcp)
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++)
             if (chan_params->chan0_freq == rail_params->chan0_freq &&
                 chan_params->chan_spacing == rail_params->chan_spacing &&
-                chan_params->chan_count == rail_params->chan_count)
+                chan_params->chan_count <= rail_params->chan_count)
                 break;
         if (chan_params->chan0_freq)
             continue;
@@ -190,7 +190,7 @@ static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_
     while (iterator->chan0_freq) {
         if (iterator->rail_phy_mode_id == phy_params->rail_phy_mode_id &&
             iterator->chan0_freq       == chan_params->chan0_freq &&
-            iterator->chan_count       == chan_params->chan_count &&
+            iterator->chan_count       >= chan_params->chan_count &&
             iterator->chan_spacing     == chan_params->chan_spacing)
             return iterator;
         iterator++;
@@ -208,7 +208,7 @@ static const struct chan_params *rail_get_ms_chan_params(int reg_domain, const s
         if (it->reg_domain   != reg_domain ||
             it->chan0_freq   != rail_config->chan0_freq ||
             it->chan_spacing != rail_config->chan_spacing ||
-            it->chan_count   != rail_config->chan_count)
+            it->chan_count   >  rail_config->chan_count)
             continue;
         BUG_ON(ret, "ambiguous channel parameters");
         ret = it;
