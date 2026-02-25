@@ -35,7 +35,6 @@
 struct wsbrd_conf {
     bool list_rf_configs;
     int color_output;
-    struct rcp_log_cfg rcp_traces;
 
     struct rcp_cfg rcp_cfg;
 

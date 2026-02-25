@@ -73,7 +73,6 @@ struct wsrd_conf {
 
     bool list_rf_configs;
     int  color_output;
-    struct rcp_log_cfg rcp_traces;
 };
 
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[]);

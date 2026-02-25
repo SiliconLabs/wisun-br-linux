@@ -100,7 +100,6 @@ void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, con
 void conf_set_bitmask(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_add_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_flags(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
-void conf_add_rcp_traces(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);

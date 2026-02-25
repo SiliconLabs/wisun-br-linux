@@ -79,6 +79,13 @@ struct rcp_csma_cfg {
 
 extern const struct rcp_csma_cfg rcp_csma_default;
 
+struct rcp_log_cfg {
+    struct {
+        uint8_t id;
+        uint8_t level;
+    } groups[16];
+};
+
 struct rcp_cfg {
     char cpc_instance[PATH_MAX];
     char uart_dev[PATH_MAX];
@@ -86,16 +93,10 @@ struct rcp_cfg {
     bool uart_rtscts;
     int tx_power_dbm;
     struct rcp_csma_cfg csma;
+    struct rcp_log_cfg traces;
 };
 
 extern const struct option_struct rcp_opts[];
-
-struct rcp_log_cfg {
-    struct {
-        uint8_t id;
-        uint8_t level;
-    } groups[16];
-};
 
 struct rcp {
     struct bus bus;

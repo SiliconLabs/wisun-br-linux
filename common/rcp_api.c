@@ -22,6 +22,7 @@
 #include "common/capture.h"
 #include "common/endian.h"
 #include "common/hif.h"
+#include "common/key_value_storage.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/mathutils.h"
@@ -679,18 +680,6 @@ void rcp_set_filter_dst64(struct rcp *rcp, const uint8_t eui64[8])
     iobuf_free(&buf);
 }
 
-const struct name_value rcp_log_names[] = {
-    { "mac",         0 },
-    { "fhss",       29 },
-    { "events",     31 },
-    { "crypto",     33 },
-    { "rf",         34 },
-    { "timers",     37 },
-    { "regulation", 43 },
-    { "fsm",        45 },
-    { }
-};
-
 void rcp_set_log(struct rcp *rcp, const struct rcp_log_cfg *cfg)
 {
     struct iobuf_write buf = { };
@@ -757,6 +746,40 @@ void rcp_rx(struct rcp *rcp)
     TRACE(TR_DROP, "drop %-9s: unsupported command 0x%02x", "hif", cmd);
 }
 
+static void rcp_add_traces(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    const struct name_value table[] = {
+        { "mac",         0 },
+        { "fhss",       29 },
+        { "events",     31 },
+        { "crypto",     33 },
+        { "rf",         34 },
+        { "timers",     37 },
+        { "regulation", 43 },
+        { "fsm",        45 },
+        { }
+    };
+    struct rcp_log_cfg *dest = raw_dest;
+    char *tmp, *substr;
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(dest->groups); i++)
+        if (!dest->groups[i].level)
+            break;
+
+    tmp = strdup(info->value);
+    substr = strtok(tmp, ",");
+    do {
+        if (i >= ARRAY_SIZE(dest->groups))
+            FATAL(1, "%s:%d: too many entries (max=%zu)",
+                  info->filename, info->linenr, ARRAY_SIZE(dest->groups));
+        dest->groups[i].id = str_to_val(substr, table);
+        dest->groups[i].level = 4; // DEBUG
+        i++;
+    } while ((substr = strtok(NULL, ",")));
+    free(tmp);
+}
+
 // IEEE 802.15.4-2024 Table 8-36 MAC PIB attributes
 static const struct number_limit rcp_valid_min_be = { 0, 8 };
 static const struct number_limit rcp_valid_max_be = { 3, 8 };
@@ -766,6 +789,7 @@ const struct option_struct rcp_opts[] = {
     { "uart_baudrate", offsetof(struct rcp_cfg, uart_baudrate), conf_set_number, NULL },
     { "uart_rtscts",   offsetof(struct rcp_cfg, uart_rtscts),   conf_set_bool,   NULL },
     { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
+    { "rcp_trace",     offsetof(struct rcp_cfg, traces),        rcp_add_traces,  NULL },
     { "tx_power",      offsetof(struct rcp_cfg, tx_power_dbm),  conf_set_number, &valid_int8 },
     { "csma_backoff_unit",  offsetof(struct rcp_cfg, csma.backoff_unit_us), conf_set_u16, NULL },
     { "csma_min_be",        offsetof(struct rcp_cfg, csma.min_be),          conf_set_u8,  &rcp_valid_min_be },
@@ -814,6 +838,12 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
         rcp_rx(rcp);
     }
     rcp->bus.uart.init_phase = false;
+
+    if (config->traces.groups[0].level) {
+        if (version_older_than(rcp->version_api, 2, 16, 0))
+            FATAL(3, "rcp_trace require RCP API >= 2.16.0");
+        rcp_set_log(rcp, &config->traces);
+    }
 
     rcp_set_host_api(rcp, version_daemon_api);
 

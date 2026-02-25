@@ -50,7 +50,6 @@ struct dc_cfg {
 
     bool list_rf_configs;
     int  color_output;
-    struct rcp_log_cfg rcp_traces;
 };
 
 void parse_commandline(struct dc_cfg *config, int argc, char *argv[]);

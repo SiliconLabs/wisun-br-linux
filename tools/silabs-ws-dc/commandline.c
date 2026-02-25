@@ -90,7 +90,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "target_id",                     offsetof(struct dc_cfg, target_id),                        conf_set_string,      (void *)sizeof(config->target_id) },
         { "disc_period_s",                 offsetof(struct dc_cfg, disc_period_s),                    conf_set_number,      &valid_positive },
         { "disc_count_max",                offsetof(struct dc_cfg, disc_count_max),                   conf_set_number,      &valid_positive },
-        { "rcp_trace",                     offsetof(struct dc_cfg, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
         { "color_output",                  offsetof(struct dc_cfg, color_output),                     conf_set_enum,        &valid_tristate },
         { }
     };
