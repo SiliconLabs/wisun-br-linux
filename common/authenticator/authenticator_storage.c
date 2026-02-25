@@ -258,7 +258,7 @@ static void auth_storage_get_supp_filename(const struct auth_supp_ctx *supp, cha
     char str_buf[STR_MAX_LEN_EUI64];
 
     str_key(supp->eui64.u8, sizeof(supp->eui64.u8), str_buf, sizeof(str_buf));
-    snprintf(filename, size, "%ssupp-%s", g_storage_prefix, str_buf);
+    snprintf(filename, size, "supp-%s", str_buf);
 }
 
 void auth_storage_clear_supplicant(struct auth_supp_ctx *supp)
@@ -277,7 +277,7 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
     char str_buf[256];
 
     auth_storage_get_supp_filename(supp, filename, sizeof(filename));
-    info = storage_open(filename, "w");
+    info = storage_open_prefix(filename, "w");
     if (!info) {
         WARN("%s: unable to open file: %s", __func__, filename);
         return;
