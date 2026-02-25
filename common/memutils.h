@@ -49,6 +49,7 @@
  */
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
+#define sizeof_field(type, field) sizeof(((type *)0)->field)
 
 /*
  * Allow to retrieve the address to the outer structure from the address of one

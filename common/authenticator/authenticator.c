@@ -25,11 +25,13 @@
 #include "common/specs/ws.h"
 #include "common/crypto/ieee80211.h"
 #include "common/ws/eapol_relay.h"
+#include "common/key_value_storage.h"
 #include "common/sys_queue_extra.h"
 #include "common/named_values.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/memutils.h"
+#include "common/parsers.h"
 #include "common/pktbuf.h"
 #include "common/eapol.h"
 #include "common/iobuf.h"
@@ -60,6 +62,41 @@ const struct auth_cfg auth_cfg_default = {
     // Wi-SUN FAN 1.1v11 6.5.2.3 PTK and GTK Installation Flow
     .ffn.ptk_lifetime_s =  2 * 30 * 24 * 60 * 60, //  2 months ( 60 days)
     .lfn.ptk_lifetime_s = 12 * 30 * 24 * 60 * 60, // 12 months (360 days)
+};
+
+static void auth_set_gtk_init(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    uintptr_t gtk_count = (uintptr_t)raw_param;
+    uint8_t (*gtks)[16] = raw_dest;
+
+    if (info->key_array_index >= gtk_count)
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
+    if (parse_byte_array(gtks[info->key_array_index], 16, info->value) ||
+        !memzcmp(gtks[info->key_array_index], 16))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+}
+
+const struct option_struct auth_opts[] = {
+    { "gtk\\[*]",                      offsetof(struct auth_cfg, gtk_init[0]),             auth_set_gtk_init,    (void *)WS_GTK_COUNT },
+    { "lgtk\\[*]",                     offsetof(struct auth_cfg, gtk_init[WS_GTK_COUNT]),  auth_set_gtk_init,    (void *)WS_LGTK_COUNT },
+    { "radius_server",                 offsetof(struct auth_cfg, radius_addr),             conf_set_netaddr,     &valid_ipv4or6 },
+    { "radius_secret",                 offsetof(struct auth_cfg, radius_secret),           conf_set_string,      (void *)sizeof_field(struct auth_cfg, radius_secret) },
+    { "key",                           offsetof(struct auth_cfg, tls.key),                 conf_set_pem,         NULL },
+    { "certificate",                   offsetof(struct auth_cfg, tls.cert),                conf_set_pem,         NULL },
+    { "authority",                     offsetof(struct auth_cfg, tls.ca_cert),             conf_set_pem,         NULL },
+    { "pmk_lifetime",                  offsetof(struct auth_cfg, ffn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
+    { "ptk_lifetime",                  offsetof(struct auth_cfg, ffn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
+    { "gtk_expire_offset",             offsetof(struct auth_cfg, ffn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
+    { "gtk_new_activation_time",       offsetof(struct auth_cfg, ffn.gtk_new_activation_time), conf_set_number,  &valid_positive },
+    { "gtk_new_install_required",      offsetof(struct auth_cfg, ffn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
+    { "ffn_revocation_lifetime_reduction", offsetof(struct auth_cfg, ffn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
+    { "lpmk_lifetime",                 offsetof(struct auth_cfg, lfn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
+    { "lptk_lifetime",                 offsetof(struct auth_cfg, lfn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
+    { "lgtk_expire_offset",            offsetof(struct auth_cfg, lfn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
+    { "lgtk_new_activation_time",      offsetof(struct auth_cfg, lfn.gtk_new_activation_time), conf_set_number,  &valid_positive },
+    { "lgtk_new_install_required",     offsetof(struct auth_cfg, lfn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
+    { "lfn_revocation_lifetime_reduction", offsetof(struct auth_cfg, lfn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
+    { }
 };
 
 void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter)
@@ -566,6 +603,22 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     BUG_ON(auth->radius_fd >= 0);
     BUG_ON(!auth->sendto_mac);
     BUG_ON(!auth->cfg);
+
+    if (auth->cfg->radius_addr.ss_family == AF_UNSPEC) {
+        if (!auth->cfg->tls.key.iov_base)
+            FATAL(1, "missing \"key\" (or \"radius_addr\") parameter");
+        if (!auth->cfg->tls.cert.iov_base)
+            FATAL(1, "missing \"certificate\" (or \"radius_addr\") parameter");
+        if (!auth->cfg->tls.ca_cert.iov_base)
+            FATAL(1, "missing \"authority\" (or \"radius_addr\") parameter");
+    } else {
+        if (auth->cfg->tls.key.iov_base || auth->cfg->tls.cert.iov_base || auth->cfg->tls.ca_cert.iov_base)
+            WARN("ignore certificates and key since an external radius server is in use");
+    }
+    if (auth->cfg->ffn.gtk_new_install_required >= (100 - 100 / auth->cfg->ffn.revocation_lifetime_reduction))
+        FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
+    if (auth->cfg->lfn.gtk_new_install_required >= (100 - 100 / auth->cfg->lfn.revocation_lifetime_reduction))
+        FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
 
     if (auth->cfg->radius_addr.ss_family != AF_UNSPEC)
         radius_init(auth, (const struct sockaddr *)&auth->cfg->radius_addr);

@@ -147,18 +147,6 @@ static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_de
     (*macaddr_count)++;
 }
 
-static void conf_set_gtk(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    uintptr_t gtk_count = (uintptr_t)raw_param;
-    uint8_t (*gtks)[16] = raw_dest;
-
-    if (info->key_array_index >= gtk_count)
-        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
-    if (parse_byte_array(gtks[info->key_array_index], 16, info->value) ||
-        !memzcmp(gtks[info->key_array_index], 16))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-}
-
 static void conf_set_dhcp_internal(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct sockaddr_in6 *dest = raw_dest;
@@ -192,11 +180,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "rcp_trace",                     offsetof(struct wsbrd_conf, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
         { "internal_dhcp",                 offsetof(struct wsbrd_conf, dhcp_server),                      conf_set_dhcp_internal, NULL },
         { "dhcp_server",                   offsetof(struct wsbrd_conf, dhcp_server),                      conf_set_netaddr,     &valid_ipv6 },
-        { "radius_server",                 offsetof(struct wsbrd_conf, auth_cfg.radius_addr),             conf_set_netaddr,     &valid_ipv4or6 },
-        { "radius_secret",                 offsetof(struct wsbrd_conf, auth_cfg.radius_secret),           conf_set_string,      (void *)sizeof(config->auth_cfg.radius_secret) },
-        { "key",                           offsetof(struct wsbrd_conf, auth_cfg.tls.key),                 conf_set_pem,         NULL },
-        { "certificate",                   offsetof(struct wsbrd_conf, auth_cfg.tls.cert),                conf_set_pem,         NULL },
-        { "authority",                     offsetof(struct wsbrd_conf, auth_cfg.tls.ca_cert),             conf_set_pem,         NULL },
         { "network_name",                  offsetof(struct wsbrd_conf, ws_name),                          conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          offsetof(struct wsbrd_conf, ws_size),                          conf_set_enum,        &valid_ws_size },
         { "domain",                        offsetof(struct wsbrd_conf, ws_domain),                        conf_set_enum,        &valid_ws_domains },
@@ -221,8 +204,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "rpl_compat",                    offsetof(struct wsbrd_conf, rpl_compat),                       conf_set_bool,        NULL },
         { "rpl_rpi_ignorable",             offsetof(struct wsbrd_conf, rpl_rpi_ignorable),                conf_set_bool,        NULL },
         { "fan_version",                   offsetof(struct wsbrd_conf, ws_fan_version),                   conf_set_enum,        &valid_fan_versions },
-        { "gtk\\[*]",                      offsetof(struct wsbrd_conf, auth_cfg.gtk_init[0]),             conf_set_gtk,         (void *)WS_GTK_COUNT },
-        { "lgtk\\[*]",                     offsetof(struct wsbrd_conf, auth_cfg.gtk_init[WS_GTK_COUNT]),  conf_set_gtk,         (void *)WS_LGTK_COUNT },
         { "tx_power",                      offsetof(struct wsbrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    offsetof(struct wsbrd_conf, enable_apc),                       conf_set_bool,        NULL },
         { "csma_backoff_unit",             offsetof(struct wsbrd_conf, csma.backoff_unit_us),             conf_set_u16,         NULL },
@@ -235,18 +216,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "broadcast_interval",            offsetof(struct wsbrd_conf, bc_interval),                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        offsetof(struct wsbrd_conf, lfn_bc_interval),                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     offsetof(struct wsbrd_conf, lfn_bc_sync_period),               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "pmk_lifetime",                  offsetof(struct wsbrd_conf, auth_cfg.ffn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
-        { "ptk_lifetime",                  offsetof(struct wsbrd_conf, auth_cfg.ffn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
-        { "gtk_expire_offset",             offsetof(struct wsbrd_conf, auth_cfg.ffn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
-        { "gtk_new_activation_time",       offsetof(struct wsbrd_conf, auth_cfg.ffn.gtk_new_activation_time), conf_set_number,  &valid_positive },
-        { "gtk_new_install_required",      offsetof(struct wsbrd_conf, auth_cfg.ffn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
-        { "ffn_revocation_lifetime_reduction", offsetof(struct wsbrd_conf, auth_cfg.ffn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
-        { "lpmk_lifetime",                 offsetof(struct wsbrd_conf, auth_cfg.lfn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lptk_lifetime",                 offsetof(struct wsbrd_conf, auth_cfg.lfn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lgtk_expire_offset",            offsetof(struct wsbrd_conf, auth_cfg.lfn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
-        { "lgtk_new_activation_time",      offsetof(struct wsbrd_conf, auth_cfg.lfn.gtk_new_activation_time), conf_set_number,  &valid_positive },
-        { "lgtk_new_install_required",     offsetof(struct wsbrd_conf, auth_cfg.lfn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
-        { "lfn_revocation_lifetime_reduction", offsetof(struct wsbrd_conf, auth_cfg.lfn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
         { "mac_address",                   offsetof(struct wsbrd_conf, ws_mac_address),                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "allowed_mac64",                 0,                                                             conf_set_macaddr,     (bool[1]){ true } },
         { "denied_mac64",                  0,                                                             conf_set_macaddr,     (bool[1]){ false } },
@@ -264,6 +233,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     const struct option_group opt_groups[] = {
         { wsbrd_opts,      config },
         { trace_opts,      &g_enabled_traces },
+        { auth_opts,       &config->auth_cfg },
         { }
     };
     static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
@@ -495,24 +465,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
-    if (config->auth_cfg.radius_addr.ss_family == AF_UNSPEC) {
-        if (!config->auth_cfg.tls.key.iov_base)
-            FATAL(1, "missing \"key\" (or \"auth_cfg.radius_addr\") parameter");
-        if (!config->auth_cfg.tls.cert.iov_base)
-            FATAL(1, "missing \"certificate\" (or \"auth_cfg.radius_addr\") parameter");
-        if (!config->auth_cfg.tls.ca_cert.iov_base)
-            FATAL(1, "missing \"authority\" (or \"auth_cfg.radius_addr\") parameter");
-    } else {
-        if (config->auth_cfg.tls.key.iov_len || config->auth_cfg.tls.cert.iov_len ||
-            config->auth_cfg.tls.ca_cert.iov_len)
-            WARN("ignore certificates and key since an external radius server is in use");
-    }
     if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
         FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
-    if (config->auth_cfg.ffn.gtk_new_install_required >= (100 - 100 / config->auth_cfg.ffn.revocation_lifetime_reduction))
-        FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
-    if (config->auth_cfg.lfn.gtk_new_install_required >= (100 - 100 / config->auth_cfg.lfn.revocation_lifetime_reduction))
-        FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
     if (IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
     if (!IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && !config->tun_autoconf)
