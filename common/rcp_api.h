@@ -84,6 +84,7 @@ struct rcp_cfg {
     char uart_dev[PATH_MAX];
     int  uart_baudrate;
     bool uart_rtscts;
+    int tx_power_dbm;
     struct rcp_csma_cfg csma;
 };
 

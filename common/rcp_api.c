@@ -766,6 +766,7 @@ const struct option_struct rcp_opts[] = {
     { "uart_baudrate", offsetof(struct rcp_cfg, uart_baudrate), conf_set_number, NULL },
     { "uart_rtscts",   offsetof(struct rcp_cfg, uart_rtscts),   conf_set_bool,   NULL },
     { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
+    { "tx_power",      offsetof(struct rcp_cfg, tx_power_dbm),  conf_set_number, &valid_int8 },
     { "csma_backoff_unit",  offsetof(struct rcp_cfg, csma.backoff_unit_us), conf_set_u16, NULL },
     { "csma_min_be",        offsetof(struct rcp_cfg, csma.min_be),          conf_set_u8,  &rcp_valid_min_be },
     { "csma_max_be",        offsetof(struct rcp_cfg, csma.max_be),          conf_set_u8,  &rcp_valid_max_be },
@@ -819,6 +820,8 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
     rcp_req_radio_list(rcp);
     while (!rcp->has_rf_list)
         rcp_rx(rcp);
+
+    rcp_set_radio_tx_power(rcp, config->tx_power_dbm);
 
     if (config->csma.min_be > config->csma.max_be)
         FATAL(1, "invalid csma_min_be > csma_max_be");

@@ -85,7 +85,6 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
         { "allowed_channels",              offsetof(struct dc_cfg, ws_allowed_channels),              conf_set_bitmask,     NULL },
         { "custom_allowed_channels",       offsetof(struct dc_cfg, ws_custom_allowed_channels),       conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        offsetof(struct dc_cfg, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
-        { "tx_power",                      offsetof(struct dc_cfg, tx_power),                         conf_set_number,      &valid_int8 },
         { "target_eui64",                  offsetof(struct dc_cfg, target_eui64),                     conf_set_array,       (void *)sizeof(config->target_eui64) },
         { "target_pmk",                    offsetof(struct dc_cfg, target_pmk),                       conf_set_array,       (void *)sizeof(config->target_pmk) },
         { "target_id",                     offsetof(struct dc_cfg, target_id),                        conf_set_string,      (void *)sizeof(config->target_id) },

@@ -168,10 +168,10 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 struct dc g_dc = {
     // Arbitrary default params
     .cfg.rcp_cfg.uart_baudrate = 115200,
+    .cfg.rcp_cfg.tx_power_dbm = 14,
     .cfg.tun_autoconf = true,
     .cfg.ws_domain = REG_DOMAIN_UNDEF,
     .cfg.ws_uc_dwell_interval_ms = 255,
-    .cfg.tx_power = 14,
     .cfg.disc_period_s = 10,
     .cfg.disc_count_max = 6,
     .cfg.ws_allowed_channels = { [0 ... sizeof(g_dc.cfg.ws_allowed_channels) - 1] = 0xff },
@@ -227,7 +227,7 @@ static void dc_init_radio(struct dc *dc)
     dc->ws.phy.params = ws_regdb_phy_params(dc->cfg.ws_phy_mode_id,
                                               dc->cfg.ws_mode);
     BUG_ON(!dc->ws.phy.params);
-    dc->ws.phy.tx_power_dbm = dc->cfg.tx_power;
+    dc->ws.phy.tx_power_dbm = dc->cfg.rcp_cfg.tx_power_dbm;
     dc->ws.phy.tx_attempts = rcp_csma_default.frame_retries + 1;
     dc->ws.fhss.chan_params = rail_get_chan_params(&dc->ws.rcp, dc->cfg.ws_domain,
                                                    dc->cfg.ws_chan_plan_id,
@@ -260,7 +260,6 @@ static void dc_init_radio(struct dc *dc)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
-    rcp_set_radio_tx_power(&dc->ws.rcp, dc->cfg.tx_power);
     rcp_set_radio(&dc->ws.rcp, rail_config->index, dc->ws.phy.params->ofdm_mcs, false);
     dc->ws.phy.rcp_rail_config_index = rail_config->index;
 

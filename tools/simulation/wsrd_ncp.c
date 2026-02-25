@@ -150,7 +150,7 @@ static void ncp_set_txpow(const void *_req, const void *req_data, void *cnf, voi
     const sl_wisun_msg_set_tx_power_req_t *req = _req;
     struct wsrd *wsrd = &g_wsrd;
 
-    wsrd->config.tx_power = req->body.tx_power;
+    wsrd->config.rcp_cfg.tx_power_dbm = req->body.tx_power;
 }
 
 static void ncp_set_txpow_ddbm(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
@@ -168,7 +168,7 @@ static void ncp_set_txpow_ddbm(const void *_req, const void *req_data, void *_cn
         return;
     }
 
-    wsrd->config.tx_power = txpow_ddbm / 10;
+    wsrd->config.rcp_cfg.tx_power_dbm = txpow_ddbm / 10;
 }
 
 static sl_status_t ncp_set_pem(struct iovec *out, const char *buf, size_t buf_len, bool append)

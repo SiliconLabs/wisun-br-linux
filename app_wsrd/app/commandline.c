@@ -118,7 +118,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "allowed_channels",              offsetof(struct wsrd_conf, ws_allowed_channels),              conf_set_bitmask,     NULL },
         { "custom_allowed_channels",       offsetof(struct wsrd_conf, ws_custom_allowed_channels),       conf_set_bitmask,     NULL },
         { "unicast_dwell_interval",        offsetof(struct wsrd_conf, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
-        { "tx_power",                      offsetof(struct wsrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    offsetof(struct wsrd_conf, enable_apc),                       conf_set_bool,        NULL },
         { "rcp_trace",                     offsetof(struct wsrd_conf, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
         { "color_output",                  offsetof(struct wsrd_conf, color_output),                     conf_set_enum,        &valid_tristate },

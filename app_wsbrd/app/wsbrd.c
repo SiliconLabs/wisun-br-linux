@@ -419,8 +419,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (ctxt->config.enable_lfn && ws_info->mngt.lpa_legacy)
         WARN("enable_lfn recommends RCP API >= 2.16.1");
 
-    rcp_set_radio_tx_power(&ctxt->rcp, ctxt->config.tx_power);
-    ws_info->phy_config.tx_power_dbm = ctxt->config.tx_power;
+    ws_info->phy_config.tx_power_dbm = ctxt->config.rcp_cfg.tx_power_dbm;
     ws_info->phy_config.tx_attempts = ctxt->config.rcp_cfg.csma.frame_retries + 1;
 
     ws_enable_mac_filtering(ctxt);

@@ -196,7 +196,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "rpl_compat",                    offsetof(struct wsbrd_conf, rpl_compat),                       conf_set_bool,        NULL },
         { "rpl_rpi_ignorable",             offsetof(struct wsbrd_conf, rpl_rpi_ignorable),                conf_set_bool,        NULL },
         { "fan_version",                   offsetof(struct wsbrd_conf, ws_fan_version),                   conf_set_enum,        &valid_fan_versions },
-        { "tx_power",                      offsetof(struct wsbrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    offsetof(struct wsbrd_conf, enable_apc),                       conf_set_bool,        NULL },
         { "unicast_dwell_interval",        offsetof(struct wsbrd_conf, uc_dwell_interval),                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      offsetof(struct wsbrd_conf, bc_dwell_interval),                conf_set_number,      &valid_broadcast_dwell_interval },
@@ -267,7 +266,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_pan_id = -1;
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
-    config->tx_power = 14;
+    config->rcp_cfg.tx_power_dbm = 14;
     config->rcp_cfg.csma = rcp_csma_default;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;

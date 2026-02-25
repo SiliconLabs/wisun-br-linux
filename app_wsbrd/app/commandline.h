@@ -72,7 +72,6 @@ struct wsbrd_conf {
     bool storage_delete;
     bool storage_exit;
 
-    int  tx_power;
     bool enable_apc;
     int  ws_pan_id;
     int  ws_fan_version;

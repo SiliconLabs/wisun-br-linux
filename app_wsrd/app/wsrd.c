@@ -189,11 +189,11 @@ struct wsrd g_wsrd = {
     // Arbitrary default values
     .config.rpl_compat = true,
     .config.rcp_cfg.uart_baudrate = 115200,
+    .config.rcp_cfg.tx_power_dbm = 14,
     .config.tun_autoconf = true,
     .config.ws_domain = REG_DOMAIN_UNDEF,
     .config.ws_uc_dwell_interval_ms = 255,
     .config.ws_allowed_channels = { [0 ... sizeof(g_wsrd.config.ws_allowed_channels) - 1] = 0xff },
-    .config.tx_power = 14,
     .config.color_output = -1,
     .config.ws_mac_address = EUI64_BC,
     .config.storage_prefix = "/var/lib/wsrd/",
@@ -508,7 +508,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     wsrd->ws.phy.params = ws_regdb_phy_params(wsrd->config.ws_phy_mode_id,
                                               wsrd->config.ws_mode);
     BUG_ON(!wsrd->ws.phy.params);
-    wsrd->ws.phy.tx_power_dbm = wsrd->config.tx_power;
+    wsrd->ws.phy.tx_power_dbm = wsrd->config.rcp_cfg.tx_power_dbm;
     wsrd->ws.phy.tx_attempts = wsrd->config.rcp_cfg.csma.frame_retries + 1;
     wsrd->ws.fhss.chan_params = rail_get_chan_params(&wsrd->ws.rcp, wsrd->config.ws_domain,
                                                      wsrd->config.ws_chan_plan_id,
@@ -541,7 +541,6 @@ static void wsrd_init_radio(struct wsrd *wsrd)
             break;
     if (!rail_config->chan0_freq)
         FATAL(2, "unsupported radio configuration (check --list-rf-configs)");
-    rcp_set_radio_tx_power(&wsrd->ws.rcp, wsrd->config.tx_power);
 
     wsrd->ws.phy.enable_apc = wsrd->config.enable_apc;
     if (!version_older_than(wsrd->ws.rcp.version_api, 2, 13, 0))
