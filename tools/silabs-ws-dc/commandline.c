@@ -69,35 +69,43 @@ static void print_help(FILE *stream) {
 
 void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
 {
-    const struct option_struct opts_conf[] = {
-        { "uart_device",                   config->rcp_cfg.uart_dev,                  conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
-        { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,            conf_set_number,      NULL },
-        { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,              conf_set_bool,        NULL },
-        { "cpc_instance",                  config->rcp_cfg.cpc_instance,              conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
-        { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
-        { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
-        { "user",                          config->user,                              conf_set_string,      (void *)sizeof(config->user) },
-        { "group",                         config->group,                             conf_set_string,      (void *)sizeof(config->group) },
-        { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
-        { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
-        { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
-        { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
-        { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
-        { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
-        { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
-        { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
-        { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
-        { "custom_allowed_channels",       config->ws_custom_allowed_channels,        conf_set_bitmask,     NULL },
-        { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
-        { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
-        { "target_eui64",                  &config->target_eui64,                     conf_set_array,       (void *)sizeof(config->target_eui64) },
-        { "target_pmk",                    &config->target_pmk,                       conf_set_array,       (void *)sizeof(config->target_pmk) },
-        { "target_id",                     config->target_id,                         conf_set_string,      (void *)sizeof(config->target_id) },
-        { "disc_period_s",                 &config->disc_period_s,                    conf_set_number,      &valid_positive },
-        { "disc_count_max",                &config->disc_count_max,                   conf_set_number,      &valid_positive },
-        { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
-        { "rcp_trace",                     &config->rcp_traces,                       conf_add_rcp_traces,  &rcp_log_names },
-        { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
+    const struct option_struct dc_opts[] = {
+        { "uart_device",                   offsetof(struct dc_cfg, rcp_cfg.uart_dev),                 conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
+        { "uart_baudrate",                 offsetof(struct dc_cfg, rcp_cfg.uart_baudrate),            conf_set_number,      NULL },
+        { "uart_rtscts",                   offsetof(struct dc_cfg, rcp_cfg.uart_rtscts),              conf_set_bool,        NULL },
+        { "cpc_instance",                  offsetof(struct dc_cfg, rcp_cfg.cpc_instance),             conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
+        { "tun_device",                    offsetof(struct dc_cfg, tun_dev),                          conf_set_string,      (void *)sizeof(config->tun_dev) },
+        { "tun_autoconf",                  offsetof(struct dc_cfg, tun_autoconf),                     conf_set_bool,        NULL },
+        { "user",                          offsetof(struct dc_cfg, user),                             conf_set_string,      (void *)sizeof(config->user) },
+        { "group",                         offsetof(struct dc_cfg, group),                            conf_set_string,      (void *)sizeof(config->group) },
+        { "domain",                        offsetof(struct dc_cfg, ws_domain),                        conf_set_enum,        &valid_ws_domains },
+        { "mode",                          offsetof(struct dc_cfg, ws_mode),                          conf_set_enum_int_hex, &valid_ws_modes },
+        { "phy_mode_id",                   offsetof(struct dc_cfg, ws_phy_mode_id),                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
+        { "class",                         offsetof(struct dc_cfg, ws_class),                         conf_set_enum_int,    &valid_ws_classes },
+        { "chan_plan_id",                  offsetof(struct dc_cfg, ws_chan_plan_id),                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
+        { "chan0_freq",                    offsetof(struct dc_cfg, ws_chan0_freq),                    conf_set_number,      NULL },
+        { "chan_spacing",                  offsetof(struct dc_cfg, ws_chan_spacing),                  conf_set_number,      NULL },
+        { "chan_count",                    offsetof(struct dc_cfg, ws_chan_count),                    conf_set_number,      NULL },
+        { "allowed_channels",              offsetof(struct dc_cfg, ws_allowed_channels),              conf_set_bitmask,     NULL },
+        { "custom_allowed_channels",       offsetof(struct dc_cfg, ws_custom_allowed_channels),       conf_set_bitmask,     NULL },
+        { "unicast_dwell_interval",        offsetof(struct dc_cfg, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
+        { "tx_power",                      offsetof(struct dc_cfg, tx_power),                         conf_set_number,      &valid_int8 },
+        { "target_eui64",                  offsetof(struct dc_cfg, target_eui64),                     conf_set_array,       (void *)sizeof(config->target_eui64) },
+        { "target_pmk",                    offsetof(struct dc_cfg, target_pmk),                       conf_set_array,       (void *)sizeof(config->target_pmk) },
+        { "target_id",                     offsetof(struct dc_cfg, target_id),                        conf_set_string,      (void *)sizeof(config->target_id) },
+        { "disc_period_s",                 offsetof(struct dc_cfg, disc_period_s),                    conf_set_number,      &valid_positive },
+        { "disc_count_max",                offsetof(struct dc_cfg, disc_count_max),                   conf_set_number,      &valid_positive },
+        { "rcp_trace",                     offsetof(struct dc_cfg, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
+        { "color_output",                  offsetof(struct dc_cfg, color_output),                     conf_set_enum,        &valid_tristate },
+        { }
+    };
+    static const struct option_struct trace_opts[] = {
+        { "trace", 0, conf_add_flags, &valid_traces },
+        { }
+    };
+    const struct option_group opt_groups[] = {
+        { dc_opts,    config },
+        { trace_opts, &g_enabled_traces },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -118,7 +126,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
-                parse_config_file(opts_conf, optarg);
+                parse_config_file(opt_groups, optarg);
                 break;
             case '?':
                 print_help(stderr);
@@ -140,7 +148,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
                     info.key_array_index = UINT_MAX;
-                parse_config_line(opts_conf, &info);
+                parse_config_line(opt_groups, &info);
                 break;
             case 'u':
                 strcpy(info.key, "uart_device");

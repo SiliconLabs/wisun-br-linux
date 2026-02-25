@@ -100,56 +100,64 @@ void print_help(FILE *stream) {
 
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 {
-    const struct option_struct opts_conf[] = {
-        { "uart_device",                   config->rcp_cfg.uart_dev,               conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
-        { "uart_baudrate",                 &config->rcp_cfg.uart_baudrate,         conf_set_number,      NULL },
-        { "uart_rtscts",                   &config->rcp_cfg.uart_rtscts,           conf_set_bool,        NULL },
-        { "cpc_instance",                  config->rcp_cfg.cpc_instance,           conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
-        { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
-        { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
-        { "user",                          config->user,                              conf_set_string,      (void *)sizeof(config->user) },
-        { "group",                         config->group,                             conf_set_string,      (void *)sizeof(config->group) },
-        { "network_name",                  config->ws_netname,                        conf_set_string,      (void *)sizeof(config->ws_netname) },
-        { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
-        { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
-        { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
-        { "phy_operating_modes",           &config->ws_phy_op_modes,                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
-        { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
-        { "duty_cycle_budget",             &config->duty_cycle.budget_ms,             conf_set_number,      &valid_budget },
-        { "duty_cycle_threshold\\[*]",     &config->duty_cycle.threshold,             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
-        { "duty_cycle_chan_budget",        &config->duty_cycle.chan_budget_ms,        conf_set_number,      &valid_budget },
-        { "duty_cycle_chan_threshold\\[*]", &config->duty_cycle.chan_threshold,       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
-        { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
-        { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
-        { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_number,      NULL },
-        { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
-        { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
-        { "custom_allowed_channels",       config->ws_custom_allowed_channels,        conf_set_bitmask,     NULL },
-        { "unicast_dwell_interval",        &config->ws_uc_dwell_interval_ms,          conf_set_number,      &valid_uc_dwell_interval },
-        { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
-        { "enable_apc",                    &config->enable_apc,                       conf_set_bool,        NULL },
-        { "csma_backoff_unit",             &config->csma.backoff_unit_us,             conf_set_u16,         NULL },
-        { "csma_min_be",                   &config->csma.min_be,                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
-        { "csma_max_be",                   &config->csma.max_be,                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
-        { "csma_cca_retries",              &config->csma.cca_retries,                 conf_set_u8,          NULL },
-        { "csma_frame_retries",            &config->csma.frame_retries,               conf_set_u8,          NULL },
-        { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
-        { "rcp_trace",                     &config->rcp_traces,                       conf_add_rcp_traces,  &rcp_log_names },
-        { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
-        { "authority",                     &config->supp_cfg.tls.ca_cert,             conf_set_pem,         NULL },
-        { "certificate",                   &config->supp_cfg.tls.cert,                conf_set_pem,         NULL },
-        { "key",                           &config->supp_cfg.tls.key,                 conf_set_pem,         NULL },
-        { "eap_identity",                  &config->supp_cfg.eap_identity,            conf_set_string,      (void *)sizeof(config->supp_cfg.eap_identity) },
-        { "disc_imin",                     &config->disc_cfg.Imin_ms,                 conf_set_ms_from_s,   NULL },
-        { "disc_imax",                     &config->disc_cfg.Imax_ms,                 conf_set_ms_from_s,   NULL },
-        { "disc_k",                        &config->disc_cfg.k,                       conf_set_number,      &valid_positive },
-        { "mac_address",                   &config->ws_mac_address,                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
-        { "allowed_mac64",                 config,                                    conf_set_macaddr,     (bool[1]){ true } },
-        { "denied_mac64",                  config,                                    conf_set_macaddr,     (bool[1]){ false } },
-        { "rpl_compat",                    &config->rpl_compat,                       conf_set_bool,        NULL },
-        { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
-        { "gtk_max_mismatch",              &config->supp_cfg.gtk_max_mismatch_s,      conf_set_seconds_from_minutes, &valid_positive },
-        { "pan_timeout",                   &config->pan_timeout_s,                    conf_set_seconds_from_minutes, &valid_positive },
+    const struct option_struct wsrd_opts[] = {
+        { "uart_device",                   offsetof(struct wsrd_conf, rcp_cfg.uart_dev),                 conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
+        { "uart_baudrate",                 offsetof(struct wsrd_conf, rcp_cfg.uart_baudrate),            conf_set_number,      NULL },
+        { "uart_rtscts",                   offsetof(struct wsrd_conf, rcp_cfg.uart_rtscts),              conf_set_bool,        NULL },
+        { "cpc_instance",                  offsetof(struct wsrd_conf, rcp_cfg.cpc_instance),             conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
+        { "tun_device",                    offsetof(struct wsrd_conf, tun_dev),                          conf_set_string,      (void *)sizeof(config->tun_dev) },
+        { "tun_autoconf",                  offsetof(struct wsrd_conf, tun_autoconf),                     conf_set_bool,        NULL },
+        { "user",                          offsetof(struct wsrd_conf, user),                             conf_set_string,      (void *)sizeof(config->user) },
+        { "group",                         offsetof(struct wsrd_conf, group),                            conf_set_string,      (void *)sizeof(config->group) },
+        { "network_name",                  offsetof(struct wsrd_conf, ws_netname),                       conf_set_string,      (void *)sizeof(config->ws_netname) },
+        { "domain",                        offsetof(struct wsrd_conf, ws_domain),                        conf_set_enum,        &valid_ws_domains },
+        { "mode",                          offsetof(struct wsrd_conf, ws_mode),                          conf_set_enum_int_hex, &valid_ws_modes },
+        { "phy_mode_id",                   offsetof(struct wsrd_conf, ws_phy_mode_id),                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
+        { "phy_operating_modes",           offsetof(struct wsrd_conf, ws_phy_op_modes),                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
+        { "class",                         offsetof(struct wsrd_conf, ws_class),                         conf_set_enum_int,    &valid_ws_classes },
+        { "duty_cycle_budget",             offsetof(struct wsrd_conf, duty_cycle.budget_ms),             conf_set_number,      &valid_budget },
+        { "duty_cycle_threshold\\[*]",     offsetof(struct wsrd_conf, duty_cycle.threshold),             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
+        { "duty_cycle_chan_budget",        offsetof(struct wsrd_conf, duty_cycle.chan_budget_ms),        conf_set_number,      &valid_budget },
+        { "duty_cycle_chan_threshold\\[*]", offsetof(struct wsrd_conf, duty_cycle.chan_threshold),       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
+        { "chan_plan_id",                  offsetof(struct wsrd_conf, ws_chan_plan_id),                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
+        { "chan0_freq",                    offsetof(struct wsrd_conf, ws_chan0_freq),                    conf_set_number,      NULL },
+        { "chan_spacing",                  offsetof(struct wsrd_conf, ws_chan_spacing),                  conf_set_number,      NULL },
+        { "chan_count",                    offsetof(struct wsrd_conf, ws_chan_count),                    conf_set_number,      NULL },
+        { "allowed_channels",              offsetof(struct wsrd_conf, ws_allowed_channels),              conf_set_bitmask,     NULL },
+        { "custom_allowed_channels",       offsetof(struct wsrd_conf, ws_custom_allowed_channels),       conf_set_bitmask,     NULL },
+        { "unicast_dwell_interval",        offsetof(struct wsrd_conf, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
+        { "tx_power",                      offsetof(struct wsrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
+        { "enable_apc",                    offsetof(struct wsrd_conf, enable_apc),                       conf_set_bool,        NULL },
+        { "csma_backoff_unit",             offsetof(struct wsrd_conf, csma.backoff_unit_us),             conf_set_u16,         NULL },
+        { "csma_min_be",                   offsetof(struct wsrd_conf, csma.min_be),                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
+        { "csma_max_be",                   offsetof(struct wsrd_conf, csma.max_be),                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
+        { "csma_cca_retries",              offsetof(struct wsrd_conf, csma.cca_retries),                 conf_set_u8,          NULL },
+        { "csma_frame_retries",            offsetof(struct wsrd_conf, csma.frame_retries),               conf_set_u8,          NULL },
+        { "rcp_trace",                     offsetof(struct wsrd_conf, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
+        { "color_output",                  offsetof(struct wsrd_conf, color_output),                     conf_set_enum,        &valid_tristate },
+        { "authority",                     offsetof(struct wsrd_conf, supp_cfg.tls.ca_cert),             conf_set_pem,         NULL },
+        { "certificate",                   offsetof(struct wsrd_conf, supp_cfg.tls.cert),                conf_set_pem,         NULL },
+        { "key",                           offsetof(struct wsrd_conf, supp_cfg.tls.key),                 conf_set_pem,         NULL },
+        { "eap_identity",                  offsetof(struct wsrd_conf, supp_cfg.eap_identity),            conf_set_string,      (void *)sizeof(config->supp_cfg.eap_identity) },
+        { "disc_imin",                     offsetof(struct wsrd_conf, disc_cfg.Imin_ms),                 conf_set_ms_from_s,   NULL },
+        { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
+        { "disc_k",                        offsetof(struct wsrd_conf, disc_cfg.k),                       conf_set_number,      &valid_positive },
+        { "mac_address",                   offsetof(struct wsrd_conf, ws_mac_address),                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
+        { "allowed_mac64",                 0,                                                            conf_set_macaddr,     (bool[1]){ true } },
+        { "denied_mac64",                  0,                                                            conf_set_macaddr,     (bool[1]){ false } },
+        { "rpl_compat",                    offsetof(struct wsrd_conf, rpl_compat),                       conf_set_bool,        NULL },
+        { "storage_prefix",                offsetof(struct wsrd_conf, storage_prefix),                   conf_set_string,      (void *)sizeof(config->storage_prefix) },
+        { "gtk_max_mismatch",              offsetof(struct wsrd_conf, supp_cfg.gtk_max_mismatch_s),      conf_set_seconds_from_minutes, &valid_positive },
+        { "pan_timeout",                   offsetof(struct wsrd_conf, pan_timeout_s),                    conf_set_seconds_from_minutes, &valid_positive },
+        { }
+    };
+    static const struct option_struct trace_opts[] = {
+        { "trace", 0, conf_add_flags, &valid_traces },
+        { }
+    };
+    const struct option_group opt_groups[] = {
+        { wsrd_opts,       config },
+        { trace_opts,      &g_enabled_traces },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";
@@ -174,7 +182,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
-                parse_config_file(opts_conf, optarg);
+                parse_config_file(opt_groups, optarg);
                 break;
             case '?':
                 print_help(stderr);
@@ -196,7 +204,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                     FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
                 if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
                     info.key_array_index = UINT_MAX;
-                parse_config_line(opts_conf, &info);
+                parse_config_line(opt_groups, &info);
                 break;
             case 'u':
                 strcpy(info.key, "uart_device");

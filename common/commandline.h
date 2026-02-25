@@ -20,6 +20,40 @@
 
 struct storage_parse_info;
 
+/*
+ * This module allows to implement a configuration file parser. Paramaters can
+ * also be parsed individually to expose a command line interface. Integrators
+ * define an array of option_struct to declare a list of parameter names, each
+ * with a parsing function, and the output location as a structure field offset.
+ *
+ * To ease code factorization, a notion of option groups is introduced, which
+ * allows to define a list of configration parameters for a module and reuse it
+ * in different projects. API functions take an array of option_group instead
+ * of options directly. Group lists require a sentinel value, and each group
+ * entry consists of an option list with sentinel, and a pointer to a structure
+ * to populate.
+ *
+ * Example:
+ *
+ * struct main_config {
+ *     int foo;
+ *     char bar[100];
+ *     struct module_config mod;
+ * };
+ *
+ * static const struct option_struct main_opts[] = {
+ *     { "foo", offsetof(struct context, foo), conf_set_number, NULL },
+ *     { "bar", offsetof(struct context, bar), conf_set_string, (void *)sizeof(NULL) },
+ *     { }
+ * };
+ * extern const struct option_struct module_opts; // Defined in module.h
+ * const struct option_group groups[] = {
+ *     { main_opts,   config },       // Populate config->foo and config->bar
+ *     { module_opts, &config->mod }, // Populate config->mod
+ *     { }
+ * };
+ */
+
 struct number_limit {
     int min;
     int max;
@@ -27,9 +61,14 @@ struct number_limit {
 
 struct option_struct {
     const char *key;
-    void *dest_hint;
+    uintptr_t offset;
     void (*fn)(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
     const void *param;
+};
+
+struct option_group {
+    const struct option_struct *opts;
+    void *ptr;
 };
 
 extern const struct number_limit valid_gtk_new_install_required;
@@ -68,7 +107,7 @@ void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const v
 void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_threshold(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 
-void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info);
-void parse_config_file(const struct option_struct opts[], const char *filename);
+void parse_config_line(const struct option_group opts[], struct storage_parse_info *info);
+void parse_config_file(const struct option_group opts[], const char *filename);
 
 #endif

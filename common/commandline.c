@@ -379,15 +379,16 @@ void conf_set_threshold(const struct storage_parse_info *info, void *raw_dest, c
     conf_set_number(info, &dest[info->key_array_index], &valid_percent);
 }
 
-void parse_config_line(const struct option_struct opts[], struct storage_parse_info *info)
+void parse_config_line(const struct option_group opts[], struct storage_parse_info *info)
 {
-    for (const struct option_struct *opt = opts; opt->key; opt++)
-        if (!fnmatch(opt->key, info->key, 0))
-            return opt->fn(info, opt->dest_hint, opt->param);
+    for (const struct option_group *group = opts; group->opts; group++)
+        for (const struct option_struct *opt = group->opts; opt->key; opt++)
+            if (!fnmatch(opt->key, info->key, 0))
+                return opt->fn(info, (uint8_t *)group->ptr + opt->offset, opt->param);
     FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
 }
 
-void parse_config_file(const struct option_struct opts[], const char *filename)
+void parse_config_file(const struct option_group opts[], const char *filename)
 {
     struct storage_parse_info *info = storage_open(filename, "r");
 
