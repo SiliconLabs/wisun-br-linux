@@ -44,6 +44,24 @@
 
 #include "authenticator.h"
 
+const struct auth_cfg auth_cfg_default = {
+    // Wi-SUN FAN 1.1v11 6.3.1.1 Configuration Parameters
+    .ffn.gtk_expire_offset_s = 1 * 30 * 24 * 60 * 60, // 1 month  (30 days)
+    .ffn.gtk_new_activation_time = 720,
+    .ffn.gtk_new_install_required = 80,
+    .ffn.revocation_lifetime_reduction = 30,
+    .lfn.gtk_expire_offset_s = 3 * 30 * 24 * 60 * 60, // 3 months (90 days)
+    .lfn.gtk_new_activation_time = 180,
+    .lfn.gtk_new_install_required = 90,
+    .lfn.revocation_lifetime_reduction = 30,
+    // Wi-SUN FAN 1.1v11 6.5.2.2 Authentication and PMK Installation Flow
+    .ffn.pmk_lifetime_s =  4 * 30 * 24 * 60 * 60, //  4 months (120 days)
+    .lfn.pmk_lifetime_s = 18 * 30 * 24 * 60 * 60, // 18 months (540 days)
+    // Wi-SUN FAN 1.1v11 6.5.2.3 PTK and GTK Installation Flow
+    .ffn.ptk_lifetime_s =  2 * 30 * 24 * 60 * 60, //  2 months ( 60 days)
+    .lfn.ptk_lifetime_s = 12 * 30 * 24 * 60 * 60, // 12 months (360 days)
+};
+
 void auth_update_frame_counter(struct auth_ctx *auth, int key_index, uint32_t frame_counter)
 {
     if (!ws_gtk_installed(&auth->gtks[key_index - 1]))

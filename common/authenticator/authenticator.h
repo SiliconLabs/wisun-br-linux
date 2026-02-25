@@ -124,6 +124,8 @@ struct auth_ctx {
     void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);
 };
 
+extern const struct auth_cfg auth_cfg_default;
+
 struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64);
 struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 *eui64);
 
