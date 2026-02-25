@@ -95,6 +95,9 @@ struct rcp_cfg {
     struct rcp_csma_cfg csma;
     struct rcp_log_cfg traces;
     struct eui64 eui64_override;
+    struct eui64 filter_src64[10];
+    bool filter_allow;
+    int filter_count;
 };
 
 extern const struct option_struct rcp_opts[];

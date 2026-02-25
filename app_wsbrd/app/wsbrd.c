@@ -258,23 +258,6 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
     }
 }
 
-static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
-{
-    BUG_ON(ctxt->config.ws_allowed_mac_address_count && ctxt->config.ws_denied_mac_address_count);
-    if (!ctxt->config.ws_allowed_mac_address_count && !ctxt->config.ws_denied_mac_address_count)
-        return;
-    if (ctxt->config.ws_allowed_mac_address_count)
-        rcp_set_filter_src64(&ctxt->rcp,
-                             ctxt->config.ws_allowed_mac_addresses,
-                             ctxt->config.ws_allowed_mac_address_count,
-                             true);
-    else
-        rcp_set_filter_src64(&ctxt->rcp,
-                             ctxt->config.ws_denied_mac_addresses,
-                             ctxt->config.ws_denied_mac_address_count,
-                             false);
-}
-
 static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 {
     switch (network_size) {
@@ -421,8 +404,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     ws_info->phy_config.tx_power_dbm = ctxt->config.rcp_cfg.tx_power_dbm;
     ws_info->phy_config.tx_attempts = ctxt->config.rcp_cfg.csma.frame_retries + 1;
-
-    ws_enable_mac_filtering(ctxt);
 
     timer_group_init(&ws_info->neighbor_storage.timer_group);
 }

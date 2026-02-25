@@ -51,30 +51,6 @@ static const struct number_limit valid_uc_dwell_interval = {
     15, 255
 };
 
-static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    struct wsrd_conf *config = raw_dest;
-    bool allow = *(bool *)raw_param;
-    struct eui64 *macaddr_list;
-    uint8_t macaddr_maxcount;
-    uint8_t *macaddr_count;
-
-    if (allow) {
-        macaddr_list = config->ws_allowed_mac_addresses;
-        macaddr_count = &config->ws_allowed_mac_address_count;
-        macaddr_maxcount = ARRAY_SIZE(config->ws_allowed_mac_addresses);
-    } else {
-        macaddr_list = config->ws_denied_mac_addresses;
-        macaddr_count = &config->ws_denied_mac_address_count;
-        macaddr_maxcount = ARRAY_SIZE(config->ws_denied_mac_addresses);
-    }
-    if (*macaddr_count >= macaddr_maxcount)
-        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(macaddr_list[*macaddr_count].u8, sizeof(struct eui64), info->value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    (*macaddr_count)++;
-}
-
 void print_help(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN router\n");
@@ -127,8 +103,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_imin",                     offsetof(struct wsrd_conf, disc_cfg.Imin_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        offsetof(struct wsrd_conf, disc_cfg.k),                       conf_set_number,      &valid_positive },
-        { "allowed_mac64",                 0,                                                            conf_set_macaddr,     (bool[1]){ true } },
-        { "denied_mac64",                  0,                                                            conf_set_macaddr,     (bool[1]){ false } },
         { "rpl_compat",                    offsetof(struct wsrd_conf, rpl_compat),                       conf_set_bool,        NULL },
         { "storage_prefix",                offsetof(struct wsrd_conf, storage_prefix),                   conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "gtk_max_mismatch",              offsetof(struct wsrd_conf, supp_cfg.gtk_max_mismatch_s),      conf_set_seconds_from_minutes, &valid_positive },
@@ -273,8 +247,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "invalid \"disc_imax\" parameter");
     if (config->disc_cfg.Imin_ms >= config->disc_cfg.Imax_ms)
         FATAL(1, "inconsistent disc_imin and disc_imax values (disc_imin >= disc_imax)");
-    if (config->ws_allowed_mac_address_count && config->ws_denied_mac_address_count)
-        FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (config->ws_mode && config->ws_phy_op_modes[0])
         WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
     for (int i = 0; config->ws_phy_op_modes[i]; i++)

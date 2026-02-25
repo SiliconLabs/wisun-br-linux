@@ -123,30 +123,6 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
-static void conf_set_macaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    struct wsbrd_conf *config = raw_dest;
-    bool allow = *(bool *)raw_param;
-    struct eui64 *macaddr_list;
-    uint8_t macaddr_maxcount;
-    uint8_t *macaddr_count;
-
-    if (allow) {
-        macaddr_list = config->ws_allowed_mac_addresses;
-        macaddr_count = &config->ws_allowed_mac_address_count;
-        macaddr_maxcount = ARRAY_SIZE(config->ws_allowed_mac_addresses);
-    } else {
-        macaddr_list = config->ws_denied_mac_addresses;
-        macaddr_count = &config->ws_denied_mac_address_count;
-        macaddr_maxcount = ARRAY_SIZE(config->ws_denied_mac_addresses);
-    }
-    if (*macaddr_count >= macaddr_maxcount)
-        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(macaddr_list[*macaddr_count].u8, 8, info->value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-    (*macaddr_count)++;
-}
-
 static void conf_set_dhcp_internal(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct sockaddr_in6 *dest = raw_dest;
@@ -201,8 +177,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "broadcast_interval",            offsetof(struct wsbrd_conf, bc_interval),                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        offsetof(struct wsbrd_conf, lfn_bc_interval),                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     offsetof(struct wsbrd_conf, lfn_bc_sync_period),               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "allowed_mac64",                 0,                                                             conf_set_macaddr,     (bool[1]){ true } },
-        { "denied_mac64",                  0,                                                             conf_set_macaddr,     (bool[1]){ false } },
         { "async_frag_duration",           offsetof(struct wsbrd_conf, ws_async_frag_duration),           conf_set_number,      &valid_async_frag_duration },
         { "join_metrics",                  offsetof(struct wsbrd_conf, ws_join_metrics),                  conf_set_flags,       &valid_join_metrics },
         { "lowpan_mtu",                    offsetof(struct wsbrd_conf, lowpan_mtu),                       conf_set_number,      &valid_lowpan_mtu },
@@ -274,8 +248,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
     config->auth_cfg = auth_cfg_default;
-    config->ws_allowed_mac_address_count = 0;
-    config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
     config->ws_async_frag_duration = 500;
     config->pan_size = -1;
@@ -449,8 +421,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
-    if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
-        FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
         FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && config->tun_autoconf)

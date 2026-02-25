@@ -754,12 +754,6 @@ int wsrd_main(int argc, char *argv[])
         exit(0);
     }
 
-    if (wsrd->config.ws_allowed_mac_address_count)
-        rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_allowed_mac_addresses,
-                             wsrd->config.ws_allowed_mac_address_count, true);
-    else
-        rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_denied_mac_addresses,
-                             wsrd->config.ws_denied_mac_address_count, false);
     wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
     wsrd->config.supp_cfg.eui64 = wsrd->ws.rcp.eui64;
 

@@ -27,6 +27,7 @@
 #include "common/log.h"
 #include "common/mathutils.h"
 #include "common/memutils.h"
+#include "common/parsers.h"
 #include "common/string_extra.h"
 #include "common/version.h"
 #include "common/specs/ws.h"
@@ -780,6 +781,22 @@ static void rcp_add_traces(const struct storage_parse_info *info, void *raw_dest
     free(tmp);
 }
 
+static void rcp_add_filter_src64(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    struct rcp_cfg *config = raw_dest;
+    bool allow = *(bool *)raw_param;
+
+    if (config->filter_count && allow != config->filter_allow)
+        FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
+    if (config->filter_count > ARRAY_SIZE(config->filter_src64))
+        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached",
+              info->filename, info->linenr);
+    if (parse_byte_array(config->filter_src64[config->filter_count].u8, sizeof(struct eui64), info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+    config->filter_count++;
+    config->filter_allow = allow;
+}
+
 // IEEE 802.15.4-2024 Table 8-36 MAC PIB attributes
 static const struct number_limit rcp_valid_min_be = { 0, 8 };
 static const struct number_limit rcp_valid_max_be = { 3, 8 };
@@ -791,6 +808,8 @@ const struct option_struct rcp_opts[] = {
     { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
     { "rcp_trace",     offsetof(struct rcp_cfg, traces),        rcp_add_traces,  NULL },
     { "mac_address",   offsetof(struct rcp_cfg, eui64_override), conf_set_array, (void *)sizeof(struct eui64) },
+    { "allowed_mac64", 0,                                       rcp_add_filter_src64, (bool[1]){ true } },
+    { "denied_mac64",  0,                                       rcp_add_filter_src64, (bool[1]){ false } },
     { "tx_power",      offsetof(struct rcp_cfg, tx_power_dbm),  conf_set_number, &valid_int8 },
     { "csma_backoff_unit",  offsetof(struct rcp_cfg, csma.backoff_unit_us), conf_set_u16, NULL },
     { "csma_min_be",        offsetof(struct rcp_cfg, csma.min_be),          conf_set_u8,  &rcp_valid_min_be },
@@ -864,4 +883,7 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
     // NOTE: dst addr filtering is enabled by default with the native EUI-64.
     if (!eui64_is_bc(&config->eui64_override))
         rcp_set_filter_dst64(rcp, config->eui64_override.u8);
+
+    if (config->filter_count)
+        rcp_set_filter_src64(rcp, config->filter_src64, config->filter_count, config->filter_allow);
 }

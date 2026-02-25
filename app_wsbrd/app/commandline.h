@@ -87,11 +87,6 @@ struct wsbrd_conf {
     bool rpl_rpi_ignorable;
     unsigned int ws_join_metrics;
 
-    struct eui64 ws_allowed_mac_addresses[10];
-    uint8_t ws_allowed_mac_address_count;
-    struct eui64 ws_denied_mac_addresses[10];
-    uint8_t ws_denied_mac_address_count;
-
     int lowpan_mtu;
     int pan_size;
     char pcap_file[PATH_MAX];
