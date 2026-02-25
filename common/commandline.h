@@ -76,7 +76,6 @@ extern const struct number_limit valid_unsigned;
 extern const struct number_limit valid_positive;
 extern const struct number_limit valid_int8;
 extern const struct number_limit valid_uint16;
-extern const struct number_limit valid_budget;
 extern const struct number_limit valid_percent;
 
 extern const struct name_value valid_tristate[];
@@ -105,7 +104,6 @@ void conf_add_rcp_traces(const struct storage_parse_info *info, void *raw_dest, 
 void conf_set_phy_op_modes(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_pem(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
-void conf_set_threshold(const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
 
 void parse_config_line(const struct option_group opts[], struct storage_parse_info *info);
 void parse_config_file(const struct option_group opts[], const char *filename);

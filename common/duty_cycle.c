@@ -11,9 +11,34 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <stddef.h>
+
+#include "common/key_value_storage.h"
 #include "common/log.h"
 
 #include "duty_cycle.h"
+
+static const struct number_limit duty_cycle_valid_budget = {
+    0, 60 * 60 * 1000, // 1h
+};
+
+static void duty_cycle_set_threshold(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    uintptr_t count = (uintptr_t)raw_param;
+    int *dest = raw_dest;
+
+    if (info->key_array_index >= count)
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
+    conf_set_number(info, &dest[info->key_array_index], &valid_percent);
+}
+
+struct option_struct duty_cycle_opts[] = {
+    { "duty_cycle_budget",              offsetof(struct duty_cycle_cfg, budget_ms),      conf_set_number,          &duty_cycle_valid_budget },
+    { "duty_cycle_threshold\\[*]",      offsetof(struct duty_cycle_cfg, threshold),      duty_cycle_set_threshold, (void *)DUTY_CYCLE_LEVEL_MAX },
+    { "duty_cycle_chan_budget",         offsetof(struct duty_cycle_cfg, chan_budget_ms), conf_set_number,          &duty_cycle_valid_budget },
+    { "duty_cycle_chan_threshold\\[*]", offsetof(struct duty_cycle_cfg, chan_threshold), duty_cycle_set_threshold, (void *)DUTY_CYCLE_LEVEL_MAX },
+    { }
+};
 
 void duty_cycle_cfg_check(const struct duty_cycle_cfg *cfg)
 {

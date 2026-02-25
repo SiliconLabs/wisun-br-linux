@@ -115,10 +115,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "phy_mode_id",                   offsetof(struct wsrd_conf, ws_phy_mode_id),                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
         { "phy_operating_modes",           offsetof(struct wsrd_conf, ws_phy_op_modes),                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
         { "class",                         offsetof(struct wsrd_conf, ws_class),                         conf_set_enum_int,    &valid_ws_classes },
-        { "duty_cycle_budget",             offsetof(struct wsrd_conf, duty_cycle.budget_ms),             conf_set_number,      &valid_budget },
-        { "duty_cycle_threshold\\[*]",     offsetof(struct wsrd_conf, duty_cycle.threshold),             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
-        { "duty_cycle_chan_budget",        offsetof(struct wsrd_conf, duty_cycle.chan_budget_ms),        conf_set_number,      &valid_budget },
-        { "duty_cycle_chan_threshold\\[*]", offsetof(struct wsrd_conf, duty_cycle.chan_threshold),       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
         { "chan_plan_id",                  offsetof(struct wsrd_conf, ws_chan_plan_id),                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "chan0_freq",                    offsetof(struct wsrd_conf, ws_chan0_freq),                    conf_set_number,      NULL },
         { "chan_spacing",                  offsetof(struct wsrd_conf, ws_chan_spacing),                  conf_set_number,      NULL },
@@ -158,6 +154,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     const struct option_group opt_groups[] = {
         { wsrd_opts,       config },
         { trace_opts,      &g_enabled_traces },
+        { duty_cycle_opts, &config->duty_cycle },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";

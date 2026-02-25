@@ -189,10 +189,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "class",                         offsetof(struct wsbrd_conf, ws_class),                         conf_set_enum_int,    &valid_ws_classes },
         { "chan_plan_id",                  offsetof(struct wsbrd_conf, ws_chan_plan_id),                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "regional_regulation",           offsetof(struct wsbrd_conf, ws_regional_regulation),           conf_set_enum,        &valid_ws_regional_regulations },
-        { "duty_cycle_budget",             offsetof(struct wsbrd_conf, duty_cycle.budget_ms),             conf_set_number,      &valid_budget },
-        { "duty_cycle_threshold\\[*]",     offsetof(struct wsbrd_conf, duty_cycle.threshold),             conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
-        { "duty_cycle_chan_budget",        offsetof(struct wsbrd_conf, duty_cycle.chan_budget_ms),        conf_set_number,      &valid_budget },
-        { "duty_cycle_chan_threshold\\[*]", offsetof(struct wsbrd_conf, duty_cycle.chan_threshold),       conf_set_threshold,   (void *)DUTY_CYCLE_LEVEL_MAX },
         { "chan0_freq",                    offsetof(struct wsbrd_conf, ws_chan0_freq),                    conf_set_number,      NULL },
         { "chan_spacing",                  offsetof(struct wsbrd_conf, ws_chan_spacing),                  conf_set_number,      NULL },
         { "chan_count",                    offsetof(struct wsbrd_conf, ws_chan_count),                    conf_set_number,      NULL },
@@ -234,6 +230,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { wsbrd_opts,      config },
         { trace_opts,      &g_enabled_traces },
         { auth_opts,       &config->auth_cfg },
+        { duty_cycle_opts, &config->duty_cycle },
         { }
     };
     static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";

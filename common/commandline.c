@@ -52,10 +52,6 @@ const struct number_limit valid_uint16 = {
     0, UINT16_MAX
 };
 
-const struct number_limit valid_budget = {
-    0, 60 * 60 * 1000, // 1h
-};
-
 const struct number_limit valid_percent = {
     0, 100
 };
@@ -367,16 +363,6 @@ void conf_set_array(const struct storage_parse_info *info, void *raw_dest, const
 
     if (parse_byte_array(raw_dest, array_len, info->value))
         FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
-}
-
-void conf_set_threshold(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
-{
-    uintptr_t count = (uintptr_t)raw_param;
-    int *dest = raw_dest;
-
-    if (info->key_array_index >= count)
-        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
-    conf_set_number(info, &dest[info->key_array_index], &valid_percent);
 }
 
 void parse_config_line(const struct option_group opts[], struct storage_parse_info *info)

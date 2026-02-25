@@ -15,6 +15,7 @@
 #define DUTY_CYCLE_H
 #include <stdint.h>
 
+#include "common/commandline.h"
 #include "common/log.h"
 
 /*
@@ -35,6 +36,8 @@ struct duty_cycle_cfg {
     int chan_budget_ms;
     int chan_threshold[DUTY_CYCLE_LEVEL_MAX];
 };
+
+extern struct option_struct duty_cycle_opts[];
 
 void duty_cycle_cfg_check(const struct duty_cycle_cfg *cfg);
 int duty_cycle_level(const struct duty_cycle_cfg *cfg,
