@@ -127,7 +127,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_imin",                     offsetof(struct wsrd_conf, disc_cfg.Imin_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        offsetof(struct wsrd_conf, disc_cfg.k),                       conf_set_number,      &valid_positive },
-        { "mac_address",                   offsetof(struct wsrd_conf, ws_mac_address),                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "allowed_mac64",                 0,                                                            conf_set_macaddr,     (bool[1]){ true } },
         { "denied_mac64",                  0,                                                            conf_set_macaddr,     (bool[1]){ false } },
         { "rpl_compat",                    offsetof(struct wsrd_conf, rpl_compat),                       conf_set_bool,        NULL },

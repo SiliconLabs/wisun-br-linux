@@ -201,7 +201,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "broadcast_interval",            offsetof(struct wsbrd_conf, bc_interval),                      conf_set_number,      &valid_broadcast_interval },
         { "lfn_broadcast_interval",        offsetof(struct wsbrd_conf, lfn_bc_interval),                  conf_set_number,      &valid_lfn_broadcast_interval },
         { "lfn_broadcast_sync_period",     offsetof(struct wsbrd_conf, lfn_bc_sync_period),               conf_set_number,      &valid_lfn_broadcast_sync_period },
-        { "mac_address",                   offsetof(struct wsbrd_conf, ws_mac_address),                   conf_set_array,       (void *)sizeof(config->ws_mac_address) },
         { "allowed_mac64",                 0,                                                             conf_set_macaddr,     (bool[1]){ true } },
         { "denied_mac64",                  0,                                                             conf_set_macaddr,     (bool[1]){ false } },
         { "async_frag_duration",           offsetof(struct wsbrd_conf, ws_async_frag_duration),           conf_set_number,      &valid_async_frag_duration },
@@ -267,6 +266,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->color_output = -1;
     config->rcp_cfg.tx_power_dbm = 14;
     config->rcp_cfg.csma = rcp_csma_default;
+    config->rcp_cfg.eui64_override = EUI64_BC;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->lfn_bc_interval = 60000;
@@ -286,7 +286,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->rpl_compat = true;
     config->rpl_rpi_ignorable = false;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
-    memset(config->ws_mac_address, 0xff, sizeof(config->ws_mac_address));
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {

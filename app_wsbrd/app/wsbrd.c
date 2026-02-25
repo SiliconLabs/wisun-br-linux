@@ -649,11 +649,6 @@ int wsbr_main(int argc, char *argv[])
         exit(0);
     }
 
-    // NOTE: destination address filtering is enabled by default with the
-    // native EUI-64.
-    if (memcmp(ctxt->config.ws_mac_address, &EUI64_BC, 8))
-        rcp_set_filter_dst64(&ctxt->rcp, ctxt->config.ws_mac_address);
-
     wsbr_tun_init(ctxt);
     wsbr_network_init(ctxt);
     dbus_register("com.silabs.Wisun.BorderRouter",

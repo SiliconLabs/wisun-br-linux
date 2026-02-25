@@ -189,13 +189,13 @@ struct wsrd g_wsrd = {
     // Arbitrary default values
     .config.rpl_compat = true,
     .config.rcp_cfg.uart_baudrate = 115200,
+    .config.rcp_cfg.eui64_override = EUI64_BC,
     .config.rcp_cfg.tx_power_dbm = 14,
     .config.tun_autoconf = true,
     .config.ws_domain = REG_DOMAIN_UNDEF,
     .config.ws_uc_dwell_interval_ms = 255,
     .config.ws_allowed_channels = { [0 ... sizeof(g_wsrd.config.ws_allowed_channels) - 1] = 0xff },
     .config.color_output = -1,
-    .config.ws_mac_address = EUI64_BC,
     .config.storage_prefix = "/var/lib/wsrd/",
 
     // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
@@ -754,10 +754,6 @@ int wsrd_main(int argc, char *argv[])
         exit(0);
     }
 
-    // NOTE: destination address filtering is enabled by default with the
-    // native EUI-64.
-    if (!eui64_is_bc(&wsrd->config.ws_mac_address))
-        rcp_set_filter_dst64(&wsrd->ws.rcp, wsrd->config.ws_mac_address.u8);
     if (wsrd->config.ws_allowed_mac_address_count)
         rcp_set_filter_src64(&wsrd->ws.rcp, wsrd->config.ws_allowed_mac_addresses,
                              wsrd->config.ws_allowed_mac_address_count, true);

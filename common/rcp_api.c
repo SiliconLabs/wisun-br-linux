@@ -790,6 +790,7 @@ const struct option_struct rcp_opts[] = {
     { "uart_rtscts",   offsetof(struct rcp_cfg, uart_rtscts),   conf_set_bool,   NULL },
     { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
     { "rcp_trace",     offsetof(struct rcp_cfg, traces),        rcp_add_traces,  NULL },
+    { "mac_address",   offsetof(struct rcp_cfg, eui64_override), conf_set_array, (void *)sizeof(struct eui64) },
     { "tx_power",      offsetof(struct rcp_cfg, tx_power_dbm),  conf_set_number, &valid_int8 },
     { "csma_backoff_unit",  offsetof(struct rcp_cfg, csma.backoff_unit_us), conf_set_u16, NULL },
     { "csma_min_be",        offsetof(struct rcp_cfg, csma.min_be),          conf_set_u8,  &rcp_valid_min_be },
@@ -859,4 +860,8 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
         rcp_set_radio_csma(rcp, &config->csma);
     else if (memcmp(&config->csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
         WARN("csma_* parameters require RCP API >= 2.12.0");
+
+    // NOTE: dst addr filtering is enabled by default with the native EUI-64.
+    if (!eui64_is_bc(&config->eui64_override))
+        rcp_set_filter_dst64(rcp, config->eui64_override.u8);
 }

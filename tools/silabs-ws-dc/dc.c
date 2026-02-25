@@ -168,6 +168,7 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 struct dc g_dc = {
     // Arbitrary default params
     .cfg.rcp_cfg.uart_baudrate = 115200,
+    .cfg.rcp_cfg.eui64_override = EUI64_BC,
     .cfg.rcp_cfg.tx_power_dbm = 14,
     .cfg.tun_autoconf = true,
     .cfg.ws_domain = REG_DOMAIN_UNDEF,

@@ -94,6 +94,7 @@ struct rcp_cfg {
     int tx_power_dbm;
     struct rcp_csma_cfg csma;
     struct rcp_log_cfg traces;
+    struct eui64 eui64_override;
 };
 
 extern const struct option_struct rcp_opts[];

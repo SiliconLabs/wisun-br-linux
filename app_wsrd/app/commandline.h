@@ -65,7 +65,6 @@ struct wsrd_conf {
 
     int  ws_uc_dwell_interval_ms;
 
-    struct eui64 ws_mac_address;
     struct eui64 ws_allowed_mac_addresses[10];
     uint8_t ws_allowed_mac_address_count;
     struct eui64 ws_denied_mac_addresses[10];
