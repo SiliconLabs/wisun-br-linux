@@ -101,10 +101,6 @@ void print_help(FILE *stream) {
 void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
 {
     const struct option_struct wsrd_opts[] = {
-        { "uart_device",                   offsetof(struct wsrd_conf, rcp_cfg.uart_dev),                 conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
-        { "uart_baudrate",                 offsetof(struct wsrd_conf, rcp_cfg.uart_baudrate),            conf_set_number,      NULL },
-        { "uart_rtscts",                   offsetof(struct wsrd_conf, rcp_cfg.uart_rtscts),              conf_set_bool,        NULL },
-        { "cpc_instance",                  offsetof(struct wsrd_conf, rcp_cfg.cpc_instance),             conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "tun_device",                    offsetof(struct wsrd_conf, tun_dev),                          conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  offsetof(struct wsrd_conf, tun_autoconf),                     conf_set_bool,        NULL },
         { "user",                          offsetof(struct wsrd_conf, user),                             conf_set_string,      (void *)sizeof(config->user) },
@@ -155,6 +151,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { wsrd_opts,       config },
         { trace_opts,      &g_enabled_traces },
         { duty_cycle_opts, &config->duty_cycle },
+        { rcp_opts,        &config->rcp_cfg },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";

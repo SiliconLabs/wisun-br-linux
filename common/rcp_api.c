@@ -757,6 +757,14 @@ void rcp_rx(struct rcp *rcp)
     TRACE(TR_DROP, "drop %-9s: unsupported command 0x%02x", "hif", cmd);
 }
 
+const struct option_struct rcp_opts[] = {
+    { "uart_device",   offsetof(struct rcp_cfg, uart_dev),      conf_set_string, (void *)PATH_MAX },
+    { "uart_baudrate", offsetof(struct rcp_cfg, uart_baudrate), conf_set_number, NULL },
+    { "uart_rtscts",   offsetof(struct rcp_cfg, uart_rtscts),   conf_set_bool,   NULL },
+    { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
+    { }
+};
+
 void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
 {
     struct pollfd pfd = { };

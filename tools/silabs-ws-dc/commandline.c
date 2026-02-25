@@ -70,10 +70,6 @@ static void print_help(FILE *stream) {
 void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
 {
     const struct option_struct dc_opts[] = {
-        { "uart_device",                   offsetof(struct dc_cfg, rcp_cfg.uart_dev),                 conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
-        { "uart_baudrate",                 offsetof(struct dc_cfg, rcp_cfg.uart_baudrate),            conf_set_number,      NULL },
-        { "uart_rtscts",                   offsetof(struct dc_cfg, rcp_cfg.uart_rtscts),              conf_set_bool,        NULL },
-        { "cpc_instance",                  offsetof(struct dc_cfg, rcp_cfg.cpc_instance),             conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "tun_device",                    offsetof(struct dc_cfg, tun_dev),                          conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  offsetof(struct dc_cfg, tun_autoconf),                     conf_set_bool,        NULL },
         { "user",                          offsetof(struct dc_cfg, user),                             conf_set_string,      (void *)sizeof(config->user) },
@@ -106,6 +102,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     const struct option_group opt_groups[] = {
         { dc_opts,    config },
         { trace_opts, &g_enabled_traces },
+        { rcp_opts,   &config->rcp_cfg },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";

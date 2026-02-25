@@ -164,10 +164,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
     const struct option_struct wsbrd_opts[] = {
-        { "uart_device",                   offsetof(struct wsbrd_conf, rcp_cfg.uart_dev),                 conf_set_string,      (void *)sizeof(config->rcp_cfg.uart_dev) },
-        { "uart_baudrate",                 offsetof(struct wsbrd_conf, rcp_cfg.uart_baudrate),            conf_set_number,      NULL },
-        { "uart_rtscts",                   offsetof(struct wsbrd_conf, rcp_cfg.uart_rtscts),              conf_set_bool,        NULL },
-        { "cpc_instance",                  offsetof(struct wsbrd_conf, rcp_cfg.cpc_instance),             conf_set_string,      (void *)sizeof(config->rcp_cfg.cpc_instance) },
         { "tun_device",                    offsetof(struct wsbrd_conf, tun_dev),                          conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  offsetof(struct wsbrd_conf, tun_autoconf),                     conf_set_bool,        NULL },
         { "neighbor_proxy",                offsetof(struct wsbrd_conf, neighbor_proxy),                   conf_set_string,      (void *)sizeof(config->neighbor_proxy) },
@@ -231,6 +227,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { trace_opts,      &g_enabled_traces },
         { auth_opts,       &config->auth_cfg },
         { duty_cycle_opts, &config->duty_cycle },
+        { rcp_opts,        &config->rcp_cfg },
         { }
     };
     static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";

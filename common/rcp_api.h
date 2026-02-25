@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_types.h"
+#include "common/commandline.h"
 #include "common/bus.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"
@@ -74,6 +75,8 @@ struct rcp_cfg {
     int  uart_baudrate;
     bool uart_rtscts;
 };
+
+extern const struct option_struct rcp_opts[];
 
 struct rcp_csma_cfg {
     uint16_t backoff_unit_us;
