@@ -144,7 +144,6 @@ add_library(libwsbrd STATIC
     common/authenticator/authenticator_radius.c
     common/authenticator/authenticator_storage.c
     common/crypto/ieee80211.c
-    common/crypto/hmac_md.c
     common/crypto/nist_kw.c
     common/crypto/tls.c
     common/crypto/ws_keys.c
@@ -283,7 +282,6 @@ if(COMPILE_WSRD)
         app_wsrd/supplicant/supplicant_key.c
         app_wsrd/supplicant/supplicant.c
         common/crypto/ieee80211.c
-        common/crypto/hmac_md.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
         common/crypto/tls.c
@@ -511,7 +509,6 @@ if(COMPILE_DEVTOOLS)
         common/authenticator/authenticator_key.c
         common/authenticator/authenticator_storage.c
         common/crypto/ieee80211.c
-        common/crypto/hmac_md.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
         common/ipv6/6lowpan_frag.c
@@ -729,7 +726,6 @@ if(COMPILE_DEMOS)
         common/authenticator/authenticator_key.c
         common/authenticator/authenticator_radius.c
         common/authenticator/authenticator_storage.c
-        common/crypto/hmac_md.c
         common/crypto/ieee80211.c
         common/crypto/nist_kw.c
         common/crypto/ws_keys.c
