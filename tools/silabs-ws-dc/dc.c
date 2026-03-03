@@ -229,9 +229,10 @@ static void dc_init_radio(struct dc *dc)
     BUG_ON(!dc->ws.phy.params);
     dc->ws.phy.tx_power_dbm = dc->cfg.tx_power;
     dc->ws.phy.tx_attempts = rcp_csma_default.frame_retries + 1;
-    dc->ws.fhss.chan_params = ws_regdb_chan_params(dc->cfg.ws_domain,
-                                                     dc->cfg.ws_chan_plan_id,
-                                                     dc->cfg.ws_class);
+    dc->ws.fhss.chan_params = rail_get_chan_params(&dc->ws.rcp, dc->cfg.ws_domain,
+                                                   dc->cfg.ws_chan_plan_id,
+                                                   dc->cfg.ws_class,
+                                                   dc->ws.phy.params);
     if (!dc->ws.fhss.chan_params) {
         chan_params = zalloc(sizeof(*chan_params));
         chan_params->reg_domain   = dc->cfg.ws_domain;

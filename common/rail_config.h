@@ -20,9 +20,12 @@
 struct ws_ms_chan_mask;
 struct ws_fhss_config;
 struct ws_phy_config;
+struct phy_params;
 struct rcp;
 
 void rail_print_config_list(struct rcp *rcp);
+const struct chan_params *rail_get_chan_params(const struct rcp *rcp, int reg_domain, int chan_plan_id,
+                                              int operating_class, const struct phy_params *phy_params);
 void rail_fill_ms_chan_masks(const struct rcp *rcp, const struct ws_fhss_config *fhss, const struct ws_phy_config *phy,
                              struct ws_ms_chan_mask *ms_chan_mask);
 

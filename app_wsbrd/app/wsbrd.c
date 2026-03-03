@@ -307,9 +307,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ws_info->pan_information.jm.metrics[0].hdr |= FIELD_PREP(WS_MASK_JM_LEN, 1);
     }
 
-    fhss->chan_params = ws_regdb_chan_params(ctxt->config.ws_domain,
+    fhss->chan_params = rail_get_chan_params(&ctxt->rcp, ctxt->config.ws_domain,
                                              ctxt->config.ws_chan_plan_id,
-                                             ctxt->config.ws_class);
+                                             ctxt->config.ws_class,
+                                             ws_info->phy_config.params);
     if (!fhss->chan_params) {
         chan_params = zalloc(sizeof(*fhss->chan_params));
         chan_params->reg_domain   = ctxt->config.ws_domain;

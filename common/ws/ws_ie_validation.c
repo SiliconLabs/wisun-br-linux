@@ -24,6 +24,8 @@ bool ws_ie_validate_chan_plan(struct ws_fhss_config *fhss, const struct ws_gener
     const struct ws_channel_plan_one *plan1 = &schedule->plan.one;
     const struct ws_channel_plan_two *plan2 = &schedule->plan.two;
     const struct chan_params *parms = NULL;
+    uint8_t rxed_mask[WS_CHAN_MASK_LEN];
+    uint8_t own_mask[WS_CHAN_MASK_LEN];
 
     if (schedule->channel_plan == 1)
         return plan1->ch0 * 1000      == fhss->chan_params->chan0_freq &&
@@ -36,8 +38,11 @@ bool ws_ie_validate_chan_plan(struct ws_fhss_config *fhss, const struct ws_gener
                                      plan2->channel_plan_id, 0);
     if (!parms)
         return false;
+
+    ws_chan_mask_calc_reg(rxed_mask, parms);
+    ws_chan_mask_calc_reg(own_mask, fhss->chan_params);
     return parms->chan0_freq   == fhss->chan_params->chan0_freq &&
-           parms->chan_count   == fhss->chan_params->chan_count &&
+           ws_chan_mask_count(rxed_mask) == ws_chan_mask_count(own_mask) &&
            parms->chan_spacing == fhss->chan_params->chan_spacing;
 }
 

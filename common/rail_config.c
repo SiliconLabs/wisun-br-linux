@@ -198,6 +198,27 @@ static const struct rcp_rail_config *rail_get_next_config(const struct rcp_rail_
     return NULL;
 }
 
+const struct chan_params *rail_get_chan_params(const struct rcp *rcp, int reg_domain, int chan_plan_id,
+                                               int operating_class, const struct phy_params *phy_params)
+{
+    if (!chan_plan_id && !operating_class)
+        return NULL;
+    if (chan_plan_id) {
+        for (int i = 0; chan_params_table[i].chan0_freq; i++)
+            if (chan_params_table[i].reg_domain == reg_domain &&
+                chan_params_table[i].chan_plan_id == chan_plan_id &&
+                rail_get_next_config(rcp->rail_config_list, &chan_params_table[i], phy_params))
+                return &chan_params_table[i];
+    }
+    for (int i = 0; chan_params_table[i].chan0_freq; i++)
+        if (chan_params_table[i].reg_domain == reg_domain &&
+            chan_params_table[i].op_class == operating_class &&
+            rail_get_next_config(rcp->rail_config_list, &chan_params_table[i], phy_params))
+            return &chan_params_table[i];
+    FATAL(1, "cannot match any RAIL configuration for domain=%s chan_plan_id=%d class=%d",
+          val_to_str(reg_domain, valid_ws_domains, "??"), chan_plan_id, operating_class);
+}
+
 static const struct chan_params *rail_get_ms_chan_params(int reg_domain, const struct rcp_rail_config *rail_config)
 {
     const struct chan_params *ret = NULL;

@@ -510,9 +510,10 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     BUG_ON(!wsrd->ws.phy.params);
     wsrd->ws.phy.tx_power_dbm = wsrd->config.tx_power;
     wsrd->ws.phy.tx_attempts = wsrd->config.csma.frame_retries + 1;
-    wsrd->ws.fhss.chan_params = ws_regdb_chan_params(wsrd->config.ws_domain,
+    wsrd->ws.fhss.chan_params = rail_get_chan_params(&wsrd->ws.rcp, wsrd->config.ws_domain,
                                                      wsrd->config.ws_chan_plan_id,
-                                                     wsrd->config.ws_class);
+                                                     wsrd->config.ws_class,
+                                                     wsrd->ws.phy.params);
     if (!wsrd->ws.fhss.chan_params) {
         chan_params = zalloc(sizeof(*chan_params));
         chan_params->reg_domain   = wsrd->config.ws_domain;
