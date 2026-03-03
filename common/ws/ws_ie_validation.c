@@ -38,6 +38,7 @@ bool ws_ie_validate_chan_plan(struct ws_fhss_config *fhss, const struct ws_gener
     if (!parms)
         return false;
     return parms->chan0_freq   == fhss->chan_params->chan0_freq &&
+           parms->chan_count   == fhss->chan_params->chan_count &&
            parms->chan_spacing == fhss->chan_params->chan_spacing;
 }
 
