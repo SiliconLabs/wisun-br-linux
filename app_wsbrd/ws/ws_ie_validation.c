@@ -25,18 +25,17 @@ static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_pl
     const struct ws_channel_plan_zero *plan0 = &rx_plan->plan.zero;
     const struct ws_channel_plan_one *plan1 = &rx_plan->plan.one;
     const struct ws_channel_plan_two *plan2 = &rx_plan->plan.two;
-    int plan_nr = rx_plan->channel_plan;
     const struct chan_params *parms = NULL;
 
     BUG_ON(!fhss_config->chan_params);
-    if (plan_nr == 1)
+    if (rx_plan->channel_plan == 1)
         return plan1->ch0 * 1000 == fhss_config->chan_params->chan0_freq &&
                plan1->channel_spacing == ws_regdb_chan_spacing_id(fhss_config->chan_params->chan_spacing) &&
                plan1->number_of_channel == fhss_config->chan_params->chan_count;
-    if (plan_nr == 0)
+    if (rx_plan->channel_plan == 0)
         parms = ws_regdb_chan_params(plan0->regulatory_domain,
                                      0, plan0->operating_class);
-    if (plan_nr == 2)
+    if (rx_plan->channel_plan == 2)
         parms = ws_regdb_chan_params(plan2->regulatory_domain,
                                      plan2->channel_plan_id, 0);
     if (!parms)

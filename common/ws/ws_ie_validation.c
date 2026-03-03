@@ -24,15 +24,14 @@ bool ws_ie_validate_chan_plan(struct ws_fhss_config *fhss, const struct ws_gener
     const struct ws_channel_plan_one *plan1 = &schedule->plan.one;
     const struct ws_channel_plan_two *plan2 = &schedule->plan.two;
     const struct chan_params *parms = NULL;
-    int plan_nr = schedule->channel_plan;
 
-    if (plan_nr == 1)
+    if (schedule->channel_plan == 1)
         return plan1->ch0 * 1000      == fhss->chan_params->chan0_freq &&
                plan1->channel_spacing == ws_regdb_chan_spacing_id(fhss->chan_params->chan_spacing);
-    if (plan_nr == 0)
+    if (schedule->channel_plan == 0)
         parms = ws_regdb_chan_params(plan0->regulatory_domain,
                                      0, plan0->operating_class);
-    if (plan_nr == 2)
+    if (schedule->channel_plan == 2)
         parms = ws_regdb_chan_params(plan2->regulatory_domain,
                                      plan2->channel_plan_id, 0);
     if (!parms)
