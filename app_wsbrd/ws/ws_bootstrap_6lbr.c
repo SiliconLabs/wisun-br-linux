@@ -164,7 +164,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 
     INFO("  channel 0 frequency: %.1fMHz", fhss_config->chan_params->chan0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", fhss_config->chan_params->chan_spacing / 1000);
-    INFO("  channel count: %d", fhss_config->chan_params->chan_count);
+    INFO("  channel count: %d", ws_chan_mask_count(chan_mask_reg));
     INFO("  channel masks:");
 
     length = -divup(fhss_config->chan_params->chan_count, 8) * 3;
