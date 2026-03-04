@@ -402,7 +402,7 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
-const struct rcp_csma_cfg rcp_csma_default = {
+static const struct rcp_csma_cfg rcp_csma_default = {
     .min_be = 3,
     .max_be = 5,
     .cca_retries = 8,
@@ -796,6 +796,13 @@ static void rcp_add_filter_src64(const struct storage_parse_info *info, void *ra
     config->filter_count++;
     config->filter_allow = allow;
 }
+
+const struct rcp_cfg rcp_cfg_default = {
+    .uart_baudrate = 115200,
+    .tx_power_dbm = 14,
+    .csma = rcp_csma_default,
+    .eui64_override = EUI64_BC,
+};
 
 // IEEE 802.15.4-2024 Table 8-36 MAC PIB attributes
 static const struct number_limit rcp_valid_min_be = { 0, 8 };

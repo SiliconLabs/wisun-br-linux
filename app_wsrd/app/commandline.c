@@ -136,7 +136,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
-    config->rcp.csma = rcp_csma_default;
+    config->rcp = rcp_cfg_default;
     config->ws_phy_op_modes[0] = -1;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

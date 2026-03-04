@@ -188,9 +188,6 @@ struct wsrd g_wsrd = {
 
     // Arbitrary default values
     .config.rpl_compat = true,
-    .config.rcp.uart_baudrate = 115200,
-    .config.rcp.eui64_override = EUI64_BC,
-    .config.rcp.tx_power_dbm = 14,
     .config.tun_autoconf = true,
     .config.ws_domain = REG_DOMAIN_UNDEF,
     .config.ws_uc_dwell_interval_ms = 255,

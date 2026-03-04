@@ -227,7 +227,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     int opt;
 
     // Keep these values in sync with examples/wsbrd.conf
-    config->rcp.uart_baudrate = 115200;
     config->tun_autoconf = true;
     config->dhcp_server.sin6_family = AF_INET6;
     config->dhcp_server.sin6_addr = in6addr_any;
@@ -238,9 +237,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_pan_id = -1;
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
-    config->rcp.tx_power_dbm = 14;
-    config->rcp.csma = rcp_csma_default;
-    config->rcp.eui64_override = EUI64_BC;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->lfn_bc_interval = 60000;
@@ -248,6 +244,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
     config->auth = auth_cfg_default;
+    config->rcp = rcp_cfg_default;
     config->ws_regional_regulation = 0;
     config->ws_async_frag_duration = 500;
     config->pan_size = -1;

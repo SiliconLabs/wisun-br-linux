@@ -118,7 +118,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     };
     int opt;
 
-    config->rcp.csma = rcp_csma_default;
+    config->rcp = rcp_cfg_default;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {

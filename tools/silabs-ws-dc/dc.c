@@ -167,9 +167,6 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 
 struct dc g_dc = {
     // Arbitrary default params
-    .cfg.rcp.uart_baudrate = 115200,
-    .cfg.rcp.eui64_override = EUI64_BC,
-    .cfg.rcp.tx_power_dbm = 14,
     .cfg.tun_autoconf = true,
     .cfg.ws_domain = REG_DOMAIN_UNDEF,
     .cfg.ws_uc_dwell_interval_ms = 255,
@@ -229,7 +226,7 @@ static void dc_init_radio(struct dc *dc)
                                               dc->cfg.ws_mode);
     BUG_ON(!dc->ws.phy.params);
     dc->ws.phy.tx_power_dbm = dc->cfg.rcp.tx_power_dbm;
-    dc->ws.phy.tx_attempts = rcp_csma_default.frame_retries + 1;
+    dc->ws.phy.tx_attempts = dc->cfg.rcp.csma.frame_retries + 1;
     dc->ws.fhss.chan_params = rail_get_chan_params(&dc->ws.rcp, dc->cfg.ws_domain,
                                                    dc->cfg.ws_chan_plan_id,
                                                    dc->cfg.ws_class,

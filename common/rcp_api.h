@@ -77,8 +77,6 @@ struct rcp_csma_cfg {
     uint8_t frame_retries;
 };
 
-extern const struct rcp_csma_cfg rcp_csma_default;
-
 struct rcp_log_cfg {
     struct {
         uint8_t id;
@@ -100,6 +98,7 @@ struct rcp_cfg {
     int filter_count;
 };
 
+extern const struct rcp_cfg rcp_cfg_default;
 extern const struct option_struct rcp_opts[];
 
 struct rcp {
