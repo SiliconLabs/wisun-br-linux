@@ -641,6 +641,24 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
         auth_start_inactivity_timer(auth, supp);
 }
 
+void auth_recv_eapol_relay(struct auth_ctx *auth)
+{
+    struct in6_addr eapol_target;
+    struct auth_supp_ctx *supp;
+    struct eui64 supp_eui64;
+    uint8_t buf[1500];
+    ssize_t buf_len;
+    uint8_t kmp_id;
+
+    buf_len = eapol_relay_recv(auth->eapol_relay_fd, buf, sizeof(buf),
+                               &eapol_target, &supp_eui64, &kmp_id);
+    if (buf_len < 0)
+        return;
+    supp = auth_fetch_supp(auth, &supp_eui64);
+    supp->eapol_target = eapol_target;
+    auth_recv_eapol(auth, kmp_id, &supp_eui64, buf, buf_len);
+}
+
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn)
 {
     uint8_t installed_mask = 0;
