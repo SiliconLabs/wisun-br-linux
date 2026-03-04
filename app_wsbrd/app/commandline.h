@@ -26,7 +26,7 @@
 #include "common/authenticator/authenticator.h"
 #include "common/specs/ws.h"
 #include "common/ws/ws_chan_mask.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/duty_cycle.h"
 #include "common/rcp_api.h"
 #include "common/bits.h"

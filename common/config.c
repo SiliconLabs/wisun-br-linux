@@ -30,7 +30,7 @@
 #include "common/parsers.h"
 #include "common/rcp_api.h"
 
-#include "commandline.h"
+#include "config.h"
 
 const struct number_limit valid_gtk_new_install_required = {
     0, 100

@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_types.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/bus.h"
 #include "common/hif.h"
 #include "common/ieee802154_frame.h"

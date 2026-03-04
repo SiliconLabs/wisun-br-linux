@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #include "common/ws/ws_regdb.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/log.h"
 #include "common/rcp_api.h"
 #include "common/version.h"

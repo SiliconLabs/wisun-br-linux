@@ -11,8 +11,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef COMMANDLINE_H
-#define COMMANDLINE_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <netdb.h>
 

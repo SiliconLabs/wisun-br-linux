@@ -160,7 +160,7 @@ add_library(libwsbrd STATIC
     common/crc.c
     common/bus_uart.c
     common/capture.c
-    common/commandline.c
+    common/config.c
     common/duty_cycle.c
     common/log.c
     common/bits.c
@@ -303,7 +303,7 @@ if(COMPILE_WSRD)
         common/bits.c
         common/bus_uart.c
         common/capture.c
-        common/commandline.c
+        common/config.c
         common/crc.c
         common/dhcp_client.c
         common/dhcp_common.c
@@ -526,7 +526,7 @@ if(COMPILE_DEVTOOLS)
         common/bits.c
         common/bus_uart.c
         common/capture.c
-        common/commandline.c
+        common/config.c
         common/crc.c
         common/duty_cycle.c
         common/eapol.c
@@ -736,7 +736,7 @@ if(COMPILE_DEMOS)
         common/endian.c
         common/capture.c
         common/crc.c
-        common/commandline.c
+        common/config.c
         common/hif.c
         common/ieee802154_frame.c
         common/ieee802154_ie.c

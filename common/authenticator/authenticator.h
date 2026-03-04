@@ -22,7 +22,7 @@
 
 #include "common/crypto/ws_keys.h"
 #include "common/crypto/tls.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/ieee802154_frame.h"
 #include "common/pktbuf.h"
 #include "common/timer.h"

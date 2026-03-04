@@ -21,7 +21,7 @@
 
 #include "common/ws/ws_chan_mask.h"
 #include "common/ws/ws_ie.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/duty_cycle.h"
 #include "common/trickle.h"
 #include "common/rcp_api.h"

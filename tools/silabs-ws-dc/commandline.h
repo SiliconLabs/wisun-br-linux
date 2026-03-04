@@ -17,7 +17,7 @@
 #include <net/if.h>
 
 #include "common/rcp_api.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/authenticator/authenticator.h"
 #include "common/sl_ws.h"
 

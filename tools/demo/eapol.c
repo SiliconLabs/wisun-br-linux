@@ -22,7 +22,7 @@
 #include "common/authenticator/authenticator.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/ws/eapol_relay.h"
-#include "common/commandline.h"
+#include "common/config.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/memutils.h"
