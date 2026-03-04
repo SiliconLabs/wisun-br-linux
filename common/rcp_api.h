@@ -69,15 +69,6 @@ struct rcp_rx_ind {
     uint16_t chan_num;
 };
 
-struct rcp_cfg {
-    char cpc_instance[PATH_MAX];
-    char uart_dev[PATH_MAX];
-    int  uart_baudrate;
-    bool uart_rtscts;
-};
-
-extern const struct option_struct rcp_opts[];
-
 struct rcp_csma_cfg {
     uint16_t backoff_unit_us;
     uint8_t min_be;
@@ -86,14 +77,24 @@ struct rcp_csma_cfg {
     uint8_t frame_retries;
 };
 
+extern const struct rcp_csma_cfg rcp_csma_default;
+
+struct rcp_cfg {
+    char cpc_instance[PATH_MAX];
+    char uart_dev[PATH_MAX];
+    int  uart_baudrate;
+    bool uart_rtscts;
+    struct rcp_csma_cfg csma;
+};
+
+extern const struct option_struct rcp_opts[];
+
 struct rcp_log_cfg {
     struct {
         uint8_t id;
         uint8_t level;
     } groups[16];
 };
-
-extern const struct rcp_csma_cfg rcp_csma_default;
 
 struct rcp {
     struct bus bus;

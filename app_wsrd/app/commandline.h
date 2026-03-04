@@ -56,7 +56,6 @@ struct wsrd_conf {
     uint8_t ws_custom_allowed_channels[WS_CHAN_MASK_LEN];
     int tx_power;
     bool enable_apc;
-    struct rcp_csma_cfg csma;
     // -1 for base mode +1 for sentinel
     uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1];
 

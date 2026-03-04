@@ -198,11 +198,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "fan_version",                   offsetof(struct wsbrd_conf, ws_fan_version),                   conf_set_enum,        &valid_fan_versions },
         { "tx_power",                      offsetof(struct wsbrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    offsetof(struct wsbrd_conf, enable_apc),                       conf_set_bool,        NULL },
-        { "csma_backoff_unit",             offsetof(struct wsbrd_conf, csma.backoff_unit_us),             conf_set_u16,         NULL },
-        { "csma_min_be",                   offsetof(struct wsbrd_conf, csma.min_be),                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
-        { "csma_max_be",                   offsetof(struct wsbrd_conf, csma.max_be),                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
-        { "csma_cca_retries",              offsetof(struct wsbrd_conf, csma.cca_retries),                 conf_set_u8,          NULL },
-        { "csma_frame_retries",            offsetof(struct wsbrd_conf, csma.frame_retries),               conf_set_u8,          NULL },
         { "unicast_dwell_interval",        offsetof(struct wsbrd_conf, uc_dwell_interval),                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      offsetof(struct wsbrd_conf, bc_dwell_interval),                conf_set_number,      &valid_broadcast_dwell_interval },
         { "broadcast_interval",            offsetof(struct wsbrd_conf, bc_interval),                      conf_set_number,      &valid_broadcast_interval },
@@ -273,7 +268,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
     config->tx_power = 14;
-    config->csma = rcp_csma_default;
+    config->rcp_cfg.csma = rcp_csma_default;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->lfn_bc_interval = 60000;
@@ -465,8 +460,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "missing \"ipv6_prefix\" parameter");
     if (!IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && !config->tun_autoconf)
         FATAL(1, "\"ipv6_prefix\" is only available when \"tun_autoconf\" is set");
-    if (config->csma.min_be > config->csma.max_be)
-        FATAL(1, "invalid csma_min_be > csma_max_be");
     for (int i = 0; config->ws_phy_op_modes[i]; i++)
         if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))

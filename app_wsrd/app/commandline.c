@@ -120,11 +120,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "unicast_dwell_interval",        offsetof(struct wsrd_conf, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
         { "tx_power",                      offsetof(struct wsrd_conf, tx_power),                         conf_set_number,      &valid_int8 },
         { "enable_apc",                    offsetof(struct wsrd_conf, enable_apc),                       conf_set_bool,        NULL },
-        { "csma_backoff_unit",             offsetof(struct wsrd_conf, csma.backoff_unit_us),             conf_set_u16,         NULL },
-        { "csma_min_be",                   offsetof(struct wsrd_conf, csma.min_be),                      conf_set_u8,          &(struct number_limit){ 0, 8 } },
-        { "csma_max_be",                   offsetof(struct wsrd_conf, csma.max_be),                      conf_set_u8,          &(struct number_limit){ 3, 8 } },
-        { "csma_cca_retries",              offsetof(struct wsrd_conf, csma.cca_retries),                 conf_set_u8,          NULL },
-        { "csma_frame_retries",            offsetof(struct wsrd_conf, csma.frame_retries),               conf_set_u8,          NULL },
         { "rcp_trace",                     offsetof(struct wsrd_conf, rcp_traces),                       conf_add_rcp_traces,  &rcp_log_names },
         { "color_output",                  offsetof(struct wsrd_conf, color_output),                     conf_set_enum,        &valid_tristate },
         { "authority",                     offsetof(struct wsrd_conf, supp_cfg.tls.ca_cert),             conf_set_pem,         NULL },
@@ -170,7 +165,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
-    config->csma = rcp_csma_default;
+    config->rcp_cfg.csma = rcp_csma_default;
     config->ws_phy_op_modes[0] = -1;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

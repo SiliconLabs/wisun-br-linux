@@ -757,11 +757,20 @@ void rcp_rx(struct rcp *rcp)
     TRACE(TR_DROP, "drop %-9s: unsupported command 0x%02x", "hif", cmd);
 }
 
+// IEEE 802.15.4-2024 Table 8-36 MAC PIB attributes
+static const struct number_limit rcp_valid_min_be = { 0, 8 };
+static const struct number_limit rcp_valid_max_be = { 3, 8 };
+
 const struct option_struct rcp_opts[] = {
     { "uart_device",   offsetof(struct rcp_cfg, uart_dev),      conf_set_string, (void *)PATH_MAX },
     { "uart_baudrate", offsetof(struct rcp_cfg, uart_baudrate), conf_set_number, NULL },
     { "uart_rtscts",   offsetof(struct rcp_cfg, uart_rtscts),   conf_set_bool,   NULL },
     { "cpc_instance",  offsetof(struct rcp_cfg, cpc_instance),  conf_set_string, (void *)PATH_MAX },
+    { "csma_backoff_unit",  offsetof(struct rcp_cfg, csma.backoff_unit_us), conf_set_u16, NULL },
+    { "csma_min_be",        offsetof(struct rcp_cfg, csma.min_be),          conf_set_u8,  &rcp_valid_min_be },
+    { "csma_max_be",        offsetof(struct rcp_cfg, csma.max_be),          conf_set_u8,  &rcp_valid_max_be },
+    { "csma_cca_retries",   offsetof(struct rcp_cfg, csma.cca_retries),     conf_set_u8,  NULL },
+    { "csma_frame_retries", offsetof(struct rcp_cfg, csma.frame_retries),   conf_set_u8,  NULL },
     { }
 };
 
@@ -810,4 +819,11 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
     rcp_req_radio_list(rcp);
     while (!rcp->has_rf_list)
         rcp_rx(rcp);
+
+    if (config->csma.min_be > config->csma.max_be)
+        FATAL(1, "invalid csma_min_be > csma_max_be");
+    if (!version_older_than(rcp->version_api, 2, 12, 0))
+        rcp_set_radio_csma(rcp, &config->csma);
+    else if (memcmp(&config->csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
+        WARN("csma_* parameters require RCP API >= 2.12.0");
 }

@@ -120,6 +120,8 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     };
     int opt;
 
+    config->rcp_cfg.csma = rcp_csma_default;
+
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':

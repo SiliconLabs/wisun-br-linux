@@ -509,7 +509,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
                                               wsrd->config.ws_mode);
     BUG_ON(!wsrd->ws.phy.params);
     wsrd->ws.phy.tx_power_dbm = wsrd->config.tx_power;
-    wsrd->ws.phy.tx_attempts = wsrd->config.csma.frame_retries + 1;
+    wsrd->ws.phy.tx_attempts = wsrd->config.rcp_cfg.csma.frame_retries + 1;
     wsrd->ws.fhss.chan_params = rail_get_chan_params(&wsrd->ws.rcp, wsrd->config.ws_domain,
                                                      wsrd->config.ws_chan_plan_id,
                                                      wsrd->config.ws_class,
@@ -549,10 +549,6 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     else
         WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
 
-    if (!version_older_than(wsrd->ws.rcp.version_api, 2, 12, 0))
-        rcp_set_radio_csma(&wsrd->ws.rcp, &wsrd->config.csma);
-    else if (memcmp(&wsrd->config.csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
-        WARN("csma_* parameters require RCP API >= 2.12.0");
     rail_fill_pom(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, wsrd->config.ws_phy_op_modes);
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
     wsrd->ws.phy.rcp_rail_config_index = rail_config->index;

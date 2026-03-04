@@ -74,7 +74,6 @@ struct wsbrd_conf {
 
     int  tx_power;
     bool enable_apc;
-    struct rcp_csma_cfg csma;
     int  ws_pan_id;
     int  ws_fan_version;
     struct auth_cfg auth_cfg;
