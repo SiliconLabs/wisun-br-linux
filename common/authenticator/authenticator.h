@@ -109,6 +109,7 @@ struct auth_ctx {
     int eapol_relay_fd;
 
     struct mqtt_ctx mqtt;
+    struct in6_addr ext_auth_addr;
 
     struct auth_supp_ctx_list supplicants;
     struct timer_group timer_group;

@@ -264,7 +264,7 @@ if(LIBCPC_FOUND)
     target_link_libraries(libwsbrd PRIVATE cpc)
 endif()
 if(LIBMOSQUITTO_FOUND)
-    target_compile_definitions(libwsbrd PRIVATE HAVE_MQTT)
+    target_compile_definitions(libwsbrd PRIVATE HAVE_MQTT HAVE_AUTH_MQTT)
     target_sources(libwsbrd PRIVATE
         common/authenticator/authenticator_mqtt.c
         common/mqtt.c

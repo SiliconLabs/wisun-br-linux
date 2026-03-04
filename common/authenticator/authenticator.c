@@ -40,6 +40,7 @@
 
 #include "authenticator_eap.h"
 #include "authenticator_key.h"
+#include "authenticator_mqtt.h"
 #include "authenticator_radius.h"
 #include "authenticator_storage.h"
 
@@ -582,6 +583,11 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
         .data = buf,
     };
 
+    if (auth->mqtt.mosq) {
+        auth_mqtt_recv_eapol(auth, eui64, kmp_id, buf, buf_len);
+        return;
+    }
+
     eapol_hdr = (const struct eapol_hdr *)iobuf_pop_data_ptr(&iobuf, sizeof(struct eapol_hdr));
     if (!eapol_hdr) {
         TRACE(TR_DROP, "drop %-9s: invalid eapol header", "eapol");
@@ -643,20 +649,25 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
 
 void auth_recv_eapol_relay(struct auth_ctx *auth)
 {
-    struct in6_addr eapol_target;
     struct auth_supp_ctx *supp;
     struct eui64 supp_eui64;
+    struct in6_addr src;
     uint8_t buf[1500];
     ssize_t buf_len;
     uint8_t kmp_id;
 
     buf_len = eapol_relay_recv(auth->eapol_relay_fd, buf, sizeof(buf),
-                               &eapol_target, &supp_eui64, &kmp_id);
+                               &src, &supp_eui64, &kmp_id);
     if (buf_len < 0)
         return;
-    supp = auth_fetch_supp(auth, &supp_eui64);
-    supp->eapol_target = eapol_target;
-    auth_recv_eapol(auth, kmp_id, &supp_eui64, buf, buf_len);
+
+    if (auth->mqtt.mosq) {
+        auth_mqtt_recv_eapol_relay(auth, &src, &supp_eui64, kmp_id, buf, buf_len);
+    } else {
+        supp = auth_fetch_supp(auth, &supp_eui64);
+        supp->eapol_target = src;
+        auth_recv_eapol(auth, kmp_id, &supp_eui64, buf, buf_len);
+    }
 }
 
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn)
