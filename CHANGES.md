@@ -1,17 +1,34 @@
-  - Support NA/BZ channel count for channel plan 4/5 with an RCP using the
-    Wi-SUN SoC stack v2.11 Radio Configurator to prevent radio configuration
-    lookup error at startup. Backward compatibility with an RCP using the
-    Wi-SUN SoC stack v2.10 is maintained.
+v2.9
+------
   - Save MPL sequence number to disk: prevent multicast packets being dropped
     by neighbors after reboot.
   - Implement Trickle-F [tkl-f] to improve fairness in transmission of
     management frames and prevent issues in unfavorable network topologies.
-  - `wsbrd`: Drop legacy tick based timer system. This should result in less
-    CPU usage.
-  - `wsrd`: Use link-local destination address in NS(ARO) packets.
+  - Support NA/BZ channel count for channel plan 4/5 with an RCP using the
+    Wi-SUN SoC stack v2.11 Radio Configurator to prevent radio configuration
+    lookup error at startup. Backward compatibility with an RCP using the
+    Wi-SUN SoC stack v2.10 is maintained.
   - Introduce "custom_allowed_channels" configuration parameter allowing to
     configure a channel mask applied to UC, BC, and async frames when using
     a custom channel plan. See [`wsbrd.conf`][conf] for more details.
+  - `wsbrd`: Drop legacy tick based timer system: avoid unnecessary CPU usage.
+  - `wsbrd`: Fix supplicant deletion: `storage_prefix` was applied twice
+    resulting in an incorrect file path.
+  - `wsbrd`: Leverage new RCP API to send LPA frames: frame request is sent
+    earlier and TX slot is chosen by the RCP to avoid serial bus delay causing
+    slot miss.
+  - `wsrd`: Limit the number of neighbors being actively probed to maintain up-
+    to-date ETX.
+  - `wsrd`: Send a Neighbor Cache Refresh (NCR) packet on reboot to accelerate
+    re-connection of children.
+  - `wsrd`: Revert RPL Path Sequence increment by 4. Expect storage to always
+    be available, or that the whole network was reset.
+  - `wsrd`: Use link-local destination address in NS(ARO) packets.
+  - `wsrd`: Expose `pan_timeout` parameter in config file.
+  - `silabs-ws-dc`: Implement string ID discovery using new `target_id`
+    parameter. ID-EUI64 mapping is printed in traces and exposed through the
+    `TargetDiscovered` D-Bus signal and can be used for a regular `silabs-ws-dc`
+    invocation using the `target_eui64` parameter.
 
 [tkl-f]: https://ieeexplore.ieee.org/document/6685187
 
