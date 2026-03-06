@@ -11,7 +11,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#define _DEFAULT_SOURCE
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>

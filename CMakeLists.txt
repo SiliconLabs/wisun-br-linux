@@ -96,6 +96,7 @@ pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 
 add_compile_definitions(_GNU_SOURCE)
+add_compile_definitions(_DEFAULT_SOURCE)
 
 # Greatly improve warning messages. There is no reason to not enable that.
 if(CC_HAVE_WALL)

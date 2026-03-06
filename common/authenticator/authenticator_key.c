@@ -11,8 +11,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
-#define _DEFAULT_SOURCE
 #include <inttypes.h>
 #include <endian.h>
 #include <errno.h>
