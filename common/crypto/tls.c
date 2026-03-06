@@ -11,8 +11,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
-#define _GNU_SOURCE
 #include <mbedtls/debug.h>
 #include <mbedtls/oid.h>
 

@@ -11,7 +11,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#define _GNU_SOURCE
 #include <linux/capability.h>
 #include <sys/signalfd.h>
 #include <poll.h>

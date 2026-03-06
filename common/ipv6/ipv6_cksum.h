@@ -13,8 +13,6 @@
  */
 #ifndef IPV6_CKSUM_H
 #define IPV6_CKSUM_H
-
-#define _GNU_SOURCE
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdint.h>

@@ -11,7 +11,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#define _GNU_SOURCE
 #include <netinet/ip6.h>
 #include <netinet/udp.h>
 #include <errno.h>
