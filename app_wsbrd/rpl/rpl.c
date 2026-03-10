@@ -105,7 +105,8 @@ static void rpl_transit_update_timer(struct rpl_root *root, struct rpl_target *t
         if (expire_s > target->path_seq_tstamp_s + target->transits[i].path_lifetime_s)
             expire_s = target->path_seq_tstamp_s + target->transits[i].path_lifetime_s;
     }
-    timer_start_abs(&root->timer_group, &target->timer, expire_s * 1000);
+    timer_start_abs(&root->timer_group, &target->timer,
+                    MAX(expire_s * 1000, time_now_ms(CLOCK_MONOTONIC)));
 }
 
 static void rpl_transit_expire(struct timer_group *group, struct timer_entry *timer)
