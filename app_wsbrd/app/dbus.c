@@ -449,6 +449,7 @@ static int dbus_start_pan_defect(sd_bus_message *m, void *userdata, sd_bus_error
                       buf.data, buf.len, BIT(WS_FT_PC));
     iobuf_free(&buf);
     trickle_stop(&wsbrd->net_if.ws_info.mngt.trickle_pa, NULL);
+    ws_mngt_pan_version_increase(&wsbrd->net_if.ws_info);
     return sd_bus_reply_method_return(m, NULL);
 }
 
@@ -461,6 +462,7 @@ static int dbus_stop_pan_defect(sd_bus_message *m, void *userdata, sd_bus_error 
                       NULL, 0, 0);
     if (trickle_stopped(&wsbrd->net_if.ws_info.mngt.trickle_pa))
         trickle_start(&wsbrd->net_if.ws_info.mngt.trickle_pa, NULL);
+    ws_mngt_pan_version_increase(&wsbrd->net_if.ws_info);
     return sd_bus_reply_method_return(m, NULL);
 }
 
