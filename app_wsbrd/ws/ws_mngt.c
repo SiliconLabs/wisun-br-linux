@@ -210,6 +210,7 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
+    struct ws_jm_ie ie_jm = { };
     struct ws_neigh *ws_neigh;
     uint16_t ws_pan_version;
     struct ws_utt_ie ie_utt;
@@ -243,10 +244,13 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
         return;
     }
 
-    if (ws_info->pan_information.pan_version == ws_pan_version)
-        trickle_consistent(&ws_info->mngt.trickle_pc);
-    else
+    if (ws_info->pan_information.pan_version == ws_pan_version) {
+        if (!ws_wp_nested_jm_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_jm) ||
+            ie_jm.version == ws_info->pan_information.jm.version)
+            trickle_consistent(&ws_info->mngt.trickle_pc);
+    } else {
         trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
+    }
 
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
