@@ -20,6 +20,7 @@
 #include "common/ws/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/named_values.h"
+#include "common/bits.h"
 #include "common/bus.h"
 #include "common/parsers.h"
 #include "common/memutils.h"
@@ -415,6 +416,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("enable_ffn10 with chan_plan_id");
     if (config->ws_mode && config->ws_phy_op_modes[0])
         WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
+    if (config->ws_size == WS_NETWORK_SIZE_AUTO && !(config->ws_join_metrics & BIT(WS_JM_PLF)))
+        FATAL(1, "size = AUTO requires join_metrics = plf");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (!config->enable_lfn && memzcmp(config->auth.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
