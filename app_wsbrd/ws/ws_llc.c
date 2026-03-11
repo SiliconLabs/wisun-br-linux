@@ -977,7 +977,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     struct ws_info *info = &base->net_if->ws_info;
     struct auth_ctx *auth = base->net_if->auth;
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
-                         rpl_target_count(&base->net_if->rpl_root) : info->pan_information.test_pan_size;
+                         auth_supp_count(base->net_if->auth) : info->pan_information.test_pan_size;
     bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
     struct ws_ie *ie;

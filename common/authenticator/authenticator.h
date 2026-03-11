@@ -124,6 +124,8 @@ struct auth_ctx {
 
     // Called on rx of 4wh msg 4 and gkh msg 2
     void (*on_supp_gtk_installed)(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t index);
+    void (*on_supp_add)(struct auth_ctx *auth, struct auth_supp_ctx *supp);
+    void (*on_supp_del)(struct auth_ctx *auth, struct auth_supp_ctx *supp);
 };
 
 extern const struct auth_cfg auth_cfg_default;
@@ -131,6 +133,7 @@ extern const struct option_struct auth_opts[];
 
 struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64);
 struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 *eui64);
+int auth_supp_count(struct auth_ctx *auth);
 
 int auth_gtk_slot_next(int slot);
 int auth_gtk_slot_latest(const struct auth_ctx *auth,

@@ -145,6 +145,20 @@ static void wsbr_mpl_abort(struct mpl_ctx *mpl, void *tx_ctx)
     lowpan_adaptation_abort_buffer_tx(net_if, buf);
 }
 
+static void wsbr_on_supp_add(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    struct wsbr_ctxt *ctxt = container_of(auth, struct wsbr_ctxt, auth);
+
+    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, auth_supp_count(auth));
+}
+
+static void wsbr_on_supp_del(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    struct wsbr_ctxt *ctxt = container_of(auth, struct wsbr_ctxt, auth);
+
+    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, auth_supp_count(auth));
+}
+
 // See warning in wsbrd.h
 struct wsbr_ctxt g_ctxt = {
     .rcp.on_reset = wsbr_handle_reset,
@@ -164,6 +178,8 @@ struct wsbr_ctxt g_ctxt = {
     .auth.timeout_ms = 30 * 1000, // Arbitrary
     .auth.sendto_mac    = ws_llc_auth_sendto_mac,
     .auth.on_gtk_change = wsbr_on_gtk_change,
+    .auth.on_supp_add   = wsbr_on_supp_add,
+    .auth.on_supp_del   = wsbr_on_supp_del,
 
     .dhcp_relay.fd = -1,
     // RFC 8415 7.6. Transmission and Retransmission Parameters
@@ -215,7 +231,6 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0xffffffff,          // lifetime
                              0);                  // pref
     ipv6_neigh_add_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
-    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, rpl_target_count(&ctxt->net_if.rpl_root));
 }
 
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)
@@ -233,7 +248,6 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
     dbus_emit_change("RoutingGraph");
     if (!ipv6_route_lookup(&ctxt->net_if, target->prefix))
         ipv6_neigh_del_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
-    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, rpl_target_count(&ctxt->net_if.rpl_root));
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)

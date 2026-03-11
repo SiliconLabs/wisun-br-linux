@@ -449,6 +449,8 @@ static void auth_remove_supp(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     auth_storage_clear_supplicant(supp);
     SLIST_REMOVE(&auth->supplicants, supp, auth_supp_ctx, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp del", tr_eui64(supp->eui64.u8));
+    if (auth->on_supp_del)
+        auth->on_supp_del(auth, supp);
     free(supp);
 }
 
@@ -494,6 +496,11 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
                     pktbuf_len(&supp->rt_buffer));
 }
 
+int auth_supp_count(struct auth_ctx *auth)
+{
+    return SLIST_SIZE(&auth->supplicants, link);
+}
+
 struct auth_supp_ctx *auth_get_supp(struct auth_ctx *auth, const struct eui64 *eui64)
 {
     struct auth_supp_ctx *supp;
@@ -522,6 +529,8 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
+    if (auth->on_supp_add)
+        auth->on_supp_add(auth, supp);
     return supp;
 }
 
