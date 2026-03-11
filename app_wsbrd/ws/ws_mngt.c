@@ -591,8 +591,22 @@ void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group)
         .wp_ies.lgtkhash = ws_info->enable_lfn,
         .wp_ies.lfnver   = ws_info->enable_lfn,
         .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
-        .security.KeyIndex = ws_info->ffn_gtk_index
+        .security.KeyIndex = ws_info->ffn_gtk_index,
     };
+    struct ws_pan_ie *pan = &(struct ws_pan_ie) {
+        // PAN size is filled later
+        .routing_cost     = 0, // Border router routing cost is 0
+        .use_parent_bs_ie = 1, // use parent BS
+        .routing_method   = 1, // RPL routed
+        .lfn_window_style = 0, // LFN managed tx
+        .fan_tps_version  = ws_info->pan_information.version,
+    };
+
+    if (ws_info->auto_adjust &&
+        memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics))) {
+        req.wp_ies.jm = true;
+        req.wp_ies.pan = pan;
+    }
 
     ws_llc_asynch_request(ws_info, &req);
 }

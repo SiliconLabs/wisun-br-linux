@@ -63,6 +63,7 @@ typedef struct ws_info {
     struct ws_ie_list ie_list;
     bool enable_lfn;
     bool enable_ffn10;
+    bool auto_adjust;
     enum ws_edfe_mode edfe_mode;
     unsigned int key_index_mask;  // Bitmask of installed key indices
     struct ws_pan_information pan_information;

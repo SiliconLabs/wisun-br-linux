@@ -414,6 +414,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->pan_information.test_pan_size = ctxt->config.pan_size;
     ws_info->enable_lfn   = ctxt->config.enable_lfn;
     ws_info->enable_ffn10 = ctxt->config.enable_ffn10;
+    ws_info->auto_adjust  = ctxt->config.ws_size == WS_NETWORK_SIZE_AUTO;
 
     ws_info->mngt.lpa_legacy = version_older_than(ctxt->rcp.version_api, 2, 16, 1);
     if (ctxt->config.enable_lfn && ws_info->mngt.lpa_legacy)

@@ -1174,6 +1174,14 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
                                 ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->DstAddr)) :
                                 NULL;
     uint8_t node_role = ws_neigh ? ws_neigh->node_role : WS_NR_ROLE_UNKNOWN;
+    struct ws_pan_ie *pan = &(struct ws_pan_ie) {
+        // PAN size is filled later
+        .routing_cost     = 0, // Border router routing cost is 0
+        .use_parent_bs_ie = 1, // use parent BS
+        .routing_method   = 1, // RPL routed
+        .lfn_window_style = 0, // LFN managed tx
+        .fan_tps_version  = ws_info->pan_information.version,
+    };
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
@@ -1183,13 +1191,16 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         .us  = true,
         .bs  = !data->TxAckReq,
         .pom = ws_info->phy_config.phy_op_modes[0],
-        // Include JM-IE in broadcast ULAD frames if PA transmissions are suppressed.
-        .jm  = memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics)) &&
-               data->DstAddrMode == IEEE802154_ADDR_MODE_NONE &&
-               ws_info->mngt.trickle_pa.c >= ws_info->mngt.trickle_pa.cfg->k,
     };
     uint24_t adjusted_offset_ms = 0;
     uint24_t adjusted_listening_interval = 0;
+
+
+    if (ws_info->auto_adjust &&
+        memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics))) {
+        wp_ies.jm = true;
+        wp_ies.pan = pan;
+    }
 
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
@@ -1357,6 +1368,15 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *user_cb,
                                      const struct mcps_data_req *data, uint8_t kmp_id)
 {
+    struct ws_info *ws_info = &base->net_if->ws_info;
+    struct ws_pan_ie *pan = &(struct ws_pan_ie) {
+        // PAN size is filled later
+        .routing_cost     = 0, // Border router routing cost is 0
+        .use_parent_bs_ie = 1, // use parent BS
+        .routing_method   = 1, // RPL routed
+        .lfn_window_style = 0, // LFN managed tx
+        .fan_tps_version  = ws_info->pan_information.version,
+    };
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
@@ -1366,6 +1386,12 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
         .us = true,
         .bs = true, // TODO: only include in 1st msg
     };
+
+    if (ws_info->auto_adjust &&
+        memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics))) {
+        wp_ies.jm = true;
+        wp_ies.pan = pan;
+    }
 
     //Allocate Message
     llc_message_t *message = llc_message_allocate(base);
