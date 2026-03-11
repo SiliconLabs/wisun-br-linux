@@ -24,6 +24,7 @@ struct mcps_data_ind;
 struct ws_info;
 
 struct ws_mngt {
+    struct trickle_cfg disc_cfg;
     struct trickle trickle_pa;
     struct trickle trickle_pc;
     struct timer_entry lts_timer;

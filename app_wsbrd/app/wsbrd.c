@@ -404,8 +404,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ctxt->net_if.mpl.s = ctxt->config.enable_ffn10 ? MPL_S_128 : MPL_S_SRC;
     mpl_init(&ctxt->net_if.mpl);
 
-    ws_info->mngt.trickle_pa.cfg = &size_params[ctxt->config.ws_size].trickle_discovery;
-    ws_info->mngt.trickle_pc.cfg = &size_params[ctxt->config.ws_size].trickle_discovery;
+    ws_info->mngt.disc_cfg = size_params[ctxt->config.ws_size].trickle_discovery;
+    ws_info->mngt.trickle_pa.cfg = &ws_info->mngt.disc_cfg;
+    ws_info->mngt.trickle_pc.cfg = &ws_info->mngt.disc_cfg;
     trickle_init(&ws_info->mngt.trickle_pa);
     trickle_init(&ws_info->mngt.trickle_pc);
 
