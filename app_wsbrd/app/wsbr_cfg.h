@@ -25,6 +25,7 @@ enum ws_network_size {
     WS_NETWORK_SIZE_LARGE,
     WS_NETWORK_SIZE_XLARGE,
     WS_NETWORK_SIZE_CERTIFICATION,
+    WS_NETWORK_SIZE_AUTO,
 };
 
 struct wsbr_cfg {
@@ -35,6 +36,6 @@ struct wsbr_cfg {
     uint16_t mpl_seed_set_entry_lifetime;
 };
 
-extern const struct wsbr_cfg size_params[5];
+extern const struct wsbr_cfg size_params[6];
 
 #endif

@@ -260,6 +260,7 @@ static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *tar
 static uint16_t wsbr_get_max_pan_size(uint8_t network_size)
 {
     switch (network_size) {
+    case WS_NETWORK_SIZE_AUTO:
     case WS_NETWORK_SIZE_CERTIFICATION:
     case WS_NETWORK_SIZE_SMALL:
         return 100;

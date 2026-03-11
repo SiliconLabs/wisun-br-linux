@@ -15,7 +15,7 @@
 
 #define MPL_SAFE_HOP_COUNT 6
 
-const struct wsbr_cfg size_params[5] = {
+const struct wsbr_cfg size_params[6] = {
     [WS_NETWORK_SIZE_CERTIFICATION] = {
         // Discovery
         .trickle_discovery.Imin_ms = 15 * 1000,
@@ -85,5 +85,19 @@ const struct wsbr_cfg size_params[5] = {
         .trickle_mpl_e_max = 2,
         // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
         .mpl_seed_set_entry_lifetime = 80 * MPL_SAFE_HOP_COUNT * (2 + 1),
+    },
+    [WS_NETWORK_SIZE_AUTO] = {
+        // Discovery (same as SMALL base)
+        .trickle_discovery.Imin_ms = 15 * 1000,
+        .trickle_discovery.Imax_ms = 60 * 1000,
+        .trickle_discovery.k = 1,
+
+        // MPL (same as SMALL)
+        .trickle_mpl.Imin_ms = 1 * 1000,
+        .trickle_mpl.Imax_ms = 10 * 1000,
+        .trickle_mpl.k = 8,
+        .trickle_mpl_e_max = 2,
+        // Imax * MPL_SAFE_HOP_COUNT * (TimerExpirations + 1)
+        .mpl_seed_set_entry_lifetime = 10 * MPL_SAFE_HOP_COUNT * (2 + 1),
     },
 };

@@ -31,6 +31,8 @@ const struct name_value valid_ws_size[] = {
     { "L",      WS_NETWORK_SIZE_LARGE },
     { "XLARGE", WS_NETWORK_SIZE_XLARGE },
     { "XL",     WS_NETWORK_SIZE_XLARGE },
+    { "AUTO",   WS_NETWORK_SIZE_AUTO },
+    { "A",      WS_NETWORK_SIZE_AUTO },
     { NULL },
 };
 
