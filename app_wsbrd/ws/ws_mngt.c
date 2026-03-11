@@ -48,6 +48,8 @@ void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
     pan_info->last_jm_pan_size = pan_size;
     pan_info->jm.version++;
     INFO("jm-ie update: version=%u pan_size=%u plf=%u", pan_info->jm.version, pan_size, plf);
+    trickle_inconsistent(&ws_info->mngt.trickle_pa, NULL);
+    trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
 }
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
