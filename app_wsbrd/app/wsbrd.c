@@ -48,6 +48,7 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
+#include "common/ws/ws_ie.h"
 #include "net/ns_address_internal.h"
 #include "net/netaddr_types.h"
 #include "net/protocol.h"
@@ -214,6 +215,7 @@ static void wsbr_rpl_target_add(struct rpl_root *root, struct rpl_target *target
                              0xffffffff,          // lifetime
                              0);                  // pref
     ipv6_neigh_add_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
+    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, rpl_target_count(&ctxt->net_if.rpl_root));
 }
 
 static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target)
@@ -231,6 +233,7 @@ static void wsbr_rpl_target_del(struct rpl_root *root, struct rpl_target *target
     dbus_emit_change("RoutingGraph");
     if (!ipv6_route_lookup(&ctxt->net_if, target->prefix))
         ipv6_neigh_del_proxy(&ctxt->net_if, (const struct in6_addr *)target->prefix);
+    ws_mngt_update_jm_ie(&ctxt->net_if.ws_info, rpl_target_count(&ctxt->net_if.rpl_root));
 }
 
 static void wsbr_rpl_target_update(struct rpl_root *root, struct rpl_target *target)

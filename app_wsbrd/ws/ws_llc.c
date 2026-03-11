@@ -975,23 +975,13 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               const struct wp_ie_list *wp_ies)
 {
     struct ws_info *info = &base->net_if->ws_info;
-    struct ws_jm *jm = ws_wp_nested_jm_get_metric(&info->pan_information.jm, WS_JM_PLF);
+    struct auth_ctx *auth = base->net_if->auth;
     uint16_t pan_size = (info->pan_information.test_pan_size == -1) ?
                          rpl_target_count(&base->net_if->rpl_root) : info->pan_information.test_pan_size;
-    struct auth_ctx *auth = base->net_if->auth;
     bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
     struct ws_ie *ie;
     int ie_offset;
-    uint8_t plf;
-
-    if (jm) {
-        plf = MIN(100 * pan_size / info->pan_information.max_pan_size, 100);
-        if (plf != jm->plf) {
-            jm->plf = plf;
-            info->pan_information.jm.version++;
-        }
-    }
 
     if (wh_ies->fc)
         ws_wh_fc_write(&msg->ie_buf_header,

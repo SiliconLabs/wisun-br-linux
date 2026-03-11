@@ -19,6 +19,7 @@
 #include "common/specs/ieee802154.h"
 #include "common/specs/ws.h"
 #include "common/string_extra.h"
+#include "common/mathutils.h"
 #include "common/version.h"
 
 #include "ws/ws_pan_info_storage.h"
@@ -27,6 +28,27 @@
 #include "ws/ws_llc.h"
 
 #include "ws_mngt.h"
+
+// PAN size step for JM-IE version update and auto connection params adjustment
+#define SL_PAN_SIZE_STEP 200
+
+void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
+{
+    struct ws_pan_information *pan_info = &ws_info->pan_information;
+    struct ws_jm *jm = ws_wp_nested_jm_get_metric(&pan_info->jm, WS_JM_PLF);
+    uint8_t plf;
+
+    if (pan_info->test_pan_size != -1)
+        pan_size = pan_info->test_pan_size;
+    if (!jm || pan_size / SL_PAN_SIZE_STEP == pan_info->last_jm_pan_size / SL_PAN_SIZE_STEP)
+        return;
+
+    plf = MIN(100 * pan_size / pan_info->max_pan_size, 100);
+    jm->plf = plf;
+    pan_info->last_jm_pan_size = pan_size;
+    pan_info->jm.version++;
+    INFO("jm-ie update: version=%u pan_size=%u plf=%u", pan_info->jm.version, pan_size, plf);
+}
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,
