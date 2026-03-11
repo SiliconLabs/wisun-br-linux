@@ -131,6 +131,7 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_rx_ie_list *ie_ext)
 {
+    struct ws_jm_ie ie_jm = { };
     struct ws_neigh *ws_neigh;
     struct ws_pan_ie ie_pan;
     struct ws_utt_ie ie_utt;
@@ -160,10 +161,16 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
         TRACE(TR_IGNORE, "ignore %-9s: unsupported routing method", "15.4");
     if (ie_pan.fan_tps_version > WS_FAN_VERSION_1_0 && ie_pan.lfn_window_style)
         TRACE(TR_IGNORE, "ignore %-9s: unsupported LFN window style", "15.4");
-    // Border router routing cost is 0, so "Routing Cost the same or worse" is
-    // always true
-    if (ie_pan.routing_cost != 0xFFFF)
-        trickle_consistent(&ws_info->mngt.trickle_pa);
+    /*
+     * Border router routing cost is 0, so "Routing Cost the same or worse" is
+     * always true. Also check JM-IE version matches (if present) to avoid
+     * suppressing PA when the network size information has changed.
+     */
+    if (ie_pan.routing_cost != 0xFFFF) {
+        if (!ws_wp_nested_jm_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_jm) ||
+            ie_jm.version == ws_info->pan_information.jm.version)
+            trickle_consistent(&ws_info->mngt.trickle_pa);
+    }
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
         return;
