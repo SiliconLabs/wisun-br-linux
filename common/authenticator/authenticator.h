@@ -59,6 +59,7 @@ struct auth_supp_ctx {
     } radius;
 
     struct in6_addr eapol_target;
+    struct timer_entry inactivity_timer;
 
     SLIST_ENTRY(auth_supp_ctx) link;
 };

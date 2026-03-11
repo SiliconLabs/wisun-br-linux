@@ -28,6 +28,7 @@
 #include "common/named_values.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
+#include "common/mathutils.h"
 #include "common/memutils.h"
 #include "common/parsers.h"
 #include "common/pktbuf.h"
@@ -43,6 +44,33 @@
 #include "authenticator_storage.h"
 
 #include "authenticator.h"
+
+static void auth_start_inactivity_timer(struct auth_ctx *auth, struct auth_supp_ctx *supp)
+{
+    struct auth_gtk_group *gtk_group;
+    int slot;
+
+    /*
+     * NOTE: Arbitrary value, used to prevent idle supplicants from being removed
+     * too early as the supplicant count is used to determine the PAN size.
+     */
+    if (!auth_is_supp_pmk_valid(auth, supp)) {
+        timer_start_rel(&auth->timer_group, &supp->inactivity_timer, (uint64_t)30 * 60 * 1000);
+        return;
+    }
+
+    /*
+     * NOTE: when the PMK is valid, the supplicant can only be removed after not
+     * hearing from it after the expiration of the latest installed (L)GTK.
+     * It is expected that the supplicant will try to fetch the next GTK before
+     * expiration of the latest installed (L)GTK.
+     */
+    gtk_group = supp->node_role == WS_NR_ROLE_LFN ? &auth->lgtk_group : &auth->gtk_group;
+    slot = auth_gtk_slot_latest(auth, gtk_group);
+    BUG_ON(!ws_gtk_installed(&auth->gtks[slot]));
+
+    timer_start_abs(&auth->timer_group, &supp->inactivity_timer, auth->gtks[slot].expiration_timer.expire_ms);
+}
 
 const struct auth_cfg auth_cfg_default = {
     // Wi-SUN FAN 1.1v11 6.3.1.1 Configuration Parameters
@@ -416,11 +444,21 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 static void auth_remove_supp(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     auth_rt_timer_stop(auth, supp);
+    timer_stop(&auth->timer_group, &supp->inactivity_timer);
     tls_free_client(&supp->eap_tls.tls);
     auth_storage_clear_supplicant(supp);
     SLIST_REMOVE(&auth->supplicants, supp, auth_supp_ctx, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp del", tr_eui64(supp->eui64.u8));
     free(supp);
+}
+
+static void auth_supp_inactivity_timeout(struct timer_group *group, struct timer_entry *timer)
+{
+    struct auth_supp_ctx *supp = container_of(timer, struct auth_supp_ctx, inactivity_timer);
+    struct auth_ctx *auth = container_of(group, struct auth_ctx, timer_group);
+
+    TRACE(TR_SECURITY, "sec: supp inactivity eui64=%s", tr_eui64(supp->eui64.u8));
+    auth_remove_supp(auth, supp);
 }
 
 static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry *timer)
@@ -436,8 +474,7 @@ static void auth_rt_timer_timeout(struct timer_group *group, struct timer_entry 
         if (!supp->rt_kmp_id)
             supp->radius.id = -1; // Cancel transaction
         auth_rt_timer_stop(auth, supp);
-        if (!auth_is_supp_pmk_valid(auth, supp))
-            auth_remove_supp(auth, supp);
+        auth_start_inactivity_timer(auth, supp);
         return;
     }
     TRACE(TR_SECURITY, "sec: %s frame retry eui64=%s",
@@ -479,6 +516,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->rt_kmp_id = -1;
     supp->rt_timer.period_ms = auth->timeout_ms;
     supp->rt_timer.callback = auth_rt_timer_timeout;
+    supp->inactivity_timer.callback = auth_supp_inactivity_timeout;
     if (auth->radius_fd < 0)
         tls_init_client(&auth->tls, &supp->eap_tls.tls);
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
@@ -560,6 +598,8 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
 
     supp = auth_fetch_supp(auth, eui64);
 
+    timer_stop(&auth->timer_group, &supp->inactivity_timer);
+
     /*
      * Since we are the initiator of all messages following a Key-Request, we
      * can easily determine the expected KMP ID. Note a Key-Request will always
@@ -583,14 +623,15 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
     }
 
     /*
-     * If the supplicant's retry timer is not running and has no PMK installed,
-     * it means the supplicant either sent us a garbage packet, or has failed
-     * the EAP-TLS handshake. In this case, we remove the supplicant from the
-     * list of supplicants. This prevents an attacker from allocating a heinous
-     * amount of supplicants to exhaust the authenticator's memory.
+     * If the supplicant's retry timer is not running:
+     * - either it successfully retrieved all (L)GTKs
+     * - either its key-request was rejected
+     * - either it sent us a garbage packet
+     * In any case, we start the inactivity timer to ensure the supplicant is
+     * removed after a grace period to ensure the most accurate PAN size.
      */
-    if (timer_stopped(&supp->rt_timer) && !auth_is_supp_pmk_valid(auth, supp))
-        auth_remove_supp(auth, supp);
+    if (timer_stopped(&supp->rt_timer))
+        auth_start_inactivity_timer(auth, supp);
 }
 
 void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lfn)
