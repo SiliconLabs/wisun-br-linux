@@ -593,7 +593,7 @@ void auth_recv_eapol(struct auth_ctx *auth, uint8_t kmp_id, const struct eui64 *
         return;
     }
 
-    TRACE(TR_SECURITY, "sec: %-8s type=%s length=%d", "rx-eapol",
+    TRACE(TR_SECURITY, "sec: %-8s eui64=%s type=%s length=%d", "rx-eapol", tr_eui64(eui64->u8),
           val_to_str(eapol_hdr->packet_type, eapol_frames, "[UNK]"), ntohs(eapol_hdr->packet_body_length));
 
     supp = auth_fetch_supp(auth, eui64);
