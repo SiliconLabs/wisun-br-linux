@@ -61,6 +61,14 @@ void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
     struct ws_jm *jm = ws_wp_nested_jm_get_metric(&pan_info->jm, WS_JM_PLF);
     uint8_t plf;
 
+    /*
+     * During reboot, supplicants are restored before the trickle is started.
+     * The JM-IE version is restored from storage and a single call to this
+     * function is made from ws_bootstrap_6lbr_init() to update the JM-IE.
+     */
+    if (trickle_stopped(&ws_info->mngt.trickle_pc))
+        return;
+
     if (pan_info->test_pan_size != -1)
         pan_size = pan_info->test_pan_size;
     if (!jm || pan_size / SL_PAN_SIZE_STEP == pan_info->last_jm_pan_size / SL_PAN_SIZE_STEP)
@@ -74,6 +82,8 @@ void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
     ws_mngt_adjust_trickle_params(ws_info, pan_size);
     trickle_inconsistent(&ws_info->mngt.trickle_pa, NULL);
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
+    ws_pan_info_storage_write(ws_info->fhss_config.bsi, pan_info->pan_id, pan_info->pan_version, pan_info->lfn_version,
+                              pan_info->jm.version, ws_info->network_name);
 }
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
@@ -683,7 +693,7 @@ void ws_mngt_pan_version_increase(struct ws_info *ws_info)
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
     ws_pan_info_storage_write(ws_info->fhss_config.bsi, ws_info->pan_information.pan_id,
                               ws_info->pan_information.pan_version, ws_info->pan_information.lfn_version,
-                              ws_info->network_name);
+                              ws_info->pan_information.jm.version, ws_info->network_name);
 }
 
 void ws_mngt_lfn_version_increase(struct ws_info *ws_info)

@@ -371,6 +371,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_pan_info_storage_read(&fhss->bsi, &ws_info->pan_information.pan_id,
                              &ws_info->pan_information.pan_version,
                              &ws_info->pan_information.lfn_version,
+                             &ws_info->pan_information.jm.version,
                              ws_info->network_name);
 
     if (memzcmp(ws_info->network_name, sizeof(ws_info->network_name)) &&
@@ -664,12 +665,15 @@ int wsbr_main(int argc, char *argv[])
     // so because of privileges
     ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
                               ctxt->net_if.ws_info.pan_information.pan_version,
-                              ctxt->net_if.ws_info.pan_information.lfn_version, ctxt->net_if.ws_info.network_name);
+                              ctxt->net_if.ws_info.pan_information.lfn_version,
+                              ctxt->net_if.ws_info.pan_information.jm.version,
+                              ctxt->net_if.ws_info.network_name);
     ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->net_if.tun.ifname);
     auth_start(&ctxt->auth, &ctxt->rcp.eui64, ctxt->config.enable_lfn);
     /*
-     * WARNING: do not move this function call before auth_start().
-     * See comment in wsbr_on_gtk_change().
+     * WARNING: do not move this function call before auth_start() and
+     * wsbr_network_init(). See comment in wsbr_on_gtk_change() and
+     * ws_mngt_update_jm_ie().
      */
     ws_bootstrap_6lbr_init(&ctxt->net_if);
     wsbr_fds_init(ctxt);

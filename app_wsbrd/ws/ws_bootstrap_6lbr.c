@@ -245,6 +245,8 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
 
 void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
+    struct wsbr_ctxt *ctxt = container_of(cur, struct wsbr_ctxt, net_if);
+
     ws_llc_reset(cur);
     lowpan_adaptation_interface_reset(cur->id);
 
@@ -274,6 +276,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     trickle_start(&cur->ws_info.mngt.trickle_pc, NULL);
     ws_mngt_pan_version_increase(&cur->ws_info);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
+    ws_mngt_update_jm_ie(&cur->ws_info, auth_supp_count(&ctxt->auth));
     // Sending async frames to trigger trickle timers of devices in our range.
     // Doing so allows to get back to an operational network faster.
     ws_mngt_pa_send(&cur->ws_info.mngt.trickle_pa, NULL);

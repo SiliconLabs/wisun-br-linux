@@ -28,7 +28,7 @@
 #include "ws_pan_info_storage.h"
 
 void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
-                              char network_name[33])
+                              uint8_t *jm_version, char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
 
@@ -43,6 +43,8 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
             *pan_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("lfn_version", info->key, 0)) {
             *lfn_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
+        } else if (!fnmatch("jm_version", info->key, 0)) {
+            *jm_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("network_name", info->key, 0)) {
             if (parse_escape_sequences(network_name, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
@@ -56,7 +58,7 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
 }
 
 void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
-                               const char network_name[33])
+                               uint8_t jm_version, const char network_name[33])
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
     char str_buf[256];
@@ -68,6 +70,7 @@ void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_versi
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
     fprintf(info->file, "pan_version = %d\n", pan_version);
     fprintf(info->file, "lfn_version = %d\n", lfn_version);
+    fprintf(info->file, "jm_version = %d\n", jm_version);
     str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close_flush(info);

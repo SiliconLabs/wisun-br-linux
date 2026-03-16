@@ -21,7 +21,9 @@
 
 #include <stdint.h>
 
-void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version, char network_name[33]);
-void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version, const char network_name[33]);
+void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
+                              uint8_t *jm_version, char network_name[33]);
+void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
+                               uint8_t jm_version, const char network_name[33]);
 
 #endif
