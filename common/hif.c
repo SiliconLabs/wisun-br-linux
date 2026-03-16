@@ -57,6 +57,7 @@ static const struct name_value hif_cmd_names[] = {
     ENTRY(SET_FILTER_DST64),
     ENTRY(REQ_PING),
     ENTRY(CNF_PING),
+    ENTRY(SET_LOG),
     ENTRY(IND_REPLAY_TIMER),
     ENTRY(IND_REPLAY_SOCKET),
     { 0 }
