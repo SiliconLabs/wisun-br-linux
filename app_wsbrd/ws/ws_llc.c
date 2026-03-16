@@ -994,7 +994,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     }
 
     if (wh_ies->fc)
-        ws_wh_fc_write(&msg->ie_buf_header, 50, 255);
+        ws_wh_fc_write(&msg->ie_buf_header,
+                       version_older_than(base->net_if->rcp->version_api, 2, 18, 0) ? 255 : 0,
+                       255);
     if (wh_ies->utt)
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
     if (wh_ies->bt)
