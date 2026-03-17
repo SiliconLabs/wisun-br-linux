@@ -31,6 +31,7 @@ const struct name_value valid_traces[] = {
     { "drop",       TR_DROP | TR_TX_ABORT | TR_IGNORE },
     { "security",   TR_SECURITY },
     { "mbedtls",    TR_MBEDTLS },
+    { "mqtt",       TR_MQTT },
     { }
 };
 
@@ -42,7 +43,8 @@ static void print_help(FILE *stream) {
     fprintf(stream, "  silabs-ws-auth [OPTIONS]\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: security, drop, mbedtls\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: security, drop, mbedtls,\n");
+    fprintf(stream, "                          mqtt\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");

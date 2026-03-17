@@ -66,6 +66,7 @@ const struct name_value valid_traces[] = {
     { "queue",      TR_QUEUE },
     { "security",   TR_SECURITY },
     { "mbedtls",    TR_MBEDTLS },
+    { "mqtt",       TR_MQTT },
     { "mpl",        TR_MPL },
     { NULL },
 };

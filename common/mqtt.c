@@ -18,6 +18,12 @@
 
 #include "mqtt.h"
 
+static void mqtt_log_cb(struct mosquitto *mosq, void *obj,
+                        int level, const char *str)
+{
+    TRACE(TR_MQTT, "mqtt: %s", str);
+}
+
 void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
 {
     int ret;
@@ -25,6 +31,7 @@ void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
     mosquitto_lib_init();
     mqtt->mosq = mosquitto_new(NULL, true, mqtt);
     FATAL_ON(!mqtt->mosq, 2, "mosquitto_new: %m");
+    mosquitto_log_callback_set(mqtt->mosq, mqtt_log_cb);
     ret = mosquitto_connect(mqtt->mosq, host, 1883, 60);
     FATAL_ON(ret, 2, "mosquitto_connect %s: %s", host, mosquitto_strerror(ret));
 }

@@ -94,6 +94,7 @@ enum {
     TR_NEIGH_IPV6 = 0x02000000,
     TR_SECURITY   = 0x04000000,
     TR_MBEDTLS    = 0x08000000,
+    TR_MQTT       = 0x10000000,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)
