@@ -112,6 +112,9 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint
         ws_mngt_pan_version_increase(&ctxt->net_if.ws_info);
     if (increase_lfn_version)
         ws_mngt_lfn_version_increase(&ctxt->net_if.ws_info);
+
+    if (ctxt->config.enable_lfn != (bool)ws_gtkl(ctxt->auth.gtks + WS_GTK_COUNT, WS_LGTK_COUNT))
+        WARN("enable_lfn mismatch between wsbrd and silabs-ws-auth");
 }
 
 static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
@@ -675,10 +678,13 @@ int wsbr_main(int argc, char *argv[])
                               ctxt->net_if.ws_info.pan_information.jm.version,
                               ctxt->net_if.ws_info.network_name);
     ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->net_if.tun.ifname);
-    if (ctxt->config.extauth_name[0])
+    if (ctxt->config.extauth_name[0]) {
         auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name);
-    else
+        if (ctxt->config.enable_lfn != (bool)ws_gtkl(ctxt->auth.gtks + WS_GTK_COUNT, WS_LGTK_COUNT))
+            FATAL(1, "enable_lfn mismatch between wsbrd and silabs-ws-auth");
+    } else {
         auth_start(&ctxt->auth, &ctxt->rcp.eui64, ctxt->config.enable_lfn);
+    }
     /*
      * WARNING: do not move this function call before auth_start() and
      * wsbr_network_init(). See comment in wsbr_on_gtk_change() and
