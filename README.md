@@ -138,10 +138,12 @@ Some of these are not compiled by default and require setting
 | `wstbu`        | An implementation of the [Wi-SUN Test Bed Unit REST API][tbu] |
 | [`wsrd`][wsrd] | An experimental Wi-SUN router for Linux (use `COMPILE_WSRD`)  |
 | `silabs-ws-dc` | [Silicon Labs Wi-SUN Direct Connect][dc] Linux client         |
+|[`silabs-ws-auth`][auth]|Wi-SUN Authenticator for key sharing between PANs      |
 
 [tbu]: https://bitbucket.org/wisunalliance/test-bed-unit-api
 [dc]: https://docs.silabs.com/wisun/latest/wisun-direct-connect
 [wsrd]: app_wsrd/README.md
+[auth]: tools/silabs-ws-auth/README.md
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
