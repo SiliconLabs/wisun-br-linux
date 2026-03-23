@@ -32,6 +32,7 @@ static inline bool ws_gtk_installed(const struct ws_gtk *gtk)
     return !timer_stopped(&gtk->expiration_timer);
 }
 
+uint8_t ws_gtkl(const struct ws_gtk *gtks, int count);
 void ws_gtk_clear(struct timer_group *group, struct ws_gtk *gtk);
 void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]);
 void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],

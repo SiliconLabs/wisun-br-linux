@@ -74,16 +74,6 @@ static void supp_failure_key_request(struct rfc8415_txalg *txalg)
     supp->on_failure(supp);
 }
 
-uint8_t supp_get_gtkl(const struct ws_gtk *gtks, size_t gtks_len)
-{
-    uint8_t gtkl = 0;
-
-    for (size_t i = 0; i < gtks_len; i++)
-        if (ws_gtk_installed(&gtks[i]))
-            gtkl |= BIT(i);
-    return gtkl;
-}
-
 static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
 {
     struct supp_ctx *supp = container_of(txalg, struct supp_ctx, key_request_txalg);
@@ -102,8 +92,8 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
     ws_derive_ptkid(supp->tls_client.ptk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, ptkid);
 
-    gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
-    lgtkl = supp_get_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
+    gtkl = ws_gtkl(supp->gtks, WS_GTK_COUNT);
+    lgtkl = ws_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
 
     if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key)))
         kde_write_pmkid(&buf, pmkid);
@@ -270,7 +260,7 @@ void supp_start_key_request(struct supp_ctx *supp)
      * NOTE: No limit during GTK rotation to give us the entire rotation window
      * to fetch the new (L)GTK(s).
      */
-    if (supp_get_gtkl(supp->gtks, ARRAY_SIZE(supp->gtks))) {
+    if (ws_gtkl(supp->gtks, ARRAY_SIZE(supp->gtks))) {
         supp->key_request_txalg.max_delay_s = supp->cfg->gtk_max_mismatch_s;
         supp->key_request_txalg.mrc = 0; // Unspecified, no limit
     } else {

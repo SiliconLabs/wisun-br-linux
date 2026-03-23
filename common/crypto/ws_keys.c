@@ -15,8 +15,19 @@
 
 #include "common/log.h"
 #include "common/mbedtls_extra.h"
-
+#include "common/bits.h"
 #include "ws_keys.h"
+
+// GTK Liveness: BIT(i) is 1 if gtks[i] is live, 0 if gtks[i] is expired
+uint8_t ws_gtkl(const struct ws_gtk *gtks, int count)
+{
+    uint8_t gtkl = 0;
+
+    for (int i = 0; i < count; i++)
+        if (ws_gtk_installed(&gtks[i]))
+            gtkl |= BIT(i);
+    return gtkl;
+}
 
 void ws_gtk_clear(struct timer_group *group, struct ws_gtk *gtk)
 {

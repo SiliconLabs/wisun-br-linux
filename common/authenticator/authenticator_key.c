@@ -39,20 +39,10 @@
 
 #include "authenticator_key.h"
 
-static uint8_t auth_key_get_gtkl(const struct ws_gtk *gtks, int gtks_size)
-{
-    uint8_t gtkl = 0;
-
-    for (int i = 0; i < gtks_size; i++)
-        if (ws_gtk_installed(&gtks[i]))
-            gtkl |= BIT(i);
-    return gtkl;
-}
-
 static int auth_key_get_key_slot_mismatch(const struct auth_ctx *auth, const struct auth_supp_ctx *supp)
 {
-    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
-    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
+    const uint8_t auth_lgtkl = ws_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = ws_gtkl(auth->gtks, WS_GTK_COUNT);
 
     if (supp->node_role != WS_NR_ROLE_LFN)
         for (int i = 0; i < WS_GTK_COUNT; i++)
@@ -183,8 +173,8 @@ static void auth_key_message_send(struct auth_ctx *auth, struct auth_supp_ctx *s
 static void auth_key_write_key_data(struct auth_ctx *auth, const struct auth_supp_ctx *supp,
                                     const struct eapol_key_frame *frame, int key_slot, struct pktbuf *enc_key_data)
 {
-    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
-    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
+    const uint8_t auth_lgtkl = ws_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = ws_gtkl(auth->gtks, WS_GTK_COUNT);
     struct pktbuf key_data = { };
     const struct ws_gtk *gtk;
     const uint8_t *ptk;
@@ -277,8 +267,8 @@ static void auth_key_group_message_1_send(struct auth_ctx *auth, struct auth_sup
 
 static void auth_key_handshake_done(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
-    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
-    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
+    const uint8_t auth_lgtkl = ws_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = ws_gtkl(auth->gtks, WS_GTK_COUNT);
     int next_key_slot;
 
     if (supp->last_installed_key_slot >= 0) {
@@ -524,8 +514,8 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
                                   const struct eapol_key_frame *frame,
                                   const void *data, size_t data_len)
 {
-    const uint8_t auth_lgtkl = auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
-    const uint8_t auth_gtkl = auth_key_get_gtkl(auth->gtks, WS_GTK_COUNT);
+    const uint8_t auth_lgtkl = ws_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT);
+    const uint8_t auth_gtkl = ws_gtkl(auth->gtks, WS_GTK_COUNT);
     uint8_t pmkid[16], ptkid[16];
     int next_key_slot = -1;
 
@@ -546,7 +536,7 @@ static void auth_key_request_recv(struct auth_ctx *auth, struct auth_supp_ctx *s
      */
     if (!kde_read_nr(data, data_len, &supp->node_role))
         supp->node_role = WS_NR_ROLE_UNKNOWN;
-    if (supp->node_role == WS_NR_ROLE_LFN && !auth_key_get_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)) {
+    if (supp->node_role == WS_NR_ROLE_LFN && !ws_gtkl(auth->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)) {
         TRACE(TR_DROP, "drop %-9s: LFN authentication disabled", "key-req");
         return;
     }

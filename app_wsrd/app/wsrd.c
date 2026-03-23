@@ -372,7 +372,7 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
     }
     dbus_emit_change("Gaks");
 
-    if (supp_get_gtkl(supp->gtks, WS_GTK_COUNT) == supp->auth_gtkl)
+    if (ws_gtkl(supp->gtks, WS_GTK_COUNT) == supp->auth_gtkl)
         join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
 }
 
@@ -396,9 +396,9 @@ static void wsrd_eapol_on_failure(struct supp_ctx *supp)
      */
     ws_neigh->ie_pan.routing_cost = 0xffff;
     // TODO: check LGTKL once LFN are supported
-    if (wsrd->ws.pan_version != -1 && supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
+    if (wsrd->ws.pan_version != -1 && ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
         supp_start_key_request(&wsrd->supp);
-    if (wsrd->ws.pan_version == -1 || !supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
+    if (wsrd->ws.pan_version == -1 || !ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT))
         join_state_transition(wsrd, WSRD_EVENT_AUTH_FAIL);
 }
 
@@ -629,7 +629,7 @@ static void wsrd_init_ws(struct wsrd *wsrd)
     supp_init(&wsrd->supp);
     supp_reset(&wsrd->supp);
     if (!wsrd_storage_load(wsrd) || !supp_storage_load(&wsrd->supp) ||
-        !supp_get_gtkl(wsrd->supp.gtks, ARRAY_SIZE(wsrd->supp.gtks))) {
+        !ws_gtkl(wsrd->supp.gtks, ARRAY_SIZE(wsrd->supp.gtks))) {
         join_state_1_enter(wsrd);
         return;
     }

@@ -37,7 +37,7 @@
 
 static void supp_key_update_failure_timer(struct supp_ctx *supp)
 {
-    uint8_t gtkl = supp_get_gtkl(supp->gtks, WS_GTK_COUNT);
+    uint8_t gtkl = ws_gtkl(supp->gtks, WS_GTK_COUNT);
 
     if (gtkl != supp->auth_gtkl) {
         TRACE(TR_SECURITY, "sec: gtkl local=0x%02x != auth=0x%02x (expect gkh)", gtkl, supp->auth_gtkl);
@@ -230,7 +230,7 @@ static void supp_key_update_gtkl(struct supp_ctx *supp, uint8_t gtkl_kde, bool i
         supp->auth_gtkl = gtkl_kde;
 
     TRACE(TR_SECURITY, "sec: %s local=0x%02x auth=0x%02x", is_lgtk ? "lgtkl" : "gtkl",
-          supp_get_gtkl(supp->gtks + offset, count), gtkl_kde);
+          ws_gtkl(supp->gtks + offset, count), gtkl_kde);
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.4.6.3.2.5 FFN Join State 5: Operational
@@ -299,8 +299,8 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
         TRACE(TR_DROP, "drop %-9s: both GTKL and LGTKL KDE found", "eapol-key");
         goto error;
     }
-    if ((has_gtkl  && !has_gtk  && gtkl_kde == supp_get_gtkl(supp->gtks, WS_GTK_COUNT)) ||
-        (has_lgtkl && !has_lgtk && gtkl_kde == supp_get_gtkl(supp->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)))
+    if ((has_gtkl  && !has_gtk  && gtkl_kde == ws_gtkl(supp->gtks, WS_GTK_COUNT)) ||
+        (has_lgtkl && !has_lgtk && gtkl_kde == ws_gtkl(supp->gtks + WS_GTK_COUNT, WS_LGTK_COUNT)))
         TRACE(TR_SECURITY, "sec: (L)GTKL already up-to-date with no (L)GTK KDE");
     if ((has_gtk && !has_gtkl) || (has_lgtk && !has_lgtkl)) {
         TRACE(TR_DROP, "drop %-9s: missing (L)GTKL KDE", "eapol-key");

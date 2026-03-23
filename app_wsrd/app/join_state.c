@@ -76,7 +76,7 @@ static void join_state_1_exit(struct wsrd *wsrd)
 void join_state_3_reconnect_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
-    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(!ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     INFO("Join state 3: Reconnect");
     wsrd->prev_pan_id = wsrd->ws.pan_id;
@@ -123,7 +123,7 @@ static void join_state_2_enter(struct wsrd *wsrd)
 static void join_state_3_enter(struct wsrd *wsrd)
 {
     BUG_ON(wsrd->ws.pan_id == 0xffff);
-    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(!ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
 
     ws_set_pan_version(wsrd, -1);
     wsrd->pcs_nb  = 0;
@@ -144,7 +144,7 @@ static void join_state_4_choose_parent_enter(struct wsrd *wsrd)
     struct ws_neigh *neigh;
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
-    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(!ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
     BUG_ON(timer_stopped(&wsrd->pan_timeout_timer));
 
@@ -185,7 +185,7 @@ static void join_state_4_routing_enter(struct wsrd *wsrd)
     struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
-    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(!ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
     BUG_ON(!parent);
     BUG_ON(wsrd->ipv6.dhcp.running);
@@ -199,7 +199,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     const struct ipv6_neigh *parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
 
     BUG_ON(wsrd->ws.pan_id == 0xffff);
-    BUG_ON(!supp_get_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
+    BUG_ON(!ws_gtkl(wsrd->supp.gtks, WS_GTK_COUNT));
     BUG_ON(wsrd->ws.pan_version < 0);
     BUG_ON(!parent);
     BUG_ON(!wsrd->ipv6.dhcp.running);
