@@ -521,7 +521,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->rt_timer.period_ms = auth->timeout_ms;
     supp->rt_timer.callback = auth_rt_timer_timeout;
     supp->inactivity_timer.callback = auth_supp_inactivity_timeout;
-    if (auth->radius_fd < 0)
+    if (auth->radius_fd < 0 && !auth->mqtt.mosq)
         tls_init_client(&auth->tls, &supp->eap_tls.tls);
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);

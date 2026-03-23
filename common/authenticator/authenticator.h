@@ -26,6 +26,7 @@
 #include "common/ieee802154_frame.h"
 #include "common/pktbuf.h"
 #include "common/timer.h"
+#include "common/mqtt.h"
 
 struct auth_supp_ctx {
     struct eui64 eui64;
@@ -106,6 +107,8 @@ struct auth_ctx {
     uint8_t radius_id_next;
 
     int eapol_relay_fd;
+
+    struct mqtt_ctx mqtt;
 
     struct auth_supp_ctx_list supplicants;
     struct timer_group timer_group;

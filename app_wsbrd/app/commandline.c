@@ -181,6 +181,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "lowpan_mtu",                    offsetof(struct wsbrd_conf, lowpan_mtu),                       conf_set_number,      &valid_lowpan_mtu },
         { "pan_size",                      offsetof(struct wsbrd_conf, pan_size),                         conf_set_number,      &valid_uint16 },
         { "pcap_file",                     offsetof(struct wsbrd_conf, pcap_file),                        conf_set_string,      (void *)sizeof(config->pcap_file) },
+        { "external_auth",                 offsetof(struct wsbrd_conf, extauth_name),                     conf_set_string,      (void *)sizeof(config->extauth_name) },
         { }
     };
     static const struct option_struct trace_opts[] = {

@@ -263,6 +263,14 @@ if(LIBCPC_FOUND)
     target_sources(libwsbrd PRIVATE common/bus_cpc.c)
     target_link_libraries(libwsbrd PRIVATE cpc)
 endif()
+if(LIBMOSQUITTO_FOUND)
+    target_compile_definitions(libwsbrd PRIVATE HAVE_MQTT)
+    target_sources(libwsbrd PRIVATE
+        common/authenticator/authenticator_mqtt.c
+        common/mqtt.c
+    )
+    target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBMOSQUITTO)
+endif()
 set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
 
 add_executable(wsbrd app_wsbrd/app/main.c)

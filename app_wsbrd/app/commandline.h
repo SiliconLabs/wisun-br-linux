@@ -74,6 +74,7 @@ struct wsbrd_conf {
     int  ws_pan_id;
     int  ws_fan_version;
     struct auth_cfg auth;
+    char extauth_name[256];
     int  ws_async_frag_duration;
     int  uc_dwell_interval;
     int  bc_dwell_interval;
