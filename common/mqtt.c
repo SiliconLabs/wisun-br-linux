@@ -14,6 +14,7 @@
 #include <mosquitto.h>
 #include <poll.h>
 
+#include "common/memutils.h"
 #include "common/log.h"
 
 #include "mqtt.h"
@@ -24,6 +25,15 @@ static void mqtt_log_cb(struct mosquitto *mosq, void *obj,
     TRACE(TR_MQTT, "mqtt: %s", str);
 }
 
+static void mqtt_keepalive(struct timer_group *group, struct timer_entry *timer)
+{
+    struct mqtt_ctx *mqtt = container_of(timer, struct mqtt_ctx, keepalive);
+    int ret;
+
+    ret = mosquitto_loop_misc(mqtt->mosq);
+    WARN_ON(ret, "mosquitto_loop_misc: %s", mosquitto_strerror(ret));
+}
+
 void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
 {
     int ret;
@@ -32,8 +42,13 @@ void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
     mqtt->mosq = mosquitto_new(NULL, true, mqtt);
     FATAL_ON(!mqtt->mosq, 2, "mosquitto_new: %m");
     mosquitto_log_callback_set(mqtt->mosq, mqtt_log_cb);
-    ret = mosquitto_connect(mqtt->mosq, host, 1883, 60);
+    ret = mosquitto_connect(mqtt->mosq, host, 1883,
+                            mqtt->keepalive.period_ms / 1000);
     FATAL_ON(ret, 2, "mosquitto_connect %s: %s", host, mosquitto_strerror(ret));
+
+    BUG_ON(!mqtt->keepalive.period_ms);
+    mqtt->keepalive.callback = mqtt_keepalive;
+    timer_start_rel(NULL, &mqtt->keepalive, mqtt->keepalive.period_ms);
 }
 
 int mqtt_fd(const struct mqtt_ctx *mqtt)

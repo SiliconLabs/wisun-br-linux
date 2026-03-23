@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
         .auth.cfg = &ctx.cfg.auth,
         .auth.radius_fd = -1,
         .auth.timeout_ms = 30 * 1000, // Arbitrary
+        .mqtt.keepalive.period_ms = 60 * 1000, // Arbitrary
     };
     int ret;
 

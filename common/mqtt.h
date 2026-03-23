@@ -14,10 +14,13 @@
 #ifndef MQTT_H
 #define MQTT_H
 
+#include "common/timer.h"
+
 struct mosquitto;
 
 struct mqtt_ctx {
     struct mosquitto *mosq;
+    struct timer_entry keepalive;
 };
 
 #ifdef HAVE_MQTT

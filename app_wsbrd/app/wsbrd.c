@@ -181,6 +181,7 @@ struct wsbr_ctxt g_ctxt = {
     .auth.on_gtk_change = wsbr_on_gtk_change,
     .auth.on_supp_add   = wsbr_on_supp_add,
     .auth.on_supp_del   = wsbr_on_supp_del,
+    .auth.mqtt.keepalive.period_ms = 60 * 1000, // Arbitrary
 
     .dhcp_relay.fd = -1,
     // RFC 8415 7.6. Transmission and Retransmission Parameters
