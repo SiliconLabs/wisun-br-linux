@@ -36,6 +36,8 @@
 #include <stdio.h>
 #include <limits.h>
 
+#include "common/config.h"
+
 struct storage_parse_info {
     FILE *file;
     char filename[PATH_MAX];
@@ -45,7 +47,8 @@ struct storage_parse_info {
     unsigned int key_array_index;
 };
 
-extern const char *g_storage_prefix;
+extern char g_storage_prefix[PATH_MAX];
+extern const struct option_struct storage_opts[];
 
 int storage_check_access(const char *storage_prefix);
 struct storage_parse_info *storage_open(const char *filename, const char *mode);

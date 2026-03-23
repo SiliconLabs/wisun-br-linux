@@ -192,7 +192,6 @@ struct wsrd g_wsrd = {
     .config.ws_uc_dwell_interval_ms = 255,
     .config.ws_allowed_channels = { [0 ... sizeof(g_wsrd.config.ws_allowed_channels) - 1] = 0xff },
     .config.color_output = -1,
-    .config.storage_prefix = "/var/lib/wsrd/",
 
     // Wi-SUN FAN 1.1v09 6.3.1.1 Configuration Parameters
     .config.disc_cfg.Imin_ms = 15 * 1000,
@@ -738,7 +737,6 @@ int wsrd_main(int argc, char *argv[])
 
     check_mbedtls_features();
 
-    g_storage_prefix = wsrd->config.storage_prefix;
     if (wsrd->config.storage_delete) {
         INFO("deleting storage");
         storage_delete(files);

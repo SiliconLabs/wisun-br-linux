@@ -60,7 +60,6 @@ struct wsrd_conf {
 
     struct supp_cfg supp;
 
-    char storage_prefix[PATH_MAX];
     bool storage_delete;
 
     int  ws_uc_dwell_interval_ms;

@@ -166,7 +166,7 @@ void rpl_storage_load(struct rpl_root *root)
     glob_t globbuf;
     int ret;
 
-    if (!g_storage_prefix)
+    if (!g_storage_prefix[0])
         return;
     snprintf(globexpr, sizeof(globexpr), "%s%s", g_storage_prefix, "rpl-*");
     ret = glob(globexpr, 0, NULL, &globbuf);

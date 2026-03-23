@@ -611,7 +611,6 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     check_mbedtls_features();
-    g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete) {
         INFO("deleting storage");
         storage_delete(files);

@@ -24,7 +24,12 @@
 
 #include "key_value_storage.h"
 
-const char *g_storage_prefix = NULL;
+char g_storage_prefix[PATH_MAX];
+
+const struct option_struct storage_opts[] = {
+    { "storage_prefix", 0, conf_set_string, (void *)PATH_MAX },
+    { }
+};
 
 int storage_check_access(const char *storage_prefix)
 {
@@ -60,7 +65,7 @@ struct storage_parse_info *storage_open_prefix(const char *filename, const char 
     char *full_filename;
     int ret;
 
-    if (!g_storage_prefix)
+    if (!g_storage_prefix[0])
         return NULL;
     ret = asprintf(&full_filename, "%s%s", g_storage_prefix, filename);
     FATAL_ON(ret < 0, 2, "%s: cannot allocate memory", __func__);
@@ -137,7 +142,7 @@ void storage_delete(const char *files[])
     glob_t globbuf;
     int ret;
 
-    if (!g_storage_prefix)
+    if (!g_storage_prefix[0])
         return;
 
     for (; *files; files++) {

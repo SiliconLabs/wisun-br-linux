@@ -147,7 +147,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "color_output",                  offsetof(struct wsbrd_conf, color_output),                     conf_set_enum,        &valid_tristate },
         { "use_tap",                       0,                                                             conf_deprecated,      NULL },
         { "ipv6_prefix",                   offsetof(struct wsbrd_conf, ipv6_prefix),                      conf_set_netmask,     NULL },
-        { "storage_prefix",                offsetof(struct wsbrd_conf, storage_prefix),                   conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "internal_dhcp",                 offsetof(struct wsbrd_conf, dhcp_server),                      conf_set_dhcp_internal, NULL },
         { "dhcp_server",                   offsetof(struct wsbrd_conf, dhcp_server),                      conf_set_netaddr,     &valid_ipv6 },
         { "network_name",                  offsetof(struct wsbrd_conf, ws_name),                          conf_set_string,      (void *)sizeof(config->ws_name) },
@@ -190,6 +189,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     const struct option_group opt_groups[] = {
         { wsbrd_opts,      config },
         { trace_opts,      &g_enabled_traces },
+        { storage_opts,    &g_storage_prefix },
         { auth_opts,       &config->auth },
         { duty_cycle_opts, &config->duty_cycle },
         { rcp_opts,        &config->rcp },
@@ -253,7 +253,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->enable_ffn10 = false;
     config->rpl_compat = true;
     config->rpl_rpi_ignorable = false;
-    strcpy(config->storage_prefix, "/var/lib/wsbrd/");
+    strcpy(g_storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -353,8 +353,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if ((config->storage_exit || !config->list_rf_configs) && storage_check_access(config->storage_prefix))
-        FATAL(1, "%s: %m", config->storage_prefix);
+    if ((config->storage_exit || !config->list_rf_configs) && storage_check_access(g_storage_prefix))
+        FATAL(1, "%s: %m", g_storage_prefix);
     if (config->storage_exit)
         return;
     if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])

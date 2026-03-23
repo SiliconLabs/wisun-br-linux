@@ -103,7 +103,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        offsetof(struct wsrd_conf, disc_cfg.k),                       conf_set_number,      &valid_positive },
         { "rpl_compat",                    offsetof(struct wsrd_conf, rpl_compat),                       conf_set_bool,        NULL },
-        { "storage_prefix",                offsetof(struct wsrd_conf, storage_prefix),                   conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "gtk_max_mismatch",              offsetof(struct wsrd_conf, supp.gtk_max_mismatch_s),          conf_set_seconds_from_minutes, &valid_positive },
         { "pan_timeout",                   offsetof(struct wsrd_conf, pan_timeout_s),                    conf_set_seconds_from_minutes, &valid_positive },
         { }
@@ -115,6 +114,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     const struct option_group opt_groups[] = {
         { wsrd_opts,       config },
         { trace_opts,      &g_enabled_traces },
+        { storage_opts,    &g_storage_prefix },
         { duty_cycle_opts, &config->duty_cycle },
         { rcp_opts,        &config->rcp },
         { }
@@ -135,6 +135,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
+    strcpy(g_storage_prefix, "/var/lib/wsrd/");
     config->rcp = rcp_cfg_default;
     config->ws_phy_op_modes[0] = -1;
 
@@ -191,8 +192,8 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if (storage_check_access(config->storage_prefix))
-        FATAL(1, "%s: %m", config->storage_prefix);
+    if (storage_check_access(g_storage_prefix))
+        FATAL(1, "%s: %m", g_storage_prefix);
     if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->rcp.uart_dev[0] && config->rcp.cpc_instance[0])

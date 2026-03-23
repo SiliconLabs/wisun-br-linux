@@ -168,7 +168,7 @@ void ipv6_neigh_storage_load(struct ipv6_neighbour_cache *cache)
     glob_t globbuf;
     int ret;
 
-    sprintf(pattern, "%s%s", g_storage_prefix, "neighbor-*");
+    snprintf(pattern, sizeof(pattern), "%s%s", g_storage_prefix, "neighbor-*");
     ret = glob(pattern, 0, NULL, &globbuf);
     if (ret && ret != GLOB_NOMATCH)
         WARN("%s: glob %s returned %u", __func__, pattern, ret);

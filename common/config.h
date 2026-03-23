@@ -13,7 +13,7 @@
  */
 #ifndef CONFIG_H
 #define CONFIG_H
-
+#include <stdint.h>
 #include <netdb.h>
 
 #include "common/named_values.h"

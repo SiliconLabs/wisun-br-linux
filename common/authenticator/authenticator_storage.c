@@ -245,7 +245,7 @@ static void auth_storage_load_supplicants(struct auth_ctx *auth)
 
 bool auth_storage_load(struct auth_ctx *auth)
 {
-    if (!g_storage_prefix)
+    if (!g_storage_prefix[0])
         return false;
     if (!auth_storage_load_keys(auth))
         return false;

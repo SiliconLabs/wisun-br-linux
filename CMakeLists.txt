@@ -25,6 +25,7 @@ check_c_compiler_flag(-Wall                  CC_HAVE_WALL)
 check_c_compiler_flag(-Wno-format-zero-length CC_HAVE_WNO_FORMAT_ZERO_LENGTH)
 check_c_compiler_flag(-Wno-stringop-overread CC_HAVE_WNO_STRINGOP_OVERREAD)
 check_c_compiler_flag(-Wno-stringop-overflow CC_HAVE_WNO_STRINGOP_OVERFLOW)
+check_c_compiler_flag(-Wno-format-trunction  CC_HAVE_WNO_FORMAT_TRUNCATION)
 check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
 check_c_compiler_flag(-rdynamic              CC_HAVE_RDYNAMIC)
 
@@ -112,6 +113,9 @@ if(CC_HAVE_WNO_STRINGOP_OVERREAD)
 endif()
 if(CC_HAVE_WNO_STRINGOP_OVERFLOW)
     add_compile_options(-Wno-stringop-overflow)
+endif()
+if(CC_HAVE_WNO_FORMAT_TRUNCATION)
+    add_compile_options(-Wno-format-truncation)
 endif()
 
 # In come case, backtraces are not available without that flags. Increase size

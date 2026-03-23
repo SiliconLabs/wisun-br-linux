@@ -67,7 +67,6 @@ struct wsbrd_conf {
 
     char capture[PATH_MAX];
 
-    char storage_prefix[PATH_MAX];
     bool storage_delete;
     bool storage_exit;
 
