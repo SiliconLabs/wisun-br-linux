@@ -81,7 +81,6 @@ enum {
     TR_TRICKLE    = 0x00000200,
     TR_15_4_MNGT  = 0x00001000,
     TR_15_4_DATA  = 0x00002000,
-    TR_EAP        = 0x00004000,
     TR_ICMP       = 0x00008000,
     TR_DHCP       = 0x00010000,
     TR_RPL        = 0x00020000,

@@ -51,7 +51,7 @@ const struct name_value valid_traces[] = {
     { "trickle",    TR_TRICKLE },
     { "15.4-mngt",  TR_15_4_MNGT },
     { "15.4",       TR_15_4_MNGT | TR_15_4_DATA },
-    { "eap",        TR_EAP | TR_SECURITY }, // legacy name
+    { "eap",        TR_SECURITY }, // legacy name
     { "icmp",       TR_ICMP },
     { "icmp-rf",    TR_ICMP }, // legacy name
     { "icmp-tun",   0 },       // legacy name
@@ -64,7 +64,7 @@ const struct name_value valid_traces[] = {
     { "neigh-15.4", TR_NEIGH_15_4 },
     { "neigh-ipv6", TR_NEIGH_IPV6 },
     { "queue",      TR_QUEUE },
-    { "security",   TR_SECURITY | TR_EAP },
+    { "security",   TR_SECURITY },
     { "mbedtls",    TR_MBEDTLS },
     { "mpl",        TR_MPL },
     { NULL },
