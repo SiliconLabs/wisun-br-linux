@@ -96,16 +96,16 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "unicast_dwell_interval",        offsetof(struct wsrd_conf, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
         { "enable_apc",                    offsetof(struct wsrd_conf, enable_apc),                       conf_set_bool,        NULL },
         { "color_output",                  offsetof(struct wsrd_conf, color_output),                     conf_set_enum,        &valid_tristate },
-        { "authority",                     offsetof(struct wsrd_conf, supp_cfg.tls.ca_cert),             conf_set_pem,         NULL },
-        { "certificate",                   offsetof(struct wsrd_conf, supp_cfg.tls.cert),                conf_set_pem,         NULL },
-        { "key",                           offsetof(struct wsrd_conf, supp_cfg.tls.key),                 conf_set_pem,         NULL },
-        { "eap_identity",                  offsetof(struct wsrd_conf, supp_cfg.eap_identity),            conf_set_string,      (void *)sizeof(config->supp_cfg.eap_identity) },
+        { "authority",                     offsetof(struct wsrd_conf, supp.tls.ca_cert),                 conf_set_pem,         NULL },
+        { "certificate",                   offsetof(struct wsrd_conf, supp.tls.cert),                    conf_set_pem,         NULL },
+        { "key",                           offsetof(struct wsrd_conf, supp.tls.key),                     conf_set_pem,         NULL },
+        { "eap_identity",                  offsetof(struct wsrd_conf, supp.eap_identity),                conf_set_string,      (void *)sizeof(config->supp.eap_identity) },
         { "disc_imin",                     offsetof(struct wsrd_conf, disc_cfg.Imin_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_k",                        offsetof(struct wsrd_conf, disc_cfg.k),                       conf_set_number,      &valid_positive },
         { "rpl_compat",                    offsetof(struct wsrd_conf, rpl_compat),                       conf_set_bool,        NULL },
         { "storage_prefix",                offsetof(struct wsrd_conf, storage_prefix),                   conf_set_string,      (void *)sizeof(config->storage_prefix) },
-        { "gtk_max_mismatch",              offsetof(struct wsrd_conf, supp_cfg.gtk_max_mismatch_s),      conf_set_seconds_from_minutes, &valid_positive },
+        { "gtk_max_mismatch",              offsetof(struct wsrd_conf, supp.gtk_max_mismatch_s),          conf_set_seconds_from_minutes, &valid_positive },
         { "pan_timeout",                   offsetof(struct wsrd_conf, pan_timeout_s),                    conf_set_seconds_from_minutes, &valid_positive },
         { }
     };
@@ -117,7 +117,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { wsrd_opts,       config },
         { trace_opts,      &g_enabled_traces },
         { duty_cycle_opts, &config->duty_cycle },
-        { rcp_opts,        &config->rcp_cfg },
+        { rcp_opts,        &config->rcp },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";
@@ -136,7 +136,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     };
     int opt;
 
-    config->rcp_cfg.csma = rcp_csma_default;
+    config->rcp.csma = rcp_csma_default;
     config->ws_phy_op_modes[0] = -1;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
@@ -168,7 +168,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
                 break;
             case 'u':
                 strcpy(info.key, "uart_device");
-                conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
+                conf_set_string(&info, &config->rcp.uart_dev, (void *)sizeof(config->rcp.uart_dev));
                 break;
             case 'T':
                 strcpy(info.key, "trace");
@@ -194,10 +194,10 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         FATAL(1, "unexpected argument: %s", argv[optind]);
     if (storage_check_access(config->storage_prefix))
         FATAL(1, "%s: %m", config->storage_prefix);
-    if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
+    if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
-    if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
-        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
+    if (config->rcp.uart_dev[0] && config->rcp.cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp.uart_dev);
     if (!config->user[0] && config->group[0])
         WARN("group is set while user is not: privileges will not be dropped if started as root");
     if (config->user[0] && !config->group[0])
@@ -235,11 +235,11 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!config->supp_cfg.tls.key.iov_base)
+    if (!config->supp.tls.key.iov_base)
         FATAL(1, "missing \"key\" parameter");
-    if (!config->supp_cfg.tls.cert.iov_base)
+    if (!config->supp.tls.cert.iov_base)
         FATAL(1, "missing \"certificate\" parameter");
-    if (!config->supp_cfg.tls.ca_cert.iov_base)
+    if (!config->supp.tls.ca_cert.iov_base)
         FATAL(1, "missing \"authority\" parameter");
     if (!config->disc_cfg.Imin_ms)
         FATAL(1, "invalid \"disc_imin\" parameter");

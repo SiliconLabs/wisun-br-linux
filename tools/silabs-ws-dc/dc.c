@@ -167,9 +167,9 @@ static void dc_auth_on_supp_gtk_installed(struct auth_ctx *auth_ctx, const struc
 
 struct dc g_dc = {
     // Arbitrary default params
-    .cfg.rcp_cfg.uart_baudrate = 115200,
-    .cfg.rcp_cfg.eui64_override = EUI64_BC,
-    .cfg.rcp_cfg.tx_power_dbm = 14,
+    .cfg.rcp.uart_baudrate = 115200,
+    .cfg.rcp.eui64_override = EUI64_BC,
+    .cfg.rcp.tx_power_dbm = 14,
     .cfg.tun_autoconf = true,
     .cfg.ws_domain = REG_DOMAIN_UNDEF,
     .cfg.ws_uc_dwell_interval_ms = 255,
@@ -179,11 +179,11 @@ struct dc g_dc = {
     .cfg.target_eui64 = EUI64_BC,
     .cfg.color_output = -1,
 
-    .cfg.auth_cfg.ffn.pmk_lifetime_s      = 0, // Infinite
-    .cfg.auth_cfg.ffn.ptk_lifetime_s      = 0, // Infinite
-    .cfg.auth_cfg.ffn.gtk_expire_offset_s = 0, // Infinite
+    .cfg.auth.ffn.pmk_lifetime_s      = 0, // Infinite
+    .cfg.auth.ffn.ptk_lifetime_s      = 0, // Infinite
+    .cfg.auth.ffn.gtk_expire_offset_s = 0, // Infinite
 
-    .auth_ctx.cfg                   = &g_dc.cfg.auth_cfg,
+    .auth_ctx.cfg                   = &g_dc.cfg.auth,
     .auth_ctx.radius_fd             = -1,
     .auth_ctx.on_supp_gtk_installed = dc_auth_on_supp_gtk_installed,
     .auth_ctx.sendto_mac            = dc_auth_sendto_mac,
@@ -228,7 +228,7 @@ static void dc_init_radio(struct dc *dc)
     dc->ws.phy.params = ws_regdb_phy_params(dc->cfg.ws_phy_mode_id,
                                               dc->cfg.ws_mode);
     BUG_ON(!dc->ws.phy.params);
-    dc->ws.phy.tx_power_dbm = dc->cfg.rcp_cfg.tx_power_dbm;
+    dc->ws.phy.tx_power_dbm = dc->cfg.rcp.tx_power_dbm;
     dc->ws.phy.tx_attempts = rcp_csma_default.frame_retries + 1;
     dc->ws.fhss.chan_params = rail_get_chan_params(&dc->ws.rcp, dc->cfg.ws_domain,
                                                    dc->cfg.ws_chan_plan_id,
@@ -291,7 +291,7 @@ int dc_main(int argc, char *argv[])
 
     check_mbedtls_features();
 
-    rcp_init(&dc->ws.rcp, &dc->cfg.rcp_cfg);
+    rcp_init(&dc->ws.rcp, &dc->cfg.rcp);
     if (dc->cfg.list_rf_configs) {
         rail_print_config_list(&dc->ws.rcp);
         exit(0);

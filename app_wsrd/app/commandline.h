@@ -30,7 +30,7 @@
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsrd_conf {
-    struct rcp_cfg rcp_cfg;
+    struct rcp_cfg rcp;
 
     char ws_netname[WS_NETNAME_LEN];
     bool rpl_compat;
@@ -58,7 +58,7 @@ struct wsrd_conf {
     // -1 for base mode +1 for sentinel
     uint8_t ws_phy_op_modes[FIELD_MAX(WS_MASK_POM_COUNT) - 1 + 1];
 
-    struct supp_cfg supp_cfg;
+    struct supp_cfg supp;
 
     char storage_prefix[PATH_MAX];
     bool storage_delete;

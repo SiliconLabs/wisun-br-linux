@@ -22,8 +22,8 @@
 #include "common/sl_ws.h"
 
 struct dc_cfg {
-    struct rcp_cfg rcp_cfg;
-    struct auth_cfg auth_cfg;
+    struct rcp_cfg rcp;
+    struct auth_cfg auth;
 
     char tun_dev[IF_NAMESIZE];
     bool tun_autoconf;

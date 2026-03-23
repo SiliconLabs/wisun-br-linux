@@ -100,7 +100,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     const struct option_group opt_groups[] = {
         { dc_opts,    config },
         { trace_opts, &g_enabled_traces },
-        { rcp_opts,   &config->rcp_cfg },
+        { rcp_opts,   &config->rcp },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhv";
@@ -118,7 +118,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     };
     int opt;
 
-    config->rcp_cfg.csma = rcp_csma_default;
+    config->rcp.csma = rcp_csma_default;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -149,7 +149,7 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
                 break;
             case 'u':
                 strcpy(info.key, "uart_device");
-                conf_set_string(&info, &config->rcp_cfg.uart_dev, (void *)sizeof(config->rcp_cfg.uart_dev));
+                conf_set_string(&info, &config->rcp.uart_dev, (void *)sizeof(config->rcp.uart_dev));
                 break;
             case 'T':
                 strcpy(info.key, "trace");
@@ -170,10 +170,10 @@ void parse_commandline(struct dc_cfg *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
+    if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
-    if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
-        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
+    if (config->rcp.uart_dev[0] && config->rcp.cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp.uart_dev);
     if (!config->user[0] && config->group[0])
         WARN("group is set while user is not: privileges will not be dropped if started as root");
     if (config->user[0] && !config->group[0])

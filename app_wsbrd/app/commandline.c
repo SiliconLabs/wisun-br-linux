@@ -191,9 +191,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     const struct option_group opt_groups[] = {
         { wsbrd_opts,      config },
         { trace_opts,      &g_enabled_traces },
-        { auth_opts,       &config->auth_cfg },
+        { auth_opts,       &config->auth },
         { duty_cycle_opts, &config->duty_cycle },
-        { rcp_opts,        &config->rcp_cfg },
+        { rcp_opts,        &config->rcp },
         { }
     };
     static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
@@ -227,7 +227,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     int opt;
 
     // Keep these values in sync with examples/wsbrd.conf
-    config->rcp_cfg.uart_baudrate = 115200;
+    config->rcp.uart_baudrate = 115200;
     config->tun_autoconf = true;
     config->dhcp_server.sin6_family = AF_INET6;
     config->dhcp_server.sin6_addr = in6addr_any;
@@ -238,16 +238,16 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_pan_id = -1;
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
-    config->rcp_cfg.tx_power_dbm = 14;
-    config->rcp_cfg.csma = rcp_csma_default;
-    config->rcp_cfg.eui64_override = EUI64_BC;
+    config->rcp.tx_power_dbm = 14;
+    config->rcp.csma = rcp_csma_default;
+    config->rcp.eui64_override = EUI64_BC;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->lfn_bc_interval = 60000;
     config->lfn_bc_sync_period = 5;
     config->bc_dwell_interval = 255;
     config->lowpan_mtu = 2043;
-    config->auth_cfg = auth_cfg_default;
+    config->auth = auth_cfg_default;
     config->ws_regional_regulation = 0;
     config->ws_async_frag_duration = 500;
     config->pan_size = -1;
@@ -279,7 +279,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             case 'F':
                 break;
             case 'u':
-                strlcpy(config->rcp_cfg.uart_dev, optarg, sizeof(config->rcp_cfg.uart_dev));
+                strlcpy(config->rcp.uart_dev, optarg, sizeof(config->rcp.uart_dev));
                 break;
             case 'o':
                 strlcpy(info.line, optarg, sizeof(info.line));
@@ -320,15 +320,15 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_pem(&info, &config->auth_cfg.tls.key, NULL);
+                conf_set_pem(&info, &config->auth.tls.key, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_pem(&info, &config->auth_cfg.tls.cert, NULL);
+                conf_set_pem(&info, &config->auth.tls.cert, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_pem(&info, &config->auth_cfg.tls.ca_cert, NULL);
+                conf_set_pem(&info, &config->auth.tls.ca_cert, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
@@ -361,10 +361,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "%s: %m", config->storage_prefix);
     if (config->storage_exit)
         return;
-    if (!config->rcp_cfg.uart_dev[0] && !config->rcp_cfg.cpc_instance[0])
+    if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
-    if (config->rcp_cfg.uart_dev[0] && config->rcp_cfg.cpc_instance[0])
-        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp_cfg.uart_dev);
+    if (config->rcp.uart_dev[0] && config->rcp.cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->rcp.uart_dev);
     if (!config->user[0] && config->group[0])
         WARN("group is set while user is not: privileges will not be dropped if started as root");
     if (config->user[0] && !config->group[0])
@@ -421,7 +421,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
-    if (!config->enable_lfn && memzcmp(config->auth_cfg.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
+    if (!config->enable_lfn && memzcmp(config->auth.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
         FATAL(1, "\"lgtk[i]\" is incompatible with \"enable_lfn = false\"");
     if (IN6_IS_ADDR_UNSPECIFIED(&config->ipv6_prefix) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
@@ -432,7 +432,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
             WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
                  val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
-    if (memzcmp(config->auth_cfg.gtk_init, sizeof(config->auth_cfg.gtk_init)) &&
+    if (memzcmp(config->auth.gtk_init, sizeof(config->auth.gtk_init)) &&
          config->ws_pan_id != -1)
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
     if (config->capture[0] && !config->storage_delete)
@@ -440,5 +440,5 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
         WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
     duty_cycle_cfg_check(&config->duty_cycle);
-    config->auth_cfg.allow_fan10 = config->enable_ffn10;
+    config->auth.allow_fan10 = config->enable_ffn10;
 }

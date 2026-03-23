@@ -159,7 +159,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.tun.fd = -1,
 
     .net_if.auth = &g_ctxt.auth,
-    .auth.cfg = &g_ctxt.config.auth_cfg,
+    .auth.cfg = &g_ctxt.config.auth,
     .auth.radius_fd = -1,
     .auth.timeout_ms = 30 * 1000, // Arbitrary
     .auth.sendto_mac    = ws_llc_auth_sendto_mac,
@@ -402,8 +402,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (ctxt->config.enable_lfn && ws_info->mngt.lpa_legacy)
         WARN("enable_lfn recommends RCP API >= 2.16.1");
 
-    ws_info->phy_config.tx_power_dbm = ctxt->config.rcp_cfg.tx_power_dbm;
-    ws_info->phy_config.tx_attempts = ctxt->config.rcp_cfg.csma.frame_retries + 1;
+    ws_info->phy_config.tx_power_dbm = ctxt->config.rcp.tx_power_dbm;
+    ws_info->phy_config.tx_attempts = ctxt->config.rcp.csma.frame_retries + 1;
 
     timer_group_init(&ws_info->neighbor_storage.timer_group);
 }
@@ -487,7 +487,7 @@ void kill_handler(int signal)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
-    if (ctxt->config.rcp_cfg.uart_dev[0])
+    if (ctxt->config.rcp.uart_dev[0])
         uart_tx_flush(&ctxt->rcp.bus);
     exit(0);
 }
@@ -624,7 +624,7 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.capture[0])
         capture_start(ctxt->config.capture);
 
-    rcp_init(&ctxt->rcp, &ctxt->config.rcp_cfg);
+    rcp_init(&ctxt->rcp, &ctxt->config.rcp);
     if (ctxt->config.list_rf_configs) {
         rail_print_config_list(&ctxt->rcp);
         exit(0);

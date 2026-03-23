@@ -176,11 +176,11 @@ struct wsrd g_wsrd = {
     // RFC 8415 15. Reliability of Client-Initiated Message Exchanges
     .supp.key_request_txalg.rand_min    = -0.1,
     .supp.key_request_txalg.rand_max    = +0.1,
-    .config.supp_cfg.gtk_max_mismatch_s = 3840, // 64 * 60
-    .config.supp_cfg.timeout_ms = 60 * 1000, // Arbitrary
+    .config.supp.gtk_max_mismatch_s = 3840, // 64 * 60
+    .config.supp.timeout_ms = 60 * 1000, // Arbitrary
     // FreeRADIUS refuses an empty identity, so an arbitrary value is used.
-    .config.supp_cfg.eap_identity = "Anonymous",
-    .supp.cfg = &g_wsrd.config.supp_cfg,
+    .config.supp.eap_identity = "Anonymous",
+    .supp.cfg = &g_wsrd.config.supp,
     .supp.on_gtk_change = wsrd_eapol_on_gtk_change,
     .supp.on_failure  = wsrd_eapol_on_failure,
     .supp.sendto_mac  = wsrd_eapol_sendto_mac,
@@ -188,9 +188,9 @@ struct wsrd g_wsrd = {
 
     // Arbitrary default values
     .config.rpl_compat = true,
-    .config.rcp_cfg.uart_baudrate = 115200,
-    .config.rcp_cfg.eui64_override = EUI64_BC,
-    .config.rcp_cfg.tx_power_dbm = 14,
+    .config.rcp.uart_baudrate = 115200,
+    .config.rcp.eui64_override = EUI64_BC,
+    .config.rcp.tx_power_dbm = 14,
     .config.tun_autoconf = true,
     .config.ws_domain = REG_DOMAIN_UNDEF,
     .config.ws_uc_dwell_interval_ms = 255,
@@ -508,8 +508,8 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     wsrd->ws.phy.params = ws_regdb_phy_params(wsrd->config.ws_phy_mode_id,
                                               wsrd->config.ws_mode);
     BUG_ON(!wsrd->ws.phy.params);
-    wsrd->ws.phy.tx_power_dbm = wsrd->config.rcp_cfg.tx_power_dbm;
-    wsrd->ws.phy.tx_attempts = wsrd->config.rcp_cfg.csma.frame_retries + 1;
+    wsrd->ws.phy.tx_power_dbm = wsrd->config.rcp.tx_power_dbm;
+    wsrd->ws.phy.tx_attempts = wsrd->config.rcp.csma.frame_retries + 1;
     wsrd->ws.fhss.chan_params = rail_get_chan_params(&wsrd->ws.rcp, wsrd->config.ws_domain,
                                                      wsrd->config.ws_chan_plan_id,
                                                      wsrd->config.ws_class,
@@ -748,14 +748,14 @@ int wsrd_main(int argc, char *argv[])
         storage_delete(files);
     }
 
-    rcp_init(&wsrd->ws.rcp, &wsrd->config.rcp_cfg);
+    rcp_init(&wsrd->ws.rcp, &wsrd->config.rcp);
     if (wsrd->config.list_rf_configs) {
         rail_print_config_list(&wsrd->ws.rcp);
         exit(0);
     }
 
     wsrd->ipv6.eui64 = wsrd->ws.rcp.eui64;
-    wsrd->config.supp_cfg.eui64 = wsrd->ws.rcp.eui64;
+    wsrd->config.supp.eui64 = wsrd->ws.rcp.eui64;
 
     wsrd_init_radio(wsrd);
     wsrd_init_ws(wsrd);

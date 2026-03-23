@@ -36,7 +36,7 @@ struct wsbrd_conf {
     bool list_rf_configs;
     int color_output;
 
-    struct rcp_cfg rcp_cfg;
+    struct rcp_cfg rcp;
 
     char tun_dev[IF_NAMESIZE];
     char neighbor_proxy[IF_NAMESIZE];
@@ -74,7 +74,7 @@ struct wsbrd_conf {
     bool enable_apc;
     int  ws_pan_id;
     int  ws_fan_version;
-    struct auth_cfg auth_cfg;
+    struct auth_cfg auth;
     int  ws_async_frag_duration;
     int  uc_dwell_interval;
     int  bc_dwell_interval;

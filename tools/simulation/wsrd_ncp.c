@@ -33,7 +33,7 @@ static void *ncp_main(void *arg)
     struct wsrd_conf *cfg = arg;
 
     // Provide a UART device so parse_commandline succeeds
-    strcpy(cfg->rcp_cfg.uart_dev, "/dev/null");
+    strcpy(cfg->rcp.uart_dev, "/dev/null");
     cfg->storage_delete = true;
     wsrd_main(3, (char *[]){ "wsrd", "-F", g_config_filename, NULL });
     __builtin_unreachable();
@@ -150,7 +150,7 @@ static void ncp_set_txpow(const void *_req, const void *req_data, void *cnf, voi
     const sl_wisun_msg_set_tx_power_req_t *req = _req;
     struct wsrd *wsrd = &g_wsrd;
 
-    wsrd->config.rcp_cfg.tx_power_dbm = req->body.tx_power;
+    wsrd->config.rcp.tx_power_dbm = req->body.tx_power;
 }
 
 static void ncp_set_txpow_ddbm(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
@@ -168,7 +168,7 @@ static void ncp_set_txpow_ddbm(const void *_req, const void *req_data, void *_cn
         return;
     }
 
-    wsrd->config.rcp_cfg.tx_power_dbm = txpow_ddbm / 10;
+    wsrd->config.rcp.tx_power_dbm = txpow_ddbm / 10;
 }
 
 static sl_status_t ncp_set_pem(struct iovec *out, const char *buf, size_t buf_len, bool append)
@@ -200,7 +200,7 @@ static void ncp_set_ca(const void *_req, const void *req_data, void *_cnf, void 
     const sl_wisun_msg_set_trusted_certificate_req_t *req = _req;
     sl_wisun_msg_set_trusted_certificate_cnf_t *cnf = _cnf;
 
-    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.ca_cert, req_data,
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp.tls.ca_cert, req_data,
                                            req->body.certificate_length,
                                            req->body.certificate_options & SL_WISUN_CERTIFICATE_OPTION_APPEND));
 }
@@ -210,7 +210,7 @@ static void ncp_set_cert(const void *_req, const void *req_data, void *_cnf, voi
     const sl_wisun_msg_set_device_certificate_req_t *req = _req;
     sl_wisun_msg_set_device_certificate_cnf_t *cnf = _cnf;
 
-    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.cert, req_data,
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp.tls.cert, req_data,
                                            req->body.certificate_length, false));
 }
 
@@ -219,7 +219,7 @@ static void ncp_set_key(const void *_req, const void *req_data, void *_cnf, void
     const sl_wisun_msg_set_device_private_key_req_t *req = _req;
     sl_wisun_msg_set_device_private_key_cnf_t *cnf = _cnf;
 
-    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp_cfg.tls.key, req_data,
+    cnf->body.status = htole32(ncp_set_pem(&g_wsrd.config.supp.tls.key, req_data,
                                            req->body.key_length, false));
 }
 
