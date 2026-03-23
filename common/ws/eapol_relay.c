@@ -26,11 +26,11 @@
 
 #include "eapol_relay.h"
 
-int eapol_relay_start(const char ifname[IF_NAMESIZE])
+int eapol_relay_start(const struct in6_addr *addr)
 {
-    struct sockaddr_in6 addr = {
+    struct sockaddr_in6 sin6 = {
         .sin6_family = AF_INET6,
-        .sin6_addr   = IN6ADDR_ANY_INIT,
+        .sin6_addr   = *addr,
         .sin6_port   = htons(EAPOL_RELAY_PORT),
     };
     int ret, fd;
@@ -38,11 +38,8 @@ int eapol_relay_start(const char ifname[IF_NAMESIZE])
     fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
     FATAL_ON(fd < 0, 2, "%s: socket: %m", __func__);
 
-    ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+    ret = bind(fd, (struct sockaddr *)&sin6, sizeof(struct sockaddr_in6));
     FATAL_ON(ret < 0, 2, "%s: bind: %m", __func__);
-
-    ret = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, IF_NAMESIZE);
-    FATAL_ON(ret < 0, 2, "%s: setsockopt SO_BINDTODEVICE: %m", __func__);
 
     capture_register_netfd(fd);
     return fd;

@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
     mqtt_start(&ctx.mqtt, "::1");
 
-    ctx.auth.eapol_relay_fd = eapol_relay_start("lo");
+    ctx.auth.eapol_relay_fd = eapol_relay_start(&in6addr_loopback);
     auth_start(&ctx.auth, &ctx.cfg.eui64, ctx.cfg.enable_lfn);
 
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;

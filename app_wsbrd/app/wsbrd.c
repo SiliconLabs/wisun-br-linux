@@ -622,6 +622,7 @@ int wsbr_main(int argc, char *argv[])
         NULL,
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct in6_addr gua;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     sigact.sa_flags = SA_RESETHAND;
@@ -677,7 +678,8 @@ int wsbr_main(int argc, char *argv[])
                               ctxt->net_if.ws_info.pan_information.lfn_version,
                               ctxt->net_if.ws_info.pan_information.jm.version,
                               ctxt->net_if.ws_info.network_name);
-    ctxt->auth.eapol_relay_fd = eapol_relay_start(ctxt->net_if.tun.ifname);
+    tun_addr_get_uc_global(&ctxt->net_if.tun, &gua);
+    ctxt->auth.eapol_relay_fd = eapol_relay_start(&gua);
     if (ctxt->config.extauth_name[0]) {
         auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name);
         if (ctxt->config.enable_lfn != (bool)ws_gtkl(ctxt->auth.gtks + WS_GTK_COUNT, WS_LGTK_COUNT))

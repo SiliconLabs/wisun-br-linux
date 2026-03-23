@@ -211,7 +211,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
 
     INFO("Join state 5: Operational");
     rpl_start_dio(&wsrd->ipv6);
-    wsrd->ws.eapol_relay_fd = eapol_relay_start(wsrd->ipv6.tun.ifname);
+    wsrd->ws.eapol_relay_fd = eapol_relay_start(&wsrd->ipv6.dhcp.iaaddr.ipv6);
     trickle_start(&wsrd->pa_tkl, NULL);
     trickle_start(&wsrd->pc_tkl, NULL);
     wsrd->dhcp_relay.server_addr = parent->rpl->dio.dodag_id;

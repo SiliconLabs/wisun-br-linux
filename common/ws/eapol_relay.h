@@ -24,7 +24,7 @@ struct in6_addr;
 // Wi-SUN FAN 1.1v08 6.2.1 Constants
 #define EAPOL_RELAY_PORT 10253
 
-int eapol_relay_start(const char ifname[IF_NAMESIZE]);
+int eapol_relay_start(const struct in6_addr *addr);
 ssize_t eapol_relay_recv(int fd, void *buf, size_t buf_len, struct in6_addr *src,
                          struct eui64 *supp_eui64, uint8_t *kmp_id);
 void eapol_relay_send(int fd, const void *buf, size_t buf_len,
