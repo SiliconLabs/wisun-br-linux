@@ -401,13 +401,6 @@ void rcp_set_radio_tx_power(struct rcp *rcp, int8_t power_dbm)
     iobuf_free(&buf);
 }
 
-static const struct rcp_csma_cfg rcp_csma_default = {
-    .min_be = 3,
-    .max_be = 5,
-    .cca_retries = 8,
-    .frame_retries = 19,
-};
-
 void rcp_set_radio_csma(struct rcp *rcp, const struct rcp_csma_cfg *cfg)
 {
     struct iobuf_write buf = { };
@@ -799,7 +792,10 @@ static void rcp_add_filter_src64(const struct storage_parse_info *info, void *ra
 const struct rcp_cfg rcp_cfg_default = {
     .uart_baudrate = 115200,
     .tx_power_dbm = 14,
-    .csma = rcp_csma_default,
+    .csma.min_be = 3,
+    .csma.max_be = 5,
+    .csma.cca_retries = 8,
+    .csma.frame_retries = 19,
     .eui64_override = EUI64_BC,
 };
 
@@ -883,7 +879,7 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
         FATAL(1, "invalid csma_min_be > csma_max_be");
     if (!version_older_than(rcp->version_api, 2, 12, 0))
         rcp_set_radio_csma(rcp, &config->csma);
-    else if (memcmp(&config->csma, &rcp_csma_default, sizeof(struct rcp_csma_cfg)))
+    else if (memcmp(&config->csma, &rcp_cfg_default.csma, sizeof(struct rcp_csma_cfg)))
         WARN("csma_* parameters require RCP API >= 2.12.0");
 
     // NOTE: dst addr filtering is enabled by default with the native EUI-64.
