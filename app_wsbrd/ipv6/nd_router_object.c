@@ -22,6 +22,7 @@
 #include "common/ws/ws_neigh.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
+#include "common/mathutils.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/bits.h"
@@ -40,6 +41,8 @@
 void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro,
                             struct ws_neigh *ws_neigh)
 {
+    const uint16_t rpl_unit_s = cur_interface->rpl_root.lifetime_unit_s;
+
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
           tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
 
@@ -47,6 +50,22 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
     if (aro->status == NDP_ARO_STATUS_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
         neigh->lifetime_s = aro->lifetime * UINT32_C(60);
+
+        /*
+         *   Wi-SUN FAN 1.1v11 6.2.3.1.4.2 LFN Neighbor Discovery
+         * 2.a.ii.3. The Path Lifetime field MUST be set to the lesser of:
+         *   a. The value converted from the Registration Lifetime obtained
+         *      from the NS(EARO) issued by the LFN.
+         *   b. The maximum value of DAO path lifetime (254) * the Lifetime
+         *      Unit from the latest receipt of the DODAG Configuration Option.
+         * [...]
+         * 3.a. In the case where the parent is a Border Router [...] The
+         *      Registration Lifetime field MUST be set to the Path Lifetime
+         *      described in step 2.a.ii
+         */
+        if (aro->t)
+            neigh->lifetime_s = MIN(neigh->lifetime_s / rpl_unit_s, 254) * rpl_unit_s;
+
         timer_start_rel(&cur_interface->ipv6_neighbour_cache.timer_group,
                         &neigh->expiration, (uint64_t)neigh->lifetime_s * 1000);
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
