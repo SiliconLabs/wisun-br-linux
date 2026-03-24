@@ -112,13 +112,13 @@ const struct option_struct auth_opts[] = {
     { "gtk_expire_offset",             offsetof(struct auth_cfg, ffn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
     { "gtk_new_activation_time",       offsetof(struct auth_cfg, ffn.gtk_new_activation_time), conf_set_number,  &valid_positive },
     { "gtk_new_install_required",      offsetof(struct auth_cfg, ffn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
-    { "ffn_revocation_lifetime_reduction", offsetof(struct auth_cfg, ffn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
+    { "ffn_revocation_lifetime_reduction", offsetof(struct auth_cfg, ffn.revocation_lifetime_reduction), conf_set_number, &valid_positive },
     { "lpmk_lifetime",                 offsetof(struct auth_cfg, lfn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
     { "lptk_lifetime",                 offsetof(struct auth_cfg, lfn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
     { "lgtk_expire_offset",            offsetof(struct auth_cfg, lfn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
     { "lgtk_new_activation_time",      offsetof(struct auth_cfg, lfn.gtk_new_activation_time), conf_set_number,  &valid_positive },
     { "lgtk_new_install_required",     offsetof(struct auth_cfg, lfn.gtk_new_install_required), conf_set_number, &valid_gtk_new_install_required },
-    { "lfn_revocation_lifetime_reduction", offsetof(struct auth_cfg, lfn.revocation_lifetime_reduction), conf_set_number, &valid_unsigned },
+    { "lfn_revocation_lifetime_reduction", offsetof(struct auth_cfg, lfn.revocation_lifetime_reduction), conf_set_number, &valid_positive },
     { }
 };
 
