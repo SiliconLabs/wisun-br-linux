@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: LicenseRef-MSLA
+# SPDX-Copyright-Text: (c) 2026 Silicon Laboratories Inc. (www.silabs.com)
+name: Simulation Tests
+on:
+  push:
+    branches: [staging, next]
+  workflow_dispatch:
+permissions:
+  # Required by reusable workflow
+  actions: read
+  contents: read
+jobs:
+  simu:
+    uses: SiliconLabsInternal/wisun/.github/workflows/simulation.yml@main
+    with:
+      test_mode: linux
+      wisun_branch: main
+      wsbrd_branch: ${{ github.ref }}
+    secrets: inherit
