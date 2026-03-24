@@ -71,7 +71,6 @@ struct option_group {
     void *ptr;
 };
 
-extern const struct number_limit valid_gtk_new_install_required;
 extern const struct number_limit valid_unsigned;
 extern const struct number_limit valid_positive;
 extern const struct number_limit valid_int8;
