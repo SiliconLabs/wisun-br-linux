@@ -45,7 +45,7 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
 
 void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
 {
-    // empty
+    FATAL(1, "radius_server is not supported");
 }
 
 void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
