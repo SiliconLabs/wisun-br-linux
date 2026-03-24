@@ -192,6 +192,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { trace_opts,      &g_enabled_traces },
         { storage_opts,    &g_storage_prefix },
         { auth_opts,       &config->auth },
+        { tls_opts,        &config->auth.tls },
         { duty_cycle_opts, &config->duty_cycle },
         { rcp_opts,        &config->rcp },
         { }

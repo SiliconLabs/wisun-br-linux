@@ -95,9 +95,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { "unicast_dwell_interval",        offsetof(struct wsrd_conf, ws_uc_dwell_interval_ms),          conf_set_number,      &valid_uc_dwell_interval },
         { "enable_apc",                    offsetof(struct wsrd_conf, enable_apc),                       conf_set_bool,        NULL },
         { "color_output",                  offsetof(struct wsrd_conf, color_output),                     conf_set_enum,        &valid_tristate },
-        { "authority",                     offsetof(struct wsrd_conf, supp.tls.ca_cert),                 conf_set_pem,         NULL },
-        { "certificate",                   offsetof(struct wsrd_conf, supp.tls.cert),                    conf_set_pem,         NULL },
-        { "key",                           offsetof(struct wsrd_conf, supp.tls.key),                     conf_set_pem,         NULL },
         { "eap_identity",                  offsetof(struct wsrd_conf, supp.eap_identity),                conf_set_string,      (void *)sizeof(config->supp.eap_identity) },
         { "disc_imin",                     offsetof(struct wsrd_conf, disc_cfg.Imin_ms),                 conf_set_ms_from_s,   NULL },
         { "disc_imax",                     offsetof(struct wsrd_conf, disc_cfg.Imax_ms),                 conf_set_ms_from_s,   NULL },
@@ -117,6 +114,7 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         { storage_opts,    &g_storage_prefix },
         { duty_cycle_opts, &config->duty_cycle },
         { rcp_opts,        &config->rcp },
+        { tls_opts,        &config->supp.tls },
         { }
     };
     static const char *opts_short = "F:o:u:T:lhvD";
@@ -235,12 +233,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
         WARN("mix FAN 1.1 \"phy_mode_id\" with FAN 1.0 \"class\"");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 \"mode\" with FAN 1.1 \"chan_plan_id\"");
-    if (!config->supp.tls.key.iov_base)
-        FATAL(1, "missing \"key\" parameter");
-    if (!config->supp.tls.cert.iov_base)
-        FATAL(1, "missing \"certificate\" parameter");
-    if (!config->supp.tls.ca_cert.iov_base)
-        FATAL(1, "missing \"authority\" parameter");
     if (!config->disc_cfg.Imin_ms)
         FATAL(1, "invalid \"disc_imin\" parameter");
     if (!config->disc_cfg.Imax_ms)

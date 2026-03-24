@@ -107,9 +107,6 @@ const struct option_struct auth_opts[] = {
     { "lgtk\\[*]",                     offsetof(struct auth_cfg, gtk_init[WS_GTK_COUNT]),  auth_set_gtk_init,    (void *)WS_LGTK_COUNT },
     { "radius_server",                 offsetof(struct auth_cfg, radius_addr),             conf_set_netaddr,     &valid_ipv4or6 },
     { "radius_secret",                 offsetof(struct auth_cfg, radius_secret),           conf_set_string,      (void *)sizeof_field(struct auth_cfg, radius_secret) },
-    { "key",                           offsetof(struct auth_cfg, tls.key),                 conf_set_pem,         NULL },
-    { "certificate",                   offsetof(struct auth_cfg, tls.cert),                conf_set_pem,         NULL },
-    { "authority",                     offsetof(struct auth_cfg, tls.ca_cert),             conf_set_pem,         NULL },
     { "pmk_lifetime",                  offsetof(struct auth_cfg, ffn.pmk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
     { "ptk_lifetime",                  offsetof(struct auth_cfg, ffn.ptk_lifetime_s),      conf_set_seconds_from_minutes, &valid_unsigned },
     { "gtk_expire_offset",             offsetof(struct auth_cfg, ffn.gtk_expire_offset_s), conf_set_seconds_from_minutes, &valid_unsigned },
@@ -652,17 +649,9 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     BUG_ON(!auth->sendto_mac);
     BUG_ON(!auth->cfg);
 
-    if (auth->cfg->radius_addr.ss_family == AF_UNSPEC) {
-        if (!auth->cfg->tls.key.iov_base)
-            FATAL(1, "missing \"key\" (or \"radius_addr\") parameter");
-        if (!auth->cfg->tls.cert.iov_base)
-            FATAL(1, "missing \"certificate\" (or \"radius_addr\") parameter");
-        if (!auth->cfg->tls.ca_cert.iov_base)
-            FATAL(1, "missing \"authority\" (or \"radius_addr\") parameter");
-    } else {
-        if (auth->cfg->tls.key.iov_base || auth->cfg->tls.cert.iov_base || auth->cfg->tls.ca_cert.iov_base)
-            WARN("ignore certificates and key since an external radius server is in use");
-    }
+    if (auth->cfg->radius_addr.ss_family != AF_UNSPEC &&
+        (auth->cfg->tls.key.iov_base || auth->cfg->tls.cert.iov_base || auth->cfg->tls.ca_cert.iov_base))
+        WARN("ignore certificates and key since an external radius server is in use");
     if (auth->cfg->ffn.gtk_new_install_required >= (100 - 100 / auth->cfg->ffn.revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
     if (auth->cfg->lfn.gtk_new_install_required >= (100 - 100 / auth->cfg->lfn.revocation_lifetime_reduction))

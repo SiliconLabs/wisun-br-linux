@@ -20,6 +20,7 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/ssl.h>
 
+#include "common/config.h"
 #include "common/pktbuf.h"
 
 struct tls_pmk {
@@ -81,6 +82,8 @@ struct tls_cfg {
     struct iovec cert;
     struct iovec key;
 };
+
+extern const struct option_struct tls_opts[];
 
 int tls_send(void *ctx, const unsigned char *buf, size_t len);
 int tls_recv(void *ctx, unsigned char *buf, size_t len);

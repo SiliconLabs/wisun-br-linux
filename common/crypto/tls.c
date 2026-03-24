@@ -22,6 +22,13 @@
 
 #include "tls.h"
 
+const struct option_struct tls_opts[] = {
+    { "key",         offsetof(struct tls_cfg, key),     conf_set_pem, NULL },
+    { "certificate", offsetof(struct tls_cfg, cert),    conf_set_pem, NULL },
+    { "authority",   offsetof(struct tls_cfg, ca_cert), conf_set_pem, NULL },
+    { }
+};
+
 int tls_send(void *ctx, const unsigned char *buf, size_t len)
 {
     struct tls_io *tls_io = ctx;
@@ -237,6 +244,10 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     };
 #endif
     int ret;
+
+    FATAL_ON(!cfg->key.iov_base, 1, "missing \"key\" parameter");
+    FATAL_ON(!cfg->cert.iov_base, 1, "missing \"certificate\" parameter");
+    FATAL_ON(!cfg->ca_cert.iov_base, 1, "missing \"authority\" parameter");
 
     mbedtls_entropy_init(&tls->entropy);
     /*
