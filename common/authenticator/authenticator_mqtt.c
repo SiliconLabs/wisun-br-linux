@@ -95,6 +95,9 @@ void auth_mqtt_start(struct auth_ctx *auth, const char *host)
     uint64_t t0;
     int ret;
 
+    if (memcmp(auth->cfg, &auth_cfg_default, sizeof(struct auth_cfg)))
+        WARN("ignoring all authenticator parameters since external_auth is used");
+
     auth_mqtt_resolve6(host, &auth->ext_auth_addr);
     mqtt_start(&auth->mqtt, host);
 
