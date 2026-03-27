@@ -16,6 +16,7 @@
 #include "common/authenticator/authenticator_eap.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/ws/eapol_relay.h"
+#include "common/crypto/tls.h"
 #include "common/log.h"
 
 /*
@@ -48,8 +49,7 @@ void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
     FATAL(1, "radius_server is not supported");
 }
 
-void tls_init(struct tls_ctx *tls, int endpoint, const struct iovec *ca_cert, const struct iovec *cert,
-              const struct iovec *key)
+void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
 {
     // empty
 }
