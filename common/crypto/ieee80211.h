@@ -127,6 +127,8 @@ static inline const uint8_t *ieee80211_tk(const uint8_t ptk[48])
 void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                             uint8_t pmkid[16]);
 
+void ieee80211_wipe_keys(struct ieee80211_keys *keys);
+void ieee80211_wipe_ptk(struct ieee80211_ptk *ptk);
 void ieee80211_install_pmk(struct ieee80211_keys *keys, const uint8_t pmk[32]);
 void ieee80211_install_pmk_from_eap_tls(void *ctx, mbedtls_ssl_key_export_type type,
                                         const uint8_t *secret, size_t secret_len,

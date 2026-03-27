@@ -347,8 +347,8 @@ static void auth_key_pairwise_message_4_recv(struct auth_ctx *auth, struct auth_
     }
     memcpy(supp->keys.ptk.key, supp->keys.tptk.key, sizeof(supp->keys.ptk.key));
     supp->keys.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
-    // Reset the TPTK installation time to prevent usage of the old TPTK
-    supp->keys.tptk.installation_s = 0;
+    // Reset the TPTK to prevent usage of the old TPTK
+    ieee80211_wipe_ptk(&supp->keys.tptk);
     TRACE(TR_SECURITY, "sec: install ptk=%s",
           tr_key(supp->keys.ptk.key, sizeof(supp->keys.ptk.key)));
     auth_key_handshake_done(auth, supp);

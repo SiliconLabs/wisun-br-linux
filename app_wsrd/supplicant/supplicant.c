@@ -306,7 +306,5 @@ void supp_init(struct supp_ctx *supp)
     tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, &supp->cfg->tls);
     tls_init_client(&supp->tls, &supp->tls_client,
                     ieee80211_install_pmk_from_eap_tls, &supp->keys);
-    rand_get_n_bytes_random(supp->keys.pmk.key, sizeof(supp->keys.pmk.key));
-    rand_get_n_bytes_random(supp->keys.ptk.key, sizeof(supp->keys.ptk.key));
-    rand_get_n_bytes_random(supp->keys.tptk.key, sizeof(supp->keys.tptk.key));
+    ieee80211_wipe_keys(&supp->keys);
 }

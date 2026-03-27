@@ -525,9 +525,7 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     if (auth->radius_fd < 0 && !auth->mqtt.mosq)
         tls_init_client(&auth->tls, &supp->eap_tls.tls,
                         ieee80211_install_pmk_from_eap_tls, &supp->keys);
-    rand_get_n_bytes_random(supp->keys.pmk.key, sizeof(supp->keys.pmk.key));
-    rand_get_n_bytes_random(supp->keys.ptk.key, sizeof(supp->keys.ptk.key));
-    rand_get_n_bytes_random(supp->keys.tptk.key, sizeof(supp->keys.tptk.key));
+    ieee80211_wipe_keys(&supp->keys);
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));

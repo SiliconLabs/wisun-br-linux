@@ -144,6 +144,9 @@ void ieee80211_install_pmk(struct ieee80211_keys *keys, const uint8_t pmk[32])
         return;
     }
 
+    // PTK is derived from the PMK so invalidating the PMK invalidates the PTK.
+    ieee80211_wipe_keys(keys);
+
     memcpy(keys->pmk.key, pmk, sizeof(keys->pmk.key));
     keys->pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
 
@@ -153,9 +156,6 @@ void ieee80211_install_pmk(struct ieee80211_keys *keys, const uint8_t pmk[32])
      *    and is initialized to 0 when the PMK is established.
      */
     keys->pmk.replay_counter = 0;
-
-    // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
-    memset(&keys->ptk, 0, sizeof(keys->ptk));
 
     TRACE(TR_SECURITY, "sec: install pmk=%s",
           tr_key(keys->pmk.key, sizeof(keys->pmk.key)));
@@ -190,4 +190,24 @@ void ieee80211_install_pmk_from_eap_tls(void *ctx, mbedtls_ssl_key_export_type t
     FATAL_ON(ret, 2, "mbedtls_ssl_tls_prf: %s", tr_mbedtls_err(ret));
 
     ieee80211_install_pmk(keys, msk);
+}
+
+void ieee80211_wipe_keys(struct ieee80211_keys *keys)
+{
+    keys->pmk.installation_s = 0;
+    /*
+     * NOTE: Randomize bits instead of zeroing: extra safety to avoid storing a
+     * predictable value in case other code reads the key field without
+     * checking installation_s.
+     */
+    rand_get_n_bytes_random(keys->pmk.key, sizeof(keys->pmk.key));
+
+    ieee80211_wipe_ptk(&keys->ptk);
+    ieee80211_wipe_ptk(&keys->tptk);
+}
+
+void ieee80211_wipe_ptk(struct ieee80211_ptk *ptk)
+{
+    ptk->installation_s = 0;
+    rand_get_n_bytes_random(ptk->key, sizeof(ptk->key));
 }
