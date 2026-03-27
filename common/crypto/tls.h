@@ -23,28 +23,6 @@
 #include "common/config.h"
 #include "common/pktbuf.h"
 
-struct tls_pmk {
-    uint8_t key[32]; // stored in cleartext in RAM
-    int64_t replay_counter; // reset when pmk is established
-    time_t installation_s;
-};
-
-struct tls_ptk {
-    /*
-     * +-----------------------------------------------------------+
-     * |                Pairwise Transient Key (PTK)               |
-     * +-----------------------------------------------------------+
-     * | KCK (16 bytes) | KEK (16 bytes) | Temporal Key (16 bytes) |
-     * +-----------------------------------------------------------+
-     *
-     * where,
-     * KCK = Key Confirmation Key
-     * KEK = Key Encryption Key
-     */
-    uint8_t key[48];
-    time_t installation_s;
-};
-
 struct tls_io {
     struct pktbuf tx;
     struct pktbuf rx;
@@ -52,19 +30,6 @@ struct tls_io {
 
 struct tls_client_ctx {
     struct mbedtls_ssl_context ssl_ctx;
-    struct tls_pmk pmk;
-    struct tls_ptk ptk;
-    /*
-     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
-     * - TPTK. This variable represents the current PTK until message 3 of the
-     *         4-way handshake arrives and is verified.
-     *
-     * [...]
-     *
-     * NOTE 1 — TPTK is used to stop attackers changing the PTK on the Supplicant
-     * by sending the first message of the 4-way handshake.
-     */
-    struct tls_ptk tptk;
     struct tls_io io;
 };
 
@@ -87,9 +52,10 @@ extern const struct option_struct tls_opts[];
 
 int tls_send(void *ctx, const unsigned char *buf, size_t len);
 int tls_recv(void *ctx, unsigned char *buf, size_t len);
-void tls_install_pmk(struct tls_client_ctx *tls_client, const uint8_t key[32]);
 void tls_free_client(struct tls_client_ctx *tls_client);
-void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client);
+void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client,
+                     mbedtls_ssl_export_keys_t *f_export_keys,
+                     void *p_export_keys);
 int tls_load_pem(struct mbedtls_x509_crt *cert, const uint8_t *buf, size_t buf_len);
 void tls_debug(void *ctx, int level, const char *file, int line, const char *string);
 void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg);

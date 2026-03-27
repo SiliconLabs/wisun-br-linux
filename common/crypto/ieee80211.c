@@ -135,3 +135,59 @@ void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], 
     mbedtls_md_free(&md);
     memcpy(pmkid, hmac, 16);
 }
+
+void ieee80211_install_pmk(struct ieee80211_keys *keys, const uint8_t pmk[32])
+{
+    // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
+    if (!memcmp(keys->pmk.key, pmk, sizeof(keys->pmk.key))) {
+        WARN("sec: ignore reinstallation of pmk");
+        return;
+    }
+
+    memcpy(keys->pmk.key, pmk, sizeof(keys->pmk.key));
+    keys->pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
+
+    /*
+     *   IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
+     * d) Key Replay Counter. This field is represented as an unsigned integer,
+     *    and is initialized to 0 when the PMK is established.
+     */
+    keys->pmk.replay_counter = 0;
+
+    // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
+    memset(&keys->ptk, 0, sizeof(keys->ptk));
+
+    TRACE(TR_SECURITY, "sec: install pmk=%s",
+          tr_key(keys->pmk.key, sizeof(keys->pmk.key)));
+}
+
+/*
+ *   RFC 5216 2.3. Key Hierarchy
+ * Key_Material = TLS-PRF-128(master_secret, "client EAP encryption",
+ *                            client.random || server.random)
+ * MSK          = Key_Material(0,63)
+ * Enc-RECV-Key = MSK(0,31) = Peer to Authenticator Encryption Key
+ *                (MS-MPPE-Recv-Key in [RFC2548]). Also known as the
+ *                PMK in [IEEE-802.11].
+ */
+void ieee80211_install_pmk_from_eap_tls(void *ctx, mbedtls_ssl_key_export_type type,
+                                        const uint8_t *secret, size_t secret_len,
+                                        const uint8_t client_random[32],
+                                        const uint8_t server_random[32],
+                                        mbedtls_tls_prf_types tls_prf_type)
+{
+    struct ieee80211_keys *keys = ctx;
+    uint8_t random[64];
+    uint8_t msk[128];
+    int ret;
+
+    memcpy(random, client_random, 32);
+    memcpy(random + 32, server_random, 32);
+    ret = mbedtls_ssl_tls_prf(tls_prf_type, secret, secret_len,
+                              "client EAP encryption",
+                              random, sizeof(random),
+                              msk, sizeof(msk));
+    FATAL_ON(ret, 2, "mbedtls_ssl_tls_prf: %s", tr_mbedtls_err(ret));
+
+    ieee80211_install_pmk(keys, msk);
+}

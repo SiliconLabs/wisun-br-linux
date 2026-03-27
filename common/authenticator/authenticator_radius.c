@@ -307,12 +307,12 @@ static int radius_read_ms_mppe_recv_key(const struct auth_ctx *auth,
     iobuf.data      = string;
     iobuf.data_size = sizeof(string);
     key_len = iobuf_pop_u8(&iobuf);
-    if (key_len != sizeof(supp->eap_tls.tls.pmk.key))
+    if (key_len != sizeof(supp->keys.pmk.key))
         return -EINVAL;
     pmk = iobuf_pop_data_ptr(&iobuf, key_len);
     if (!pmk)
         return -EINVAL;
-    tls_install_pmk(&supp->eap_tls.tls, pmk);
+    ieee80211_install_pmk(&supp->keys, pmk);
     return 0;
 }
 

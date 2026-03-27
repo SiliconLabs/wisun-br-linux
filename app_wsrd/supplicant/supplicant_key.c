@@ -66,12 +66,12 @@ static void supp_key_message_send(struct supp_ctx *supp, struct eapol_key_frame 
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(response->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         if (FIELD_GET(IEEE80211_MASK_KEY_INFO_SECURE, be16toh(response->information)))
-            ptk = supp->tls_client.ptk.key;
+            ptk = supp->keys.ptk.key;
         else
-            ptk = supp->tls_client.tptk.key;
+            ptk = supp->keys.tptk.key;
         kmp_id = IEEE802159_KMP_ID_80211_4WH;
     } else {
-        ptk = supp->tls_client.ptk.key;
+        ptk = supp->keys.ptk.key;
         kmp_id = IEEE802159_KMP_ID_80211_GKH;
     }
 
@@ -98,7 +98,7 @@ static void supp_key_group_message_2_send(struct supp_ctx *supp)
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_MIC, 1) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_SECURE, 1)),
-        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
+        .replay_counter = htobe64(supp->keys.pmk.replay_counter),
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=2", "tx-gkh");
@@ -113,7 +113,7 @@ static void supp_key_pairwise_message_4_send(struct supp_ctx *supp)
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_TYPE, IEEE80211_KEY_TYPE_PAIRWISE) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_MIC, 1) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_SECURE, 1)),
-        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
+        .replay_counter = htobe64(supp->keys.pmk.replay_counter),
     };
 
     TRACE(TR_SECURITY, "sec: %-8s msg=4", "tx-4wh");
@@ -142,12 +142,12 @@ static void supp_key_pairwise_message_2_send(struct supp_ctx *supp, const struct
 static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_frame *frame,
                                   struct iobuf_read *iobuf)
 {
-    const struct tls_ptk *ptk;
+    const struct ieee80211_ptk *ptk;
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = &supp->tls_client.tptk;
+        ptk = &supp->keys.tptk;
     else
-        ptk = &supp->tls_client.ptk;
+        ptk = &supp->keys.ptk;
 
     /*
      * Note at this stage, the (T)PTK was derived from the PMK which is
@@ -166,7 +166,7 @@ static bool supp_key_is_mic_valid(struct supp_ctx *supp, const struct eapol_key_
      * The local Key Replay Counter field should not be updated until after the
      * EAPOL-Key MIC is checked and is found to be valid.
      */
-    supp->tls_client.pmk.replay_counter = be64toh(frame->replay_counter);
+    supp->keys.pmk.replay_counter = be64toh(frame->replay_counter);
     return true;
 }
 
@@ -265,9 +265,9 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     pktbuf_init(&buf, NULL, be16toh(frame->data_length));
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
-        ptk = supp->tls_client.tptk.key;
+        ptk = supp->keys.tptk.key;
     else
-        ptk = supp->tls_client.ptk.key;
+        ptk = supp->keys.ptk.key;
 
     /*
      *   IEEE 802.11-2020, 4.10.4.2 Key usage
@@ -322,12 +322,12 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE) {
         // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-        if (memcmp(supp->tls_client.ptk.key, supp->tls_client.tptk.key, sizeof(supp->tls_client.tptk.key))) {
-            memcpy(supp->tls_client.ptk.key, supp->tls_client.tptk.key, sizeof(supp->tls_client.ptk.key));
-            supp->tls_client.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
+        if (memcmp(supp->keys.ptk.key, supp->keys.tptk.key, sizeof(supp->keys.tptk.key))) {
+            memcpy(supp->keys.ptk.key, supp->keys.tptk.key, sizeof(supp->keys.ptk.key));
+            supp->keys.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
             // TODO: callback to install TK
             TRACE(TR_SECURITY, "sec: install ptk=%s",
-                  tr_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)));
+                  tr_key(supp->keys.ptk.key, sizeof(supp->keys.ptk.key)));
         } else {
             WARN("sec: ignore reinstallation of ptk");
         }
@@ -448,7 +448,7 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
         goto exit;
     }
 
-    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
+    ieee80211_derive_pmkid(supp->keys.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
 
     if (!kde_read_pmkid(iobuf_ptr(data), iobuf_remaining_size(data), received_pmkid)) {
         TRACE(TR_DROP, "drop %-9s: missing pmkid", "eapol-key");
@@ -471,9 +471,9 @@ static void supp_key_pairwise_message_1_recv(struct supp_ctx *supp, const struct
 
     ieee80211_generate_nonce(supp->cfg->eui64.u8, supp->snonce);
     memcpy(supp->anonce, frame->nonce, sizeof(frame->nonce));
-    ieee80211_derive_ptk384(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8,
-                            supp->anonce, supp->snonce, supp->tls_client.tptk.key);
-    supp->tls_client.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
+    ieee80211_derive_ptk384(supp->keys.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8,
+                            supp->anonce, supp->snonce, supp->keys.tptk.key);
+    supp->keys.tptk.installation_s = time_now_s(CLOCK_MONOTONIC);
     supp_key_pairwise_message_2_send(supp, frame);
     // We may have started the key request txalg after a gtkhash mismatch
     rfc8415_txalg_stop(&supp->key_request_txalg);
@@ -517,7 +517,7 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
      * Therefore, we will always accept replayed 4WH msg 1 after the PMK is
      * established.
      */
-    if (supp->tls_client.pmk.replay_counter && be64toh(frame->replay_counter) <= supp->tls_client.pmk.replay_counter) {
+    if (supp->keys.pmk.replay_counter && be64toh(frame->replay_counter) <= supp->keys.pmk.replay_counter) {
         TRACE(TR_DROP, "drop %-9s: invalid replay counter %"PRIu64, "eapol-key", be64toh(frame->replay_counter));
         return;
     }
@@ -527,7 +527,7 @@ void supp_key_recv(struct supp_ctx *supp, struct iobuf_read *iobuf)
      * should already be enough to prevent an attacker from making us install
      * any GTKs.
      */
-    if (!supp->tls_client.pmk.installation_s) {
+    if (!supp->keys.pmk.installation_s) {
         TRACE(TR_DROP, "drop %-9s: no PMK installed", "eapol-key");
         return;
     }

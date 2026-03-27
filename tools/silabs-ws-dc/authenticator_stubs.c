@@ -54,7 +54,9 @@ void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
     // empty
 }
 
-void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
+void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client,
+                     mbedtls_ssl_export_keys_t *f_export_keys,
+                     void *p_export_keys)
 {
     // empty
 }

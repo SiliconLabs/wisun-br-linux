@@ -20,6 +20,7 @@
 #include <sys/uio.h>
 #include <stdint.h>
 
+#include "common/crypto/ieee80211.h"
 #include "common/crypto/ws_keys.h"
 #include "common/crypto/tls.h"
 #include "common/config.h"
@@ -31,6 +32,7 @@
 struct auth_supp_ctx {
     struct eui64 eui64;
     uint8_t node_role;
+    struct ieee80211_keys keys;
 
     // Retransmissions
     struct timer_entry rt_timer;

@@ -47,15 +47,15 @@ bool supp_storage_load(struct supp_ctx *supp)
                 FATAL(1, "%s:%d: invalid eui64: %s", info->filename, info->linenr, info->value);
             FATAL_ON(!eui64_eq(&eui64, &supp->cfg->eui64), 1, "eui64 mismatch between current and previous state loaded from storage");
         } else if (!fnmatch("pmk", info->key, 0)) {
-            if (parse_byte_array(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), info->value))
+            if (parse_byte_array(supp->keys.pmk.key, sizeof(supp->keys.pmk.key), info->value))
                 FATAL(1, "%s:%d: invalid pmk: %s", info->filename, info->linenr, info->value);
-            supp->tls_client.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
+            supp->keys.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
         } else if (!fnmatch("pmk.replay_counter", info->key, 0)) {
-            supp->tls_client.pmk.replay_counter = strtoll(info->value, NULL, 0);
+            supp->keys.pmk.replay_counter = strtoll(info->value, NULL, 0);
         } else if (!fnmatch("ptk", info->key, 0)) {
-            if (parse_byte_array(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), info->value))
+            if (parse_byte_array(supp->keys.ptk.key, sizeof(supp->keys.ptk.key), info->value))
                 FATAL(1, "%s:%d: invalid ptk: %s", info->filename, info->linenr, info->value);
-            supp->tls_client.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
+            supp->keys.ptk.installation_s = time_now_s(CLOCK_MONOTONIC);
         } else if (!fnmatch("gtk\\[*]", info->key, 0)) {
             if (parse_byte_array(supp->gtks[info->key_array_index].key, sizeof(supp->gtks[info->key_array_index].key), info->value))
                 FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
@@ -108,14 +108,14 @@ void supp_storage_store(struct supp_ctx *supp, bool force_write)
     str_key(supp->cfg->eui64.u8, sizeof(supp->cfg->eui64.u8), str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n\n", str_buf);
 
-    if (supp->tls_client.pmk.installation_s) {
-        str_key(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key), str_buf, sizeof(str_buf));
+    if (supp->keys.pmk.installation_s) {
+        str_key(supp->keys.pmk.key, sizeof(supp->keys.pmk.key), str_buf, sizeof(str_buf));
         fprintf(info->file, "pmk = %s\n", str_buf);
-        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->tls_client.pmk.replay_counter);
+        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->keys.pmk.replay_counter);
     }
 
-    if (supp->tls_client.ptk.installation_s) {
-        str_key(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key), str_buf, sizeof(str_buf));
+    if (supp->keys.ptk.installation_s) {
+        str_key(supp->keys.ptk.key, sizeof(supp->keys.ptk.key), str_buf, sizeof(str_buf));
         fprintf(info->file, "ptk = %s\n", str_buf);
     }
 

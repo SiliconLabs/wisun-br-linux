@@ -254,9 +254,9 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
             strlcpy(info.value, optarg, sizeof(info.value));
         switch (opt) {
         case 'p':
-            ret = getrandom(ctx->supp.tls_client.pmk.key, 32, 0);
+            ret = getrandom(ctx->supp.keys.pmk.key, 32, 0);
             FATAL_ON(ret < 32, 2, "getrandom: %m");
-            ctx->supp.tls_client.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
+            ctx->supp.keys.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
             break;
         case 'r':
             conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
@@ -302,7 +302,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
         }
     }
     if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC) {
-        if (ctx->supp.tls_client.pmk.installation_s)
+        if (ctx->supp.keys.pmk.installation_s)
             FATAL(1, "incompatible --radius-server and --pmk");
         if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
             FATAL(1, "missing --radius-secret");
@@ -322,17 +322,17 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
     supp_init(&ctx->supp);
     supp_reset(&ctx->supp);
     // NOTE: Needed to compute the PMKID in the initial Key Request
-    if (ctx->supp.tls_client.pmk.installation_s)
+    if (ctx->supp.keys.pmk.installation_s)
         ctx->supp.auth_eui64 = auth_eui64;
 
     auth_start(&ctx->auth, &auth_eui64, true);
     // NOTE: Must be done after calling auth_start()
-    if (ctx->supp.tls_client.pmk.installation_s) {
+    if (ctx->supp.keys.pmk.installation_s) {
         struct auth_supp_ctx *supp;
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
-        memcpy(supp->eap_tls.tls.pmk.key, ctx->supp.tls_client.pmk.key, 32);
-        supp->eap_tls.tls.pmk.installation_s = ctx->supp.tls_client.pmk.installation_s;
+        memcpy(supp->keys.pmk.key, ctx->supp.keys.pmk.key, 32);
+        supp->keys.pmk.installation_s = ctx->supp.keys.pmk.installation_s;
         auth_cfg->ffn.pmk_lifetime_s = 0; // Infinite
     }
 

@@ -199,17 +199,17 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
 
     while (storage_parse_line(info) != EOF) {
         if (!fnmatch("pmk", info->key, 0)) {
-            if (parse_byte_array(supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key), info->value))
+            if (parse_byte_array(supp->keys.pmk.key, sizeof(supp->keys.pmk.key), info->value))
                 FATAL(1, "%s:%d: invalid pmk: %s", info->filename, info->linenr, info->value);
         } else if (!fnmatch("pmk.installation_timestamp_s", info->key, 0)) {
-            supp->eap_tls.tls.pmk.installation_s = strtoull(info->value, NULL, 0) - storage_offset_s;
+            supp->keys.pmk.installation_s = strtoull(info->value, NULL, 0) - storage_offset_s;
         } else if (!fnmatch("pmk.replay_counter", info->key, 0)) {
-            supp->eap_tls.tls.pmk.replay_counter = strtoll(info->value, NULL, 0) + REPLAY_COUNTER_OFFSET;
+            supp->keys.pmk.replay_counter = strtoll(info->value, NULL, 0) + REPLAY_COUNTER_OFFSET;
         } else if (!fnmatch("ptk", info->key, 0)) {
-            if (parse_byte_array(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key), info->value))
+            if (parse_byte_array(supp->keys.ptk.key, sizeof(supp->keys.ptk.key), info->value))
                 FATAL(1, "%s:%d: invalid ptk: %s", info->filename, info->linenr, info->value);
         } else if (!fnmatch("ptk.installation_timestamp_s", info->key, 0)) {
-            supp->eap_tls.tls.ptk.installation_s = strtoull(info->value, NULL, 0) - storage_offset_s;
+            supp->keys.ptk.installation_s = strtoull(info->value, NULL, 0) - storage_offset_s;
         } else if (!fnmatch("gtkl", info->key, 0)) {
             supp->gtkl = (uint8_t)strtoul(info->value, NULL, 0);
         } else if (!fnmatch("lgtkl", info->key, 0)) {
@@ -283,19 +283,19 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
         return;
     }
 
-    if (supp->eap_tls.tls.pmk.installation_s) {
-        str_key(supp->eap_tls.tls.pmk.key, sizeof(supp->eap_tls.tls.pmk.key), str_buf, sizeof(str_buf));
+    if (supp->keys.pmk.installation_s) {
+        str_key(supp->keys.pmk.key, sizeof(supp->keys.pmk.key), str_buf, sizeof(str_buf));
         fprintf(info->file, "pmk = %s\n", str_buf);
         fprintf(info->file, "pmk.installation_timestamp_s = %"PRIu64"\n",
-                (uint64_t)supp->eap_tls.tls.pmk.installation_s + storage_offset_s);
-        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->eap_tls.tls.pmk.replay_counter);
+                (uint64_t)supp->keys.pmk.installation_s + storage_offset_s);
+        fprintf(info->file, "pmk.replay_counter = %"PRIu64"\n\n", supp->keys.pmk.replay_counter);
     }
 
-    if (supp->eap_tls.tls.ptk.installation_s) {
-        str_key(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key), str_buf, sizeof(str_buf));
+    if (supp->keys.ptk.installation_s) {
+        str_key(supp->keys.ptk.key, sizeof(supp->keys.ptk.key), str_buf, sizeof(str_buf));
         fprintf(info->file, "ptk = %s\n", str_buf);
         fprintf(info->file, "ptk.installation_timestamp_s = %"PRIu64"\n\n",
-                (uint64_t)supp->eap_tls.tls.ptk.installation_s + storage_offset_s);
+                (uint64_t)supp->keys.ptk.installation_s + storage_offset_s);
     }
 
     fprintf(info->file, "gtkl = %u\n", supp->gtkl);

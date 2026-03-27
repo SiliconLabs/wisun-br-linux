@@ -17,13 +17,51 @@
  */
 #ifndef COMMON_CRYPTO_IEEE80211_H
 #define COMMON_CRYPTO_IEEE80211_H
+#include <mbedtls/ssl.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <time.h>
 
 #include "common/specs/ieee80211.h"
 
 struct eapol_key_frame;
+
+struct ieee80211_pmk {
+    uint8_t key[32]; // stored in cleartext in RAM
+    int64_t replay_counter; // reset when pmk is established
+    time_t installation_s;
+};
+
+struct ieee80211_ptk {
+    /*
+     * +-----------------------------------------------------------+
+     * |                Pairwise Transient Key (PTK)               |
+     * +-----------------------------------------------------------+
+     * | KCK (16 bytes) | KEK (16 bytes) | Temporal Key (16 bytes) |
+     * +-----------------------------------------------------------+
+     *
+     * where,
+     * KCK = Key Confirmation Key
+     * KEK = Key Encryption Key
+     */
+    uint8_t key[48];
+    time_t installation_s;
+};
+
+struct ieee80211_keys {
+    struct ieee80211_pmk pmk;
+    struct ieee80211_ptk ptk;
+    /*
+     *   IEEE 802.11-2020, 12.7.9 RSNA Supplicant key management state machine
+     * - TPTK. This variable represents the current PTK until message 3 of the
+     *         4-way handshake arrives and is verified.
+     *
+     * NOTE 1 - TPTK is used to stop attackers changing the PTK on the
+     * Supplicant by sending the first message of the 4-way handshake.
+     */
+    struct ieee80211_ptk tptk;
+};
 
 /*
  * Check the Message Integrity Check (MIC) provided by "frame" properly matches with
@@ -88,5 +126,12 @@ static inline const uint8_t *ieee80211_tk(const uint8_t ptk[48])
  */
 void ieee80211_derive_pmkid(const uint8_t pmk[32], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                             uint8_t pmkid[16]);
+
+void ieee80211_install_pmk(struct ieee80211_keys *keys, const uint8_t pmk[32]);
+void ieee80211_install_pmk_from_eap_tls(void *ctx, mbedtls_ssl_key_export_type type,
+                                        const uint8_t *secret, size_t secret_len,
+                                        const uint8_t client_random[32],
+                                        const uint8_t server_random[32],
+                                        mbedtls_tls_prf_types tls_prf_type);
 
 #endif

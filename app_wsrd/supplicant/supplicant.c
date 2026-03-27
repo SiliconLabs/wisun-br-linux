@@ -32,6 +32,7 @@
 #include "common/eui64.h"
 #include "common/iobuf.h"
 #include "common/bits.h"
+#include "common/rand.h"
 #include "common/kde.h"
 
 #include "supplicant_storage.h"
@@ -81,7 +82,7 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
         .descriptor_type = EAPOL_IEEE80211_KEY_DESCRIPTOR_TYPE,
         .information = htobe16(FIELD_PREP(IEEE80211_MASK_KEY_INFO_VERSION, IEEE80211_KEY_INFO_VERSION) |
                                FIELD_PREP(IEEE80211_MASK_KEY_INFO_REQ, true)),
-        .replay_counter = htobe64(supp->tls_client.pmk.replay_counter),
+        .replay_counter = htobe64(supp->keys.pmk.replay_counter),
     };
     struct pktbuf buf = { };
     uint8_t pmkid[16];
@@ -89,15 +90,15 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     uint8_t lgtkl = 0;
     uint8_t gtkl = 0;
 
-    ieee80211_derive_pmkid(supp->tls_client.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
-    ws_derive_ptkid(supp->tls_client.ptk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, ptkid);
+    ieee80211_derive_pmkid(supp->keys.pmk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, pmkid);
+    ws_derive_ptkid(supp->keys.ptk.key, supp->auth_eui64.u8, supp->cfg->eui64.u8, ptkid);
 
     gtkl = ws_gtkl(supp->gtks, WS_GTK_COUNT);
     lgtkl = ws_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
 
-    if (supp->tls_client.pmk.installation_s)
+    if (supp->keys.pmk.installation_s)
         kde_write_pmkid(&buf, pmkid);
-    if (supp->tls_client.ptk.installation_s)
+    if (supp->keys.ptk.installation_s)
         kde_write_ptkid(&buf, ptkid);
     kde_write_gtkl(&buf, gtkl);
     kde_write_lgtkl(&buf, lgtkl);
@@ -303,5 +304,9 @@ void supp_init(struct supp_ctx *supp)
     rfc8415_txalg_init(&supp->key_request_txalg);
 
     tls_init(&supp->tls, MBEDTLS_SSL_IS_CLIENT, &supp->cfg->tls);
-    tls_init_client(&supp->tls, &supp->tls_client);
+    tls_init_client(&supp->tls, &supp->tls_client,
+                    ieee80211_install_pmk_from_eap_tls, &supp->keys);
+    rand_get_n_bytes_random(supp->keys.pmk.key, sizeof(supp->keys.pmk.key));
+    rand_get_n_bytes_random(supp->keys.ptk.key, sizeof(supp->keys.ptk.key));
+    rand_get_n_bytes_random(supp->keys.tptk.key, sizeof(supp->keys.tptk.key));
 }

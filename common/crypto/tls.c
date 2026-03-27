@@ -53,61 +53,6 @@ int tls_recv(void *ctx, unsigned char *buf, size_t len)
     return ret;
 }
 
-void tls_install_pmk(struct tls_client_ctx *tls_client, const uint8_t key[32])
-{
-    // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-    if (!memcmp(tls_client->pmk.key, key, sizeof(tls_client->pmk.key))) {
-        WARN("sec: ignore reinstallation of pmk");
-        return;
-    }
-
-    memcpy(tls_client->pmk.key, key, sizeof(tls_client->pmk.key));
-    tls_client->pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
-
-    /*
-     *     IEEE 802.11-2020, 12.7.2 EAPOL-Key frames
-     * d) Key Replay Counter. This field is represented as an unsigned integer,
-     *    and is initialized to 0 when the PMK is established.
-     */
-    tls_client->pmk.replay_counter = 0;
-
-    // Reset PTK to prevent replay of EAPoL-Key frames with the old PTK.
-    memset(&tls_client->ptk, 0, sizeof(tls_client->ptk));
-
-    TRACE(TR_SECURITY, "sec: install pmk=%s",
-          tr_key(tls_client->pmk.key, sizeof(tls_client->pmk.key)));
-}
-
-/*
- *   RFC5216 - 2.3. Key Hierarchy
- * Key_Material = TLS-PRF-128(master_secret, "client EAP encryption",
- *                            client.random || server.random)
- * MSK          = Key_Material(0,63)
- * Enc-RECV-Key = MSK(0,31) = Peer to Authenticator Encryption Key
- *                (MS-MPPE-Recv-Key in [RFC2548]).  Also known as the
- *                PMK in [IEEE-802.11].
- */
-static void tls_export_keys(void *ctx, mbedtls_ssl_key_export_type type,
-                            const unsigned char *secret, size_t secret_len,
-                            const unsigned char client_random[32],
-                            const unsigned char server_random[32],
-                            mbedtls_tls_prf_types tls_prf_type)
-{
-    struct tls_client_ctx *tls_client = ctx;
-    uint8_t derived_key[128];
-    uint8_t random[64];
-    int ret;
-
-    memcpy(random, client_random, 32);
-    memcpy(random + 32, server_random, 32);
-
-    ret = mbedtls_ssl_tls_prf(tls_prf_type, secret, secret_len, "client EAP encryption", random, sizeof(random),
-                              derived_key, sizeof(derived_key));
-    FATAL_ON(ret, 2, "%s: mbedtls_ssl_tls_prf: %s", __func__, tr_mbedtls_err(ret));
-
-    tls_install_pmk(tls_client, derived_key);
-}
-
 void tls_free_client(struct tls_client_ctx *tls_client)
 {
     mbedtls_ssl_free(&tls_client->ssl_ctx);
@@ -116,7 +61,9 @@ void tls_free_client(struct tls_client_ctx *tls_client)
     memset(tls_client, 0, sizeof(struct tls_client_ctx));
 }
 
-void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
+void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client,
+                     mbedtls_ssl_export_keys_t *f_export_keys,
+                     void *p_export_keys)
 {
     int ret;
 
@@ -125,11 +72,8 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client)
     BUG_ON(ret);
 
     mbedtls_ssl_set_bio(&tls_client->ssl_ctx, &tls_client->io, tls_send, tls_recv, NULL);
-    mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, tls_export_keys, tls_client);
+    mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, f_export_keys, p_export_keys);
     mbedtls_ssl_set_hostname(&tls_client->ssl_ctx, NULL);
-    rand_get_n_bytes_random(tls_client->pmk.key, sizeof(tls_client->pmk.key));
-    rand_get_n_bytes_random(tls_client->ptk.key, sizeof(tls_client->ptk.key));
-    rand_get_n_bytes_random(tls_client->tptk.key, sizeof(tls_client->tptk.key));
 }
 
 void tls_debug(void *ctx, int level, const char *file, int line, const char *string)

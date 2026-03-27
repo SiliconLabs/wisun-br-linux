@@ -301,8 +301,8 @@ int dc_main(int argc, char *argv[])
 
     if (!memzcmp(dc->cfg.target_id, sizeof(dc->cfg.target_id))) {
         supp = auth_fetch_supp(&dc->auth_ctx, &dc->cfg.target_eui64);
-        memcpy(supp->eap_tls.tls.pmk.key, dc->cfg.target_pmk, 32);
-        supp->eap_tls.tls.pmk.installation_s = INT32_MAX;
+        memcpy(supp->keys.pmk.key, dc->cfg.target_pmk, 32);
+        supp->keys.pmk.installation_s = INT32_MAX;
     }
 
     dbus_register("com.silabs.Wisun.DirectConnect",

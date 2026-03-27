@@ -523,7 +523,11 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->rt_timer.callback = auth_rt_timer_timeout;
     supp->inactivity_timer.callback = auth_supp_inactivity_timeout;
     if (auth->radius_fd < 0 && !auth->mqtt.mosq)
-        tls_init_client(&auth->tls, &supp->eap_tls.tls);
+        tls_init_client(&auth->tls, &supp->eap_tls.tls,
+                        ieee80211_install_pmk_from_eap_tls, &supp->keys);
+    rand_get_n_bytes_random(supp->keys.pmk.key, sizeof(supp->keys.pmk.key));
+    rand_get_n_bytes_random(supp->keys.ptk.key, sizeof(supp->keys.ptk.key));
+    rand_get_n_bytes_random(supp->keys.tptk.key, sizeof(supp->keys.tptk.key));
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp add", tr_eui64(supp->eui64.u8));
@@ -549,9 +553,9 @@ bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t 
 
     if (!supp)
         return false;
-    if (!supp->eap_tls.tls.ptk.installation_s)
+    if (!supp->keys.ptk.installation_s)
         return false;
-    memcpy(tk, ieee80211_tk(supp->eap_tls.tls.ptk.key), IEEE80211_AKM_1_TK_LEN_BYTES);
+    memcpy(tk, ieee80211_tk(supp->keys.ptk.key), IEEE80211_AKM_1_TK_LEN_BYTES);
     return true;
 }
 

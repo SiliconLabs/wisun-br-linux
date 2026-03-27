@@ -41,6 +41,7 @@
 #include <netinet/in.h>
 #include <stdbool.h>
 
+#include "common/crypto/ieee80211.h"
 #include "common/crypto/ws_keys.h"
 #include "common/crypto/tls.h"
 #include "common/rfc8415_txalg.h"
@@ -84,6 +85,7 @@ struct supp_ctx {
     uint8_t last_tx_eap_type;
 
     // 4WH and 2WH
+    struct ieee80211_keys keys;
     struct ws_gtk gtks[WS_GTK_COUNT + WS_LGTK_COUNT];
     struct eui64 auth_eui64;
     uint8_t auth_gtkl;
