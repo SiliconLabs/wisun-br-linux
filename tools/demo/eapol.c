@@ -208,6 +208,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
     const struct eui64 supp_eui64 = { .u8 = { [7] = 2 } };
     struct sockaddr_in6 auth_addr = { };
     struct storage_parse_info info;
+    bool has_pmk = false;
     int ret, opt;
     const char *opts_short = "hpR:r:s:A:C:K:";
     const struct option opts_long[] = {
@@ -254,9 +255,7 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
             strlcpy(info.value, optarg, sizeof(info.value));
         switch (opt) {
         case 'p':
-            ret = getrandom(ctx->supp.keys.pmk.key, 32, 0);
-            FATAL_ON(ret < 32, 2, "getrandom: %m");
-            ctx->supp.keys.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
+            has_pmk = true;
             break;
         case 'r':
             conf_set_netaddr(&info, &auth_cfg->radius_addr, NULL);
@@ -321,13 +320,17 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
     supp_cfg->eui64 = supp_eui64;
     supp_init(&ctx->supp);
     supp_reset(&ctx->supp);
-    // NOTE: Needed to compute the PMKID in the initial Key Request
-    if (ctx->supp.keys.pmk.installation_s)
+    if (has_pmk) {
+        ret = getrandom(ctx->supp.keys.pmk.key, 32, 0);
+        FATAL_ON(ret < 32, 2, "getrandom: %m");
+        ctx->supp.keys.pmk.installation_s = time_now_s(CLOCK_MONOTONIC);
+        // NOTE: Needed to compute the PMKID in the initial Key Request
         ctx->supp.auth_eui64 = auth_eui64;
+    }
 
     auth_start(&ctx->auth, &auth_eui64, true);
     // NOTE: Must be done after calling auth_start()
-    if (ctx->supp.keys.pmk.installation_s) {
+    if (has_pmk) {
         struct auth_supp_ctx *supp;
 
         supp = auth_fetch_supp(&ctx->auth, &supp_eui64);
