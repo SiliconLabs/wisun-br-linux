@@ -23,14 +23,10 @@
 #include "common/config.h"
 #include "common/pktbuf.h"
 
-struct tls_io {
-    struct pktbuf tx;
-    struct pktbuf rx;
-};
-
 struct tls_client_ctx {
     struct mbedtls_ssl_context ssl_ctx;
-    struct tls_io io;
+    struct pktbuf io_tx;
+    struct pktbuf io_rx;
 };
 
 struct tls_ctx {

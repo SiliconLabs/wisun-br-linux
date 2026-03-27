@@ -31,33 +31,33 @@ const struct option_struct tls_opts[] = {
 
 int tls_send(void *ctx, const unsigned char *buf, size_t len)
 {
-    struct tls_io *tls_io = ctx;
+    struct tls_client_ctx *tls_client = ctx;
 
-    pktbuf_push_tail(&tls_io->tx, buf, len);
+    pktbuf_push_tail(&tls_client->io_tx, buf, len);
     return len;
 }
 
 int tls_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = MBEDTLS_ERR_SSL_WANT_READ;
-    struct tls_io *tls_io = ctx;
+    struct tls_client_ctx *tls_client = ctx;
 
-    if (!pktbuf_len(&tls_io->rx))
+    if (!pktbuf_len(&tls_client->io_rx))
         return ret;
 
-    ret = MIN(pktbuf_len(&tls_io->rx), len);
-    pktbuf_pop_head(&tls_io->rx, buf, ret);
+    ret = MIN(pktbuf_len(&tls_client->io_rx), len);
+    pktbuf_pop_head(&tls_client->io_rx, buf, ret);
 
-    if (!pktbuf_len(&tls_io->rx))
-        pktbuf_free(&tls_io->rx);
+    if (!pktbuf_len(&tls_client->io_rx))
+        pktbuf_free(&tls_client->io_rx);
     return ret;
 }
 
 void tls_free_client(struct tls_client_ctx *tls_client)
 {
     mbedtls_ssl_free(&tls_client->ssl_ctx);
-    pktbuf_free(&tls_client->io.rx);
-    pktbuf_free(&tls_client->io.tx);
+    pktbuf_free(&tls_client->io_rx);
+    pktbuf_free(&tls_client->io_tx);
     memset(tls_client, 0, sizeof(struct tls_client_ctx));
 }
 
@@ -71,7 +71,7 @@ void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client,
     ret = mbedtls_ssl_setup(&tls_client->ssl_ctx, &tls->ssl_config);
     BUG_ON(ret);
 
-    mbedtls_ssl_set_bio(&tls_client->ssl_ctx, &tls_client->io, tls_send, tls_recv, NULL);
+    mbedtls_ssl_set_bio(&tls_client->ssl_ctx, tls_client, tls_send, tls_recv, NULL);
     mbedtls_ssl_set_export_keys_cb(&tls_client->ssl_ctx, f_export_keys, p_export_keys);
     mbedtls_ssl_set_hostname(&tls_client->ssl_ctx, NULL);
 }
