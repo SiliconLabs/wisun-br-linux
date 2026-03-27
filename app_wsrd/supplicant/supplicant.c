@@ -95,9 +95,9 @@ static void supp_timeout_key_request(struct rfc8415_txalg *txalg)
     gtkl = ws_gtkl(supp->gtks, WS_GTK_COUNT);
     lgtkl = ws_gtkl(&supp->gtks[WS_GTK_COUNT], WS_LGTK_COUNT);
 
-    if (memzcmp(supp->tls_client.pmk.key, sizeof(supp->tls_client.pmk.key)))
+    if (supp->tls_client.pmk.installation_s)
         kde_write_pmkid(&buf, pmkid);
-    if (memzcmp(supp->tls_client.ptk.key, sizeof(supp->tls_client.ptk.key)))
+    if (supp->tls_client.ptk.installation_s)
         kde_write_ptkid(&buf, ptkid);
     kde_write_gtkl(&buf, gtkl);
     kde_write_lgtkl(&buf, lgtkl);

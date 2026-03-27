@@ -500,7 +500,7 @@ static void dbus_message_append_node(sd_bus_message *m, const char *property,
             sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
             dbus_message_close_info(m, property);
         } else if (supp) {
-            if (memzcmp(supp->eap_tls.tls.pmk.key, 32)) {
+            if (supp->eap_tls.tls.pmk.installation_s) {
                 dbus_message_open_info(m, property, "is_authenticated", "b");
                 sd_bus_message_append_basic(m, 'b', (int[1]){ true });
                 dbus_message_close_info(m, property);

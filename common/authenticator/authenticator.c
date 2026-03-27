@@ -549,7 +549,7 @@ bool auth_get_supp_tk(struct auth_ctx *auth, const struct eui64 *eui64, uint8_t 
 
     if (!supp)
         return false;
-    if (!memzcmp(supp->eap_tls.tls.ptk.key, sizeof(supp->eap_tls.tls.ptk.key)))
+    if (!supp->eap_tls.tls.ptk.installation_s)
         return false;
     memcpy(tk, ieee80211_tk(supp->eap_tls.tls.ptk.key), IEEE80211_AKM_1_TK_LEN_BYTES);
     return true;
