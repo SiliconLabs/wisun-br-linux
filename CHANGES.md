@@ -1,3 +1,7 @@
+  - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
+    This should reduce useless RPL traffic and potential ICMPv6 "destination
+    unreachable" errors.
+
 v2.9
 ------
   - Save MPL sequence number to disk: prevent multicast packets being dropped

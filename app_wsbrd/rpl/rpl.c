@@ -64,6 +64,7 @@ struct rpl_target *rpl_target_new(struct rpl_root *root, const uint8_t prefix[16
     struct rpl_target *target = zalloc(sizeof(struct rpl_target));
 
     target->timer.callback = rpl_transit_expire;
+    target->dao_seq = RPL_LOLLIPOP_INIT;
     memcpy(target->prefix, prefix, 16);
     SLIST_INSERT_HEAD(&root->targets, target, link);
     if (root->on_target_add)
@@ -508,6 +509,8 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
                          const uint8_t src[16], const uint8_t dst[16])
 {
     const struct rpl_opt_target *opt_target = NULL;
+    bool dao_seq_desync, dao_seq_old;
+    struct rpl_target *target;
     struct iobuf_read opt_buf;
     struct iobuf_read buf = {
         .data_size = size,
@@ -533,6 +536,18 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         (dodag_id && memcmp(dodag_id, root->dodag_id, 16))) {
         TRACE(TR_DROP, "drop %-9s: wrong instance", "rpl-dao");
         return;
+    }
+
+    target = rpl_target_get(root, src);
+    if (target) {
+        dao_seq_desync = rpl_lollipop_desync(dao_seq, target->dao_seq);
+        dao_seq_old    = rpl_lollipop_cmp(dao_seq, target->dao_seq) < 0;
+        if (dao_seq_desync || dao_seq_old) {
+            TRACE(TR_DROP, "drop %-9s: target=%s dao-seq=(cur %3u, rcv %3u, %s)", "rpl-dao",
+                  tr_ipv6_prefix(target->prefix, 128), target->dao_seq, dao_seq,
+                  dao_seq_desync ? "desync" : "old");
+            return;
+        }
     }
 
     while (iobuf_remaining_size(&buf)) {
@@ -568,6 +583,10 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         }
         buf.err |= opt_buf.err;
     }
+    // Target was possibly created in the DAO handler, update the DAO sequence
+    target = rpl_target_get(root, src);
+    if (target)
+        target->dao_seq = dao_seq;
     if (buf.err) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "rpl-dao");
         return;
