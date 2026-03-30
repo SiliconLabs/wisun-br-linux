@@ -50,7 +50,7 @@ struct auth_supp_ctx {
     struct {
         int      frag_id;
         uint32_t frag_expected_len;
-        struct tls_client_ctx tls;
+        struct tls_client_ctx *tls;
         int last_mbedtls_status; // Used to send EAP-Success/Failure messages
     } eap_tls;
 

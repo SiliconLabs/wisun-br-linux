@@ -13,8 +13,8 @@
  */
 #include <sys/uio.h>
 
-#include "common/authenticator/authenticator_eap.h"
 #include "common/authenticator/authenticator_radius.h"
+#include "common/authenticator/authenticator.h"
 #include "common/ws/eapol_relay.h"
 #include "common/crypto/tls.h"
 #include "common/log.h"
@@ -38,6 +38,11 @@ void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx 
     FATAL(3, "PMK mismatch");
 }
 
+void auth_eap_cleanup(struct auth_supp_ctx *supp)
+{
+    BUG_ON(supp->eap_tls.tls);
+}
+
 void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                  const void *buf, size_t buf_len)
 {
@@ -50,18 +55,6 @@ void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
 }
 
 void tls_init(struct tls_ctx *tls, int endpoint, const struct tls_cfg *cfg)
-{
-    // empty
-}
-
-void tls_init_client(struct tls_ctx *tls, struct tls_client_ctx *tls_client,
-                     mbedtls_ssl_export_keys_t *f_export_keys,
-                     void *p_export_keys)
-{
-    // empty
-}
-
-void tls_free_client(struct tls_client_ctx *tls_client)
 {
     // empty
 }

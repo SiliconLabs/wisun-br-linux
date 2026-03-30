@@ -51,6 +51,8 @@ static void auth_start_inactivity_timer(struct auth_ctx *auth, struct auth_supp_
     struct auth_gtk_group *gtk_group;
     int slot;
 
+    auth_eap_cleanup(supp);
+
     /*
      * NOTE: Arbitrary value, used to prevent idle supplicants from being removed
      * too early as the supplicant count is used to determine the PAN size.
@@ -443,7 +445,7 @@ static void auth_remove_supp(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     auth_rt_timer_stop(auth, supp);
     timer_stop(&auth->timer_group, &supp->inactivity_timer);
-    tls_free_client(&supp->eap_tls.tls);
+    auth_eap_cleanup(supp);
     auth_storage_clear_supplicant(supp);
     SLIST_REMOVE(&auth->supplicants, supp, auth_supp_ctx, link);
     TRACE(TR_SECURITY, "sec: %-8s eui64=%s", "supp del", tr_eui64(supp->eui64.u8));
@@ -522,9 +524,6 @@ struct auth_supp_ctx *auth_fetch_supp(struct auth_ctx *auth, const struct eui64 
     supp->rt_timer.period_ms = auth->timeout_ms;
     supp->rt_timer.callback = auth_rt_timer_timeout;
     supp->inactivity_timer.callback = auth_supp_inactivity_timeout;
-    if (auth->radius_fd < 0 && !auth->mqtt.mosq)
-        tls_init_client(&auth->tls, &supp->eap_tls.tls,
-                        ieee80211_install_pmk_from_eap_tls, &supp->keys);
     ieee80211_wipe_keys(&supp->keys);
     rand_get_n_bytes_random(supp->anonce, sizeof(supp->anonce));
     SLIST_INSERT_HEAD(&auth->supplicants, supp, link);

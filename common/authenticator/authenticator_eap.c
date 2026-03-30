@@ -22,6 +22,7 @@
 #include "common/specs/ieee802159.h"
 #include "common/specs/ws.h"
 #include "common/mathutils.h"
+#include "common/memutils.h"
 #include "common/eap.h"
 #include "common/endian.h"
 #include "common/eapol.h"
@@ -57,23 +58,39 @@ void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pkt
 
 static void auth_eap_tls_reset_supp(struct auth_supp_ctx *supp)
 {
-    pktbuf_init(&supp->eap_tls.tls.io_tx, NULL, 0);
-    pktbuf_init(&supp->eap_tls.tls.io_rx, NULL, 0);
+    pktbuf_init(&supp->eap_tls.tls->io_tx, NULL, 0);
+    pktbuf_init(&supp->eap_tls.tls->io_rx, NULL, 0);
     supp->eap_tls.frag_expected_len = 0;
     supp->eap_tls.frag_id = 0;
     supp->eap_id = 0;
-    mbedtls_ssl_session_reset(&supp->eap_tls.tls.ssl_ctx);
+    mbedtls_ssl_session_reset(&supp->eap_tls.tls->ssl_ctx);
 }
 
 void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
     struct pktbuf pktbuf = { };
 
-    if (auth->radius_fd < 0)
+    if (auth->radius_fd < 0) {
+        if (!supp->eap_tls.tls) {
+            supp->eap_tls.tls = zalloc(sizeof(struct tls_client_ctx));
+            tls_init_client(&auth->tls, supp->eap_tls.tls,
+                            ieee80211_install_pmk_from_eap_tls, &supp->keys);
+        }
         auth_eap_tls_reset_supp(supp);
+    }
     eap_write_hdr_head(&pktbuf, EAP_CODE_REQUEST, supp->eap_id + 1, EAP_TYPE_IDENTITY);
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
+}
+
+void auth_eap_cleanup(struct auth_supp_ctx *supp)
+{
+    if (!supp->eap_tls.tls)
+        return;
+    auth_eap_tls_reset_supp(supp);
+    tls_free_client(supp->eap_tls.tls);
+    free(supp->eap_tls.tls);
+    supp->eap_tls.tls = NULL;
 }
 
 void auth_eap_send_success(struct auth_ctx *auth, struct auth_supp_ctx *supp)
@@ -84,7 +101,7 @@ void auth_eap_send_success(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
     if (auth->radius_fd < 0)
-        auth_eap_tls_reset_supp(supp);
+        auth_eap_cleanup(supp);
     auth_key_pairwise_message_1_send(auth, supp);
 }
 
@@ -96,7 +113,7 @@ void auth_eap_send_failure(struct auth_ctx *auth, struct auth_supp_ctx *supp)
     auth_eap_send(auth, supp, &pktbuf);
     pktbuf_free(&pktbuf);
     if (auth->radius_fd < 0)
-        auth_eap_tls_reset_supp(supp);
+        auth_eap_cleanup(supp);
 }
 
 static void auth_eap_send_tls(struct auth_ctx *auth, struct auth_supp_ctx *supp, const void *buf, size_t buf_len)
@@ -118,8 +135,8 @@ static void auth_eap_send_tls_start(struct auth_ctx *auth, struct auth_supp_ctx 
 
 static void auth_eap_send_mbedtls(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
-    bool must_fragment = pktbuf_len(&supp->eap_tls.tls.io_tx) > WS_MTU_BYTES;
-    uint32_t tx_len = pktbuf_len(&supp->eap_tls.tls.io_tx);
+    bool must_fragment = pktbuf_len(&supp->eap_tls.tls->io_tx) > WS_MTU_BYTES;
+    uint32_t tx_len = pktbuf_len(&supp->eap_tls.tls->io_tx);
     struct pktbuf pktbuf = { };
     uint8_t flags = 0;
 
@@ -127,9 +144,9 @@ static void auth_eap_send_mbedtls(struct auth_ctx *auth, struct auth_supp_ctx *s
     if (!supp->eap_tls.frag_id)
         flags |= FIELD_PREP(EAP_TLS_FLAGS_LENGTH_MASK, must_fragment);
 
-    pktbuf_push_tail(&pktbuf, NULL, MIN(pktbuf_len(&supp->eap_tls.tls.io_tx), WS_MTU_BYTES));
-    pktbuf_pop_head(&supp->eap_tls.tls.io_tx, pktbuf_head(&pktbuf),
-                    MIN(pktbuf_len(&supp->eap_tls.tls.io_tx), WS_MTU_BYTES));
+    pktbuf_push_tail(&pktbuf, NULL, MIN(pktbuf_len(&supp->eap_tls.tls->io_tx), WS_MTU_BYTES));
+    pktbuf_pop_head(&supp->eap_tls.tls->io_tx, pktbuf_head(&pktbuf),
+                    MIN(pktbuf_len(&supp->eap_tls.tls->io_tx), WS_MTU_BYTES));
 
     if (FIELD_GET(EAP_TLS_FLAGS_LENGTH_MASK, flags))
         pktbuf_push_head_be32(&pktbuf, tx_len);
@@ -143,9 +160,9 @@ static void auth_eap_send_mbedtls(struct auth_ctx *auth, struct auth_supp_ctx *s
 
 static void auth_eap_handshake(struct auth_ctx *auth, struct auth_supp_ctx *supp)
 {
-    pktbuf_free(&supp->eap_tls.tls.io_tx);
+    pktbuf_free(&supp->eap_tls.tls->io_tx);
     supp->eap_tls.frag_id = 0;
-    supp->eap_tls.last_mbedtls_status = mbedtls_ssl_handshake(&supp->eap_tls.tls.ssl_ctx);
+    supp->eap_tls.last_mbedtls_status = mbedtls_ssl_handshake(&supp->eap_tls.tls->ssl_ctx);
 
     if (supp->eap_tls.last_mbedtls_status &&
         supp->eap_tls.last_mbedtls_status != MBEDTLS_ERR_SSL_WANT_READ) {
@@ -155,7 +172,7 @@ static void auth_eap_handshake(struct auth_ctx *auth, struct auth_supp_ctx *supp
          * If there's an error but no TLS alert message to send, we directly
          * send an EAP-Failure.
          */
-        if (!pktbuf_len(&supp->eap_tls.tls.io_tx)) {
+        if (!pktbuf_len(&supp->eap_tls.tls->io_tx)) {
             auth_eap_send_failure(auth, supp);
             return;
         }
@@ -170,6 +187,10 @@ static void auth_eap_recv_resp_tls(struct auth_ctx *auth, struct auth_supp_ctx *
     uint8_t tx_flags = 0;
     int remaining_size;
 
+    if (!supp->eap_tls.tls) {
+        TRACE(TR_DROP, "drop %-9s: no ongoing handshake", "eap-tls");
+        return;
+    }
     if (iobuf->err) {
         TRACE(TR_DROP, "drop %-9s: invalid response", "eap-tls");
         return;
@@ -198,12 +219,12 @@ static void auth_eap_recv_resp_tls(struct auth_ctx *auth, struct auth_supp_ctx *
     remaining_size = iobuf_remaining_size(iobuf);
 
     if (supp->eap_tls.frag_expected_len && !FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) &&
-        pktbuf_len(&supp->eap_tls.tls.io_rx) + remaining_size != supp->eap_tls.frag_expected_len) {
+        pktbuf_len(&supp->eap_tls.tls->io_rx) + remaining_size != supp->eap_tls.frag_expected_len) {
         TRACE(TR_DROP, "drop %-9s: invalid final fragment size", "eap-tls");
         return;
     }
     if (supp->eap_tls.frag_expected_len && FIELD_GET(EAP_TLS_FLAGS_MORE_FRAGMENTS_MASK, flags) &&
-        pktbuf_len(&supp->eap_tls.tls.io_rx) + remaining_size >= supp->eap_tls.frag_expected_len) {
+        pktbuf_len(&supp->eap_tls.tls->io_rx) + remaining_size >= supp->eap_tls.frag_expected_len) {
         TRACE(TR_DROP, "drop %-9s: \"more-fragments\" bit is set when it not should be", "eap-tls");
         return;
     }
@@ -242,7 +263,7 @@ static void auth_eap_recv_resp_tls(struct auth_ctx *auth, struct auth_supp_ctx *
         return;
     }
 
-    pktbuf_push_tail(&supp->eap_tls.tls.io_rx, iobuf_pop_data_ptr(iobuf, remaining_size), remaining_size);
+    pktbuf_push_tail(&supp->eap_tls.tls->io_rx, iobuf_pop_data_ptr(iobuf, remaining_size), remaining_size);
 
     /*
      *   RFC5216, 2.1.5 - Fragmentation
