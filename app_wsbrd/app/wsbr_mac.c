@@ -46,7 +46,6 @@
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "tun.h"
-#include "dbus.h"
 #include "commandline_values.h"
 
 struct wsbr_cnf_fail {
