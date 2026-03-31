@@ -26,33 +26,9 @@ struct mqtt_ctx {
     bool connected;
 };
 
-#ifdef HAVE_MQTT
 void mqtt_start(struct mqtt_ctx *mqtt, const char *host);
 int mqtt_fd(const struct mqtt_ctx *mqtt);
 int mqtt_events(const struct mqtt_ctx *mqtt);
 void mqtt_process(const struct mqtt_ctx *mqtt, int revents);
-#else
-#include "common/log.h"
-
-static inline void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
-{
-    FATAL(1, "libmosquitto support is disabled");
-}
-
-static inline int mqtt_fd(const struct mqtt_ctx *mqtt)
-{
-    return -1;
-}
-
-static inline int mqtt_events(const struct mqtt_ctx *mqtt)
-{
-    return 0;
-}
-
-static inline void mqtt_process(const struct mqtt_ctx *mqtt, int revents)
-{
-    // empty
-}
-#endif
 
 #endif

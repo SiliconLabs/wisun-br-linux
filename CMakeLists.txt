@@ -178,6 +178,7 @@ add_library(libwsbrd STATIC
     common/kde.c
     common/rand.c
     common/mbedtls_config_check.c
+    common/mqtt.c
     common/named_values.c
     common/fnv_hash.c
     common/parsers.c
@@ -267,7 +268,6 @@ if(LIBMOSQUITTO_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_MQTT HAVE_AUTH_MQTT)
     target_sources(libwsbrd PRIVATE
         common/authenticator/authenticator_mqtt.c
-        common/mqtt.c
     )
     target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBMOSQUITTO)
 endif()

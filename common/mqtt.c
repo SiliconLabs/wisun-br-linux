@@ -11,13 +11,15 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/log.h"
+
+#include "mqtt.h"
+
+#ifdef HAVE_MQTT
 #include <mosquitto.h>
 #include <poll.h>
 
 #include "common/memutils.h"
-#include "common/log.h"
-
-#include "mqtt.h"
 
 static void mqtt_log_cb(struct mosquitto *mosq, void *obj,
                         int level, const char *str)
@@ -105,3 +107,24 @@ void mqtt_process(const struct mqtt_ctx *mqtt, int revents)
         WARN_ON(ret, "mosquitto_loop_read: %s", mosquitto_strerror(ret));
     }
 }
+#else
+void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
+{
+    FATAL(1, "libmosquitto support is disabled");
+}
+
+int mqtt_fd(const struct mqtt_ctx *mqtt)
+{
+    return -1;
+}
+
+int mqtt_events(const struct mqtt_ctx *mqtt)
+{
+    return 0;
+}
+
+void mqtt_process(const struct mqtt_ctx *mqtt, int revents)
+{
+    BUG();
+}
+#endif
