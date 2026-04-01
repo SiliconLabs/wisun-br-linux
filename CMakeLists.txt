@@ -635,6 +635,7 @@ if(COMPILE_DEVTOOLS)
         target_compile_definitions(silabs-ws-auth PRIVATE HAVE_MBEDTLS HAVE_MQTT)
         target_link_libraries(silabs-ws-auth PUBLIC MbedTLS::mbedtls PkgConfig::LIBMOSQUITTO)
         target_link_options(silabs-ws-auth PUBLIC -Wl,--wrap=time) # Required by common/capture.c
+        install(TARGETS silabs-ws-auth RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     else()
         message(WARNING "silabs-ws-auth needs libmosquitto")
     endif()
