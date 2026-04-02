@@ -1380,6 +1380,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
+        .lbt = ws_llc_get_node_role(base->net_if, data->DstAddr) == WS_NR_ROLE_LFN,
         .ea  = &base->net_if->auth->eui64, // TODO: only include in 1st msg
     };
     struct wp_ie_list wp_ies = {
