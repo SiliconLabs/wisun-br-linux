@@ -688,7 +688,8 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
      * be relayed. In particular, we should ensure that our EAPoL target does
      * not change during a transaction.
      */
-    if (eui64_eq(&ind->hdr.src, &wsrd->eapol_target_eui64)) {
+    if (eui64_eq(&ind->hdr.src, &wsrd->eapol_target_eui64) ||
+        eui64_eq(&ind->hdr.src, &wsrd->supp.auth_eui64)) {
         if (!wsrd->fhss_bc_synced_to_target)
             ws_sync_fhss_bc(wsrd, ind->neigh);
         supp_recv_eapol(&wsrd->supp, kmp_id,
