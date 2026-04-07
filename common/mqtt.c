@@ -68,6 +68,7 @@ static void mqtt_disconnect_cb(struct mosquitto *mosq, void *obj, int rc)
 void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
 {
     struct pollfd pfd = { };
+    uint16_t port;
     int ret;
 
     mosquitto_lib_init();
@@ -86,11 +87,18 @@ void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
         FATAL_ON(ret, 2, "mosquitto_tls_set: %s", mosquitto_strerror(ret));
         ret = mosquitto_tls_opts_set(mqtt->mosq, 1 /* SSL_VERIFY_PEER */, NULL, NULL);
         FATAL_ON(ret, 2, "mosquitto_tls_opts_set: %s", mosquitto_strerror(ret));
-    } else {
+    } else if (cfg->broker[0] != '/') {
         WARN("MQTT security disabled. Use mqtt_authority/key/certificate in production environments.");
     }
 
-    ret = mosquitto_connect(mqtt->mosq, cfg->broker, cfg->ca[0] ? 8883 : 1883,
+    if (cfg->broker[0] == '/')
+        port = 0; // UNIX domain socket
+    else if (cfg->ca[0])
+        port = 8883;
+    else
+        port = 1883;
+
+    ret = mosquitto_connect(mqtt->mosq, cfg->broker, port,
                             mqtt->keepalive.period_ms / 1000);
     FATAL_ON(ret, 2, "mosquitto_connect %s: %s", cfg->broker, mosquitto_strerror(ret));
 
