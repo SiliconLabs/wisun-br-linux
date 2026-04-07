@@ -349,7 +349,7 @@ static void mpl_seq_store(const struct mpl_seed *seed)
     struct storage_parse_info *info;
     struct mpl_msg *msg;
     char strbuf[48];
-    uint8_t seq;
+    int seq = -1;
 
     info = storage_open_prefix("mpl", "w");
     if (!info)
@@ -357,6 +357,7 @@ static void mpl_seq_store(const struct mpl_seed *seed)
 
     SLIST_FOREACH(msg, &seed->msg_set, link)
         seq = mpl_msg_seq(msg);
+    BUG_ON(seq < 0);
 
     fprintf(info->file, "#s = %u\n", seed->s);
     if (seed->s == MPL_S_SRC || seed->s == MPL_S_128)
