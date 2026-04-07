@@ -20,6 +20,9 @@
 
 const struct option_struct mqtt_opts[] = {
     { "mqtt_broker",      offsetof(struct mqtt_cfg, broker), conf_set_string, (void *)sizeof_field(struct mqtt_cfg, broker) },
+    { "mqtt_authority",   offsetof(struct mqtt_cfg, ca),     conf_set_string, (void *)sizeof_field(struct mqtt_cfg, ca) },
+    { "mqtt_certificate", offsetof(struct mqtt_cfg, cert),   conf_set_string, (void *)sizeof_field(struct mqtt_cfg, cert) },
+    { "mqtt_key",         offsetof(struct mqtt_cfg, key),    conf_set_string, (void *)sizeof_field(struct mqtt_cfg, key) },
     { }
 };
 
@@ -33,6 +36,11 @@ static void mqtt_log_cb(struct mosquitto *mosq, void *obj,
                         int level, const char *str)
 {
     TRACE(TR_MQTT, "mqtt: %s", str);
+}
+
+static int mqtt_pw_cb(char *file, int size, int rwflag, void *userdata)
+{
+    FATAL(1, "mosquitto_tls_set %s: unsupported encrypted key file", file);
 }
 
 static void mqtt_keepalive(struct timer_group *group, struct timer_entry *timer)
@@ -68,7 +76,21 @@ void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
     mosquitto_connect_callback_set(mqtt->mosq, mqtt_connect_cb);
     mosquitto_disconnect_callback_set(mqtt->mosq, mqtt_disconnect_cb);
     mosquitto_log_callback_set(mqtt->mosq, mqtt_log_cb);
-    ret = mosquitto_connect(mqtt->mosq, cfg->broker, 1883,
+
+    if (cfg->ca[0] || cfg->cert[0] || cfg->key[0]) {
+        FATAL_ON(!cfg->ca[0], 1, "missing \"mqtt_authority\" parameter");
+        FATAL_ON(!cfg->cert[0], 1, "missing \"mqtt_certificate\" parameter");
+        FATAL_ON(!cfg->key[0], 1, "missing \"mqtt_key\" parameter");
+        ret = mosquitto_tls_set(mqtt->mosq, cfg->ca, NULL,
+                                cfg->cert, cfg->key, mqtt_pw_cb);
+        FATAL_ON(ret, 2, "mosquitto_tls_set: %s", mosquitto_strerror(ret));
+        ret = mosquitto_tls_opts_set(mqtt->mosq, 1 /* SSL_VERIFY_PEER */, NULL, NULL);
+        FATAL_ON(ret, 2, "mosquitto_tls_opts_set: %s", mosquitto_strerror(ret));
+    } else {
+        WARN("MQTT security disabled. Use mqtt_authority/key/certificate in production environments.");
+    }
+
+    ret = mosquitto_connect(mqtt->mosq, cfg->broker, cfg->ca[0] ? 8883 : 1883,
                             mqtt->keepalive.period_ms / 1000);
     FATAL_ON(ret, 2, "mosquitto_connect %s: %s", cfg->broker, mosquitto_strerror(ret));
 

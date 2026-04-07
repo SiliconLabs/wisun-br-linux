@@ -13,8 +13,8 @@
  */
 #ifndef MQTT_H
 #define MQTT_H
-
 #include <stdbool.h>
+#include <limits.h>
 
 #include "common/config.h"
 #include "common/timer.h"
@@ -29,6 +29,9 @@ struct mqtt_ctx {
 
 struct mqtt_cfg {
     char broker[256];
+    char ca[PATH_MAX];
+    char cert[PATH_MAX];
+    char key[PATH_MAX];
 };
 
 extern const struct option_struct mqtt_opts[];
