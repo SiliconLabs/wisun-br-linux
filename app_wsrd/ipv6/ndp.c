@@ -651,10 +651,11 @@ void ipv6_recv_na(struct ipv6_ctx *ipv6, const void *buf, size_t buf_len, const 
 static void ipv6_ncr_send(struct timer_group *group, struct timer_entry *timer)
 {
     struct ipv6_ctx *ipv6 = container_of(timer, struct ipv6_ctx, ncr_req_timer);
-    const struct in6_addr *src, *dst;
     struct nd_neighbor_advert *na;
     struct ndp_opt_earo aro = { };
     struct pktbuf pktbuf = { };
+    const struct in6_addr *dst;
+    struct in6_addr src;
 
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&ipv6->dhcp.iaaddr.ipv6));
 
@@ -667,8 +668,9 @@ static void ipv6_ncr_send(struct timer_group *group, struct timer_entry *timer)
      * [...] the Target MUST be set to the link-local address that was exposed
      * previously by this node to accept registrations.
      */
-    na->nd_na_target = ipv6_prefix_linklocal;
-    ipv6_addr_conv_iid_eui64(na->nd_na_target.s6_addr + 8, ipv6->eui64.u8);
+    src = ipv6_prefix_linklocal;
+    ipv6_addr_conv_iid_eui64(src.s6_addr + 8, ipv6->eui64.u8);
+    na->nd_na_target = src;
 
     aro.status = NDP_ARO_STATUS_REFRESH;
     ndp_opt_push(&pktbuf, NDP_OPT_ARO, &aro, sizeof(aro));
@@ -678,15 +680,14 @@ static void ipv6_ncr_send(struct timer_group *group, struct timer_entry *timer)
      * That asynchronous multicast NA(EARO) MUST be sent to the all-nodes
      * link-scope multicast address (ff02::1).
      */
-    src = &na->nd_na_target;
     dst = &ipv6_addr_all_nodes_link;
 
     na = (struct nd_neighbor_advert *)pktbuf_head(&pktbuf);
-    na->nd_na_cksum = ipv6_cksum(src, dst, IPPROTO_ICMPV6,
+    na->nd_na_cksum = ipv6_cksum(&src, dst, IPPROTO_ICMPV6,
                                  pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
 
     TRACE(TR_ICMP, "tx-icmp %-9s dst=%s", "na(aro)", tr_ipv6(dst->s6_addr));
-    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, src, dst);
+    ipv6_push_hdr(&pktbuf, IPPROTO_ICMPV6, 255, &src, dst);
     ipv6_sendto_mac(ipv6, &pktbuf, NULL);
     pktbuf_free(&pktbuf);
 }
