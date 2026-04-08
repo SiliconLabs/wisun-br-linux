@@ -373,6 +373,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->mngt.lts_timer.period_ms = ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period;
     fhss->async_frag_duration_ms = ctxt->config.ws_async_frag_duration;
 
+    ws_info->pan_information.lfn_session_id = rand_get_8bit();
     ws_pan_info_storage_read(ws_info);
 
     if (memzcmp(ws_info->network_name, sizeof(ws_info->network_name)) &&

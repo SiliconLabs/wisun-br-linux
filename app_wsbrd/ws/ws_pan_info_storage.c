@@ -43,6 +43,8 @@ void ws_pan_info_storage_read(struct ws_info *ws_info)
             ws_info->pan_information.pan_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("lfn_version", info->key, 0)) {
             ws_info->pan_information.lfn_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
+        } else if (!fnmatch("lfn_session_id", info->key, 0)) {
+            ws_info->pan_information.lfn_session_id = strtoul(info->value, NULL, 0) + 1;
         } else if (!fnmatch("jm_version", info->key, 0)) {
             ws_info->pan_information.jm.version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("network_name", info->key, 0)) {
@@ -69,6 +71,7 @@ void ws_pan_info_storage_write(const struct ws_info *ws_info)
     fprintf(info->file, "pan_id = %#04x\n", ws_info->pan_information.pan_id);
     fprintf(info->file, "pan_version = %d\n", ws_info->pan_information.pan_version);
     fprintf(info->file, "lfn_version = %d\n", ws_info->pan_information.lfn_version);
+    fprintf(info->file, "lfn_session_id = %d\n", ws_info->pan_information.lfn_session_id);
     fprintf(info->file, "jm_version = %d\n", ws_info->pan_information.jm.version);
     str_bytes(ws_info->network_name, strlen(ws_info->network_name),
               NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
