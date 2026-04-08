@@ -476,6 +476,7 @@ static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])
         .frame_type = WS_FT_LPC,
         .wh_ies.utt      = true,
         .wh_ies.lbt      = true,
+        .wh_ies.sl_lfn_session = true,
         .wp_ies.lfnver   = true,
         .wp_ies.lgtkhash = true,
         .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
@@ -657,6 +658,7 @@ static void ws_mngt_lts_send(struct ws_info *ws_info)
         .wh_ies.utt    = true,
         .wh_ies.bt     = true,
         .wh_ies.lbt    = true,
+        .wh_ies.sl_lfn_session = true,
         .security.SecurityLevel = IEEE802154_SEC_LEVEL_ENC_MIC64,
         .security.KeyIndex      = ws_info->lfn_gtk_index,
     };

@@ -48,6 +48,7 @@ struct wh_ie_list {
     bool lbc;
     bool sl_utt;
     const uint8_t *sl_dc_id;
+    bool sl_lfn_session;
 };
 
 struct wp_ie_list {

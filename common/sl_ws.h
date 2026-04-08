@@ -26,6 +26,7 @@ enum {
 enum {
     SL_WHIE_UTT   = 0,
     SL_WHIE_DC_ID = 1,
+    SL_WHIE_LFN_SESSION = 2,
 };
 
 #define SL_DC_ID_LEN 32

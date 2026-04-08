@@ -292,6 +292,15 @@ void ws_wh_sl_dc_id_write(struct iobuf_write *buf, const uint8_t dc_id[SL_DC_ID_
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
+void ws_wh_sl_lfn_session_write(struct iobuf_write *buf, uint8_t id)
+{
+    int offset = ws_wh_vendor_write(buf, WS_VIN_SILICON_LABS);
+
+    iobuf_push_u8(buf, SL_WHIE_LFN_SESSION);
+    iobuf_push_u8(buf, id);
+    ieee802154_ie_fill_len_header(buf, offset);
+}
+
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_fhss_config *fhss_config, bool unicast)
 {
     int fixed_channel = ws_chan_mask_get_fixed(unicast ? fhss_config->uc_chan_mask : fhss_config->bc_chan_mask);

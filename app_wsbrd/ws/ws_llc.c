@@ -1013,6 +1013,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies->lbc)
         ws_wh_lbc_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
                         info->fhss_config.lfn_bc_sync_period);
+    if (wh_ies->sl_lfn_session)
+        ws_wh_sl_lfn_session_write(&msg->ie_buf_header, info->pan_information.lfn_session_id);
     SLIST_FOREACH(ie, &info->ie_list, link) {
         if (!(ie->frame_type_mask & BIT(msg->message_type)))
             continue;

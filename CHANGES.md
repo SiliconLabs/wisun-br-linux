@@ -1,6 +1,8 @@
   - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
     This should reduce useless RPL traffic and potential ICMPv6 "destination
     unreachable" errors.
+  - `wsbrd`: On border router reboot, accelerate previous LFN child
+    reconnection by inserting a vendor IE in LPC and LTS frames.
 
 v2.9
 ------
