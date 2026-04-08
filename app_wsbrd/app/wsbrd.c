@@ -604,7 +604,7 @@ int wsbr_main(int argc, char *argv[])
         NULL,
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct in6_addr gua;
+    struct in6_addr eapol_bind_addr;
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     sigact.sa_flags = SA_RESETHAND;
@@ -660,8 +660,7 @@ int wsbr_main(int argc, char *argv[])
                               ctxt->net_if.ws_info.pan_information.lfn_version,
                               ctxt->net_if.ws_info.pan_information.jm.version,
                               ctxt->net_if.ws_info.network_name);
-    tun_addr_get_uc_global(&ctxt->net_if.tun, &gua);
-    ctxt->auth.eapol_relay_fd = eapol_relay_start(&gua);
+
     if (ctxt->config.extauth_name[0]) {
         auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name);
         if (ctxt->config.enable_lfn != (bool)ws_gtkl(ctxt->auth.gtks + WS_GTK_COUNT, WS_LGTK_COUNT))
@@ -669,6 +668,23 @@ int wsbr_main(int argc, char *argv[])
     } else {
         auth_start(&ctxt->auth, &ctxt->rcp.eui64, ctxt->config.enable_lfn);
     }
+
+    /*
+     * - In normal operations, the socket binds to the Wi-SUN address.
+     * - With silabs-ws-auth running externally, the socket needs to use the
+     *   backhaul address when communicating with silabs-ws-auth and the Wi-SUN
+     *   address when communicating with Wi-SUN devices. Thus it binds to any.
+     * - With silabs-ws-auth running locally, 2 EAPoL Relay sockets exist on
+     *   the same host. If one of them binds to any, the other fails with
+     *   EADDRINUSE. Binding only to the Wi-SUN address is fine in this case
+     *   because traffic never leaves the host.
+     */
+    if (ctxt->config.extauth_name[0] && !IN6_IS_ADDR_LOOPBACK(&ctxt->auth.ext_auth_addr))
+        eapol_bind_addr = in6addr_any;
+    else
+        tun_addr_get_uc_global(&ctxt->net_if.tun, &eapol_bind_addr);
+    ctxt->auth.eapol_relay_fd = eapol_relay_start(&eapol_bind_addr);
+
     /*
      * WARNING: do not move this function call before auth_start() and
      * wsbr_network_init(). See comment in wsbr_on_gtk_change() and
