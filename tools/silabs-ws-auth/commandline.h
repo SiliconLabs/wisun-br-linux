@@ -18,6 +18,7 @@
 
 struct sl_auth_cfg {
     struct auth_cfg auth;
+    struct sockaddr_in6 bind_addr;
     struct eui64 eui64;
     bool enable_lfn;
     bool storage_delete;
