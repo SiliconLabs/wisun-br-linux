@@ -161,6 +161,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     else
         INFO("  RCP configuration index: %d", phy_config->rcp_rail_config_index);
 
+    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params);
 
     INFO("  channel 0 frequency: %.1fMHz", fhss_config->chan_params->chan0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", fhss_config->chan_params->chan_spacing / 1000);
@@ -169,8 +170,6 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 
     length = -divup(fhss_config->chan_params->chan_count, 8) * 3;
     INFO("               %*s %*s", length, "advertised", length, "effective");
-
-    ws_chan_mask_calc_reg(chan_mask_reg, fhss_config->chan_params);
 
     fixed_channel = ws_chan_mask_get_fixed(fhss_config->uc_chan_mask);
     chan_func = (fixed_channel < 0) ? WS_CHAN_FUNC_DH1CF : WS_CHAN_FUNC_FIXED;
