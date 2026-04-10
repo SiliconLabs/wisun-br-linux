@@ -25,10 +25,10 @@
 #include "common/log.h"
 #include "common/version.h"
 
+#include "app_wsbrd/ws/ws_common.h"
 #include "ws_pan_info_storage.h"
 
-void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint16_t *lfn_version,
-                              uint8_t *jm_version, char network_name[33])
+void ws_pan_info_storage_read(struct ws_info *ws_info)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "r");
 
@@ -36,17 +36,17 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
         return;
     while (storage_parse_line(info) != EOF) {
         if (!fnmatch("bsi", info->key, 0)) {
-            *bsi = strtoul(info->value, NULL, 0);
+            ws_info->fhss_config.bsi = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_id", info->key, 0)) {
-            *pan_id = strtoul(info->value, NULL, 0);
+            ws_info->pan_information.pan_id = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("pan_version", info->key, 0)) {
-            *pan_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
+            ws_info->pan_information.pan_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("lfn_version", info->key, 0)) {
-            *lfn_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
+            ws_info->pan_information.lfn_version = strtoul(info->value, NULL, 0) + 1; // Increment for safety
         } else if (!fnmatch("jm_version", info->key, 0)) {
-            *jm_version = strtoul(info->value, NULL, 0);
+            ws_info->pan_information.jm.version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("network_name", info->key, 0)) {
-            if (parse_escape_sequences(network_name, info->value, 33))
+            if (parse_escape_sequences(ws_info->network_name, info->value, 33))
                 WARN("%s:%d: parsing error (escape sequence or too long)", info->filename, info->linenr);
         } else if (!fnmatch("api_version", info->key, 0)) {
             // Ignore for now
@@ -57,8 +57,7 @@ void ws_pan_info_storage_read(int *bsi, int *pan_id, uint16_t *pan_version, uint
     storage_close(info);
 }
 
-void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_version, uint16_t lfn_version,
-                               uint8_t jm_version, const char network_name[33])
+void ws_pan_info_storage_write(const struct ws_info *ws_info)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
     char str_buf[256];
@@ -66,12 +65,13 @@ void ws_pan_info_storage_write(uint16_t bsi, uint16_t pan_id, uint16_t pan_versi
     if (!info)
         return;
     fprintf(info->file, "api_version = %#08x\n", version_daemon_api);
-    fprintf(info->file, "bsi = %d\n", bsi);
-    fprintf(info->file, "pan_id = %#04x\n", pan_id);
-    fprintf(info->file, "pan_version = %d\n", pan_version);
-    fprintf(info->file, "lfn_version = %d\n", lfn_version);
-    fprintf(info->file, "jm_version = %d\n", jm_version);
-    str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
+    fprintf(info->file, "bsi = %d\n", ws_info->fhss_config.bsi);
+    fprintf(info->file, "pan_id = %#04x\n", ws_info->pan_information.pan_id);
+    fprintf(info->file, "pan_version = %d\n", ws_info->pan_information.pan_version);
+    fprintf(info->file, "lfn_version = %d\n", ws_info->pan_information.lfn_version);
+    fprintf(info->file, "jm_version = %d\n", ws_info->pan_information.jm.version);
+    str_bytes(ws_info->network_name, strlen(ws_info->network_name),
+              NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     storage_close_flush(info);
 }

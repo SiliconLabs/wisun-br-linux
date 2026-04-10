@@ -373,11 +373,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->mngt.lts_timer.period_ms = ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period;
     fhss->async_frag_duration_ms = ctxt->config.ws_async_frag_duration;
 
-    ws_pan_info_storage_read(&fhss->bsi, &ws_info->pan_information.pan_id,
-                             &ws_info->pan_information.pan_version,
-                             &ws_info->pan_information.lfn_version,
-                             &ws_info->pan_information.jm.version,
-                             ws_info->network_name);
+    ws_pan_info_storage_read(ws_info);
 
     if (memzcmp(ws_info->network_name, sizeof(ws_info->network_name)) &&
         strcmp(ws_info->network_name, ctxt->config.ws_name))
@@ -655,11 +651,7 @@ int wsbr_main(int argc, char *argv[])
     }
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
-    ws_pan_info_storage_write(ctxt->net_if.ws_info.fhss_config.bsi, ctxt->net_if.ws_info.pan_information.pan_id,
-                              ctxt->net_if.ws_info.pan_information.pan_version,
-                              ctxt->net_if.ws_info.pan_information.lfn_version,
-                              ctxt->net_if.ws_info.pan_information.jm.version,
-                              ctxt->net_if.ws_info.network_name);
+    ws_pan_info_storage_write(&ctxt->net_if.ws_info);
 
     if (ctxt->config.extauth_name[0]) {
         auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name, &ctxt->config.mqtt);

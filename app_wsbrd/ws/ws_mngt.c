@@ -82,8 +82,7 @@ void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
     ws_mngt_adjust_trickle_params(ws_info, pan_size);
     trickle_inconsistent(&ws_info->mngt.trickle_pa, NULL);
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
-    ws_pan_info_storage_write(ws_info->fhss_config.bsi, pan_info->pan_id, pan_info->pan_version, pan_info->lfn_version,
-                              pan_info->jm.version, ws_info->network_name);
+    ws_pan_info_storage_write(ws_info);
 }
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_rx_ie_list *ie_ext,
@@ -691,9 +690,7 @@ void ws_mngt_pan_version_increase(struct ws_info *ws_info)
     INFO("PAN version number update: %u", ws_info->pan_information.pan_version);
     // Inconsistent for border router to make information distribute faster
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
-    ws_pan_info_storage_write(ws_info->fhss_config.bsi, ws_info->pan_information.pan_id,
-                              ws_info->pan_information.pan_version, ws_info->pan_information.lfn_version,
-                              ws_info->pan_information.jm.version, ws_info->network_name);
+    ws_pan_info_storage_write(ws_info);
 }
 
 void ws_mngt_lfn_version_increase(struct ws_info *ws_info)
