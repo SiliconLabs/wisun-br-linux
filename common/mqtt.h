@@ -16,6 +16,7 @@
 
 #include <stdbool.h>
 
+#include "common/config.h"
 #include "common/timer.h"
 
 struct mosquitto;
@@ -26,7 +27,13 @@ struct mqtt_ctx {
     bool connected;
 };
 
-void mqtt_start(struct mqtt_ctx *mqtt, const char *host);
+struct mqtt_cfg {
+    char broker[256];
+};
+
+extern const struct option_struct mqtt_opts[];
+
+void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg);
 int mqtt_fd(const struct mqtt_ctx *mqtt);
 int mqtt_events(const struct mqtt_ctx *mqtt);
 void mqtt_process(const struct mqtt_ctx *mqtt, int revents);

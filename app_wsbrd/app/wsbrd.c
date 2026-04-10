@@ -662,7 +662,7 @@ int wsbr_main(int argc, char *argv[])
                               ctxt->net_if.ws_info.network_name);
 
     if (ctxt->config.extauth_name[0]) {
-        auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name);
+        auth_mqtt_start(&ctxt->auth, ctxt->config.extauth_name, &ctxt->config.mqtt);
         if (ctxt->config.enable_lfn != (bool)ws_gtkl(ctxt->auth.gtks + WS_GTK_COUNT, WS_LGTK_COUNT))
             FATAL(1, "enable_lfn mismatch between wsbrd and silabs-ws-auth");
     } else {

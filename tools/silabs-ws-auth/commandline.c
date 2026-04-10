@@ -85,6 +85,7 @@ void parse_commandline(struct sl_auth_cfg *cfg, int argc, char *argv[])
         { storage_opts, &g_storage_prefix },
         { auth_opts,    &cfg->auth },
         { tls_opts,     &cfg->auth.tls },
+        { mqtt_opts,    &cfg->mqtt },
         { }
     };
     static const char *opts_short = "F:o:T:K:C:A:hvD";

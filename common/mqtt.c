@@ -11,9 +11,17 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <stddef.h>
+
+#include "common/memutils.h"
 #include "common/log.h"
 
 #include "mqtt.h"
+
+const struct option_struct mqtt_opts[] = {
+    { "mqtt_broker",      offsetof(struct mqtt_cfg, broker), conf_set_string, (void *)sizeof_field(struct mqtt_cfg, broker) },
+    { }
+};
 
 #ifdef HAVE_MQTT
 #include <mosquitto.h>
@@ -49,7 +57,7 @@ static void mqtt_disconnect_cb(struct mosquitto *mosq, void *obj, int rc)
     FATAL(2, "mqtt disconnected: %s", mosquitto_strerror(rc));
 }
 
-void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
+void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
 {
     struct pollfd pfd = { };
     int ret;
@@ -60,9 +68,9 @@ void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
     mosquitto_connect_callback_set(mqtt->mosq, mqtt_connect_cb);
     mosquitto_disconnect_callback_set(mqtt->mosq, mqtt_disconnect_cb);
     mosquitto_log_callback_set(mqtt->mosq, mqtt_log_cb);
-    ret = mosquitto_connect(mqtt->mosq, host, 1883,
+    ret = mosquitto_connect(mqtt->mosq, cfg->broker, 1883,
                             mqtt->keepalive.period_ms / 1000);
-    FATAL_ON(ret, 2, "mosquitto_connect %s: %s", host, mosquitto_strerror(ret));
+    FATAL_ON(ret, 2, "mosquitto_connect %s: %s", cfg->broker, mosquitto_strerror(ret));
 
     while (!mqtt->connected) {
         pfd.fd = mqtt_fd(mqtt);
@@ -108,7 +116,7 @@ void mqtt_process(const struct mqtt_ctx *mqtt, int revents)
     }
 }
 #else
-void mqtt_start(struct mqtt_ctx *mqtt, const char *host)
+void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
 {
     FATAL(1, "libmosquitto support is disabled");
 }

@@ -193,6 +193,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { trace_opts,      &g_enabled_traces },
         { storage_opts,    &g_storage_prefix },
         { auth_opts,       &config->auth },
+        { mqtt_opts,       &config->mqtt },
         { tls_opts,        &config->auth.tls },
         { duty_cycle_opts, &config->duty_cycle },
         { rcp_opts,        &config->rcp },
@@ -440,6 +441,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("--capture used without --delete-storage");
     if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
         WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
+    if (config->mqtt.broker[0] && !config->extauth_name[0])
+        WARN("ignoring mqtt_broker since external_auth is not set");
+    if (!config->mqtt.broker[0])
+        strcpy(config->mqtt.broker, config->extauth_name);
     duty_cycle_cfg_check(&config->duty_cycle);
     config->auth.allow_fan10 = config->enable_ffn10;
 }

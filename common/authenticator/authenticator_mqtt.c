@@ -89,7 +89,8 @@ static void auth_mqtt_resolve6(const char *host, struct in6_addr *addr)
     freeaddrinfo(ai);
 }
 
-void auth_mqtt_start(struct auth_ctx *auth, const char *host)
+void auth_mqtt_start(struct auth_ctx *auth, const char *host,
+                     const struct mqtt_cfg *cfg)
 {
     struct pollfd pfd = { };
     uint64_t t0;
@@ -99,7 +100,7 @@ void auth_mqtt_start(struct auth_ctx *auth, const char *host)
         WARN("ignoring all authenticator parameters since external_auth is used");
 
     auth_mqtt_resolve6(host, &auth->ext_auth_addr);
-    mqtt_start(&auth->mqtt, host);
+    mqtt_start(&auth->mqtt, cfg);
 
     mosquitto_message_callback_set(auth->mqtt.mosq, auth_mqtt_recv_cb);
     ret = mosquitto_subscribe(auth->mqtt.mosq, NULL, "gtks", 1);

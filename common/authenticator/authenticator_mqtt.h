@@ -18,6 +18,7 @@
 
 struct auth_ctx;
 struct in6_addr;
+struct mqtt_cfg;
 struct eui64;
 
 /*
@@ -26,7 +27,8 @@ struct eui64;
  */
 
 #ifdef HAVE_AUTH_MQTT
-void auth_mqtt_start(struct auth_ctx *auth, const char *host);
+void auth_mqtt_start(struct auth_ctx *auth, const char *host,
+                     const struct mqtt_cfg *cfg);
 void auth_mqtt_recv_eapol(struct auth_ctx *auth,
                           const struct eui64 *supp_eui64, uint8_t kmp_id,
                           const void *buf, size_t buf_len);
@@ -37,7 +39,8 @@ void auth_mqtt_recv_eapol_relay(struct auth_ctx *auth,
 #else
 #include "common/log.h"
 
-static inline void auth_mqtt_start(struct auth_ctx *auth, const char *host)
+static inline void auth_mqtt_start(struct auth_ctx *auth, const char *host,
+                                   const struct mqtt_cfg *cfg)
 {
     FATAL(1, "mqtt_broker requires libmosquitto");
 }
