@@ -415,12 +415,12 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     }
 }
 
-void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf)
+void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_cnf *cnf)
 {
     struct dc *dc = container_of(ws, struct dc, ws);
 
-    if (frame_ctx->type == WS_FT_DATA)
-        ws_on_probe_done(dc, cnf->handle, cnf->status == HIF_STATUS_SUCCESS);
+    if (cnf->frame_ctx.type == WS_FT_DATA)
+        ws_on_probe_done(dc, cnf->hif->handle, cnf->hif->status == HIF_STATUS_SUCCESS);
 }
 
 void ws_recvfrom_tun(struct dc *dc)

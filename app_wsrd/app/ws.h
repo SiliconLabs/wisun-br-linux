@@ -17,17 +17,17 @@
 struct ws_frame_ctx;
 struct timer_group;
 struct timer_entry;
-struct rcp_tx_cnf;
 struct ws_neigh;
 struct trickle;
 struct ws_ctx;
+struct ws_cnf;
 struct ws_ind;
 struct wsrd;
 
 void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh);
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
-void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
+void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_cnf *cnf);
 
 void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_entry *timer);
 void ws_on_pas_interval_done(struct trickle *tkl, struct timer_group *group);

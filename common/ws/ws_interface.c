@@ -324,96 +324,99 @@ static void ws_if_update_duty_cycle(struct ws_ctx *ws, uint32_t tx_duration_ms)
     ws->tx_duration_ms = tx_duration_ms;
 }
 
-void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *cnf)
+void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *hif_cnf)
 {
     struct ws_ctx *ws = container_of(rcp, struct ws_ctx, rcp);
-    struct ws_frame_ctx frame_ctx, *frame_ctx_ptr;
-    struct iobuf_read ie_header, ie_payload;
+    struct ws_cnf cnf = { .hif = hif_cnf };
     const struct rcp_rate_info *rate;
-    struct ws_neigh *neigh = NULL;
-    struct ieee802154_hdr hdr;
+    struct ws_frame_ctx *frame_ctx;
+    struct iobuf_read ie_payload;
     struct ws_utt_ie ie_utt;
     struct ws_bt_ie ie_bt;
     int ret, rsl;
 
-    if (cnf->status != HIF_STATUS_SUCCESS)
-        TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(cnf->status));
+    if (hif_cnf->status != HIF_STATUS_SUCCESS)
+        TRACE(TR_TX_ABORT, "tx-abort 15.4: status %s", hif_status_str(hif_cnf->status));
 
     if (!version_older_than(ws->rcp.version_api, 2, 11, 0))
-        ws_if_update_duty_cycle(ws, cnf->tx_duration_ms);
+        ws_if_update_duty_cycle(ws, hif_cnf->tx_duration_ms);
 
-    frame_ctx_ptr = ws_if_frame_ctx_pop(ws, cnf->handle);
-    if (!frame_ctx_ptr) {
-        ERROR("unknown frame handle: %u", cnf->handle);
+    frame_ctx = ws_if_frame_ctx_pop(ws, hif_cnf->handle);
+    if (!frame_ctx) {
+        ERROR("unknown frame handle: %u", hif_cnf->handle);
         return;
     }
-    frame_ctx = *frame_ctx_ptr;
-    free(frame_ctx_ptr);
+    cnf.frame_ctx = *frame_ctx;
+    free(frame_ctx);
 
     // DCS are async unicast packets to the chosen target
-    if (frame_ctx.type != SL_FT_DCS && !eui64_is_bc(&frame_ctx.dst)) {
-        neigh = ws_neigh_get(&ws->neigh_table, &frame_ctx.dst);
-        if (!neigh) {
+    if (cnf.frame_ctx.type != SL_FT_DCS && !eui64_is_bc(&cnf.frame_ctx.dst)) {
+        cnf.neigh = ws_neigh_get(&ws->neigh_table, &cnf.frame_ctx.dst);
+        if (!cnf.neigh) {
             WARN("%s: neighbor expired", __func__);
             // TODO: TX power (APC)
-            neigh = ws_neigh_add(&ws->neigh_table, &frame_ctx.dst, WS_NR_ROLE_ROUTER, 16);
+            cnf.neigh = ws_neigh_add(&ws->neigh_table, &cnf.frame_ctx.dst, WS_NR_ROLE_ROUTER, 16);
         }
     }
 
-    if (neigh && cnf->frame_len) {
-        ret = ieee802154_frame_parse(cnf->frame, cnf->frame_len, &hdr, &ie_header, &ie_payload);
+    if (cnf.neigh && hif_cnf->frame_len) {
+        ret = ieee802154_frame_parse(hif_cnf->frame, hif_cnf->frame_len,
+                                     &cnf.hdr, &cnf.ie_hdr, &ie_payload);
         if (ret < 0) {
             WARN("%s: malformed frame", __func__);
             return;
         }
-        if (hdr.key_index) {
-            if (hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
+        if (cnf.hdr.key_index) {
+            if (cnf.hdr.sec_level != IEEE802154_SEC_LEVEL_ENC_MIC64) {
                 TRACE(TR_DROP, "drop %-9s: unsupported security level", "15.4-ack");
                 return;
             }
-            FATAL_ON(hdr.key_index < 1 || hdr.key_index > HIF_KEY_COUNT, 3);
-            if (neigh->frame_counter_min[hdr.key_index - 1] > hdr.frame_counter ||
-                neigh->frame_counter_min[hdr.key_index - 1] == UINT32_MAX) {
+            FATAL_ON(cnf.hdr.key_index < 1 || cnf.hdr.key_index > HIF_KEY_COUNT, 3);
+            if (cnf.neigh->frame_counter_min[cnf.hdr.key_index - 1] > cnf.hdr.frame_counter ||
+                cnf.neigh->frame_counter_min[cnf.hdr.key_index - 1] == UINT32_MAX) {
                 TRACE(TR_TX_ABORT, "tx-abort %-9s: frame cnt=%u < cnt-min=%u for key-idx=%u src=%s",
-                      "15.4", hdr.frame_counter,
-                      neigh->frame_counter_min[hdr.key_index - 1],
-                      hdr.key_index,
-                      tr_eui64(neigh->eui64.u8));
+                      "15.4", cnf.hdr.frame_counter,
+                      cnf.neigh->frame_counter_min[cnf.hdr.key_index - 1],
+                      cnf.hdr.key_index,
+                      tr_eui64(cnf.neigh->eui64.u8));
                 return;
             } else {
-                neigh->frame_counter_min[hdr.key_index - 1] = add32sat(hdr.frame_counter, 1);
+                cnf.neigh->frame_counter_min[cnf.hdr.key_index - 1] = add32sat(cnf.hdr.frame_counter, 1);
             }
         }
-        ws_neigh_refresh(&ws->neigh_table, neigh, neigh->lifetime_s);
-        neigh->rsl_in_dbm_unsecured = ws_ewma_next(neigh->rsl_in_dbm_unsecured,
-                                                         cnf->rx_power_dbm, WS_EWMA_SF);
-        if (hdr.key_index)
-            neigh->rsl_in_dbm = ws_ewma_next(neigh->rsl_in_dbm, cnf->rx_power_dbm, WS_EWMA_SF);
-        if (ws_wh_rsl_read(ie_header.data, ie_header.data_size, &rsl)) {
-            neigh->rsl_out_dbm = ws_ewma_next(neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
+        ws_neigh_refresh(&ws->neigh_table, cnf.neigh, cnf.neigh->lifetime_s);
+        cnf.neigh->rsl_in_dbm_unsecured = ws_ewma_next(cnf.neigh->rsl_in_dbm_unsecured,
+                                                        hif_cnf->rx_power_dbm, WS_EWMA_SF);
+        if (cnf.hdr.key_index)
+            cnf.neigh->rsl_in_dbm = ws_ewma_next(cnf.neigh->rsl_in_dbm, hif_cnf->rx_power_dbm, WS_EWMA_SF);
+        if (ws_wh_rsl_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &rsl)) {
+            cnf.neigh->rsl_out_dbm = ws_ewma_next(cnf.neigh->rsl_out_dbm, rsl, WS_EWMA_SF);
             if (ws->phy.enable_apc) {
-                rate = ws_get_rate(frame_ctx.rates, cnf->tx_retries + 1);
-                etsi_apc_update(&neigh->apc, rate->phy_mode_id,
+                rate = ws_get_rate(cnf.frame_ctx.rates, hif_cnf->tx_retries + 1);
+                etsi_apc_update(&cnf.neigh->apc, rate->phy_mode_id,
                                 rate->tx_power_dbm, rsl, ws->phy.tx_power_dbm);
             }
         }
-        if (ws_wh_utt_read(ie_header.data, ie_header.data_size, &ie_utt)) {
-            ws_neigh_ut_update(&neigh->fhss_data_unsecured, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
-            if (hdr.key_index)
-                ws_neigh_ut_update(&neigh->fhss_data, ie_utt.ufsi, cnf->timestamp_us, &neigh->eui64);
+        if (ws_wh_utt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_utt)) {
+            ws_neigh_ut_update(&cnf.neigh->fhss_data_unsecured, ie_utt.ufsi,
+                               hif_cnf->timestamp_us, &cnf.neigh->eui64);
+            if (cnf.hdr.key_index)
+                ws_neigh_ut_update(&cnf.neigh->fhss_data, ie_utt.ufsi,
+                                   hif_cnf->timestamp_us, &cnf.neigh->eui64);
         }
-        if (ws_wh_bt_read(ie_header.data, ie_header.data_size, &ie_bt)) {
-            ws_neigh_bt_update(&neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
-                               ie_bt.broadcast_interval_offset, cnf->timestamp_us);
-            if (hdr.key_index)
-                ws_neigh_bt_update(&neigh->fhss_data, ie_bt.broadcast_slot_number,
-                                   ie_bt.broadcast_interval_offset, cnf->timestamp_us);
+        if (ws_wh_bt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_bt)) {
+            ws_neigh_bt_update(&cnf.neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+                               ie_bt.broadcast_interval_offset, hif_cnf->timestamp_us);
+            if (cnf.hdr.key_index)
+                ws_neigh_bt_update(&cnf.neigh->fhss_data, ie_bt.broadcast_slot_number,
+                                   ie_bt.broadcast_interval_offset, hif_cnf->timestamp_us);
         }
     }
-    if (neigh)
-        ws_etx_update(&ws->neigh_table.ws_etx_ctx, &neigh->ws_etx, cnf->tx_retries + 1, cnf->status == HIF_STATUS_SUCCESS);
+    if (cnf.neigh)
+        ws_etx_update(&ws->neigh_table.ws_etx_ctx, &cnf.neigh->ws_etx,
+                      hif_cnf->tx_retries + 1, hif_cnf->status == HIF_STATUS_SUCCESS);
     if (ws->on_recv_cnf)
-        ws->on_recv_cnf(ws, &frame_ctx, cnf);
+        ws->on_recv_cnf(ws, &cnf);
 }
 
 int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const struct eui64 *dst)

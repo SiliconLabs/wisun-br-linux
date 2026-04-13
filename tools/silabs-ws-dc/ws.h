@@ -17,15 +17,15 @@
 struct ws_frame_ctx;
 struct timer_group;
 struct timer_entry;
-struct rcp_tx_cnf;
 struct ws_ctx;
+struct ws_cnf;
 struct ws_ind;
 struct dc;
 
 void ws_on_probe_timer_timeout(struct timer_group *group, struct timer_entry *timer);
 
 void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind);
-void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
+void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_cnf *cnf);
 void ws_recvfrom_tun(struct dc *dc);
 
 #endif

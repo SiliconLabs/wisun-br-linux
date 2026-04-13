@@ -100,6 +100,14 @@ struct ws_ind {
     struct ws_neigh *neigh;
 };
 
+struct ws_cnf {
+    struct ws_frame_ctx frame_ctx;
+    const struct rcp_tx_cnf *hif;
+    struct ieee802154_hdr hdr;
+    struct iobuf_read ie_hdr;
+    struct ws_neigh *neigh;
+};
+
 struct ws_ctx {
     struct rcp rcp;
 
@@ -131,7 +139,7 @@ struct ws_ctx {
     const struct duty_cycle_cfg *duty_cycle_cfg;
 
     void (*on_recv_ind)(struct ws_ctx *ws, struct ws_ind *ind);
-    void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_frame_ctx *frame_ctx, const struct rcp_tx_cnf *cnf);
+    void (*on_recv_cnf)(struct ws_ctx *ws, struct ws_cnf *cnf);
 };
 
 size_t ws_if_active_tx_count(struct ws_ctx *ws);
