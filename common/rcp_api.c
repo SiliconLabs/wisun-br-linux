@@ -268,7 +268,7 @@ static void rcp_cnf_data_tx(struct rcp *rcp, struct iobuf_read *buf)
     cnf.cca_retries   = hif_pop_u8(buf);
     cnf.tx_retries    = hif_pop_u8(buf);
     hif_pop_u8(buf);  // TODO: mode switch stats
-    // NOTE: rcp_req_data_tx() always sets TX_DURATION if API >= 2.11.0
+    // NOTE: rcp_req_data_tx() always sets TX_DURATION if API >= 2.11
     if (!version_older_than(rcp->version_api, 2, 11, 0))
         cnf.tx_duration_ms = hif_pop_u32(buf);
     BUG_ON(buf->err);
@@ -470,7 +470,7 @@ void rcp_set_fhss_uc(struct rcp *rcp,
     for (it = ms_chan_mask, ms_chan_mask_len = 0; it && it->chan_spacing; it++, ms_chan_mask_len++)
         ;
     if (ms_chan_mask_len && version_older_than(rcp->version_api, 2, 6, 0))
-        FATAL(3, "mode-switch requires RCP API >= 2.6.0");
+        FATAL(3, "mode-switch requires RCP API >= 2.6");
     if (!version_older_than(rcp->version_api, 2, 6, 0)) {
         hif_push_u8(&buf, ms_chan_mask_len);
         for (int i = 0; i < ms_chan_mask_len; i++) {
@@ -863,7 +863,7 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
 
     if (config->traces.groups[0].level) {
         if (version_older_than(rcp->version_api, 2, 16, 0))
-            FATAL(3, "rcp_trace require RCP API >= 2.16.0");
+            FATAL(3, "rcp_trace require RCP API >= 2.16");
         rcp_set_log(rcp, &config->traces);
     }
 
@@ -880,7 +880,7 @@ void rcp_init(struct rcp *rcp, const struct rcp_cfg *config)
     if (!version_older_than(rcp->version_api, 2, 12, 0))
         rcp_set_radio_csma(rcp, &config->csma);
     else if (memcmp(&config->csma, &rcp_cfg_default.csma, sizeof(struct rcp_csma_cfg)))
-        WARN("csma_* parameters require RCP API >= 2.12.0");
+        WARN("csma_* parameters require RCP API >= 2.12");
 
     // NOTE: dst addr filtering is enabled by default with the native EUI-64.
     if (!eui64_is_bc(&config->eui64_override))

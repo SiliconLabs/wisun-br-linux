@@ -1527,7 +1527,7 @@ void ws_llc_update_timing_info(const struct ws_neigh *neigh)
     }
     if (handle_count) {
         if (version_older_than(rcp->version_api, 2, 9, 0))
-            WARN("efficient lfn timing update requires RCP API >= 2.9.0");
+            WARN("efficient lfn timing update requires RCP API >= 2.9");
         else
             rcp_set_fhss_lfn_uc(rcp, handle_list, handle_count,
                                 &neigh->fhss_data_unsecured);

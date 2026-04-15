@@ -347,13 +347,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     if (!version_older_than(ctxt->rcp.version_api, 2, 13, 0))
         rcp_set_radio_apc(&ctxt->rcp, ws_info->phy_config.enable_apc);
     else if (ctxt->config.enable_apc)
-        WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
+        WARN("enable_apc requires RCP API >= 2.13 for ack frames");
 
     if (!version_older_than(ctxt->rcp.version_api, 2, 15, 0))
         rcp_set_data_edfe(&ctxt->rcp, true,
                           ctxt->config.enable_ffn10 ? WS_FAN_VERSION_1_0 : WS_FAN_VERSION_1_1);
     else if (ctxt->config.enable_ffn10)
-        WARN("enable_ffn10 requires RCP API >= 2.14.0 for edfe frames");
+        WARN("enable_ffn10 requires RCP API >= 2.14 for edfe frames");
 
     ws_chan_mask_calc_reg(fhss->uc_chan_mask, fhss->chan_params);
     ws_chan_mask_calc_reg(fhss->bc_chan_mask, fhss->chan_params);
@@ -499,10 +499,10 @@ static void wsbr_handle_reset(struct rcp *rcp)
         FATAL(3, "RCP API < 2.0.0 (too old)");
     if (version_older_than(rcp->version_api, 2, 11, 0) &&
         ctxt->config.duty_cycle.budget_ms)
-        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11.0");
+        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11");
     if (version_older_than(rcp->version_api, 2, 11, 0) &&
         ctxt->config.duty_cycle.chan_budget_ms)
-        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11.0");
+        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11");
 }
 
 void kill_handler(int signal)

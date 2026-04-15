@@ -193,7 +193,7 @@ For more details about these lists, see `wsbrd.conf`.
 ### `TxDurationReset`
 
 Reset [`TxDuration`][#txduration-u] counter to 0 and clear records of previous
-transmission durations. Requires RCP API >= 2.11.0.
+transmission durations. Requires RCP API >= 2.11.
 
 ### `StartPanDefect` (`uu`)
 
@@ -278,7 +278,7 @@ to learn about version specific features.
 ### `TxDuration` (`u`)
 
 Time spent transmitting over-the-air during the last hour, in milliseconds.
-Requires RCP API >= 2.11.0.
+Requires RCP API >= 2.11.
 
 ### `DutyCycleLevel` (`i`)
 

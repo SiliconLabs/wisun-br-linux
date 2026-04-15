@@ -287,12 +287,12 @@ in case of transmission failure or abort.
      - `0x0020 MODE_SWITCH`: Attempt mode switch with a list of specified PHYs.
        Only supported with `FHSS_TYPE_FFN_UC`.
      - `0x1fc0 FRAME_COUNTERS`: Bitmask of frame counters per key.
-     - `0x2000 MODE_SWITCH_TYPE` (API >= 2.1.0):
+     - `0x2000 MODE_SWITCH_TYPE` (API >= 2.1):
        - `0`: PHY mode switch (PHR, default before API 2.1.0)
        - `1`: MAC mode switch (MAC command frame)
-     - `0x4000 FRAME_COUNTER_8` (API >= 2.5.0): Frame includes frame counter for
+     - `0x4000 FRAME_COUNTER_8` (API >= 2.5): Frame includes frame counter for
        key at index 8.
-     - `0x8000 TX_DURATION` (API >= 2.11.0): Report the current cumulated TX
+     - `0x8000 TX_DURATION` (API >= 2.11): Report the current cumulated TX
        duration in [`CNF_DATA_TX`][tx-cnf].
 
 Only present if `FHSS_TYPE_FFN_UC`:
@@ -350,7 +350,7 @@ Only present if `MODE_SWITCH`:
           rate. Once this limit is exceeded, the next entry will be tried. Note
           that this valude overrides `macMaxFrameRetries` described in
           ["Channel Access and Retries"][cca].
-        - `0x80 alt_phy` (API >= 2.10.0): Transmit using alternate PHY and skip
+        - `0x80 alt_phy` (API >= 2.10): Transmit using alternate PHY and skip
           mode switch PHR or MAC command. See the Silicon Labs [concurrent mode
           documentation][an1410] for more information.
      - `int8_t tx_power_dbm`: The TX power to use with this entry, saturates to
@@ -361,7 +361,7 @@ Only present if `FRAME_COUNTER_8`:
    Same content as `FRAME_COUNTERS`, but only for key at index 8.
    See ["Security"][sec] for more details.
 
-### `0x11 REQ_DATA_TX_ABORT` (API >= 2.7.0)
+### `0x11 REQ_DATA_TX_ABORT` (API >= 2.7)
 
 Cancel a frame transmission previously initiated with [`REQ_DATA_TX`][tx-req].
 A [`CNF_DATA_TX`][tx-cnf] message will be returned with status 6. Note that
@@ -422,7 +422,7 @@ request bit set in the header.
  - `uint8_t tx_failures`  
     Number of transmission failures (does not account for CCA failures).
 
- - `uint32_t tx_duration_ms` (API >= 2.11.0, optional)  
+ - `uint32_t tx_duration_ms` (API >= 2.11, optional)  
    Cumulated TX duration over the last hour, in milliseconds. Only present if
    `TX_DURATION` is set in the associated [`REQ_DATA_TX`][tx-req] command. See
    [`REQ_RADIO_TX_DURATION_RESET`][tx-duration].
@@ -488,7 +488,7 @@ once the radio is started with [`SET_RADIO`][rf-set]. See
  - `uint16_t chan_num`  
     Channel number used during reception.
 
-### `0x14 SET_DATA_EDFE` (API >= 2.15.0)
+### `0x14 SET_DATA_EDFE` (API >= 2.15)
 
 Configure Extended Directed Frame Exchange (EDFE). This mode of communication
 allows efficient data streaming between 2 nodes. Currently, the RCP does not
@@ -588,7 +588,7 @@ OFDM configurations, all MCS are defined in the same entry.
        Channel spacing in Hz.
     - `uint16_t chan_count`  
        Number of channels without holes in the spectrum.
-    - `uint16_t sensitivity` (API >= 2.4.0)  
+    - `uint16_t sensitivity` (API >= 2.4)  
        Minimum RX sensitivity in dBm for this PHY.
 
 [an1410]: https://www.silabs.com/documents/public/application-notes/an1410-concurrent-mode-with-railtest.pdf
@@ -637,7 +637,7 @@ specific channel configurations.
     internal decision making or hardware limitations but will never exceed the
     given value. The default value is 14dBm.
 
-### `0x26 REQ_RADIO_TX_DURATION_RESET` (API >= 2.11.0)
+### `0x26 REQ_RADIO_TX_DURATION_RESET` (API >= 2.11)
 
 The RCP maintains a counter for the cumulated time spent transmitting packets
 over the air during the last hour. This value is reported in
@@ -649,7 +649,7 @@ Body of this command is empty.
 
 [tx-duration]: #0x26-req_radio_tx_duration_reset-api--2110
 
-### `0x27 SET_RADIO_CSMA` (API >= 2.12.0)
+### `0x27 SET_RADIO_CSMA` (API >= 2.12)
 
 Configure channel access and retry parameters. The CSMA-CA algorithm is
 described in the IEEE 802.15.4 specification.
@@ -677,7 +677,7 @@ described in the IEEE 802.15.4 specification.
 
 [csma]: #0x27-set_radio_csma-api--2120
 
-### `0x28 SET_RADIO_APC` (API >= 2.13.0)
+### `0x28 SET_RADIO_APC` (API >= 2.13)
 
 Enable Adaptive Power Control as required by [ETSI EN 300 200-1][etsi] for
 transmission of _acknowledgement_ frames. For data frames,
@@ -731,7 +731,7 @@ transmitted packets, based on active schedules:
       broadcast window (see [`SET_FHSS_LFN_BC`][bc-lfn]). The RCP recomputes
       the offset to be relative to the destination LFN's unicast schedule,
       based on the timing information passed in [`REQ_DATA_TX`][tx-req].
-      Since API >= 2.17.0, if the host desires its offset to not be processed
+      Since API >= 2.17, if the host desires its offset to not be processed
       by the RCP, it may set the most significant bit (`0x800000`), in which
       case the RCP will clear it and leave the remaining bits untouched.
 
@@ -782,7 +782,7 @@ Configure unicast schedule for reception.
  - `struct chan_seq`  
     See ["Channel Sequence"][chan-seq].
 
-If API >= 2.6.0 (optional block):
+If API >= 2.6 (optional block):
 
  - `uint8_t ms_chan_mask_len`  
     Number of entries in the following `ms_chan_mask` array with
@@ -814,7 +814,7 @@ Configure broadcast schedule for reception and transmission from/to FFN.
  - `struct chan_seq`  
    See ["Channel Sequence"][chan-seq].
 
-If API >= 2.3.0 (optional block):
+If API >= 2.3 (optional block):
 
  - `uint8_t eui64[8]`  
     MAC address of a neighboring node whose broadcast schedule should be
@@ -891,7 +891,7 @@ Configure asynchronous transmissions for network discovery.
      Bitmask of channels to use for transmission. See the same field in
      ["Channel Sequence"][chan-seq] for more details.
 
-### `0x34 SET_FHSS_LFN_UC` (API >= 2.9.0)
+### `0x34 SET_FHSS_LFN_UC` (API >= 2.9)
 
 Update transmission timings of packets queued in the RCP using LFN unicast
 timings. This command is typically issued when a LFN neighbor decides to change
@@ -966,7 +966,7 @@ packet.
 Install a security key for encrypting/decrypting IEEE 802.15.4 frames.
 
  - `uint8_t key_index`  
-    Key index to use. For API >= 2.5.0, only values from 1 to 8 (inclusive)
+    Key index to use. For API >= 2.5, only values from 1 to 8 (inclusive)
     are supported. For any older API version, only values from 1 to 7
     (inclusive) are supported.
     In the context of Wi-SUN, key at index 8 is reserved to
@@ -1062,7 +1062,7 @@ Reply to [`REQ_PING`][ping-req] with some arbitrary data.
  - `uint8_t payload[]`  
     Arbitrary data.
 
-### `0xE3 SET_LOG (API >= 2.16.0)`
+### `0xE3 SET_LOG` (API >= 2.16)
 
 Configure debug log enabled on the RCP. Logs can be read using
 [Segger RTT][rtt]. Note that enabling some verbose traces can mess up time

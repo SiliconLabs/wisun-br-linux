@@ -305,10 +305,10 @@ static void wsrd_on_rcp_reset(struct rcp *rcp)
         FATAL(3, "RCP API < 2.8.0 (too old)");
     if (version_older_than(rcp->version_api, 2, 11, 0) &&
         wsrd->config.duty_cycle.budget_ms)
-        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11.0");
+        FATAL(3, "duty_cycle_budget requires RCP API >= 2.11");
     if (version_older_than(rcp->version_api, 2, 11, 0) &&
         wsrd->config.duty_cycle.chan_budget_ms)
-        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11.0");
+        FATAL(3, "duty_cycle_chan_budget requires RCP API >= 2.11");
 }
 
 static void wsrd_on_etx_outdated(struct ws_etx_ctx *ws_etx_ctx, struct ws_etx *ws_etx)
@@ -541,7 +541,7 @@ static void wsrd_init_radio(struct wsrd *wsrd)
     if (!version_older_than(wsrd->ws.rcp.version_api, 2, 13, 0))
         rcp_set_radio_apc(&wsrd->ws.rcp, wsrd->ws.phy.enable_apc);
     else
-        WARN("enable_apc requires RCP API >= 2.13.0 for ack frames");
+        WARN("enable_apc requires RCP API >= 2.13 for ack frames");
 
     rail_fill_pom(&wsrd->ws.rcp, &wsrd->ws.fhss, &wsrd->ws.phy, wsrd->config.ws_phy_op_modes);
     rcp_set_radio(&wsrd->ws.rcp, rail_config->index, wsrd->ws.phy.params->ofdm_mcs, wsrd->ws.phy.phy_op_modes[0] != 0);
