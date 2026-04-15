@@ -116,6 +116,7 @@ static const struct name_value hif_status_names[] = {
     ENTRY(NOACK),
     ENTRY(TIMEDOUT),
     ENTRY(ABORTED),
+    ENTRY(COUNTER_EXHAUSTED),
     { 0 }
 };
 #undef ENTRY

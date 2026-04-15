@@ -100,7 +100,8 @@ enum hif_data_status {
     HIF_STATUS_TIMEDOUT = 0x04, // Buffer lifetime expired on RCP
     HIF_STATUS_INTERNAL_ERROR = 0x05, // RCP internal error
     HIF_STATUS_ABORTED  = 0x06, // Transmission cancelled
-    HIF_STATUS_COUNT    = 0x07,
+    HIF_STATUS_COUNTER_EXHAUSTED = 0x07, // Security frame counter maxed out
+    HIF_STATUS_COUNT    = 0x08,
 };
 
 enum hif_reg {

@@ -438,6 +438,7 @@ Status codes:
 |`0x04` | [`REQ_DATA_TX`][tx-req] timed out in RCP (see timeout table below).
 |`0x05` | RCP internal error (reach out Silicon Labs support).
 |`0x06` | Frame transmission was cancelled (see [`REQ_DATA_TX_ABORT`][tx-del]).
+|`0x07` | Frame counter reached the maximum value (`0xffffffff`) for the requested key. (API >= 2.19)
 
 `0x06..0xff` are reserved for future errors. The host must accept these values and
 consider the frame has not been received by the destination.
