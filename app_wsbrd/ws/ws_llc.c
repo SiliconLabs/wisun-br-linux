@@ -677,6 +677,7 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         ws_neigh_us_update(&base->net_if->ws_info.fhss_config,
                            &ws_neigh->fhss_data_unsecured,
                            &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ws_neigh->pom_ie);
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
                                IEEE802154_IE_ID_MPX, &ie_mpx);
@@ -756,6 +757,7 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
+    ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ws_neigh->pom_ie);
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
                                IEEE802154_IE_ID_MPX, &ie_mpx);
