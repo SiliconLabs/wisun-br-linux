@@ -1388,6 +1388,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     struct wp_ie_list wp_ies = {
         .us = true,
         .bs = true, // TODO: only include in 1st msg
+        .pom = ws_info->phy_config.phy_op_modes[0],
     };
 
     if (ws_info->auto_adjust &&
