@@ -45,19 +45,19 @@ uint24_t read_le24(const uint8_t ptr[3])
 
 uint32_t read_be32(const uint8_t ptr[4])
 {
-    uint32_t val = ptr[0] << 24
-                 | ptr[1] << 16
-                 | ptr[2] << 8
-                 | ptr[3];
+    uint32_t val = (uint32_t)ptr[0] << 24
+                 | (uint32_t)ptr[1] << 16
+                 | (uint32_t)ptr[2] << 8
+                 | (uint32_t)ptr[3];
     return val;
 }
 
 uint32_t read_le32(const uint8_t ptr[4])
 {
-    uint32_t val = ptr[3] << 24
-                 | ptr[2] << 16
-                 | ptr[1] << 8
-                 | ptr[0];
+    uint32_t val = (uint32_t)ptr[3] << 24
+                 | (uint32_t)ptr[2] << 16
+                 | (uint32_t)ptr[1] << 8
+                 | (uint32_t)ptr[0];
     return val;
 }
 
