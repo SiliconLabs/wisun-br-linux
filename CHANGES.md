@@ -3,6 +3,7 @@
     unreachable" errors.
   - `wsbrd`: On border router reboot, accelerate previous LFN child
     reconnection by inserting a vendor IE in LPC and LTS frames.
+  - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
   - `wsbrd`: Insert and read POM-IE in EAPoL frames.
 
 v2.9

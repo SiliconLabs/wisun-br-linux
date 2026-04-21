@@ -122,9 +122,14 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
     for (int i = 0; i < WS_GTK_COUNT + WS_LGTK_COUNT; i++)
         ws_neigh->frame_counter_min[i] = (gtkl & BIT(i)) ? 0 : UINT32_MAX;
 
-    if (ws_neigh->node_role == WS_NR_ROLE_LFN && timer_stopped(&net_if->ws_info.mngt.lts_timer))
+    if (ws_neigh->node_role == WS_NR_ROLE_LFN && ws_neigh_lfn_count(table) == 1) {
+        rcp_set_fhss_lfn_bc(net_if->rcp,
+                            net_if->ws_info.fhss_config.lfn_bc_interval,
+                            net_if->ws_info.fhss_config.bsi,
+                            net_if->ws_info.fhss_config.bc_chan_mask);
         timer_start_rel(NULL, &net_if->ws_info.mngt.lts_timer,
                         net_if->ws_info.mngt.lts_timer.period_ms);
+    }
 
     ipv6_neighbor = ipv6_neighbour_lookup_gua_by_eui64(&net_if->ipv6_neighbour_cache, ws_neigh->eui64.u8);
     if (ipv6_neighbor) {
@@ -140,8 +145,14 @@ void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh 
 
     lowpan_adaptation_free_messages_from_queues_by_address(cur, neigh->eui64.u8, ADDR_802_15_4_LONG);
     nd_remove_aro_routes_by_eui64(cur, neigh->eui64.u8);
-    if (!ws_neigh_lfn_count(&cur->ws_info.neighbor_storage))
+
+    if (neigh->node_role == WS_NR_ROLE_LFN && !ws_neigh_lfn_count(table)) {
         timer_stop(NULL, &cur->ws_info.mngt.lts_timer);
+        if (!version_older_than(cur->rcp->version_api, 2, 20, 0))
+            rcp_set_fhss_lfn_bc(cur->rcp, 0,
+                                cur->ws_info.fhss_config.bsi,
+                                cur->ws_info.fhss_config.bc_chan_mask);
+    }
 }
 
 void ws_bootstrap_nw_key_set(struct net_if *cur,

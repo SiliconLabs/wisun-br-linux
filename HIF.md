@@ -851,7 +851,8 @@ If API >= 2.3.0 (optional block):
 Configure broadcast schedule for transmission to LFN.
 
  - `uint16_t interval`  
-    LFN broadcast interval in milliseconds (from LBS-IE).
+    LFN broadcast interval in milliseconds (from LBS-IE). If API >= 2.20,
+    passing 0 disables the LFN broadcast schedule.
 
  - `uint16_t bsi`  
     LFN broadcast Schedule ID (from LBS-IE).
