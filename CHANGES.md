@@ -7,6 +7,9 @@
     reconnection by inserting a vendor IE in LPC and LTS frames.
   - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
   - `wsbrd`: Insert and read POM-IE in EAPoL frames.
+  - `silabs-ws-dc`: Close connection when the security frame counter reaches
+    the maximum value. A new fresh connection can be established to generate a
+    new key.
 
 v2.9
 ------

@@ -367,6 +367,13 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
     struct dc *dc = container_of(ws, struct dc, ws);
     struct ws_utt_ie ie_utt;
 
+    if (ind->hdr.key_index &&
+        ind->neigh->frame_counter_min[ind->hdr.key_index - 1] == UINT32_MAX) {
+        WARN("security frame counter exhaustion");
+        ws_neigh_del(&ws->neigh_table, &ind->neigh->eui64);
+        return;
+    }
+
     if (ws_wh_sl_utt_read(ind->ie_hdr.data, ind->ie_hdr.data_size, &ie_utt)) {
         switch (ie_utt.message_type)
         {
@@ -418,6 +425,13 @@ void ws_on_recv_ind(struct ws_ctx *ws, struct ws_ind *ind)
 void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_cnf *cnf)
 {
     struct dc *dc = container_of(ws, struct dc, ws);
+
+    if (cnf->hdr.key_index &&
+        cnf->neigh->frame_counter_min[cnf->hdr.key_index - 1] == UINT32_MAX) {
+        WARN("security frame counter exhaustion");
+        ws_neigh_del(&ws->neigh_table, &cnf->neigh->eui64);
+        return;
+    }
 
     if (cnf->frame_ctx.type == WS_FT_DATA)
         ws_on_probe_done(dc, cnf->hif->handle, cnf->hif->status == HIF_STATUS_SUCCESS);
