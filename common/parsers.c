@@ -102,17 +102,3 @@ int parse_byte_array(uint8_t *out, int size, const char *str)
     }
     return 0;
 }
-
-void parse_netaddr(struct sockaddr_storage *out, const char *str)
-{
-    int s;
-    struct addrinfo *results;
-
-    if ((s = getaddrinfo(str, NULL, NULL, &results)) != 0)
-        FATAL(1, "%s: %s", str, gai_strerror(s));
-
-    BUG_ON(!results);
-    memcpy(out, results->ai_addr, results->ai_addrlen);
-
-    freeaddrinfo(results);
-}
