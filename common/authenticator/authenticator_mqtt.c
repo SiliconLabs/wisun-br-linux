@@ -76,7 +76,7 @@ static void auth_mqtt_resolve6(const char *host, struct in6_addr *addr)
         .ai_family = AF_INET6,
         .ai_socktype = SOCK_DGRAM,
         .ai_protocol = IPPROTO_UDP,
-        .ai_flags = AI_ADDRCONFIG,
+        .ai_flags = AI_ADDRCONFIG | AI_V4MAPPED,
     };
     struct sockaddr_in6 *sin6;
     struct addrinfo *ai;
