@@ -70,7 +70,7 @@ void parse_commandline(struct sl_auth_cfg *cfg, int argc, char *argv[])
 {
     const struct option_struct sl_auth_opts[] = {
         { "mac_address",    offsetof(struct sl_auth_cfg, eui64),            conf_set_array,  (void *)sizeof(struct eui64) },
-        { "bind_address",   offsetof(struct sl_auth_cfg, bind_addr),        conf_set_netaddr, &valid_ipv6 },
+        { "bind_address",   offsetof(struct sl_auth_cfg, bind_addr),        conf_set_netaddr, &valid_ipv4or6 },
         { "enable_ffn10",   offsetof(struct sl_auth_cfg, auth.allow_fan10), conf_set_bool,   NULL },
         { "enable_lfn",     offsetof(struct sl_auth_cfg, enable_lfn),       conf_set_bool,   NULL },
         { }
