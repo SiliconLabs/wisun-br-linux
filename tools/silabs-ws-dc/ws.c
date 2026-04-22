@@ -27,6 +27,7 @@
 #include "common/ipv6/ipv6_addr.h"
 #include "common/string_extra.h"
 #include "common/memutils.h"
+#include "common/version.h"
 #include "common/pktbuf.h"
 #include "common/sl_ws.h"
 #include "common/bits.h"
@@ -426,8 +427,10 @@ void ws_on_recv_cnf(struct ws_ctx *ws, struct ws_cnf *cnf)
 {
     struct dc *dc = container_of(ws, struct dc, ws);
 
-    if (cnf->hdr.key_index &&
-        cnf->neigh->frame_counter_min[cnf->hdr.key_index - 1] == UINT32_MAX) {
+    if ((cnf->hif->status == HIF_STATUS_COUNTER_EXHAUSTED &&
+         !version_older_than(ws->rcp.version_api, 2, 19, 1)) ||
+        (cnf->hdr.key_index &&
+         cnf->neigh->frame_counter_min[cnf->hdr.key_index - 1] == UINT32_MAX)) {
         WARN("security frame counter exhaustion");
         ws_neigh_del(&ws->neigh_table, &cnf->neigh->eui64);
         return;
