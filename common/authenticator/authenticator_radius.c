@@ -103,30 +103,18 @@ struct radius_attr {
     uint8_t val[];
 } __attribute__((packed));
 
-void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
+void radius_init(struct auth_ctx *auth, const struct in6_addr *addr)
 {
-    union {
-        struct sockaddr     sa;
-        struct sockaddr_in6 sin6;
-        struct sockaddr_in  sin;
-    } u;
+    struct sockaddr_in6 sa = {
+        .sin6_family = AF_INET6,
+        .sin6_addr = *addr,
+        .sin6_port = htons(RADIUS_PORT),
+    };
     int ret;
 
-    switch (sa->sa_family) {
-    case AF_INET:
-        memcpy(&u, sa, sizeof(u.sin));
-        u.sin.sin_port = htons(RADIUS_PORT);
-        break;
-    case AF_INET6:
-        memcpy(&u, sa, sizeof(u.sin6));
-        u.sin6.sin6_port = htons(RADIUS_PORT);
-        break;
-    default:
-        BUG();
-    }
-    auth->radius_fd = socket(sa->sa_family, SOCK_DGRAM, IPPROTO_UDP);
+    auth->radius_fd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
     FATAL_ON(auth->radius_fd < 0, 2, "%s: socket: %m", __func__);
-    ret = connect(auth->radius_fd, &u.sa, sizeof(u));
+    ret = connect(auth->radius_fd, (struct sockaddr *)&sa, sizeof(sa));
     FATAL_ON(ret < 0, 2, "%s: connect: %m", __func__);
     capture_register_netfd(auth->radius_fd);
 }

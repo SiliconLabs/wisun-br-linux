@@ -49,7 +49,7 @@ void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
     BUG();
 }
 
-void radius_init(struct auth_ctx *auth, const struct sockaddr *sa)
+void radius_init(struct auth_ctx *auth, const struct in6_addr *addr)
 {
     FATAL(1, "radius_server is not supported");
 }

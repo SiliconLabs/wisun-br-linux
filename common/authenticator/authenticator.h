@@ -89,7 +89,7 @@ struct auth_cfg {
     struct auth_node_cfg ffn;
     struct auth_node_cfg lfn;
     struct tls_cfg tls;
-    struct sockaddr_storage radius_addr;
+    struct in6_addr radius_addr;
     char radius_secret[256];
     uint8_t gtk_init[WS_GTK_COUNT + WS_LGTK_COUNT][16];
     bool allow_fan10;

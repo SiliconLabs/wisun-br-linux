@@ -231,8 +231,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
 
     // Keep these values in sync with examples/wsbrd.conf
     config->tun_autoconf = true;
-    config->dhcp_server.sin6_family = AF_INET6;
-    config->dhcp_server.sin6_addr = in6addr_any;
     config->ws_class = 0;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
@@ -439,7 +437,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("setting both PAN_ID and (L)GTKs may generate inconsistencies on the network");
     if (config->capture[0] && !config->storage_delete)
         WARN("--capture used without --delete-storage");
-    if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server.sin6_addr))
+    if (config->tun_autoconf && !IN6_IS_ADDR_UNSPECIFIED(&config->dhcp_server))
         WARN("\"dhcp_server\" is set: make sure that \"ipv6_prefix\" matches");
     if (config->mqtt.broker[0] && !config->extauth_name[0])
         WARN("ignoring mqtt_broker since external_auth is not set");

@@ -81,8 +81,8 @@ const struct name_value valid_booleans[] = {
 };
 
 const struct addrinfo valid_ipv4or6 = {
-    .ai_family = AF_UNSPEC,
-    .ai_flags = AI_ADDRCONFIG,
+    .ai_family = AF_INET6,
+    .ai_flags = AI_ADDRCONFIG | AI_V4MAPPED,
 };
 
 const struct addrinfo valid_ipv6 = {
@@ -226,7 +226,7 @@ void conf_set_netmask(const struct storage_parse_info *info, void *raw_dest, con
 
 void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    struct sockaddr *dest = raw_dest;
+    struct in6_addr *dest = raw_dest;
     struct addrinfo *results;
     int err;
 
@@ -234,7 +234,8 @@ void conf_set_netaddr(const struct storage_parse_info *info, void *raw_dest, con
     if (err != 0)
         FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value, gai_strerror(err));
     BUG_ON(!results);
-    memcpy(dest, results->ai_addr, results->ai_addrlen);
+    BUG_ON(results[0].ai_family != AF_INET6);
+    *dest = ((struct sockaddr_in6 *)results[0].ai_addr)->sin6_addr;
     freeaddrinfo(results);
 }
 

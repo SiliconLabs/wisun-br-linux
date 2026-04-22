@@ -462,11 +462,11 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 
     ws_bootstrap_up(&ctxt->net_if, gua.s6_addr);
     wsbr_check_link_local_addr(ctxt);
-    if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr)) {
+    if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server)) {
         dhcp_start(&ctxt->dhcp_server, ctxt->net_if.tun.ifname,
                    ctxt->rcp.eui64.u8, gua.s6_addr);
-    } else if (!IN6_IS_ADDR_LOOPBACK(&ctxt->config.dhcp_server.sin6_addr)) {
-        ctxt->dhcp_relay.server_addr = ctxt->config.dhcp_server.sin6_addr;
+    } else if (!IN6_IS_ADDR_LOOPBACK(&ctxt->config.dhcp_server)) {
+        ctxt->dhcp_relay.server_addr = ctxt->config.dhcp_server;
         ctxt->dhcp_relay.link_addr = gua;
         dhcp_relay_start(&ctxt->dhcp_relay);
     }
@@ -531,7 +531,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt)
     ctxt->fds[POLLFD_TUN].events = 0;
     ctxt->fds[POLLFD_TIMER].fd = timer_fd();
     ctxt->fds[POLLFD_TIMER].events = POLLIN;
-    ctxt->fds[POLLFD_DHCP].fd = IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr) ?
+    ctxt->fds[POLLFD_DHCP].fd = IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server) ?
                                 ctxt->dhcp_server.fd : ctxt->dhcp_relay.fd;
     ctxt->fds[POLLFD_DHCP].events = POLLIN;
     ctxt->fds[POLLFD_RPL].fd = ctxt->net_if.rpl_root.sockfd;
@@ -562,7 +562,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
     if (ctxt->fds[POLLFD_DBUS].revents & POLLIN)
         dbus_process();
     if (ctxt->fds[POLLFD_DHCP].revents & POLLIN) {
-        if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server.sin6_addr))
+        if (IN6_IS_ADDR_UNSPECIFIED(&ctxt->config.dhcp_server))
             dhcp_recv(&ctxt->dhcp_server);
         else
             dhcp_relay_recv(&ctxt->dhcp_relay);

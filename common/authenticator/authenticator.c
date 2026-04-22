@@ -679,7 +679,7 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
     BUG_ON(auth->radius_fd >= 0);
     BUG_ON(!auth->cfg);
 
-    if (auth->cfg->radius_addr.ss_family != AF_UNSPEC &&
+    if (!IN6_IS_ADDR_UNSPECIFIED(&auth->cfg->radius_addr) &&
         (auth->cfg->tls.key.iov_base || auth->cfg->tls.cert.iov_base || auth->cfg->tls.ca_cert.iov_base))
         WARN("ignore certificates and key since an external radius server is in use");
     if (auth->cfg->ffn.gtk_new_install_required &&
@@ -689,8 +689,8 @@ void auth_start(struct auth_ctx *auth, const struct eui64 *eui64, bool enable_lf
         auth->cfg->lfn.gtk_new_install_required >= (100 - 100 / auth->cfg->lfn.revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
 
-    if (auth->cfg->radius_addr.ss_family != AF_UNSPEC)
-        radius_init(auth, (const struct sockaddr *)&auth->cfg->radius_addr);
+    if (!IN6_IS_ADDR_UNSPECIFIED(&auth->cfg->radius_addr))
+        radius_init(auth, &auth->cfg->radius_addr);
     else
         tls_init(&auth->tls, MBEDTLS_SSL_IS_SERVER, &auth->cfg->tls);
 

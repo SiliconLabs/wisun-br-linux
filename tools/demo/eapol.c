@@ -300,13 +300,11 @@ static void init(struct ctx *ctx, struct auth_cfg *auth_cfg, struct supp_cfg *su
             exit(EXIT_FAILURE);
         }
     }
-    if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC) {
+    if (!IN6_IS_ADDR_UNSPECIFIED(&ctx->auth.cfg->radius_addr)) {
         if (ctx->supp.keys.pmk.installation_s)
             FATAL(1, "incompatible --radius-server and --pmk");
-        if (ctx->auth.cfg->radius_addr.ss_family != AF_UNSPEC && !ctx->auth.cfg->radius_secret[0])
+        if (!ctx->auth.cfg->radius_secret[0])
             FATAL(1, "missing --radius-secret");
-        if (ctx->auth.cfg->radius_addr.ss_family == AF_UNSPEC && ctx->auth.cfg->radius_secret[0])
-            FATAL(1, "missing --radius-server");
     } else {
         if (!auth_cfg->tls.ca_cert.iov_base)
             FATAL(1, "missing --auth-ca");

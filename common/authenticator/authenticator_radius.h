@@ -22,7 +22,7 @@ struct auth_supp_ctx;
 struct in6_addr;
 struct sockaddr;
 
-void radius_init(struct auth_ctx *auth, const struct sockaddr *sa);
+void radius_init(struct auth_ctx *auth, const struct in6_addr *addr);
 void radius_recv(struct auth_ctx *auth);
 void radius_send(struct auth_ctx *auth, struct auth_supp_ctx *supp,
                  const void *buf, size_t buf_len);
