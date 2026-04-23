@@ -32,10 +32,9 @@ static void *ncp_main(void *arg)
 {
     struct wsrd_conf *cfg = arg;
 
-    // Provide a UART device so parse_commandline succeeds
-    strcpy(cfg->rcp.uart_dev, "/dev/null");
     cfg->storage_delete = true;
-    wsrd_main(3, (char *[]){ "wsrd", "-F", g_config_filename, NULL });
+    // Provide a UART device so parse_commandline succeeds
+    wsrd_main(5, (char *[]){ "wsrd", "-F", g_config_filename, "-u", "/dev/null", NULL });
     __builtin_unreachable();
 }
 
