@@ -1,6 +1,8 @@
   - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
     This should reduce useless RPL traffic and potential ICMPv6 "destination
     unreachable" errors.
+  - `wsbrd`: Do not initiate MPL forwarding for raw Wi-SUN multicast packets
+    received that do not originate from a LFN child.
   - `wsbrd`: On border router reboot, accelerate previous LFN child
     reconnection by inserting a vendor IE in LPC and LTS frames.
   - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
