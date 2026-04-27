@@ -889,13 +889,27 @@ void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct net_if *cur)
 
 static void ipv6_consider_inserting_to_mpl_domain(buffer_t *buf)
 {
+    struct ipv6_neighbour_cache *ncache = &buf->interface->ipv6_neighbour_cache;
     struct pktbuf pktbuf = { };
+    struct ipv6_neighbour *nce;
+    struct ws_neigh *neigh;
     struct in6_addr addr;
     struct ip6_hdr *hdr;
+    struct eui64 eui64;
     int ret;
 
     if (buf->options.mpl_rx ||
         addr_ipv6_multicast_scope(buf->dst_sa.address) < IPV6_SCOPE_REALM_LOCAL) {
+        return;
+    }
+
+    nce = ipv6_neighbour_lookup(ncache, buf->src_sa.address);
+    if (nce) {
+        memcpy(&eui64, ipv6_neighbour_eui64(ncache, nce), 8);
+        neigh = ws_neigh_get(&buf->interface->ws_info.neighbor_storage, &eui64);
+    }
+    if (!nce || !neigh || neigh->node_role != WS_NR_ROLE_LFN) {
+        TRACE(TR_DROP, "drop %-9s: raw multicast not from LFN child", "ipv6");
         return;
     }
 

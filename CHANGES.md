@@ -1,3 +1,6 @@
+  - `wsbrd`: Do not initiate MPL forwarding for raw Wi-SUN multicast packets
+    received that do not originate from a LFN child.
+
 v2.9
 ------
   - Save MPL sequence number to disk: prevent multicast packets being dropped
