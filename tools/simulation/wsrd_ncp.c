@@ -394,6 +394,11 @@ static void ncp_get_rpl_info(const void *req, const void *req_data, void *_cnf, 
     info->default_lifetime       = parent->rpl->config.lifetime_default;
 }
 
+static void ncp_reset_params(const void *req, const void *req_data, void *_cnf, void *cnf_data)
+{
+    // TODO
+}
+
 void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_data)
 {
     static const struct {
@@ -475,6 +480,7 @@ void ns3_ncp_recv(const void *_req, const void *req_data, void *_cnf, void *cnf_
         [SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_REQ_ID]     = { NULL,              sizeof(sl_wisun_msg_config_neighbor_table_size_req_t),     SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_CNF_ID,     sizeof(sl_wisun_msg_config_neighbor_table_size_cnf_t) },
         [SL_WISUN_MSG_SET_LFN_TIMINGS_REQ_ID]                = { NULL,              sizeof(sl_wisun_msg_set_lfn_timings_req_t),                SL_WISUN_MSG_SET_LFN_TIMINGS_CNF_ID,                sizeof(sl_wisun_msg_set_lfn_timings_cnf_t) },
         [SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_REQ_ID]    = { NULL,              sizeof(sl_wisun_msg_config_concurrent_detection_req_t),    SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_CNF_ID,    sizeof(sl_wisun_msg_config_concurrent_detection_cnf_t) },
+        [SL_WISUN_MSG_RESET_PARAMS_REQ_ID]                   = { ncp_reset_params,  sizeof(sl_wisun_msg_reset_params_req_t),                   SL_WISUN_MSG_RESET_PARAMS_CNF_ID,                   sizeof(sl_wisun_msg_reset_params_cnf_t) },
     };
     const sl_wisun_msg_header_t *req = _req;
     sl_wisun_msg_generic_cnf_t *cnf = _cnf;
