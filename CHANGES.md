@@ -1,8 +1,6 @@
   - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
     This should reduce useless RPL traffic and potential ICMPv6 "destination
     unreachable" errors.
-  - `wsbrd`: Do not initiate MPL forwarding for raw Wi-SUN multicast packets
-    received that do not originate from a LFN child.
   - `wsbrd`: On border router reboot, accelerate previous LFN child
     reconnection by inserting a vendor IE in LPC and LTS frames.
   - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
@@ -11,6 +9,13 @@
   - `silabs-ws-dc`: Close connection when the security frame counter reaches
     the maximum value. A new fresh connection can be established to generate a
     new key.
+
+v2.9.1
+------
+  - `wsbrd`: Do not initiate MPL forwarding for raw Wi-SUN multicast packets
+    received that do not originate from a LFN child.
+  - `wsrd`: Fix potential use-after-free when rebooting with cache and sending
+    a Neighbor Cache Refresh (NCR) request packet.
 
 v2.9
 ------
