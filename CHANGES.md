@@ -1,5 +1,9 @@
+v2.9.1
+------
   - `wsbrd`: Do not initiate MPL forwarding for raw Wi-SUN multicast packets
     received that do not originate from a LFN child.
+  - `wsrd`: Fix potential use-after-free when rebooting with cache and sending
+    a Neighbor Cache Refresh (NCR) request packet.
 
 v2.9
 ------
