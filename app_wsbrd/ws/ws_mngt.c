@@ -34,7 +34,7 @@
 // PAN size step for JM-IE version update and auto connection params adjustment
 #define SL_PAN_SIZE_STEP 200
 
-static void ws_mngt_adjust_trickle_params(struct ws_info *ws_info, uint16_t pan_size)
+void ws_mngt_adjust_trickle_params(struct ws_info *ws_info, uint16_t pan_size)
 {
     const struct wsbr_cfg *network_cfg = &size_params[WS_NETWORK_SIZE_AUTO];
     struct trickle_cfg *cfg = &ws_info->mngt.disc_cfg;
@@ -79,7 +79,8 @@ void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size)
     pan_info->last_jm_pan_size = pan_size;
     pan_info->jm.version++;
     INFO("jm-ie update: version=%u pan_size=%u plf=%u", pan_info->jm.version, pan_size, plf);
-    ws_mngt_adjust_trickle_params(ws_info, pan_size);
+    if (!ws_info->join_node_count)
+        ws_mngt_adjust_trickle_params(ws_info, pan_size);
     trickle_inconsistent(&ws_info->mngt.trickle_pa, NULL);
     trickle_inconsistent(&ws_info->mngt.trickle_pc, NULL);
     ws_pan_info_storage_write(ws_info);

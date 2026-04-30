@@ -49,6 +49,7 @@
 #include "ws/ws_bootstrap_6lbr.h"
 #include "ws/ws_common.h"
 #include "ws/ws_llc.h"
+#include "ws/ws_mngt.h"
 #include "common/ws/ws_ie.h"
 #include "net/ns_address_internal.h"
 #include "net/netaddr_types.h"
@@ -419,6 +420,14 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_info->enable_lfn   = ctxt->config.enable_lfn;
     ws_info->enable_ffn10 = ctxt->config.enable_ffn10;
     ws_info->auto_adjust  = ctxt->config.ws_size == WS_NETWORK_SIZE_AUTO;
+    ws_info->join_node_count = ctxt->config.join_node_count;
+
+    /*
+     * NOTE: Pre-adjust trickle params so the join_node_count override takes effect
+     * before the first PAN advertisement is sent.
+     */
+    if (ws_info->join_node_count)
+        ws_mngt_adjust_trickle_params(ws_info, ws_info->join_node_count);
 
     ws_info->mngt.lpa_legacy = version_older_than(ctxt->rcp.version_api, 2, 16, 1);
     if (ctxt->config.enable_lfn && ws_info->mngt.lpa_legacy)

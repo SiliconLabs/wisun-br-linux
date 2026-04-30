@@ -45,6 +45,7 @@ struct wsbrd_conf {
 
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_size;
+    int  join_node_count;
     int  ws_domain;
     int  ws_mode;
     int  ws_class;

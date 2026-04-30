@@ -66,4 +66,6 @@ void ws_mngt_lfn_version_increase(struct ws_info *ws_info);
 
 void ws_mngt_update_jm_ie(struct ws_info *ws_info, uint16_t pan_size);
 
+void ws_mngt_adjust_trickle_params(struct ws_info *ws_info, uint16_t pan_size);
+
 #endif

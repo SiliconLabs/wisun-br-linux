@@ -152,6 +152,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "dhcp_server",                   offsetof(struct wsbrd_conf, dhcp_server),                      conf_set_netaddr,     &valid_ipv6 },
         { "network_name",                  offsetof(struct wsbrd_conf, ws_name),                          conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          offsetof(struct wsbrd_conf, ws_size),                          conf_set_enum,        &valid_ws_size },
+        { "join_node_count",               offsetof(struct wsbrd_conf, join_node_count),                  conf_set_number,      &valid_uint16 },
         { "domain",                        offsetof(struct wsbrd_conf, ws_domain),                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          offsetof(struct wsbrd_conf, ws_mode),                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   offsetof(struct wsbrd_conf, ws_phy_mode_id),                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
@@ -235,6 +236,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
     config->ws_size = WS_NETWORK_SIZE_SMALL;
+    config->join_node_count = 0;
     config->ws_pan_id = -1;
     config->ws_phy_op_modes[0] = -1;
     config->color_output = -1;
@@ -419,6 +421,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("mix \"phy_operating_modes\" and FAN1.0 mode");
     if (config->ws_size == WS_NETWORK_SIZE_AUTO && !(config->ws_join_metrics & BIT(WS_JM_PLF)))
         FATAL(1, "size = AUTO requires join_metrics = plf");
+    if (config->join_node_count && config->ws_size != WS_NETWORK_SIZE_AUTO)
+        FATAL(1, "join_node_count requires size = AUTO");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (!config->enable_lfn && memzcmp(config->auth.gtk_init + WS_GTK_COUNT, 16 * WS_LGTK_COUNT))
