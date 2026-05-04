@@ -45,4 +45,13 @@ void ws_generate_gak(const char *netname, const uint8_t gtk[16], uint8_t gak[16]
 void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const uint8_t supp_eui64[8],
                      uint8_t ptkid[16]);
 
+/*
+ * Store frame counters for all keys ever used, and restore counters if a
+ * previous key is re-used. This is particularly relevant when switching
+ * between PANs. Each key has an associated counter-xx:xx:xx:xx:xx:xx:xx:xx
+ * file with the suffix being the key hash as defined in the GTKHASH-IE.
+ */
+void ws_gtk_counter_load(struct ws_gtk *gtk);
+void ws_gtk_counter_store(const struct ws_gtk *gtk);
+
 #endif

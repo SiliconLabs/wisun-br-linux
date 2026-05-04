@@ -11,11 +11,15 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <fnmatch.h>
 #include <string.h>
 
 #include "common/log.h"
+#include "common/mathutils.h"
 #include "common/mbedtls_extra.h"
+#include "common/key_value_storage.h"
 #include "common/bits.h"
+
 #include "ws_keys.h"
 
 // GTK Liveness: BIT(i) is 1 if gtks[i] is live, 0 if gtks[i] is expired
@@ -72,4 +76,57 @@ void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const u
     xmbedtls_md_hmac_finish(&md, hmac);
     mbedtls_md_free(&md);
     memcpy(ptkid, hmac, 16);
+}
+
+#define WS_GTK_COUNTER_FILENAME_LEN 32 // counter-xx:xx:xx:xx:xx:xx:xx:xx
+
+static void ws_gtk_counter_filename(const uint8_t gtk[16],
+                                    char filename[WS_GTK_COUNTER_FILENAME_LEN])
+{
+    uint8_t hash[32];
+
+    xmbedtls_sha256(gtk, 16, hash, false);
+    strcpy(filename, "counter-");
+    str_bytes(hash + 24, 8, NULL, filename + strlen(filename),
+              WS_GTK_COUNTER_FILENAME_LEN - strlen(filename), DELIM_COLON);
+}
+
+void ws_gtk_counter_load(struct ws_gtk *gtk)
+{
+    char filename[WS_GTK_COUNTER_FILENAME_LEN];
+    struct storage_parse_info *info;
+
+    gtk->frame_counter = 0;
+
+    ws_gtk_counter_filename(gtk->key, filename);
+    info = storage_open_prefix(filename, "r");
+    if (!info)
+        return;
+
+    while (storage_parse_line(info) != EOF) {
+        if (!fnmatch("frame_counter", info->key, 0))
+            gtk->frame_counter = add32sat(strtoul(info->value, NULL, 0),
+                                          WS_GTK_COUNTER_INC);
+        else
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+    }
+
+    storage_close(info);
+}
+
+void ws_gtk_counter_store(const struct ws_gtk *gtk)
+{
+    char filename[WS_GTK_COUNTER_FILENAME_LEN];
+    struct storage_parse_info *info;
+
+    ws_gtk_counter_filename(gtk->key, filename);
+    info = storage_open_prefix(filename, "w");
+    if (!info) {
+        WARN("storage_open_prefix %s: %m", filename);
+        return;
+    }
+
+    fprintf(info->file, "frame_counter = %u\n", gtk->frame_counter);
+
+    storage_close_flush(info);
 }

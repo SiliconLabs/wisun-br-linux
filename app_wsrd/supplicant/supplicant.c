@@ -281,8 +281,10 @@ void supp_reset(struct supp_ctx *supp)
     timer_stop(NULL, &supp->failure_timer);
     supp_eap_tls_reset(supp);
     for (uint8_t i = 0; i < ARRAY_SIZE(supp->gtks); i++) {
-        if (ws_gtk_installed(&supp->gtks[i]))
+        if (ws_gtk_installed(&supp->gtks[i])) {
+            ws_gtk_counter_store(&supp->gtks[i]);
             supp->on_gtk_change(supp, NULL, 0, i + 1);
+        }
         ws_gtk_clear(&supp->timer_group, &supp->gtks[i]);
     }
     supp->auth_gtkl = 0;

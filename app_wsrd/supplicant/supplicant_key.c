@@ -210,6 +210,7 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         BUG_ON(!timer_stopped(&gtk->expiration_timer));
         BUG_ON(gtk->frame_counter);
         memcpy(gtk->key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
+        ws_gtk_counter_load(gtk);
         timer_start_rel(&supp->timer_group, &gtk->expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk->key, gtk->frame_counter, key_index);
         supp_storage_store(supp, true);
