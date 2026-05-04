@@ -175,6 +175,7 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
     const uint8_t count = is_lgtk ? WS_LGTK_COUNT : WS_GTK_COUNT;
     const uint8_t offset = is_lgtk ? WS_GTK_COUNT : 0;
     uint8_t key_id, key_index;
+    struct ws_gtk *gtk;
 
     /*
      *   Wi-SUN FAN 1.1v08, 6.3.2.2.4 Group Transient Key KDE (GTK)
@@ -189,6 +190,7 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         return -EINVAL;
     }
     key_index = key_id + 1 + offset;
+    gtk = &supp->gtks[key_index - 1];
 
     /*
      *   IEEE 802.11-2020, 12.7.7.4 Group key handshake implementation considerations
@@ -204,12 +206,12 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
     }
 
     // Prevent Key Reinstallation Attacks (https://www.krackattacks.com)
-    if (memcmp(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
-        BUG_ON(!timer_stopped(&supp->gtks[key_index - 1].expiration_timer));
-        BUG_ON(supp->gtks[key_index - 1].frame_counter);
-        memcpy(supp->gtks[key_index - 1].key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
-        timer_start_rel(&supp->timer_group, &supp->gtks[key_index - 1].expiration_timer, lifetime_kde * 1000);
-        supp->on_gtk_change(supp, supp->gtks[key_index - 1].key, supp->gtks[key_index - 1].frame_counter, key_index);
+    if (memcmp(gtk->key, gtk_kde->gtk, sizeof(gtk_kde->gtk))) {
+        BUG_ON(!timer_stopped(&gtk->expiration_timer));
+        BUG_ON(gtk->frame_counter);
+        memcpy(gtk->key, gtk_kde->gtk, sizeof(gtk_kde->gtk));
+        timer_start_rel(&supp->timer_group, &gtk->expiration_timer, lifetime_kde * 1000);
+        supp->on_gtk_change(supp, gtk->key, gtk->frame_counter, key_index);
         supp_storage_store(supp, true);
         TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%us", tr_gtkname(key_index - 1),
               tr_key(gtk_kde->gtk, sizeof(gtk_kde->gtk)), lifetime_kde);
