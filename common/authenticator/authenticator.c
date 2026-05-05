@@ -279,8 +279,10 @@ int auth_install_gtk(struct auth_ctx *auth, struct auth_gtk_group *gtk_group,
                         start_ms + cfg->gtk_new_install_required * expire_offset_ms / 100);
 
     auth_storage_store_keys(auth, true);
-    TRACE(TR_SECURITY, "sec: installed %s=%s expiration=%"PRIu64,
-          tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)), new->expiration_timer.expire_ms / 1000);
+    TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%"PRIu64"s cnt=%u",
+          tr_gtkname(slot_install), tr_key(new->key, sizeof(new->key)),
+          timer_remaining_ms(&new->expiration_timer) / 1000,
+          new->frame_counter);
     TRACE(TR_SECURITY, "sec: next %s installation=%"PRIu64, gtk_group == &auth->gtk_group ? "gtk" : "lgtk",
           gtk_group->install_timer.expire_ms / 1000);
     return 0;

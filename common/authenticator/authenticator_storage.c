@@ -86,8 +86,10 @@ static void auth_storage_load_gtks(struct auth_ctx *auth, const uint64_t gtks_ex
             continue;
         }
         timer_start_abs(&auth->timer_group, &gtks[i].expiration_timer, gtks_expiration_ts_ms[i] - storage_offset_ms);
-        TRACE(TR_SECURITY, "sec: installed %s=%s expiration=%"PRIu64, tr_gtkname(i),
-              tr_key(gtks[i].key, sizeof(gtks[i].key)), gtks[i].expiration_timer.expire_ms / 1000);
+        TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%"PRIu64"s cnt=%u",
+              tr_gtkname(i), tr_key(gtks[i].key, sizeof(gtks[i].key)),
+              timer_remaining_ms(&gtks[i].expiration_timer) / 1000,
+              gtks[i].frame_counter);
         if (i < WS_GTK_COUNT)
             activate = gtk_group->slot_active == i;
         else

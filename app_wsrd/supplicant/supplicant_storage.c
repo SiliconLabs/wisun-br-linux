@@ -86,8 +86,10 @@ bool supp_storage_load(struct supp_ctx *supp)
             continue;
         }
         timer_start_abs(&supp->timer_group, &supp->gtks[i].expiration_timer, gtks_expiration_ts_ms[i] - storage_offset_ms);
-        TRACE(TR_SECURITY, "sec: installed %s=%s expiration=%"PRIu64, tr_gtkname(i),
-              tr_key(supp->gtks[i].key, sizeof(supp->gtks[i].key)), supp->gtks[i].expiration_timer.expire_ms / 1000);
+        TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%"PRIu64"s cnt=%u", tr_gtkname(i),
+              tr_key(supp->gtks[i].key, sizeof(supp->gtks[i].key)),
+              timer_remaining_ms(&supp->gtks[i].expiration_timer) / 1000,
+              supp->gtks[i].frame_counter);
         supp->on_gtk_change(supp, supp->gtks[i].key, supp->gtks[i].frame_counter, i + 1);
     }
     return true;
