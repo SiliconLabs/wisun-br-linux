@@ -27,8 +27,6 @@
 
 #include "supplicant.h"
 
-#define FRAME_COUNTER_OFFSET 200000
-
 bool supp_storage_load(struct supp_ctx *supp)
 {
     uint64_t gtks_expiration_ts_ms[WS_GTK_COUNT + WS_LGTK_COUNT] = { };
@@ -63,7 +61,7 @@ bool supp_storage_load(struct supp_ctx *supp)
             gtks_expiration_ts_ms[info->key_array_index] = strtoull(info->value, NULL, 0);
         } else if (!fnmatch("gtk\\[*].frame_counter", info->key, 0)) {
              supp->gtks[info->key_array_index].frame_counter = add32sat((uint32_t)strtoul(info->value, NULL, 0),
-                                                                        FRAME_COUNTER_OFFSET);
+                                                                        WS_GTK_COUNTER_INC);
         } else if (!fnmatch("lgtk\\[*]", info->key, 0)) {
             if (parse_byte_array(supp->gtks[info->key_array_index + WS_GTK_COUNT].key,
                 sizeof(supp->gtks[info->key_array_index + WS_GTK_COUNT].key), info->value))
@@ -72,7 +70,7 @@ bool supp_storage_load(struct supp_ctx *supp)
             gtks_expiration_ts_ms[info->key_array_index + WS_GTK_COUNT] = strtoull(info->value, NULL, 0);
         } else if (!fnmatch("lgtk\\[*].frame_counter", info->key, 0)) {
              supp->gtks[info->key_array_index + WS_GTK_COUNT].frame_counter = add32sat((uint32_t)strtoul(info->value, NULL, 0),
-                                                                                       FRAME_COUNTER_OFFSET);
+                                                                                       WS_GTK_COUNTER_INC);
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }

@@ -27,6 +27,13 @@ struct ws_gtk {
 #define WS_GTK_COUNT  4
 #define WS_LGTK_COUNT 3
 
+/*
+ * When storing frame counter to disk, it may not be flushed immediately, and
+ * also it may not be up-to-date with the RCP. Add an arbirary increment when
+ * loading to ensure no counter value is re-used.
+ */
+#define WS_GTK_COUNTER_INC 200000
+
 static inline bool ws_gtk_installed(const struct ws_gtk *gtk)
 {
     return !timer_stopped(&gtk->expiration_timer);
