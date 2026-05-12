@@ -256,7 +256,7 @@ static void ws_recv_6lowpan(struct dc *dc, const uint8_t *buf, size_t buf_len,
     ipv6_addr_conv_iid_eui64(src_iid, src->u8);
     ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
-    pktbuf_init(&pktbuf, buf, buf_len);
+    pktbuf_push_tail(&pktbuf, buf, buf_len);
 
     if (pktbuf_len(&pktbuf) < 1)
         return;
@@ -447,7 +447,7 @@ void ws_recvfrom_tun(struct dc *dc)
     uint8_t dst_eui64[8];
     ssize_t size;
 
-    pktbuf_init(&pktbuf, NULL, 1500);
+    pktbuf_push_tail(&pktbuf, NULL, 1500);
     size = read(dc->tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     if (size < 0) {
         WARN("%s read: %m", __func__);

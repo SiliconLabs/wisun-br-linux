@@ -233,7 +233,7 @@ static void auth_key_write_key_data(struct auth_ctx *auth, const struct auth_sup
      *
      * Note: +8 for mbedtls_nist_kw_wrap requirements, see mbedtls/nist_kw.h
      */
-    pktbuf_init(enc_key_data, NULL, pktbuf_len(&key_data) + 8);
+    pktbuf_push_tail(enc_key_data, NULL, pktbuf_len(&key_data) + 8);
     ret = nist_kw_wrap(ieee80211_kek(ptk), IEEE80211_AKM_1_KEK_LEN_BYTES * 8,
                        pktbuf_head(&key_data), pktbuf_len(&key_data), pktbuf_head(enc_key_data), pktbuf_len(enc_key_data));
     FATAL_ON(-ret == EINVAL, 2, "%s: nist_kw_wrap: %s", __func__, strerror(-ret));

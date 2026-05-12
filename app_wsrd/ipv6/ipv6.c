@@ -500,7 +500,7 @@ void ipv6_recvfrom_tun(struct ipv6_ctx *ipv6)
     struct rpl_rpi rpi = { };
     ssize_t size;
 
-    pktbuf_init(&pktbuf, NULL, 1500);
+    pktbuf_push_tail(&pktbuf, NULL, 1500);
     size = read(ipv6->tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     if (size < 0) {
         WARN("%s read: %m", __func__);

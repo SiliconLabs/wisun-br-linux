@@ -215,9 +215,9 @@ void supp_eap_tls_reset(struct supp_ctx *supp)
     supp->last_tx_eap_type = EAP_TYPE_NAK;
     supp->last_eap_identifier = -1;
     supp->eap_tls_start_received = false;
-    pktbuf_init(&supp->tls_client.io_tx, NULL, 0);
-    pktbuf_init(&supp->tls_client.io_rx, NULL, 0);
-    pktbuf_init(&supp->rt_buffer, NULL, 0);
+    pktbuf_free(&supp->tls_client.io_tx);
+    pktbuf_free(&supp->tls_client.io_rx);
+    pktbuf_free(&supp->rt_buffer);
     supp->expected_rx_len = 0;
     supp->fragment_id = 0;
     mbedtls_ssl_session_reset(&supp->tls_client.ssl_ctx);

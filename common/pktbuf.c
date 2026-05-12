@@ -33,12 +33,6 @@ static inline uint8_t *pktbuf_tail(const struct pktbuf *pktbuf)
     return pktbuf->buf + pktbuf->offset_tail;
 }
 
-void pktbuf_init(struct pktbuf *pktbuf, const void *buf, size_t buf_len)
-{
-    pktbuf_free(pktbuf);
-    pktbuf_push_tail(pktbuf, buf, buf_len);
-}
-
 void pktbuf_free(struct pktbuf *pktbuf)
 {
     free(pktbuf->buf);

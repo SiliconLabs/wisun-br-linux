@@ -262,7 +262,7 @@ static int supp_key_handle_key_data(struct supp_ctx *supp, const struct eapol_ke
     uint8_t gtkl_kde;
     int ret;
 
-    pktbuf_init(&buf, NULL, be16toh(frame->data_length));
+    pktbuf_push_tail(&buf, NULL, be16toh(frame->data_length));
 
     if (FIELD_GET(IEEE80211_MASK_KEY_INFO_TYPE, be16toh(frame->information)) == IEEE80211_KEY_TYPE_PAIRWISE)
         ptk = supp->keys.tptk.key;

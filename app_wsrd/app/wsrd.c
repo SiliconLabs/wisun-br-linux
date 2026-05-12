@@ -125,7 +125,7 @@ static void *wsrd_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
     struct pktbuf pktbuf = { };
     int handle;
 
-    pktbuf_init(&pktbuf, buf, buf_len);
+    pktbuf_push_tail(&pktbuf, buf, buf_len);
     handle = ipv6_sendto_mac(ipv6, &pktbuf, NULL);
     pktbuf_free(&pktbuf);
     if (handle < 0)

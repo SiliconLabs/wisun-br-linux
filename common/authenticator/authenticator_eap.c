@@ -58,8 +58,8 @@ void auth_eap_send(struct auth_ctx *auth, struct auth_supp_ctx *supp, struct pkt
 
 static void auth_eap_tls_reset_supp(struct auth_supp_ctx *supp)
 {
-    pktbuf_init(&supp->eap_tls.tls->io_tx, NULL, 0);
-    pktbuf_init(&supp->eap_tls.tls->io_rx, NULL, 0);
+    pktbuf_free(&supp->eap_tls.tls->io_tx);
+    pktbuf_free(&supp->eap_tls.tls->io_rx);
     supp->eap_tls.frag_expected_len = 0;
     supp->eap_tls.frag_id = 0;
     supp->eap_id = 0;

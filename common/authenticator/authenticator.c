@@ -428,7 +428,8 @@ void auth_rt_timer_start(struct auth_ctx *auth, struct auth_supp_ctx *supp,
      * although they don't require the same attention to timing provided by TCP.
      */
     auth_rt_timer_stop(auth, supp);
-    pktbuf_init(&supp->rt_buffer, buf, buf_len);
+    pktbuf_free(&supp->rt_buffer);
+    pktbuf_push_tail(&supp->rt_buffer, buf, buf_len);
     supp->rt_kmp_id = kmp_id;
 
     /*

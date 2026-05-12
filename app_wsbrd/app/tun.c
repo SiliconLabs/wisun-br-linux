@@ -136,7 +136,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     ssize_t read_len;
     uint8_t type;
 
-    pktbuf_init(&pktbuf, NULL, 1504); // Max ethernet frame size + TUN header
+    pktbuf_push_tail(&pktbuf, NULL, 1504); // Max ethernet frame size + TUN header
     read_len = xread(ctxt->net_if.tun.fd, pktbuf_head(&pktbuf), pktbuf_len(&pktbuf));
     if (read_len < 0) {
         WARN("%s: read: %m", __func__);

@@ -258,7 +258,8 @@ int lowpan_frag_recv(struct lowpan_frag_ctx *ctx,
 
     TRACE(TR_IPV6, "6lowpan: reasm done");
     ret = lowpan_iphc_decmpr_finish(reasm->buf, reasm->len);
-    pktbuf_init(pktbuf, reasm->buf, reasm->len);
+    pktbuf_free(pktbuf);
+    pktbuf_push_tail(pktbuf, reasm->buf, reasm->len);
     pktbuf->err = ret < 0;
     lowpan_reasm_del(ctx, reasm);
     return ret;

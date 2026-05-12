@@ -921,7 +921,7 @@ static void ipv6_consider_inserting_to_mpl_domain(buffer_t *buf)
     ret = addr_interface_get_gua(buf->interface, &addr);
     BUG_ON(ret < 0);
 
-    pktbuf_init(&pktbuf, buffer_data_pointer(buf), buffer_data_length(buf));
+    pktbuf_push_tail(&pktbuf, buffer_data_pointer(buf), buffer_data_length(buf));
     hdr = (struct ip6_hdr *)pktbuf_head(&pktbuf);
     hdr->ip6_hlim--;
     mpl_msg_gen(&buf->interface->mpl, &addr, &pktbuf);

@@ -35,7 +35,7 @@ void lowpan_recv(struct ipv6_ctx *ipv6,
     ipv6_addr_conv_iid_eui64(src_iid, src->u8);
     ipv6_addr_conv_iid_eui64(dst_iid, dst->u8);
 
-    pktbuf_init(&pktbuf, buf, buf_len);
+    pktbuf_push_tail(&pktbuf, buf, buf_len);
 
     if (pktbuf_len(&pktbuf) < 1)
         return;
