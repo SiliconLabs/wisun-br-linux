@@ -648,7 +648,6 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
     struct wsbr_ctxt *ctxt = userdata;
     struct rpl_target target_br = { };
     struct rpl_target *target;
-    struct ws_neigh *ws_neigh;
 
     sd_bus_message_open_container(reply, 'a', "(aybaay)");
 
@@ -658,17 +657,15 @@ int dbus_get_routing_graph(sd_bus *bus, const char *path, const char *interface,
     SLIST_FOREACH(target, &ctxt->net_if.rpl_root.targets, link)
         dbus_message_append_rpl_target(reply, target, ctxt->net_if.rpl_root.pcs);
 
-    // Since LFN are not routed by RPL, rank 1 LFNs are not RPL targets.
-    // This hack allows to expose rank 1 LFNs and relies on their ipv6 address
-    // registration.
+    /*
+     * Since LFN devices are not routed by RPL, hop 1 LFNs are not RPL targets.
+     * Connecting FFNs may also not have a RPL target registered yet. Rely on
+     * NS(ARO) address registration to expose such devices.
+     */
     ns_list_foreach(struct ipv6_neighbour, ipv6_neigh, &ctxt->net_if.ipv6_neighbour_cache.list) {
         if (IN6_IS_ADDR_MULTICAST(ipv6_neigh->ip_address) || IN6_IS_ADDR_LINKLOCAL(ipv6_neigh->ip_address))
             continue;
         if (rpl_target_get(&ctxt->net_if.rpl_root, ipv6_neigh->ip_address))
-            continue;
-        ws_neigh = ws_neigh_get(&ctxt->net_if.ws_info.neighbor_storage,
-                                &EUI64_FROM_BUF(ipv6_neighbour_eui64(&ctxt->net_if.ipv6_neighbour_cache, ipv6_neigh)));
-        if (!ws_neigh || ws_neigh->node_role != WS_NR_ROLE_LFN)
             continue;
         dbus_message_append_ipv6_neigh(reply, ipv6_neigh, &ctxt->net_if.rpl_root);
     }
