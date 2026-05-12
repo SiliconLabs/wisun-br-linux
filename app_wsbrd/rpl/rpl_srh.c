@@ -122,12 +122,12 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
 
     BUG_ON(!srh->seg_count);
     BUG_ON(srh->seg_left > srh->seg_count);
-    cmpri = 16;
+    cmpri = 15;
     for (uint8_t i = 0; i < srh->seg_count - 1; i++)
         for (uint8_t j = 0; j < cmpri; j++)
             if (srh->seg_list[i][j] != dst[j])
                 cmpri = j;
-    cmpre = 16;
+    cmpre = 15;
     for (uint8_t i = 0; i < cmpre; i++)
         if (srh->seg_list[srh->seg_count - 1][i] != dst[i])
             cmpre = i;
