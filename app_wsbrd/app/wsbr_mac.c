@@ -97,7 +97,7 @@ void wsbr_data_req_ext(struct net_if *cur,
         timer_call_later(wsbr_cnf_fail, &cnf_fail, sizeof(cnf_fail));
         return;
     }
-    if (neighbor_ws && !ws_neigh_has_us(&neighbor_ws->fhss_data_unsecured)) {
+    if (neighbor_ws && !ws_neigh_has_us(&neighbor_ws->fhss)) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown unicast schedule for %s", "15.4", tr_eui64(data->DstAddr));
         timer_call_later(wsbr_cnf_fail, &cnf_fail, sizeof(cnf_fail));
         return;
@@ -123,7 +123,7 @@ void wsbr_data_req_ext(struct net_if *cur,
         iobuf_push_data_reserved(&frame, 8); // MIC-64
 
     rcp_req_data_tx(cur->rcp, frame.data, frame.len,
-                    data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss_data_unsecured : NULL,
+                    data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
                     data->rate_list[0].phy_mode_id ? data->rate_list : NULL,
                     data->ms_mode == WS_MODE_SWITCH_MAC ? HIF_MODE_SWITCH_TYPE_MAC : HIF_MODE_SWITCH_TYPE_PHY);

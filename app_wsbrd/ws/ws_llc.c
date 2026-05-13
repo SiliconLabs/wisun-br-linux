@@ -233,7 +233,8 @@ static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message 
         if (confirm->hif.status == HIF_STATUS_SUCCESS)
             ws_neigh_refresh(&base->net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
         if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt))
-            ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
+            ws_neigh_ut_update(&ws_neigh->fhss, ie_utt.ufsi,
+                               confirm->hif.timestamp_us, &ws_neigh->eui64);
     }
 
     free(msg->ie_iov_payload[1].iov_base);
@@ -274,8 +275,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
             if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
                 if (confirm->hif.status == HIF_STATUS_SUCCESS)
                     ws_neigh_refresh(&ws_info->neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
-                ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
-                ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
+                ws_neigh_ut_update(&ws_neigh->fhss, ie_utt.ufsi, confirm->hif.timestamp_us, &ws_neigh->eui64);
             }
             if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt))
                 if (confirm->hif.status == HIF_STATUS_SUCCESS)
@@ -309,7 +309,7 @@ static bool tx_confirm_extensive(struct ws_neigh *ws_neigh, time_t tx_confirm_du
         return false;
 
     if (ws_neigh->node_role == WS_NR_ROLE_LFN)
-        return tx_confirm_duration * 1000 >= ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
+        return tx_confirm_duration * 1000 >= ws_neigh->fhss.lfn.uc_listen_interval_ms * TX_CONFIRM_EXTENSIVE_LFN_MULTIPLIER;
     else
         return tx_confirm_duration >= TX_CONFIRM_EXTENSIVE_FFN_SEC;
 }
@@ -488,9 +488,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
-        ws_neigh_ut_update(&ws_neigh->fhss_data, ie_utt.ufsi,
-                           data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
-        ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
+        ws_neigh_ut_update(&ws_neigh->fhss, ie_utt.ufsi,
                            data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
 
         // Calculate RSL for all UDATA packets heard
@@ -507,12 +505,9 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
             TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
             return;
         }
-        if (has_us) {
-            ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data,
+        if (has_us)
+            ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss,
                                &ie_us.chan_plan, ie_us.dwell_interval);
-            ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
-                               &ie_us.chan_plan, ie_us.dwell_interval);
-        }
         if (has_pom)
             ws_neigh->pom_ie = ie_pom;
     }
@@ -575,14 +570,10 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in ULAD frame from LFN");
     if (has_lus && !duplicated) {
-        ws_neigh_lut_update(&ws_neigh->fhss_data, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us);
-        ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us);
-        ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data,
-                            has_lcp ? &ie_lcp.chan_plan : NULL, ie_lus.listen_interval, &ws_neigh->lto_info);
+        ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
+                            ie_lutt.interval_offset, data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
-                                                                 &ws_neigh->fhss_data_unsecured,
+                                                                 &ws_neigh->fhss,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
         ws_llc_update_timing_info(ws_neigh);
@@ -667,15 +658,14 @@ static void ws_llc_eapol_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *d
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neigh_ut_update(&ws_neigh->fhss_data_unsecured, ie_utt.ufsi,
+    ws_neigh_ut_update(&ws_neigh->fhss, ie_utt.ufsi,
                        data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     if (duplicated) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;
     }
     if (has_us)
-        ws_neigh_us_update(&base->net_if->ws_info.fhss_config,
-                           &ws_neigh->fhss_data_unsecured,
+        ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss,
                            &ie_us.chan_plan, ie_us.dwell_interval);
     ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ws_neigh->pom_ie);
 
@@ -746,9 +736,10 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
         BUG("Missing LUTT-IE in EAPOL frame from LFN");
     if (has_lus && !duplicated) {
-        ws_neigh_lut_update(&ws_neigh->fhss_data_unsecured, ie_lutt.slot_number, ie_lutt.interval_offset,
-                            data->hif.timestamp_us);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss_data_unsecured,
+        ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
+                            ie_lutt.interval_offset, data->hif.timestamp_us);
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
+                                                                 &ws_neigh->fhss,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
                                                                  ie_lus.listen_interval, &ws_neigh->lto_info);
         ws_llc_update_timing_info(ws_neigh);
@@ -1300,12 +1291,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     // be applied based on the target's current broadcast schedule offset.
     if (node_role == WS_NR_ROLE_LFN) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->net_if->ws_info.fhss_config.lfn_bc_interval,
-                                                                                   ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms,
+                                                                                   ws_neigh->fhss.lfn.uc_listen_interval_ms,
                                                                                    ws_neigh->lto_info.uc_interval_min_ms,
                                                                                    ws_neigh->lto_info.uc_interval_max_ms);
         adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
                                                    base->net_if->ws_info.fhss_config.lfn_bc_interval);
-        if ((adjusted_listening_interval != ws_neigh->fhss_data_unsecured.lfn.uc_listen_interval_ms ||
+        if ((adjusted_listening_interval != ws_neigh->fhss.lfn.uc_listen_interval_ms ||
             !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
             // FIXME: insert LTO-IE in ws_llc_prepare_ie()
             ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
@@ -1529,8 +1520,7 @@ void ws_llc_update_timing_info(const struct ws_neigh *neigh)
         if (version_older_than(rcp->version_api, 2, 9, 0))
             WARN("efficient lfn timing update requires RCP API >= 2.9");
         else
-            rcp_set_fhss_lfn_uc(rcp, handle_list, handle_count,
-                                &neigh->fhss_data_unsecured);
+            rcp_set_fhss_lfn_uc(rcp, handle_list, handle_count, &neigh->fhss);
     }
     free(handle_list);
 }

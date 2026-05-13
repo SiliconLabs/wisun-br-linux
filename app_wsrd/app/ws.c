@@ -90,20 +90,20 @@ void ws_sync_fhss_bc(struct wsrd *wsrd, const struct ws_neigh *ws_neigh)
      * This avoids having to synchronize again on RX of a PC from our parent.
      */
     rcp_set_fhss_ffn_bc(&wsrd->ws.rcp,
-                        ws_neigh->fhss_data_unsecured.ffn.bc_interval_ms,
-                        ws_neigh->fhss_data_unsecured.ffn.bsi,
-                        ws_neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms,
-                        ws_neigh->fhss_data_unsecured.bc_channel_list,
-                        ws_neigh->fhss_data_unsecured.ffn.bt_rx_tstamp_us,
-                        ws_neigh->fhss_data_unsecured.ffn.bc_slot_number,
-                        ws_neigh->fhss_data_unsecured.ffn.bc_interval_offset_ms,
+                        ws_neigh->fhss.ffn.bc_interval_ms,
+                        ws_neigh->fhss.ffn.bsi,
+                        ws_neigh->fhss.ffn.bc_dwell_interval_ms,
+                        ws_neigh->fhss.bc_channel_list,
+                        ws_neigh->fhss.ffn.bt_rx_tstamp_us,
+                        ws_neigh->fhss.ffn.bc_slot_number,
+                        ws_neigh->fhss.ffn.bc_interval_offset_ms,
                         parent ? parent->eui64.u8 : ws_neigh->eui64.u8,
                         parent ? parent->frame_counter_min : ws_neigh->frame_counter_min);
     wsrd->fhss_bc_synced_to_target = parent != NULL;
-    wsrd->ws.fhss.bc_interval = ws_neigh->fhss_data_unsecured.ffn.bc_interval_ms;
-    wsrd->ws.fhss.bc_dwell_interval = ws_neigh->fhss_data_unsecured.ffn.bc_dwell_interval_ms;
-    wsrd->ws.fhss.bsi = ws_neigh->fhss_data_unsecured.ffn.bsi;
-    memcpy(wsrd->ws.fhss.bc_chan_mask, ws_neigh->fhss_data_unsecured.bc_channel_list, sizeof(wsrd->ws.fhss.bc_chan_mask));
+    wsrd->ws.fhss.bc_interval = ws_neigh->fhss.ffn.bc_interval_ms;
+    wsrd->ws.fhss.bc_dwell_interval = ws_neigh->fhss.ffn.bc_dwell_interval_ms;
+    wsrd->ws.fhss.bsi = ws_neigh->fhss.ffn.bsi;
+    memcpy(wsrd->ws.fhss.bc_chan_mask, ws_neigh->fhss.bc_channel_list, sizeof(wsrd->ws.fhss.bc_chan_mask));
 }
 
 void ws_set_pan_id(struct wsrd *wsrd, uint16_t pan_id)
@@ -264,7 +264,8 @@ void ws_recv_pa(struct wsrd *wsrd, struct ws_ind *ind)
         return;
     has_jm = ws_wp_nested_jm_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_jm);
 
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss,
+                       &ie_us.chan_plan, ie_us.dwell_interval);
 
     // TODO: POM-IE
 
@@ -314,7 +315,8 @@ static void ws_recv_pas(struct wsrd *wsrd, struct ws_ind *ind)
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss,
+                       &ie_us.chan_plan, ie_us.dwell_interval);
 
     /*
      *   Wi-SUN FAN 1.1v09, 6.3.4.6.3.1 Usage of Trickle Timers
@@ -538,10 +540,9 @@ static void ws_recv_pc(struct wsrd *wsrd, struct ws_ind *ind)
     if (pan_version_update)
         ws_pan_version_update(wsrd, pan_version, gtkhash, ind, &ie_bs);
 
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-    ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data, &ie_bs);
-    ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
+    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss,
+                       &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss, &ie_bs);
 
     /*
      * We only sync to the parent if the PAN version number is the latest. This
@@ -570,8 +571,8 @@ static void ws_recv_pcs(struct wsrd *wsrd, struct ws_ind *ind)
     if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
         return;
 
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss,
+                       &ie_us.chan_plan, ie_us.dwell_interval);
 
     /*
      *   Wi-SUN FAN 1.1v08 - 6.3.4.6.3.1 Usage of Trickle Timers
@@ -617,8 +618,8 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
     if (ws_wp_nested_us_read(ind->ie_wp.data, ind->ie_wp.data_size, &ie_us)) {
         if (!ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
             return;
-        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data,           &ie_us.chan_plan, ie_us.dwell_interval);
-        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss,
+                           &ie_us.chan_plan, ie_us.dwell_interval);
     }
 
     lowpan_recv(&wsrd->ipv6,
@@ -670,9 +671,9 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
     has_ea_ie = ws_wh_ea_read(ind->ie_hdr.data, ind->ie_hdr.data_size, auth_eui64.u8);
 
     if (ws_ie_validate_us(&wsrd->ws.fhss, &ind->ie_wp, &ie_us))
-        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+        ws_neigh_us_update(&wsrd->ws.fhss, &ind->neigh->fhss, &ie_us.chan_plan, ie_us.dwell_interval);
     if (has_bs_ie)
-        ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_bs);
+        ws_neigh_bs_update(&wsrd->ws.fhss, &ind->neigh->fhss, &ie_bs);
 
     buf.data = ie_mpx.frame_ptr;
     buf.data_size = ie_mpx.frame_length;
@@ -862,7 +863,7 @@ void ws_on_send_dis(struct rfc8415_txalg *txalg)
     SLIST_FOREACH(neigh, &ipv6->rpl.mrhof.ws_neigh_table->neigh_list, link) {
         // TODO: Determine better creterias to filter out bad candidates (eg.
         // network name, PAN ID, PAN-IE routing metric, RSL...).
-        if (!ws_neigh_has_us(&neigh->fhss_data_unsecured))
+        if (!ws_neigh_has_us(&neigh->fhss))
             continue;
         if (neigh->pan_id != 0xffff && neigh->pan_id != wsrd->ws.pan_id)
             continue;

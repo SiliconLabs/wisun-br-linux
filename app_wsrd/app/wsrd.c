@@ -437,7 +437,7 @@ static void wsrd_on_pref_parent_change(struct rpl_mrhof *mrhof, struct ipv6_neig
         wsrd->eapol_target_eui64 = neigh->eui64;
         // NOTE: See comment in ws_pan_version_update()
         ws_check_gtkhash(wsrd);
-        if (!ws_neigh_has_bs(&ws_neigh->fhss_data_unsecured)) {
+        if (!ws_neigh_has_bs(&ws_neigh->fhss)) {
             wsrd->fhss_bc_synced_to_target = false;
             return;
         }

@@ -78,27 +78,14 @@ struct lto_info {
 struct ws_neigh {
     struct eui64 eui64;
 
-    /**
-     * Theses fields were introduced to differentiate FHSS data read in secured
-     * frames and FHSS data read in unsecured frames.
-     * However, various conception issues from the Wi-SUN specification lead us
-     * to always use unsecured information:
-     *   - LFNs may never send an LCP-IE along with secured frames which forces
-     *     us to use unsecured information. Note that an attacker could easily
-     *     send this IE in an unsecured frame (LPAS or EAPOL) and change the
-     *     information of an authenticated LFN that has never sent a secured
-     *     frame with LCP-IE (DDOS attack).
-     *   - When keys turn, LFNs may change their UC interval to speed up the
-     *     EAPOL process but do not have to send any secured frame afterward,
-     *     which means that the unsecured FHSS data must be used until they
-     *     do so.
-     * Generally speaking, DDOS attacks on wireless services can be considered
-     * easy. Knowing that, having these two fields is not necessary as many
-     * other security breaches exist and creates other issues linked to
-     * conception issues.
+    /*
+     * Frequency hopping data is recorded from both secured and unsecured
+     * frames and can thus be spoofed by an attacker. Favoring secured FHSS
+     * data is not suitable as it severely impacts reconnecting nodes which
+     * must send unsecured frames. This issue is accepted as a protocol flaw,
+     * DoS attacks are generally easy in wireless networks.
      */
-    struct ws_neigh_fhss fhss_data;
-    struct ws_neigh_fhss fhss_data_unsecured;
+    struct ws_neigh_fhss fhss;
 
     // PAN / EAPOL target selection
     uint16_t pan_id;

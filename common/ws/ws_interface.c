@@ -233,23 +233,17 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
         ind.neigh->frame_counter_min[ind.hdr.key_index - 1] = add32sat(ind.hdr.frame_counter, 1);
     }
 
-    ws_neigh_ut_update(&ind.neigh->fhss_data_unsecured, ie_utt.ufsi,
+    ws_neigh_ut_update(&ind.neigh->fhss, ie_utt.ufsi,
                        ind.hif->timestamp_us, &ind.hdr.src);
     if (has_bt_ie)
-        ws_neigh_bt_update(&ind.neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+        ws_neigh_bt_update(&ind.neigh->fhss, ie_bt.broadcast_slot_number,
                            ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
     ind.neigh->rsl_in_dbm_unsecured = ws_ewma_next(ind.neigh->rsl_in_dbm_unsecured,
                                                          hif_ind->rx_power_dbm, WS_EWMA_SF);
 
-    if (ind.hdr.key_index) {
-        ws_neigh_ut_update(&ind.neigh->fhss_data, ie_utt.ufsi,
-                           ind.hif->timestamp_us, &ind.hdr.src);
-        if (has_bt_ie)
-            ws_neigh_bt_update(&ind.neigh->fhss_data, ie_bt.broadcast_slot_number,
-                               ie_bt.broadcast_interval_offset, ind.hif->timestamp_us);
+    if (ind.hdr.key_index)
         ind.neigh->rsl_in_dbm = ws_ewma_next(ind.neigh->rsl_in_dbm,
                                                    hif_ind->rx_power_dbm, WS_EWMA_SF);
-    }
 
     if (ind.hdr.seqno >= 0 && !ws_neigh_duplicate_packet_check(ind.neigh, ind.hdr.seqno, ind.hif->timestamp_us)) {
         TRACE(TR_DROP, "drop %-9s: duplicated frame seqno=%d", "15.4", ind.hdr.seqno);
@@ -397,20 +391,12 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *hif_cnf)
                                 rate->tx_power_dbm, rsl, ws->phy.tx_power_dbm);
             }
         }
-        if (ws_wh_utt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_utt)) {
-            ws_neigh_ut_update(&cnf.neigh->fhss_data_unsecured, ie_utt.ufsi,
+        if (ws_wh_utt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_utt))
+            ws_neigh_ut_update(&cnf.neigh->fhss, ie_utt.ufsi,
                                hif_cnf->timestamp_us, &cnf.neigh->eui64);
-            if (cnf.hdr.key_index)
-                ws_neigh_ut_update(&cnf.neigh->fhss_data, ie_utt.ufsi,
-                                   hif_cnf->timestamp_us, &cnf.neigh->eui64);
-        }
-        if (ws_wh_bt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_bt)) {
-            ws_neigh_bt_update(&cnf.neigh->fhss_data_unsecured, ie_bt.broadcast_slot_number,
+        if (ws_wh_bt_read(cnf.ie_hdr.data, cnf.ie_hdr.data_size, &ie_bt))
+            ws_neigh_bt_update(&cnf.neigh->fhss, ie_bt.broadcast_slot_number,
                                ie_bt.broadcast_interval_offset, hif_cnf->timestamp_us);
-            if (cnf.hdr.key_index)
-                ws_neigh_bt_update(&cnf.neigh->fhss_data, ie_bt.broadcast_slot_number,
-                                   ie_bt.broadcast_interval_offset, hif_cnf->timestamp_us);
-        }
     }
     if (cnf.neigh)
         ws_etx_update(&ws->neigh_table.ws_etx_ctx, &cnf.neigh->ws_etx,
@@ -459,7 +445,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s", "15.4", tr_eui64(dst->u8));
         return -ETIMEDOUT;
     }
-    if (neigh && !ws_neigh_has_us(&neigh->fhss_data_unsecured)) {
+    if (neigh && !ws_neigh_has_us(&neigh->fhss)) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown unicast schedule for %s", "15.4", tr_eui64(dst->u8));
         return -EINVAL;
     }
@@ -487,7 +473,7 @@ int ws_if_send_data(struct ws_ctx *ws, const void *pkt, size_t pkt_len, const st
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     neigh ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
-                    neigh ? &neigh->fhss_data_unsecured : NULL,
+                    neigh ? &neigh->fhss : NULL,
                     neigh ? neigh->frame_counter_min : NULL,
                     has_rates ? frame_ctx->rates: NULL, 0);
     iobuf_free(&iobuf);
@@ -554,7 +540,7 @@ void ws_if_send_eapol(struct ws_ctx *ws, uint8_t kmp_id,
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     HIF_FHSS_TYPE_FFN_UC,
-                    &neigh->fhss_data_unsecured,
+                    &neigh->fhss,
                     neigh->frame_counter_min,
                     has_rates ? frame_ctx->rates : NULL, 0);
     iobuf_free(&iobuf);
@@ -785,7 +771,7 @@ void ws_if_send(struct ws_ctx *ws, struct ws_send_req *req)
                     iobuf.data, iobuf.len,
                     frame_ctx->handle,
                     req->fhss_type,
-                    neigh ? &neigh->fhss_data_unsecured : NULL,
+                    neigh ? &neigh->fhss : NULL,
                     neigh ? neigh->frame_counter_min : NULL,
                     has_rates ? frame_ctx->rates : NULL, 0);
     iobuf_free(&iobuf);

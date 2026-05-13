@@ -146,7 +146,8 @@ static void ws_recv_dca(struct dc *dc, struct ws_ind *ind)
 
     if (!ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
         return;
-    ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss,
+                       &ie_us.chan_plan, ie_us.dwell_interval);
 }
 
 static void ws_recv_dci(struct dc *dc, struct ws_ind *ind)
@@ -322,10 +323,9 @@ static void ws_recv_data(struct dc *dc, struct ws_ind *ind)
         TRACE(TR_DROP, "drop %s: invalid MPX-IE", "15.4");
         return;
     }
-    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us)) {
-        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
-    }
+    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss,
+                           &ie_us.chan_plan, ie_us.dwell_interval);
     ws_recv_6lowpan(dc, ie_mpx.frame_ptr, ie_mpx.frame_length,
                     &ind->hdr.src, &ind->hdr.dst);
 }
@@ -344,10 +344,10 @@ static void ws_recv_eapol(struct dc *dc, struct ws_ind *ind)
         return;
     }
 
-    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us)) {
-        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data, &ie_us.chan_plan, ie_us.dwell_interval);
-        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss_data_unsecured, &ie_us.chan_plan, ie_us.dwell_interval);
-    }
+    if (ws_ie_validate_us(&dc->ws.fhss, &ind->ie_wp, &ie_us))
+        ws_neigh_us_update(&dc->ws.fhss, &ind->neigh->fhss,
+                           &ie_us.chan_plan, ie_us.dwell_interval);
+
 
     buf.data = ie_mpx.frame_ptr;
     buf.data_size = ie_mpx.frame_length;
