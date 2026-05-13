@@ -328,7 +328,8 @@ void ws_mngt_pcs_analyze(struct ws_info *ws_info,
                        ie_us.dwell_interval);
 }
 
-static void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
+static void ws_mngt_lpa_send(struct ws_info *ws_info,
+                             const struct ws_neigh *dst)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPA,
@@ -360,8 +361,15 @@ static void ws_mngt_lpa_send(struct ws_info *ws_info, const uint8_t dst[8])
 void ws_mngt_lpa_timeout(struct timer_group *group, struct timer_entry *timer)
 {
     struct ws_info *ws_info = container_of(timer, struct ws_info, mngt.lpa_timer);
+    struct ws_neigh *neigh;
 
-    ws_mngt_lpa_send(ws_info, ws_info->mngt.lpa_dst);
+    neigh = ws_neigh_get(&ws_info->neighbor_storage, &ws_info->mngt.lpa_dst);
+    if (!neigh) {
+        TRACE(TR_TX_ABORT, "tx-abort %-9s: unknown neighbor %s",
+              tr_ws_frame(WS_FT_LPA), tr_eui64(ws_info->mngt.lpa_dst.u8));
+        return;
+    }
+    ws_mngt_lpa_send(ws_info, neigh);
 }
 
 static void ws_mngt_lpa_schedule(struct ws_mngt *mngt, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
@@ -371,7 +379,7 @@ static void ws_mngt_lpa_schedule(struct ws_mngt *mngt, struct ws_lnd_ie *ie_lnd,
     // FIXME: The LPA slot should be chosen by the RCP. UART transmission
     // delays likely implies that the slot is missed and one of the later
     // slots is used instead (if any).
-    memcpy(mngt->lpa_dst, eui64, 8);
+    memcpy(&mngt->lpa_dst, eui64, 8);
     // Start timer
     timer_start_rel(NULL, &mngt->lpa_timer,
                     ie_lnd->response_delay + slot * ie_lnd->discovery_slot_time);
@@ -393,7 +401,7 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
 
     if (!timer_stopped(&ws_info->mngt.lpa_timer)) {
         TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
-              tr_ws_frame(WS_FT_LPAS), tr_eui64(ws_info->mngt.lpa_dst));
+              tr_ws_frame(WS_FT_LPAS), tr_eui64(ws_info->mngt.lpa_dst.u8));
         return;
     }
 
@@ -468,10 +476,11 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
     if (ws_info->mngt.lpa_legacy)
         ws_mngt_lpa_schedule(&ws_info->mngt, &ie_lnd, data->SrcAddr);
     else
-        ws_mngt_lpa_send(ws_info, data->SrcAddr);
+        ws_mngt_lpa_send(ws_info, ws_neigh);
 }
 
-static void ws_mngt_lpc_send(struct ws_info *ws_info, const uint8_t dst[8])
+static void ws_mngt_lpc_send(struct ws_info *ws_info,
+                             const struct ws_neigh *dst)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPC,
@@ -543,7 +552,7 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
         ws_llc_update_timing_info(ws_neigh);
     }
 
-    ws_mngt_lpc_send(ws_info, data->SrcAddr);
+    ws_mngt_lpc_send(ws_info, ws_neigh);
 }
 
 void ws_mngt_ind(struct ws_info *ws_info, const struct mcps_data_ind *data,

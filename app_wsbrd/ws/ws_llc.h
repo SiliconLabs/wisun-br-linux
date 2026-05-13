@@ -79,7 +79,7 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
 int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *request);
 
 int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req,
-                            const uint8_t dst[8]);
+                            const struct ws_neigh *dst);
 
 int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t phy_mode_id,
                               uint8_t *neighbor_mac_address);

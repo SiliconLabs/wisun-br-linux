@@ -1655,7 +1655,8 @@ static bool ws_llc_has_active_lpa(struct llc_data_base *base, const uint8_t dst[
 // TODO: Factorize this with MPX and EAPOL
 // The Wi-SUN spec uses the term "directed frames" for LPA and LPC, but it
 // seems to just mean unicast.
-int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst[8])
+int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req,
+                            const struct ws_neigh *dst)
 {
     struct llc_data_base *base = &g_llc_base;
     mcps_data_req_t data_req = {
@@ -1668,9 +1669,9 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     };
     llc_message_t *msg;
 
-    if (req->frame_type == WS_FT_LPA && ws_llc_has_active_lpa(base, dst)) {
+    if (req->frame_type == WS_FT_LPA && ws_llc_has_active_lpa(base, dst->eui64.u8)) {
         TRACE(TR_TX_ABORT, "tx-abort %-9s: already queued for %s",
-              tr_ws_frame(WS_FT_LPA), tr_eui64(dst));
+              tr_ws_frame(WS_FT_LPA), tr_eui64(dst->eui64.u8));
         return -EBUSY;
     }
 
@@ -1678,7 +1679,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     if (!msg) {
         if (dst)
             TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message dst=%s",
-                  tr_ws_frame(req->frame_type), tr_eui64(dst));
+                  tr_ws_frame(req->frame_type), tr_eui64(dst->eui64.u8));
         else
             TRACE(TR_TX_ABORT, "tx-abort %-9s: could not allocate message",
                   tr_ws_frame(req->frame_type));
@@ -1690,8 +1691,8 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req, const uint8_t dst
     msg->security     = req->security;
 
     if (dst) {
-        memcpy(msg->dst_address, dst, sizeof(msg->dst_address));
-        memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
+        memcpy(msg->dst_address, &dst->eui64, sizeof(msg->dst_address));
+        memcpy(data_req.DstAddr, &dst->eui64, sizeof(data_req.DstAddr));
     } else {
         // FIXME: This timer should be restarted at confirmation instead
         if (req->wh_ies.lbt)
