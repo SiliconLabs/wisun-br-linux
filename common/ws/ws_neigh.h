@@ -72,7 +72,7 @@ struct ws_neigh_fhss {
 struct lto_info {
     uint24_t uc_interval_min_ms;    // from NR-IE
     uint24_t uc_interval_max_ms;    // from NR-IE
-    bool offset_adjusted;
+    bool needs_lto;
 };
 
 struct ws_neigh {
@@ -167,14 +167,17 @@ void ws_neigh_bs_update(const struct ws_fhss_config *fhss_config, struct ws_neig
 bool ws_neigh_has_bs(const struct ws_neigh_fhss *fhss_data);
 
 // LFN Unicast Schedule update
-bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
+void ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
                          struct ws_neigh *neigh,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms);
 
 uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
                                              uint24_t uc_interval_min, uint24_t uc_interval_max);
-
+/*
+ * Compute an offset relative to the start of the LFN broadcast interval. The
+ * RCP is responsible for computing the LTO-IE offset field based on this.
+ */
 uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t bc_interval);
 
 // Node Role update (LFN only)

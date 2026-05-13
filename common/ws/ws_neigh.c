@@ -406,26 +406,16 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
     return LFN_SCHEDULE_GUARD_TIME_MS * rand_get_random_in_range(1, max_offset_ms / LFN_SCHEDULE_GUARD_TIME_MS);
 }
 
-bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
+void ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
                          struct ws_neigh *neigh,
                          const struct ws_generic_channel_info *chan_info,
                          uint24_t listen_interval_ms)
 {
-    uint24_t adjusted_listening_interval;
-    bool offset_adjusted = true;
-
-    if (neigh->fhss.lfn.uc_listen_interval_ms != listen_interval_ms) {
-        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(fhss_config->lfn_bc_interval,
-                                                                          neigh->fhss.lfn.uc_listen_interval_ms,
-                                                                          neigh->lto_info.uc_interval_min_ms,
-                                                                          neigh->lto_info.uc_interval_max_ms);
-        if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
-            offset_adjusted = false;
-    }
+    neigh->lto_info.needs_lto = neigh->fhss.lfn.uc_listen_interval_ms != listen_interval_ms;
 
     neigh->fhss.lfn.uc_listen_interval_ms = listen_interval_ms;
     if (!chan_info)
-        return offset_adjusted; // Support chan plan tag 255 (reuse previous schedule)
+        return; // Support chan plan tag 255 (reuse previous schedule)
     neigh->fhss.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
         memset(neigh->fhss.uc_channel_list, 0, sizeof(neigh->fhss.uc_channel_list));
@@ -433,7 +423,6 @@ bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
     } else {
         ws_neigh_set_chan_list(fhss_config, neigh->fhss.uc_channel_list, chan_info);
     }
-    return offset_adjusted;
 }
 
 bool ws_neigh_duplicate_packet_check(struct ws_neigh *neigh, uint8_t mac_dsn, uint64_t rx_timestamp)

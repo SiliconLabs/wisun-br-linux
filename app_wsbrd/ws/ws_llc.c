@@ -572,10 +572,9 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                             ie_lutt.interval_offset, data->hif.timestamp_us);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
-                                                                 ws_neigh,
-                                                                 has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                                 ie_lus.listen_interval);
+        ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, ws_neigh,
+                            has_lcp ? &ie_lcp.chan_plan : NULL,
+                            ie_lus.listen_interval);
         ws_llc_update_timing_info(ws_neigh);
     }
 
@@ -738,10 +737,9 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
     if (has_lus && !duplicated) {
         ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                             ie_lutt.interval_offset, data->hif.timestamp_us);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
-                                                                 ws_neigh,
-                                                                 has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                                 ie_lus.listen_interval);
+        ws_neigh_lus_update(&base->net_if->ws_info.fhss_config, ws_neigh,
+                            has_lcp ? &ie_lcp.chan_plan : NULL,
+                            ie_lus.listen_interval);
         ws_llc_update_timing_info(ws_neigh);
     }
     if (duplicated) {
@@ -974,6 +972,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                          auth_supp_count(base->net_if->auth) : info->pan_information.test_pan_size;
     bool has_ie_wp = false;
     uint8_t gtkhash[4][8];
+    uint24_t interval_ms;
     struct ws_ie *ie;
     int ie_offset;
 
@@ -1002,6 +1001,16 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         ws_wh_lbs_write(&msg->ie_buf_header, info->fhss_config.lfn_bc_interval,
                         info->fhss_config.bsi, 0,
                         info->fhss_config.lfn_bc_sync_period);
+    if (wh_ies->lto) {
+        interval_ms = ws_neigh_calc_lfn_adjusted_interval(info->fhss_config.lfn_bc_interval,
+                                                          neigh->fhss.lfn.uc_listen_interval_ms,
+                                                          neigh->lto_info.uc_interval_min_ms,
+                                                          neigh->lto_info.uc_interval_max_ms);
+        ws_wh_lto_write(&msg->ie_buf_header,
+                        ws_neigh_calc_lfn_offset(interval_ms,
+                                                 info->fhss_config.lfn_bc_interval),
+                        interval_ms);
+    }
     if (wh_ies->panid)
         ws_wh_panid_write(&msg->ie_buf_header, info->pan_information.pan_id);
     if (wh_ies->lbc)
@@ -1182,15 +1191,13 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         .utt = true,
         .bt  = true,
         .lbt = node_role == WS_NR_ROLE_LFN,
+        .lto = ws_neigh && ws_neigh->lto_info.needs_lto,
     };
     struct wp_ie_list wp_ies = {
         .us  = true,
         .bs  = !data->TxAckReq,
         .pom = ws_info->phy_config.phy_op_modes[0],
     };
-    uint24_t adjusted_offset_ms = 0;
-    uint24_t adjusted_listening_interval = 0;
-
 
     if (ws_info->auto_adjust &&
         memzcmp(ws_info->pan_information.jm.metrics, sizeof(ws_info->pan_information.jm.metrics))) {
@@ -1285,27 +1292,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
 
     ws_llc_prepare_ie(base, message, ws_neigh, &wh_ies, &wp_ies);
-
-    // Adding another parameter to the MAC's API just for LTO was not a good idea.
-    // The chosen solution is to write the computed LTO information in the LTO-IE.
-    // The MAC then reads these information and calculates the actual offset to
-    // be applied based on the target's current broadcast schedule offset.
-    if (node_role == WS_NR_ROLE_LFN) {
-        adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(base->net_if->ws_info.fhss_config.lfn_bc_interval,
-                                                                                   ws_neigh->fhss.lfn.uc_listen_interval_ms,
-                                                                                   ws_neigh->lto_info.uc_interval_min_ms,
-                                                                                   ws_neigh->lto_info.uc_interval_max_ms);
-        adjusted_offset_ms = ws_neigh_calc_lfn_offset(adjusted_listening_interval,
-                                                   base->net_if->ws_info.fhss_config.lfn_bc_interval);
-        if ((adjusted_listening_interval != ws_neigh->fhss.lfn.uc_listen_interval_ms ||
-            !ws_neigh->lto_info.offset_adjusted) && adjusted_listening_interval != 0 && adjusted_offset_ms != 0) {
-            // FIXME: insert LTO-IE in ws_llc_prepare_ie()
-            ws_wh_lto_write(&message->ie_buf_header, adjusted_offset_ms, adjusted_listening_interval);
-            ws_neigh->lto_info.offset_adjusted = true;
-            message->ie_iov_header.iov_base = message->ie_buf_header.data;
-            message->ie_iov_header.iov_len = message->ie_buf_header.len;
-        }
-    }
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
