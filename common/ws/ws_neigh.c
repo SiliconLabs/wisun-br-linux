@@ -407,31 +407,31 @@ uint24_t ws_neigh_calc_lfn_offset(uint24_t adjusted_listening_interval, uint32_t
 }
 
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
-                         struct ws_neigh_fhss *fhss_data,
+                         struct ws_neigh *neigh,
                          const struct ws_generic_channel_info *chan_info,
-                         uint24_t listen_interval_ms, const struct lto_info *lto_info)
+                         uint24_t listen_interval_ms)
 {
     uint24_t adjusted_listening_interval;
     bool offset_adjusted = true;
 
-    if (fhss_data->lfn.uc_listen_interval_ms != listen_interval_ms) {
+    if (neigh->fhss.lfn.uc_listen_interval_ms != listen_interval_ms) {
         adjusted_listening_interval = ws_neigh_calc_lfn_adjusted_interval(fhss_config->lfn_bc_interval,
-                                                                          fhss_data->lfn.uc_listen_interval_ms,
-                                                                          lto_info->uc_interval_min_ms,
-                                                                          lto_info->uc_interval_max_ms);
+                                                                          neigh->fhss.lfn.uc_listen_interval_ms,
+                                                                          neigh->lto_info.uc_interval_min_ms,
+                                                                          neigh->lto_info.uc_interval_max_ms);
         if (adjusted_listening_interval && adjusted_listening_interval != listen_interval_ms)
             offset_adjusted = false;
     }
 
-    fhss_data->lfn.uc_listen_interval_ms = listen_interval_ms;
+    neigh->fhss.lfn.uc_listen_interval_ms = listen_interval_ms;
     if (!chan_info)
         return offset_adjusted; // Support chan plan tag 255 (reuse previous schedule)
-    fhss_data->uc_chan_func = chan_info->channel_function;
+    neigh->fhss.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_CHAN_FUNC_FIXED) {
-        memset(fhss_data->uc_channel_list, 0, sizeof(fhss_data->uc_channel_list));
-        bitset(fhss_data->uc_channel_list, chan_info->function.zero.fixed_channel);
+        memset(neigh->fhss.uc_channel_list, 0, sizeof(neigh->fhss.uc_channel_list));
+        bitset(neigh->fhss.uc_channel_list, chan_info->function.zero.fixed_channel);
     } else {
-        ws_neigh_set_chan_list(fhss_config, fhss_data->uc_channel_list, chan_info);
+        ws_neigh_set_chan_list(fhss_config, neigh->fhss.uc_channel_list, chan_info);
     }
     return offset_adjusted;
 }

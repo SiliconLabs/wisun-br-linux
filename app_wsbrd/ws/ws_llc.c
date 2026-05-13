@@ -573,9 +573,9 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                             ie_lutt.interval_offset, data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
-                                                                 &ws_neigh->fhss,
+                                                                 ws_neigh,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                                 ie_lus.listen_interval, &ws_neigh->lto_info);
+                                                                 ie_lus.listen_interval);
         ws_llc_update_timing_info(ws_neigh);
     }
 
@@ -739,9 +739,9 @@ static void ws_llc_eapol_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *d
         ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                             ie_lutt.interval_offset, data->hif.timestamp_us);
         ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&base->net_if->ws_info.fhss_config,
-                                                                 &ws_neigh->fhss,
+                                                                 ws_neigh,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                                 ie_lus.listen_interval, &ws_neigh->lto_info);
+                                                                 ie_lus.listen_interval);
         ws_llc_update_timing_info(ws_neigh);
     }
     if (duplicated) {

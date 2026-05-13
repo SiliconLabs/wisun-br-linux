@@ -168,9 +168,9 @@ bool ws_neigh_has_bs(const struct ws_neigh_fhss *fhss_data);
 
 // LFN Unicast Schedule update
 bool ws_neigh_lus_update(const struct ws_fhss_config *fhss_config,
-                         struct ws_neigh_fhss *fhss_data,
+                         struct ws_neigh *neigh,
                          const struct ws_generic_channel_info *chan_info,
-                         uint24_t listen_interval_ms, const struct lto_info *lto_info);
+                         uint24_t listen_interval_ms);
 
 uint24_t ws_neigh_calc_lfn_adjusted_interval(uint24_t bc_interval, uint24_t uc_interval,
                                              uint24_t uc_interval_min, uint24_t uc_interval_max);

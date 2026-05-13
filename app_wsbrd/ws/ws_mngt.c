@@ -466,8 +466,8 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
 
     ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                         ie_lutt.interval_offset, data->hif.timestamp_us);
-    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss, &ie_lcp.chan_plan,
-                                                             ie_lus.listen_interval, &ws_neigh->lto_info);
+    ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, ws_neigh, &ie_lcp.chan_plan,
+                                                             ie_lus.listen_interval);
     ws_llc_update_timing_info(ws_neigh);
     ws_neigh_lnd_update(&ws_neigh->fhss, &ie_lnd, data->hif.timestamp_us);
 
@@ -546,9 +546,9 @@ void ws_mngt_lpcs_analyze(struct ws_info *ws_info,
     if (has_lus) {
         ws_neigh_lut_update(&ws_neigh->fhss, ie_lutt.slot_number,
                             ie_lutt.interval_offset, data->hif.timestamp_us);
-        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, &ws_neigh->fhss,
+        ws_neigh->lto_info.offset_adjusted = ws_neigh_lus_update(&ws_info->fhss_config, ws_neigh,
                                                                  has_lcp ? &ie_lcp.chan_plan : NULL,
-                                                                 ie_lus.listen_interval, &ws_neigh->lto_info);
+                                                                 ie_lus.listen_interval);
         ws_llc_update_timing_info(ws_neigh);
     }
 
