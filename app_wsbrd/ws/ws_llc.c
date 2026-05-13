@@ -1366,6 +1366,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
         .bt  = true,
         .lbt = neigh && neigh->node_role == WS_NR_ROLE_LFN,
         .ea  = &base->net_if->auth->eui64, // TODO: only include in 1st msg
+        .lto = neigh && neigh->lto_info.needs_lto,
     };
     struct wp_ie_list wp_ies = {
         .us = true,
