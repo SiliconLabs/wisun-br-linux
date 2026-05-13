@@ -964,6 +964,7 @@ static void ws_llc_gtkhash(const struct auth_ctx *auth, uint8_t gtkhash[][8],
 }
 
 static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
+                              const struct ws_neigh *neigh,
                               const struct wh_ie_list *wh_ies,
                               const struct wp_ie_list *wp_ies)
 {
@@ -1283,7 +1284,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     else
         data_req.fhss_type = data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
 
-    ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
+    ws_llc_prepare_ie(base, message, ws_neigh, &wh_ies, &wp_ies);
 
     // Adding another parameter to the MAC's API just for LTO was not a good idea.
     // The chosen solution is to write the computed LTO information in the LTO-IE.
@@ -1364,6 +1365,8 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
                                      const struct mcps_data_req *data, uint8_t kmp_id)
 {
     struct ws_info *ws_info = &base->net_if->ws_info;
+    const struct ws_neigh *neigh = ws_neigh_get(&ws_info->neighbor_storage,
+                                                &EUI64_FROM_BUF(data->DstAddr));
     struct ws_pan_ie *pan = &(struct ws_pan_ie) {
         // PAN size is filled later
         .routing_cost     = 0, // Border router routing cost is 0
@@ -1375,7 +1378,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     struct wh_ie_list wh_ies = {
         .utt = true,
         .bt  = true,
-        .lbt = ws_llc_get_node_role(base->net_if, data->DstAddr) == WS_NR_ROLE_LFN,
+        .lbt = neigh && neigh->node_role == WS_NR_ROLE_LFN,
         .ea  = &base->net_if->auth->eui64, // TODO: only include in 1st msg
     };
     struct wp_ie_list wp_ies = {
@@ -1412,7 +1415,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, const mpx_user_t *us
     message->message_type = WS_FT_EAPOL;
     message->security = data->Key;
 
-    ws_llc_prepare_ie(base, message, &wh_ies, &wp_ies);
+    ws_llc_prepare_ie(base, message, neigh, &wh_ies, &wp_ies);
     message->ie_iov_payload[1].iov_base = xalloc(data->msduLength);
     memcpy(message->ie_iov_payload[1].iov_base, data->msdu, data->msduLength);
     message->ie_iov_payload[1].iov_len = data->msduLength;
@@ -1634,7 +1637,7 @@ int8_t ws_llc_asynch_request(struct ws_info *ws_info, struct ws_llc_mngt_req *re
         data_req.PanIdSuppressed = true;
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
 
-    ws_llc_prepare_ie(base, message, &request->wh_ies, &request->wp_ies);
+    ws_llc_prepare_ie(base, message, NULL, &request->wh_ies, &request->wp_ies);
 
     message->tx_time = time_now_s(CLOCK_MONOTONIC);
 
@@ -1711,7 +1714,7 @@ int ws_llc_mngt_lfn_request(const struct ws_llc_mngt_req *req,
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     data_req.msduHandle = msg->msg_handle;
 
-    ws_llc_prepare_ie(base, msg, &req->wh_ies, &req->wp_ies);
+    ws_llc_prepare_ie(base, msg, dst, &req->wh_ies, &req->wp_ies);
 
     msg->tx_time = time_now_s(CLOCK_MONOTONIC);
 
