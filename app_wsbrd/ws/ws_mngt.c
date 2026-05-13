@@ -469,6 +469,11 @@ void ws_mngt_lpas_analyze(struct ws_info *ws_info,
                         ie_lutt.interval_offset, data->hif.timestamp_us);
     ws_neigh_lus_update(&ws_info->fhss_config, ws_neigh,
                         &ie_lcp.chan_plan, ie_lus.listen_interval);
+    /*
+     * NOTE: Assume that the LFN has reset its offset without necessarily
+     * resetting its interval.
+     */
+    ws_neigh->lto_info.needs_lto = true;
     ws_llc_update_timing_info(ws_neigh);
     ws_neigh_lnd_update(&ws_neigh->fhss, &ie_lnd, data->hif.timestamp_us);
 
