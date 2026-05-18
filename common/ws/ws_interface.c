@@ -210,8 +210,8 @@ void ws_if_recv_ind(struct rcp *rcp, const struct rcp_rx_ind *hif_ind)
 
     ind.neigh = ws_neigh_get(&ws->neigh_table, &ind.hdr.src);
     if (!ind.neigh)
-        // TODO: TX power (APC)
-        ind.neigh = ws_neigh_add(&ws->neigh_table, &ind.hdr.src, WS_NR_ROLE_ROUTER, 16);
+        ind.neigh = ws_neigh_add(&ws->neigh_table, &ind.hdr.src,
+                                 WS_NR_ROLE_ROUTER, ws->phy.tx_power_dbm);
     else
         ws_neigh_refresh(&ws->neigh_table, ind.neigh, ind.neigh->lifetime_s);
 
@@ -348,8 +348,8 @@ void ws_if_recv_cnf(struct rcp *rcp, const struct rcp_tx_cnf *hif_cnf)
         cnf.neigh = ws_neigh_get(&ws->neigh_table, &cnf.frame_ctx.dst);
         if (!cnf.neigh) {
             WARN("%s: neighbor expired", __func__);
-            // TODO: TX power (APC)
-            cnf.neigh = ws_neigh_add(&ws->neigh_table, &cnf.frame_ctx.dst, WS_NR_ROLE_ROUTER, 16);
+            cnf.neigh = ws_neigh_add(&ws->neigh_table, &cnf.frame_ctx.dst,
+                                     WS_NR_ROLE_ROUTER, ws->phy.tx_power_dbm);
         }
     }
 
