@@ -116,25 +116,9 @@ char *str_eui64(const uint8_t in[8], char out[STR_MAX_LEN_EUI64])
     return str_bytes(in, 8, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
 }
 
-char *str_ipv4(uint8_t in[4], char out[STR_MAX_LEN_IPV4])
-{
-    sprintf(out, "%d.%d.%d.%d", in[0], in[1], in[2], in[3]);
-    return out;
-}
-
 char *str_ipv6(const uint8_t in[16], char out[STR_MAX_LEN_IPV6])
 {
     inet_ntop(AF_INET6, in, out, STR_MAX_LEN_IPV6);
-    return out;
-}
-
-char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[STR_MAX_LEN_IPV4_NET])
-{
-    uint8_t tmp[4] = { };
-
-    bitcpy(tmp, in, prefix_len);
-    str_ipv4(tmp, out);
-    sprintf(out + strlen(out), "/%d", prefix_len);
     return out;
 }
 
@@ -248,19 +232,6 @@ const char *tr_eui64(const uint8_t in[8])
     return out;
 }
 
-const char *tr_ipv4(uint8_t in[4])
-{
-    char *out = trace_buffer + trace_idx;
-
-    BUG_ON(!trace_nested_counter, "%s must be called within a trace", __func__);
-    if (trace_idx + STR_MAX_LEN_IPV4 > sizeof(trace_buffer))
-        return "[OVERFLOW]";
-    str_ipv4(in, out);
-    trace_idx += strlen(out) + 1;
-    BUG_ON(trace_idx > sizeof(trace_buffer));
-    return out;
-}
-
 const char *tr_ipv6(const uint8_t in[16])
 {
     char *out = trace_buffer + trace_idx;
@@ -269,19 +240,6 @@ const char *tr_ipv6(const uint8_t in[16])
     if (trace_idx + STR_MAX_LEN_IPV6 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv6(in, out);
-    trace_idx += strlen(out) + 1;
-    BUG_ON(trace_idx > sizeof(trace_buffer));
-    return out;
-}
-
-const char *tr_ipv4_prefix(uint8_t in[], int prefix_len)
-{
-    char *out = trace_buffer + trace_idx;
-
-    BUG_ON(!trace_nested_counter, "%s must be called within a trace", __func__);
-    if (trace_idx + STR_MAX_LEN_IPV4_NET > sizeof(trace_buffer))
-        return "[OVERFLOW]";
-    str_ipv4_prefix(in, prefix_len, out);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
