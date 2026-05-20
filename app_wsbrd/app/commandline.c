@@ -235,7 +235,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_class = 0;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
-    config->ws_size = WS_NETWORK_SIZE_SMALL;
+    config->ws_size = WS_NETWORK_SIZE_AUTO;
     config->join_node_count = 0;
     config->ws_pan_id = -1;
     config->ws_phy_op_modes[0] = -1;
