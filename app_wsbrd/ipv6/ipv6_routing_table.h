@@ -118,7 +118,6 @@ typedef struct ipv6_route_info_cache {
 typedef struct ipv6_neighbour_cache {
     bool                                    send_addr_reg : 1;
     bool                                    recv_addr_reg : 1;
-    bool                                    send_nud_probes : 1;
     bool                                    recv_ns_aro : 1;
     bool                                    omit_na : 1; // except for ARO successes which have a separate flag
     int8_t                                  interface_id;

@@ -86,8 +86,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     /* Omit sending of NA and consider ACK to be success */
     cur->ipv6_neighbour_cache.omit_na = true;
-    /* Disable NUD Probes */
-    cur->ipv6_neighbour_cache.send_nud_probes = false;
     /*Replace NS handler to disable multicast address queries */
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 

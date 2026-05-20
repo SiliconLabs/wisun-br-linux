@@ -100,7 +100,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->interface_id = interface_id;
     cache->recv_addr_reg = false;
     cache->send_addr_reg = false;
-    cache->send_nud_probes = true;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
     timer_group_init(&cache->timer_group);
@@ -285,11 +284,6 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     if (entry != ns_list_get_first(&cache->list)) {
         ns_list_remove(&cache->list, entry);
         ns_list_add_to_start(&cache->list, entry);
-    }
-
-    /* If the entry is stale, prepare delay timer for active NUD probe */
-    if (entry->state == IP_NEIGHBOUR_STALE && cache->send_nud_probes) {
-        ipv6_neighbour_set_state(cache, entry, IP_NEIGHBOUR_DELAY);
     }
 
     /* Special case for Registered Unreachable entries - restart the probe timer if stopped */
