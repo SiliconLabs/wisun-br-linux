@@ -287,6 +287,7 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     if (ns_list_is_empty(&cur->ipv6_neighbour_cache.list)) {
         timer_start_rel(NULL, &cur->ws_info.bc_resync_timer, 0);
     } else {
+        ws_mngt_pcs_send(&cur->ws_info);
         timer_start_rel(NULL, &cur->ws_info.bc_resync_timer,
                         cur->ws_info.mngt.disc_cfg.Imin_ms);
     }

@@ -685,6 +685,18 @@ void ws_mngt_pc_send(struct trickle *tkl, struct timer_group *group)
     ws_llc_asynch_request(ws_info, &req);
 }
 
+void ws_mngt_pcs_send(struct ws_info *ws_info)
+{
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_PCS,
+        .wh_ies.utt     = true,
+        .wp_ies.us      = true,
+        .wp_ies.netname = true,
+    };
+
+    ws_llc_asynch_request(ws_info, &req);
+}
+
 static void ws_mngt_lts_send(struct ws_info *ws_info)
 {
     struct ws_llc_mngt_req req = {
