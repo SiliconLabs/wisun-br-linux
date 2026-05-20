@@ -98,8 +98,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->retrans_timer = 1000;
     cache->max_ll_len = 2 + 8;
     cache->interface_id = interface_id;
-    cache->send_addr_reg = false;
-    cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
     timer_group_init(&cache->timer_group);
     memset(cache->route_if_info.sources, 0, sizeof(cache->route_if_info.sources));

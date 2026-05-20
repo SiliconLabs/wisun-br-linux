@@ -188,11 +188,6 @@ void protocol_6lowpan_up(struct net_if *cur)
     cur->if_llao_write = protocol_6lowpan_llao_write;
     cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
 
-    cur->ipv6_neighbour_cache.recv_ns_aro = true;
-    /* Always send AROs, (compulsory for hosts, and "SHOULD" in RFC 6557 6.5.5
-     * for routers, as RPL doesn't deal with it) */
-    cur->ipv6_neighbour_cache.send_addr_reg = true;
-
     ipv6_route_add(cur, ADDR_LINK_LOCAL_PREFIX, 64, NULL, ROUTE_STATIC, 0xFFFFFFFF, 0);
     // Putting a multicast route to ff00::/8 makes sure we can always transmit multicast.
     // Interface metric will determine which interface is actually used, if we have multiple.

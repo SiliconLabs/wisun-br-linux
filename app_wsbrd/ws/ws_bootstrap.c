@@ -84,8 +84,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     // Trigger discovery for bootstrap
     protocol_6lowpan_up(cur);
 
-    /* Omit sending of NA and consider ACK to be success */
-    cur->ipv6_neighbour_cache.omit_na = true;
     /*Replace NS handler to disable multicast address queries */
     cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
 

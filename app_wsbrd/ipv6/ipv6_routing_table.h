@@ -115,9 +115,6 @@ typedef struct ipv6_route_info_cache {
 } ipv6_route_interface_info_t;
 
 typedef struct ipv6_neighbour_cache {
-    bool                                    send_addr_reg : 1;
-    bool                                    recv_ns_aro : 1;
-    bool                                    omit_na : 1; // except for ARO successes which have a separate flag
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
     struct timer_group                      timer_group;
