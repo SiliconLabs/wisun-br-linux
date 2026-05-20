@@ -105,8 +105,7 @@ typedef struct ipv6_neighbour {
     uint8_t                         ll_address[];
 } ipv6_neighbour_t;
 
-/* Neighbour Cache entries also store EUI-64 after ll_address if "recv_addr_reg"
- * is set for the cache. This is ADDR_EUI64_ZERO if unknown.
+/* Neighbour Cache entries also store EUI-64 after ll_address. This is ADDR_EUI64_ZERO if unknown.
  */
 #define ipv6_neighbour_eui64(ncache, entry) ((entry)->ll_address + (ncache)->max_ll_len)
 
@@ -117,7 +116,6 @@ typedef struct ipv6_route_info_cache {
 
 typedef struct ipv6_neighbour_cache {
     bool                                    send_addr_reg : 1;
-    bool                                    recv_addr_reg : 1;
     bool                                    recv_ns_aro : 1;
     bool                                    omit_na : 1; // except for ARO successes which have a separate flag
     int8_t                                  interface_id;

@@ -188,7 +188,6 @@ void protocol_6lowpan_up(struct net_if *cur)
     cur->if_llao_write = protocol_6lowpan_llao_write;
     cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
 
-    cur->ipv6_neighbour_cache.recv_addr_reg = true;
     cur->ipv6_neighbour_cache.recv_ns_aro = true;
     /* Always send AROs, (compulsory for hosts, and "SHOULD" in RFC 6557 6.5.5
      * for routers, as RPL doesn't deal with it) */

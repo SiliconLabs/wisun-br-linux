@@ -98,7 +98,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->retrans_timer = 1000;
     cache->max_ll_len = 2 + 8;
     cache->interface_id = interface_id;
-    cache->recv_addr_reg = false;
     cache->send_addr_reg = false;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
@@ -259,10 +258,9 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     // plus another 8 for the EUI-64 of registration (RFC 6775). Note that in
     // the protocols, the link-layer address and EUI-64 are distinct. The
     // neighbour may be using a short link-layer address, not its EUI-64.
-    entry = zalloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + (cache->recv_addr_reg ? 8 : 0));
+    entry = zalloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + 8);
     memcpy(entry->ip_address, address, 16);
-    if (cache->recv_addr_reg)
-        memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
+    memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
     entry->timer.callback = ipv6_neighbour_trig;
     entry->expiration.callback = ipv6_neighbour_expire;
     ns_list_add_to_start(&cache->list, entry);

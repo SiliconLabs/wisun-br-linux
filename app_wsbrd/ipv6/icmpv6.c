@@ -325,8 +325,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
                                      NDP_OPT_SLLAO, &sllao);
     has_earo = icmpv6_nd_option_get(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
                                     NDP_OPT_ARO, &earo);
-    if (!cur->ipv6_neighbour_cache.recv_addr_reg)
-        has_earo = false;
     //   Wi-SUN - IPv6 Neighbor Discovery Optimizations
     // Optional usage of SLLAO. The ARO already includes the EUI-64 that is the
     // link-layer address of the node transmitting the Neighbor Solicitation.
