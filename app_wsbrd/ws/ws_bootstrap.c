@@ -238,17 +238,6 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     return;
 }
 
-void ws_bootstrap_ip_stack_reset(struct net_if *cur)
-{
-    // Delete all temporary cached information
-    ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
-}
-
-void ws_bootstrap_ip_stack_activate(struct net_if *cur)
-{
-    ws_bootstrap_ip_stack_reset(cur);
-}
-
 //Calculate max_packet queue size
 static uint16_t ws_bootstrap_define_congestion_max_threshold(uint32_t heap_total_size, uint16_t packet_size, uint16_t packet_per_seconds, uint32_t max_delay, uint16_t min_packet_queue_size, uint16_t max_packet_queue_size)
 {

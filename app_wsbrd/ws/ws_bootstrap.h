@@ -44,9 +44,6 @@ void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh 
 void ws_bootstrap_fhss_activate(struct net_if *cur);
 int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
 
-void ws_bootstrap_ip_stack_reset(struct net_if *cur);
-void ws_bootstrap_ip_stack_activate(struct net_if *cur);
-
 void ws_bootstrap_packet_congestion_init(struct net_if *cur);
 
 void ws_bootstrap_nw_key_set(struct net_if *cur,

@@ -247,8 +247,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     //Init Packet congestion
     ws_bootstrap_packet_congestion_init(cur);
 
-    ws_bootstrap_ip_stack_reset(cur);
-
     cur->ws_info.pan_information.routing_cost = 0;
 
     // Set default parameters for FHSS when starting a discovery
@@ -261,9 +259,6 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     ws_bootstrap_6lbr_print_interop(cur);
     INFO("");
 
-    // Activate RPL
-    // Activate IPv6 stack
-    ws_bootstrap_ip_stack_activate(cur);
     addr_add_router_groups(cur);
 
     trickle_start(&cur->ws_info.mngt.trickle_pa, NULL);
