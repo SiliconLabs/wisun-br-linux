@@ -295,6 +295,23 @@ void ws_mngt_pc_analyze(struct ws_info *ws_info,
                        &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss,
                        &ie_us.chan_plan, ie_us.dwell_interval);
+
+    if (!timer_stopped(&ws_info->bc_resync_timer) &&
+        ie_bs.broadcast_interval == ws_info->fhss_config.bc_interval &&
+        ie_bs.broadcast_schedule_identifier == ws_info->fhss_config.bsi) {
+        TRACE(TR_NEIGH_15_4, "neigh-15.4: broadcast schedule re-sync with %s",
+              tr_eui64(data->SrcAddr));
+        rcp_set_fhss_ffn_bc(ws_info->rcp,
+                            ws_info->fhss_config.bc_interval,
+                            ws_info->fhss_config.bsi,
+                            ws_info->fhss_config.bc_dwell_interval,
+                            ws_info->fhss_config.bc_chan_mask,
+                            data->hif.timestamp_us,
+                            ie_bt.broadcast_slot_number,
+                            ie_bt.broadcast_interval_offset,
+                            NULL, NULL);
+        timer_start_rel(NULL, &ws_info->bc_resync_timer, 0);
+    }
 }
 
 void ws_mngt_pcs_analyze(struct ws_info *ws_info,

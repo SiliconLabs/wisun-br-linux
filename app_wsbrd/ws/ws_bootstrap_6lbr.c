@@ -237,6 +237,14 @@ static void ws_bootstrap_6lbr_print_interop(struct net_if *cur)
     }
 }
 
+static void ws_on_bc_resync(struct timer_group *group, struct timer_entry *timer)
+{
+    struct net_if *net_if = container_of(timer, struct net_if, ws_info.bc_resync_timer);
+
+    trickle_start(&net_if->ws_info.mngt.trickle_pc, NULL);
+    ws_mngt_pc_send(&net_if->ws_info.mngt.trickle_pc, NULL);
+}
+
 void ws_bootstrap_6lbr_init(struct net_if *cur)
 {
     struct wsbr_ctxt *ctxt = container_of(cur, struct wsbr_ctxt, net_if);
@@ -262,12 +270,24 @@ void ws_bootstrap_6lbr_init(struct net_if *cur)
     addr_add_router_groups(cur);
 
     trickle_start(&cur->ws_info.mngt.trickle_pa, NULL);
-    trickle_start(&cur->ws_info.mngt.trickle_pc, NULL);
     ws_mngt_pan_version_increase(&cur->ws_info);
     ipv6_neigh_storage_load(&cur->ipv6_neighbour_cache);
     ws_mngt_update_jm_ie(&cur->ws_info, auth_supp_count(&ctxt->auth));
     // Sending async frames to trigger trickle timers of devices in our range.
     // Doing so allows to get back to an operational network faster.
     ws_mngt_pa_send(&cur->ws_info.mngt.trickle_pa, NULL);
-    ws_mngt_pc_send(&cur->ws_info.mngt.trickle_pc, NULL);
+
+    /*
+     * On reboot, attempt to re-synchronize the broadcast schedule with an
+     * existing neighbor in order to re-enable broadcast communication faster.
+     * On fallback, all neighbors need to receive a frame indicating the new
+     * broadcast timings.
+     */
+    cur->ws_info.bc_resync_timer.callback = ws_on_bc_resync;
+    if (ns_list_is_empty(&cur->ipv6_neighbour_cache.list)) {
+        timer_start_rel(NULL, &cur->ws_info.bc_resync_timer, 0);
+    } else {
+        timer_start_rel(NULL, &cur->ws_info.bc_resync_timer,
+                        cur->ws_info.mngt.disc_cfg.Imin_ms);
+    }
 }

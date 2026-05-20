@@ -1,3 +1,5 @@
+  - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
+    existing neighbors in order to re-enable broadcast communication quicker.
   - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
     This should reduce useless RPL traffic and potential ICMPv6 "destination
     unreachable" errors.
