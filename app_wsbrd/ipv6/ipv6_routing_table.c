@@ -107,17 +107,6 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     memset(cache->route_if_info.sources, 0, sizeof(cache->route_if_info.sources));
 }
 
-void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache)
-{
-    /* Flush non-registered entries only */
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
-        if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-            ipv6_neighbour_entry_remove(cache, cur);
-        }
-    }
-}
-
-
 ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uint8_t *address)
 {
     ns_list_foreach(ipv6_neighbour_t, cur, &cache->list)

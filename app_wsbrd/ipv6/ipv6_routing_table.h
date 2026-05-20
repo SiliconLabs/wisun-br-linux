@@ -134,7 +134,6 @@ typedef struct ipv6_neighbour_cache {
 } ipv6_neighbour_cache_t;
 
 void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id);
-void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache);
 ipv6_neighbour_t *ipv6_neighbour_update(ipv6_neighbour_cache_t *cache, const uint8_t *address, bool solicited);
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_e state);
 ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
