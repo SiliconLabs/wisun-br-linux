@@ -84,8 +84,6 @@ void ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     // Trigger discovery for bootstrap
     protocol_6lowpan_up(cur);
 
-    /* Omit sending of NA if ARO SUCCESS */
-    cur->ipv6_neighbour_cache.omit_na_aro_success = true;
     /* Omit sending of NA and consider ACK to be success */
     cur->ipv6_neighbour_cache.omit_na = true;
     /* Disable NUD Probes */

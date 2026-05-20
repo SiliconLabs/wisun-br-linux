@@ -641,15 +641,14 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     /* Check if ARO response and status == success, then sending can be omitted with flag */
     // FIXME: It is not clear how ARO and EARO are differentiated.
     // This hack is based on the Wi-SUN specification.
-    if (cur->ipv6_neighbour_cache.omit_na_aro_success && earo &&
-        earo->status == NDP_ARO_STATUS_SUCCESS &&
+    if (earo && earo->status == NDP_ARO_STATUS_SUCCESS &&
         earo->p != NDP_ADDR_TYPE_MULTICAST &&
         (!earo->t || !earo->lifetime)) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
     /* All other than ARO NA messages are omitted and MAC ACK is considered as success */
-    if (!tllao_required && (!earo && cur->ipv6_neighbour_cache.omit_na)) {
+    if (!tllao_required && !earo) {
         return NULL;
     }
 

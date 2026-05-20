@@ -120,7 +120,6 @@ typedef struct ipv6_neighbour_cache {
     bool                                    recv_addr_reg : 1;
     bool                                    send_nud_probes : 1;
     bool                                    recv_ns_aro : 1;
-    bool                                    omit_na_aro_success : 1;
     bool                                    omit_na : 1; // except for ARO successes which have a separate flag
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
