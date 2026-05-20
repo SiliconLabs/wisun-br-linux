@@ -61,12 +61,12 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
     uint8_t chan_mask_async[WS_CHAN_MASK_LEN] = { };
     int chan_fixed;
 
-    rail_fill_ms_chan_masks(cur->rcp, fhss, &cur->ws_info.phy_config, ms_chan_mask);
-    rcp_set_fhss_uc(cur->rcp,
+    rail_fill_ms_chan_masks(cur->ws_info.rcp, fhss, &cur->ws_info.phy_config, ms_chan_mask);
+    rcp_set_fhss_uc(cur->ws_info.rcp,
                     fhss->uc_dwell_interval,
                     fhss->uc_chan_mask,
                     ms_chan_mask);
-    rcp_set_fhss_ffn_bc(cur->rcp,
+    rcp_set_fhss_ffn_bc(cur->ws_info.rcp,
                         fhss->bc_interval,
                         fhss->bsi,
                         fhss->bc_dwell_interval,
@@ -92,7 +92,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
         if (!memzcmp(chan_mask_async, sizeof(chan_mask_async)))
             FATAL(1, "regulatory/custom_allowed_channels constraints results in no valid channel (see --list-rf-configs)");
     }
-    rcp_set_fhss_async(cur->rcp, fhss->async_frag_duration_ms, chan_mask_async);
+    rcp_set_fhss_async(cur->ws_info.rcp, fhss->async_frag_duration_ms, chan_mask_async);
 
     return 0;
 }

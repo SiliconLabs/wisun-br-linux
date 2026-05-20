@@ -107,7 +107,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     hdr.ack_req    = data->TxAckReq;
     hdr.pan_id     = data->DstAddrMode ? -1 : cur->ws_info.pan_information.pan_id;
     memcpy(&hdr.dst, data->DstAddrMode ? data->DstAddr : EUI64_BC.u8, 8);
-    hdr.src        = cur->rcp->eui64;
+    hdr.src        = cur->ws_info.rcp->eui64;
     hdr.seqno      = data->SeqNumSuppressed ? -1 : 0;
     hdr.sec_level  = IEEE802154_SEC_LEVEL_ENC_MIC64,
     hdr.key_index  = data->Key.KeyIndex;
@@ -122,7 +122,7 @@ void wsbr_data_req_ext(struct net_if *cur,
     if (data->Key.SecurityLevel)
         iobuf_push_data_reserved(&frame, 8); // MIC-64
 
-    rcp_req_data_tx(cur->rcp, frame.data, frame.len,
+    rcp_req_data_tx(cur->ws_info.rcp, frame.data, frame.len,
                     data->msduHandle,  data->fhss_type, neighbor_ws ? &neighbor_ws->fhss : NULL,
                     neighbor_ws ? neighbor_ws->frame_counter_min : NULL,
                     data->rate_list[0].phy_mode_id ? data->rate_list : NULL,

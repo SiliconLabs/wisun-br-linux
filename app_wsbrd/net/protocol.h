@@ -64,7 +64,6 @@ struct net_if {
     struct red_config random_early_detection;
     struct ws_info ws_info;
 
-    struct rcp *rcp;
     struct auth_ctx *auth;
     arm_15_4_mac_parameters_t mac_parameters;
 

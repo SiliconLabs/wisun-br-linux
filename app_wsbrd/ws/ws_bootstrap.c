@@ -117,7 +117,7 @@ void ws_bootstrap_neighbor_add_cb(struct ws_neigh_table *table, struct ws_neigh 
         ws_neigh->frame_counter_min[i] = (gtkl & BIT(i)) ? 0 : UINT32_MAX;
 
     if (ws_neigh->node_role == WS_NR_ROLE_LFN && ws_neigh_lfn_count(table) == 1) {
-        rcp_set_fhss_lfn_bc(net_if->rcp,
+        rcp_set_fhss_lfn_bc(net_if->ws_info.rcp,
                             net_if->ws_info.fhss_config.lfn_bc_interval,
                             net_if->ws_info.fhss_config.bsi,
                             net_if->ws_info.fhss_config.bc_chan_mask);
@@ -142,8 +142,8 @@ void ws_bootstrap_neighbor_del_cb(struct ws_neigh_table *table, struct ws_neigh 
 
     if (neigh->node_role == WS_NR_ROLE_LFN && !ws_neigh_lfn_count(table)) {
         timer_stop(NULL, &cur->ws_info.mngt.lts_timer);
-        if (!version_older_than(cur->rcp->version_api, 2, 20, 0))
-            rcp_set_fhss_lfn_bc(cur->rcp, 0,
+        if (!version_older_than(cur->ws_info.rcp->version_api, 2, 20, 0))
+            rcp_set_fhss_lfn_bc(cur->ws_info.rcp, 0,
                                 cur->ws_info.fhss_config.bsi,
                                 cur->ws_info.fhss_config.bc_chan_mask);
     }
@@ -160,7 +160,7 @@ void ws_bootstrap_nw_key_set(struct net_if *cur,
     // Firmware API < 0.15 crashes if slots > 3 are accessed
     if (!cur->ws_info.enable_lfn && key_index > 4)
         return;
-    rcp_set_sec_key(cur->rcp, key_index, key, frame_counter);
+    rcp_set_sec_key(cur->ws_info.rcp, key_index, key, frame_counter);
     if (key) {
         if (key_index <= 4) {
             dbus_emit_change("Gtks");
@@ -218,7 +218,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
         WARN("non standard RF configuration in use");
 
     phy_config->phy_mode_id_ms_base = phy_config->params->phy_mode_id;
-    rcp_set_radio(cur->rcp,
+    rcp_set_radio(cur->ws_info.rcp,
                   phy_config->rcp_rail_config_index,
                   phy_config->params->ofdm_mcs,
                   phy_config->phy_op_modes[0] != 0);
@@ -227,8 +227,8 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 
 void ws_bootstrap_fhss_activate(struct net_if *cur)
 {
-    rcp_set_filter_pan_id(cur->rcp, cur->ws_info.pan_information.pan_id);
-    rcp_req_radio_enable(cur->rcp);
+    rcp_set_filter_pan_id(cur->ws_info.rcp, cur->ws_info.pan_information.pan_id);
+    rcp_req_radio_enable(cur->ws_info.rcp);
     return;
 }
 

@@ -89,7 +89,7 @@ void protocol_init(struct net_if *entry, struct rcp *rcp, int mtu)
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
     entry->ws_info.ffn_gtk_index = 0;
     entry->mac_parameters.mtu = mtu;
-    entry->rcp = rcp;
+    entry->ws_info.rcp = rcp;
     icmp_ratelimit_reset(NULL, &entry->icmp_ratelimit_timer);
     entry->cur_hop_limit = UNICAST_HOP_LIMIT_DEFAULT;
     entry->base_reachable_time_ms = 30000;

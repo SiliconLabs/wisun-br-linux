@@ -76,6 +76,7 @@ typedef struct ws_info {
     uint8_t ffn_gtk_index;
     uint8_t lfn_gtk_index;
     uint8_t edfe_src[8];
+    struct rcp *rcp;
 } ws_info_t;
 
 bool ws_common_is_valid_nr(uint8_t node_role);

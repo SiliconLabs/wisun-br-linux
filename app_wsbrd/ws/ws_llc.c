@@ -169,7 +169,7 @@ void ws_llc_message_abort_by_mpx_user_handle(uint8_t handle)
     llc_message_t *message = llc_message_discover_mpx_user_handle(handle, &base->llc_message_list);
 
     if (message)
-        rcp_req_data_tx_abort(base->net_if->rcp, message->msg_handle);
+        rcp_req_data_tx_abort(base->net_if->ws_info.rcp, message->msg_handle);
 }
 
 //Free message and delete from list
@@ -978,7 +978,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
 
     if (wh_ies->fc)
         ws_wh_fc_write(&msg->ie_buf_header,
-                       version_older_than(base->net_if->rcp->version_api, 2, 18, 0) ? 255 : 0,
+                       version_older_than(base->net_if->ws_info.rcp->version_api, 2, 18, 0) ? 255 : 0,
                        255);
     if (wh_ies->utt)
         ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
@@ -1479,7 +1479,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 {
     //Clean Message queue's
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
-        rcp_req_data_tx_abort(base->net_if->rcp, message->msg_handle);
+        rcp_req_data_tx_abort(base->net_if->ws_info.rcp, message->msg_handle);
         llc_message_free(message, base);
     }
 }
@@ -1487,7 +1487,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 void ws_llc_update_timing_info(const struct ws_neigh *neigh)
 {
     llc_data_base_t *base = &g_llc_base;
-    struct rcp *rcp = base->net_if->rcp;
+    struct rcp *rcp = base->net_if->ws_info.rcp;
     uint8_t *handle_list = NULL;
     uint8_t handle_count = 0;
 
@@ -1720,9 +1720,9 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, uint8_t mode, uint8_t ph
     // Can't set default to default
     if (mode == WS_MODE_SWITCH_DEFAULT && !neighbor_mac_address)
         return -EINVAL;
-    if (phy_mode_id > 0 && version_older_than(interface->rcp->version_api, 2, 0, 1))
+    if (phy_mode_id > 0 && version_older_than(interface->ws_info.rcp->version_api, 2, 0, 1))
         return -ENOTSUP;
-    if (phy_mode_id > 0 && mode == WS_MODE_SWITCH_MAC && version_older_than(interface->rcp->version_api, 2, 1, 0))
+    if (phy_mode_id > 0 && mode == WS_MODE_SWITCH_MAC && version_older_than(interface->ws_info.rcp->version_api, 2, 1, 0))
         return -ENOTSUP;
 
     if (mode == WS_MODE_SWITCH_PHY || mode == WS_MODE_SWITCH_MAC) {
