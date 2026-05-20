@@ -125,15 +125,15 @@ void print_help_br(FILE *stream) {
 
 static void conf_set_dhcp_internal(const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
-    struct sockaddr_in6 *dest = raw_dest;
+    struct in6_addr *dest = raw_dest;
     bool internal_dhcp;
 
     WARN("\"internal_dhcp\" is deprecated, use \"dhcp_server\" instead");
     conf_set_bool(info, &internal_dhcp, NULL);
     if (internal_dhcp)
-        dest->sin6_addr = in6addr_any;
+        *dest = in6addr_any;
     else
-        dest->sin6_addr = in6addr_loopback;
+        *dest = in6addr_loopback;
 }
 
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
