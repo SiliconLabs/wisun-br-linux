@@ -610,44 +610,15 @@ int addr_interface_set_ll64(struct net_if *cur)
     return ret_val;
 }
 
-/* address_type 0 means "any" address - we return short by preference */
-/* address_type 1 means long address - we ignore short addresses */
-int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, uint8_t address_type)
+int addr_interface_get_linklocal(struct net_if *cur, struct in6_addr *addr)
 {
-    const uint8_t *short_addr = NULL;
-    const uint8_t *long_addr = NULL;
-
-    if (!cur) {
-        return -1;
-    }
-
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (addr_is_ipv6_link_local(e->address)) {
-            if (memcmp(e->address + 8, ADDR_SHORT_ADDR_SUFFIX, 6) == 0) {
-                short_addr = e->address;
-            } else {
-                long_addr = e->address;
-            }
-
-            if (long_addr && short_addr) {
-                break;
-            }
+    ns_list_foreach(if_address_entry_t, a, &cur->ip_addresses) {
+        if (IN6_IS_ADDR_LINKLOCAL(a)) {
+            memcpy(addr, a->address, 16);
+            return 0;
         }
     }
-
-    if (short_addr && address_type != 1) {
-        if (address_ptr) {
-            memcpy(address_ptr, short_addr, 16);
-        }
-        return 0;
-    } else if (long_addr) {
-        if (address_ptr) {
-            memcpy(address_ptr, long_addr, 16);
-        }
-        return 0;
-    } else {
-        return -1;
-    }
+    return -ENOENT;
 }
 
 int addr_interface_get_gua(struct net_if *cur, struct in6_addr *addr)

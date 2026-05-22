@@ -581,7 +581,7 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], boo
      * can NUD probe it), whereas it regards us as off-link and will
      * go via RPL (and won't probe us). But it will work fine.
      */
-    if (addr_interface_get_ll_address(cur, buf->src_sa.address, 0) < 0) {
+    if (addr_interface_get_linklocal(cur, (struct in6_addr *)buf->src_sa.address) < 0) {
         tr_debug("No address for NS");
         return buffer_free(buf);
     }

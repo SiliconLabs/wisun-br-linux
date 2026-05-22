@@ -441,19 +441,18 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 {
-    struct in6_addr addr_tun;
-    uint8_t addr_ws0[16];
+    struct in6_addr addr_tun, addr_ws0;
     int ret;
-    bool cmp;
 
     ret = tun_addr_get_linklocal(&ctxt->net_if.tun, &addr_tun);
     FATAL_ON(ret < 0, 1, "no link-local address found on %s", ctxt->net_if.tun.ifname);
 
-    addr_interface_get_ll_address(&ctxt->net_if, addr_ws0, 0);
+    addr_interface_get_linklocal(&ctxt->net_if, &addr_ws0);
 
-    cmp = memcmp(addr_ws0, addr_tun.s6_addr, 16);
-    FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
-             tr_ipv6(addr_ws0), tr_ipv6(addr_tun.s6_addr), ctxt->net_if.tun.ifname);
+    if (!IN6_ARE_ADDR_EQUAL(&addr_ws0, &addr_tun))
+        FATAL(1, "address mismatch: expected %s but found %s on %s",
+              tr_ipv6(addr_ws0.s6_addr), tr_ipv6(addr_tun.s6_addr),
+              ctxt->net_if.tun.ifname);
 }
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)

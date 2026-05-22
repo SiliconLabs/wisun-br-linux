@@ -90,9 +90,7 @@ bool addr_iid_from_outer(uint8_t iid_out[8], const sockaddr_t *addr_in);
 
 int addr_interface_set_ll64(struct net_if *cur);
 
-/* address_type 0 means "any" address - we return short by preference */
-/* address_type 1 means long address - we ignore short addresses */
-int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, uint8_t address_type);
+int addr_interface_get_linklocal(struct net_if *cur, struct in6_addr *addr);
 int addr_interface_get_gua(struct net_if *cur, struct in6_addr *addr);
 int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr);
 
