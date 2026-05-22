@@ -53,5 +53,6 @@ void ws_derive_ptkid(const uint8_t ptk[48], const uint8_t auth_eui64[8], const u
  */
 void ws_gtk_counter_load(struct ws_gtk *gtk);
 void ws_gtk_counter_store(const struct ws_gtk *gtk);
+void ws_gtk_counter_del(const struct ws_gtk *gtk);
 
 #endif

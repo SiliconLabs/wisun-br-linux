@@ -214,6 +214,9 @@ static int supp_key_install_gtk(struct supp_ctx *supp, const struct kde_gtk *gtk
         timer_start_rel(&supp->timer_group, &gtk->expiration_timer, lifetime_kde * 1000);
         supp->on_gtk_change(supp, gtk->key, gtk->frame_counter, key_index);
         supp_storage_store(supp, true);
+        // NOTE: Frame counter is tracked in network-keys for installed keys.
+        if (gtk->frame_counter)
+            ws_gtk_counter_del(gtk);
         TRACE(TR_SECURITY, "sec: install %s=%s lifetime=%us cnt=%u", tr_gtkname(key_index - 1),
               tr_key(gtk_kde->gtk, sizeof(gtk_kde->gtk)), lifetime_kde, gtk->frame_counter);
     } else {

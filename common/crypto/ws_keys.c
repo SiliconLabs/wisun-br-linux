@@ -130,3 +130,11 @@ void ws_gtk_counter_store(const struct ws_gtk *gtk)
 
     storage_close_flush(info);
 }
+
+void ws_gtk_counter_del(const struct ws_gtk *gtk)
+{
+    char filename[WS_GTK_COUNTER_FILENAME_LEN];
+
+    ws_gtk_counter_filename(gtk->key, filename);
+    storage_delete((const char *[]){ filename, NULL });
+}
