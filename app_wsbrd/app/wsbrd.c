@@ -217,6 +217,10 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.mpl.send = wsbr_mpl_send,
     .net_if.mpl.abort = wsbr_mpl_abort,
 
+    // Wi-SUN FAN 1.1v11 6.2.1.1 Configuration Parameters
+    .net_if.ncr_resp_window_ms = 10000,
+    .net_if.ncr_req_retries = 3,
+
     .net_if.ws_info.mngt.trickle_pa.debug_name = "pa",
     .net_if.ws_info.mngt.trickle_pa.on_transmit = ws_mngt_pa_send,
     .net_if.ws_info.mngt.trickle_pc.debug_name = "pc",

@@ -43,6 +43,7 @@
 #include "net/protocol.h"
 #include "ipv6/ipv6_neigh_storage.h"
 #include "ipv6/ipv6_routing_table.h"
+#include "ipv6/nd_router_object.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -243,6 +244,9 @@ static void ws_on_bc_resync(struct timer_group *group, struct timer_entry *timer
 
     trickle_start(&net_if->ws_info.mngt.trickle_pc, NULL);
     ws_mngt_pc_send(&net_if->ws_info.mngt.trickle_pc, NULL);
+
+    if (!ns_list_is_empty(&net_if->ipv6_neighbour_cache.list))
+        nd_ncr_start(net_if);
 }
 
 void ws_bootstrap_6lbr_init(struct net_if *cur)

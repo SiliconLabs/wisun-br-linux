@@ -34,4 +34,6 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 void nd_remove_aro_routes_by_eui64(struct net_if *cur_interface,const uint8_t *eui64);
 void nd_restore_aro_routes_by_eui64(struct net_if *cur_interface, const uint8_t *eui64);
 
+void nd_ncr_start(struct net_if *net_if);
+
 #endif

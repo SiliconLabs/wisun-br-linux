@@ -18,11 +18,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <inttypes.h>
+#include "common/ipv6/ipv6_addr.h"
 #include "common/ipv6/ipv6_cksum.h"
 #include "common/log.h"
 #include "common/string_extra.h"
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/memutils.h"
 #include "common/named_values.h"
 #include "common/iobuf.h"
 #include "common/log_legacy.h"

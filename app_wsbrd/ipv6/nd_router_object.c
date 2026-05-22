@@ -19,10 +19,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include "common/ipv6/ipv6_addr.h"
 #include "common/ws/ws_neigh.h"
 #include "common/string_extra.h"
 #include "common/time_extra.h"
 #include "common/mathutils.h"
+#include "common/memutils.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/bits.h"
@@ -273,4 +275,43 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     // Todo: this might not be needed...
     nd_update_registration(cur_interface, neigh, na_earo, ws_neigh);
     return true;
+}
+
+static void nd_ncr_send(struct timer_group *group, struct timer_entry *timer)
+{
+    struct net_if *net_if = container_of(timer, struct net_if, ncr_req_timer);
+    struct ipv6_nd_opt_earo earo = {
+        .status = NDP_ARO_STATUS_REFRESH,
+        .present = true,
+    };
+    struct in6_addr src;
+    buffer_t *buf;
+
+    /*
+     *   RFC 9685 7.3. Registration Extensions
+     * [...] the Target MUST be set to the link-local address that was exposed
+     * previously by this node to accept registrations.
+     */
+    addr_interface_get_linklocal(net_if, &src);
+
+    buf = icmpv6_build_na(net_if, false, false, false, src.s6_addr,
+                          &earo, in6addr_any.s6_addr);
+    if (!buf)
+        return;
+    protocol_push(buf);
+}
+
+void nd_ncr_start(struct net_if *net_if)
+{
+    if (!timer_stopped(&net_if->ncr_req_timer))
+        return;
+    /*
+     *   Wi-SUN FAN 1.1v11 6.2.3.1.4.1 FFN Neighbor Discovery
+     * The initial transmission and all retries SHOULD be completed within
+     * NCR_RESP_WINDOW.
+     */
+    net_if->ncr_req_timer.period_ms = net_if->ncr_resp_window_ms / net_if->ncr_req_retries;
+    net_if->ncr_req_timer.rounds = net_if->ncr_req_retries + 1;
+    net_if->ncr_req_timer.callback = nd_ncr_send;
+    timer_start_rel(NULL, &net_if->ncr_req_timer, 0);
 }

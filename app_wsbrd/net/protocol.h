@@ -57,6 +57,10 @@ struct net_if {
     struct timer_entry reachable_time_ttl;
     uint32_t base_reachable_time_ms;
 
+    uint64_t ncr_resp_window_ms;
+    int ncr_req_retries;
+    struct timer_entry ncr_req_timer;
+
     uint8_t mac[8];
     uint8_t iid_eui64[8];
     uint8_t iid_slaac[8];
