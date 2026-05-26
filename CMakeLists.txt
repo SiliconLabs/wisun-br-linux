@@ -12,7 +12,7 @@
 # [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
 #
 cmake_minimum_required(VERSION  3.16.3)
-project(wsbrd)
+project(wsbrd LANGUAGES C)
 set(COMPILE_WSRD     OFF CACHE BOOL "Compile the experimental Wi-SUN Linux Router implementation")
 set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 set(COMPILE_DEMOS    OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
@@ -71,6 +71,7 @@ endmacro()
 find_package(ns3 QUIET)
 mark_as_advanced(ns3_DIR)
 if(ns3_FOUND)
+    enable_language(CXX)
     # The wsbrd simulation library only works with a ns-3 fork private to
     # Silicon Labs. See tools/simulation/README.md.
     include(CheckIncludeFileCXX)
