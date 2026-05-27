@@ -58,6 +58,8 @@ static void mqtt_connect_cb(struct mosquitto *mosq, void *obj, int rc)
 
     mqtt->connected = !rc;
     FATAL_ON(!mqtt->connected, 2, "mqtt: %s", mosquitto_connack_string(rc));
+
+    timer_start_rel(NULL, &mqtt->keepalive, mqtt->keepalive.period_ms);
 }
 
 static void mqtt_disconnect_cb(struct mosquitto *mosq, void *obj, int rc)
@@ -70,6 +72,9 @@ void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
     struct pollfd pfd = { };
     uint16_t port;
     int ret;
+
+    BUG_ON(!mqtt->keepalive.period_ms);
+    mqtt->keepalive.callback = mqtt_keepalive;
 
     mosquitto_lib_init();
     mqtt->mosq = mosquitto_new(NULL, true, mqtt);
@@ -109,10 +114,6 @@ void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
         FATAL_ON(ret < 0, 2, "poll: %m");
         mqtt_process(mqtt, pfd.revents);
     }
-
-    BUG_ON(!mqtt->keepalive.period_ms);
-    mqtt->keepalive.callback = mqtt_keepalive;
-    timer_start_rel(NULL, &mqtt->keepalive, mqtt->keepalive.period_ms);
 }
 
 int mqtt_fd(const struct mqtt_ctx *mqtt)
