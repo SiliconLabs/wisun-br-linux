@@ -27,7 +27,7 @@ v2.9
 ------
   - Save MPL sequence number to disk: prevent multicast packets being dropped
     by neighbors after reboot.
-  - Implement Trickle-F [tkl-f] to improve fairness in transmission of
+  - Implement [Trickle-F][tkl-f] to improve fairness in transmission of
     management frames and prevent issues in unfavorable network topologies.
   - Support NA/BZ channel count for channel plan 4/5 with an RCP using the
     Wi-SUN SoC stack v2.11 Radio Configurator to prevent radio configuration
