@@ -198,9 +198,11 @@ static int dbus_get_aes_keys(sd_bus_message *reply, struct net_if *net_if,
 
     sd_bus_message_open_container(reply, 'a', "ay");
     for (int i = 0; i < count; i++) {
-        // GAK is SHA256 of network name concatened with GTK
-        ws_generate_gak(net_if->ws_info.network_name,
-                        net_if->auth->gtks[offset + i].key, gak);
+        if (ws_gtk_installed(&net_if->auth->gtks[offset + i]))
+            ws_generate_gak(net_if->ws_info.network_name,
+                            net_if->auth->gtks[offset + i].key, gak);
+        else
+            memset(gak, 0, sizeof(gak));
         sd_bus_message_append_array(reply, 'y', gak, sizeof(gak));
     }
     sd_bus_message_close_container(reply);

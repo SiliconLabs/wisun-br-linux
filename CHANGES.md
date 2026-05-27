@@ -10,6 +10,7 @@
   - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
   - `wsbrd`: Insert and read POM-IE in EAPoL frames.
   - `wsbrd`: Expose connecting routers in D-Bus `RoutingGraph`.
+  - `wsbrd`: Return all-zero in D-Bus `Gak` property when key is not installed.
   - `wsrd`: Periodically change listening channel in join state 1 when no PAN
     advertisement is received.
   - `silabs-ws-dc`: Close connection when the security frame counter reaches
