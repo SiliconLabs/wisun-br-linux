@@ -24,6 +24,7 @@ struct mosquitto;
 struct mqtt_ctx {
     struct mosquitto *mosq;
     struct timer_entry keepalive;
+    struct timer_entry reconnect;
     bool connected;
 
     // Called on (re-)connection. Clients should subscribe or publish there.

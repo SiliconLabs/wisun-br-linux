@@ -65,9 +65,29 @@ static void mqtt_connect_cb(struct mosquitto *mosq, void *obj, int rc)
     timer_start_rel(NULL, &mqtt->keepalive, mqtt->keepalive.period_ms);
 }
 
+static void mqtt_reconnect(struct timer_group *group, struct timer_entry *timer)
+{
+    struct mqtt_ctx *mqtt = container_of(timer, struct mqtt_ctx, reconnect);
+    int ret;
+
+    ret = mosquitto_reconnect(mqtt->mosq);
+    if (ret) {
+        WARN("mosquitto_reconnect: %s", mosquitto_strerror(ret));
+        timer_start_rel(NULL, &mqtt->reconnect, mqtt->keepalive.period_ms);
+    }
+}
+
 static void mqtt_disconnect_cb(struct mosquitto *mosq, void *obj, int rc)
 {
-    FATAL(2, "mqtt disconnected: %s", mosquitto_strerror(rc));
+    struct mqtt_ctx *mqtt = obj;
+
+    if (!mqtt->connected)
+        FATAL(2, "mqtt disconnected: %s", mosquitto_strerror(rc));
+    else
+        WARN("mqtt disconnected: %s", mosquitto_strerror(rc));
+    timer_stop(NULL, &mqtt->keepalive);
+
+    timer_start_rel(NULL, &mqtt->reconnect, mqtt->keepalive.period_ms);
 }
 
 void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
@@ -78,6 +98,7 @@ void mqtt_start(struct mqtt_ctx *mqtt, const struct mqtt_cfg *cfg)
 
     BUG_ON(!mqtt->keepalive.period_ms);
     mqtt->keepalive.callback = mqtt_keepalive;
+    mqtt->reconnect.callback = mqtt_reconnect;
 
     mosquitto_lib_init();
     mqtt->mosq = mosquitto_new(NULL, true, mqtt);
