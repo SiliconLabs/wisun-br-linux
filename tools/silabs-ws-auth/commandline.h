@@ -19,7 +19,7 @@
 struct sl_auth_cfg {
     struct auth_cfg auth;
     struct mqtt_cfg mqtt;
-    struct sockaddr_in6 bind_addr;
+    struct in6_addr bind_addr;
     struct eui64 eui64;
     bool enable_lfn;
     bool storage_delete;

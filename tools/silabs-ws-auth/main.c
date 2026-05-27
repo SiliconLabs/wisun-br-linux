@@ -89,8 +89,7 @@ int main(int argc, char *argv[])
 {
     struct pollfd pfd[POLLFD_COUNT] = { };
     struct sl_auth_ctx ctx = {
-        .cfg.bind_addr.sin6_family = AF_INET6,
-        .cfg.bind_addr.sin6_addr = IN6ADDR_ANY_INIT,
+        .cfg.bind_addr = IN6ADDR_ANY_INIT,
         .cfg.mqtt.broker = "localhost",
         .auth.on_gtk_change = sl_auth_on_gtk_change,
         .auth.cfg = &ctx.cfg.auth,
@@ -112,7 +111,7 @@ int main(int argc, char *argv[])
 
     mqtt_start(&ctx.mqtt, &ctx.cfg.mqtt);
 
-    ctx.auth.eapol_relay_fd = eapol_relay_start(&ctx.cfg.bind_addr.sin6_addr);
+    ctx.auth.eapol_relay_fd = eapol_relay_start(&ctx.cfg.bind_addr);
     auth_start(&ctx.auth, &ctx.cfg.eui64, ctx.cfg.enable_lfn);
 
     pfd[POLLFD_EAPOL_RELAY].events = POLLIN;
