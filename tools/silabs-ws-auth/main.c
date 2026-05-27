@@ -66,6 +66,13 @@ static void sl_auth_on_gtk_change(struct auth_ctx *auth,
     sl_auth_publish(ctx);
 }
 
+static void sl_auth_on_connected(struct mqtt_ctx *mqtt)
+{
+    struct sl_auth_ctx *ctx = container_of(mqtt, struct sl_auth_ctx, mqtt);
+
+    sl_auth_publish(ctx);
+}
+
 static void sl_auth_recv(struct sl_auth_ctx *ctx)
 {
     struct auth_supp_ctx *supp;
@@ -110,6 +117,7 @@ int main(int argc, char *argv[])
     }
 
     mqtt_start(&ctx.mqtt, &ctx.cfg.mqtt);
+    ctx.mqtt.on_connected = sl_auth_on_connected;
 
     ctx.auth.eapol_relay_fd = eapol_relay_start(&ctx.cfg.bind_addr);
     auth_start(&ctx.auth, &ctx.cfg.eui64, ctx.cfg.enable_lfn);

@@ -89,6 +89,14 @@ static void auth_mqtt_resolve6(const char *host, struct in6_addr *addr)
     freeaddrinfo(ai);
 }
 
+static void auth_mqtt_on_connected(struct mqtt_ctx *mqtt)
+{
+    int ret;
+
+    ret = mosquitto_subscribe(mqtt->mosq, NULL, "gtks", 1);
+    FATAL_ON(ret, 2, "mosquitto_subscribe: %s", mosquitto_strerror(ret));
+}
+
 void auth_mqtt_start(struct auth_ctx *auth, const char *host,
                      const struct mqtt_cfg *cfg)
 {
@@ -100,11 +108,9 @@ void auth_mqtt_start(struct auth_ctx *auth, const char *host,
         WARN("ignoring all authenticator parameters since external_auth is used");
 
     auth_mqtt_resolve6(host, &auth->ext_auth_addr);
+    auth->mqtt.on_connected = auth_mqtt_on_connected;
     mqtt_start(&auth->mqtt, cfg);
-
     mosquitto_message_callback_set(auth->mqtt.mosq, auth_mqtt_recv_cb);
-    ret = mosquitto_subscribe(auth->mqtt.mosq, NULL, "gtks", 1);
-    FATAL_ON(ret, 2, "mosquitto_subscribe: %s", mosquitto_strerror(ret));
 
     // NOTE: Force new active key in on_gtk_change() 1st call
     auth->gtk_group.slot_active = -1;

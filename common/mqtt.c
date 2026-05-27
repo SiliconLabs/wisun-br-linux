@@ -59,6 +59,9 @@ static void mqtt_connect_cb(struct mosquitto *mosq, void *obj, int rc)
     mqtt->connected = !rc;
     FATAL_ON(!mqtt->connected, 2, "mqtt: %s", mosquitto_connack_string(rc));
 
+    if (mqtt->on_connected)
+        mqtt->on_connected(mqtt);
+
     timer_start_rel(NULL, &mqtt->keepalive, mqtt->keepalive.period_ms);
 }
 
