@@ -18,6 +18,7 @@
 #include "app_wsrd/ipv6/rpl.h"
 #include "common/ipv6/ipv6_addr.h"
 #include "common/ws/ws_neigh.h"
+#include "common/netinet_in_extra.h"
 #include "common/sys_queue_extra.h"
 #include "common/named_values.h"
 #include "common/mathutils.h"
@@ -120,6 +121,9 @@ enum rpl_cand_status rpl_cand_is_acceptable(struct ipv6_ctx *ipv6, struct ipv6_n
         return RPL_CAND_DISCARD_DENY;
     if (ipv6_neigh_is_child(nce))
         return RPL_CAND_DISCARD_CHILD;
+    if (!IN6_IS_ADDR_UNSPECIFIED(&ipv6->rpl.dodag_id) &&
+        !IN6_ARE_ADDR_EQUAL_SAFE(&ipv6->rpl.dodag_id, &nce->rpl->dio.dodag_id))
+        return RPL_CAND_DISCARD_DODAGID;
     if (ipv6->rpl.dodag_verno != -1 && nce->rpl->dio.dodag_verno != ipv6->rpl.dodag_verno)
         return RPL_CAND_DISCARD_VERNO;
     return RPL_CAND_OK;
@@ -168,6 +172,7 @@ const char *tr_cand_status(enum rpl_cand_status status)
         { "rank",        RPL_CAND_DISCARD_RANK },
         { "dodag-verno", RPL_CAND_DISCARD_VERNO },
         { "pref",        RPL_CAND_DISCARD_PREF },
+        { "dodagid",     RPL_CAND_DISCARD_DODAGID },
         { }
     };
 

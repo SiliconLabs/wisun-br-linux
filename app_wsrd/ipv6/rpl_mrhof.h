@@ -39,6 +39,7 @@ enum rpl_cand_status {
     RPL_CAND_DISCARD_RANK,
     RPL_CAND_DISCARD_VERNO,
     RPL_CAND_DISCARD_PREF,
+    RPL_CAND_DISCARD_DODAGID,
 };
 
 struct rpl_mrhof {
