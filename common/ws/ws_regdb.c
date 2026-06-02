@@ -373,7 +373,11 @@ int ws_regdb_frame_duration_ms(const struct phy_params *phy, size_t len)
         symbols += ofdm_phr_symbols[phy->ofdm_option - 1][phy->ofdm_mcs];
         bits = len * 8;
         bits += 6; // PPDU Tail
-        symbols += divup(bits * 1000000 / phy->datarate, OFDM_SYMBOL_DURATION_US);
+        // IEEE 802.15.4-2024 21.4.10 Pad field
+        if (phy->ofdm_option == 4 && phy->ofdm_mcs == 0)
+            symbols += 2 * divup(bits * 1000000 / (2 * phy->datarate), OFDM_SYMBOL_DURATION_US);
+        else
+            symbols += divup(bits * 1000000 / phy->datarate, OFDM_SYMBOL_DURATION_US);
         return divup(symbols * OFDM_SYMBOL_DURATION_US, 1000);
     default:
         return divup(len * 8 * 1000, phy->datarate);
