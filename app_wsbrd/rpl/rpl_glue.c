@@ -139,6 +139,14 @@ static buffer_t *rpl_glue_srh_provider(buffer_t *buf, ipv6_exthdr_stage_e stage,
          * is a single hop.
          */
         buf->options.type = srh_buf.len ? IPV6_NH_ROUTING : IPV6_NH_IPV6;
+        /*
+         *   RFC 2473 6.3 IPv6 Tunnel Hop Limit
+         * It is recommended that the tunnel hop limit be configured with a
+         * (a) that tunnel IPv6 packets can reach the tunnel exit-point node
+         * (b) a quick expiration of the tunnel packet if a routing loop
+         *     occurs within the IPv6 tunnel.
+         */
+        buf->options.hop_limit = buf->srh.seg_count + 1;
         buf->options.ip_extflags |= IPEXT_SRH_RPL;
         return buf;
     case IPV6_EXTHDR_MODIFY:
