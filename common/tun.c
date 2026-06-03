@@ -337,28 +337,32 @@ int tun_addr_del_mc(struct tun_ctx *tun, const struct in6_addr *addr)
 }
 
 // sysctl [dir]/[ifname]/key=[val]
-void tun_sysctl_set(const char *dir, const char *ifname, const char *key, char val)
+void tun_sysctl_set(const char *dir, const char *ifname,
+                    const char *key, const char *val)
 {
+    const int val_len = strlen(val);
     char path[PATH_MAX];
-    char val_cur;
+    char val_cur[16];
     ssize_t ret;
     int fd;
 
     snprintf(path, sizeof(path), "%s/%s/%s", dir, ifname, key);
+    BUG_ON(val_len >= sizeof(val_cur));
 
     fd = open(path, O_RDONLY);
     FATAL_ON(fd < 0, 2, "open %s: %m", path);
-    ret = read(fd, &val_cur, sizeof(val_cur));
-    FATAL_ON(ret != sizeof(val_cur), 2, "read %s: %m", path);
+    ret = read(fd, val_cur, sizeof(val_cur) - 1);
+    FATAL_ON(ret < 0, 2, "read %s: %m", path);
+    val_cur[ret] = '\0';
     close(fd);
 
-    if (val == val_cur)
+    if (!strcmp(val, val_cur))
         return;
 
     fd = open(path, O_WRONLY);
     FATAL_ON(fd < 0, 2, "open %s: %m", path);
-    ret = write(fd, &val, sizeof(val));
-    FATAL_ON(ret != sizeof(val), 2, "write %s %c: %m", path, val);
+    ret = write(fd, val, val_len);
+    FATAL_ON(ret != val_len, 2, "write %s %s: %m", path, val);
     close(fd);
 }
 

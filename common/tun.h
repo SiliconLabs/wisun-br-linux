@@ -59,6 +59,7 @@ void tun_neigh_add_proxy(struct tun_ctx *tun, const struct in6_addr *addr, int i
 void tun_neigh_del_proxy(struct tun_ctx *tun, const struct in6_addr *addr, int ifindex);
 
 // sysctl [dir]/[ifname]/key=[val]
-void tun_sysctl_set(const char *dir, const char *ifname, const char *key, char val);
+void tun_sysctl_set(const char *dir, const char *ifname,
+                    const char *key, const char *val);
 
 #endif
