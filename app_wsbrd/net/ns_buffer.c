@@ -137,6 +137,7 @@ buffer_t *buffer_free_route(buffer_t *buf)
 buffer_t *buffer_free(buffer_t *buf)
 {
     buffer_free_route(buf);
+    rpl_srh_clear(&buf->srh);
     free(buf);
     return NULL;
 }
@@ -170,12 +171,17 @@ buffer_t *buffer_turnaround(buffer_t *buf)
  * Other in-buffer metadata copied from src.
  * Any route information pointer cloned from src (reference count increased).
  * Other metadata pointers transfered either to dst or left in src, as requested
+ *
+ * Decompressed RPL SRH (`seg_list`) is deep-copied so dst does not share heap
+ * with src (after `*dst = *src`, `seg_list` may still alias src).
  */
 void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst)
 {
     uint16_t buf_size = dst->size;
     uint16_t buf_end = dst->buf_end;
     uint16_t buf_ptr = dst->buf_ptr;
+
+    rpl_srh_clear(&dst->srh);
     *dst = *src;
     if (dst->route) {
         dst->route->ref_count++;
@@ -183,6 +189,11 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
     dst->size = buf_size;
     dst->buf_ptr = buf_ptr;
     dst->buf_end = buf_end;
+
+    if (src->srh.seg_count) {
+        dst->srh.seg_list = xalloc(src->srh.seg_count * 16);
+        memcpy(dst->srh.seg_list, src->srh.seg_list, src->srh.seg_count * 16);
+    }
 }
 
 void buffer_data_add(buffer_t *buf, const uint8_t *data_ptr, uint16_t data_len)
@@ -216,6 +227,12 @@ buffer_t *buffer_clone(buffer_t *buf)
     result_ptr->buf_ptr = buf_ptr;
     result_ptr->buf_end = buf_end;
     result_ptr->size = size;
+
+    if (buf->srh.seg_count) {
+        result_ptr->srh.seg_list = xalloc(buf->srh.seg_count * 16);
+        memcpy(result_ptr->srh.seg_list, buf->srh.seg_list, buf->srh.seg_count * 16);
+    }
+
     buffer_data_add(result_ptr, buffer_data_pointer(buf), buffer_data_length(buf));
 
     return result_ptr;

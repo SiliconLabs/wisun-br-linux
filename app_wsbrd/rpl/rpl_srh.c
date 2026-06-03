@@ -12,16 +12,26 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "common/bits.h"
 #include "common/iobuf.h"
 #include "common/log.h"
 #include "common/mathutils.h"
+#include "common/string_extra.h"
 #include "common/specs/rpl.h"
 #include "common/specs/ipv6.h"
 #include "rpl_srh.h"
 #include "rpl.h"
+
+void rpl_srh_clear(struct rpl_srh_decmpr *srh)
+{
+    free(srh->seg_list);
+    srh->seg_list = NULL;
+    srh->seg_count = 0;
+    srh->seg_left = 0;
+}
 
 void rpl_srh_trace_err(int err)
 {
@@ -49,7 +59,8 @@ void rpl_srh_trace_err(int err)
 int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop_ret)
 {
-    const uint8_t *seg_list[WS_RPL_SRH_MAXSEG];
+    __attribute__((cleanup(iobuf_free)))
+    struct iobuf_write seg_buf = { };
     struct rpl_transit *transit;
     struct rpl_target *target;
     uint8_t seg_count = 0;
@@ -71,9 +82,10 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
         if (seg_count >= WS_RPL_SRH_MAXSEG)
             return -ERANGE;
         for (uint8_t i = 0; i < seg_count; i++)
-            if (!memcmp(transit->parent, seg_list[i], 16))
+            if (!memcmp(transit->parent, seg_buf.data + i * 16, 16))
                 return -ELOOP;
-        seg_list[seg_count++] = nxthop;
+        iobuf_push_data(&seg_buf, nxthop, 16);
+        seg_count++;
         nxthop = transit->parent;
     }
 
@@ -89,14 +101,19 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
         BUG_ON(!hlim);
         if (hlim - 1 < seg_count) { // NOTE: nxthop is not included in seg_count
             TRACE(TR_RPL, "rpl-srh: clamp from %u to %u segments", seg_count, hlim - 1);
-            memmove(seg_list, seg_list + seg_count - (hlim - 1),
-                    (hlim - 1) * sizeof(struct in6_addr *));
+            memmove(seg_buf.data, seg_buf.data + (seg_count - (hlim - 1)) * 16,
+                    (hlim - 1) * 16);
             seg_count = hlim - 1;
+            if (!seg_count)
+                iobuf_free(&seg_buf);
         }
+        // NOTE: transfer ownership
+        srh->seg_list  = (struct in6_addr *)seg_buf.data;
+        seg_buf.data = NULL;
         srh->seg_count = seg_count;
         srh->seg_left  = seg_count;
-        for (uint8_t i = 0; i < seg_count; i++)
-            memcpy(&srh->seg_list[i], seg_list[seg_count - i - 1], 16);
+        for (uint8_t i = 0; i < seg_count / 2; i++)
+            memswap(&srh->seg_list[i], &srh->seg_list[seg_count - i - 1], 16);
     }
     return seg_count;
 }

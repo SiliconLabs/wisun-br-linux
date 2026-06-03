@@ -29,9 +29,10 @@ struct rpl_root;
 struct rpl_srh_decmpr {
     uint8_t seg_left;
     uint8_t seg_count;
-    struct in6_addr seg_list[WS_RPL_SRH_MAXSEG];
+    struct in6_addr *seg_list;
 };
 
+void rpl_srh_clear(struct rpl_srh_decmpr *srh);
 int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
                   struct rpl_srh_decmpr *srh, const uint8_t **nxthop);
 void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,

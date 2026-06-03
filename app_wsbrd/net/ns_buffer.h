@@ -202,7 +202,8 @@ void buffer_data_add(buffer_t *buf, const uint8_t *data_ptr, uint16_t data_len);
 /** create new buffer and copy all fields and data
  *
  *  Notice that data can have different headroom reserved. so the actual data might
- *  be located in different part of buffer than in original.*/
+ *  be located in different part of buffer than in original.
+ *  Decompressed RPL SRH is deep-copied (separate `seg_list` heap allocation). */
 buffer_t *buffer_clone(buffer_t *buf);
 
 /** prepare an input buffer to become a response - clear unwanted metadata */
