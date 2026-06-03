@@ -107,7 +107,7 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
         srh->seg_count = seg_count;
         srh->seg_left  = seg_count;
         for (uint8_t i = 0; i < seg_count; i++)
-            memcpy(srh->seg_list[i], seg_list[seg_count - i - 1], 16);
+            memcpy(&srh->seg_list[i], seg_list[seg_count - i - 1], 16);
     }
     return seg_count;
 }
@@ -125,11 +125,11 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
     cmpri = 15;
     for (uint8_t i = 0; i < srh->seg_count - 1; i++)
         for (uint8_t j = 0; j < cmpri; j++)
-            if (srh->seg_list[i][j] != dst[j])
+            if (srh->seg_list[i].s6_addr[j] != dst[j])
                 cmpri = j;
     cmpre = 15;
     for (uint8_t i = 0; i < cmpre; i++)
-        if (srh->seg_list[srh->seg_count - 1][i] != dst[i])
+        if (srh->seg_list[srh->seg_count - 1].s6_addr[i] != dst[i])
             cmpre = i;
 
     size_no_pad = 8 + (16 - cmpri) * (srh->seg_count - 1) + (16 - cmpre);
@@ -145,8 +145,8 @@ void rpl_srh_push(struct iobuf_write *buf, const struct rpl_srh_decmpr *srh,
     tmp |= FIELD_PREP(RPL_MASK_SRH_PAD,   pad);
     iobuf_push_be32(buf, tmp);
     for (uint8_t i = 0; i < srh->seg_count - 1; i++)
-        iobuf_push_data(buf, srh->seg_list[i] + cmpri, 16 - cmpri);
-    iobuf_push_data(buf, srh->seg_list[srh->seg_count - 1] + cmpre, 16 - cmpre);
+        iobuf_push_data(buf, srh->seg_list[i].s6_addr + cmpri, 16 - cmpri);
+    iobuf_push_data(buf, srh->seg_list[srh->seg_count - 1].s6_addr + cmpre, 16 - cmpre);
     for (uint8_t i = 0; i < pad; i++)
         iobuf_push_u8(buf, 0);
 }

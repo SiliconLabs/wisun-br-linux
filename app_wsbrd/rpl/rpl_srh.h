@@ -13,7 +13,7 @@
  */
 #ifndef RPL_SRH_H
 #define RPL_SRH_H
-
+#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -29,7 +29,7 @@ struct rpl_root;
 struct rpl_srh_decmpr {
     uint8_t seg_left;
     uint8_t seg_count;
-    uint8_t seg_list[WS_RPL_SRH_MAXSEG][16];
+    struct in6_addr seg_list[WS_RPL_SRH_MAXSEG];
 };
 
 int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
