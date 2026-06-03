@@ -355,7 +355,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
         /* Clone the buffer header from this first fragment, preserving only size + pointers */
         /* Also the security flag - this fragment's flag is merged in later */
         bool buf_security = frag_ptr->buf->options.ll_security_bypass_rx;
-        buffer_copy_metadata(frag_ptr->buf, buf, true);
+        buffer_copy_metadata(frag_ptr->buf, buf);
         frag_ptr->buf->options.ll_security_bypass_rx = buf_security;
     } else {
         ipv6_size = lowpan_size = buffer_data_length(buf);

@@ -170,12 +170,11 @@ buffer_t *buffer_turnaround(buffer_t *buf)
  * Data size and pointers left unmodified in destination.
  * Other in-buffer metadata copied from src.
  * Any route information pointer cloned from src (reference count increased).
- * Other metadata pointers transfered either to dst or left in src, as requested
  *
  * Decompressed RPL SRH (`seg_list`) is deep-copied so dst does not share heap
  * with src (after `*dst = *src`, `seg_list` may still alias src).
  */
-void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst)
+void buffer_copy_metadata(buffer_t *dst, buffer_t *src)
 {
     uint16_t buf_size = dst->size;
     uint16_t buf_end = dst->buf_end;

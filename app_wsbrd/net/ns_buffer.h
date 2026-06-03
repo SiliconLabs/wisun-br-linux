@@ -210,7 +210,7 @@ buffer_t *buffer_clone(buffer_t *buf);
 buffer_t *buffer_turnaround(buffer_t *buf);
 
 /** copy metadata from src to dst - see definition for more info */
-void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst);
+void buffer_copy_metadata(buffer_t *dst, buffer_t *src);
 
 /** get pointer to data*/
 #define buffer_data_pointer(x)  (&(x)->buf[(x)->buf_ptr])
