@@ -170,7 +170,6 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
     struct ipv6_neigh *parents_new[RPL_PARENTS_MAX] = { };
     struct in6_addr old_dodag_id = { };
     int dtsn_old = ipv6->rpl.dtsn;
-    struct in6_addr dodag_id;
     bool send_dao;
 
     rpl_get_parents(ipv6, parents_cur);
@@ -199,10 +198,10 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
             if (!rpl_storage_load(&ipv6->rpl, &old_dodag_id) ||
                 !IN6_ARE_ADDR_EQUAL_SAFE(&parents_new[0]->rpl->dio.dodag_id, &old_dodag_id)) {
                 TRACE(TR_RPL, "rpl: dodag-id mismatch, reset path-seq");
+                ipv6->rpl.dodag_id = parents_new[0]->rpl->dio.dodag_id;
                 ipv6->rpl.path_seq = RPL_LOLLIPOP_INIT;
                 ipv6->rpl.path_seq_last_tx = -1;
-                dodag_id = parents_new[0]->rpl->dio.dodag_id; // -Waddress-of-packed-member
-                rpl_storage_store(&ipv6->rpl, &dodag_id);
+                rpl_storage_store(&ipv6->rpl, &ipv6->rpl.dodag_id);
             }
         }
     }
@@ -243,6 +242,7 @@ void rpl_update_parents(struct ipv6_ctx *ipv6)
         trickle_stop(&ipv6->rpl.dio_trickle, &ipv6->timer_group);
         rpl_send_dio(ipv6, parents_cur[0], &ipv6_addr_all_rpl_nodes_link);
         ipv6->rpl.dodag_verno = -1;
+        ipv6->rpl.dodag_id = in6addr_any;
     }
     if (parents_cur[0] != parents_new[0] && ipv6->rpl.mrhof.on_pref_parent_change)
         ipv6->rpl.mrhof.on_pref_parent_change(&ipv6->rpl.mrhof, parents_new[0]);
@@ -332,7 +332,7 @@ void rpl_send_dio(struct ipv6_ctx *ipv6, struct ipv6_neigh *parent, const struct
     dio.rank        = htons(ipv6->rpl.last_advertised_rank);
     dio.g_mop_prf   = parent->rpl->dio.g_mop_prf;
     dio.dtsn        = ipv6->rpl.dtsn;
-    dio.dodag_id    = parent->rpl->dio.dodag_id;
+    dio.dodag_id    = ipv6->rpl.dodag_id;
     iobuf_push_data(&iobuf, &dio, sizeof(dio));
 
     rpl_opt_push(&iobuf, RPL_OPT_CONFIG, &parent->rpl->config, sizeof(parent->rpl->config));
@@ -483,16 +483,11 @@ static void rpl_send_dao(struct ipv6_ctx *ipv6, uint8_t path_lifetime)
 
 static void rpl_path_seq_update(struct ipv6_ctx *ipv6)
 {
-    struct ipv6_neigh *parent = rpl_neigh_get_parent(ipv6, RPL_PATH_CTL_PREFERRED);
-    struct in6_addr dodag_id;
-
-    BUG_ON(!parent);
     // NOTE: Do not increment if current value was not used in any packet yet
     if (ipv6->rpl.path_seq_last_tx != ipv6->rpl.path_seq)
         return;
     ipv6->rpl.path_seq = rpl_lollipop_inc(ipv6->rpl.path_seq);
-    dodag_id = parent->rpl->dio.dodag_id; // -Waddress-of-packed-member
-    rpl_storage_store(&ipv6->rpl, &dodag_id);
+    rpl_storage_store(&ipv6->rpl, &ipv6->rpl.dodag_id);
 }
 
 void rpl_send_dao_no_path(struct ipv6_ctx *ipv6)
@@ -948,6 +943,7 @@ void rpl_stop(struct ipv6_ctx *ipv6)
     ipv6->rpl.fd = -1;
     ipv6->rpl.mrhof.lowest_advertised_rank = RPL_RANK_INFINITE;
     ipv6->rpl.last_advertised_rank = RPL_RANK_INFINITE;
+    ipv6->rpl.dodag_id = in6addr_any;
     ipv6->rpl.dodag_verno = -1;
     ipv6->rpl.dtsn = -1;
     ipv6->rpl.path_seq_last_tx = -1;
@@ -964,6 +960,7 @@ void rpl_start(struct ipv6_ctx *ipv6)
     BUG_ON(!ipv6->rpl.mrhof.parent_switch_threshold);
     BUG_ON(!ipv6->rpl.mrhof.device_min_sens_dbm);
     BUG_ON(!ipv6->rpl.dis_txalg.tx);
+    BUG_ON(!IN6_IS_ADDR_UNSPECIFIED(&ipv6->rpl.dodag_id));
 
     strcpy(ipv6->rpl.dio_trickle.debug_name, "dio");
     ipv6->rpl.dio_trickle.cfg = &ipv6->rpl.dio_trickle_cfg;

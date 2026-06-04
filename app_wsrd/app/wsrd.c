@@ -115,7 +115,7 @@ static void wsrd_ipv6_on_recv(struct ipv6_ctx *ipv6, const struct in6_addr *src)
             return;
         src = &neigh->gua;
     }
-    if (IN6_ARE_ADDR_EQUAL_SAFE(src, &parent->rpl->dio.dodag_id))
+    if (IN6_ARE_ADDR_EQUAL(src, &ipv6->rpl.dodag_id))
         ws_pan_timeout_update(wsrd);
 }
 

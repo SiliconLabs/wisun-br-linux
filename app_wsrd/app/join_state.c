@@ -204,6 +204,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     BUG_ON(!parent);
     BUG_ON(!wsrd->ipv6.dhcp.running);
     BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.dhcp.iaaddr.ipv6));
+    BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.rpl.dodag_id));
     BUG_ON(timer_stopped(&parent->own_aro_timer));
     BUG_ON(!parent->rpl->path_ctl_acked);
     BUG_ON(timer_stopped(&wsrd->ipv6.rpl.dao_refresh_timer));
@@ -214,7 +215,7 @@ static void join_state_5_enter(struct wsrd *wsrd)
     wsrd->ws.eapol_relay_fd = eapol_relay_start(&wsrd->ipv6.dhcp.iaaddr.ipv6);
     trickle_start(&wsrd->pa_tkl, NULL);
     trickle_start(&wsrd->pc_tkl, NULL);
-    wsrd->dhcp_relay.server_addr = parent->rpl->dio.dodag_id;
+    wsrd->dhcp_relay.server_addr = wsrd->ipv6.rpl.dodag_id;
     wsrd->dhcp_relay.link_addr   = wsrd->ipv6.dhcp.iaaddr.ipv6;
     dhcp_relay_start(&wsrd->dhcp_relay);
 

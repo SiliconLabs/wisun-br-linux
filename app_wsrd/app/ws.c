@@ -633,9 +633,7 @@ void ws_recv_data(struct wsrd *wsrd, struct ws_ind *ind)
 
 void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
 {
-    const struct ipv6_neigh *parent;
     struct iobuf_read buf = { };
-    struct in6_addr dodag_id;
     struct eui64 auth_eui64;
     struct ws_us_ie ie_us;
     struct ws_bs_ie ie_bs;
@@ -705,12 +703,10 @@ void ws_recv_eapol(struct wsrd *wsrd, struct ws_ind *ind)
             TRACE(TR_TX_ABORT, "drop %s: eapol-relay not started", "15.4");
             return;
         }
-        parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
-        BUG_ON(!parent || !parent->rpl);
-        dodag_id = parent->rpl->dio.dodag_id; // -Waddress-of-packed-member
+        BUG_ON(IN6_IS_ADDR_UNSPECIFIED(&wsrd->ipv6.rpl.dodag_id));
         eapol_relay_send(wsrd->ws.eapol_relay_fd,
                          iobuf_ptr(&buf), iobuf_remaining_size(&buf),
-                         &dodag_id, &ind->hdr.src, kmp_id);
+                         &wsrd->ipv6.rpl.dodag_id, &ind->hdr.src, kmp_id);
     }
 }
 

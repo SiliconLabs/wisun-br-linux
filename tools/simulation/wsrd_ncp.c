@@ -307,7 +307,7 @@ static void ncp_get_ip_addr(const void *_req, const void *req_data, void *_cnf, 
     case SL_WISUN_IP_ADDRESS_TYPE_BORDER_ROUTER:
         parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
         if (parent)
-            cnf->body.address = parent->rpl->dio.dodag_id;
+            cnf->body.address = wsrd->ipv6.rpl.dodag_id;
         break;
     case SL_WISUN_IP_ADDRESS_TYPE_PRIMARY_PARENT:
         parent = rpl_neigh_get_parent(&wsrd->ipv6, RPL_PATH_CTL_PREFERRED);
