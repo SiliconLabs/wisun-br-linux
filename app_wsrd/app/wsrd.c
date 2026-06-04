@@ -764,6 +764,8 @@ int wsrd_main(int argc, char *argv[])
     if (wsrd->config.user[0] && wsrd->config.group[0])
         drop_privileges(wsrd->config.user, wsrd->config.group,
                         (int[]){ CAP_NET_BIND_SERVICE, CAP_NET_ADMIN, CAP_NET_RAW }, 3);
+    if (storage_check_access(g_storage_prefix))
+        FATAL(1, "%s: %m", g_storage_prefix);
 
     INFO("Wi-SUN Router successfully started");
 

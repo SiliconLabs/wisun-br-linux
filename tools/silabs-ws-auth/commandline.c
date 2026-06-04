@@ -168,8 +168,6 @@ void parse_commandline(struct sl_auth_cfg *cfg, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if (storage_check_access(g_storage_prefix))
-        FATAL(1, "%s: %m", g_storage_prefix);
     if (cfg->storage_exit)
         return;
     if (eui64_is_bc(&cfg->eui64))

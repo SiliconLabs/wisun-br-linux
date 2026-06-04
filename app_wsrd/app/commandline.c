@@ -190,8 +190,6 @@ void parse_commandline(struct wsrd_conf *config, int argc, char *argv[])
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
-    if (storage_check_access(g_storage_prefix))
-        FATAL(1, "%s: %m", g_storage_prefix);
     if (!config->rcp.uart_dev[0] && !config->rcp.cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->rcp.uart_dev[0] && config->rcp.cpc_instance[0])
