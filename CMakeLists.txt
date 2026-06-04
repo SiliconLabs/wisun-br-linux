@@ -879,16 +879,15 @@ install(FILES misc/com.silabs.Wisun.Router.conf
 # the code
 install(DIRECTORY DESTINATION /var/lib/wsbrd
     DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
-install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsbrd wsbrd)")
-install(CODE "execute_process(COMMAND chown -R wsbrd:wsbrd /var/lib/wsbrd)")
+install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsbrd wisun)")
+install(CODE "execute_process(COMMAND chown -R wisun:wisun /var/lib/wsbrd)")
 if(COMPILE_WSRD)
     install(DIRECTORY DESTINATION /var/lib/wsrd
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
-    install(CODE "execute_process(COMMAND useradd --system --shell /sbin/nologin --home-dir /var/lib/wsrd wisun)")
     install(CODE "execute_process(COMMAND chown -R wisun:wisun /var/lib/wsrd)")
 endif()
 if(COMPILE_DEVTOOLS)
     install(DIRECTORY DESTINATION /var/lib/silabs-ws-auth
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
-    install(CODE "execute_process(COMMAND chown -R wsbrd:wsbrd /var/lib/silabs-ws-auth)")
+    install(CODE "execute_process(COMMAND chown -R wisun:wisun /var/lib/silabs-ws-auth)")
 endif()

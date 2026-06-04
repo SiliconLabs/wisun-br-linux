@@ -1,3 +1,4 @@
+  - Use user/group `wisun` for all applications.
   - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
     existing neighbors in order to re-enable broadcast communication quicker.
   - `wsbrd`: Send a Neighbor Cache Refresh (NCR) packet on reboot to accelerate
