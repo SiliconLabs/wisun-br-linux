@@ -662,8 +662,11 @@ int wsbr_main(int argc, char *argv[])
         else
             drop_privileges(ctxt->config.user, ctxt->config.group, NULL, 0);
     }
-    if (storage_check_access(g_storage_prefix))
+    if (storage_check_access(g_storage_prefix)) {
+        if (!strcmp(ctxt->config.user, "wsbrd"))
+            WARN("default user/group \"wsbrd\" has been changed to \"wisun\"");
         FATAL(1, "%s: %m", g_storage_prefix);
+    }
     // FIXME: This call should be made in wsbr_configure_ws() but we cannot do
     // so because of privileges
     ws_pan_info_storage_write(&ctxt->net_if.ws_info);
