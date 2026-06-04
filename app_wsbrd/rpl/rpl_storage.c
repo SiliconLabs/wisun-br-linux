@@ -34,10 +34,8 @@ void rpl_storage_store_config(const struct rpl_root *root)
     struct storage_parse_info *nvm;
 
     nvm = storage_open_prefix("rpl-config", "w");
-    if (!nvm) {
-        WARN("%s: unable to open file: \"rpl-config\"", __func__);
+    if (!nvm)
         return;
-    }
     fprintf(nvm->file, "instance_id = %u\n", root->instance_id);
     fprintf(nvm->file, "dodag_id = %s\n", str_ipv6(root->dodag_id, ipv6_str));
     fprintf(nvm->file, "dodag_version_number = %u\n", root->dodag_version_number);
@@ -51,10 +49,8 @@ void rpl_storage_load_config(struct rpl_root *root, const char *filename)
     int ret;
 
     nvm = storage_open(filename, "r");
-    if (!nvm) {
-        WARN("%s %s failure", __func__, filename);
+    if (!nvm)
         return;
-    }
     while (storage_parse_line(nvm) != EOF) {
         if (!fnmatch("instance_id", nvm->key, 0)) {
             root->instance_id = strtoul(nvm->value, NULL, 0);
@@ -83,10 +79,8 @@ void rpl_storage_store_target(const struct rpl_root *root, const struct rpl_targ
     strcpy(filename, "rpl-");
     str_ipv6(target->prefix, filename + strlen(filename));
     nvm = storage_open_prefix(filename, "w");
-    if (!nvm) {
-        WARN("%s: unable to open file: %s", __func__, filename);
+    if (!nvm)
         return;
-    }
 
     fprintf(nvm->file, "path_seq = %u\n", target->path_seq);
     tstamp = target->path_seq_tstamp_s + time_get_storage_offset_s();
@@ -138,10 +132,7 @@ void rpl_storage_load_target(struct rpl_root *root, const char *filename)
     BUG_ON(!target);
 
     nvm = storage_open(filename, "r");
-    if (!nvm) {
-        WARN("%s %s failure", __func__, filename);
         return;
-    }
     while (storage_parse_line(nvm) != EOF) {
         if (!fnmatch("path_seq", nvm->key, 0)) {
             target->path_seq = strtoul(nvm->value, NULL, 0);

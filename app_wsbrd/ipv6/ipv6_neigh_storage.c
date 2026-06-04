@@ -51,11 +51,8 @@ void ipv6_neigh_storage_save(struct ipv6_neighbour_cache *cache, const uint8_t *
     sprintf(filename, "neighbor-");
     str_eui64(eui64, filename + strlen(filename));
     nvm = storage_open_prefix(filename, "w");
-
-    if (!nvm) {
-        WARN("%s %s failure", __func__, filename);
+    if (!nvm)
         return;
-    }
 
     ns_list_foreach(struct ipv6_neighbour, cur, &cache->list) {
         if (memcmp(eui64, ipv6_neighbour_eui64(cache, cur), 8))
@@ -100,10 +97,8 @@ static void ipv6_neigh_storage_load_neigh(struct ipv6_neighbour_cache *cache, co
         return;
     }
     nvm = storage_open(filename, "r");
-    if (!nvm) {
-        WARN("%s %s failure", __func__, filename);
+    if (!nvm)
         return;
-    }
 
     ipv6_neighbors = calloc(array_len, sizeof(struct ipv6_neighbour));
     FATAL_ON(!ipv6_neighbors, 2, "%s %s", __func__, filename);

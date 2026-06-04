@@ -121,10 +121,8 @@ void ws_gtk_counter_store(const struct ws_gtk *gtk)
 
     ws_gtk_counter_filename(gtk->key, filename);
     info = storage_open_prefix(filename, "w");
-    if (!info) {
-        WARN("storage_open_prefix %s: %m", filename);
+    if (!info)
         return;
-    }
 
     fprintf(info->file, "frame_counter = %u\n", gtk->frame_counter);
 

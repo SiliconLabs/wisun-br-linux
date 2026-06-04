@@ -191,10 +191,8 @@ static bool auth_storage_load_supplicant(struct auth_ctx *auth, const char *file
         return false;
     }
     info = storage_open(filename, "r");
-    if (!info) {
-        WARN("%s: unable to open file: %s", __func__, filename);
+    if (!info)
         return false;
-    }
 
     supp = auth_fetch_supp(auth, &eui64);
 
@@ -279,10 +277,8 @@ void auth_storage_store_supplicant(struct auth_supp_ctx *supp, bool force_write)
 
     auth_storage_get_supp_filename(supp, filename, sizeof(filename));
     info = storage_open_prefix(filename, "w");
-    if (!info) {
-        WARN("%s: unable to open file: %s", __func__, filename);
+    if (!info)
         return;
-    }
 
     if (supp->keys.pmk.installation_s) {
         str_key(supp->keys.pmk.key, sizeof(supp->keys.pmk.key), str_buf, sizeof(str_buf));

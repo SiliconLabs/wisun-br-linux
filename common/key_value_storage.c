@@ -53,6 +53,7 @@ struct storage_parse_info *storage_open(const char *filename, const char *mode)
     strlcpy(info->filename, filename, sizeof(info->filename));
     info->file = fopen(info->filename, mode);
     if (!info->file) {
+        WARN("storage_open %s: %m", filename);
         free(info);
         return NULL;
     }
