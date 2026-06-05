@@ -686,29 +686,6 @@ int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
-int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
-                       const char *property, sd_bus_message *reply,
-                       void *userdata, sd_bus_error *ret_error)
-{
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
-
-    if (!net_if)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_message_append(reply, "q", net_if->ws_info.pan_information.pan_id);
-    return 0;
-}
-
-int dbus_get_fan_version(sd_bus *bus, const char *path, const char *interface,
-                         const char *property, sd_bus_message *reply,
-                         void *userdata, sd_bus_error *ret_error)
-{
-    struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
-    uint8_t fan_version = net_if->ws_info.pan_information.version;
-
-    sd_bus_message_append_basic(reply, 'y', &fan_version);
-    return 0;
-}
-
 int dbus_get_duty_cycle_level(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
@@ -833,11 +810,11 @@ const sd_bus_vtable wsbrd_dbus_vtable[] = {
         SD_BUS_PROPERTY("WisunChanPlanId", "u", NULL,
                         offsetof(struct wsbr_ctxt, config.ws_chan_plan_id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
-        SD_BUS_PROPERTY("WisunPanId", "q", dbus_get_ws_pan_id,
-                        offsetof(struct wsbr_ctxt, net_if.id),
+        SD_BUS_PROPERTY("WisunPanId", "q", NULL,
+                        offsetof(struct wsbr_ctxt, net_if.ws_info.pan_information.pan_id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
-        SD_BUS_PROPERTY("WisunFanVersion", "y", dbus_get_fan_version,
-                        offsetof(struct wsbr_ctxt, net_if.id),
+        SD_BUS_PROPERTY("WisunFanVersion", "y", NULL,
+                        offsetof(struct wsbr_ctxt, net_if.ws_info.pan_information.version),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("DutyCycleLevel", "i", dbus_get_duty_cycle_level,
                         0, SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

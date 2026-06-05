@@ -55,7 +55,7 @@ struct ws_pan_information {
     uint8_t  lfn_session_id;
     uint16_t last_jm_pan_size; /**< Last PAN size used for JM-IE version update. */
     bool lfn_version_set: 1;   /**< 1 LFN PAN version is set. */
-    unsigned version: 3;        /**< Pan version support. */
+    uint8_t version;           /**< Pan version support. */
 };
 
 typedef struct ws_info {
