@@ -92,6 +92,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
     tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->net_if.tun.ifname, "accept_ra", "0");
+    tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->net_if.tun.ifname, "hop_limit", "100");
     if (strlen(ctxt->config.neighbor_proxy)) {
         tun_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", "1");
         tun_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", "0");

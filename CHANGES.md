@@ -1,5 +1,6 @@
   - Use a default unicast frame retransmission count of 7.
   - Use user/group `wisun` for all applications.
+  - Increase default hop limit to 100 to support deep networks.
   - `wsbrd`: Remove 24 hop limitation when generating a source routing header.
   - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
     existing neighbors in order to re-enable broadcast communication quicker.
