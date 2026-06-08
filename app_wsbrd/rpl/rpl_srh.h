@@ -20,11 +20,6 @@
 struct iobuf_write;
 struct rpl_root;
 
-//   Wi-SUN FAN 1.1v06 - 4.1.1 General
-// The FAN MUST support mesh networking with FAN nodes being up to 24 hops from
-// the root of the mesh tree.
-#define WS_RPL_SRH_MAXSEG 24
-
 // Decompressed source routing header
 struct rpl_srh_decmpr {
     uint8_t seg_left;

@@ -48,7 +48,7 @@ void rpl_srh_trace_err(int err)
         TRACE(TR_TX_ABORT, "%s: no route to target", prefix);
         break;
     case -ERANGE:
-        TRACE(TR_TX_ABORT, "%s: > %u hops", prefix, WS_RPL_SRH_MAXSEG);
+        TRACE(TR_TX_ABORT, "%s: too many hops", prefix);
         break;
     case -ELOOP:
         TRACE(TR_TX_ABORT, "%s: loop", prefix);
@@ -79,7 +79,8 @@ int rpl_srh_build(struct rpl_root *root, const uint8_t dst[16], uint8_t hlim,
             return -ENETUNREACH;
         if (!memcmp(transit->parent, root->dodag_id, 16))
             break;
-        if (seg_count >= WS_RPL_SRH_MAXSEG)
+        // NOTE: Ensure the segments fit within the max header length field
+        if (seg_count * 16 >= UINT8_MAX * 8)
             return -ERANGE;
         for (uint8_t i = 0; i < seg_count; i++)
             if (!memcmp(transit->parent, seg_buf.data + i * 16, 16))

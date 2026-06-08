@@ -1,5 +1,6 @@
   - Use a default unicast frame retransmission count of 7.
   - Use user/group `wisun` for all applications.
+  - `wsbrd`: Remove 24 hop limitation when generating a source routing header.
   - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
     existing neighbors in order to re-enable broadcast communication quicker.
   - `wsbrd`: Send a Neighbor Cache Refresh (NCR) packet on reboot to accelerate
