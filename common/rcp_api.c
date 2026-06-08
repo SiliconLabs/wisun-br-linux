@@ -795,7 +795,7 @@ const struct rcp_cfg rcp_cfg_default = {
     .csma.min_be = 3,
     .csma.max_be = 5,
     .csma.cca_retries = 8,
-    .csma.frame_retries = 19,
+    .csma.frame_retries = 7,
     .eui64_override = EUI64_BC,
 };
 

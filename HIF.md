@@ -673,7 +673,8 @@ described in the IEEE 802.15.4 specification.
  - `uint8_t frame_retries`  
    Number of frame transmission retries to perform before declaring TX failure,
    only for acknowledged unicast frames (see _macMaxFrameRetries_). Up to
-   1 + _macMaxFrameRetries_ frame transmissions are attempted. Defaults to 19.
+   1 + _macMaxFrameRetries_ frame transmissions are attempted. Defaults to 7
+   (API >= 2.16) or 19 (API < 2.16).
 
 [csma]: #0x27-set_radio_csma-api--2120
 

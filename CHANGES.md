@@ -1,3 +1,4 @@
+  - Use a default unicast frame retransmission count of 7.
   - Use user/group `wisun` for all applications.
   - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
     existing neighbors in order to re-enable broadcast communication quicker.
