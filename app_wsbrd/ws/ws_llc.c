@@ -441,15 +441,14 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     struct ws_neigh *ws_neigh;
     mcps_data_ind_t data_ind = *data;
-    bool has_us, has_pom;
     struct ws_utt_ie ie_utt;
     struct iobuf_read ie_wp;
-    struct ws_pom_ie ie_pom;
     bool duplicated = false;
     struct ws_us_ie ie_us;
     mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
     bool add_neighbor;
+    bool has_us;
 
     if (!base)
         return;
@@ -459,7 +458,6 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
-    has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
 
     if (has_us && !ws_ie_validate_us(&base->net_if->ws_info, &ie_us))
         return;
@@ -508,8 +506,7 @@ static void ws_llc_data_ffn_ind(struct net_if *net_if, const mcps_data_ind_t *da
         if (has_us)
             ws_neigh_us_update(&base->net_if->ws_info.fhss_config, &ws_neigh->fhss,
                                &ie_us.chan_plan, ie_us.dwell_interval);
-        if (has_pom)
-            ws_neigh->pom_ie = ie_pom;
+        ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ws_neigh->pom_ie);
     }
 
     if (!ws_neigh)
@@ -525,13 +522,12 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     struct ws_neigh *ws_neigh;
     mcps_data_ind_t data_ind = *data;
-    bool has_lus, has_lcp, has_pom;
     struct ws_lutt_ie ie_lutt;
     struct iobuf_read ie_wp;
     struct ws_lus_ie ie_lus;
     struct ws_lcp_ie ie_lcp;
-    struct ws_pom_ie ie_pom;
     bool duplicated = false;
+    bool has_lus, has_lcp;
     mpx_user_t *mpx_user;
     struct mpx_ie mpx_frame;
 
@@ -544,7 +540,6 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     // TODO: Factorize this code with LPCS and EAPOL LFN indication
     has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
-    has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
     has_lcp = false;
     if (has_lus && ie_lus.channel_plan_tag != WS_CHAN_PLAN_TAG_CURRENT) {
         has_lcp = ws_wp_nested_lcp_read(ie_ext->headerIeList, ie_ext->headerIeListLength,
@@ -589,8 +584,7 @@ static void ws_llc_data_lfn_ind(struct net_if *net_if, const mcps_data_ind_t *da
     if (data->Key.SecurityLevel)
         ws_neigh_trust(&net_if->ws_info.neighbor_storage, ws_neigh);
     ws_neigh_refresh(&net_if->ws_info.neighbor_storage, ws_neigh, ws_neigh->lifetime_s);
-    if (has_pom && !duplicated)
-        ws_neigh->pom_ie = ie_pom;
+    ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ws_neigh->pom_ie);
     if (duplicated) {
         TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
         return;

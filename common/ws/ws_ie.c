@@ -993,6 +993,8 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
     uint8_t tmp8;
 
     ieee802154_ie_find_nested(data, length, WS_WPIE_POM, &ie_buf, false);
+    if (ie_buf.err)
+        return false;
     tmp8 = iobuf_pop_u8(&ie_buf);
     pom_ie->phy_op_mode_number  = FIELD_GET(WS_MASK_POM_COUNT, tmp8);
     pom_ie->mdr_command_capable = FIELD_GET(WS_MASK_POM_MDR,   tmp8);

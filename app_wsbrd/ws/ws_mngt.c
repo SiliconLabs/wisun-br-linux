@@ -137,21 +137,6 @@ static bool ws_mngt_ie_netname_validate(struct ws_info *ws_info,
     return ws_ie_validate_netname(ws_info, &ie_netname);
 }
 
-static void ws_mngt_ie_pom_handle(struct ws_info *ws_info,
-                                  const struct mcps_data_ind *data,
-                                  const struct mcps_data_rx_ie_list *ie_ext)
-{
-    struct ws_pom_ie ie_pom;
-    struct ws_neigh *neigh;
-
-    neigh = ws_neigh_get(&ws_info->neighbor_storage, &EUI64_FROM_BUF(data->SrcAddr));
-    if (!neigh)
-        return;
-    if (!ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pom))
-        return;
-    neigh->pom_ie = ie_pom;
-}
-
 static struct ws_neigh *ws_mngt_neigh_fetch(struct ws_info *ws_info, const uint8_t *mac64, uint8_t role)
 {
     struct ws_neigh *neigh;
@@ -190,7 +175,6 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
         return;
     }
 
-    ws_mngt_ie_pom_handle(ws_info, data, ie_ext);
     if (!ie_pan.use_parent_bs_ie)
         TRACE(TR_IGNORE, "ignore %-9s: unsupported local BS-IE", "15.4");
     if (!ie_pan.routing_method)
@@ -214,6 +198,8 @@ void ws_mngt_pa_analyze(struct ws_info *ws_info,
                        data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss,
                        &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
+                          &ws_neigh->pom_ie);
 }
 
 void ws_mngt_pas_analyze(struct ws_info *ws_info,
@@ -231,7 +217,6 @@ void ws_mngt_pas_analyze(struct ws_info *ws_info,
     if (!ws_mngt_ie_netname_validate(ws_info, ie_ext, WS_FT_PAS))
         return;
 
-    ws_mngt_ie_pom_handle(ws_info, data, ie_ext);
     trickle_inconsistent(&ws_info->mngt.trickle_pa, NULL);
     ws_neigh = ws_mngt_neigh_fetch(ws_info, data->SrcAddr, WS_NR_ROLE_ROUTER);
     if (!ws_neigh)
@@ -240,6 +225,8 @@ void ws_mngt_pas_analyze(struct ws_info *ws_info,
                        data->hif.timestamp_us, &EUI64_FROM_BUF(data->SrcAddr));
     ws_neigh_us_update(&ws_info->fhss_config, &ws_neigh->fhss,
                        &ie_us.chan_plan, ie_us.dwell_interval);
+    ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength,
+                          &ws_neigh->pom_ie);
 }
 
 void ws_mngt_pc_analyze(struct ws_info *ws_info,
