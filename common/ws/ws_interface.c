@@ -145,22 +145,18 @@ static void ws_write_ies(struct ws_ctx *ws, struct iobuf_write *iobuf, uint8_t f
 static bool ws_fill_rates(struct ws_ctx *ws, struct ws_neigh *neigh,
                           struct rcp_rate_info rates[4])
 {
-    bool is_default = true;
-
     memset(rates, 0, sizeof(struct rcp_rate_info) * 4);
     rates[0].phy_mode_id = ws->phy.params->phy_mode_id;
     rates[0].tx_attempts = ws->phy.tx_attempts;
     rates[0].tx_power_dbm = ws->phy.tx_power_dbm;
 
-    if (ws->phy.enable_apc && neigh) {
+    if (ws->phy.enable_apc && neigh)
         rates[0].tx_power_dbm = ws->phy.params->modulation == MODULATION_OFDM ?
                                 neigh->apc.txpow_dbm_ofdm :
                                 neigh->apc.txpow_dbm_fsk;
-        is_default = rates[0].tx_power_dbm != ws->phy.tx_power_dbm;
-    }
 
     // TODO: mode switch
-    return !is_default;
+    return rates[0].tx_power_dbm != ws->phy.tx_power_dbm;
 }
 
 static struct rcp_rate_info *ws_get_rate(struct rcp_rate_info rates[4], int tx_count)

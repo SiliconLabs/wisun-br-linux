@@ -17,6 +17,7 @@
   - `wsbrd`: Return all-zero in D-Bus `Gak` property when key is not installed.
   - `wsrd`: Periodically change listening channel in join state 1 when no PAN
     advertisement is received.
+  - `wsrd`: Fix Adaptive Power Control (APC) support.
   - `silabs-ws-dc`: Close connection when the security frame counter reaches
     the maximum value. A new fresh connection can be established to generate a
     new key.
