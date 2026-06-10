@@ -75,8 +75,11 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
+          # Required for MbedTLS 3.x
+          echo http://dl-cdn.alpinelinux.org/alpine/v3.23/main >> /etc/apk/repositories
+          apk update
           apk add musl-dev bsd-compat-headers gcc cmake samurai \
-                  mbedtls-dev mbedtls-static libnl3-dev libcap-dev git
+                  mbedtls-dev=~3 mbedtls-static=~3 libnl3-dev libcap-dev git
       - name: Checkout
         run: |
           git clone --depth=1 \
