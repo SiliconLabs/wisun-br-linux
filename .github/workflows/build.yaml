@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk add musl-dev bsd-compat-headers gcc g++ cmake samurai \
+          apk add musl-dev bsd-compat-headers gcc cmake samurai \
                   mbedtls-dev mbedtls-static libnl3-dev libcap-dev git
       - name: Checkout
         run: |
