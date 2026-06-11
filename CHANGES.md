@@ -1,26 +1,42 @@
+v2.10
+-------
   - Use a default unicast frame retransmission count of 7.
   - Use user/group `wisun` for all applications.
   - Increase default hop limit to 100 to support deep networks.
   - `wsbrd`: Remove 24 hop limitation when generating a source routing header.
+  - `wsbrd`: Introduce `size = auto` to ease network configuration and scale
+    timing parameters with the number of devices.
   - `wsbrd`: On reboot, attempt to re-synchronize the broadcast schedule with
     existing neighbors in order to re-enable broadcast communication quicker.
   - `wsbrd`: Send a Neighbor Cache Refresh (NCR) packet on reboot to accelerate
     re-connection of children.
   - `wsbrd`: Drop DAO with outdated DAO sequence and do not answer a DAO-ACK.
     This should reduce useless RPL traffic and potential ICMPv6 "destination
-    unreachable" errors.
+    unreachable" errors. Store DAO sequence for each node.
+  - `wsbrd`: Free TLS client contexts once handshake is finished: long term
+    memory consumption should be significantly reduced.
   - `wsbrd`: On border router reboot, accelerate previous LFN child
     reconnection by inserting a vendor IE in LPC and LTS frames.
   - `wsbrd`: Disable LFN broadcast schedule when no LFN child is present.
+  - `wsbrd`: Convert LFN child address registration lifetime to RPL lifetime
+    unit as required by the specification. By default this means that the LFN
+    lifetime is rounded down to a multiple of 20 minutes.
+  - `wsbrd`: Insert LTO-IE in all frame types to adjust LFN children listening
+    schedule during early join states.
   - `wsbrd`: Insert and read POM-IE in EAPoL frames.
   - `wsbrd`: Expose connecting routers in D-Bus `RoutingGraph`.
   - `wsbrd`: Return all-zero in D-Bus `Gak` property when key is not installed.
+  - `wsbrd`: Insert data in EDFE initial frame if RCP supports it.
   - `wsrd`: Periodically change listening channel in join state 1 when no PAN
     advertisement is received.
   - `wsrd`: Fix Adaptive Power Control (APC) support.
+  - `wsrd`: Better support for PAN change: store previous encryption key
+    counters, and restore them when necessary.
   - `silabs-ws-dc`: Close connection when the security frame counter reaches
     the maximum value. A new fresh connection can be established to generate a
     new key.
+  - `silabs-ws-auth`: A new tool to support sharing the same Wi-SUN encryption
+    keys with several border routers.
 
 v2.9.1
 ------
