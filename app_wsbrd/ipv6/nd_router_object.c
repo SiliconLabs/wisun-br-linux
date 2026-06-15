@@ -45,9 +45,6 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
 {
     const uint16_t rpl_unit_s = cur_interface->rpl_root.lifetime_unit_s;
 
-    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
-          tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
-
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == NDP_ARO_STATUS_SUCCESS && aro->lifetime != 0) {
         neigh->type = IP_NEIGHBOUR_REGISTERED;
@@ -83,6 +80,9 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
     }
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
+
+    TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
+          tr_ipv6(neigh->ip_address), aro->lifetime * UINT32_C(60));
 }
 
 void nd_remove_aro_routes_by_eui64(struct net_if *net_if, const uint8_t *eui64)
