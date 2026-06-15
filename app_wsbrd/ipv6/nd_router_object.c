@@ -65,7 +65,7 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
          *      Registration Lifetime field MUST be set to the Path Lifetime
          *      described in step 2.a.ii
          */
-        if (aro->t)
+        if (aro->t && aro->p == NDP_ADDR_TYPE_UNICAST)
             neigh->lifetime_s = MIN(neigh->lifetime_s / rpl_unit_s, 254) * rpl_unit_s;
 
         timer_start_rel(&cur_interface->ipv6_neighbour_cache.timer_group,
