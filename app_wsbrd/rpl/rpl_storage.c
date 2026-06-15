@@ -132,6 +132,7 @@ void rpl_storage_load_target(struct rpl_root *root, const char *filename)
     BUG_ON(!target);
 
     nvm = storage_open(filename, "r");
+    if (!nvm)
         return;
     while (storage_parse_line(nvm) != EOF) {
         if (!fnmatch("path_seq", nvm->key, 0)) {
