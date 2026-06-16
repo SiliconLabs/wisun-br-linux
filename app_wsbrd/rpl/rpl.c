@@ -385,9 +385,9 @@ static bool rpl_transit_update(struct rpl_root *root,
     transit.path_lifetime_s = opt_transit->path_lifetime * root->lifetime_unit_s;
 
     target = rpl_target_get(root, opt_target->prefix.s6_addr);
-    if (!target) {
+    if (!target)
         target = rpl_target_new(root, opt_target->prefix.s6_addr);
-        BUG_ON(!target);
+    if (!target->path_seq_tstamp_s) {
         target->external = opt_transit->flags & RPL_MASK_OPT_TRANSIT_E;
         target->path_seq = opt_transit->path_seq;
         TRACE(TR_RPL, "rpl: target  new    prefix=%s path-seq=%u external=%u",
@@ -537,17 +537,23 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         return;
     }
 
+    // NOTE: Assume that the DAO source is a RPL target for DAO sequence check.
     target = rpl_target_get(root, src);
-    if (target) {
-        dao_seq_desync = rpl_lollipop_desync(dao_seq, target->dao_seq);
-        dao_seq_old    = rpl_lollipop_cmp(dao_seq, target->dao_seq) < 0;
-        if (dao_seq_desync || dao_seq_old) {
-            TRACE(TR_DROP, "drop %-9s: target=%s dao-seq=(cur %3u, rcv %3u, %s)", "rpl-dao",
-                  tr_ipv6_prefix(target->prefix, 128), target->dao_seq, dao_seq,
-                  dao_seq_desync ? "desync" : "old");
-            return;
-        }
+    if (!target) {
+        target = rpl_target_new(root, src);
+        target->dao_seq = dao_seq;
+        // NOTE: Processing of DAO options should update this expiration timer.
+        timer_start_rel(&root->timer_group, &target->timer, 0);
     }
+    dao_seq_desync = rpl_lollipop_desync(dao_seq, target->dao_seq);
+    dao_seq_old    = rpl_lollipop_cmp(dao_seq, target->dao_seq) < 0;
+    if (dao_seq_desync || dao_seq_old) {
+        TRACE(TR_DROP, "drop %-9s: target=%s dao-seq=(cur %3u, rcv %3u, %s)", "rpl-dao",
+                tr_ipv6_prefix(target->prefix, 128), target->dao_seq, dao_seq,
+                dao_seq_desync ? "desync" : "old");
+        return;
+    }
+    target->dao_seq = dao_seq;
 
     while (iobuf_remaining_size(&buf)) {
         opt_type = iobuf_pop_u8(&buf);
@@ -582,10 +588,6 @@ static void rpl_recv_dao(struct rpl_root *root, const uint8_t *pkt, size_t size,
         }
         buf.err |= opt_buf.err;
     }
-    // Target was possibly created in the DAO handler, update the DAO sequence
-    target = rpl_target_get(root, src);
-    if (target)
-        target->dao_seq = dao_seq;
     if (buf.err) {
         TRACE(TR_DROP, "drop %-9s: malformed packet", "rpl-dao");
         return;
