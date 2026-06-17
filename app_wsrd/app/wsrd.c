@@ -718,6 +718,7 @@ int wsrd_main(int argc, char *argv[])
         "network-config",
         "network-keys",
         "mpl",
+        "rpl",
         NULL,
     };
     struct sigaction sigact = { };
