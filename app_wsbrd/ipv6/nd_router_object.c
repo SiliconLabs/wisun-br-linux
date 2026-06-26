@@ -65,20 +65,18 @@ void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neig
         if (aro->t && aro->p == NDP_ADDR_TYPE_UNICAST)
             neigh->lifetime_s = MIN(neigh->lifetime_s / rpl_unit_s, 254) * rpl_unit_s;
 
-        timer_start_rel(&cur_interface->ipv6_neighbour_cache.timer_group,
-                        &neigh->expiration, (uint64_t)neigh->lifetime_s * 1000);
-        ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-        /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         if (!IN6_IS_ADDR_MULTICAST(neigh->ip_address)) {
             ipv6_route_add_aro(cur_interface, neigh);
             BUG_ON(!ws_neigh);
             ws_neigh_refresh(&cur_interface->ws_info.neighbor_storage, ws_neigh, aro->lifetime * UINT32_C(60));
         }
     } else {
-        // ipv6_neighbor entry will be released by garbage collector
         neigh->lifetime_s = 0;
-        ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
     }
+
+    timer_start_rel(&cur_interface->ipv6_neighbour_cache.timer_group,
+                    &neigh->expiration, (uint64_t)neigh->lifetime_s * 1000);
+    ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
     ipv6_neigh_storage_save(&cur_interface->ipv6_neighbour_cache, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh));
 
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 aro %s set lifetime=%us",
