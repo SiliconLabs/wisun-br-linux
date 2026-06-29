@@ -415,7 +415,7 @@ static void rpl_dao_txalg_failure(struct rfc8415_txalg *txalg)
 
     BUG_ON(!parent);
 
-    TRACE(TR_RPL, "rpl: dao-ack timeout");
+    TRACE(TR_RPL, "rpl: dao-ack failure");
     rpl_neigh_deny(ipv6, parent);
 }
 
@@ -830,6 +830,10 @@ static void rpl_recv_dao_ack(struct ipv6_ctx *ipv6, const uint8_t *buf, size_t b
         return;
     }
     rfc8415_txalg_stop(&ipv6->rpl.dao_txalg);
+    if (dao_ack->status & RPL_MASK_STATUS_U) {
+        rpl_dao_txalg_failure(&ipv6->rpl.dao_txalg);
+        return;
+    }
     if (timer_stopped(&ipv6->rpl.dao_refresh_timer))
         return;
     SLIST_FOREACH(nce, &ipv6->neigh_cache, link) {

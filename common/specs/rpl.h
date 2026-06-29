@@ -103,6 +103,10 @@ struct rpl_dao_ack {
     uint8_t status;
 } __attribute__((packed));
 
+// RFC 9010 Figure 6: RPL Status Format
+#define RPL_MASK_STATUS_U 0x80
+#define RPL_MASK_STATUS_A 0x40
+
 // RFC 6550 - Figure 24: Format of the DODAG Configuration Option
 struct rpl_opt_config {
     uint8_t flags;
