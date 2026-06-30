@@ -20,7 +20,7 @@ Configuration files are provided in [`tools/dut/`](/tools/dut):
     [Japan][jp]. Each file corresponds to a PHY definition from the Wi-SUN
     Conformance Tests Specification.
   - Some tests expect hard-coded GTKs, add [`sec/gtk.conf`][gtk] to the command
-    in that case.
+    in that case. Also add `sec/lgtk.conf` for LE profile tests.
 
 [na]: /tools/dut/na
 [bz]: /tools/dut/bz
@@ -56,6 +56,9 @@ border router, for example:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/lifecycle.conf
 
+For `LE-SEC-LIFECYCLE-LBR-1` and `LE-SEC-LIFECYCLE-LBR-2`, use
+`sec/le-lifecycle.conf` instead.
+
 [lifecycle]: /tools/dut/sec/lifecycle.conf
 
 ## Pairwise Key Revocation
@@ -67,6 +70,9 @@ configure the key lifetimes. It should be added to the command which starts the
 border router, for example:
 
     sudo wsbrd -F dut.conf -F na/chan-plan-2-dh1cf.conf -F sec/revoke.conf
+
+For `LE-SEC-REVOKE-GTK-1` and `LE-SEC-REVOKE-GTK-2`, use `sec/le-revoke.conf`
+instead.
 
 > Step 1: After all devices have joined, the certificate chain for Test Bed
 > Devices I and J is removed from the trusted store of the Authentication
