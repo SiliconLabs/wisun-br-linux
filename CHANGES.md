@@ -1,3 +1,9 @@
+v2.10.1
+-------
+  - `wsbrd`: Fix not deleting immediately child IPv6 address registration on
+    receipt of NS(ARO) with lifetime 0.
+  - `wsrd`: Fix not checking the DAO-ACK status field.
+
 v2.10
 -------
   - Use a default unicast frame retransmission count of 7.
