@@ -191,7 +191,8 @@ void ws_on_pan_selection_timer_timeout(struct timer_group *group, struct timer_e
     }
     if (!selected_candidate) {
         // NOTE: Change channel in case a bad one was picked previously.
-        if (!version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0))
+        if (wsrd->state == WSRD_STATE_DISCOVERY &&
+            !version_older_than(wsrd->ws.rcp.version_api, 2, 14, 0))
             ws_fhss_uc_use_rand_fixed_chan(wsrd);
         return;
     }

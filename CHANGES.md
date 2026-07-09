@@ -1,3 +1,7 @@
+  - `wsrd`: Do not use fixed channel when reconnecting. This would happen when
+    the first PAN selection failed, and frequency hopping would never be
+    re-enabled after progressing to the next join state.
+
 v2.10.1
 -------
   - `wsbrd`: Fix not deleting immediately child IPv6 address registration on
