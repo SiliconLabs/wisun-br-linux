@@ -1,6 +1,8 @@
   - `wsrd`: Do not use fixed channel when reconnecting. This would happen when
     the first PAN selection failed, and frequency hopping would never be
     re-enabled after progressing to the next join state.
+  - `wsrd`: Fix assertion failure when transitioning from reconnect to
+    authenticate state.
 
 v2.10.1
 -------

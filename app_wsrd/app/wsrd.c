@@ -372,7 +372,7 @@ static void wsrd_eapol_on_gtk_change(struct supp_ctx *supp, const uint8_t gtk[16
     }
     dbus_emit_change("Gaks");
 
-    if (ws_gtkl(supp->gtks, WS_GTK_COUNT) == supp->auth_gtkl)
+    if (supp->auth_gtkl && ws_gtkl(supp->gtks, WS_GTK_COUNT) == supp->auth_gtkl)
         join_state_transition(wsrd, WSRD_EVENT_AUTH_SUCCESS);
 }
 
