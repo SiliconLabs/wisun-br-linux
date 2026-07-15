@@ -1,3 +1,5 @@
+  - `wsbrd`: Fix memory leak when loading IPv6 neighbors from storage upon
+    reboot.
   - `wsrd`: Do not use fixed channel when reconnecting. This would happen when
     the first PAN selection failed, and frequency hopping would never be
     re-enabled after progressing to the next join state.

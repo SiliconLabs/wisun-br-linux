@@ -172,4 +172,5 @@ void ipv6_neigh_storage_load(struct ipv6_neighbour_cache *cache)
 
     for (int i = 0; globbuf.gl_pathv[i]; i++)
         ipv6_neigh_storage_load_neigh(cache, globbuf.gl_pathv[i]);
+    globfree(&globbuf);
 }
