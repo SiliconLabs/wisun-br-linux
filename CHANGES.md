@@ -1,3 +1,4 @@
+  - `wsbrd`: Fix invalid PAN ID insertion in LTS frames.
   - `wsbrd`: Fix memory leak when loading IPv6 neighbors from storage upon
     reboot.
   - `wsrd`: Do not use fixed channel when reconnecting. This would happen when
