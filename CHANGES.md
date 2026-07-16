@@ -1,3 +1,5 @@
+v2.10.2
+-------
   - `wsbrd`: Fix invalid PAN ID insertion in LTS frames.
   - `wsbrd`: Fix memory leak when loading IPv6 neighbors from storage upon
     reboot.
