@@ -70,6 +70,12 @@ void auth_eap_send_request_identity(struct auth_ctx *auth, struct auth_supp_ctx 
 {
     struct pktbuf pktbuf = { };
 
+    /*
+     *   RFC 5080 2.1.1. State Attribute
+     * An Access-Request sent as a result of a new or restarted authentication
+     * run MUST NOT include the State attribute
+     */
+    supp->radius.state_len = 0;
     if (auth->radius_fd < 0) {
         if (!supp->eap_tls.tls) {
             supp->eap_tls.tls = zalloc(sizeof(struct tls_client_ctx));

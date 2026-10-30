@@ -447,6 +447,16 @@ void radius_recv(struct auth_ctx *auth)
         }
         break;
     case RADIUS_ACCESS_REJECT:
+        /*
+         *   RFC 2865 5.24. State
+         * This Attribute is available to be sent by the server to the client
+         * in an Access-Challenge and MUST be sent unmodified from the client
+         * to the server in the new Access-Request reply to that challenge, if
+         * any.
+         * An Access-Reject terminates the conversation, so the State must not
+         * be echoed in any future Access-Request.
+         */
+        supp->radius.state_len = 0;
         break;
     default:
         TRACE(TR_DROP, "drop %-9s: unsupported code=%u", "radius", hdr->code);
