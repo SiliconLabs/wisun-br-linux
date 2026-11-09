@@ -371,12 +371,27 @@ static void rpl_recv_dis(struct rpl_root *root, const uint8_t *pkt, size_t size,
     }
 }
 
+static bool rpl_transit_is_fresh(const struct rpl_opt_target *opt_target,
+                                 const struct rpl_opt_transit *opt_transit,
+                                 uint8_t path_seq_cur)
+{
+    bool desync;
+
+    desync = rpl_lollipop_desync(opt_transit->path_seq, path_seq_cur);
+    if (!desync && rpl_lollipop_cmp(opt_transit->path_seq, path_seq_cur) >= 0)
+        return true;
+
+    TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=%u %c %u",
+          tr_ipv6_prefix(opt_target->prefix.s6_addr, 128),
+          opt_transit->path_seq, desync ? '?' : '<', path_seq_cur);
+    return false;
+}
+
 // Returns true if the target's transits were updated
 static bool rpl_transit_update(struct rpl_root *root,
                                const struct rpl_opt_target *opt_target,
                                const struct rpl_opt_transit *opt_transit)
 {
-    bool path_ctl_desync, path_ctl_old;
     bool updated_transit = false;
     struct rpl_transit transit;
     struct rpl_target *target;
@@ -395,14 +410,8 @@ static bool rpl_transit_update(struct rpl_root *root,
               tr_ipv6_prefix(target->prefix, 128), target->path_seq, target->external);
     }
 
-    path_ctl_desync = rpl_lollipop_desync(opt_transit->path_seq, target->path_seq);
-    path_ctl_old    = rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) < 0;
-    if (path_ctl_desync || path_ctl_old) {
-        TRACE(TR_RPL, "rpl: transit ignore target=%s path-seq=(cur %3u, rcv %3u, %s)",
-              tr_ipv6_prefix(target->prefix, 128), target->path_seq, opt_transit->path_seq,
-              path_ctl_desync ? "desync" : "old");
+    if (!rpl_transit_is_fresh(opt_target, opt_transit, target->path_seq))
         return false;
-    }
     if (rpl_lollipop_cmp(opt_transit->path_seq, target->path_seq) > 0) {
         memset(target->transits, 0, sizeof(target->transits));
         target->path_seq = opt_transit->path_seq;
