@@ -111,6 +111,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         .data_size = earo_len,
         .data = earo_ptr,
     };
+    struct rpl_target *rpl_target;
     struct ws_neigh *ws_neigh;
     ipv6_neighbour_t *neigh;
     sockaddr_t ll_addr;
@@ -262,6 +263,14 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
 
     if (flags & NDP_MASK_ARO_T) {
         neigh->tid = tid;
+        /*
+         * HACK: Delete External RPL Target in case it was not unregistered.
+         * Do not compare TID and Path Sequence: assume that the NS(EARO) is
+         * always the most up-to-date.
+         */
+        rpl_target = rpl_target_get(&cur_interface->rpl_root, neigh->ip_address);
+        if (rpl_target)
+            rpl_target_del(&cur_interface->rpl_root, rpl_target);
     } else {
         WARN_ON(neigh->tid >= 0, "recv ns(aro) after ns(earo)");
         neigh->tid = -1;
