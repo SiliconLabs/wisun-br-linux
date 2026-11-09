@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <errno.h>
+
 #include "common/authenticator/authenticator_mqtt.h"
 #include "common/authenticator/authenticator_radius.h"
 #include "common/specs/mpl.h"
@@ -118,6 +120,15 @@ static void wsbr_on_gtk_change(struct auth_ctx *auth, uint8_t removed_mask, uint
         WARN("enable_lfn mismatch between wsbrd and silabs-ws-auth");
 }
 
+static int wsbr_rpl_get_tid(struct rpl_root *root, const uint8_t target_prefix[16])
+{
+    struct wsbr_ctxt *ctxt = container_of(root, struct wsbr_ctxt, net_if.rpl_root);
+    struct ipv6_neighbour *nce;
+
+    nce = ipv6_neighbour_lookup(&ctxt->net_if.ipv6_neighbour_cache, target_prefix);
+    return nce ? nce->tid : -ENODEV;
+}
+
 static void *wsbr_mpl_send(struct mpl_ctx *mpl, const void *buf, size_t buf_len)
 {
     struct net_if *net_if = container_of(mpl, struct net_if, mpl);
@@ -208,6 +219,7 @@ struct wsbr_ctxt g_ctxt = {
     .net_if.rpl_root.on_target_add    = wsbr_rpl_target_add,
     .net_if.rpl_root.on_target_del    = wsbr_rpl_target_del,
     .net_if.rpl_root.on_target_update = wsbr_rpl_target_update,
+    .net_if.rpl_root.get_tid          = wsbr_rpl_get_tid,
 
     .net_if.ws_info.neighbor_storage.on_add = ws_bootstrap_neighbor_add_cb,
     .net_if.ws_info.neighbor_storage.on_del = ws_bootstrap_neighbor_del_cb,

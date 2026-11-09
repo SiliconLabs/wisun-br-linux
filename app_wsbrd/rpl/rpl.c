@@ -395,10 +395,21 @@ static bool rpl_transit_update(struct rpl_root *root,
     bool updated_transit = false;
     struct rpl_transit transit;
     struct rpl_target *target;
+    int tid;
 
     BUG_ON(opt_target->prefix_len != 128);
     memcpy(transit.parent, opt_transit->parent_addr.s6_addr, 16);
     transit.path_lifetime_s = opt_transit->path_lifetime * root->lifetime_unit_s;
+
+    /*
+     * HACK: Compare Path Sequence against NS(EARO) TID for External targets to
+     * handle races between proxied DAO and NS(EARO).
+     */
+    if (root->get_tid && (opt_transit->flags & RPL_MASK_OPT_TRANSIT_E)) {
+        tid = root->get_tid(root, opt_target->prefix.s6_addr);
+        if (tid >= 0 && !rpl_transit_is_fresh(opt_target, opt_transit, tid))
+            return false;
+    }
 
     target = rpl_target_get(root, opt_target->prefix.s6_addr);
     if (!target)

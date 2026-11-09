@@ -116,6 +116,9 @@ struct rpl_root {
     void (*on_target_del)(struct rpl_root *root, struct rpl_target *target);
     void (*on_target_update)(struct rpl_root *root, struct rpl_target *target);
 
+    // Fetch NS(EARO) TID to compare against the RPL Path Sequence.
+    int (*get_tid)(struct rpl_root *root, const uint8_t target_prefix[16]);
+
     // When enabled, some parts of the specification are ignored in order to
     // hopefully improve interoperability with faulty devices.
     // In particular:
