@@ -261,6 +261,7 @@ ipv6_neighbour_t *ipv6_neighbour_create(ipv6_neighbour_cache_t *cache, const uin
     memcpy(ipv6_neighbour_eui64(cache, entry), eui64, 8);
     entry->timer.callback = ipv6_neighbour_trig;
     entry->expiration.callback = ipv6_neighbour_expire;
+    entry->tid = -1;
     ns_list_add_to_start(&cache->list, entry);
     TRACE(TR_NEIGH_IPV6, "neigh-ipv6 add %s eui64=%s",
           tr_ipv6(entry->ip_address), tr_eui64(ipv6_neighbour_eui64(cache, entry)));

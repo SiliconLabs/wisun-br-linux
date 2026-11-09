@@ -260,6 +260,13 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         }
     }
 
+    if (flags & NDP_MASK_ARO_T) {
+        neigh->tid = tid;
+    } else {
+        WARN_ON(neigh->tid >= 0, "recv ns(aro) after ns(earo)");
+        neigh->tid = -1;
+    }
+
     if (neigh->type != IP_NEIGHBOUR_REGISTERED) {
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
         neigh->lifetime_s = TENTATIVE_NCE_LIFETIME;

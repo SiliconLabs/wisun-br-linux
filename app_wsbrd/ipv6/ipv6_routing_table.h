@@ -95,6 +95,7 @@ struct buffer;
 typedef struct ipv6_neighbour {
     uint8_t                         ip_address[16];             /*!< neighbour IP address */
     uint8_t                         retrans_count;
+    int                             tid; // < 0 if not set
     ip_neighbour_cache_state_e      state;
     ip_neighbour_cache_type_e       type;
     addrtype_e                      ll_type;
